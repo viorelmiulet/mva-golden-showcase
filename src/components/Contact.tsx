@@ -19,9 +19,15 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with data:', formData);
     setIsSubmitting(true);
 
     try {
+      // Validate form data
+      if (!formData.nume || !formData.prenume || !formData.email || !formData.telefon || !formData.mesaj) {
+        throw new Error('Vă rugăm să completați toate câmpurile obligatorii');
+      }
+
       // Create WhatsApp message
       const message = `Salut! Am o întrebare prin formularul de contact:
 
@@ -38,8 +44,15 @@ ${formData.mesaj}`;
       // Create WhatsApp URL
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
       
-      // Open WhatsApp
-      window.open(whatsappUrl, '_blank');
+      console.log('Opening WhatsApp URL:', whatsappUrl);
+      
+      // Try to open WhatsApp with fallback
+      const opened = window.open(whatsappUrl, '_blank');
+      
+      if (!opened) {
+        // Fallback: try to navigate to WhatsApp
+        window.location.href = whatsappUrl;
+      }
 
       toast({
         title: "Mesaj pregătit pentru WhatsApp!",
@@ -61,7 +74,7 @@ ${formData.mesaj}`;
       console.error('Error preparing WhatsApp message:', error);
       toast({
         title: "Eroare la pregătirea mesajului",
-        description: "Vă rugăm să încercați din nou.",
+        description: error.message || "Vă rugăm să încercați din nou.",
         variant: "destructive",
       });
     } finally {
