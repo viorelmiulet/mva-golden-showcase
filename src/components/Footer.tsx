@@ -1,6 +1,13 @@
 import mvaLogo from "@/assets/mva-logo.png"
 
 const Footer = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-black border-t border-gold/20">
       <div className="container mx-auto px-4 py-12">
@@ -33,11 +40,11 @@ const Footer = () => {
             <div>
               <h3 className="text-lg font-semibold text-gold mb-6">Link-uri Rapide</h3>
               <ul className="space-y-3">
-                <li><a href="#home" className="text-muted-foreground hover:text-gold transition-colors">Acasă</a></li>
-                <li><a href="#despre" className="text-muted-foreground hover:text-gold transition-colors">Despre Noi</a></li>
-                <li><a href="#servicii" className="text-muted-foreground hover:text-gold transition-colors">Servicii</a></li>
-                <li><a href="#proprietati" className="text-muted-foreground hover:text-gold transition-colors">Proprietăți</a></li>
-                <li><a href="#contact" className="text-muted-foreground hover:text-gold transition-colors">Contact</a></li>
+                <li><button onClick={() => scrollToSection('home')} className="text-muted-foreground hover:text-gold transition-colors">Acasă</button></li>
+                <li><button onClick={() => scrollToSection('despre')} className="text-muted-foreground hover:text-gold transition-colors">Despre Noi</button></li>
+                <li><button onClick={() => scrollToSection('servicii')} className="text-muted-foreground hover:text-gold transition-colors">Servicii</button></li>
+                <li><button onClick={() => scrollToSection('proprietati')} className="text-muted-foreground hover:text-gold transition-colors">Proprietăți</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="text-muted-foreground hover:text-gold transition-colors">Contact</button></li>
               </ul>
             </div>
 

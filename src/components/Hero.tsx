@@ -2,6 +2,13 @@ import { Button } from "@/components/ui/button"
 import heroProperty from "@/assets/hero-property.jpg"
 
 const Hero = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -32,10 +39,20 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-            <Button variant="luxury" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="luxury" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={() => scrollToSection('proprietati')}
+            >
               Explorează Proprietățile
             </Button>
-            <Button variant="luxuryOutline" size="lg" className="text-lg px-8 py-6">
+            <Button 
+              variant="luxuryOutline" 
+              size="lg" 
+              className="text-lg px-8 py-6"
+              onClick={() => scrollToSection('contact')}
+            >
               Evaluare Gratuită
             </Button>
           </div>

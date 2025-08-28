@@ -2,8 +2,41 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react"
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    nume: '',
+    prenume: '',
+    email: '',
+    telefon: '',
+    mesaj: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Create mailto link with form data
+    const subject = encodeURIComponent('Cerere de contact - MVA IMOBILIARE');
+    const body = encodeURIComponent(`
+Nume: ${formData.nume}
+Prenume: ${formData.prenume}
+Email: ${formData.email}
+Telefon: ${formData.telefon}
+
+Mesaj:
+${formData.mesaj}
+    `);
+    
+    window.location.href = `mailto:mvaperfectbusiness@gmail.com?subject=${subject}&body=${body}`;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   return (
     <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -77,19 +110,33 @@ const Contact = () => {
                 <CardTitle className="text-2xl text-gold">Trimite-ne un mesaj</CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-foreground mb-2 block">
                         Nume
                       </label>
-                      <Input placeholder="Numele tău" className="bg-background/50" />
+                      <Input 
+                        name="nume"
+                        value={formData.nume}
+                        onChange={handleChange}
+                        placeholder="Numele tău" 
+                        className="bg-background/50" 
+                        required
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-foreground mb-2 block">
                         Prenume
                       </label>
-                      <Input placeholder="Prenumele tău" className="bg-background/50" />
+                      <Input 
+                        name="prenume"
+                        value={formData.prenume}
+                        onChange={handleChange}
+                        placeholder="Prenumele tău" 
+                        className="bg-background/50" 
+                        required
+                      />
                     </div>
                   </div>
                   
@@ -97,14 +144,29 @@ const Contact = () => {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Email
                     </label>
-                    <Input type="email" placeholder="email@exemplu.com" className="bg-background/50" />
+                    <Input 
+                      type="email" 
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="email@exemplu.com" 
+                      className="bg-background/50" 
+                      required
+                    />
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Telefon
                     </label>
-                    <Input placeholder="+40767 941 512" className="bg-background/50" />
+                    <Input 
+                      name="telefon"
+                      value={formData.telefon}
+                      onChange={handleChange}
+                      placeholder="+40767 941 512" 
+                      className="bg-background/50" 
+                      required
+                    />
                   </div>
                   
                   <div>
@@ -112,13 +174,17 @@ const Contact = () => {
                       Mesaj
                     </label>
                     <Textarea 
+                      name="mesaj"
+                      value={formData.mesaj}
+                      onChange={handleChange}
                       placeholder="Descrie-ne cum te putem ajuta..."
                       rows={4}
                       className="bg-background/50"
+                      required
                     />
                   </div>
                   
-                  <Button variant="luxury" size="lg" className="w-full">
+                  <Button type="submit" variant="luxury" size="lg" className="w-full">
                     Trimite Mesajul
                   </Button>
                 </form>
