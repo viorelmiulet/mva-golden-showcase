@@ -95,9 +95,11 @@ const Properties = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button variant="luxury" size="lg" className="px-8">
-              Vezi Toate Proprietățile
-            </Button>
+            <a href="https://www.storia.ro/ro/companii/agentii/mva-imobiliare-ID4660679" target="_blank" rel="noopener noreferrer">
+              <Button variant="luxury" size="lg" className="px-8">
+                Vezi Toate Proprietățile
+              </Button>
+            </a>
           </div>
         </div>
       </div>
