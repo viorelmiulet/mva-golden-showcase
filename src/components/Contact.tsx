@@ -34,7 +34,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-foreground">Telefon</p>
-                      <p className="text-muted-foreground">+40 21 XXX XXXX</p>
+                      <p className="text-muted-foreground">+40767 941 512</p>
                     </div>
                   </div>
                   
@@ -44,7 +44,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-foreground">Email</p>
-                      <p className="text-muted-foreground">contact@mvaimobiliare.ro</p>
+                      <p className="text-muted-foreground">mvaperfectbusiness@gmail.com</p>
                     </div>
                   </div>
                   
@@ -54,7 +54,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-foreground">Adresă</p>
-                      <p className="text-muted-foreground">Calea Victoriei 120, București</p>
+                      <p className="text-muted-foreground">Strada Tineretului nr. 17 bloc 2, parter, ap. 24, Chiajna, Ilfov</p>
                     </div>
                   </div>
                   
@@ -105,7 +105,7 @@ const Contact = () => {
                     <label className="text-sm font-medium text-foreground mb-2 block">
                       Telefon
                     </label>
-                    <Input placeholder="+40 7XX XXX XXX" className="bg-background/50" />
+                    <Input placeholder="+40767 941 512" className="bg-background/50" />
                   </div>
                   
                   <div>
