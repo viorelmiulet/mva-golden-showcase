@@ -25,9 +25,11 @@ const Header = () => {
           <button onClick={() => scrollToSection('contact')} className="text-foreground hover:text-gold transition-colors">Contact</button>
         </nav>
 
-        <Button variant="luxury" size="lg" onClick={() => scrollToSection('contact')}>
-          Contactează-ne
-        </Button>
+        <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+          <Button variant="luxury" size="lg">
+            Contactează-ne pe WhatsApp
+          </Button>
+        </a>
       </div>
     </header>
   )
