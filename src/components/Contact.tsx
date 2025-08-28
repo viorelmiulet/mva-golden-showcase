@@ -64,8 +64,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-foreground">Program</p>
-                      <p className="text-muted-foreground">Lun-Vin: 9:00-18:00</p>
-                      <p className="text-muted-foreground">Sâm: 10:00-14:00</p>
+                      <p className="text-muted-foreground">NON-STOP</p>
                     </div>
                   </div>
                 </CardContent>
