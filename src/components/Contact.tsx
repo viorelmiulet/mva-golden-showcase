@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { supabase } from "@/integrations/supabase/client"
+
 import { useToast } from "@/hooks/use-toast"
 
 const Contact = () => {
@@ -22,21 +22,32 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: formData
+      // Create WhatsApp message
+      const message = `Salut! Am o întrebare prin formularul de contact:
+
+*Nume:* ${formData.nume} ${formData.prenume}
+*Email:* ${formData.email}
+*Telefon:* ${formData.telefon}
+
+*Mesaj:*
+${formData.mesaj}`;
+
+      // WhatsApp phone number (remove + and spaces)
+      const whatsappNumber = '40767941512';
+      
+      // Create WhatsApp URL
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+      
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      toast({
+        title: "Mesaj pregătit pentru WhatsApp!",
+        description: "Se va deschide WhatsApp cu mesajul tău pre-completat.",
       });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.success) {
-        toast({
-          title: "Mesaj trimis cu succes!",
-          description: "Vă vom contacta în cel mai scurt timp.",
-        });
-        
-        // Reset form
+      
+      // Reset form after a short delay
+      setTimeout(() => {
         setFormData({
           nume: '',
           prenume: '',
@@ -44,14 +55,13 @@ const Contact = () => {
           telefon: '',
           mesaj: ''
         });
-      } else {
-        throw new Error(data?.error || 'Eroare necunoscută');
-      }
+      }, 1000);
+
     } catch (error: any) {
-      console.error('Error sending contact form:', error);
+      console.error('Error preparing WhatsApp message:', error);
       toast({
-        title: "Eroare la trimiterea mesajului",
-        description: "Vă rugăm să încercați din nou sau să ne contactați direct.",
+        title: "Eroare la pregătirea mesajului",
+        description: "Vă rugăm să încercați din nou.",
         variant: "destructive",
       });
     } finally {
@@ -214,7 +224,7 @@ const Contact = () => {
                   </div>
                   
                   <Button type="submit" variant="luxury" size="lg" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Se trimite..." : "Trimite Mesajul"}
+                    {isSubmitting ? "Se pregătește..." : "Trimite prin WhatsApp"}
                   </Button>
                 </form>
               </CardContent>
