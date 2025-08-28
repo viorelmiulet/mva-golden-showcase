@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,22 +14,49 @@ const Contact = () => {
     telefon: '',
     mesaj: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Create mailto link with form data
-    const subject = encodeURIComponent('Cerere de contact - MVA IMOBILIARE');
-    const body = encodeURIComponent(`
-Nume: ${formData.nume}
-Prenume: ${formData.prenume}
-Email: ${formData.email}
-Telefon: ${formData.telefon}
+    setIsSubmitting(true);
 
-Mesaj:
-${formData.mesaj}
-    `);
-    
-    window.location.href = `mailto:mvaperfectbusiness@gmail.com?subject=${subject}&body=${body}`;
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.success) {
+        toast({
+          title: "Mesaj trimis cu succes!",
+          description: "Vă vom contacta în cel mai scurt timp.",
+        });
+        
+        // Reset form
+        setFormData({
+          nume: '',
+          prenume: '',
+          email: '',
+          telefon: '',
+          mesaj: ''
+        });
+      } else {
+        throw new Error(data?.error || 'Eroare necunoscută');
+      }
+    } catch (error: any) {
+      console.error('Error sending contact form:', error);
+      toast({
+        title: "Eroare la trimiterea mesajului",
+        description: "Vă rugăm să încercați din nou sau să ne contactați direct.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -184,8 +213,8 @@ ${formData.mesaj}
                     />
                   </div>
                   
-                  <Button type="submit" variant="luxury" size="lg" className="w-full">
-                    Trimite Mesajul
+                  <Button type="submit" variant="luxury" size="lg" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Se trimite..." : "Trimite Mesajul"}
                   </Button>
                 </form>
               </CardContent>
