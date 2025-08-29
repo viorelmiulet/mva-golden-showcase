@@ -25,6 +25,7 @@ const ChatAssistant = () => {
   const [inputMessage, setInputMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [conversationHistory, setConversationHistory] = useState<any[]>([])
+  const [sessionId, setSessionId] = useState<string>("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
@@ -37,6 +38,9 @@ const ChatAssistant = () => {
   }, [messages])
 
   useEffect(() => {
+    // Generate session ID
+    setSessionId(crypto.randomUUID())
+    
     // Adaugă mesajul de bun venit
     const welcomeMessage: Message = {
       role: 'assistant',
@@ -63,7 +67,8 @@ const ChatAssistant = () => {
       const { data, error } = await supabase.functions.invoke('chat-assistant', {
         body: { 
           message: inputMessage,
-          conversationHistory: conversationHistory
+          conversationHistory: conversationHistory,
+          sessionId: sessionId
         }
       })
 

@@ -20,11 +20,14 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationHistory = [] } = await req.json();
+    const { message, conversationHistory = [], sessionId } = await req.json();
     
     if (!message) {
       throw new Error('Message is required');
     }
+
+    // Generate session ID if not provided
+    const currentSessionId = sessionId || crypto.randomUUID();
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
@@ -33,6 +36,19 @@ serve(async (req) => {
     }
     
     console.log('OpenAI API key found:', openAIApiKey ? 'Yes' : 'No');
+
+    // Save user message to database
+    const { error: saveUserError } = await supabase
+      .from('chat_conversations')
+      .insert({
+        session_id: currentSessionId,
+        message: message,
+        role: 'user'
+      });
+
+    if (saveUserError) {
+      console.error('Error saving user message:', saveUserError);
+    }
 
     // Fetch all real estate projects from database
     const { data: projects, error: projectsError } = await supabase
@@ -186,8 +202,22 @@ IMPORTANT: Folosește DOAR informațiile din baza de date de mai sus. Nu inventa
 
     const assistantMessage = data.choices[0].message.content;
 
+    // Save assistant message to database
+    const { error: saveAssistantError } = await supabase
+      .from('chat_conversations')
+      .insert({
+        session_id: currentSessionId,
+        message: assistantMessage,
+        role: 'assistant'
+      });
+
+    if (saveAssistantError) {
+      console.error('Error saving assistant message:', saveAssistantError);
+    }
+
     return new Response(JSON.stringify({ 
       message: assistantMessage,
+      sessionId: currentSessionId,
       conversationHistory: [...conversationHistory, 
         { role: 'user', content: message },
         { role: 'assistant', content: assistantMessage }

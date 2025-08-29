@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          client_info: Json | null
+          created_at: string | null
+          id: string
+          message: string
+          role: string
+          session_id: string
+          timestamp: string | null
+        }
+        Insert: {
+          client_info?: Json | null
+          created_at?: string | null
+          id?: string
+          message: string
+          role: string
+          session_id: string
+          timestamp?: string | null
+        }
+        Update: {
+          client_info?: Json | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          role?: string
+          session_id?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       real_estate_projects: {
         Row: {
           amenities: string[]
@@ -91,7 +121,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_conversations_summary: {
+        Args: { end_date?: string; start_date?: string }
+        Returns: {
+          client_info: Json
+          conversation_start: string
+          first_user_message: string
+          message_count: number
+          session_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
