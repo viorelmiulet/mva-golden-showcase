@@ -49,7 +49,7 @@ const Properties = () => {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-gold-dark to-gold mx-auto mb-6"></div>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Descoperă o selecție exclusivă de proprietăți premium din portofoliul nostru.
+              Top proiecte imobiliare
             </p>
           </div>
 
