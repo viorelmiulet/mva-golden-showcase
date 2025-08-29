@@ -179,7 +179,7 @@ function parseStoryOffers(markdown: string): StoryOffer[] {
   console.log('Parsing markdown content for offers...');
 
   // Split content by offer patterns - look for links first
-  const linkPattern = /\[([^\]]+)\]\((https:\/\/www\.storia\.ro\/ro\/oferta\/[^)]+)\)/g;
+  const linkPattern = /\[([^\]]+)\]\((https:\/\/www\.storia\.ro\/ro\/oferta\/[^\s)]+)\)/g;
   const matches = [...markdown.matchAll(linkPattern)];
 
   for (const match of matches) {
