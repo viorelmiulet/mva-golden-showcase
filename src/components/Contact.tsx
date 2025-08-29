@@ -19,14 +19,25 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('=== FORM SUBMISSION STARTED ===');
     console.log('Form submitted with data:', formData);
+    console.log('Button clicked, isSubmitting:', isSubmitting);
     setIsSubmitting(true);
 
     try {
       // Validate form data
+      console.log('Validating form fields...');
       if (!formData.nume || !formData.prenume || !formData.email || !formData.telefon || !formData.mesaj) {
+        console.error('Validation failed - missing fields:', {
+          nume: !formData.nume,
+          prenume: !formData.prenume,
+          email: !formData.email,
+          telefon: !formData.telefon,
+          mesaj: !formData.mesaj
+        });
         throw new Error('Vă rugăm să completați toate câmpurile obligatorii');
       }
+      console.log('Validation passed!');
 
       // Create WhatsApp message
       const message = `Salut! Am o întrebare prin formularul de contact:
