@@ -201,18 +201,23 @@ INFORMAȚII DE CONTACT:
 
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
+- PRIORITATE: Când clienții specifică un buget, folosește ÎNTOTDEAUNA ofertele din CATALOG pentru a recomanda apartamentele potrivite
+- Când clienții cer "oferte" sau "apartamente", prezintă PRIMUL ofertele din catalog cu prețuri exacte
 - Când clienții specifică un buget (ex: "apartament până în 100.000 EUR"), caută în ofertele din catalog și recomandă apartamentele care se încadrează în buget
-- Când cer un anumit număr de camere (ex: "apartament cu 2 camere"), filtrează ofertele corespunzătoare  
-- Când au cerințe speciale (ex: "cu terasă", "cu parcare"), caută în caracteristicile și facilitățile ofertelor
-- Prezintă detaliile complete ale ofertelor relevante, inclusiv prețul exact și caracteristicile
+- Când cer un anumit număr de camere (ex: "apartament cu 2 camere"), filtrează ofertele corespunzătoare din catalog
+- Când au cerințe speciale (ex: "cu terasă", "cu parcare"), caută în caracteristicile și facilitățile ofertelor din catalog
+- Prezintă detaliile complete ale ofertelor din catalog, inclusiv prețul exact și caracteristicile
+- Ofertele din catalog au prețuri exacte și sunt disponibile pentru vânzare imediată
 
 CATALOG WHATSAPP:
 - Pentru a vedea toate ofertele disponibile accesați catalogul nostru: https://wa.me/c/40767941512
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
+- Când clienții cer oferte sau specifică un buget/cerințe, prezintă ÎNTOTDEAUNA PRIMUL ofertele din CATALOG cu prețuri exacte
+- Folosește ofertele din catalog pentru a răspunde la întrebări despre prețuri și disponibilitate
+- Ofertele din catalog sunt prioritare față de informațiile generale despre proiecte
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
-- Când clienții specifică un buget sau cerințe, caută în ofertele din catalog și prezintă opțiunile potrivite
 - Oferă informații despre proiecte, prețuri, facilități
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
@@ -236,6 +241,12 @@ IMPORTANT:
     ];
 
     console.log('Sending request to OpenAI with', projects?.length || 0, 'projects and', catalogOffers?.length || 0, 'catalog offers loaded');
+    
+    if (catalogOffers && catalogOffers.length > 0) {
+      console.log('Catalog offers loaded:', catalogOffers.map(offer => `${offer.title} - ${offer.price_min}-${offer.price_max} EUR`));
+    } else {
+      console.log('No catalog offers found!');
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
