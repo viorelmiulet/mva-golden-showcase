@@ -169,7 +169,22 @@ const ChatAssistant = () => {
                         }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content}
+                          {message.content.split(/(https?:\/\/[^\s]+)/g).map((part, index) => {
+                            if (part.match(/https?:\/\/[^\s]+/)) {
+                              return (
+                                <a
+                                  key={index}
+                                  href={part}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-gold hover:text-gold-light underline font-medium"
+                                >
+                                  {part}
+                                </a>
+                              );
+                            }
+                            return part;
+                          })}
                         </p>
                         <div className="text-xs opacity-70 mt-1 sm:mt-2">
                           {message.timestamp.toLocaleTimeString('ro-RO', { 
