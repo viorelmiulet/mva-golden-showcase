@@ -9,7 +9,7 @@ const Properties = () => {
     {
       id: 1,
       title: "RENEW RESIDENCE",
-      location: "Chiajna, Ilfov",
+      location: "Vestul capitalei",
       price: "€44,000 - €90,000",
       size: "32 - 65 mp",
       rooms: "1-2 camere",
