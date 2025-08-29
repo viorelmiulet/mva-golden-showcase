@@ -17,13 +17,32 @@ interface ContactFormData {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log("=== EDGE FUNCTION CALLED ===");
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS request");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { nume, prenume, email, telefon, mesaj }: ContactFormData = await req.json();
+    console.log("Processing POST request...");
+    
+    // Check if RESEND_API_KEY exists
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    console.log("Resend API Key exists:", !!resendApiKey);
+    
+    if (!resendApiKey) {
+      throw new Error("RESEND_API_KEY not configured");
+    }
+    
+    const requestBody = await req.text();
+    console.log("Request body:", requestBody);
+    
+    const { nume, prenume, email, telefon, mesaj }: ContactFormData = JSON.parse(requestBody);
+    console.log("Parsed form data:", { nume, prenume, email, telefon });
 
     console.log("Sending contact email from:", email);
 
