@@ -30,7 +30,7 @@ const ChatAssistant = () => {
   const { toast } = useToast()
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
   }
 
   useEffect(() => {
@@ -141,7 +141,7 @@ const ChatAssistant = () => {
             <CardContent className="p-0">
               
               {/* Chat Messages */}
-              <ScrollArea className="h-[400px] sm:h-[500px] p-4 sm:p-6">
+              <ScrollArea className="h-[400px] sm:h-[500px] p-4 sm:p-6 scroll-smooth">
                 <div className="space-y-3 sm:space-y-4">
                   {messages.map((message, index) => (
                     <div
