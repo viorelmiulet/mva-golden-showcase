@@ -134,7 +134,7 @@ const Footer = () => {
               
               <div className="flex items-center space-x-4">
                 <p className="text-muted-foreground text-sm">
-                  © 2024 MVA IMOBILIARE. Toate drepturile rezervate.
+                  © 2025 MVA IMOBILIARE. Toate drepturile rezervate.
                 </p>
                 <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
                   Premium Real Estate
