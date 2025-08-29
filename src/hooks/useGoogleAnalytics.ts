@@ -76,12 +76,43 @@ export const useGoogleAnalytics = () => {
     trackEvent(action, 'chat', 'assistant_interaction');
   };
 
+  /**
+   * Testează dacă Google Analytics este activ și funcționează
+   */
+  const testGoogleAnalytics = () => {
+    if (typeof window !== 'undefined') {
+      console.log('🔍 Testing Google Analytics...');
+      
+      // Verifică dacă gtag este disponibil
+      if (window.gtag) {
+        console.log('✅ gtag function is available');
+        
+        // Trimite un eveniment de test
+        window.gtag('event', 'test_event', {
+          event_category: 'testing',
+          event_label: 'analytics_test',
+          value: 1
+        });
+        
+        console.log('📊 Test event sent to GA4: G-HLZFTKHC80');
+        console.log('💡 Verifică în GA4 Real-Time reports pentru evenimentul "test_event"');
+        
+        return true;
+      } else {
+        console.warn('❌ gtag function not available - GA4 may not be loaded');
+        return false;
+      }
+    }
+    return false;
+  };
+
   return {
     trackEvent,
     trackPageView,
     trackContact,
     trackPropertyInteraction,
     trackChatUsage,
+    testGoogleAnalytics,
   };
 };
 
