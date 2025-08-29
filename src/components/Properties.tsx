@@ -10,17 +10,17 @@ const Properties = () => {
     {
       id: 1,
       title: "RENEW RESIDENCE",
-      location: "Vestul capitalei",
+      location: "Chiajna",
       price: "€44,000 - €90,000",
       size: "32 - 65 mp",
       rooms: "1-2 camere",
       image: renewResidence,
-      description: "Proiect modern cu finisaje premium și facilități contemporane în zona Chiajna."
+      description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei."
     },
     {
       id: 2,
       title: "EUROCASA RESIDENCE",
-      location: "Vestul capitalei",
+      location: "Chiajna",
       price: "€40,000 - €102,000",
       size: "30 - 75 mp",
       rooms: "1-3 camere",
