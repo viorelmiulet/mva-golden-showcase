@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import renewResidence from "@/assets/renew-residence.jpg"
-import eurocasaResidence from "@/assets/eurocasa-residence.jpg"
-import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
-  // UPDATED PROPERTIES - NEW VERSION
   const projectsList = [
     {
       id: 1,
@@ -14,7 +10,7 @@ const Properties = () => {
       price: "€44,000 - €90,000",
       size: "32 - 65 mp",
       rooms: "1-2 camere",
-      image: renewResidence,
+      image: "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png",
       description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei."
     },
     {
@@ -24,18 +20,8 @@ const Properties = () => {
       price: "€40,000 - €102,000",
       size: "30 - 75 mp",
       rooms: "1-3 camere",
-      image: eurocasaResidence,
+      image: "/lovable-uploads/8fc1d07f-c6c0-4e93-86ad-c6a6485cbfbc.png",
       description: "Proiect imobiliar de excepție, situat în vestul capitalei."
-    },
-    {
-      id: 3,
-      title: "Vila de Lux Pipera",
-      location: "Pipera, Ilfov", 
-      price: "€1,200,000",
-      size: "350 mp",
-      rooms: "6 camere",
-      image: property3,
-      description: "Vila individuală cu grădină privată, piscină și sistem de securitate avansat."
     }
   ]
 
@@ -54,15 +40,14 @@ const Properties = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {projectsList.map((property) => (
-              <Card key={`property-${property.id}-v3`} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-gold/50 bg-card">
+              <Card key={property.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-gold/50 bg-card">
                 <div className="aspect-video overflow-hidden">
                   <img 
                     src={property.image} 
                     alt={property.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    key={`img-${property.id}-v3`}
                   />
                 </div>
                 <CardContent className="p-6">
