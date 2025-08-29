@@ -5,8 +5,8 @@ import eurocasaResidence from "@/assets/eurocasa-residence.jpg"
 import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
-  // Updated with new projects - v2
-  const properties = [
+  // UPDATED PROPERTIES - NEW VERSION
+  const projectsList = [
     {
       id: 1,
       title: "RENEW RESIDENCE",
@@ -19,7 +19,7 @@ const Properties = () => {
     },
     {
       id: 2,
-      title: "EUROCASA RESIDENCE",
+      title: "EUROCASA RESIDENCE", 
       location: "Chiajna",
       price: "€40,000 - €102,000",
       size: "30 - 75 mp",
@@ -30,7 +30,7 @@ const Properties = () => {
     {
       id: 3,
       title: "Vila de Lux Pipera",
-      location: "Pipera, Ilfov",
+      location: "Pipera, Ilfov", 
       price: "€1,200,000",
       size: "350 mp",
       rooms: "6 camere",
@@ -55,7 +55,7 @@ const Properties = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((property) => (
+            {projectsList.map((property) => (
               <Card key={property.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-gold/50 bg-card">
                 <div className="aspect-video overflow-hidden">
                   <img 
