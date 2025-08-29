@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import property1 from "@/assets/property-1.jpg"
+import renewResidence from "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png"
 import property2 from "@/assets/property-2.jpg"
 import property3 from "@/assets/property-3.jpg"
 
@@ -8,13 +8,13 @@ const Properties = () => {
   const properties = [
     {
       id: 1,
-      title: "Apartament Premium Herastrau",
-      location: "Herastrau, București",
-      price: "€450,000",
-      size: "120 mp",
-      rooms: "3 camere",
-      image: property1,
-      description: "Apartament de lux cu vedere la lac, finisaje premium și mobilier de designer."
+      title: "RENEW RESIDENCE",
+      location: "Chiajna, Ilfov",
+      price: "€44,000 - €90,000",
+      size: "32 - 65 mp",
+      rooms: "1-2 camere",
+      image: renewResidence,
+      description: "Proiect modern cu finisaje premium și facilități contemporane în zona Chiajna."
     },
     {
       id: 2,
