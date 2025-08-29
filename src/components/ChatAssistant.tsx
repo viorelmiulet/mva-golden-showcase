@@ -13,6 +13,7 @@ import {
   Loader2
 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 
 interface Message {
   role: 'user' | 'assistant'
@@ -28,6 +29,7 @@ const ChatAssistant = () => {
   const [sessionId, setSessionId] = useState<string>("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
+  const { trackChatUsage } = useGoogleAnalytics()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
@@ -40,6 +42,9 @@ const ChatAssistant = () => {
   useEffect(() => {
     // Generate session ID
     setSessionId(crypto.randomUUID())
+    
+    // Track chat opening
+    trackChatUsage('open')
     
     // Adaugă mesajul de bun venit
     const welcomeMessage: Message = {
@@ -56,6 +61,9 @@ const ChatAssistant = () => {
       e.stopPropagation()
     }
     if (!inputMessage.trim() || isLoading) return
+
+    // Track message sending
+    trackChatUsage('message_sent')
 
     const userMessage: Message = {
       role: 'user',

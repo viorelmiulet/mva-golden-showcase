@@ -2,13 +2,22 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowDown, Sparkles, MapPin, Phone } from "lucide-react"
 import heroProperty from "@/assets/hero-property.jpg"
+import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 
 const Hero = () => {
+  const { trackEvent, trackContact } = useGoogleAnalytics();
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+      // Track navigation click
+      trackEvent('scroll_to_section', 'navigation', sectionId);
     }
+  };
+
+  const handleWhatsAppClick = () => {
+    trackContact('whatsapp', 'hero_cta');
   };
 
   return (
@@ -60,7 +69,7 @@ const Hero = () => {
                 <ArrowDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
               </Button>
               
-              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
                 <Button 
                   variant="luxuryOutline" 
                   size="lg"
