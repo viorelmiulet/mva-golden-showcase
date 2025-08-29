@@ -94,36 +94,36 @@ const WhyChooseUs = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="relative py-20 bg-gradient-to-br from-background to-muted">
+        <section className="relative py-12 md:py-20 bg-gradient-to-br from-background to-muted">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-4xl mx-auto">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 md:mb-6">
                 Agenția Ta de Încredere
               </Badge>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 md:mb-6">
                 <span className="block text-foreground">De ce să ne</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Alegi pe Noi?
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground leading-relaxed mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-2">
                 Partenerii tăi de încredere pentru investiții imobiliare inteligente în vestul Bucureștiului.
                 Experiență, transparență și rezultate garantate.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                  <Button variant="luxury" size="lg" className="px-8">
-                    <MessageCircle className="mr-2 h-5 w-5" />
+                  <Button variant="luxury" size="lg" className="w-full sm:w-auto px-6 md:px-8">
+                    <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                     Consultație Gratuită
                   </Button>
                 </a>
-                <Button variant="luxuryOutline" size="lg" className="px-8" onClick={() => {
+                <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-6 md:px-8" onClick={() => {
                   document.getElementById('avantaje')?.scrollIntoView({ behavior: 'smooth' });
                 }}>
-                  <Eye className="mr-2 h-5 w-5" />
+                  <Eye className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Descoperă Avantajele
                 </Button>
               </div>
@@ -132,29 +132,29 @@ const WhyChooseUs = () => {
         </section>
 
         {/* Main Content Section */}
-        <section id="continut-principal" className="py-20">
+        <section id="continut-principal" className="py-12 md:py-20">
           <div className="container mx-auto px-4">
             {/* Pentru vânzare */}
-            <div className="mb-20">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-6">
+            <div className="mb-12 md:mb-20">
+              <div className="text-center mb-8 md:mb-16">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-4 md:mb-6 px-2">
                   De ce să alegeți <span className="text-gold">MVA IMOBILIARE</span> pentru a vinde proprietatea dumneavoastră?
                 </h2>
-                <p className="text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed px-2">
                   Experiența, palmaresul nostru și puterea brandului ne pun în poziția perfectă pentru a obține cel mai bun preț pentru proprietatea dumneavoastră.
                 </p>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 max-w-7xl mx-auto">
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <TrendingUp className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">1. Magnet pentru cumpărători</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">1. Magnet pentru cumpărători</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Datorită tehnicilor de marketing avansate, atragem un număr impresionat de potențiali cumpărători în baza noastră de date, ceea ce vă oferă un avantaj distinct atunci când intenționați să vindeți casa dumneavoastră.
                         </p>
                       </div>
@@ -163,17 +163,17 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Award className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Award className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">2. Evaluăm corect pentru a obține cel mai bun preț</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">2. Evaluăm corect pentru a obține cel mai bun preț</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
                           Atingem o medie de 97% din prețul cerut pentru fiecare proprietate pe care o vindem.
                         </p>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Vizităm multe proprietăți în fiecare lună, așa că avem o înțelegere profundă a valorilor de piață și a modului în care putem obține cel mai bun preț. Tehnologia noastră avansată ne oferă în continuare o perspectivă asupra prețurilor și a informațiilor despre piața imobiliară.
                         </p>
                       </div>
@@ -182,17 +182,17 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Users className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Users className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">3. O echipă unică de suport</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">3. O echipă unică de suport</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
                           Personalul nostru de suport ne ajută să menținem cel mai înalt nivel de servicii pentru clienți.
                         </p>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Suntem mereu disponibili – Datorită programului încărcat al cumpărătorilor, 38% dintre vizionările noastre au loc seara și în weekend. Acesta este un moment în care mulți agenți nu sunt în activitate.
                         </p>
                       </div>
@@ -201,17 +201,17 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Clock className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Clock className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">4. Expertiza din interiorul companiei economisește timp</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">4. Expertiza din interiorul companiei economisește timp</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
                           98% dintre proprietățile noastre sunt live online, în termen de 48 de ore.
                         </p>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Noi nu pierdem timp prețios. Putem avea proprietatea pe deplin promovată online în termen de 48 de ore de la fotografierea proprietății.
                         </p>
                       </div>
@@ -219,18 +219,18 @@ const WhyChooseUs = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 lg:col-span-2">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Eye className="w-6 h-6 text-gold" />
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 md:col-span-2">
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Eye className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">5. Expunerea maximă</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">5. Expunerea maximă</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
                           Asigurăm acoperire totală, atât în mediul online cât și offline.
                         </p>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           mvaimobiliare.ro atrage mult trafic de calitate, datorită eforturilor de optimizare continue. Vom promova, de asemenea, proprietatea dumneavoastră pe imobiliare.ro, imopedia.ro, magazinuldecase.ro și mai multe site-uri de proprietate și de anunțuri, precum și prin tehnici de e-mail marketing, toate pentru nici un cost suplimentar.
                         </p>
                       </div>
@@ -239,14 +239,14 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Shield className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Shield className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">6. Cele mai înalte standarde etice</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">6. Cele mai înalte standarde etice</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Agenții noștri lucrează în strânsă colaborare cu departamentul nostru de relații cu clienții pentru a oferi cele mai bune servicii pentru clienții noștri. Acest lucru ne ajută să construim parteneriate și relații pe termen lung.
                         </p>
                       </div>
@@ -255,14 +255,14 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Heart className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Heart className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">7. Ne facem treaba bine</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">7. Ne facem treaba bine</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Oamenii noștri sunt instruiți pentru a fi cei mai buni profesioniști din industrie. Ei vor lucra cu pasiune în numele dvs. pentru a vă obține cel mai bun preț posibil și pentru a vă oferi servicii deosebite.
                         </p>
                       </div>
@@ -274,25 +274,25 @@ const WhyChooseUs = () => {
 
             {/* Pentru cumpărare */}
             <div>
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-6">
+              <div className="text-center mb-8 md:mb-16">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-4 md:mb-6 px-2">
                   De ce să alegeți <span className="text-gold">MVA IMOBILIARE</span> pentru a găsi noua dumneavoastră casă?
                 </h2>
-                <p className="text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed px-2">
                   Cu mii de proprietăți de vânzare actualizate, furnizarea mai multor opțiuni excepționale și mai multe ore de deschidere pentru vizionări convenabile, suntem prima soluție pentru cumpărători.
                 </p>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 max-w-7xl mx-auto">
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <MapPin className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <MapPin className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">1. Mii de proprietăți</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">1. Mii de proprietăți</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Cu peste 15.000 de proprietăți în baza de date, actualizate cel puțin o dată pe lună, puteți fi siguri că, indiferent de nevoile dumneavoastră, avem exact ceea ce căutați.
                         </p>
                       </div>
@@ -301,17 +301,17 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Clock className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Clock className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">2. Program prelungit de lucru</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">2. Program prelungit de lucru</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
                           Agenții noștri sunt disponibili de luni până sâmbătă. În plus, liniile noastre telefonice sunt deschise șapte zile pe săptămână.
                         </p>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           În scopul de a vă asigura o proprietate vă recomandăm o vizionare mai rapidă. Noi vă însoțim la vizionare, fiind pregătiți pentru a răspunde imediat la orice întrebări și consiliere în cazul în care este necesar.
                         </p>
                       </div>
@@ -320,14 +320,14 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Eye className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Eye className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">3. Informații detaliate despre proprietăți</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">3. Informații detaliate despre proprietăți</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Oferindu-vă informații cât mai mult posibil, înainte de o vizionare, site-ul nostru și un portal deschis special pentru dumneavoastră sunt renumite pentru funcțiile lor de căutare ușor de utilizat și pentru informațiile detaliate.
                         </p>
                       </div>
@@ -336,14 +336,14 @@ const WhyChooseUs = () => {
                 </Card>
 
                 <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <MessageCircle className="w-6 h-6 text-gold" />
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">4. Alerte pe e-mail</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">4. Alerte pe e-mail</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           Pe lângă primirea detaliilor de proprietate - atunci când vă înregistrați la noi puteți alege să fiți notificat instantaneu pe email pe măsura ce noi proprietăți devin disponibile.
                         </p>
                       </div>
@@ -351,15 +351,15 @@ const WhyChooseUs = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 lg:col-span-2">
-                  <CardContent className="p-8">
-                    <div className="flex items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
-                        <Award className="w-6 h-6 text-gold" />
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 md:col-span-2">
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                        <Award className="w-5 h-5 md:w-6 md:h-6 text-gold" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">5. Consultanță de specialitate</h3>
-                        <p className="font-inter text-muted-foreground leading-relaxed">
+                        <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">5. Consultanță de specialitate</h3>
+                        <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed">
                           În calitate de broker imobiliar din București, suntem capabili să vă oferim cunoștințe locale și consultanță de specialitate, indiferent de cerințele dumneavoastră.
                         </p>
                       </div>
@@ -372,25 +372,25 @@ const WhyChooseUs = () => {
         </section>
 
         {/* Services Section */}
-        <section className="py-20 bg-muted/30">
+        <section className="py-12 md:py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <div className="text-center mb-8 md:mb-16">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 px-2">
                   Servicii <span className="text-gold">Complete</span>
                 </h2>
-                <p className="text-xl text-muted-foreground">
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-2">
                   Tot ce ai nevoie pentru o tranzacție imobiliară de succes
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid sm:grid-cols-2 gap-3 md:gap-6">
                 {services.map((service, index) => (
-                  <div key={index} className="flex items-center p-4 bg-background rounded-xl border border-gold/10 hover:border-gold/30 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center mr-4">
-                      <Heart className="w-4 h-4 text-gold" />
+                  <div key={index} className="flex items-center p-3 md:p-4 bg-background rounded-xl border border-gold/10 hover:border-gold/30 transition-colors">
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gold/10 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0">
+                      <Heart className="w-3 h-3 md:w-4 md:h-4 text-gold" />
                     </div>
-                    <span className="font-medium">{service}</span>
+                    <span className="font-medium text-sm md:text-base">{service}</span>
                   </div>
                 ))}
               </div>
@@ -399,32 +399,32 @@ const WhyChooseUs = () => {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20">
+        <section className="py-12 md:py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <div className="text-center mb-8 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 px-2">
                 Ce Spun <span className="text-gold">Clienții</span>
               </h2>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-2">
                 Mărturii reale de la familiile pe care le-am ajutat să își găsească casa
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
               {testimonials.map((testimonial, index) => (
                 <Card key={index} className="relative overflow-hidden border-gold/10 hover:border-gold/30 transition-all duration-300">
-                  <CardContent className="p-8">
-                    <div className="flex mb-4">
+                  <CardContent className="p-4 md:p-6 lg:p-8">
+                    <div className="flex mb-3 md:mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 text-gold fill-gold" />
+                        <Star key={i} className="w-4 h-4 md:w-5 md:h-5 text-gold fill-gold" />
                       ))}
                     </div>
                     
-                    <p className="text-muted-foreground italic mb-6 leading-relaxed">
+                    <p className="text-sm md:text-base text-muted-foreground italic mb-4 md:mb-6 leading-relaxed">
                       "{testimonial.text}"
                     </p>
                     
-                    <div className="font-semibold text-gold">
+                    <div className="font-semibold text-sm md:text-base text-gold">
                       {testimonial.name}
                     </div>
                   </CardContent>
@@ -435,29 +435,29 @@ const WhyChooseUs = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 bg-gradient-to-r from-gold/10 via-gold-light/10 to-gold/10">
+        <section className="py-12 md:py-20 bg-gradient-to-r from-gold/10 via-gold-light/10 to-gold/10">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6 px-2">
                 Gata să Găsești <span className="text-gold">Casa Perfectă?</span>
               </h2>
               
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-2">
                 Hai să discutăm despre visurile tale imobiliare. Consultația este gratuită și fără angajament.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                  <Button variant="luxury" size="lg" className="px-8">
-                    <MessageCircle className="mr-2 h-5 w-5" />
+                  <Button variant="luxury" size="lg" className="w-full sm:w-auto px-6 md:px-8">
+                    <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                     Contactează-ne Acum
                   </Button>
                 </a>
-                <Button variant="luxuryOutline" size="lg" className="px-8" onClick={() => {
+                <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-6 md:px-8" onClick={() => {
                   document.getElementById('proprietati')?.scrollIntoView({ behavior: 'smooth' });
                   window.location.href = '/#proprietati';
                 }}>
-                  <TrendingUp className="mr-2 h-5 w-5" />
+                  <TrendingUp className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                   Vezi Proprietățile
                 </Button>
               </div>
