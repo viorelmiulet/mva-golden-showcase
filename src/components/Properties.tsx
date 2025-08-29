@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import property2 from "@/assets/property-2.jpg"
+import renewResidence from "@/assets/renew-residence.jpg"
+import eurocasaResidence from "@/assets/eurocasa-residence.jpg"
 import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
@@ -12,7 +13,7 @@ const Properties = () => {
       price: "€44,000 - €90,000",
       size: "32 - 65 mp",
       rooms: "1-2 camere",
-      image: "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png",
+      image: renewResidence,
       description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei."
     },
     {
@@ -22,7 +23,7 @@ const Properties = () => {
       price: "€40,000 - €102,000",
       size: "30 - 75 mp",
       rooms: "1-3 camere",
-      image: "/lovable-uploads/8fc1d07f-c6c0-4e93-86ad-c6a6485cbfbc.png",
+      image: eurocasaResidence,
       description: "Proiect imobiliar de excepție, situat în vestul capitalei."
     },
     {
