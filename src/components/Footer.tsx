@@ -24,7 +24,7 @@ const Footer = () => {
                 Transformăm visurile în realitate prin servicii imobiliare de excepție.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
+                <a href="https://www.facebook.com/profile.php?id=61575213335398" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
                   <span className="text-gold">f</span>
                 </a>
                 <a href="#" className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center hover:bg-gold/30 transition-colors">
