@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      catalog_offers: {
+        Row: {
+          amenities: string[] | null
+          availability_status: string | null
+          contact_info: Json | null
+          created_at: string
+          description: string
+          features: string[] | null
+          id: string
+          images: Json | null
+          is_featured: boolean | null
+          location: string
+          price_max: number
+          price_min: number
+          project_name: string | null
+          rooms: number
+          surface_max: number | null
+          surface_min: number | null
+          title: string
+          updated_at: string
+          whatsapp_catalog_id: string | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          availability_status?: string | null
+          contact_info?: Json | null
+          created_at?: string
+          description: string
+          features?: string[] | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          location: string
+          price_max: number
+          price_min: number
+          project_name?: string | null
+          rooms: number
+          surface_max?: number | null
+          surface_min?: number | null
+          title: string
+          updated_at?: string
+          whatsapp_catalog_id?: string | null
+        }
+        Update: {
+          amenities?: string[] | null
+          availability_status?: string | null
+          contact_info?: Json | null
+          created_at?: string
+          description?: string
+          features?: string[] | null
+          id?: string
+          images?: Json | null
+          is_featured?: boolean | null
+          location?: string
+          price_max?: number
+          price_min?: number
+          project_name?: string | null
+          rooms?: number
+          surface_max?: number | null
+          surface_min?: number | null
+          title?: string
+          updated_at?: string
+          whatsapp_catalog_id?: string | null
+        }
+        Relationships: []
+      }
       chat_conversations: {
         Row: {
           client_info: Json | null

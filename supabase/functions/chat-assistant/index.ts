@@ -61,6 +61,17 @@ serve(async (req) => {
       console.error('Error fetching projects:', projectsError);
     }
 
+    // Fetch catalog offers from database
+    const { data: catalogOffers, error: catalogError } = await supabase
+      .from('catalog_offers')
+      .select('*')
+      .eq('availability_status', 'available')
+      .order('is_featured', { ascending: false });
+
+    if (catalogError) {
+      console.error('Error fetching catalog offers:', catalogError);
+    }
+
     // Build comprehensive system prompt with database information
     let systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
 
@@ -159,24 +170,60 @@ INFORMAȚII DE CONTACT:
       });
     }
 
+    // Add catalog offers information
+    if (catalogOffers && catalogOffers.length > 0) {
+      systemPrompt += "\nOFERTE DISPONIBILE ÎN CATALOG:\n\n";
+      
+      catalogOffers.forEach((offer, index) => {
+        systemPrompt += `${index + 1}. ${offer.title}:\n`;
+        systemPrompt += `   - Descriere: ${offer.description}\n`;
+        systemPrompt += `   - Preț: ${offer.price_min.toLocaleString()} - ${offer.price_max.toLocaleString()} EUR\n`;
+        if (offer.surface_min && offer.surface_max) {
+          systemPrompt += `   - Suprafață: ${offer.surface_min} - ${offer.surface_max} mp\n`;
+        }
+        systemPrompt += `   - Camere: ${offer.rooms}\n`;
+        systemPrompt += `   - Locație: ${offer.location}\n`;
+        if (offer.project_name) {
+          systemPrompt += `   - Proiect: ${offer.project_name}\n`;
+        }
+        if (offer.features && offer.features.length > 0) {
+          systemPrompt += `   - Caracteristici: ${offer.features.join(', ')}\n`;
+        }
+        if (offer.amenities && offer.amenities.length > 0) {
+          systemPrompt += `   - Facilități: ${offer.amenities.join(', ')}\n`;
+        }
+        if (offer.is_featured) {
+          systemPrompt += `   - Status: OFERTĂ PREMIUM\n`;
+        }
+        systemPrompt += "\n";
+      });
+    }
+
     systemPrompt += `
+FUNCȚIONALITĂȚI SPECIALE:
+- Când clienții specifică un buget (ex: "apartament până în 100.000 EUR"), caută în ofertele din catalog și recomandă apartamentele care se încadrează în buget
+- Când cer un anumit număr de camere (ex: "apartament cu 2 camere"), filtrează ofertele corespunzătoare  
+- Când au cerințe speciale (ex: "cu terasă", "cu parcare"), caută în caracteristicile și facilitățile ofertelor
+- Prezintă detaliile complete ale ofertelor relevante, inclusiv prețul exact și caracteristicile
+
+CATALOG WHATSAPP:
+- Pentru a vedea toate ofertele disponibile accesați catalogul nostru: https://wa.me/c/40767941512
+
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
-- Ajută clienții să găsească proprietatea potrivită
+- Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
+- Când clienții specifică un buget sau cerințe, caută în ofertele din catalog și prezintă opțiunile potrivite
 - Oferă informații despre proiecte, prețuri, facilități
-- Când clienții cer oferte sau catalog, oferă linkul către catalogul WhatsApp
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
 - Răspunde la întrebări despre investiții imobiliare
 - Explică avantajele fiecărui proiect
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
-CATALOG WHATSAPP:
-- Pentru a vedea toate ofertele disponibile accesați catalogul nostru: https://wa.me/c/40767941512
-
 IMPORTANT: 
 - Folosește DOAR informațiile din baza de date de mai sus
-- Când clienții cer "oferte", "catalog" sau "toate apartamentele", oferă linkul către catalogul WhatsApp fără punctuație la sfârșit
+- Când clienții cer "oferte", "catalog" sau specifică criterii (buget, camere), caută în ofertele din catalog și prezintă opțiunile potrivite
+- Pentru oferte generale, oferă linkul către catalogul WhatsApp fără punctuație la sfârșit
 - Nu inventa informații care nu sunt furnizate
 - Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii
 - Poți folosi informațiile detaliate despre proiecte pentru a răspunde la întrebări specifice`;
@@ -188,7 +235,7 @@ IMPORTANT:
       { role: 'user', content: message }
     ];
 
-    console.log('Sending request to OpenAI with', projects?.length || 0, 'projects loaded');
+    console.log('Sending request to OpenAI with', projects?.length || 0, 'projects and', catalogOffers?.length || 0, 'catalog offers loaded');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
