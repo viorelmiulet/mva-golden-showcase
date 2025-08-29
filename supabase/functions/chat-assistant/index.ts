@@ -21,8 +21,11 @@ serve(async (req) => {
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY environment variable is not set');
       throw new Error('OpenAI API key not configured');
     }
+    
+    console.log('OpenAI API key found:', openAIApiKey ? 'Yes' : 'No');
 
     // System prompt for real estate assistant
     const systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în complexe rezidențiale premium din vestul Bucureștiului. 
