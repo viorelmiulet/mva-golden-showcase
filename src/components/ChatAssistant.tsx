@@ -50,7 +50,11 @@ const ChatAssistant = () => {
     setMessages([welcomeMessage])
   }, [])
 
-  const sendMessage = async () => {
+  const sendMessage = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
     if (!inputMessage.trim() || isLoading) return
 
     const userMessage: Message = {
@@ -107,6 +111,7 @@ const ChatAssistant = () => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      e.stopPropagation()
       sendMessage()
     }
   }
@@ -201,7 +206,7 @@ const ChatAssistant = () => {
 
               {/* Chat Input */}
               <div className="border-t border-gold/20 p-3 sm:p-4">
-                <div className="flex gap-2">
+                <form onSubmit={sendMessage} className="flex gap-2">
                   <Input
                     placeholder="Scrie mesajul tău aici..."
                     value={inputMessage}
@@ -211,7 +216,7 @@ const ChatAssistant = () => {
                     className="flex-1 border-gold/20 focus:border-gold/50 bg-background/50 text-sm"
                   />
                   <Button
-                    onClick={sendMessage}
+                    type="submit"
                     disabled={!inputMessage.trim() || isLoading}
                     variant="luxury"
                     size="icon"
@@ -223,7 +228,7 @@ const ChatAssistant = () => {
                       <Send className="w-4 h-4" />
                     )}
                   </Button>
-                </div>
+                </form>
                 
                 <div className="text-xs text-muted-foreground mt-2 text-center">
                   Asistentul poate ajuta cu informații despre proprietăți și programarea vizitelor.
