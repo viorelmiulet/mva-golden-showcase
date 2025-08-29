@@ -185,18 +185,12 @@ const Properties = () => {
           {/* Properties Tabs */}
           <div className="mb-16">
             <Tabs defaultValue="toate" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 max-w-lg sm:max-w-xl mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
+              <TabsList className="grid w-full grid-cols-3 max-w-sm sm:max-w-md mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
                 <TabsTrigger 
                   value="toate" 
                   className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
                   Toate
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="noi"
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
-                >
-                  Noi
                 </TabsTrigger>
                 <TabsTrigger 
                   value="disponibile"
@@ -215,10 +209,6 @@ const Properties = () => {
               
               <TabsContent value="toate" className="mt-0">
                 {renderProjects(allProjects)}
-              </TabsContent>
-              
-              <TabsContent value="noi" className="mt-0">
-                {renderProjects(newProjects)}
               </TabsContent>
               
               <TabsContent value="disponibile" className="mt-0">
