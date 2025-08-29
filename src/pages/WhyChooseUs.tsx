@@ -131,38 +131,242 @@ const WhyChooseUs = () => {
           </div>
         </section>
 
-        {/* Advantages Section */}
-        <section id="avantaje" className="py-20">
+        {/* Main Content Section */}
+        <section id="continut-principal" className="py-20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Avantajele <span className="text-gold">MVA Imobiliare</span>
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Ceea ce ne diferențiază și ne face alegerea perfectă pentru nevoile tale imobiliare
-              </p>
-            </div>
+            {/* Pentru vânzare */}
+            <div className="mb-20">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-6">
+                  De ce să alegeți <span className="text-gold">MVA IMOBILIARE</span> pentru a vinde proprietatea dumneavoastră?
+                </h2>
+                <p className="text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                  Experiența, palmaresul nostru și puterea brandului ne pun în poziția perfectă pentru a obține cel mai bun preț pentru proprietatea dumneavoastră.
+                </p>
+              </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {advantages.map((advantage, index) => (
-                <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-gold/10 hover:border-gold/30">
+              <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
                   <CardContent className="p-8">
-                    <div className="mb-6">
-                      <div className={`w-14 h-14 rounded-2xl bg-background/50 flex items-center justify-center ${advantage.color} group-hover:scale-110 transition-transform duration-300`}>
-                        <advantage.icon className="w-7 h-7" />
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <TrendingUp className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">1. Magnet pentru cumpărători</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Datorită tehnicilor de marketing avansate, atragem un număr impresionat de potențiali cumpărători în baza noastră de date, ceea ce vă oferă un avantaj distinct atunci când intenționați să vindeți casa dumneavoastră.
+                        </p>
                       </div>
                     </div>
-                    
-                    <h3 className="text-xl font-semibold mb-4 group-hover:text-gold transition-colors">
-                      {advantage.title}
-                    </h3>
-                    
-                    <p className="text-muted-foreground leading-relaxed">
-                      {advantage.description}
-                    </p>
                   </CardContent>
                 </Card>
-              ))}
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Award className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">2. Evaluăm corect pentru a obține cel mai bun preț</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                          Atingem o medie de 97% din prețul cerut pentru fiecare proprietate pe care o vindem.
+                        </p>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Vizităm multe proprietăți în fiecare lună, așa că avem o înțelegere profundă a valorilor de piață și a modului în care putem obține cel mai bun preț. Tehnologia noastră avansată ne oferă în continuare o perspectivă asupra prețurilor și a informațiilor despre piața imobiliară.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Users className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">3. O echipă unică de suport</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                          Personalul nostru de suport ne ajută să menținem cel mai înalt nivel de servicii pentru clienți.
+                        </p>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Suntem mereu disponibili – Datorită programului încărcat al cumpărătorilor, 38% dintre vizionările noastre au loc seara și în weekend. Acesta este un moment în care mulți agenți nu sunt în activitate.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Clock className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">4. Expertiza din interiorul companiei economisește timp</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                          98% dintre proprietățile noastre sunt live online, în termen de 48 de ore.
+                        </p>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Noi nu pierdem timp prețios. Putem avea proprietatea pe deplin promovată online în termen de 48 de ore de la fotografierea proprietății.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 lg:col-span-2">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Eye className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">5. Expunerea maximă</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                          Asigurăm acoperire totală, atât în mediul online cât și offline.
+                        </p>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          mvaimobiliare.ro atrage mult trafic de calitate, datorită eforturilor de optimizare continue. Vom promova, de asemenea, proprietatea dumneavoastră pe imobiliare.ro, imopedia.ro, magazinuldecase.ro și mai multe site-uri de proprietate și de anunțuri, precum și prin tehnici de e-mail marketing, toate pentru nici un cost suplimentar.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Shield className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">6. Cele mai înalte standarde etice</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Agenții noștri lucrează în strânsă colaborare cu departamentul nostru de relații cu clienții pentru a oferi cele mai bune servicii pentru clienții noștri. Acest lucru ne ajută să construim parteneriate și relații pe termen lung.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Heart className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">7. Ne facem treaba bine</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Oamenii noștri sunt instruiți pentru a fi cei mai buni profesioniști din industrie. Ei vor lucra cu pasiune în numele dvs. pentru a vă obține cel mai bun preț posibil și pentru a vă oferi servicii deosebite.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Pentru cumpărare */}
+            <div>
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-6">
+                  De ce să alegeți <span className="text-gold">MVA IMOBILIARE</span> pentru a găsi noua dumneavoastră casă?
+                </h2>
+                <p className="text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                  Cu mii de proprietăți de vânzare actualizate, furnizarea mai multor opțiuni excepționale și mai multe ore de deschidere pentru vizionări convenabile, suntem prima soluție pentru cumpărători.
+                </p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <MapPin className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">1. Mii de proprietăți</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Cu peste 15.000 de proprietăți în baza de date, actualizate cel puțin o dată pe lună, puteți fi siguri că, indiferent de nevoile dumneavoastră, avem exact ceea ce căutați.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Clock className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">2. Program prelungit de lucru</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed mb-4">
+                          Agenții noștri sunt disponibili de luni până sâmbătă. În plus, liniile noastre telefonice sunt deschise șapte zile pe săptămână.
+                        </p>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          În scopul de a vă asigura o proprietate vă recomandăm o vizionare mai rapidă. Noi vă însoțim la vizionare, fiind pregătiți pentru a răspunde imediat la orice întrebări și consiliere în cazul în care este necesar.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Eye className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">3. Informații detaliate despre proprietăți</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Oferindu-vă informații cât mai mult posibil, înainte de o vizionare, site-ul nostru și un portal deschis special pentru dumneavoastră sunt renumite pentru funcțiile lor de căutare ușor de utilizat și pentru informațiile detaliate.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <MessageCircle className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">4. Alerte pe e-mail</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          Pe lângă primirea detaliilor de proprietate - atunci când vă înregistrați la noi puteți alege să fiți notificat instantaneu pe email pe măsura ce noi proprietăți devin disponibile.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gold/10 hover:border-gold/30 transition-all duration-300 lg:col-span-2">
+                  <CardContent className="p-8">
+                    <div className="flex items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-4 mt-1">
+                        <Award className="w-6 h-6 text-gold" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-playfair font-semibold mb-3 text-gold">5. Consultanță de specialitate</h3>
+                        <p className="font-inter text-muted-foreground leading-relaxed">
+                          În calitate de broker imobiliar din București, suntem capabili să vă oferim cunoștințe locale și consultanță de specialitate, indiferent de cerințele dumneavoastră.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
