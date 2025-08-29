@@ -171,12 +171,15 @@ const ChatAssistant = () => {
                         <div className="text-sm leading-relaxed space-y-1">
                           {message.content.split('\n').map((line, lineIndex) => (
                             <div key={lineIndex}>
-                              {line.split(/(https?:\/\/[^\s]+)/g).map((part, partIndex) => {
-                                if (part.match(/^https?:\/\/[^\s]+$/)) {
+                              {line.split(/(\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s]+)/g).map((part, partIndex) => {
+                                // Check if it's a URL with or without parentheses
+                                const urlMatch = part.match(/^\(?((https?:\/\/[^\s)]+))\)?$/);
+                                if (urlMatch) {
+                                  const cleanUrl = urlMatch[2]; // Extract URL without parentheses
                                   return (
                                     <a
                                       key={partIndex}
-                                      href={part}
+                                      href={cleanUrl}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="inline-block text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer break-all transition-colors duration-200"
@@ -186,7 +189,7 @@ const ChatAssistant = () => {
                                         maxWidth: '100%'
                                       }}
                                     >
-                                      {part}
+                                      {cleanUrl}
                                     </a>
                                   );
                                 }
