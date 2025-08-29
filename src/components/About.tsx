@@ -37,23 +37,23 @@ const About = () => {
         <div className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-20">
+          <header className="text-center mb-20">
             <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
               Despre MVA Imobiliare
             </Badge>
             
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Partenerii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Tăi de Încredere
               </span>
-            </h2>
+            </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE 
               este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.
             </p>
-          </div>
+          </header>
 
           {/* Achievements Grid */}
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
@@ -69,9 +69,9 @@ const About = () => {
                     {achievement.number}
                   </div>
                   
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
-                    {achievement.label}
-                  </h3>
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
+                {achievement.label}
+              </h2>
                   
                   <p className="text-sm sm:text-base text-muted-foreground">
                     {achievement.description}
@@ -87,9 +87,9 @@ const About = () => {
             {/* Mission */}
             <div className="space-y-8">
               <div>
-                <h3 className="text-3xl font-bold text-foreground mb-6">
-                  Misiunea Noastră
-                </h3>
+              <h2 className="text-3xl font-bold text-foreground mb-6">
+                Misiunea Noastră
+              </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
                   Să conectăm clienții cu <span className="text-gold font-semibold">proprietățile perfecte</span> pentru 
                   stilul lor de viață, oferind servicii imobiliare de excepție și consultanță specializată 
@@ -104,9 +104,9 @@ const About = () => {
 
             {/* Values */}
             <div className="space-y-6">
-              <h3 className="text-3xl font-bold text-foreground mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-8">
                 De Ce Să Ne Alegi
-              </h3>
+              </h2>
               
               <div className="space-y-4">
                 {values.map((value, index) => (

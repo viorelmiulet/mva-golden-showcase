@@ -51,23 +51,23 @@ const Services = () => {
         <div className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-20">
+          <header className="text-center mb-20">
             <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
               Servicii Premium
             </Badge>
             
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Servicii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Complete
               </span>
-            </h2>
+            </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Oferim o gamă completă de servicii imobiliare premium, adaptate perfect 
               pentru complexele rezidențiale moderne din vestul capitalei.
             </p>
-          </div>
+          </header>
 
           {/* Services Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -105,11 +105,11 @@ const Services = () => {
                       </div>
                       
                       {/* Title */}
-                      <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
+                      <h2 className={`text-lg sm:text-xl font-bold leading-tight ${
                         service.highlight ? 'text-gold' : 'text-foreground'
                       } group-hover:text-gold transition-colors`}>
                         {service.title}
-                      </h3>
+                      </h2>
                       
                       {/* Description */}
                       <p className="text-muted-foreground leading-relaxed text-sm">

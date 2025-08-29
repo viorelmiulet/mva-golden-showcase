@@ -48,6 +48,41 @@ const Properties = () => {
   const newProjects = projectsList.filter(p => p.category === "noi")
   const availableProjects = projectsList.filter(p => p.status === "disponibil")
 
+  // Structured Data for Properties
+  const propertiesStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": projectsList.map((property, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Residence",
+        "name": property.title,
+        "description": property.description,
+        "image": `https://mva-imobiliare.lovable.app${property.image}`,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": property.location,
+          "addressCountry": "RO"
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "EUR",
+          "price": property.price.split(' - ')[0].replace('€', '').replace(',', ''),
+          "seller": {
+            "@type": "RealEstateAgent",
+            "name": "MVA Imobiliare"
+          }
+        },
+        "floorSize": {
+          "@type": "QuantitativeValue",
+          "value": property.size
+        },
+        "numberOfRooms": property.rooms
+      }
+    }))
+  }
+
   const renderProjects = (projects: typeof projectsList) => (
     <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
       {projects.map((property) => (
@@ -72,7 +107,7 @@ const Properties = () => {
           <div className="relative aspect-video overflow-hidden">
             <img 
               src={property.image} 
-              alt={property.title}
+              alt={`${property.title} - Apartamente premium în ${property.location}, ${property.size}, ${property.rooms}`}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -90,11 +125,11 @@ const Properties = () => {
             
             {/* Title & Location */}
             <div className="space-y-3">
-              <h3 className={`text-xl sm:text-2xl font-bold leading-tight ${
-                property.highlight ? 'text-gold' : 'text-foreground'
-              } group-hover:text-gold transition-colors`}>
-                {property.title}
-              </h3>
+            <h2 className={`text-xl sm:text-2xl font-bold leading-tight ${
+              property.highlight ? 'text-gold' : 'text-foreground'
+            } group-hover:text-gold transition-colors`}>
+              {property.title}
+            </h2>
               
               <div className="flex items-center text-muted-foreground">
                 <MapPin className="w-4 h-4 mr-2 text-gold" />
@@ -171,22 +206,28 @@ const Properties = () => {
 
   return (
     <section id="proprietati" className="py-24 bg-gradient-to-b from-background to-secondary/20">
+      {/* Structured Data */}
+      <script 
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(propertiesStructuredData) }}
+      />
+      
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-20">
+          <header className="text-center mb-20">
             <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
               <Star className="w-4 h-4 mr-2" />
               Proiecte Exclusive
             </Badge>
             
-            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Proprietăți </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Premium
               </span>
-            </h2>
+            </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Descoperă cele mai selective proprietăți din vestul Bucureștiului, 
@@ -202,7 +243,7 @@ const Properties = () => {
                 </Button>
               </a>
             </div>
-          </div>
+          </header>
 
           {/* Properties Tabs */}
           <div className="mb-16">
@@ -240,11 +281,11 @@ const Properties = () => {
           </div>
 
           {/* CTA Section */}
-          <div className="text-center">
+          <footer className="text-center">
             <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-2xl p-8 border border-gold/20 max-w-4xl mx-auto">
-              <h3 className="text-2xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
                 Explorează Toate Apartamentele Disponibile
-              </h3>
+              </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 Vizitează profilul nostru complet pe Storia.ro pentru a vedea toate opțiunile 
                 disponibile, planuri detaliate și programarea vizitelor.
@@ -256,7 +297,7 @@ const Properties = () => {
                 </Button>
               </a>
             </div>
-          </div>
+          </footer>
         </div>
       </div>
     </section>

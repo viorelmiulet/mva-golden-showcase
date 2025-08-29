@@ -18,18 +18,18 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-background/70 z-10"></div>
         <img 
           src={heroProperty} 
-          alt="Luxury Property" 
+          alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului" 
           className="w-full h-full object-cover scale-110 animate-fade-in"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
       </div>
 
       {/* Content Grid */}
-      <div className="relative z-20 container mx-auto px-4 min-h-screen flex items-center">
+      <main className="relative z-20 container mx-auto px-4 min-h-screen flex items-center">
         <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
           
           {/* Left Column - Main Content */}
-          <div className="space-y-8">
+          <header className="space-y-8">
             <div className="space-y-6">
               <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 px-4 py-2">
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -49,7 +49,7 @@ const Hero = () => {
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <nav className="flex flex-col sm:flex-row gap-4">
               <Button 
                 variant="luxury" 
                 size="lg" 
@@ -70,8 +70,8 @@ const Hero = () => {
                   Consultație Gratuită
                 </Button>
               </a>
-            </div>
-          </div>
+            </nav>
+          </header>
 
           {/* Right Column - Stats Cards */}
           <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-8 lg:mt-0">
@@ -103,7 +103,7 @@ const Hero = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-20">
