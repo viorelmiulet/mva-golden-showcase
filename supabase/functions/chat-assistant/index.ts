@@ -1,10 +1,17 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize Supabase client
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+);
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -27,32 +34,112 @@ serve(async (req) => {
     
     console.log('OpenAI API key found:', openAIApiKey ? 'Yes' : 'No');
 
-    // System prompt for real estate assistant
-    const systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în complexe rezidențiale premium din vestul Bucureștiului. 
+    // Fetch all real estate projects from database
+    const { data: projects, error: projectsError } = await supabase
+      .from('real_estate_projects')
+      .select('*')
+      .eq('status', 'available')
+      .order('is_recommended', { ascending: false });
+
+    if (projectsError) {
+      console.error('Error fetching projects:', projectsError);
+    }
+
+    // Build comprehensive system prompt with database information
+    let systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
 
 INFORMAȚII DESPRE COMPANIE:
 - MVA Imobiliare - agenție specializată în proprietăți premium
 - Locație: Vestul Bucureștiului (Chiajna)
-- Specializare: Complexe rezidențiale moderne cu finisaje premium
+- Specializare: Apartamente moderne cu finisaje premium
 
 INFORMAȚII DE CONTACT:
 - Telefon: 0767941512
 - Email: mvaperfectbusiness@gmail.com
 
-PROIECTELE PRINCIPALE:
-1. RENEW RESIDENCE (Chiajna):
-   - Preț: €44,000 - €90,000
-   - Suprafață: 32-65 mp
-   - Camere: 1-2 camere
-   - Caracteristici: Finisaje Premium, Spații Verzi
-   - Status: RECOMANDAT
+`;
 
-2. EUROCASA RESIDENCE (Chiajna):
-   - Preț: €40,000 - €102,000
-   - Suprafață: 30-75 mp
-   - Camere: 1-3 camere
-   - Caracteristici: Design Modern, Sistem Securitate, Zonă Comercială
+    // Add project information from database
+    if (projects && projects.length > 0) {
+      systemPrompt += "PROIECTELE DISPONIBILE:\n\n";
+      
+      projects.forEach((project, index) => {
+        systemPrompt += `${index + 1}. ${project.name} (${project.location}):\n`;
+        systemPrompt += `   - Dezvoltator: ${project.developer || 'N/A'}\n`;
+        systemPrompt += `   - Preț: ${project.price_range}\n`;
+        systemPrompt += `   - Suprafață: ${project.surface_range}\n`;
+        systemPrompt += `   - Camere: ${project.rooms_range}\n`;
+        systemPrompt += `   - Descriere: ${project.description}\n`;
+        
+        if (project.features && project.features.length > 0) {
+          systemPrompt += `   - Caracteristici: ${project.features.join(', ')}\n`;
+        }
+        
+        if (project.amenities && project.amenities.length > 0) {
+          systemPrompt += `   - Facilități: ${project.amenities.join(', ')}\n`;
+        }
+        
+        if (project.location_advantages && project.location_advantages.length > 0) {
+          systemPrompt += `   - Avantaje locație: ${project.location_advantages.join(', ')}\n`;
+        }
+        
+        if (project.payment_plans && project.payment_plans.length > 0) {
+          systemPrompt += `   - Planuri de plată: ${project.payment_plans.join(', ')}\n`;
+        }
+        
+        if (project.investment_details) {
+          systemPrompt += `   - Detalii investiție: ${project.investment_details}\n`;
+        }
+        
+        if (project.completion_date) {
+          systemPrompt += `   - Data finalizării: ${project.completion_date}\n`;
+        }
+        
+        if (project.total_units && project.available_units) {
+          systemPrompt += `   - Unități: ${project.available_units} disponibile din ${project.total_units} total\n`;
+        }
+        
+        // Add detailed info if available
+        if (project.detailed_info) {
+          const details = project.detailed_info;
+          if (details.nearby_schools) {
+            systemPrompt += `   - Școli în apropiere: ${details.nearby_schools.join(', ')}\n`;
+          }
+          if (details.nearby_shopping) {
+            systemPrompt += `   - Shopping: ${details.nearby_shopping.join(', ')}\n`;
+          }
+          if (details.public_transport) {
+            systemPrompt += `   - Transport public: ${details.public_transport.join(', ')}\n`;
+          }
+          if (details.medical_facilities) {
+            systemPrompt += `   - Facilități medicale: ${details.medical_facilities.join(', ')}\n`;
+          }
+          if (details.completion_stages) {
+            systemPrompt += `   - Stadiu construcție: ${details.completion_stages.join(', ')}\n`;
+          }
+          if (details.energy_class) {
+            systemPrompt += `   - Clasă energetică: ${details.energy_class}\n`;
+          }
+          if (details.building_height) {
+            systemPrompt += `   - Înălțime clădire: ${details.building_height}\n`;
+          }
+          if (details.parking_spaces) {
+            systemPrompt += `   - Locuri de parcare: ${details.parking_spaces}\n`;
+          }
+          if (details.green_spaces_percent) {
+            systemPrompt += `   - Spații verzi: ${details.green_spaces_percent}%\n`;
+          }
+        }
+        
+        if (project.is_recommended) {
+          systemPrompt += `   - Status: RECOMANDAT\n`;
+        }
+        
+        systemPrompt += "\n";
+      });
+    }
 
+    systemPrompt += `
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - Ajută clienții să găsească proprietatea potrivită
@@ -63,7 +150,7 @@ ROLUL TĂU:
 - Explică avantajele fiecărui proiect
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
-Nu inventa informații care nu sunt furnizate. Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii.`;
+IMPORTANT: Folosește DOAR informațiile din baza de date de mai sus. Nu inventa informații care nu sunt furnizate. Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii. Poți folosi informațiile detaliate despre proiecte pentru a răspunde la întrebări specifice.`;
 
     // Prepare messages for OpenAI
     const messages = [
@@ -72,7 +159,7 @@ Nu inventa informații care nu sunt furnizate. Dacă nu știi ceva, spune că ve
       { role: 'user', content: message }
     ];
 
-    console.log('Sending request to OpenAI with messages:', messages.length);
+    console.log('Sending request to OpenAI with', projects?.length || 0, 'projects loaded');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

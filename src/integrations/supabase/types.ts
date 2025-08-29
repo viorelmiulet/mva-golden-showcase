@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      real_estate_projects: {
+        Row: {
+          amenities: string[]
+          available_units: number | null
+          completion_date: string | null
+          created_at: string | null
+          description: string
+          detailed_info: Json | null
+          developer: string | null
+          features: string[]
+          id: string
+          investment_details: string | null
+          is_recommended: boolean | null
+          location: string
+          location_advantages: string[]
+          name: string
+          payment_plans: string[]
+          price_range: string
+          rooms_range: string
+          status: string | null
+          surface_range: string
+          total_units: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          amenities?: string[]
+          available_units?: number | null
+          completion_date?: string | null
+          created_at?: string | null
+          description: string
+          detailed_info?: Json | null
+          developer?: string | null
+          features?: string[]
+          id?: string
+          investment_details?: string | null
+          is_recommended?: boolean | null
+          location: string
+          location_advantages?: string[]
+          name: string
+          payment_plans?: string[]
+          price_range: string
+          rooms_range: string
+          status?: string | null
+          surface_range: string
+          total_units?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          amenities?: string[]
+          available_units?: number | null
+          completion_date?: string | null
+          created_at?: string | null
+          description?: string
+          detailed_info?: Json | null
+          developer?: string | null
+          features?: string[]
+          id?: string
+          investment_details?: string | null
+          is_recommended?: boolean | null
+          location?: string
+          location_advantages?: string[]
+          name?: string
+          payment_plans?: string[]
+          price_range?: string
+          rooms_range?: string
+          status?: string | null
+          surface_range?: string
+          total_units?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
