@@ -5,6 +5,7 @@ import eurocasaResidence from "@/assets/eurocasa-residence.jpg"
 import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
+  // Updated with new projects - v2
   const properties = [
     {
       id: 1,
