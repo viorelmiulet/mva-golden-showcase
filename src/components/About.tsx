@@ -1,59 +1,126 @@
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { CheckCircle, Award, Users, TrendingUp } from "lucide-react"
+
 const About = () => {
+  const achievements = [
+    {
+      icon: Award,
+      number: "15+",
+      label: "Ani experiență",
+      description: "în piața imobiliară premium"
+    },
+    {
+      icon: Users,
+      number: "500+", 
+      label: "Clienți mulțumiți",
+      description: "tranzacții finalizate cu succes"
+    },
+    {
+      icon: TrendingUp,
+      number: "€50M+",
+      label: "Valoare tranzacții",
+      description: "proprietăți comercializate"
+    }
+  ]
+
+  const values = [
+    "Transparență totală în toate tranzacțiile",
+    "Consultanță personalizată pentru fiecare client", 
+    "Experiență vastă în segmentul premium",
+    "Relații de lungă durată cu dezvoltatorii"
+  ]
+
   return (
-    <section id="despre" className="py-20 bg-secondary/30">
+    <section id="despre" className="py-24 bg-gradient-to-b from-secondary/20 to-background">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-foreground">Despre </span>
-              <span className="text-gold">MVA IMOBILIARE</span>
+          
+          {/* Header */}
+          <div className="text-center mb-20">
+            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
+              Despre MVA Imobiliare
+            </Badge>
+            
+            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+              <span className="text-foreground">Partenerii </span>
+              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                Tăi de Încredere
+              </span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-gold-dark to-gold mx-auto mb-6"></div>
+            
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE 
-              este liderul în tranzacțiile de proprietăți de lux din România.
+              este liderul în comercializarea complexelor rezidențiale de excepție din vestul Bucureștiului.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl font-bold text-primary-foreground">15+</span>
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Ani de Experiență</h3>
-              <p className="text-muted-foreground">
-                Peste o decadă și jumătate de expertise în piața imobiliară de lux
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl font-bold text-primary-foreground">500+</span>
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Tranzacții Reușite</h3>
-              <p className="text-muted-foreground">
-                Sute de clienți mulțumiți și tranzacții finalizate cu succes
-              </p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <span className="text-3xl font-bold text-primary-foreground">€50M+</span>
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Valoare Tranzacții</h3>
-              <p className="text-muted-foreground">
-                Peste 50 de milioane de euro în proprietăți comercializate
-              </p>
-            </div>
+          {/* Achievements Grid */}
+          <div className="grid md:grid-cols-3 gap-8 mb-20">
+            {achievements.map((achievement, index) => {
+              const Icon = achievement.icon
+              return (
+                <Card key={index} className="p-8 text-center border-0 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 group">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gold to-gold-dark rounded-2xl mb-6 group-hover:scale-110 transition-transform">
+                    <Icon className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  
+                  <div className="text-4xl font-bold text-gold mb-2">
+                    {achievement.number}
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    {achievement.label}
+                  </h3>
+                  
+                  <p className="text-muted-foreground">
+                    {achievement.description}
+                  </p>
+                </Card>
+              )
+            })}
           </div>
 
-          <div className="mt-16 text-center">
-            <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-              <strong className="text-gold">Misiunea noastră</strong> este să oferim servicii imobiliare de 
-              excepție, conectând clienții cu proprietățile perfecte pentru stilul lor de viață. 
-              Echipa noastră de experți vă ghidează prin fiecare etapă a procesului, asigurându-se 
-              că fiecare tranzacție este o experiență de neuitat.
-            </p>
+          {/* Mission & Values */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Mission */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-3xl font-bold text-foreground mb-6">
+                  Misiunea Noastră
+                </h3>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+                  Să conectăm clienții cu <span className="text-gold font-semibold">complexele rezidențiale perfecte</span> pentru 
+                  stilul lor de viață, oferind servicii imobiliare de excepție și consultanță specializată 
+                  în segmentul premium.
+                </p>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Echipa noastră de experți vă ghidează prin fiecare etapă a procesului, asigurându-se 
+                  că fiecare investiție este o <span className="text-gold font-semibold">experiență de neuitat</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* Values */}
+            <div className="space-y-6">
+              <h3 className="text-3xl font-bold text-foreground mb-8">
+                De Ce Să Ne Alegi
+              </h3>
+              
+              <div className="space-y-4">
+                {values.map((value, index) => (
+                  <div key={index} className="flex items-start space-x-4 group">
+                    <div className="flex-shrink-0 w-6 h-6 bg-gold/10 rounded-full flex items-center justify-center mt-0.5 group-hover:bg-gold/20 transition-colors">
+                      <CheckCircle className="w-4 h-4 text-gold" />
+                    </div>
+                    <p className="text-foreground font-medium leading-relaxed">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
