@@ -95,8 +95,8 @@ INFORMAȚII DE CONTACT:
           systemPrompt += `   - Data finalizării: ${project.completion_date}\n`;
         }
         
-        if (project.total_units && project.available_units) {
-          systemPrompt += `   - Unități: ${project.available_units} disponibile din ${project.total_units} total\n`;
+        if (project.total_units) {
+          systemPrompt += `   - Blocul va avea: ${project.total_units} apartamente\n`;
         }
         
         // Add detailed info if available
