@@ -40,7 +40,7 @@ const ChatAssistant = () => {
     // Adaugă mesajul de bun venit
     const welcomeMessage: Message = {
       role: 'assistant',
-      content: 'Bună ziua! Sunt asistentul virtual MVA Imobiliare. Te pot ajuta să găsești proprietatea perfectă din portofoliul nostru de complexe rezidențiale premium din vestul Bucureștiului. Cu ce te pot ajuta astăzi?',
+      content: 'Bună ziua! Sunt asistentul virtual MVA Imobiliare. Te pot ajuta să găsești proprietatea perfectă din portofoliul nostru de apartamente premium din vestul Bucureștiului. Cu ce te pot ajuta astăzi?',
       timestamp: new Date()
     }
     setMessages([welcomeMessage])
@@ -127,7 +127,7 @@ const ChatAssistant = () => {
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Asistentul nostru virtual îți poate oferi informații despre proprietăți, 
-              preturi și îți poate programa o vizită. Întreabă orice despre proiectele noastre!
+              prețuri și îți poate programa o vizită. Întreabă orice despre ofertele noastre!
             </p>
           </div>
 

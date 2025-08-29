@@ -170,14 +170,14 @@ const Properties = () => {
             </Badge>
             
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
-              <span className="text-foreground">Complexe </span>
+              <span className="text-foreground">Proprietăți </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                Rezidențiale
+                Premium
               </span>
             </h2>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Descoperă cele mai selective complexe rezidențiale din vestul Bucureștiului, 
+              Descoperă cele mai selective proprietăți din vestul Bucureștiului, 
               cu apartamente moderne și facilități premium.
             </p>
           </div>

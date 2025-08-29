@@ -136,7 +136,7 @@ const Services = () => {
               </h3>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                 Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem 
-                să te ajutăm să găsești complexul rezidențial ideal.
+                să te ajutăm să găsești proprietatea ideală.
               </p>
               <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                 <button className="inline-flex items-center px-6 py-3 bg-gold text-primary-foreground rounded-lg font-medium hover:bg-gold-dark transition-colors">

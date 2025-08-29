@@ -51,7 +51,7 @@ const About = () => {
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE 
-              este liderul în comercializarea complexelor rezidențiale de excepție din vestul Bucureștiului.
+              este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ const About = () => {
                   Misiunea Noastră
                 </h3>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                  Să conectăm clienții cu <span className="text-gold font-semibold">complexele rezidențiale perfecte</span> pentru 
+                  Să conectăm clienții cu <span className="text-gold font-semibold">proprietățile perfecte</span> pentru 
                   stilul lor de viață, oferind servicii imobiliare de excepție și consultanță specializată 
                   în segmentul premium.
                 </p>
