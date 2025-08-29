@@ -168,24 +168,25 @@ const ChatAssistant = () => {
                             : 'bg-secondary/50 text-foreground mr-8 sm:mr-12'
                         }`}
                       >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content.split(/(https?:\/\/[^\s,.!?]+)/g).map((part, index) => {
-                            if (part.match(/https?:\/\/[^\s,.!?]+/)) {
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.content.split(/(https?:\/\/[^\s,.!?()]+)/g).map((part, index) => {
+                            if (part.match(/^https?:\/\/[^\s,.!?()]+$/)) {
                               return (
                                 <a
                                   key={index}
                                   href={part}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-gold hover:text-gold-light underline font-medium"
+                                  className="text-blue-500 hover:text-blue-600 underline font-medium cursor-pointer break-all"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   {part}
                                 </a>
                               );
                             }
-                            return part;
+                            return <span key={index}>{part}</span>;
                           })}
-                        </p>
+                        </div>
                         <div className="text-xs opacity-70 mt-1 sm:mt-2">
                           {message.timestamp.toLocaleTimeString('ro-RO', { 
                             hour: '2-digit', 
