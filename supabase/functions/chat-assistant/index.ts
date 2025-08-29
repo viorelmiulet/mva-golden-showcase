@@ -147,6 +147,10 @@ INFORMAȚII DE CONTACT:
           }
         }
         
+        if (project.website_url) {
+          systemPrompt += `   - Link detalii complete: ${project.website_url}\n`;
+        }
+        
         if (project.is_recommended) {
           systemPrompt += `   - Status: RECOMANDAT\n`;
         }
@@ -160,13 +164,23 @@ ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - Ajută clienții să găsească proprietatea potrivită
 - Oferă informații despre proiecte, prețuri, facilități
+- Când clienții cer oferte sau link-uri, oferă linkurile disponibile pentru proiecte
+- Pentru RENEW RESIDENCE, linkul este: https://renewresidence.ro/
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
 - Răspunde la întrebări despre investiții imobiliare
 - Explică avantajele fiecărui proiect
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
-IMPORTANT: Folosește DOAR informațiile din baza de date de mai sus. Nu inventa informații care nu sunt furnizate. Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii. Poți folosi informațiile detaliate despre proiecte pentru a răspunde la întrebări specifice.`;
+LINKURI SPECIALE:
+- Pentru RENEW RESIDENCE: https://renewresidence.ro/ (oferă acest link când clienții întreabă despre RENEW RESIDENCE sau cer link-uri cu oferte)
+
+IMPORTANT: 
+- Folosește DOAR informațiile din baza de date de mai sus
+- Când clienții cer "link-uri cu oferte" sau "oferte online", oferă linkurile disponibile pentru proiectele relevante
+- Nu inventa informații care nu sunt furnizate
+- Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii
+- Poți folosi informațiile detaliate despre proiecte pentru a răspunde la întrebări specifice`;
 
     // Prepare messages for OpenAI
     const messages = [
