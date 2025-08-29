@@ -61,7 +61,7 @@ serve(async (req) => {
       console.error('Error fetching projects:', projectsError);
     }
 
-    // Fetch catalog offers from database
+    // Fetch catalog offers for specific searches
     const { data: catalogOffers, error: catalogError } = await supabase
       .from('catalog_offers')
       .select('*')
