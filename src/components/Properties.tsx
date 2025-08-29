@@ -144,13 +144,25 @@ const Properties = () => {
             </div>
             
             {/* CTA Button */}
-            <Button 
-              variant={property.highlight ? "luxury" : "luxuryOutline"} 
-              className="w-full group"
-            >
-              Vezi Detalii Complete
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            {property.title === "RENEW RESIDENCE" ? (
+              <a href="https://renewresidence.ro/" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  variant={property.highlight ? "luxury" : "luxuryOutline"} 
+                  className="w-full group"
+                >
+                  Vezi Detalii Complete
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </a>
+            ) : (
+              <Button 
+                variant={property.highlight ? "luxury" : "luxuryOutline"} 
+                className="w-full group"
+              >
+                Vezi Detalii Complete
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            )}
           </CardContent>
         </Card>
       ))}
