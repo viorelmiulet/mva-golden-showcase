@@ -168,24 +168,32 @@ const ChatAssistant = () => {
                             : 'bg-secondary/50 text-foreground mr-8 sm:mr-12'
                         }`}
                       >
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content.split(/(https?:\/\/[^\s,.!?()]+)/g).map((part, index) => {
-                            if (part.match(/^https?:\/\/[^\s,.!?()]+$/)) {
-                              return (
-                                <a
-                                  key={index}
-                                  href={part}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-500 hover:text-blue-600 underline font-medium cursor-pointer break-all"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {part}
-                                </a>
-                              );
-                            }
-                            return <span key={index}>{part}</span>;
-                          })}
+                        <div className="text-sm leading-relaxed space-y-1">
+                          {message.content.split('\n').map((line, lineIndex) => (
+                            <div key={lineIndex}>
+                              {line.split(/(https?:\/\/[^\s]+)/g).map((part, partIndex) => {
+                                if (part.match(/^https?:\/\/[^\s]+$/)) {
+                                  return (
+                                    <a
+                                      key={partIndex}
+                                      href={part}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-block text-blue-600 hover:text-blue-800 underline font-medium cursor-pointer break-all transition-colors duration-200"
+                                      style={{ 
+                                        wordBreak: 'break-all',
+                                        display: 'inline-block',
+                                        maxWidth: '100%'
+                                      }}
+                                    >
+                                      {part}
+                                    </a>
+                                  );
+                                }
+                                return <span key={partIndex}>{part}</span>;
+                              })}
+                            </div>
+                          ))}
                         </div>
                         <div className="text-xs opacity-70 mt-1 sm:mt-2">
                           {message.timestamp.toLocaleTimeString('ro-RO', { 

@@ -50,17 +50,6 @@ serve(async (req) => {
       console.error('Error saving user message:', saveUserError);
     }
 
-    // Fetch all real estate projects from database
-    const { data: projects, error: projectsError } = await supabase
-      .from('real_estate_projects')
-      .select('*')
-      .eq('status', 'available')
-      .order('is_recommended', { ascending: false });
-
-    if (projectsError) {
-      console.error('Error fetching projects:', projectsError);
-    }
-
     // Fetch catalog offers for specific searches
     const { data: catalogOffers, error: catalogError } = await supabase
       .from('catalog_offers')
@@ -72,7 +61,7 @@ serve(async (req) => {
       console.error('Error fetching catalog offers:', catalogError);
     }
 
-    // Build comprehensive system prompt with database information
+    // Build comprehensive system prompt with catalog offers only
     let systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
 
 INFORMAȚII DESPRE COMPANIE:
@@ -86,98 +75,14 @@ INFORMAȚII DE CONTACT:
 
 `;
 
-    // Add project information from database
-    if (projects && projects.length > 0) {
-      systemPrompt += "PROIECTELE DISPONIBILE:\n\n";
-      
-      projects.forEach((project, index) => {
-        systemPrompt += `${index + 1}. ${project.name} (${project.location}):\n`;
-        systemPrompt += `   - Dezvoltator: ${project.developer || 'N/A'}\n`;
-        systemPrompt += `   - Preț: ${project.price_range}\n`;
-        systemPrompt += `   - Suprafață: ${project.surface_range}\n`;
-        systemPrompt += `   - Camere: ${project.rooms_range}\n`;
-        systemPrompt += `   - Descriere: ${project.description}\n`;
-        
-        if (project.features && project.features.length > 0) {
-          systemPrompt += `   - Caracteristici: ${project.features.join(', ')}\n`;
-        }
-        
-        if (project.amenities && project.amenities.length > 0) {
-          systemPrompt += `   - Facilități: ${project.amenities.join(', ')}\n`;
-        }
-        
-        if (project.location_advantages && project.location_advantages.length > 0) {
-          systemPrompt += `   - Avantaje locație: ${project.location_advantages.join(', ')}\n`;
-        }
-        
-        if (project.payment_plans && project.payment_plans.length > 0) {
-          systemPrompt += `   - Planuri de plată: ${project.payment_plans.join(', ')}\n`;
-        }
-        
-        if (project.investment_details) {
-          systemPrompt += `   - Detalii investiție: ${project.investment_details}\n`;
-        }
-        
-        if (project.completion_date) {
-          systemPrompt += `   - Data finalizării: ${project.completion_date}\n`;
-        }
-        
-        if (project.total_units) {
-          systemPrompt += `   - Blocul va avea: ${project.total_units} apartamente\n`;
-        }
-        
-        // Add detailed info if available
-        if (project.detailed_info) {
-          const details = project.detailed_info;
-          if (details.nearby_schools) {
-            systemPrompt += `   - Școli în apropiere: ${details.nearby_schools.join(', ')}\n`;
-          }
-          if (details.nearby_shopping) {
-            systemPrompt += `   - Shopping: ${details.nearby_shopping.join(', ')}\n`;
-          }
-          if (details.public_transport) {
-            systemPrompt += `   - Transport public: ${details.public_transport.join(', ')}\n`;
-          }
-          if (details.medical_facilities) {
-            systemPrompt += `   - Facilități medicale: ${details.medical_facilities.join(', ')}\n`;
-          }
-          if (details.completion_stages) {
-            systemPrompt += `   - Stadiu construcție: ${details.completion_stages.join(', ')}\n`;
-          }
-          if (details.energy_class) {
-            systemPrompt += `   - Clasă energetică: ${details.energy_class}\n`;
-          }
-          if (details.building_height) {
-            systemPrompt += `   - Înălțime clădire: ${details.building_height}\n`;
-          }
-          if (details.parking_spaces) {
-            systemPrompt += `   - Locuri de parcare: ${details.parking_spaces}\n`;
-          }
-          if (details.green_spaces_percent) {
-            systemPrompt += `   - Spații verzi: ${details.green_spaces_percent}%\n`;
-          }
-        }
-        
-        if (project.website_url) {
-          systemPrompt += `   - Link detalii complete: ${project.website_url}\n`;
-        }
-        
-        if (project.is_recommended) {
-          systemPrompt += `   - Status: RECOMANDAT\n`;
-        }
-        
-        systemPrompt += "\n";
-      });
-    }
-
-    // Add catalog offers information
+    // Add catalog offers information only
     if (catalogOffers && catalogOffers.length > 0) {
-      systemPrompt += "\nOFERTE DISPONIBILE ÎN CATALOG:\n\n";
+      systemPrompt += "\nOFERTE DISPONIBILE:\n\n";
       
       catalogOffers.forEach((offer, index) => {
         systemPrompt += `${index + 1}. ${offer.title}:\n`;
         systemPrompt += `   - Descriere: ${offer.description}\n`;
-        systemPrompt += `   - Preț: ${offer.price_min.toLocaleString()} - ${offer.price_max.toLocaleString()} EUR\n`;
+        systemPrompt += `   - Preț: ${offer.price_min.toLocaleString()} EUR\n`;
         if (offer.surface_min && offer.surface_max) {
           systemPrompt += `   - Suprafață: ${offer.surface_min} - ${offer.surface_max} mp\n`;
         }
@@ -212,18 +117,13 @@ FUNCȚIONALITĂȚI SPECIALE:
 - Prezintă detaliile complete ale ofertelor din catalog, inclusiv prețul exact și caracteristicile
 - Ofertele din catalog au prețuri exacte și sunt disponibile pentru vânzare imediată
 
-CATALOG WHATSAPP:
-- Pentru a vedea toate ofertele disponibile accesați catalogul nostru: https://wa.me/c/40767941512
-
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - Când clienții cer oferte sau specifică un buget/cerințe, prezintă ÎNTOTDEAUNA PRIMUL ofertele din CATALOG cu prețuri exacte
-- Pentru fiecare ofertă prezentată, OBLIGATORIU include linkul către Story (dacă există) pentru detalii complete
+- Pentru fiecare ofertă prezentată, OBLIGATORIU include linkul către Storia pentru detalii complete și poze
 - Folosește ofertele din catalog pentru a răspunde la întrebări despre prețuri și disponibilitate
-- Ofertele din catalog sunt prioritare față de informațiile generale despre proiecte
-- După prezentarea ofertelor specifice, oferă și linkul general către catalogul WhatsApp
+- Ofertele din catalog sunt prioritare și singurele oferte pe care le prezinți
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
-- Oferă informații despre proiecte, prețuri, facilități
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
 - Răspunde la întrebări despre investiții imobiliare
@@ -231,13 +131,12 @@ ROLUL TĂU:
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
 IMPORTANT: 
-- Folosește DOAR informațiile din baza de date de mai sus
+- Folosește DOAR ofertele din catalog - nu mai menciona proiectele rezidențiale generale
+- Nu mai oferi linkul către catalogul WhatsApp 
 - Când clienții cer "oferte", "catalog" sau specifică criterii (buget, camere), caută în ofertele din catalog și prezintă opțiunile potrivite
 - OBLIGATORIU: Pentru fiecare ofertă din catalog prezentată, include linkul către Storia pentru detalii complete și poze
-- Pentru oferte generale sau când nu există oferte specifice, oferă linkul către catalogul WhatsApp
 - Nu inventa informații care nu sunt furnizate
-- Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii
-- Poți folosi informațiile detaliate despre proiecte pentru a răspunde la întrebări specifice`;
+- Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii`;
 
     // Prepare messages for OpenAI
     const messages = [
@@ -246,10 +145,10 @@ IMPORTANT:
       { role: 'user', content: message }
     ];
 
-    console.log('Sending request to OpenAI with', projects?.length || 0, 'projects and', catalogOffers?.length || 0, 'catalog offers loaded');
+    console.log('Sending request to OpenAI with', catalogOffers?.length || 0, 'catalog offers loaded');
     
     if (catalogOffers && catalogOffers.length > 0) {
-      console.log('Catalog offers loaded:', catalogOffers.map(offer => `${offer.title} - ${offer.price_min}-${offer.price_max} EUR`));
+      console.log('Catalog offers loaded:', catalogOffers.map(offer => `${offer.title} - ${offer.price_min} EUR`));
     } else {
       console.log('No catalog offers found!');
     }
