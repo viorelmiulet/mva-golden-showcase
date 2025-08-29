@@ -21,6 +21,7 @@ interface StoryOffer {
   location: string;
   features: string[];
   description: string;
+  storiaLink: string;
 }
 
 serve(async (req) => {
@@ -126,7 +127,8 @@ serve(async (req) => {
               features: offer.features,
               amenities: ['Complex rezidențial modern', 'Zonă dezvoltată', 'Acces transport public'],
               availability_status: 'available',
-              is_featured: offer.price < 70000 // Feature lower priced offers
+              is_featured: offer.price < 70000, // Feature lower priced offers
+              storia_link: offer.storiaLink
             })));
 
           if (insertError) {
@@ -176,25 +178,40 @@ function parseStoryOffers(markdown: string): StoryOffer[] {
   const offers: StoryOffer[] = [];
   console.log('Parsing markdown content for offers...');
 
-  // Split content by offer patterns
-  const offerSections = markdown.split(/(?=\d+\s*\/\s*\d+.*?€)/);
+  // Split content by offer patterns - look for links first
+  const linkPattern = /\[([^\]]+)\]\((https:\/\/www\.storia\.ro\/ro\/oferta\/[^)]+)\)/g;
+  const matches = [...markdown.matchAll(linkPattern)];
 
-  for (const section of offerSections) {
+  for (const match of matches) {
     try {
-      // Extract price
-      const priceMatch = section.match(/(\d+\s*\d*)\s*€/);
-      if (!priceMatch) continue;
+      const [fullMatch, title, storiaLink] = match;
       
-      const price = parseInt(priceMatch[1].replace(/\s/g, ''));
-      if (price < 20000 || price > 200000) continue; // Reasonable price range
+      // Skip if not a property offer
+      if (!title || !storiaLink || !storiaLink.includes('/oferta/')) continue;
 
-      // Extract title/description
-      const titleMatch = section.match(/\[([^\]]+)\]/);
-      if (!titleMatch) continue;
+      // Find the surrounding context for this offer
+      const matchIndex = markdown.indexOf(fullMatch);
+      const contextStart = Math.max(0, matchIndex - 500);
+      const contextEnd = Math.min(markdown.length, matchIndex + 1000);
+      const context = markdown.slice(contextStart, contextEnd);
+
+      // Extract price from context
+      const priceMatches = context.match(/(\d+\s*\d*)\s*€/g);
+      if (!priceMatches || priceMatches.length === 0) continue;
       
-      const title = titleMatch[1].trim();
+      // Get the price closest to our link
+      let price = 0;
+      for (const priceMatch of priceMatches) {
+        const priceValue = parseInt(priceMatch.replace(/[\s€]/g, ''));
+        if (priceValue >= 20000 && priceValue <= 200000) {
+          price = priceValue;
+          break;
+        }
+      }
+      
+      if (price === 0) continue;
 
-      // Extract rooms
+      // Extract rooms from title
       let rooms = 1;
       if (title.toLowerCase().includes('2 cam') || title.toLowerCase().includes('doua cam')) {
         rooms = 2;
@@ -204,12 +221,12 @@ function parseStoryOffers(markdown: string): StoryOffer[] {
         rooms = 1;
       }
 
-      // Extract surface
-      const surfaceMatch = section.match(/(\d+)m²/);
+      // Extract surface from context
+      const surfaceMatch = context.match(/(\d+)m²/);
       const surface = surfaceMatch ? parseInt(surfaceMatch[1]) : (rooms === 1 ? 35 : rooms === 2 ? 50 : 75);
 
-      // Extract location
-      const locationMatch = section.match(/(Militari[^,]*,\s*[^,]+,\s*[^,]+)/);
+      // Extract location from context
+      const locationMatch = context.match(/(Militari[^,]*,\s*[^,]+,\s*[^,]+)/);
       const location = locationMatch ? locationMatch[1] : 'Militari, Sectorul 6, Bucuresti';
 
       // Create features based on title content
@@ -217,8 +234,8 @@ function parseStoryOffers(markdown: string): StoryOffer[] {
       if (title.toLowerCase().includes('decomandat')) features.push('Apartament decomandat');
       if (title.toLowerCase().includes('imediata')) features.push('Mutare imediată');
       if (title.toLowerCase().includes('2026')) features.push('Finalizare 2026');
-      if (title.toLowerCase().includes('etaj')) {
-        const etajMatch = section.match(/(\d+)\s*etaj/);
+      if (context.toLowerCase().includes('etaj')) {
+        const etajMatch = context.match(/(\d+)\s*etaj/);
         if (etajMatch) features.push(`Etaj ${etajMatch[1]}`);
       }
       
@@ -227,20 +244,21 @@ function parseStoryOffers(markdown: string): StoryOffer[] {
       if (rooms >= 2) features.push('Spațios');
 
       const offer: StoryOffer = {
-        title: title,
+        title: title.trim(),
         price: price,
         surface: surface,
         rooms: rooms,
         location: location,
         features: features,
-        description: `${title} în complexul Militari Residence. Suprafață ${surface}m², ${rooms} ${rooms === 1 ? 'cameră' : 'camere'}.`
+        description: `${title.trim()} în complexul Militari Residence. Suprafață ${surface}m², ${rooms} ${rooms === 1 ? 'cameră' : 'camere'}.`,
+        storiaLink: storiaLink
       };
 
       offers.push(offer);
-      console.log(`Parsed offer: ${title} - ${price}€`);
+      console.log(`Parsed offer: ${title} - ${price}€ - ${storiaLink}`);
 
     } catch (error) {
-      console.error('Error parsing offer section:', error);
+      console.error('Error parsing offer:', error);
       continue;
     }
   }
