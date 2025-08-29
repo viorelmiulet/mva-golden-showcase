@@ -6,8 +6,6 @@ import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
   // UPDATED PROPERTIES - NEW VERSION
-  console.log("🚨 PROPERTIES COMPONENT IS LOADING - NEW VERSION!");
-  alert("Properties component loaded!");
   const projectsList = [
     {
       id: 1,
@@ -58,12 +56,13 @@ const Properties = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projectsList.map((property) => (
-              <Card key={property.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-gold/50 bg-card">
+              <Card key={`property-${property.id}-v3`} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-border/50 hover:border-gold/50 bg-card">
                 <div className="aspect-video overflow-hidden">
                   <img 
                     src={property.image} 
                     alt={property.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    key={`img-${property.id}-v3`}
                   />
                 </div>
                 <CardContent className="p-6">
