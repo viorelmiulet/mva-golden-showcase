@@ -180,6 +180,16 @@ const Properties = () => {
               Descoperă cele mai selective proprietăți din vestul Bucureștiului, 
               cu apartamente moderne și facilități premium.
             </p>
+            
+            {/* See All Apartments CTA */}
+            <div className="mt-8">
+              <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
+                <Button variant="luxuryOutline" size="lg" className="group">
+                  Vezi toate apartamentele noastre
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </a>
+            </div>
           </div>
 
           {/* Properties Tabs */}
