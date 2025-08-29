@@ -118,14 +118,14 @@ const ChatAssistant = () => {
               Asistent Virtual
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Discută cu </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Asistentul AI
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Asistentul nostru virtual îți poate oferi informații despre proprietăți, 
               preturi și îți poate programa o vizită. Întreabă orice despre proiectele noastre!
             </p>
@@ -136,32 +136,32 @@ const ChatAssistant = () => {
             <CardContent className="p-0">
               
               {/* Chat Messages */}
-              <ScrollArea className="h-[500px] p-6">
-                <div className="space-y-4">
+              <ScrollArea className="h-[400px] sm:h-[500px] p-4 sm:p-6">
+                <div className="space-y-3 sm:space-y-4">
                   {messages.map((message, index) => (
                     <div
                       key={index}
-                      className={`flex gap-3 ${
+                      className={`flex gap-2 sm:gap-3 ${
                         message.role === 'user' ? 'justify-end' : 'justify-start'
                       }`}
                     >
                       {message.role === 'assistant' && (
-                        <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
-                          <Bot className="w-4 h-4 text-gold" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
+                          <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-gold" />
                         </div>
                       )}
                       
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                        className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ${
                           message.role === 'user'
-                            ? 'bg-gold text-primary-foreground ml-12'
-                            : 'bg-secondary/50 text-foreground mr-12'
+                            ? 'bg-gold text-primary-foreground ml-8 sm:ml-12'
+                            : 'bg-secondary/50 text-foreground mr-8 sm:mr-12'
                         }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">
                           {message.content}
                         </p>
-                        <div className="text-xs opacity-70 mt-2">
+                        <div className="text-xs opacity-70 mt-1 sm:mt-2">
                           {message.timestamp.toLocaleTimeString('ro-RO', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -170,19 +170,19 @@ const ChatAssistant = () => {
                       </div>
                       
                       {message.role === 'user' && (
-                        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
-                          <User className="w-4 h-4 text-foreground" />
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-1">
+                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-foreground" />
                         </div>
                       )}
                     </div>
                   ))}
                   
                   {isLoading && (
-                    <div className="flex gap-3 justify-start">
-                      <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
-                        <Bot className="w-4 h-4 text-gold" />
+                    <div className="flex gap-2 sm:gap-3 justify-start">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0 mt-1">
+                        <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-gold" />
                       </div>
-                      <div className="bg-secondary/50 rounded-2xl px-4 py-3 mr-12">
+                      <div className="bg-secondary/50 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 mr-8 sm:mr-12">
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-gold" />
                           <span className="text-sm text-muted-foreground">Asistentul scrie...</span>
@@ -195,22 +195,22 @@ const ChatAssistant = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="border-t border-gold/20 p-4">
+              <div className="border-t border-gold/20 p-3 sm:p-4">
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Scrie mesajul tău aici... (apasă Enter pentru a trimite)"
+                    placeholder="Scrie mesajul tău aici..."
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={isLoading}
-                    className="flex-1 border-gold/20 focus:border-gold/50 bg-background/50"
+                    className="flex-1 border-gold/20 focus:border-gold/50 bg-background/50 text-sm"
                   />
                   <Button
                     onClick={sendMessage}
                     disabled={!inputMessage.trim() || isLoading}
                     variant="luxury"
                     size="icon"
-                    className="shrink-0"
+                    className="shrink-0 h-10 w-10"
                   >
                     {isLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -221,7 +221,7 @@ const ChatAssistant = () => {
                 </div>
                 
                 <div className="text-xs text-muted-foreground mt-2 text-center">
-                  Asistentul poate ajuta cu informații despre proprietăți, programarea vizitelor și întrebări generale.
+                  Asistentul poate ajuta cu informații despre proprietăți și programarea vizitelor.
                 </div>
               </div>
             </CardContent>

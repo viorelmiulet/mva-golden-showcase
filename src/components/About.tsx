@@ -42,38 +42,38 @@ const About = () => {
               Despre MVA Imobiliare
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Partenerii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Tăi de Încredere
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE 
               este liderul în comercializarea complexelor rezidențiale de excepție din vestul Bucureștiului.
             </p>
           </div>
 
           {/* Achievements Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
             {achievements.map((achievement, index) => {
               const Icon = achievement.icon
               return (
-                <Card key={index} className="p-8 text-center border-0 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 group">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gold to-gold-dark rounded-2xl mb-6 group-hover:scale-110 transition-transform">
-                    <Icon className="w-8 h-8 text-primary-foreground" />
+                <Card key={index} className="p-6 sm:p-8 text-center border-0 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 group">
+                  <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-gold to-gold-dark rounded-2xl mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
+                    <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
                   </div>
                   
-                  <div className="text-4xl font-bold text-gold mb-2">
+                  <div className="text-3xl sm:text-4xl font-bold text-gold mb-2">
                     {achievement.number}
                   </div>
                   
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
                     {achievement.label}
                   </h3>
                   
-                  <p className="text-muted-foreground">
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     {achievement.description}
                   </p>
                 </Card>

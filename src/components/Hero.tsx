@@ -36,17 +36,17 @@ const Hero = () => {
                 Premium Real Estate
               </Badge>
               
-              <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight">
                 <span className="block text-foreground">Complexe</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Rezidențiale
                 </span>
-                <span className="block text-foreground text-4xl lg:text-5xl font-medium mt-2">
+                <span className="block text-foreground text-2xl sm:text-3xl lg:text-5xl font-medium mt-2">
                   de Excepție
                 </span>
               </h1>
               
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
+              <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-lg">
                 Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. 
                 Investiții sigure cu finisaje premium și locații strategice.
               </p>
@@ -77,32 +77,32 @@ const Hero = () => {
           </div>
 
           {/* Right Column - Stats Cards */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-6 hover:bg-card/80 transition-all duration-300 group">
-              <div className="text-3xl font-bold text-gold mb-2">€40K+</div>
-              <div className="text-sm text-muted-foreground">Preturi de la</div>
-              <div className="text-sm text-foreground font-medium">Apartamente moderne</div>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-8 lg:mt-0">
+            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-4 sm:p-6 hover:bg-card/80 transition-all duration-300 group">
+              <div className="text-2xl sm:text-3xl font-bold text-gold mb-2">€40K+</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Preturi de la</div>
+              <div className="text-xs sm:text-sm text-foreground font-medium">Apartamente moderne</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-6 hover:bg-card/80 transition-all duration-300 group mt-8">
-              <div className="text-3xl font-bold text-gold mb-2">2</div>
-              <div className="text-sm text-muted-foreground">Complexe disponibile</div>
-              <div className="text-sm text-foreground font-medium">Chiajna, Ilfov</div>
+            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-4 sm:p-6 hover:bg-card/80 transition-all duration-300 group sm:mt-8">
+              <div className="text-2xl sm:text-3xl font-bold text-gold mb-2">2</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Complexe disponibile</div>
+              <div className="text-xs sm:text-sm text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-6 hover:bg-card/80 transition-all duration-300 group">
-              <div className="text-3xl font-bold text-gold mb-2">1-3</div>
-              <div className="text-sm text-muted-foreground">Camere disponibile</div>
-              <div className="text-sm text-foreground font-medium">30-75 mp</div>
+            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-4 sm:p-6 hover:bg-card/80 transition-all duration-300 group">
+              <div className="text-2xl sm:text-3xl font-bold text-gold mb-2">1-3</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Camere disponibile</div>
+              <div className="text-xs sm:text-sm text-foreground font-medium">30-75 mp</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-6 hover:bg-card/80 transition-all duration-300 group mt-8">
+            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-4 sm:p-6 hover:bg-card/80 transition-all duration-300 group sm:mt-8">
               <div className="flex items-center mb-2">
-                <MapPin className="w-4 h-4 text-gold mr-1" />
-                <div className="text-sm text-gold font-semibold">Vest Bucuresti</div>
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold mr-1" />
+                <div className="text-xs sm:text-sm text-gold font-semibold">Vest București</div>
               </div>
-              <div className="text-sm text-muted-foreground">Locație strategică</div>
-              <div className="text-sm text-foreground font-medium">Acces facil la centru</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Locație strategică</div>
+              <div className="text-xs sm:text-sm text-foreground font-medium">Acces facil la centru</div>
             </div>
           </div>
         </div>

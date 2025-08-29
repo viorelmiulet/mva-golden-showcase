@@ -56,21 +56,21 @@ const Services = () => {
               Servicii Premium
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Servicii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Complete
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Oferim o gamă completă de servicii imobiliare premium, adaptate perfect 
               pentru complexele rezidențiale moderne din vestul capitalei.
             </p>
           </div>
 
           {/* Services Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {services.map((service, index) => {
               const Icon = service.icon
               
@@ -91,21 +91,21 @@ const Services = () => {
                     </div>
                   )}
                   
-                  <CardContent className="p-8">
-                    <div className="space-y-6">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Icon */}
-                      <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${
+                      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${
                         service.highlight 
                           ? 'bg-gradient-to-br from-gold to-gold-dark' 
                           : 'bg-gradient-to-br from-gold/20 to-gold-dark/20'
                       } group-hover:scale-110 transition-transform duration-300`}>
-                        <Icon className={`w-7 h-7 ${
+                        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${
                           service.highlight ? 'text-primary-foreground' : 'text-gold'
                         }`} />
                       </div>
                       
                       {/* Title */}
-                      <h3 className={`text-xl font-bold leading-tight ${
+                      <h3 className={`text-lg sm:text-xl font-bold leading-tight ${
                         service.highlight ? 'text-gold' : 'text-foreground'
                       } group-hover:text-gold transition-colors`}>
                         {service.title}

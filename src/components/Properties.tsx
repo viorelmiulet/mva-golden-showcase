@@ -24,7 +24,7 @@ const Properties = () => {
       image: "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png",
       description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei.",
       highlight: true,
-      features: ["Finisaje Premium", "Parcare Subterană", "Spații Verzi"],
+      features: ["Finisaje Premium", "Spații Verzi"],
       category: "noi",
       status: "disponibil"
     },
@@ -49,7 +49,7 @@ const Properties = () => {
   const availableProjects = projectsList.filter(p => p.status === "disponibil")
 
   const renderProjects = (projects: typeof projectsList) => (
-    <div className="grid lg:grid-cols-2 gap-12">
+    <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
       {projects.map((property) => (
         <Card 
           key={property.id} 
@@ -60,8 +60,8 @@ const Properties = () => {
           } backdrop-blur-sm hover:border-gold/50`}
         >
           {property.highlight && (
-            <div className="absolute top-6 left-6 z-10">
-              <Badge className="bg-gold text-primary-foreground shadow-lg">
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
+              <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
                 <Sparkles className="w-3 h-3 mr-1" />
                 Recomandat
               </Badge>
@@ -86,11 +86,11 @@ const Properties = () => {
             </div>
           </div>
 
-          <CardContent className="p-8 space-y-6">
+          <CardContent className="p-6 sm:p-8 space-y-4 sm:space-y-6">
             
             {/* Title & Location */}
             <div className="space-y-3">
-              <h3 className={`text-2xl font-bold leading-tight ${
+              <h3 className={`text-xl sm:text-2xl font-bold leading-tight ${
                 property.highlight ? 'text-gold' : 'text-foreground'
               } group-hover:text-gold transition-colors`}>
                 {property.title}
@@ -103,34 +103,34 @@ const Properties = () => {
             </div>
             
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               <div className="text-center">
-                <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Euro className="w-5 h-5 text-gold" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Euro className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-sm text-muted-foreground">Preț</div>
-                <div className="text-sm font-semibold text-foreground">{property.price}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Preț</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.price}</div>
               </div>
               
               <div className="text-center">
-                <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Ruler className="w-5 h-5 text-gold" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-sm text-muted-foreground">Suprafață</div>
-                <div className="text-sm font-semibold text-foreground">{property.size}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Suprafață</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.size}</div>
               </div>
               
               <div className="text-center">
-                <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Home className="w-5 h-5 text-gold" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-sm text-muted-foreground">Camere</div>
-                <div className="text-sm font-semibold text-foreground">{property.rooms}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Camere</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.rooms}</div>
               </div>
             </div>
             
             {/* Description */}
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
               {property.description}
             </p>
             
@@ -169,14 +169,14 @@ const Properties = () => {
               Proiecte Exclusive
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
               <span className="text-foreground">Complexe </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Rezidențiale
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Descoperă cele mai selective complexe rezidențiale din vestul Bucureștiului, 
               cu apartamente moderne și facilități premium.
             </p>
@@ -185,22 +185,22 @@ const Properties = () => {
           {/* Properties Tabs */}
           <div className="mb-16">
             <Tabs defaultValue="toate" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
+              <TabsList className="grid w-full grid-cols-3 max-w-sm sm:max-w-md mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
                 <TabsTrigger 
                   value="toate" 
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
-                  Toate Proiectele
+                  Toate
                 </TabsTrigger>
                 <TabsTrigger 
                   value="noi"
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
-                  Proiecte Noi
+                  Noi
                 </TabsTrigger>
                 <TabsTrigger 
                   value="disponibile"
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
                   Disponibile
                 </TabsTrigger>
