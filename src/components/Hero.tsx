@@ -37,12 +37,9 @@ const Hero = () => {
               </Badge>
               
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="block text-foreground">Soluții</span>
+                <span className="block text-foreground">Soluții Imobiliare</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Imobiliare
-                </span>
-                <span className="block text-foreground text-2xl sm:text-3xl lg:text-5xl font-medium mt-2">
-                  Premium
+                  Complete
                 </span>
               </h1>
               
