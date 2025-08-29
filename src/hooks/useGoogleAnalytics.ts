@@ -42,7 +42,7 @@ export const useGoogleAnalytics = () => {
    */
   const trackPageView = (pageTitle: string, pagePath: string) => {
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('config', 'GA_MEASUREMENT_ID', {
+      window.gtag('config', 'G-HLZFTKHC80', {
         page_title: pageTitle,
         page_location: window.location.href,
         page_path: pagePath,
