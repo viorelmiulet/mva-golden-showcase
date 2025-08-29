@@ -232,7 +232,7 @@ const Properties = () => {
               </p>
               <a href="https://www.storia.ro/ro/companii/agentii/mva-imobiliare-ID4660679" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
-                  Toate Proprietățile pe Storia
+                  Vezi Toate Proprietățile
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
