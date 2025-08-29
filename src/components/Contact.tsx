@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-
 import { useToast } from "@/hooks/use-toast"
+import { supabase } from "@/integrations/supabase/client"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +21,6 @@ const Contact = () => {
     e.preventDefault();
     console.log('=== FORM SUBMISSION STARTED ===');
     console.log('Form submitted with data:', formData);
-    console.log('Button clicked, isSubmitting:', isSubmitting);
     setIsSubmitting(true);
 
     try {
@@ -39,52 +38,43 @@ const Contact = () => {
       }
       console.log('Validation passed!');
 
-      // Create WhatsApp message
-      const message = `Salut! Am o întrebare prin formularul de contact:
+      // Send email through Resend
+      console.log('Sending email through Resend...');
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          nume: formData.nume,
+          prenume: formData.prenume,
+          email: formData.email,
+          telefon: formData.telefon,
+          mesaj: formData.mesaj
+        }
+      });
 
-*Nume:* ${formData.nume} ${formData.prenume}
-*Email:* ${formData.email}
-*Telefon:* ${formData.telefon}
-
-*Mesaj:*
-${formData.mesaj}`;
-
-      // WhatsApp phone number (remove + and spaces)
-      const whatsappNumber = '40767941512';
-      
-      // Create WhatsApp URL
-      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-      
-      console.log('Opening WhatsApp URL:', whatsappUrl);
-      
-      // Try to open WhatsApp with fallback
-      const opened = window.open(whatsappUrl, '_blank');
-      
-      if (!opened) {
-        // Fallback: try to navigate to WhatsApp
-        window.location.href = whatsappUrl;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error('Eroare la trimiterea email-ului. Vă rugăm încercați din nou.');
       }
 
+      console.log('Email sent successfully:', data);
+
       toast({
-        title: "Mesaj pregătit pentru WhatsApp!",
-        description: "Se va deschide WhatsApp cu mesajul tău pre-completat.",
+        title: "Mesaj trimis cu succes!",
+        description: "Vă vom contacta în cel mai scurt timp posibil.",
       });
       
-      // Reset form after a short delay
-      setTimeout(() => {
-        setFormData({
-          nume: '',
-          prenume: '',
-          email: '',
-          telefon: '',
-          mesaj: ''
-        });
-      }, 1000);
+      // Reset form
+      setFormData({
+        nume: '',
+        prenume: '',
+        email: '',
+        telefon: '',
+        mesaj: ''
+      });
 
     } catch (error: any) {
-      console.error('Error preparing WhatsApp message:', error);
+      console.error('Error sending email:', error);
       toast({
-        title: "Eroare la pregătirea mesajului",
+        title: "Eroare la trimiterea mesajului",
         description: error.message || "Vă rugăm să încercați din nou.",
         variant: "destructive",
       });
@@ -248,7 +238,7 @@ ${formData.mesaj}`;
                   </div>
                   
                   <Button type="submit" variant="luxury" size="lg" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Se pregătește..." : "Trimite prin WhatsApp"}
+                    {isSubmitting ? "Se trimite..." : "Trimite Mesajul"}
                   </Button>
                 </form>
               </CardContent>
