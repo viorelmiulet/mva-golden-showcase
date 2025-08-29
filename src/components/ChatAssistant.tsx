@@ -234,8 +234,8 @@ const ChatAssistant = () => {
                 Sau Contactează-ne Direct
               </h3>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
-                <span className="text-muted-foreground">📞 Tel: +40 123 456 789</span>
-                <span className="text-muted-foreground">✉️ Email: contact@mvaimobiliare.ro</span>
+                <span className="text-muted-foreground">📞 Tel: 0767941512</span>
+                <span className="text-muted-foreground">✉️ Email: mvaperfectbusiness@gmail.com</span>
               </div>
             </div>
           </div>
