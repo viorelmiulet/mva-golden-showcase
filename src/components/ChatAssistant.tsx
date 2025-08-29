@@ -169,8 +169,8 @@ const ChatAssistant = () => {
                         }`}
                       >
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content.split(/(https?:\/\/[^\s]+)/g).map((part, index) => {
-                            if (part.match(/https?:\/\/[^\s]+/)) {
+                          {message.content.split(/(https?:\/\/[^\s,.!?]+)/g).map((part, index) => {
+                            if (part.match(/https?:\/\/[^\s,.!?]+/)) {
                               return (
                                 <a
                                   key={index}
