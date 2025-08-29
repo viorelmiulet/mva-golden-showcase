@@ -185,7 +185,7 @@ const Properties = () => {
           {/* Properties Tabs */}
           <div className="mb-16">
             <Tabs defaultValue="toate" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 max-w-sm sm:max-w-md mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
+              <TabsList className="grid w-full grid-cols-4 max-w-lg sm:max-w-xl mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
                 <TabsTrigger 
                   value="toate" 
                   className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
@@ -203,6 +203,13 @@ const Properties = () => {
                   className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
                 >
                   Disponibile
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="catalog"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm cursor-pointer"
+                  onClick={() => window.open('https://wa.me/c/40767941512', '_blank')}
+                >
+                  Vezi catalogul
                 </TabsTrigger>
               </TabsList>
               
