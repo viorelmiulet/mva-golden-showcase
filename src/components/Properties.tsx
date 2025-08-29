@@ -44,8 +44,8 @@ const Properties = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-foreground">Proprietăți </span>
-              <span className="text-gold">Selecte</span>
+              <span className="text-foreground">Proiecte </span>
+              <span className="text-gold">Recomandate</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-gold-dark to-gold mx-auto mb-6"></div>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
