@@ -6,6 +6,8 @@ import property3 from "@/assets/property-3.jpg"
 
 const Properties = () => {
   // UPDATED PROPERTIES - NEW VERSION
+  console.log("🚨 PROPERTIES COMPONENT IS LOADING - NEW VERSION!");
+  alert("Properties component loaded!");
   const projectsList = [
     {
       id: 1,
