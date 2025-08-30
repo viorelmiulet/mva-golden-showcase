@@ -40,31 +40,120 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     location = locationMatch[0].trim();
   }
 
-  // Quick price extraction - focus on EUR
+  // OBLIGATORIU: Price extraction - Multiple strategies
   let price_min = 0;
   let price_max = 0;
-  const priceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€/i);
-  if (priceMatch) {
-    const priceStr = (priceMatch[1] || priceMatch[2]).replace(/[.,]/g, '');
-    price_min = price_max = parseInt(priceStr) || 0;
-  }
-
-  // Quick surface extraction
-  let surface_min: number | undefined;
-  let surface_max: number | undefined;
-  const surfaceMatch = text.match(/([0-9]+)\s*m[p²2]/i);
-  if (surfaceMatch) {
-    const surface = parseInt(surfaceMatch[1]);
-    if (surface > 10 && surface < 500) {
-      surface_min = surface_max = surface;
+  
+  // Strategy 1: EUR format
+  const eurPriceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€/gi);
+  if (eurPriceMatch) {
+    for (const match of eurPriceMatch) {
+      const priceStr = match.replace(/[€\s.,]/g, '');
+      const price = parseInt(priceStr);
+      if (price > 1000) { // Valid property price
+        price_min = price_max = price;
+        break;
+      }
     }
   }
 
-  // Quick rooms extraction
-  let rooms = 2;
-  const roomMatch = text.match(/([0-9]+)\s*cam/i);
-  if (roomMatch) {
-    rooms = parseInt(roomMatch[1]) || 2;
+  // Strategy 2: LEI format (convert to EUR)
+  if (price_min === 0) {
+    const leiPriceMatch = text.match(/([0-9.,]+)\s*lei/gi);
+    if (leiPriceMatch) {
+      for (const match of leiPriceMatch) {
+        const priceStr = match.replace(/[lei\s.,]/gi, '');
+        const leiPrice = parseInt(priceStr);
+        if (leiPrice > 50000) { // Valid LEI price
+          price_min = price_max = Math.round(leiPrice / 5); // Rough LEI to EUR conversion
+          break;
+        }
+      }
+    }
+  }
+
+  // Strategy 3: Generic number followed by currency indicators
+  if (price_min === 0) {
+    const pricePatterns = [
+      /pret[^0-9]*([0-9.,]+)/gi,
+      /cost[^0-9]*([0-9.,]+)/gi,
+      /([0-9.,]+)\s*eur/gi
+    ];
+    
+    for (const pattern of pricePatterns) {
+      const matches = text.match(pattern);
+      if (matches) {
+        for (const match of matches) {
+          const priceStr = match.replace(/[^0-9]/g, '');
+          const price = parseInt(priceStr);
+          if (price > 1000 && price < 10000000) {
+            price_min = price_max = price;
+            break;
+          }
+        }
+        if (price_min > 0) break;
+      }
+    }
+  }
+
+  // OBLIGATORIU: Surface extraction - Multiple strategies  
+  let surface_min: number | undefined;
+  let surface_max: number | undefined;
+  
+  // Strategy 1: Direct mp/m² patterns
+  const surfacePatterns = [
+    /([0-9]+)\s*m[p²2]/gi,
+    /suprafata[^0-9]*([0-9]+)/gi,
+    /([0-9]+)\s*mp/gi,
+    /([0-9]+)\s*metri/gi
+  ];
+
+  for (const pattern of surfacePatterns) {
+    const matches = text.match(pattern);
+    if (matches) {
+      for (const match of matches) {
+        const surfaceStr = match.replace(/[^0-9]/g, '');
+        const surface = parseInt(surfaceStr);
+        if (surface > 10 && surface < 1000) { // Valid surface range
+          surface_min = surface_max = surface;
+          break;
+        }
+      }
+      if (surface_min) break;
+    }
+  }
+
+  // OBLIGATORIU: Rooms extraction - Multiple strategies
+  let rooms = 0;
+  
+  // Strategy 1: Direct room patterns
+  const roomPatterns = [
+    /([0-9]+)\s*cam/gi,
+    /([0-9]+)\s*camera/gi,
+    /([0-9]+)\s*rooms/gi,
+    /garsoniera/gi // Special case for studio
+  ];
+
+  for (const pattern of roomPatterns) {
+    if (pattern.source.includes('garsoniera')) {
+      if (text.toLowerCase().includes('garsoniera')) {
+        rooms = 1;
+        break;
+      }
+    } else {
+      const matches = text.match(pattern);
+      if (matches) {
+        for (const match of matches) {
+          const roomStr = match.replace(/[^0-9]/g, '');
+          const roomCount = parseInt(roomStr);
+          if (roomCount > 0 && roomCount <= 10) { // Valid room range
+            rooms = roomCount;
+            break;
+          }
+        }
+        if (rooms > 0) break;
+      }
+    }
   }
 
   // Quick features extraction - only check most common ones
@@ -139,6 +228,25 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   
   // Convert set to array and limit to prevent timeout
   const finalImages = Array.from(imageUrls).slice(0, 10);
+
+  // VALIDARE OBLIGATORIE - verifică că avem datele esențiale
+  const validationErrors: string[] = [];
+  
+  if (price_min === 0) {
+    validationErrors.push('Prețul nu a putut fi găsit');
+  }
+  
+  if (!surface_min || surface_min === 0) {
+    validationErrors.push('Suprafața nu a putut fi găsită');
+  }
+  
+  if (rooms === 0) {
+    validationErrors.push('Numărul de camere nu a putut fi găsit');
+  }
+
+  if (validationErrors.length > 0) {
+    throw new Error(`Date obligatorii lipsă: ${validationErrors.join(', ')}`);
+  }
 
   return {
     title: title || 'Proprietate',
