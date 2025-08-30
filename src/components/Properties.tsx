@@ -244,7 +244,7 @@ const Properties = () => {
             </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Descoperă cele mai selective proprietăți din vestul Bucureștiului, 
+              Descoperă cele 3 proiecte disponibile din vestul Bucureștiului, 
               cu apartamente moderne și facilități premium.
             </p>
             
