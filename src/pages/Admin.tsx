@@ -103,24 +103,14 @@ const Admin = () => {
   }
 
   const deleteProperty = async (id: string) => {
-    console.log('Attempting to delete property with id:', id)
     setDeletingId(id)
     try {
-      // Check if user is authenticated
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      console.log('Current user:', user, 'Auth error:', authError)
-      
       const { error } = await supabase
         .from('catalog_offers')
         .delete()
         .eq('id', id)
 
-      console.log('Delete result - error:', error)
-
-      if (error) {
-        console.error('Delete error details:', error)
-        throw error
-      }
+      if (error) throw error
 
       toast({
         title: "Succes!",
@@ -130,7 +120,6 @@ const Admin = () => {
       // Refresh the properties list
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
     } catch (error: any) {
-      console.error('Delete function catch error:', error)
       toast({
         title: "Eroare",
         description: error.message || "Nu am putut șterge proprietatea",
