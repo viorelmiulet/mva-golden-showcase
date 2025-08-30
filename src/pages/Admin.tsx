@@ -23,6 +23,7 @@ const Admin = () => {
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -129,6 +130,99 @@ const Admin = () => {
     }
   }
 
+  const refreshAllProperties = async () => {
+    setIsRefreshing(true)
+    try {
+      // Get all properties that have storia_link
+      const { data: existingProperties, error: fetchError } = await supabase
+        .from('catalog_offers')
+        .select('id, storia_link, title')
+        .not('storia_link', 'is', null)
+
+      if (fetchError) throw fetchError
+
+      if (!existingProperties || existingProperties.length === 0) {
+        toast({
+          title: "Info",
+          description: "Nu există proprietăți cu link-uri pentru actualizare"
+        })
+        return
+      }
+
+      let successCount = 0
+      let errorCount = 0
+
+      // Process each property
+      for (const property of existingProperties) {
+        try {
+          // Call edge function to scrape the updated data
+          const { data, error } = await supabase.functions.invoke('scrape-property', {
+            body: { url: property.storia_link }
+          })
+
+          if (error) {
+            console.error(`Error scraping ${property.title}:`, error)
+            errorCount++
+            continue
+          }
+
+          if (data.success) {
+            // Update the existing property with new data
+            const { error: updateError } = await supabase
+              .from('catalog_offers')
+              .update({
+                title: data.property.title,
+                description: data.property.description,
+                location: data.property.location,
+                images: data.property.images,
+                price_min: data.property.price_min,
+                price_max: data.property.price_max,
+                surface_min: data.property.surface_min,
+                surface_max: data.property.surface_max,
+                rooms: data.property.rooms,
+                features: data.property.features,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', property.id)
+
+            if (updateError) {
+              console.error(`Error updating ${property.title}:`, updateError)
+              errorCount++
+            } else {
+              successCount++
+            }
+          } else {
+            console.error(`Failed to scrape ${property.title}:`, data.error)
+            errorCount++
+          }
+        } catch (error) {
+          console.error(`Error processing ${property.title}:`, error)
+          errorCount++
+        }
+
+        // Small delay to avoid overwhelming the server
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
+      toast({
+        title: "Actualizare completă!",
+        description: `${successCount} proprietăți actualizate cu succes${errorCount > 0 ? `, ${errorCount} erori` : ''}`
+      })
+
+      // Refresh the properties list
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut actualiza proprietățile",
+        variant: "destructive"
+      })
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
@@ -211,6 +305,34 @@ const Admin = () => {
                       <li>• olx.ro - Proprietăți rezidențiale</li>
                       <li>• storia.ro - Oferte imobiliare</li>
                     </ul>
+                  </div>
+
+                  {/* Refresh All Properties */}
+                  <div className="border-t pt-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-gold">🔄 Actualizare în Masă</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Reimportă toate proprietățile existente cu descrieri și date complete actualizate
+                      </p>
+                      <Button 
+                        onClick={refreshAllProperties}
+                        disabled={isRefreshing}
+                        variant="outline"
+                        className="w-full border-gold text-gold hover:bg-gold/10"
+                      >
+                        {isRefreshing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Actualizez toate proprietățile...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4 mr-2" />
+                            Reimportă Toate Proprietățile
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
