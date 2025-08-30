@@ -3,7 +3,6 @@ import Hero from "@/components/Hero"
 import About from "@/components/About"
 import Services from "@/components/Services"
 import Properties from "@/components/Properties"
-import ChatAssistant from "@/components/ChatAssistant"
 import Footer from "@/components/Footer"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect } from "react"
@@ -25,7 +24,6 @@ const Index = () => {
         <About />
         <Services />
         <Properties />
-        <ChatAssistant />
       </main>
       <Footer />
     </div>
