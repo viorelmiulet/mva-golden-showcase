@@ -40,39 +40,41 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     location = locationMatch[0].trim();
   }
 
-  // OBLIGATORIU: Price extraction - Multiple strategies
+  // OBLIGATORIU: Price extraction - Multiple strategies (DOAR EUR)
   let price_min = 0;
   let price_max = 0;
   
-  // Strategy 1: EUR format
+  // Strategy 1: EUR format - prioritate maximă
   const eurPriceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€/gi);
   if (eurPriceMatch) {
     for (const match of eurPriceMatch) {
       const priceStr = match.replace(/[€\s.,]/g, '');
       const price = parseInt(priceStr);
-      if (price > 1000) { // Valid property price
+      if (price > 1000 && price < 10000000) { // Valid EUR property price
         price_min = price_max = price;
         break;
       }
     }
   }
 
-  // Strategy 2: LEI format (convert to EUR)
+  // Strategy 2: LEI format (convert to EUR) - DOAR dacă nu avem EUR
   if (price_min === 0) {
-    const leiPriceMatch = text.match(/([0-9.,]+)\s*lei/gi);
+    const leiPriceMatch = text.match(/([0-9.,]+)\s*(lei|ron)/gi);
     if (leiPriceMatch) {
       for (const match of leiPriceMatch) {
-        const priceStr = match.replace(/[lei\s.,]/gi, '');
+        const priceStr = match.replace(/[lei|ron\s.,]/gi, '');
         const leiPrice = parseInt(priceStr);
-        if (leiPrice > 50000) { // Valid LEI price
-          price_min = price_max = Math.round(leiPrice / 5); // Rough LEI to EUR conversion
+        if (leiPrice > 50000 && leiPrice < 50000000) { // Valid LEI price range
+          // Convert LEI to EUR (aproximativ 1 EUR = 5 LEI)
+          price_min = price_max = Math.round(leiPrice / 5);
+          console.log(`Converted ${leiPrice} LEI to ${price_min} EUR`);
           break;
         }
       }
     }
   }
 
-  // Strategy 3: Generic number followed by currency indicators
+  // Strategy 3: Generic number patterns - DOAR dacă nu avem EUR sau LEI
   if (price_min === 0) {
     const pricePatterns = [
       /pret[^0-9]*([0-9.,]+)/gi,
@@ -86,8 +88,10 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
         for (const match of matches) {
           const priceStr = match.replace(/[^0-9]/g, '');
           const price = parseInt(priceStr);
+          // Assume it's EUR if reasonable range
           if (price > 1000 && price < 10000000) {
             price_min = price_max = price;
+            console.log(`Assumed ${price} as EUR price`);
             break;
           }
         }

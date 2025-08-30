@@ -165,9 +165,9 @@ const Properties = () => {
                               </div>
                               <div className="text-xs text-muted-foreground">Preț</div>
                               <div className="text-sm font-semibold">
-                                €{property.price_min?.toLocaleString()}
+                                €{property.price_min?.toLocaleString('de-DE')} EUR
                                 {property.price_max && property.price_max !== property.price_min && 
-                                  ` - €${property.price_max.toLocaleString()}`
+                                  ` - €${property.price_max.toLocaleString('de-DE')} EUR`
                                 }
                               </div>
                             </div>
@@ -339,7 +339,7 @@ const Properties = () => {
               <div className="p-6 pt-2">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-gold">€{selectedProperty.price_min?.toLocaleString()}</div>
+                    <div className="text-2xl font-bold text-gold">€{selectedProperty.price_min?.toLocaleString('de-DE')} EUR</div>
                     <div className="text-sm text-muted-foreground">Preț</div>
                   </div>
                   {selectedProperty.surface_min && (
@@ -411,9 +411,9 @@ const Properties = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-muted/50 rounded-lg">
                   <Euro className="w-8 h-8 text-gold mx-auto mb-2" />
-                  <div className="font-bold text-lg">€{selectedPropertyDetails.price_min?.toLocaleString()}</div>
+                  <div className="font-bold text-lg">€{selectedPropertyDetails.price_min?.toLocaleString('de-DE')} EUR</div>
                   {selectedPropertyDetails.price_max && selectedPropertyDetails.price_max !== selectedPropertyDetails.price_min && (
-                    <div className="text-sm text-muted-foreground">- €{selectedPropertyDetails.price_max.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">- €{selectedPropertyDetails.price_max.toLocaleString('de-DE')} EUR</div>
                   )}
                   <div className="text-xs text-muted-foreground mt-1">Preț</div>
                 </div>

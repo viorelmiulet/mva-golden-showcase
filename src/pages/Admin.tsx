@@ -450,7 +450,7 @@ const Admin = () => {
                               <p className="text-xs text-muted-foreground truncate">{property.location}</p>
                               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                                 <span>{property.rooms} camere</span>
-                                <span>€{property.price_min.toLocaleString()}</span>
+                                <span>€{property.price_min.toLocaleString('de-DE')} EUR</span>
                               </div>
                             </div>
                             
@@ -571,25 +571,27 @@ const Admin = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor="price_min">Preț Min (€)</Label>
-                                    <Input
-                                      id="price_min"
-                                      type="number"
-                                      value={editForm.price_min || ''}
-                                      onChange={(e) => setEditForm({...editForm, price_min: e.target.value})}
-                                    />
-                                  </div>
-                                  
-                                  <div className="space-y-2">
-                                    <Label htmlFor="price_max">Preț Max (€)</Label>
-                                    <Input
-                                      id="price_max"
-                                      type="number"
-                                      value={editForm.price_max || ''}
-                                      onChange={(e) => setEditForm({...editForm, price_max: e.target.value})}
-                                    />
-                                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="price_min">Preț Min (€ EUR)</Label>
+                    <Input
+                      id="price_min"
+                      type="number"
+                      value={editForm.price_min || ''}
+                      onChange={(e) => setEditForm({...editForm, price_min: e.target.value})}
+                      placeholder="Ex: 75000"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="price_max">Preț Max (€ EUR)</Label>
+                    <Input
+                      id="price_max"
+                      type="number"
+                      value={editForm.price_max || ''}
+                      onChange={(e) => setEditForm({...editForm, price_max: e.target.value})}
+                      placeholder="Ex: 85000"
+                    />
+                  </div>
                                   
                                   <div className="space-y-2">
                                     <Label htmlFor="surface_min">Suprafață Min (mp)</Label>
@@ -745,9 +747,9 @@ const Admin = () => {
                             </div>
                             <div className="text-xs text-muted-foreground">Preț</div>
                             <div className="text-sm font-semibold">
-                              €{property.price_min?.toLocaleString()}
+                              €{property.price_min?.toLocaleString('de-DE')} EUR
                               {property.price_max && property.price_max !== property.price_min && 
-                                ` - €${property.price_max.toLocaleString()}`
+                                ` - €${property.price_max.toLocaleString('de-DE')} EUR`
                               }
                             </div>
                           </div>
