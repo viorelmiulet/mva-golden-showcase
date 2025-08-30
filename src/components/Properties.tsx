@@ -250,12 +250,19 @@ const Properties = () => {
             
             {/* See All Apartments CTA */}
             <div className="mt-8">
-              <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
-                <Button variant="luxuryOutline" size="lg" className="group">
-                  Contactează-ne pe WhatsApp
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </a>
+              <Button 
+                variant="luxuryOutline" 
+                size="lg" 
+                className="group"
+                onClick={() => {
+                  if ((window as any).Tawk_API) {
+                    (window as any).Tawk_API.toggle();
+                  }
+                }}
+              >
+                Contactează-ne acum
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
           </header>
 
