@@ -4,7 +4,8 @@ import Footer from '@/components/Footer';
 import OffersSync from '@/components/OffersSync';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Database, Globe, BarChart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Settings, Database, Globe, BarChart, ArrowRight, Eye } from 'lucide-react';
 
 const Admin = () => {
   return (
@@ -20,6 +21,20 @@ const Admin = () => {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Gestionați integrările și sincronizați ofertele de pe platformele externe
             </p>
+            
+            {/* Quick Navigation to Offers */}
+            <div className="flex justify-center mt-6">
+              <Button 
+                onClick={() => window.location.href = '/#proprietati'} 
+                variant="outline"
+                size="lg"
+                className="flex items-center gap-2 hover:bg-gold/10 hover:border-gold/30"
+              >
+                <Eye className="w-4 h-4" />
+                Vezi toate ofertele pe site
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           <Tabs defaultValue="integrations" className="w-full">
@@ -75,7 +90,7 @@ const Admin = () => {
                   <CardHeader>
                     <CardTitle>OLX.ro Integration</CardTitle>
                     <CardDescription>
-                      Monitorizare oferte apartamente în zonele Militari și Chiajna
+                      Monitorizare oferte apartamente în București (exclude case și terenuri)
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -86,11 +101,15 @@ const Admin = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Zone Monitorizate</span>
-                        <span className="text-sm text-muted-foreground">Militari, Chiajna</span>
+                        <span className="text-sm text-muted-foreground">București (toate sectoarele)</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Filtru Preț</span>
-                        <span className="text-sm text-muted-foreground">€20k - €150k</span>
+                        <span className="text-sm text-muted-foreground">€15k - €200k</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Tip Proprietate</span>
+                        <span className="text-sm text-muted-foreground">Doar apartamente</span>
                       </div>
                     </div>
                   </CardContent>
