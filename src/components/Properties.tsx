@@ -252,7 +252,7 @@ const Properties = () => {
             <div className="mt-8">
               <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxuryOutline" size="lg" className="group">
-                  Vezi toate apartamentele noastre
+                  Contactează-ne pe WhatsApp
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
@@ -306,7 +306,7 @@ const Properties = () => {
               </p>
               <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
-                  Vezi Toate Proprietățile
+                  Contactează-ne pe WhatsApp
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>

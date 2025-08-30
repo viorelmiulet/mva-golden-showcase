@@ -105,7 +105,7 @@ const Header = () => {
           <div className="hidden md:block">
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" className="shadow-lg shadow-gold/20">
-                WhatsApp
+                Contactează-ne pe WhatsApp
               </Button>
             </a>
           </div>
@@ -144,7 +144,7 @@ const Header = () => {
                 ))}
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="mt-4">
                   <Button variant="luxury" className="w-full">
-                    Contactează pe WhatsApp
+                    Contactează-ne pe WhatsApp
                   </Button>
                 </a>
               </div>

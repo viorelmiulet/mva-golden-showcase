@@ -198,7 +198,7 @@ const Contact = () => {
                 </p>
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                   <Button variant="luxury" className="w-full">
-                    Deschide WhatsApp
+                    Contactează-ne pe WhatsApp
                   </Button>
                 </a>
               </div>

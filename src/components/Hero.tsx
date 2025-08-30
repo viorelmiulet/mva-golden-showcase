@@ -76,7 +76,7 @@ const Hero = () => {
                   className="w-full sm:w-auto px-8"
                 >
                   <Phone className="mr-2 h-4 w-4" />
-                  Consultație Gratuită
+                  Contactează-ne pe WhatsApp
                 </Button>
               </a>
             </nav>
