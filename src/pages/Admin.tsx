@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -12,7 +13,12 @@ import {
   ArrowLeft,
   Trash2,
   Home,
-  AlertTriangle
+  AlertTriangle,
+  MapPin,
+  Euro,
+  Ruler,
+  Images,
+  ExternalLink
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -338,83 +344,256 @@ const Admin = () => {
               </Card>
 
               {/* Manage Properties Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="w-5 h-5 text-gold" />
-                    Proprietăți Existente ({properties?.length || 0})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {propertiesLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                    </div>
-                  ) : !properties || properties.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Home className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Nu există proprietăți adăugate</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {properties.map((property) => (
-                        <div 
-                          key={property.id} 
-                          className="flex items-center justify-between p-4 border rounded-lg bg-card"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate">{property.title}</h4>
-                            <p className="text-sm text-muted-foreground truncate">{property.location}</p>
-                            <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                              <span>{property.rooms} camere</span>
-                              <span>€{property.price_min.toLocaleString()}</span>
+              <div className="lg:col-span-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Home className="w-5 h-5 text-gold" />
+                      Proprietăți Existente ({properties?.length || 0})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {propertiesLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      </div>
+                    ) : !properties || properties.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Home className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">Nu există proprietăți adăugate</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 max-h-96 overflow-y-auto">
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Scroll pentru a vedea toate proprietățile în detaliu mai jos
+                        </p>
+                        {properties.slice(0, 5).map((property) => (
+                          <div 
+                            key={property.id} 
+                            className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium truncate text-sm">{property.title}</h4>
+                              <p className="text-xs text-muted-foreground truncate">{property.location}</p>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                <span>{property.rooms} camere</span>
+                                <span>€{property.price_min.toLocaleString()}</span>
+                              </div>
+                            </div>
+                            
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  disabled={deletingId === property.id}
+                                >
+                                  {deletingId === property.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="flex items-center gap-2">
+                                    <AlertTriangle className="w-5 h-5 text-destructive" />
+                                    Confirmi ștergerea?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Ești sigur că vrei să ștergi proprietatea "{property.title}"? 
+                                    Această acțiune nu poate fi anulată.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Anulează</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteProperty(property.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Șterge Proprietatea
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        ))}
+                        {properties.length > 5 && (
+                          <p className="text-xs text-muted-foreground text-center pt-2 border-t">
+                            +{properties.length - 5} proprietăți în plus - vezi mai jos
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Detailed Properties Grid */}
+            {!propertiesLoading && properties && properties.length > 0 && (
+              <div className="mt-12">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold mb-2">Toate Proprietățile</h2>
+                  <p className="text-muted-foreground">Vizualizare detaliată cu opțiuni de gestionare</p>
+                </div>
+                
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {properties.map((property) => (
+                    <Card key={property.id} className="group relative">
+                      {/* Delete Button - Top Right Corner */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="shadow-lg opacity-80 hover:opacity-100 transition-opacity"
+                              disabled={deletingId === property.id}
+                            >
+                              {deletingId === property.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5 text-destructive" />
+                                Confirmi ștergerea?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Ești sigur că vrei să ștergi proprietatea "{property.title}"? 
+                                Această acțiune nu poate fi anulată.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Anulează</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteProperty(property.id)}
+                                className="bg-destructive hover:bg-destructive/90"
+                              >
+                                Șterge Proprietatea
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+
+                      <CardContent className="p-6">
+                        {/* Images */}
+                        {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                          <div className="aspect-video mb-4 overflow-hidden rounded-lg">
+                            <img 
+                              src={(property.images as string[])[0]} 
+                              alt={property.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Title & Location */}
+                        <div className="space-y-2 mb-4">
+                          <h3 className="text-xl font-bold text-foreground group-hover:text-gold transition-colors">
+                            {property.title}
+                          </h3>
+                          {property.location && (
+                            <div className="flex items-center text-muted-foreground">
+                              <MapPin className="w-4 h-4 mr-2 text-gold" />
+                              <span>{property.location}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                          <div className="text-center">
+                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                              <Euro className="w-5 h-5 text-gold" />
+                            </div>
+                            <div className="text-xs text-muted-foreground">Preț</div>
+                            <div className="text-sm font-semibold">
+                              €{property.price_min?.toLocaleString()}
+                              {property.price_max && property.price_max !== property.price_min && 
+                                ` - €${property.price_max.toLocaleString()}`
+                              }
                             </div>
                           </div>
-                          
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                disabled={deletingId === property.id}
-                              >
-                                {deletingId === property.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="flex items-center gap-2">
-                                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                                  Confirmi ștergerea?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Ești sigur că vrei să ștergi proprietatea "{property.title}"? 
-                                  Această acțiune nu poate fi anulată.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Anulează</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteProperty(property.id)}
-                                  className="bg-destructive hover:bg-destructive/90"
-                                >
-                                  Șterge Proprietatea
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+
+                          {(property.surface_min || property.surface_max) && (
+                            <div className="text-center">
+                              <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <Ruler className="w-5 h-5 text-gold" />
+                              </div>
+                              <div className="text-xs text-muted-foreground">Suprafață</div>
+                              <div className="text-sm font-semibold">
+                                {property.surface_min}
+                                {property.surface_max && property.surface_max !== property.surface_min && 
+                                  ` - ${property.surface_max}`
+                                } mp
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="text-center">
+                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                              <Home className="w-5 h-5 text-gold" />
+                            </div>
+                            <div className="text-xs text-muted-foreground">Camere</div>
+                            <div className="text-sm font-semibold">{property.rooms}</div>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+
+                        {/* Description */}
+                        {property.description && (
+                          <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                            {property.description}
+                          </p>
+                        )}
+
+                        {/* Features */}
+                        {property.features && Array.isArray(property.features) && property.features.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {(property.features as string[]).slice(0, 3).map((feature, index) => (
+                              <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                                {feature}
+                              </Badge>
+                            ))}
+                            {(property.features as string[]).length > 3 && (
+                              <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
+                                +{(property.features as string[]).length - 3} mai multe
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-2">
+                          {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                            <Button variant="outline" size="sm" className="flex-1">
+                              <Images className="w-4 h-4 mr-2" />
+                              {(property.images as string[]).length} Poze
+                            </Button>
+                          )}
+                          {property.storia_link && (
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Original
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
