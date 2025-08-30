@@ -285,7 +285,7 @@ const Properties = () => {
                 <TabsTrigger 
                   value="catalog"
                   className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm cursor-pointer"
-                  onClick={() => window.open('https://wa.me/c/40767941512', '_blank')}
+                  onClick={() => window.open('https://wa.me/40767941512', '_blank')}
                 >
                   Vezi catalogul
                 </TabsTrigger>
@@ -311,7 +311,7 @@ const Properties = () => {
                 Explorează catalogul nostru complet pentru a vedea toate opțiunile 
                 disponibile, planuri detaliate și programarea vizitelor.
               </p>
-              <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
+              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
                   Vezi toate ofertele
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
