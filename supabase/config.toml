@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.update-storia-offers]
 verify_jwt = false
+
+[functions.update-olx-offers]
+verify_jwt = false
+
+[functions.sync-all-offers]
+verify_jwt = false
