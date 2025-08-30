@@ -50,8 +50,9 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     for (const match of eurPriceMatch) {
       const priceStr = match.replace(/[€\s.,]/g, '');
       const price = parseInt(priceStr);
-      if (price > 1000 && price < 10000000) { // Valid EUR property price
+      if (price > 10000 && price < 10000000) { // Valid EUR property price
         price_min = price_max = price;
+        console.log(`Found EUR price: ${price}`);
         break;
       }
     }
@@ -74,13 +75,29 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     }
   }
 
-  // Strategy 3: Generic number patterns - DOAR dacă nu avem EUR sau LEI
+  // Strategy 3: Look for price patterns in structured data or meta tags
+  if (price_min === 0) {
+    const metaPriceMatch = html.match(/price['":\s]*([0-9.,]+)/gi);
+    if (metaPriceMatch) {
+      for (const match of metaPriceMatch) {
+        const priceStr = match.replace(/[^0-9]/g, '');
+        const price = parseInt(priceStr);
+        if (price > 10000 && price < 10000000) {
+          price_min = price_max = price;
+          console.log(`Found meta price: ${price} EUR`);
+          break;
+        }
+      }
+    }
+  }
+
+  // Strategy 4: Generic number patterns with context
   if (price_min === 0) {
     const pricePatterns = [
       /pret[^0-9]*([0-9.,]+)/gi,
       /cost[^0-9]*([0-9.,]+)/gi,
-      /([0-9.,]+)\s*eur/gi,
-      /([0-9]{4,7})\s*(?!mp|m²|metri|camere|cam)/g // Numbers 4-7 digits not followed by area/room indicators
+      /([0-9]{4,7})\s*(?:eur|euro|€)/gi,
+      /([0-9]{4,7})\s*(?!mp|m²|metri|camere|cam|room)/g // Numbers 4-7 digits not followed by area/room indicators
     ];
     
     for (const pattern of pricePatterns) {
@@ -90,9 +107,9 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
           const priceStr = match.replace(/[^0-9]/g, '');
           const price = parseInt(priceStr);
           // Assume it's EUR if reasonable range
-          if (price > 10000 && price < 5000000) {
+          if (price > 15000 && price < 5000000) {
             price_min = price_max = price;
-            console.log(`Found price ${price} EUR using pattern`);
+            console.log(`Found price pattern: ${price} EUR`);
             break;
           }
         }
@@ -162,6 +179,41 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
           }
         }
         if (rooms > 0) break;
+      }
+    }
+  }
+
+  // Strategy 2: Look in structured data and meta tags
+  if (rooms === 0) {
+    const metaRoomsMatch = html.match(/rooms?['":\s]*([0-9]+)/gi);
+    if (metaRoomsMatch) {
+      for (const match of metaRoomsMatch) {
+        const roomStr = match.replace(/[^0-9]/g, '');
+        const roomCount = parseInt(roomStr);
+        if (roomCount > 0 && roomCount <= 10) {
+          rooms = roomCount;
+          console.log(`Found meta rooms: ${roomCount}`);
+          break;
+        }
+      }
+    }
+  }
+
+  // Strategy 3: Look for apartment type indicators
+  if (rooms === 0) {
+    if (text.toLowerCase().includes('studio') || text.toLowerCase().includes('garsoniera')) {
+      rooms = 1;
+      console.log('Found studio/garsoniera indicator');
+    } else if (text.toLowerCase().includes('apartament')) {
+      // Look for numbers near apartament
+      const apartmentMatch = text.match(/apartament[^0-9]*([1-5])/gi);
+      if (apartmentMatch) {
+        const roomStr = apartmentMatch[0].replace(/[^0-9]/g, '');
+        const roomCount = parseInt(roomStr);
+        if (roomCount > 0 && roomCount <= 5) {
+          rooms = roomCount;
+          console.log(`Found apartment rooms: ${roomCount}`);
+        }
       }
     }
   }
@@ -247,16 +299,25 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   }
   
   if (!surface_min || surface_min === 0) {
-    validationErrors.push('Suprafața nu a putut fi găsită');
+    validationErrors.push('Suprafața nu a putut fi găsită');  
   }
   
   if (rooms === 0) {
     validationErrors.push('Numărul de camere nu a putut fi găsit');
   }
 
+  // Log pentru debugging
+  console.log(`Validation results for "${title}":`, {
+    price_min,
+    surface_min, 
+    rooms,
+    errors: validationErrors
+  });
+
   if (validationErrors.length > 0) {
-    console.error(`Date obligatorii lipsă pentru ${title}: ${validationErrors.join(', ')}`);
-    throw new Error(`Date obligatorii lipsă: ${validationErrors.join(', ')}`);
+    const errorMsg = `Date obligatorii lipsă pentru "${title}": ${validationErrors.join(', ')}`;
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
 
   return {
