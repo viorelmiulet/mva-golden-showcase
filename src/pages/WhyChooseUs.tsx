@@ -117,7 +117,7 @@ const WhyChooseUs = () => {
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                   <Button variant="luxury" size="lg" className="w-full sm:w-auto px-6 md:px-8">
                     <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                    Consultație Gratuită
+                    Contactează-ne pe WhatsApp
                   </Button>
                 </a>
                 <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-6 md:px-8" onClick={() => {
@@ -450,7 +450,7 @@ const WhyChooseUs = () => {
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                   <Button variant="luxury" size="lg" className="w-full sm:w-auto px-6 md:px-8">
                     <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                    Contactează-ne Acum
+                    Contactează-ne pe WhatsApp
                   </Button>
                 </a>
                 <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-6 md:px-8" onClick={() => {
