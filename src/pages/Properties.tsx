@@ -15,7 +15,10 @@ import {
   Images,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Info,
+  Calendar,
+  Building
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -38,6 +41,7 @@ interface ScrapedProperty {
 const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -64,6 +68,14 @@ const Properties = () => {
   const closeGallery = () => {
     setSelectedProperty(null)
     setCurrentImageIndex(0)
+  }
+
+  const openPropertyDetails = (property: any) => {
+    setSelectedPropertyDetails(property)
+  }
+
+  const closePropertyDetails = () => {
+    setSelectedPropertyDetails(null)
   }
 
   const nextImage = () => {
@@ -208,26 +220,36 @@ const Properties = () => {
                           )}
 
                           {/* Actions */}
-                          <div className="flex gap-2">
-                            {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => openPropertyGallery(property)}
-                                className="flex-1"
-                              >
-                                <Images className="w-4 h-4 mr-2" />
-                                Vezi Poze ({(property.images as string[]).length})
-                              </Button>
-                            )}
-                            {property.storia_link && (
-                              <Button variant="outline" size="sm" asChild>
-                                <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
-                                  <ExternalLink className="w-4 h-4 mr-2" />
-                                  Original
-                                </a>
-                              </Button>
-                            )}
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => openPropertyGallery(property)}
+                                  className="flex-1"
+                                >
+                                  <Images className="w-4 h-4 mr-2" />
+                                  Vezi Poze ({(property.images as string[]).length})
+                                </Button>
+                              )}
+                              {property.storia_link && (
+                                <Button variant="outline" size="sm" asChild>
+                                  <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="w-4 h-4 mr-2" />
+                                    Original
+                                  </a>
+                                </Button>
+                              )}
+                            </div>
+                            <Button 
+                              onClick={() => openPropertyDetails(property)}
+                              className="w-full"
+                              size="sm"
+                            >
+                              <Info className="w-4 h-4 mr-2" />
+                              Vezi Detalii Complete
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -353,6 +375,201 @@ const Properties = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Property Details Modal */}
+      <Dialog open={!!selectedPropertyDetails} onOpenChange={closePropertyDetails}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span className="text-xl font-bold">{selectedPropertyDetails?.title}</span>
+              <Button variant="ghost" size="sm" onClick={closePropertyDetails}>
+                <X className="w-4 h-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedPropertyDetails && (
+            <div className="space-y-6">
+              {/* Main Image */}
+              {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && selectedPropertyDetails.images.length > 0 && (
+                <div className="aspect-video overflow-hidden rounded-lg">
+                  <img 
+                    src={(selectedPropertyDetails.images as string[])[0]} 
+                    alt={selectedPropertyDetails.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Key Information */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <Euro className="w-8 h-8 text-gold mx-auto mb-2" />
+                  <div className="font-bold text-lg">€{selectedPropertyDetails.price_min?.toLocaleString()}</div>
+                  {selectedPropertyDetails.price_max && selectedPropertyDetails.price_max !== selectedPropertyDetails.price_min && (
+                    <div className="text-sm text-muted-foreground">- €{selectedPropertyDetails.price_max.toLocaleString()}</div>
+                  )}
+                  <div className="text-xs text-muted-foreground mt-1">Preț</div>
+                </div>
+
+                {(selectedPropertyDetails.surface_min || selectedPropertyDetails.surface_max) && (
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <Ruler className="w-8 h-8 text-gold mx-auto mb-2" />
+                    <div className="font-bold text-lg">
+                      {selectedPropertyDetails.surface_min}
+                      {selectedPropertyDetails.surface_max && selectedPropertyDetails.surface_max !== selectedPropertyDetails.surface_min && 
+                        ` - ${selectedPropertyDetails.surface_max}`
+                      } mp
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Suprafață</div>
+                  </div>
+                )}
+
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <Home className="w-8 h-8 text-gold mx-auto mb-2" />
+                  <div className="font-bold text-lg">{selectedPropertyDetails.rooms}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Camere</div>
+                </div>
+
+                {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && (
+                  <div className="text-center p-4 bg-muted/50 rounded-lg">
+                    <Images className="w-8 h-8 text-gold mx-auto mb-2" />
+                    <div className="font-bold text-lg">{(selectedPropertyDetails.images as string[]).length}</div>
+                    <div className="text-xs text-muted-foreground mt-1">Imagini</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Location */}
+              {selectedPropertyDetails.location && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-gold" />
+                    Locație
+                  </h3>
+                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    {selectedPropertyDetails.location}
+                  </p>
+                </div>
+              )}
+
+              {/* Project Name */}
+              {selectedPropertyDetails.project_name && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Building className="w-5 h-5 text-gold" />
+                    Proiect
+                  </h3>
+                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    {selectedPropertyDetails.project_name}
+                  </p>
+                </div>
+              )}
+
+              {/* Description */}
+              {selectedPropertyDetails.description && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Descriere</h3>
+                  <div className="text-muted-foreground bg-muted/50 p-4 rounded-lg whitespace-pre-line">
+                    {selectedPropertyDetails.description}
+                  </div>
+                </div>
+              )}
+
+              {/* Features */}
+              {selectedPropertyDetails.features && Array.isArray(selectedPropertyDetails.features) && selectedPropertyDetails.features.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Caracteristici</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedPropertyDetails.features as string[]).map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Amenities */}
+              {selectedPropertyDetails.amenities && Array.isArray(selectedPropertyDetails.amenities) && selectedPropertyDetails.amenities.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Facilități</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedPropertyDetails.amenities as string[]).map((amenity, index) => (
+                      <Badge key={index} variant="outline" className="border-gold/30 text-foreground">
+                        {amenity}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Status and Date */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedPropertyDetails.availability_status && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Status</h4>
+                    <Badge 
+                      variant={selectedPropertyDetails.availability_status === 'available' ? 'default' : 'secondary'}
+                      className={selectedPropertyDetails.availability_status === 'available' ? 'bg-green-500 hover:bg-green-600' : ''}
+                    >
+                      {selectedPropertyDetails.availability_status === 'available' ? 'Disponibil' : selectedPropertyDetails.availability_status}
+                    </Badge>
+                  </div>
+                )}
+                
+                {selectedPropertyDetails.created_at && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gold" />
+                      Adăugat la
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(selectedPropertyDetails.created_at).toLocaleDateString('ro-RO', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+                {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && selectedPropertyDetails.images.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      closePropertyDetails()
+                      openPropertyGallery(selectedPropertyDetails)
+                    }}
+                    className="flex-1"
+                  >
+                    <Images className="w-4 h-4 mr-2" />
+                    Vezi Toate Pozele ({(selectedPropertyDetails.images as string[]).length})
+                  </Button>
+                )}
+                
+                {selectedPropertyDetails.storia_link && (
+                  <Button variant="outline" asChild className="flex-1">
+                    <a href={selectedPropertyDetails.storia_link} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Vezi Anunțul Original
+                    </a>
+                  </Button>
+                )}
+                
+                <Button asChild className="flex-1">
+                  <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+                    Contactează-ne pe WhatsApp
+                  </a>
+                </Button>
               </div>
             </div>
           )}
