@@ -1,15 +1,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { 
-  Plus, 
-  Search, 
   MapPin, 
   Euro, 
   Home, 
@@ -20,11 +16,13 @@ import {
   Images,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Plus
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Link } from "react-router-dom"
 
 interface ScrapedProperty {
   title: string
@@ -40,8 +38,6 @@ interface ScrapedProperty {
 }
 
 const Properties = () => {
-  const [url, setUrl] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { toast } = useToast()
@@ -60,67 +56,6 @@ const Properties = () => {
       return data
     }
   })
-
-  const scrapeProperty = async () => {
-    if (!url) {
-      toast({
-        title: "Eroare",
-        description: "Te rog să introduci un link valid",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      // Call edge function to scrape the URL
-      const { data, error } = await supabase.functions.invoke('scrape-property', {
-        body: { url }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        // Add the scraped property to database
-        const { error: insertError } = await supabase
-          .from('catalog_offers')
-          .insert({
-            title: data.property.title,
-            description: data.property.description,
-            location: data.property.location,
-            images: data.property.images,
-            price_min: data.property.price_min,
-            price_max: data.property.price_max,
-            surface_min: data.property.surface_min,
-            surface_max: data.property.surface_max,
-            rooms: data.property.rooms,
-            features: data.property.features,
-            availability_status: 'available'
-          })
-
-        if (insertError) throw insertError
-
-        toast({
-          title: "Succes!",
-          description: "Proprietatea a fost adăugată cu succes"
-        })
-
-        // Refresh the properties list
-        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-        setUrl("")
-      } else {
-        throw new Error(data.error || "Eroare la preluarea datelor")
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut prelua datele din link",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const deleteProperty = async (id: string) => {
     try {
@@ -183,83 +118,47 @@ const Properties = () => {
             {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-foreground">Gestionare </span>
+                <span className="text-foreground">Catalog </span>
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Proprietăți
                 </span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Adaugă proprietăți noi prin preluarea automată a datelor din linkuri
+                Descoperă proprietățile noastre disponibile pentru vânzare
               </p>
+              
+              {/* Add Property Button */}
+              <div className="mt-6">
+                <Button asChild className="bg-gold hover:bg-gold-light">
+                  <Link to="/adauga">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adaugă Proprietate Nouă
+                  </Link>
+                </Button>
+              </div>
             </div>
 
-            <Tabs defaultValue="add" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8">
-                <TabsTrigger value="add">Adaugă Proprietate</TabsTrigger>
-                <TabsTrigger value="manage">Gestionează ({properties.length})</TabsTrigger>
-              </TabsList>
-
-              {/* Add Property Tab */}
-              <TabsContent value="add">
-                <Card className="max-w-2xl mx-auto">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-gold" />
-                      Adaugă Proprietate Nouă
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Link către proprietate</label>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="https://www.imobiliare.ro/vanzare-apartamente/..."
-                          value={url}
-                          onChange={(e) => setUrl(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Button 
-                          onClick={scrapeProperty}
-                          disabled={isLoading || !url}
-                          className="min-w-[100px]"
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Preiau...
-                            </>
-                          ) : (
-                            <>
-                              <Search className="w-4 h-4 mr-2" />
-                              Preia Date
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Introdu linkul către o proprietate pentru a prelua automat imaginile, descrierea și detaliile
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Manage Properties Tab */}
-              <TabsContent value="manage">
-                {isLoadingProperties ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-gold" />
-                  </div>
-                ) : properties.length === 0 ? (
-                  <Card className="max-w-2xl mx-auto">
-                    <CardContent className="py-12 text-center">
-                      <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
-                      <p className="text-muted-foreground">Adaugă prima proprietate pentru a începe</p>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="grid lg:grid-cols-2 gap-6">
+            {/* Properties List */}
+            {isLoadingProperties ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-gold" />
+              </div>
+            ) : properties.length === 0 ? (
+              <Card className="max-w-2xl mx-auto">
+                <CardContent className="py-12 text-center">
+                  <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
+                  <p className="text-muted-foreground mb-4">Adaugă prima proprietate pentru a începe</p>
+                  <Button asChild>
+                    <Link to="/adauga">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adaugă Prima Proprietate
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid lg:grid-cols-2 gap-6">
                     {properties.map((property) => (
                       <Card key={property.id} className="group">
                         <CardContent className="p-6">
@@ -382,9 +281,7 @@ const Properties = () => {
                       </Card>
                     ))}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
+            )}
           </div>
         </div>
       </main>

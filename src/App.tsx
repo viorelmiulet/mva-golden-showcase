@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import WhyChooseUs from "./pages/WhyChooseUs";
 import Properties from "./pages/Properties";
+import AddProperty from "./pages/AddProperty";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "@/components/CookieConsent";
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
           <Route path="/proprietati" element={<Properties />} />
+          <Route path="/adauga" element={<AddProperty />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Index />} />
         </Routes>
