@@ -89,7 +89,6 @@ const Admin = () => {
             surface_max: data.property.surface_max,
             rooms: data.property.rooms,
             features: data.property.features,
-            source_url: url,
             availability_status: 'available'
           })
 
@@ -148,11 +147,11 @@ const Admin = () => {
   const refreshAllProperties = async () => {
     setIsRefreshing(true)
     try {
-      // Get all properties that have source_url
+      // Get all properties that have storia_link
       const { data: existingProperties, error: fetchError } = await supabase
         .from('catalog_offers')
-        .select('id, source_url, title')
-        .not('source_url', 'is', null)
+        .select('id, storia_link, title')
+        .not('storia_link', 'is', null)
 
       if (fetchError) throw fetchError
 
@@ -172,7 +171,7 @@ const Admin = () => {
         try {
           // Call edge function to scrape the updated data
           const { data, error } = await supabase.functions.invoke('scrape-property', {
-            body: { url: property.source_url }
+            body: { url: property.storia_link }
           })
 
           if (error) {
