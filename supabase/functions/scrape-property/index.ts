@@ -59,7 +59,7 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
 
   // Strategy 2: LEI format (convert to EUR) - DOAR dacă nu avem EUR
   if (price_min === 0) {
-    const leiPriceMatch = text.match(/([0-9.,]+)\s*(lei|ron)/gi);
+    const leiPriceMatch = text.match(/([0-9.,]+)\s*(lei|ron)\b/gi);
     if (leiPriceMatch) {
       for (const match of leiPriceMatch) {
         const priceStr = match.replace(/[lei|ron\s.,]/gi, '');
@@ -79,7 +79,8 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     const pricePatterns = [
       /pret[^0-9]*([0-9.,]+)/gi,
       /cost[^0-9]*([0-9.,]+)/gi,
-      /([0-9.,]+)\s*eur/gi
+      /([0-9.,]+)\s*eur/gi,
+      /([0-9]{4,7})\s*(?!mp|m²|metri|camere|cam)/g // Numbers 4-7 digits not followed by area/room indicators
     ];
     
     for (const pattern of pricePatterns) {
@@ -89,9 +90,9 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
           const priceStr = match.replace(/[^0-9]/g, '');
           const price = parseInt(priceStr);
           // Assume it's EUR if reasonable range
-          if (price > 1000 && price < 10000000) {
+          if (price > 10000 && price < 5000000) {
             price_min = price_max = price;
-            console.log(`Assumed ${price} as EUR price`);
+            console.log(`Found price ${price} EUR using pattern`);
             break;
           }
         }
@@ -109,7 +110,8 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     /([0-9]+)\s*m[p²2]/gi,
     /suprafata[^0-9]*([0-9]+)/gi,
     /([0-9]+)\s*mp/gi,
-    /([0-9]+)\s*metri/gi
+    /([0-9]+)\s*metri/gi,
+    /([0-9]{2,3})\s*(?=\s*(?:mp|m²|metri|suprafata))/gi // 2-3 digits before area keywords
   ];
 
   for (const pattern of surfacePatterns) {
@@ -118,8 +120,9 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
       for (const match of matches) {
         const surfaceStr = match.replace(/[^0-9]/g, '');
         const surface = parseInt(surfaceStr);
-        if (surface > 10 && surface < 1000) { // Valid surface range
+        if (surface > 15 && surface < 500) { // Realistic surface range
           surface_min = surface_max = surface;
+          console.log(`Found surface: ${surface} mp`);
           break;
         }
       }
@@ -135,13 +138,15 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     /([0-9]+)\s*cam/gi,
     /([0-9]+)\s*camera/gi,
     /([0-9]+)\s*rooms/gi,
-    /garsoniera/gi // Special case for studio
+    /garsoniera/gi, // Special case for studio
+    /([1-5])\s*(?=\s*(?:cam|camera|rooms))/gi // 1-5 digits before room keywords
   ];
 
   for (const pattern of roomPatterns) {
     if (pattern.source.includes('garsoniera')) {
       if (text.toLowerCase().includes('garsoniera')) {
         rooms = 1;
+        console.log('Found garsoniera (1 room)');
         break;
       }
     } else {
@@ -152,6 +157,7 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
           const roomCount = parseInt(roomStr);
           if (roomCount > 0 && roomCount <= 10) { // Valid room range
             rooms = roomCount;
+            console.log(`Found rooms: ${roomCount}`);
             break;
           }
         }
@@ -249,20 +255,8 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   }
 
   if (validationErrors.length > 0) {
-    console.log(`Erori de validare pentru ${title}: ${validationErrors.join(', ')}`);
-    return {
-      title: title || 'Proprietate',
-      description: description || 'Descriere indisponibilă',
-      location,
-      images: finalImages,
-      price_min: price_min || 50000, // Default fallback values
-      price_max: price_max || price_min || 50000,
-      surface_min: surface_min || 50,
-      surface_max: surface_max || surface_min || 50,
-      rooms: rooms || 2,
-      features,
-      validation_errors: validationErrors // Include errors but don't throw
-    };
+    console.error(`Date obligatorii lipsă pentru ${title}: ${validationErrors.join(', ')}`);
+    throw new Error(`Date obligatorii lipsă: ${validationErrors.join(', ')}`);
   }
 
   return {
