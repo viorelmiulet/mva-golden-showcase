@@ -383,8 +383,8 @@ const Properties = () => {
 
       {/* Property Details Modal */}
       <Dialog open={!!selectedPropertyDetails} onOpenChange={closePropertyDetails}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center justify-between">
               <span className="text-xl font-bold">{selectedPropertyDetails?.title}</span>
               <Button variant="ghost" size="sm" onClick={closePropertyDetails}>
@@ -393,7 +393,8 @@ const Properties = () => {
             </DialogTitle>
           </DialogHeader>
           
-          {selectedPropertyDetails && (
+          <div className="flex-1 overflow-y-auto pr-2">
+            {selectedPropertyDetails && (
             <div className="space-y-6">
               {/* Main Image */}
               {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && selectedPropertyDetails.images.length > 0 && (
@@ -474,8 +475,8 @@ const Properties = () => {
               {/* Description */}
               {selectedPropertyDetails.description && (
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Descriere</h3>
-                  <div className="text-muted-foreground bg-muted/50 p-4 rounded-lg whitespace-pre-line">
+                  <h3 className="font-semibold">Descriere Completă</h3>
+                  <div className="text-muted-foreground bg-muted/50 p-4 rounded-lg whitespace-pre-wrap break-words max-h-none overflow-visible">
                     {selectedPropertyDetails.description}
                   </div>
                 </div>
@@ -571,8 +572,9 @@ const Properties = () => {
                   </a>
                 </Button>
               </div>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
