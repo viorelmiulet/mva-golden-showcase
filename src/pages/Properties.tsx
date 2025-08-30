@@ -12,12 +12,10 @@ import {
   Ruler,
   Loader2,
   ExternalLink,
-  Trash2,
   Images,
   ChevronLeft,
   ChevronRight,
-  X,
-  Plus
+  X
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -57,29 +55,6 @@ const Properties = () => {
     }
   })
 
-  const deleteProperty = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('catalog_offers')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-
-      toast({
-        title: "Succes!",
-        description: "Proprietatea a fost ștearsă"
-      })
-
-      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: "Nu am putut șterge proprietatea",
-        variant: "destructive"
-      })
-    }
-  }
 
   const openPropertyGallery = (property: any) => {
     setSelectedProperty(property)
@@ -253,13 +228,6 @@ const Properties = () => {
                                 </a>
                               </Button>
                             )}
-                            <Button 
-                              variant="destructive" 
-                              size="sm"
-                              onClick={() => deleteProperty(property.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           </div>
                         </CardContent>
                       </Card>
