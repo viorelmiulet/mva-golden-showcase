@@ -249,7 +249,20 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   }
 
   if (validationErrors.length > 0) {
-    throw new Error(`Date obligatorii lipsă: ${validationErrors.join(', ')}`);
+    console.log(`Erori de validare pentru ${title}: ${validationErrors.join(', ')}`);
+    return {
+      title: title || 'Proprietate',
+      description: description || 'Descriere indisponibilă',
+      location,
+      images: finalImages,
+      price_min: price_min || 50000, // Default fallback values
+      price_max: price_max || price_min || 50000,
+      surface_min: surface_min || 50,
+      surface_max: surface_max || surface_min || 50,
+      rooms: rooms || 2,
+      features,
+      validation_errors: validationErrors // Include errors but don't throw
+    };
   }
 
   return {
