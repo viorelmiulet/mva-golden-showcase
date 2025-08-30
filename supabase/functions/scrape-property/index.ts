@@ -357,19 +357,19 @@ serve(async (req) => {
 
     // Set up timeout to prevent CPU time exceeded error
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
     try {
       // Fetch with timeout
       const response = await fetch(url, {
         signal: controller.signal,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status}`);
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
 
       // Get HTML but limit size to prevent memory issues
@@ -378,36 +378,70 @@ serve(async (req) => {
 
       clearTimeout(timeoutId);
 
+      console.log(`Processing content: ${text.length} characters`);
+
       // Quick extraction to avoid timeouts
-      const property = extractQuickly(html, text);
+      try {
+        const property = extractQuickly(html, text);
+        console.log('Successfully scraped property:', property.title);
 
-      console.log('Scraped property:', property);
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          property 
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            property 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      } catch (extractError) {
+        console.error('Extraction error:', extractError.message);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Nu am putut extrage datele necesare: ${extractError.message}` 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
+      }
 
     } catch (fetchError) {
       clearTimeout(timeoutId);
+      console.error('Fetch error:', fetchError);
       if (fetchError.name === 'AbortError') {
-        throw new Error('Request timeout - site took too long to respond');
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Timpul de așteptare a expirat - site-ul nu răspunde' 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 408
+          }
+        );
       }
-      throw fetchError;
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Eroare la accesarea site-ului: ${fetchError.message}` 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
     }
 
   } catch (error) {
-    console.error('Error scraping property:', error);
+    console.error('General error in scrape-property:', error);
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to scrape property' 
+        error: `Eroare generală: ${error.message || 'Eroare necunoscută'}` 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
