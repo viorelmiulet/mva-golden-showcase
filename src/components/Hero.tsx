@@ -91,7 +91,7 @@ const Hero = () => {
             </div>
             
             <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-2xl p-4 sm:p-6 hover:bg-card/80 transition-all duration-300 group sm:mt-8">
-              <div className="text-2xl sm:text-3xl font-bold text-gold mb-2">2</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gold mb-2">3</div>
               <div className="text-xs sm:text-sm text-muted-foreground">Complexe disponibile</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
