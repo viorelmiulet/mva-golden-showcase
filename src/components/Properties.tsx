@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,101 +9,80 @@ import {
   Euro,
   ArrowRight,
   Sparkles,
-  Star,
-  ExternalLink
+  Star
 } from "lucide-react"
-import { supabase } from "@/integrations/supabase/client"
-
-interface CatalogOffer {
-  id: string
-  title: string
-  description: string
-  price_min: number
-  price_max: number
-  surface_min: number | null
-  surface_max: number | null
-  rooms: number
-  location: string
-  project_name: string | null
-  features: string[]
-  amenities: string[]
-  availability_status: string
-  whatsapp_catalog_id: string | null
-  storia_link: string | null
-}
 
 const Properties = () => {
-  const [offers, setOffers] = useState<CatalogOffer[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('catalog_offers')
-          .select('*')
-          .eq('availability_status', 'available')
-          .order('created_at', { ascending: false })
-        
-        if (error) {
-          console.error('Error fetching offers:', error)
-        } else {
-          setOffers(data || [])
-        }
-      } catch (error) {
-        console.error('Error:', error)
-      } finally {
-        setLoading(false)
-      }
+  const projectsList = [
+    {
+      id: 1,
+      title: "RENEW RESIDENCE",
+      location: "Chiajna",
+      price: "€44,000 - €90,000",
+      size: "32 - 65 mp",
+      rooms: "1-2 camere",
+      image: "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png",
+      description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei.",
+      highlight: true,
+      features: ["Finisaje Premium", "Spații Verzi"],
+      category: "noi",
+      status: "disponibil"
+    },
+    {
+      id: 2,
+      title: "EUROCASA RESIDENCE", 
+      location: "Chiajna",
+      price: "€40,000 - €102,000",
+      size: "30 - 75 mp",
+      rooms: "1-3 camere",
+      image: "/lovable-uploads/8fc1d07f-c6c0-4e93-86ad-c6a6485cbfbc.png",
+      description: "Proiect imobiliar de excepție, situat în vestul capitalei.",
+      highlight: false,
+      features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
+      category: "noi",
+      status: "disponibil"
+    },
+    {
+      id: 3,
+      title: "CITY MILITARI",
+      location: "Militari",
+      price: "€45,000 - €100,000",
+      size: "32 - 55 mp",
+      rooms: "1-2 camere",
+      image: "/lovable-uploads/604055e3-2ca9-4f0d-a745-ca3dcff103c0.png",
+      description: "Complex rezidențial modern în zona Militari, cu apartamente compacte și funcționale.",
+      highlight: false,
+      features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
+      category: "noi",
+      status: "disponibil"
     }
+  ]
 
-    fetchOffers()
-  }, [])
-  // Group offers by project
-  const groupedOffers = offers.reduce((acc, offer) => {
-    const projectName = offer.project_name || 'Altele'
-    if (!acc[projectName]) {
-      acc[projectName] = []
-    }
-    acc[projectName].push(offer)
-    return acc
-  }, {} as Record<string, CatalogOffer[]>)
-
-  const formatPrice = (min: number, max?: number) => {
-    if (max && max !== min) {
-      return `€${min.toLocaleString()} - €${max.toLocaleString()}`
-    }
-    return `€${min.toLocaleString()}`
-  }
-
-  const formatSurface = (min: number | null, max?: number | null) => {
-    if (!min) return "N/A"
-    if (max && max !== min) {
-      return `${min} - ${max} mp`
-    }
-    return `${min} mp`
-  }
+  const allProjects = projectsList
+  const newProjects = projectsList.filter(p => p.category === "noi")
+  const availableProjects = projectsList.filter(p => p.status === "disponibil")
 
   // Structured Data for Properties
   const propertiesStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": offers.map((offer, index) => ({
+    "itemListElement": projectsList.map((property, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
         "@type": "Residence",
-        "name": offer.title,
-        "description": offer.description,
+        "name": property.title,
+        "description": property.description,
+        "image": `https://mva-imobiliare.lovable.app${property.image}`,
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": offer.location,
+          "addressLocality": property.location,
           "addressCountry": "RO"
         },
         "offers": {
           "@type": "Offer",
           "priceCurrency": "EUR",
-          "price": offer.price_min,
+          "price": property.price.split(' - ')[0].replace('€', '').replace(',', ''),
           "seller": {
             "@type": "RealEstateAgent",
             "name": "MVA Imobiliare"
@@ -112,164 +90,133 @@ const Properties = () => {
         },
         "floorSize": {
           "@type": "QuantitativeValue",
-          "value": offer.surface_min
+          "value": property.size
         },
-        "numberOfRooms": offer.rooms
+        "numberOfRooms": property.rooms
       }
     }))
   }
 
-  const renderOffers = (offersToShow: CatalogOffer[]) => {
-    if (loading) {
-      return (
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <div className="aspect-video bg-muted"></div>
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded mb-4"></div>
-                <div className="h-3 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded w-2/3"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )
-    }
-
-    if (offersToShow.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground text-lg">Nu există oferte disponibile momentan.</p>
-        </div>
-      )
-    }
-
-    return (
-      <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
-        {offersToShow.map((offer) => (
-          <Card 
-            key={offer.id} 
-            className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl border-border/30 bg-card/50 backdrop-blur-sm hover:border-gold/50"
-          >
-            {offer.project_name === 'MILITARI RESIDENCE' && (
-              <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
-                <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Storia
-                </Badge>
-              </div>
-            )}
+  const renderProjects = (projects: typeof projectsList) => (
+    <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
+      {projects.map((property) => (
+        <Card 
+          key={property.id} 
+          className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl ${
+            property.highlight 
+              ? 'border-gold/30 bg-gradient-to-br from-gold/5 to-gold-dark/5' 
+              : 'border-border/30 bg-card/50'
+          } backdrop-blur-sm hover:border-gold/50`}
+        >
+          {property.highlight && (
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
+              <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Recomandat
+              </Badge>
+            </div>
+          )}
+          
+          {/* Image */}
+          <div className="relative aspect-video overflow-hidden">
+            <img 
+              src={property.image} 
+              alt={`${property.title} - Apartamente premium în ${property.location}, ${property.size}, ${property.rooms}`}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
-            {/* Project Image Placeholder */}
-            <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center p-4">
-                  <Home className="w-12 h-12 text-gold mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gold">{offer.project_name || 'Apartament'}</p>
-                </div>
-              </div>
-              
-              {/* Price Badge */}
-              <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gold/20">
-                <div className="flex items-center text-gold font-bold">
-                  <Euro className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{formatPrice(offer.price_min, offer.price_max)}</span>
-                </div>
+            {/* Price Badge */}
+            <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gold/20">
+              <div className="flex items-center text-gold font-bold">
+                <Euro className="w-4 h-4 mr-1" />
+                <span className="text-sm">{property.price.split(' - ')[0]} +</span>
               </div>
             </div>
+          </div>
 
-            <CardContent className="p-6 sm:p-8 space-y-4 sm:space-y-6">
-              
-              {/* Title & Location */}
-              <div className="space-y-3">
-                <h2 className="text-xl sm:text-2xl font-bold leading-tight text-foreground group-hover:text-gold transition-colors">
-                  {offer.title}
-                </h2>
-                
-                <div className="flex items-center text-muted-foreground">
-                  <MapPin className="w-4 h-4 mr-2 text-gold" />
-                  <span className="font-medium">{offer.location}</span>
-                </div>
-              </div>
+          <CardContent className="p-6 sm:p-8 space-y-4 sm:space-y-6">
             
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                    <Euro className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Preț</div>
-                  <div className="text-xs sm:text-sm font-semibold text-foreground">{formatPrice(offer.price_min, offer.price_max)}</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                    <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Suprafață</div>
-                  <div className="text-xs sm:text-sm font-semibold text-foreground">{formatSurface(offer.surface_min, offer.surface_max)}</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                    <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
-                  </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Camere</div>
-                  <div className="text-xs sm:text-sm font-semibold text-foreground">{offer.rooms} {offer.rooms === 1 ? 'cameră' : 'camere'}</div>
-                </div>
-              </div>
+            {/* Title & Location */}
+            <div className="space-y-3">
+            <h2 className={`text-xl sm:text-2xl font-bold leading-tight ${
+              property.highlight ? 'text-gold' : 'text-foreground'
+            } group-hover:text-gold transition-colors`}>
+              {property.title}
+            </h2>
               
-              {/* Description */}
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-2">
-                {offer.description}
-              </p>
-              
-              {/* Features */}
-              <div className="flex flex-wrap gap-2">
-                {offer.features.slice(0, 3).map((feature, index) => (
-                  <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
-                    {feature}
-                  </Badge>
-                ))}
-                {offer.features.length > 3 && (
-                  <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
-                    +{offer.features.length - 3} mai multe
-                  </Badge>
-                )}
+              <div className="flex items-center text-muted-foreground">
+                <MapPin className="w-4 h-4 mr-2 text-gold" />
+                <span className="font-medium">{property.location}</span>
               </div>
+            </div>
             
-              {/* CTA Buttons */}
-              <div className="flex gap-2">
-                {offer.storia_link ? (
-                  <a href={offer.storia_link} target="_blank" rel="noopener noreferrer" className="flex-1">
-                    <Button variant="luxuryOutline" size="sm" className="w-full group text-xs">
-                      Vezi pe Storia
-                      <ExternalLink className="ml-1 w-3 h-3" />
-                    </Button>
-                  </a>
-                ) : (
-                  <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="flex-1">
-                    <Button variant="luxuryOutline" size="sm" className="w-full group text-xs">
-                      Contactează-ne
-                      <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </a>
-                )}
-                
-                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="flex-1">
-                  <Button variant="luxury" size="sm" className="w-full group text-xs">
-                    WhatsApp
-                    <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </a>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="text-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Euro className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                </div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Preț</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.price}</div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    )
-  }
+              
+              <div className="text-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                </div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Suprafață</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.size}</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                </div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Camere</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.rooms}</div>
+              </div>
+            </div>
+            
+            {/* Description */}
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {property.description}
+            </p>
+            
+            {/* Features */}
+            <div className="flex flex-wrap gap-2">
+              {property.features.map((feature, index) => (
+                <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                  {feature}
+                </Badge>
+              ))}
+            </div>
+            
+            {/* CTA Button */}
+            {property.title === "RENEW RESIDENCE" ? (
+              <a href="https://renewresidence.ro/" target="_blank" rel="noopener noreferrer">
+                <Button 
+                  variant={property.highlight ? "luxury" : "luxuryOutline"} 
+                  className="w-full group"
+                >
+                  Vezi Detalii Complete
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </a>
+            ) : (
+              <Button 
+                variant={property.highlight ? "luxury" : "luxuryOutline"} 
+                className="w-full group"
+              >
+                Vezi Detalii Complete
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
 
   return (
     <section id="proprietati" className="py-24 bg-gradient-to-b from-background to-secondary/20">
@@ -297,8 +244,8 @@ const Properties = () => {
             </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Descoperă {offers.length} apartamente disponibile din vestul Bucureștiului, 
-              actualizate automat din Storia și OLX.
+              Descoperă cele 3 proiecte disponibile din vestul Bucureștiului, 
+              cu apartamente moderne și facilități premium.
             </p>
             
             {/* See All Apartments CTA */}
@@ -345,11 +292,11 @@ const Properties = () => {
               </TabsList>
               
               <TabsContent value="toate" className="mt-0">
-                {renderOffers(offers)}
+                {renderProjects(allProjects)}
               </TabsContent>
               
               <TabsContent value="disponibile" className="mt-0">
-                {renderOffers(offers.filter(offer => offer.availability_status === 'available'))}
+                {renderProjects(availableProjects)}
               </TabsContent>
             </Tabs>
           </div>

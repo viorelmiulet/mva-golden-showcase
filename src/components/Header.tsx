@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Badge } from "@/components/ui/badge"
-import { Menu, Wifi } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import mvaLogo from "@/assets/mva-logo.png"
 
@@ -102,14 +101,8 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Integration Status & CTA Button */}
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Storia & OLX conectat
-              </Badge>
-            </div>
+          {/* CTA Button */}
+          <div className="hidden md:block">
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" className="shadow-lg shadow-gold/20">
                 Contactează-ne pe WhatsApp
