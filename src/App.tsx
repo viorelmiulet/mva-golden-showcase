@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import WhyChooseUs from "./pages/WhyChooseUs";
 import Properties from "./pages/Properties";
 import AddProperty from "./pages/AddProperty";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "@/components/CookieConsent";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
           <Route path="/proprietati" element={<Properties />} />
           <Route path="/adauga" element={<AddProperty />} />
+          <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Index />} />
         </Routes>
