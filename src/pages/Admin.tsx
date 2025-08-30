@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -18,7 +21,9 @@ import {
   Euro,
   Ruler,
   Images,
-  ExternalLink
+  ExternalLink,
+  Edit,
+  Save
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -30,6 +35,9 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [editingProperty, setEditingProperty] = useState<any>(null)
+  const [editForm, setEditForm] = useState<any>({})
+  const [isUpdating, setIsUpdating] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -226,6 +234,71 @@ const Admin = () => {
       })
     } finally {
       setIsRefreshing(false)
+    }
+  }
+
+  const openEditModal = (property: any) => {
+    setEditingProperty(property)
+    setEditForm({
+      title: property.title || '',
+      description: property.description || '',
+      location: property.location || '',
+      price_min: property.price_min || 0,
+      price_max: property.price_max || 0,
+      surface_min: property.surface_min || 0,
+      surface_max: property.surface_max || 0,
+      rooms: property.rooms || 1,
+      project_name: property.project_name || '',
+      features: Array.isArray(property.features) ? property.features.join(', ') : '',
+      amenities: Array.isArray(property.amenities) ? property.amenities.join(', ') : ''
+    })
+  }
+
+  const closeEditModal = () => {
+    setEditingProperty(null)
+    setEditForm({})
+  }
+
+  const updateProperty = async () => {
+    if (!editingProperty) return
+    
+    setIsUpdating(true)
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .update({
+          title: editForm.title,
+          description: editForm.description,
+          location: editForm.location,
+          price_min: parseInt(editForm.price_min) || 0,
+          price_max: parseInt(editForm.price_max) || 0,
+          surface_min: parseInt(editForm.surface_min) || 0,
+          surface_max: parseInt(editForm.surface_max) || 0,
+          rooms: parseInt(editForm.rooms) || 1,
+          project_name: editForm.project_name,
+          features: editForm.features ? editForm.features.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
+          amenities: editForm.amenities ? editForm.amenities.split(',').map((a: string) => a.trim()).filter(Boolean) : [],
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingProperty.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Proprietatea a fost actualizată cu succes"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+      closeEditModal()
+    } catch (error: any) {
+      toast({
+        title: "Eroare", 
+        description: error.message || "Nu am putut actualiza proprietatea",
+        variant: "destructive"
+      })
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -444,7 +517,162 @@ const Admin = () => {
                   {properties.map((property) => (
                     <Card key={property.id} className="group relative">
                       {/* Delete Button - Top Right Corner */}
-                      <div className="absolute top-4 right-4 z-10">
+                      <div className="absolute top-4 right-4 z-10 flex gap-2">
+                        {/* Edit Button */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEditModal(property)}
+                              className="shadow-lg opacity-80 hover:opacity-100 transition-opacity bg-background"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Editează Proprietatea</DialogTitle>
+                            </DialogHeader>
+                            
+                            {editingProperty && (
+                              <div className="space-y-4 py-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="title">Titlu</Label>
+                                    <Input
+                                      id="title"
+                                      value={editForm.title || ''}
+                                      onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                                      placeholder="Titlul proprietății"
+                                    />
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label htmlFor="location">Locație</Label>
+                                    <Input
+                                      id="location"
+                                      value={editForm.location || ''}
+                                      onChange={(e) => setEditForm({...editForm, location: e.target.value})}
+                                      placeholder="Locația proprietății"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="description">Descriere</Label>
+                                  <Textarea
+                                    id="description"
+                                    rows={4}
+                                    value={editForm.description || ''}
+                                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                                    placeholder="Descrierea proprietății"
+                                  />
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="price_min">Preț Min (€)</Label>
+                                    <Input
+                                      id="price_min"
+                                      type="number"
+                                      value={editForm.price_min || ''}
+                                      onChange={(e) => setEditForm({...editForm, price_min: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label htmlFor="price_max">Preț Max (€)</Label>
+                                    <Input
+                                      id="price_max"
+                                      type="number"
+                                      value={editForm.price_max || ''}
+                                      onChange={(e) => setEditForm({...editForm, price_max: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label htmlFor="surface_min">Suprafață Min (mp)</Label>
+                                    <Input
+                                      id="surface_min"
+                                      type="number"
+                                      value={editForm.surface_min || ''}
+                                      onChange={(e) => setEditForm({...editForm, surface_min: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label htmlFor="rooms">Camere</Label>
+                                    <Input
+                                      id="rooms"
+                                      type="number"
+                                      value={editForm.rooms || ''}
+                                      onChange={(e) => setEditForm({...editForm, rooms: e.target.value})}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="project_name">Nume Proiect</Label>
+                                  <Input
+                                    id="project_name"
+                                    value={editForm.project_name || ''}
+                                    onChange={(e) => setEditForm({...editForm, project_name: e.target.value})}
+                                    placeholder="Numele proiectului (opțional)"
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="features">Caracteristici (separate prin virgulă)</Label>
+                                  <Input
+                                    id="features"
+                                    value={editForm.features || ''}
+                                    onChange={(e) => setEditForm({...editForm, features: e.target.value})}
+                                    placeholder="balcon, parcare, centrală termică"
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="amenities">Facilități (separate prin virgulă)</Label>
+                                  <Input
+                                    id="amenities"
+                                    value={editForm.amenities || ''}
+                                    onChange={(e) => setEditForm({...editForm, amenities: e.target.value})}
+                                    placeholder="piscină, sală fitness, security"
+                                  />
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-4">
+                                  <Button
+                                    variant="outline"
+                                    onClick={closeEditModal}
+                                    disabled={isUpdating}
+                                  >
+                                    Anulează
+                                  </Button>
+                                  <Button
+                                    onClick={updateProperty}
+                                    disabled={isUpdating}
+                                  >
+                                    {isUpdating ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        Salvez...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Save className="w-4 h-4 mr-2" />
+                                        Salvează Modificările
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+
+                        {/* Delete Button */}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
