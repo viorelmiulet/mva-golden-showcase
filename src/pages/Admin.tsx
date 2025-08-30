@@ -516,7 +516,7 @@ const Admin = () => {
                 <div className="grid lg:grid-cols-2 gap-6">
                   {properties.map((property) => (
                     <Card key={property.id} className="group relative">
-                      {/* Delete Button - Top Right Corner */}
+                      {/* Edit and Delete Buttons - Top Right Corner */}
                       <div className="absolute top-4 right-4 z-10 flex gap-2">
                         {/* Edit Button */}
                         <Dialog>
