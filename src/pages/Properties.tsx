@@ -126,16 +126,6 @@ const Properties = () => {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Descoperă proprietățile noastre disponibile pentru vânzare
               </p>
-              
-              {/* Add Property Button */}
-              <div className="mt-6">
-                <Button asChild className="bg-gold hover:bg-gold-light">
-                  <Link to="/adauga">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adaugă Proprietate Nouă
-                  </Link>
-                </Button>
-              </div>
             </div>
 
             {/* Properties List */}
@@ -148,13 +138,7 @@ const Properties = () => {
                 <CardContent className="py-12 text-center">
                   <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
-                  <p className="text-muted-foreground mb-4">Adaugă prima proprietate pentru a începe</p>
-                  <Button asChild>
-                    <Link to="/adauga">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Adaugă Prima Proprietate
-                    </Link>
-                  </Button>
+                  <p className="text-muted-foreground">Proprietățile vor apărea aici după ce sunt adăugate</p>
                 </CardContent>
               </Card>
             ) : (
