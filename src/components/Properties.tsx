@@ -301,12 +301,12 @@ const Properties = () => {
                 Explorează Toate Apartamentele Disponibile
               </h2>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                Vizitează profilul nostru complet pe Storia.ro pentru a vedea toate opțiunile 
+                Explorează catalogul nostru complet pentru a vedea toate opțiunile 
                 disponibile, planuri detaliate și programarea vizitelor.
               </p>
               <a href="https://wa.me/c/40767941512" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
-                  Contactează-ne pe WhatsApp
+                  Vezi toate ofertele
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
