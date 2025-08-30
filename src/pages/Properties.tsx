@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { 
@@ -15,7 +16,11 @@ import {
   Ruler,
   Loader2,
   ExternalLink,
-  Trash2
+  Trash2,
+  Images,
+  ChevronLeft,
+  ChevronRight,
+  X
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -37,6 +42,8 @@ interface ScrapedProperty {
 const Properties = () => {
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedProperty, setSelectedProperty] = useState<any>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -136,6 +143,32 @@ const Properties = () => {
         description: "Nu am putut șterge proprietatea",
         variant: "destructive"
       })
+    }
+  }
+
+  const openPropertyGallery = (property: any) => {
+    setSelectedProperty(property)
+    setCurrentImageIndex(0)
+  }
+
+  const closeGallery = () => {
+    setSelectedProperty(null)
+    setCurrentImageIndex(0)
+  }
+
+  const nextImage = () => {
+    if (selectedProperty && selectedProperty.images) {
+      setCurrentImageIndex((prev) => 
+        prev + 1 >= selectedProperty.images.length ? 0 : prev + 1
+      )
+    }
+  }
+
+  const prevImage = () => {
+    if (selectedProperty && selectedProperty.images) {
+      setCurrentImageIndex((prev) => 
+        prev - 1 < 0 ? selectedProperty.images.length - 1 : prev - 1
+      )
     }
   }
 
@@ -318,11 +351,22 @@ const Properties = () => {
 
                           {/* Actions */}
                           <div className="flex gap-2">
+                            {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => openPropertyGallery(property)}
+                                className="flex-1"
+                              >
+                                <Images className="w-4 h-4 mr-2" />
+                                Vezi Poze ({(property.images as string[]).length})
+                              </Button>
+                            )}
                             {property.storia_link && (
-                              <Button variant="outline" size="sm" asChild className="flex-1">
+                              <Button variant="outline" size="sm" asChild>
                                 <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
                                   <ExternalLink className="w-4 h-4 mr-2" />
-                                  Vezi Original
+                                  Original
                                 </a>
                               </Button>
                             )}
@@ -344,6 +388,127 @@ const Properties = () => {
           </div>
         </div>
       </main>
+
+      {/* Image Gallery Modal */}
+      <Dialog open={!!selectedProperty} onOpenChange={closeGallery}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="flex items-center justify-between">
+              <span>{selectedProperty?.title}</span>
+              <Button variant="ghost" size="sm" onClick={closeGallery}>
+                <X className="w-4 h-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedProperty && selectedProperty.images && (
+            <div className="relative">
+              {/* Main Image */}
+              <div className="relative aspect-video bg-muted">
+                <img
+                  src={(selectedProperty.images as string[])[currentImageIndex]}
+                  alt={`${selectedProperty.title} - Imagine ${currentImageIndex + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Navigation Buttons */}
+                {(selectedProperty.images as string[]).length > 1 && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                      onClick={prevImage}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
+                      onClick={nextImage}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+                
+                {/* Image Counter */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 px-3 py-1 rounded-full text-sm">
+                  {currentImageIndex + 1} / {(selectedProperty.images as string[]).length}
+                </div>
+              </div>
+              
+              {/* Thumbnail Navigation */}
+              {(selectedProperty.images as string[]).length > 1 && (
+                <div className="p-4">
+                  <div className="flex gap-2 overflow-x-auto">
+                    {(selectedProperty.images as string[]).map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                          index === currentImageIndex 
+                            ? 'border-primary' 
+                            : 'border-transparent hover:border-muted-foreground'
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Property Info */}
+              <div className="p-6 pt-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-gold">€{selectedProperty.price_min?.toLocaleString()}</div>
+                    <div className="text-sm text-muted-foreground">Preț</div>
+                  </div>
+                  {selectedProperty.surface_min && (
+                    <div>
+                      <div className="text-2xl font-bold">{selectedProperty.surface_min} mp</div>
+                      <div className="text-sm text-muted-foreground">Suprafață</div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-2xl font-bold">{selectedProperty.rooms}</div>
+                    <div className="text-sm text-muted-foreground">Camere</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gold">{(selectedProperty.images as string[]).length}</div>
+                    <div className="text-sm text-muted-foreground">Poze</div>
+                  </div>
+                </div>
+                
+                {selectedProperty.location && (
+                  <div className="mt-4 flex items-center text-muted-foreground">
+                    <MapPin className="w-4 h-4 mr-2 text-gold" />
+                    <span>{selectedProperty.location}</span>
+                  </div>
+                )}
+                
+                {selectedProperty.storia_link && (
+                  <div className="mt-4">
+                    <Button asChild className="w-full">
+                      <a href={selectedProperty.storia_link} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Vezi Anunțul Original
+                      </a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>
