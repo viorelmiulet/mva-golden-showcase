@@ -40,35 +40,37 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     location = locationMatch[0].trim();
   }
 
-  // OBLIGATORIU: Price extraction - Multiple strategies (DOAR EUR)
+  // OBLIGATORIU: Price extraction - Multiple strategies (orice valută)
   let price_min = 0;
   let price_max = 0;
+  let currency = 'EUR'; // Default currency
   
-  // Strategy 1: EUR format - prioritate maximă
-  const eurPriceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€/gi);
-  if (eurPriceMatch) {
+  // Strategy 1: EUR format 
+  const eurPriceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€|([0-9.,]+)\s*eur/gi);
+  if (eurPriceMatch && price_min === 0) {
     for (const match of eurPriceMatch) {
-      const priceStr = match.replace(/[€\s.,]/g, '');
+      const priceStr = match.replace(/[€eur\s.,]/gi, '');
       const price = parseInt(priceStr);
-      if (price > 10000 && price < 10000000) { // Valid EUR property price
+      if (price > 1000 && price < 10000000) {
         price_min = price_max = price;
-        console.log(`Found EUR price: ${price}`);
+        currency = 'EUR';
+        console.log(`Found EUR price: ${price} EUR`);
         break;
       }
     }
   }
 
-  // Strategy 2: LEI format (convert to EUR) - DOAR dacă nu avem EUR
+  // Strategy 2: LEI/RON format (păstrează în LEI)
   if (price_min === 0) {
     const leiPriceMatch = text.match(/([0-9.,]+)\s*(lei|ron)\b/gi);
     if (leiPriceMatch) {
       for (const match of leiPriceMatch) {
         const priceStr = match.replace(/[lei|ron\s.,]/gi, '');
         const leiPrice = parseInt(priceStr);
-        if (leiPrice > 50000 && leiPrice < 50000000) { // Valid LEI price range
-          // Convert LEI to EUR (aproximativ 1 EUR = 5 LEI)
-          price_min = price_max = Math.round(leiPrice / 5);
-          console.log(`Converted ${leiPrice} LEI to ${price_min} EUR`);
+        if (leiPrice > 10000 && leiPrice < 50000000) { // Valid LEI price range
+          price_min = price_max = leiPrice;
+          currency = 'LEI';
+          console.log(`Found LEI price: ${leiPrice} LEI`);
           break;
         }
       }
@@ -84,6 +86,7 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
         const price = parseInt(priceStr);
         if (price > 10000 && price < 10000000) {
           price_min = price_max = price;
+          currency = 'EUR'; // Assume EUR for meta tags
           console.log(`Found meta price: ${price} EUR`);
           break;
         }
@@ -91,13 +94,13 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     }
   }
 
-  // Strategy 4: Generic number patterns with context
+  // Strategy 4: Generic number patterns with context (detect currency from context)
   if (price_min === 0) {
     const pricePatterns = [
-      /pret[^0-9]*([0-9.,]+)/gi,
-      /cost[^0-9]*([0-9.,]+)/gi,
-      /([0-9]{4,7})\s*(?:eur|euro|€)/gi,
-      /([0-9]{4,7})\s*(?!mp|m²|metri|camere|cam|room)/g // Numbers 4-7 digits not followed by area/room indicators
+      /pret[^0-9]*([0-9.,]+)\s*(eur|lei|ron|€)/gi,
+      /cost[^0-9]*([0-9.,]+)\s*(eur|lei|ron|€)/gi,
+      /([0-9]{4,7})\s*(eur|euro|€|lei|ron)/gi,
+      /([0-9]{4,7})\s*(?!mp|m²|metri|camere|cam|room)/g // Numbers without currency
     ];
     
     for (const pattern of pricePatterns) {
@@ -106,10 +109,20 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
         for (const match of matches) {
           const priceStr = match.replace(/[^0-9]/g, '');
           const price = parseInt(priceStr);
-          // Assume it's EUR if reasonable range
-          if (price > 15000 && price < 5000000) {
+          
+          // Detect currency from the match
+          if (match.toLowerCase().includes('eur') || match.includes('€')) {
+            currency = 'EUR';
+          } else if (match.toLowerCase().includes('lei') || match.toLowerCase().includes('ron')) {
+            currency = 'LEI';
+          } else {
+            // Guess currency based on price range
+            currency = price > 100000 ? 'LEI' : 'EUR';
+          }
+          
+          if (price > 5000 && price < 50000000) {
             price_min = price_max = price;
-            console.log(`Found price pattern: ${price} EUR`);
+            console.log(`Found price pattern: ${price} ${currency}`);
             break;
           }
         }
@@ -309,6 +322,7 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   // Log pentru debugging
   console.log(`Validation results for "${title}":`, {
     price_min,
+    currency,
     surface_min, 
     rooms,
     errors: validationErrors
@@ -327,6 +341,7 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     images: finalImages,
     price_min,
     price_max,
+    currency,
     surface_min,
     surface_max,
     rooms,

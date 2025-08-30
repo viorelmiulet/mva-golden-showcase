@@ -20,6 +20,7 @@ export type Database = {
           availability_status: string | null
           contact_info: Json | null
           created_at: string
+          currency: string | null
           description: string
           features: string[] | null
           id: string
@@ -42,6 +43,7 @@ export type Database = {
           availability_status?: string | null
           contact_info?: Json | null
           created_at?: string
+          currency?: string | null
           description: string
           features?: string[] | null
           id?: string
@@ -64,6 +66,7 @@ export type Database = {
           availability_status?: string | null
           contact_info?: Json | null
           created_at?: string
+          currency?: string | null
           description?: string
           features?: string[] | null
           id?: string

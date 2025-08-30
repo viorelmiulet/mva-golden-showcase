@@ -84,6 +84,7 @@ const Admin = () => {
             images: data.property.images,
             price_min: data.property.price_min,
             price_max: data.property.price_max,
+            currency: data.property.currency,
             surface_min: data.property.surface_min,
             surface_max: data.property.surface_max,
             rooms: data.property.rooms,
@@ -151,6 +152,7 @@ const Admin = () => {
       location: property.location || '',
       price_min: property.price_min || 0,
       price_max: property.price_max || 0,
+      currency: property.currency || 'EUR',
       surface_min: property.surface_min || 0,
       surface_max: property.surface_max || 0,
       rooms: property.rooms || 1,
@@ -449,27 +451,22 @@ const Admin = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="price_min">Preț Min (€ EUR)</Label>
-                    <Input
-                      id="price_min"
-                      type="number"
-                      value={editForm.price_min || ''}
-                      onChange={(e) => setEditForm({...editForm, price_min: e.target.value})}
-                      placeholder="Ex: 75000"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="price_max">Preț Max (€ EUR)</Label>
-                    <Input
-                      id="price_max"
-                      type="number"
-                      value={editForm.price_max || ''}
-                      onChange={(e) => setEditForm({...editForm, price_max: e.target.value})}
-                      placeholder="Ex: 85000"
-                    />
-                  </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Preț Min ({editForm.currency || 'EUR'})</label>
+                        <Input
+                          type="number"
+                          value={editForm.price_min || ''}
+                          onChange={(e) => setEditForm({...editForm, price_min: parseInt(e.target.value) || 0})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Preț Max ({editForm.currency || 'EUR'})</label>
+                        <Input
+                          type="number"
+                          value={editForm.price_max || ''}
+                          onChange={(e) => setEditForm({...editForm, price_max: parseInt(e.target.value) || 0})}
+                        />
+                      </div>
                                   
                                   <div className="space-y-2">
                                     <Label htmlFor="surface_min">Suprafață Min (mp)</Label>
@@ -624,12 +621,12 @@ const Admin = () => {
                               <Euro className="w-5 h-5 text-gold" />
                             </div>
                             <div className="text-xs text-muted-foreground">Preț</div>
-                            <div className="text-sm font-semibold">
-                              €{property.price_min?.toLocaleString('de-DE')} EUR
-                              {property.price_max && property.price_max !== property.price_min && 
-                                ` - €${property.price_max.toLocaleString('de-DE')} EUR`
-                              }
-                            </div>
+                             <div className="text-sm font-semibold">
+                               {property.price_min?.toLocaleString('de-DE')} {property.currency || 'EUR'}
+                               {property.price_max && property.price_max !== property.price_min && 
+                                 ` - ${property.price_max.toLocaleString('de-DE')} ${property.currency || 'EUR'}`
+                               }
+                             </div>
                           </div>
 
                           {(property.surface_min || property.surface_max) && (
