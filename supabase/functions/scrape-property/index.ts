@@ -77,29 +77,74 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     }
   });
 
-  // Quick image extraction - limit to first few images found
+  // Improved image extraction - multiple strategies
   const images: string[] = [];
-  const imgMatches = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*/gi);
-  if (imgMatches && imgMatches.length > 0) {
-    for (let i = 0; i < Math.min(imgMatches.length, 3); i++) {
-      const srcMatch = imgMatches[i].match(/src=["']([^"']+)["']/i);
-      if (srcMatch && srcMatch[1]) {
-        let src = srcMatch[1];
+  const imageUrls = new Set<string>();
+  
+  // Strategy 1: Standard img tags
+  const imgMatches = html.match(/<img[^>]+>/gi);
+  if (imgMatches) {
+    imgMatches.forEach(imgTag => {
+      const srcMatch = imgTag.match(/src=["']([^"']+)["']/i);
+      const dataSrcMatch = imgTag.match(/data-src=["']([^"']+)["']/i);
+      const srcSetMatch = imgTag.match(/srcset=["']([^"']+)["']/i);
+      
+      [srcMatch?.[1], dataSrcMatch?.[1], srcSetMatch?.[1]].forEach(src => {
+        if (src) {
+          let cleanSrc = src.split(',')[0].split(' ')[0]; // Take first URL from srcset
+          if (cleanSrc.startsWith('//')) {
+            cleanSrc = 'https:' + cleanSrc;
+          } else if (cleanSrc.startsWith('/')) {
+            const urlObj = new URL(html.includes('olx.ro') ? 'https://www.olx.ro' : 'https://www.imobiliare.ro');
+            cleanSrc = urlObj.origin + cleanSrc;
+          }
+          
+          // Better filtering for property images
+          if (cleanSrc.match(/\.(jpg|jpeg|png|webp)(\?|$)/i) && 
+              !cleanSrc.match(/(logo|icon|sprite|avatar|btn|button)/i) &&
+              cleanSrc.length > 20) {
+            imageUrls.add(cleanSrc);
+          }
+        }
+      });
+    });
+  }
+  
+  // Strategy 2: Look for specific OLX/Imobiliare patterns
+  const olxImagePatches = html.match(/https:\/\/[^"'\s]+\.(?:jpg|jpeg|png|webp)(?:\?[^"'\s]*)?/gi);
+  if (olxImagePatches) {
+    olxImagePatches.forEach(url => {
+      if (!url.match(/(logo|icon|sprite|avatar)/i) && url.length > 30) {
+        imageUrls.add(url);
+      }
+    });
+  }
+  
+  // Strategy 3: CSS background images
+  const bgMatches = html.match(/background-image:\s*url\(["']?([^"')]+)["']?\)/gi);
+  if (bgMatches) {
+    bgMatches.forEach(bgMatch => {
+      const urlMatch = bgMatch.match(/url\(["']?([^"')]+)["']?\)/i);
+      if (urlMatch && urlMatch[1]) {
+        let src = urlMatch[1];
         if (src.startsWith('//')) {
           src = 'https:' + src;
         }
-        if (src.includes('jpg') || src.includes('jpeg') || src.includes('png')) {
-          images.push(src);
+        if (src.match(/\.(jpg|jpeg|png|webp)(\?|$)/i) && !src.match(/(logo|icon)/i)) {
+          imageUrls.add(src);
         }
       }
-    }
+    });
   }
+  
+  // Convert set to array and limit to prevent timeout
+  const finalImages = Array.from(imageUrls).slice(0, 10);
 
   return {
     title: title || 'Proprietate',
     description: description || 'Descriere indisponibilă',
     location,
-    images,
+    images: finalImages,
     price_min,
     price_max,
     surface_min,
