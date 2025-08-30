@@ -39,10 +39,12 @@ serve(async (req) => {
 
     console.log('Starting OLX offers update...');
 
-    // Crawl OLX for apartments in Militari and Chiajna areas
+    // Crawl OLX specifically for apartments in Bucharest (excluding houses and land)
     const searchUrls = [
-      'https://www.olx.ro/d/imobiliare/apartamente-garsoniere-de-vanzare/bucuresti/?search%5Bfilter_enum_rooms%5D%5B0%5D=one&search%5Bfilter_enum_rooms%5D%5B1%5D=two&search%5Bfilter_enum_rooms%5D%5B2%5D=three&search%5Bdistrict_id%5D=15&search%5Bfilter_float_price%3Afrom%5D=20000&search%5Bfilter_float_price%3Ato%5D=150000',
-      'https://www.olx.ro/d/imobiliare/apartamente-garsoniere-de-vanzare/ilfov/?search%5Bfilter_enum_rooms%5D%5B0%5D=one&search%5Bfilter_enum_rooms%5D%5B1%5D=two&search%5Bfilter_enum_rooms%5D%5B2%5D=three&search%5Bfilter_float_price%3Afrom%5D=20000&search%5Bfilter_float_price%3Ato%5D=150000'
+      // Apartamente Bucuresti - toate sectoarele, exclusiv apartamente si garsoniere
+      'https://www.olx.ro/d/imobiliare/apartamente-garsoniere-de-vanzare/bucuresti/?search%5Bfilter_enum_rooms%5D%5B0%5D=one&search%5Bfilter_enum_rooms%5D%5B1%5D=two&search%5Bfilter_enum_rooms%5D%5B2%5D=three&search%5Bfilter_enum_rooms%5D%5B3%5D=four&search%5Bfilter_float_price%3Afrom%5D=15000&search%5Bfilter_float_price%3Ato%5D=200000',
+      // Garsoniere Bucuresti
+      'https://www.olx.ro/d/imobiliare/apartamente-garsoniere-de-vanzare/bucuresti/?search%5Bfilter_enum_rooms%5D%5B0%5D=one&search%5Bfilter_float_price%3Afrom%5D=15000&search%5Bfilter_float_price%3Ato%5D=100000'
     ];
 
     let allOffers: OLXOffer[] = [];
@@ -212,11 +214,21 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
       // Skip if not a valid property offer
       if (!title || !olxLink || !olxLink.includes('/oferta/')) continue;
       
-      // Skip if title doesn't seem to be about apartments
-      if (!title.toLowerCase().includes('apartament') && 
-          !title.toLowerCase().includes('garsonier') &&
-          !title.toLowerCase().includes('cam') &&
-          !title.toLowerCase().includes('imobil')) continue;
+      // Skip if title doesn't seem to be about apartments (more strict filtering)
+      const titleLower = title.toLowerCase();
+      if (!titleLower.includes('apartament') && 
+          !titleLower.includes('garsonier') &&
+          !titleLower.includes('cam')) continue;
+      
+      // Exclude houses, land, commercial spaces, etc.
+      if (titleLower.includes('casa') ||
+          titleLower.includes('vila') ||
+          titleLower.includes('teren') ||
+          titleLower.includes('spatiu comercial') ||
+          titleLower.includes('birou') ||
+          titleLower.includes('magazin') ||
+          titleLower.includes('hala') ||
+          titleLower.includes('depozit')) continue;
 
       // Find the surrounding context for this offer
       const matchIndex = markdown.indexOf(fullMatch);
@@ -299,14 +311,20 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
         surface = rooms === 1 ? 40 : rooms === 2 ? 55 : rooms === 3 ? 75 : 90;
       }
 
-      // Extract location from context
+      // Extract location from context (focus on Bucharest sectors and areas)
       let location = 'București';
       const locationPatterns = [
+        /(Sectorul\s*[1-6][^,\n]*)/i,
         /(Militari[^,\n]*)/i,
-        /(Chiajna[^,\n]*)/i,
-        /(Sectorul\s*\d[^,\n]*)/i,
+        /(Drumul Taberei[^,\n]*)/i,
+        /(Titan[^,\n]*)/i,
+        /(Pantelimon[^,\n]*)/i,
+        /(Colentina[^,\n]*)/i,
         /(Bucuresti[^,\n]*)/i,
-        /(Ilfov[^,\n]*)/i
+        /(Centrul Vechi[^,\n]*)/i,
+        /(Herastrau[^,\n]*)/i,
+        /(Aviatorilor[^,\n]*)/i,
+        /(Amzei[^,\n]*)/i
       ];
       
       for (const pattern of locationPatterns) {
@@ -317,18 +335,25 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
         }
       }
 
-      // Create features based on title and context
+      // Create features based on title and context (enhanced for Bucharest apartments)
       const features = [];
       const featureKeywords = {
         'decomandat': 'Apartament decomandat',
+        'semidecomandat': 'Semidecomandat',
         'modern': 'Finisaje moderne',
         'renovat': 'Recent renovat',
         'mobilat': 'Mobilat',
+        'nemobilat': 'Nemobilat',
         'centrala': 'Centrală termică',
         'balcon': 'Balcon',
+        'terasa': 'Terasă',
         'parcare': 'Loc de parcare',
         'lift': 'Lift',
-        'etaj': 'Etaj intermediar'
+        'etaj': 'Etaj intermediar',
+        'parter': 'La parter',
+        'mansarda': 'La mansardă',
+        'metrou': 'Aproape de metrou',
+        'parc': 'Aproape de parc'
       };
       
       const fullText = (title + ' ' + context).toLowerCase();
@@ -338,10 +363,13 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
         }
       }
       
-      // Add default features
+      // Add default features for Bucharest apartments
       if (features.length === 0) {
-        features.push('Apartament standard', 'Zonă accesibilă');
+        features.push('Apartament București', 'Zonă centrală');
       }
+      
+      // Always add location-specific features
+      features.push('Apartament București');
 
       const offer: OLXOffer = {
         title: title.trim(),
@@ -350,12 +378,12 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
         rooms: rooms,
         location: location,
         features: features,
-        description: `${title.trim()} cu suprafața de ${surface}m², ${rooms} ${rooms === 1 ? 'cameră' : 'camere'} în ${location}. Preț: ${price}€`,
+        description: `Apartament ${rooms} ${rooms === 1 ? 'cameră' : 'camere'} în ${location}, ${surface}m². ${title.trim()}. Preț: €${price.toLocaleString()}.`,
         olxLink: olxLink
       };
 
       offers.push(offer);
-      console.log(`Parsed OLX offer: ${title} - ${price}€ - ${rooms} camere - ${surface}m²`);
+      console.log(`Parsed Bucharest apartment: ${title} - €${price.toLocaleString()} - ${rooms} camere - ${surface}m² - ${location}`);
 
     } catch (error) {
       console.error('Error parsing OLX offer:', error);
@@ -363,6 +391,6 @@ function parseOLXOffers(markdown: string): OLXOffer[] {
     }
   }
 
-  console.log(`Successfully parsed ${offers.length} OLX offers`);
+  console.log(`Successfully parsed ${offers.length} Bucharest apartments from OLX`);
   return offers;
 }
