@@ -41,6 +41,20 @@ const Properties = () => {
       features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
       category: "noi",
       status: "disponibil"
+    },
+    {
+      id: 3,
+      title: "CITY MILITARI",
+      location: "Militari",
+      price: "€45,000 - €100,000",
+      size: "32 - 55 mp",
+      rooms: "1-2 camere",
+      image: "/lovable-uploads/604055e3-2ca9-4f0d-a745-ca3dcff103c0.png",
+      description: "Complex rezidențial modern în zona Militari, cu apartamente compacte și funcționale.",
+      highlight: false,
+      features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
+      category: "noi",
+      status: "disponibil"
     }
   ]
 
