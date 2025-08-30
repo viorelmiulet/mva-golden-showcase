@@ -18,127 +18,95 @@ interface ScrapedProperty {
   features: string[];
 }
 
-function extractPrice(text: string): { min: number; max: number } {
-  // Look for EUR prices
-  const eurMatches = text.match(/€\s*([0-9,]+(?:\.[0-9]+)?)/g);
-  if (eurMatches) {
-    const prices = eurMatches.map(match => {
-      const cleanPrice = match.replace(/[€,\s]/g, '');
-      return parseInt(cleanPrice);
-    }).filter(price => !isNaN(price));
-    
-    if (prices.length > 0) {
-      return {
-        min: Math.min(...prices),
-        max: Math.max(...prices)
-      };
+function extractQuickly(html: string, text: string): ScrapedProperty {
+  // Quick title extraction
+  let title = '';
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  if (titleMatch) {
+    title = titleMatch[1].trim().replace(/\s*-\s*(imobiliare\.ro|OLX|Anunturi).*$/i, '');
+  }
+
+  // Quick description extraction
+  let description = '';
+  const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']{0,200})/i);
+  if (descMatch) {
+    description = descMatch[1];
+  }
+
+  // Quick location extraction
+  let location = 'București';
+  const locationMatch = text.match(/(sector\s*[0-9]+|bucuresti[^,]*)/i);
+  if (locationMatch) {
+    location = locationMatch[0].trim();
+  }
+
+  // Quick price extraction - focus on EUR
+  let price_min = 0;
+  let price_max = 0;
+  const priceMatch = text.match(/€\s*([0-9.,]+)|([0-9.,]+)\s*€/i);
+  if (priceMatch) {
+    const priceStr = (priceMatch[1] || priceMatch[2]).replace(/[.,]/g, '');
+    price_min = price_max = parseInt(priceStr) || 0;
+  }
+
+  // Quick surface extraction
+  let surface_min: number | undefined;
+  let surface_max: number | undefined;
+  const surfaceMatch = text.match(/([0-9]+)\s*m[p²2]/i);
+  if (surfaceMatch) {
+    const surface = parseInt(surfaceMatch[1]);
+    if (surface > 10 && surface < 500) {
+      surface_min = surface_max = surface;
     }
   }
 
-  // Look for RON prices and convert to EUR
-  const ronMatches = text.match(/([0-9,]+(?:\.[0-9]+)?)\s*lei|([0-9,]+(?:\.[0-9]+)?)\s*RON/gi);
-  if (ronMatches) {
-    const prices = ronMatches.map(match => {
-      const cleanPrice = match.replace(/[lei,\sRON]/gi, '');
-      const ronPrice = parseInt(cleanPrice);
-      return Math.round(ronPrice / 5); // Approximate RON to EUR conversion
-    }).filter(price => !isNaN(price));
-    
-    if (prices.length > 0) {
-      return {
-        min: Math.min(...prices),
-        max: Math.max(...prices)
-      };
-    }
+  // Quick rooms extraction
+  let rooms = 2;
+  const roomMatch = text.match(/([0-9]+)\s*cam/i);
+  if (roomMatch) {
+    rooms = parseInt(roomMatch[1]) || 2;
   }
 
-  return { min: 0, max: 0 };
-}
-
-function extractSurface(text: string): { min?: number; max?: number } {
-  const surfaceMatches = text.match(/([0-9,]+(?:\.[0-9]+)?)\s*m[p²2]|([0-9,]+(?:\.[0-9]+)?)\s*mp/gi);
-  if (surfaceMatches) {
-    const surfaces = surfaceMatches.map(match => {
-      const cleanSurface = match.replace(/[mp²2,\s]/gi, '');
-      return parseInt(cleanSurface);
-    }).filter(surface => !isNaN(surface) && surface > 10 && surface < 1000);
-    
-    if (surfaces.length > 0) {
-      return {
-        min: Math.min(...surfaces),
-        max: Math.max(...surfaces)
-      };
-    }
-  }
-  return {};
-}
-
-function extractRooms(text: string): number {
-  // Look for room patterns
-  const roomMatches = text.match(/([0-9]+)\s*cam[ere]*|([0-9]+)\s*room|([0-9]+)\s*bedroom/gi);
-  if (roomMatches) {
-    const rooms = roomMatches.map(match => {
-      const cleanRooms = match.replace(/[^0-9]/g, '');
-      return parseInt(cleanRooms);
-    }).filter(room => !isNaN(room) && room > 0 && room <= 10);
-    
-    if (rooms.length > 0) {
-      return Math.max(...rooms);
-    }
-  }
-  
-  // Default to 2 rooms if not found
-  return 2;
-}
-
-function extractFeatures(text: string): string[] {
+  // Quick features extraction - only check most common ones
   const features: string[] = [];
-  
-  const featureKeywords = [
-    'balcon', 'terasa', 'gradina', 'parcare', 'lift', 'centrala', 
-    'aer conditionat', 'gresie', 'faience', 'parchet', 'laminat',
-    'mobilat', 'utilat', 'semifinisat', 'modern', 'renovat'
-  ];
-
-  featureKeywords.forEach(keyword => {
-    if (text.toLowerCase().includes(keyword)) {
-      features.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
+  const quickFeatures = ['balcon', 'parcare', 'lift', 'centrala'];
+  const textLower = text.toLowerCase();
+  quickFeatures.forEach(feature => {
+    if (textLower.includes(feature)) {
+      features.push(feature.charAt(0).toUpperCase() + feature.slice(1));
     }
   });
 
-  return features;
-}
-
-function extractImages(html: string): string[] {
+  // Quick image extraction - limit to first few images found
   const images: string[] = [];
-  
-  // Look for img tags with src attributes
-  const imgMatches = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
-  if (imgMatches) {
-    imgMatches.forEach(imgTag => {
-      const srcMatch = imgTag.match(/src=["']([^"']+)["']/i);
+  const imgMatches = html.match(/<img[^>]+src=["']([^"']+)["'][^>]*/gi);
+  if (imgMatches && imgMatches.length > 0) {
+    for (let i = 0; i < Math.min(imgMatches.length, 3); i++) {
+      const srcMatch = imgMatches[i].match(/src=["']([^"']+)["']/i);
       if (srcMatch && srcMatch[1]) {
         let src = srcMatch[1];
-        
-        // Make relative URLs absolute
         if (src.startsWith('//')) {
           src = 'https:' + src;
-        } else if (src.startsWith('/')) {
-          src = 'https://www.imobiliare.ro' + src;
         }
-        
-        // Filter out icons, logos, and small images
-        if (!src.includes('icon') && 
-            !src.includes('logo') && 
-            !src.includes('sprite') &&
-            (src.includes('jpg') || src.includes('jpeg') || src.includes('png') || src.includes('webp'))) {
+        if (src.includes('jpg') || src.includes('jpeg') || src.includes('png')) {
           images.push(src);
         }
       }
-    });
+    }
   }
 
-  return Array.from(new Set(images)).slice(0, 10); // Remove duplicates and limit to 10 images
+  return {
+    title: title || 'Proprietate',
+    description: description || 'Descriere indisponibilă',
+    location,
+    images,
+    price_min,
+    price_max,
+    surface_min,
+    surface_max,
+    rooms,
+    features
+  };
 }
 
 serve(async (req) => {
@@ -162,84 +130,51 @@ serve(async (req) => {
 
     console.log('Scraping property from URL:', url);
 
-    // Fetch the webpage
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch webpage: ${response.status}`);
-    }
+    // Set up timeout to prevent CPU time exceeded error
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
 
-    const html = await response.text();
-    const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+    try {
+      // Fetch with timeout
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
 
-    // Extract title
-    let title = '';
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    if (titleMatch) {
-      title = titleMatch[1].trim();
-      // Clean up common patterns
-      title = title.replace(/\s*-\s*(imobiliare\.ro|OLX|Anunturi).*$/i, '');
-    }
-
-    // Extract description
-    let description = '';
-    const descMatches = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
-    if (descMatches) {
-      description = descMatches[1];
-    } else {
-      // Try to find description in content
-      const contentMatch = text.match(/descriere[^.]*[:.]\s*([^.]{50,300})/i);
-      if (contentMatch) {
-        description = contentMatch[1].trim();
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status}`);
       }
-    }
 
-    // Extract location
-    let location = '';
-    const locationPatterns = [
-      /sector\s*[0-9]+/gi,
-      /bucuresti[^,]*/gi,
-      /romania[^,]*/gi
-    ];
+      // Get HTML but limit size to prevent memory issues
+      const html = await response.text();
+      const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').substring(0, 50000); // Limit text size
 
-    for (const pattern of locationPatterns) {
-      const matches = text.match(pattern);
-      if (matches) {
-        location = matches[0].trim();
-        break;
+      clearTimeout(timeoutId);
+
+      // Quick extraction to avoid timeouts
+      const property = extractQuickly(html, text);
+
+      console.log('Scraped property:', property);
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          property 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Request timeout - site took too long to respond');
       }
+      throw fetchError;
     }
-
-    // Extract other data
-    const prices = extractPrice(text);
-    const surfaces = extractSurface(text);
-    const rooms = extractRooms(text);
-    const features = extractFeatures(text);
-    const images = extractImages(html);
-
-    const scrapedProperty: ScrapedProperty = {
-      title: title || 'Proprietate',
-      description: description || 'Descriere indisponibilă',
-      location: location || 'București',
-      images,
-      price_min: prices.min,
-      price_max: prices.max,
-      surface_min: surfaces.min,
-      surface_max: surfaces.max,
-      rooms,
-      features
-    };
-
-    console.log('Scraped property:', scrapedProperty);
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        property: scrapedProperty 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
 
   } catch (error) {
     console.error('Error scraping property:', error);
