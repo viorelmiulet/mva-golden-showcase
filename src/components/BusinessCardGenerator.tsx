@@ -497,21 +497,6 @@ const BusinessCardGenerator = () => {
   <g transform="translate(525, 465)">
     <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">Excelență în imobiliare</text>
   </g>
-  
-  <!-- Decorative Elements -->
-  <g opacity="0.3">
-    <!-- Corner decorations -->
-    <circle cx="90" cy="90" r="9" fill="url(#logoGradientVerso)" opacity="0.4"/>
-    <circle cx="960" cy="90" r="7.5" fill="url(#logoGradientVerso)" opacity="0.3"/>
-    <circle cx="90" cy="510" r="6" fill="url(#logoGradientVerso)" opacity="0.2"/>
-    <circle cx="960" cy="510" r="10.5" fill="url(#logoGradientVerso)" opacity="0.4"/>
-    
-    <!-- Elegant corner lines -->
-    <path d="M60 60 L120 60 L120 120" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
-    <path d="M990 60 L930 60 L930 120" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
-    <path d="M60 540 L120 540 L120 480" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
-    <path d="M990 540 L930 540 L930 480" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
-  </g>
 </svg>`;
   };
 
