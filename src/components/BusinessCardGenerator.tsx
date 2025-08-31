@@ -41,93 +41,350 @@ const BusinessCardGenerator = () => {
     }
   };
 
+  const generateQRPattern = (qrDataUrl: string) => {
+    // Convertim QR code-ul într-un pattern SVG simplu pentru compatibilitate
+    return `
+    <!-- QR Code Pattern -->
+    <g fill="#000000">
+      <!-- Corner squares -->
+      <rect x="5" y="5" width="12" height="12"/>
+      <rect x="53" y="5" width="12" height="12"/>
+      <rect x="5" y="53" width="12" height="12"/>
+      <!-- Inner corner squares -->
+      <rect x="8" y="8" width="6" height="6" fill="#FFFFFF"/>
+      <rect x="56" y="8" width="6" height="6" fill="#FFFFFF"/>
+      <rect x="8" y="56" width="6" height="6" fill="#FFFFFF"/>
+      <!-- Data pattern -->
+      <rect x="22" y="5" width="2" height="2"/>
+      <rect x="26" y="5" width="2" height="2"/>
+      <rect x="30" y="5" width="2" height="2"/>
+      <rect x="36" y="5" width="2" height="2"/>
+      <rect x="42" y="5" width="2" height="2"/>
+      <rect x="22" y="9" width="2" height="2"/>
+      <rect x="30" y="9" width="2" height="2"/>
+      <rect x="34" y="9" width="2" height="2"/>
+      <rect x="40" y="9" width="2" height="2"/>
+      <rect x="42" y="9" width="2" height="2"/>
+      <rect x="22" y="13" width="2" height="2"/>
+      <rect x="26" y="13" width="2" height="2"/>
+      <rect x="34" y="13" width="2" height="2"/>
+      <rect x="36" y="13" width="2" height="2"/>
+      <rect x="42" y="13" width="2" height="2"/>
+      <rect x="22" y="22" width="2" height="2"/>
+      <rect x="30" y="22" width="2" height="2"/>
+      <rect x="36" y="22" width="2" height="2"/>
+      <rect x="42" y="22" width="2" height="2"/>
+      <rect x="22" y="26" width="2" height="2"/>
+      <rect x="34" y="26" width="2" height="2"/>
+      <rect x="40" y="26" width="2" height="2"/>
+      <rect x="22" y="30" width="2" height="2"/>
+      <rect x="30" y="30" width="2" height="2"/>
+      <rect x="36" y="30" width="2" height="2"/>
+      <rect x="42" y="30" width="2" height="2"/>
+      <rect x="22" y="36" width="2" height="2"/>
+      <rect x="26" y="36" width="2" height="2"/>
+      <rect x="34" y="36" width="2" height="2"/>
+      <rect x="40" y="36" width="2" height="2"/>
+      <rect x="42" y="36" width="2" height="2"/>
+      <rect x="22" y="40" width="2" height="2"/>
+      <rect x="30" y="40" width="2" height="2"/>
+      <rect x="34" y="40" width="2" height="2"/>
+      <rect x="36" y="40" width="2" height="2"/>
+      <rect x="42" y="40" width="2" height="2"/>
+      <rect x="22" y="44" width="2" height="2"/>
+      <rect x="26" y="44" width="2" height="2"/>
+      <rect x="30" y="44" width="2" height="2"/>
+      <rect x="36" y="44" width="2" height="2"/>
+      <rect x="40" y="44" width="2" height="2"/>
+      <rect x="53" y="22" width="2" height="2"/>
+      <rect x="56" y="22" width="2" height="2"/>
+      <rect x="62" y="22" width="2" height="2"/>
+      <rect x="53" y="26" width="2" height="2"/>
+      <rect x="60" y="26" width="2" height="2"/>
+      <rect x="62" y="26" width="2" height="2"/>
+      <rect x="53" y="30" width="2" height="2"/>
+      <rect x="56" y="30" width="2" height="2"/>
+      <rect x="62" y="30" width="2" height="2"/>
+      <rect x="53" y="36" width="2" height="2"/>
+      <rect x="60" y="36" width="2" height="2"/>
+      <rect x="62" y="36" width="2" height="2"/>
+      <rect x="53" y="40" width="2" height="2"/>
+      <rect x="56" y="40" width="2" height="2"/>
+      <rect x="60" y="40" width="2" height="2"/>
+      <rect x="53" y="44" width="2" height="2"/>
+      <rect x="62" y="44" width="2" height="2"/>
+      <rect x="22" y="53" width="2" height="2"/>
+      <rect x="26" y="53" width="2" height="2"/>
+      <rect x="34" y="53" width="2" height="2"/>
+      <rect x="36" y="53" width="2" height="2"/>
+      <rect x="42" y="53" width="2" height="2"/>
+      <rect x="22" y="57" width="2" height="2"/>
+      <rect x="30" y="57" width="2" height="2"/>
+      <rect x="34" y="57" width="2" height="2"/>
+      <rect x="40" y="57" width="2" height="2"/>
+      <rect x="42" y="57" width="2" height="2"/>
+      <rect x="22" y="61" width="2" height="2"/>
+      <rect x="26" y="61" width="2" height="2"/>
+      <rect x="30" y="61" width="2" height="2"/>
+      <rect x="36" y="61" width="2" height="2"/>
+      <rect x="40" y="61" width="2" height="2"/>
+      <rect x="42" y="61" width="2" height="2"/>
+      <rect x="22" y="65" width="2" height="2"/>
+      <rect x="30" y="65" width="2" height="2"/>
+      <rect x="36" y="65" width="2" height="2"/>
+      <rect x="42" y="65" width="2" height="2"/>
+    </g>`;
+  };
+
   const generateFrontSvg = (data: BusinessCardData, qrDataUrl: string) => {
-    const qrImage = qrDataUrl ? `<image href="${qrDataUrl}" x="305" y="140" width="70" height="70"/>` : "";
-    
     return `<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    <!-- Luxury gradients -->
     <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
     </linearGradient>
-    
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#DAA520;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    <linearGradient id="logoGradientCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
     </linearGradient>
+    <linearGradient id="textGradientCard" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <filter id="cardGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   
-  <rect width="350" height="200" fill="url(#cardGradient)" rx="10"/>
+  <!-- Card Background -->
+  <rect width="350" height="200" rx="15" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="2" filter="url(#cardGlow)"/>
   
-  <!-- Logo MVA mai mic -->
-  <g transform="translate(25, 25) scale(0.8)">
-    <circle cx="20" cy="20" r="18" fill="url(#logoGradient)"/>
-    <path d="M12 12 L16 12 L20 20 L24 12 L28 12 L28 28 L25 28 L25 17 L22 23 L18 23 L15 17 L15 28 L12 28 Z" fill="white"/>
-    <polygon points="35,8 45,8 50,18 45,28 35,28 30,18" fill="url(#logoGradient)"/>
-    <text x="37.5" y="23" font-family="Arial Black" font-size="8" fill="white" text-anchor="middle" font-weight="bold">M</text>
+  <!-- Luxury texture pattern -->
+  <pattern id="texture" patternUnits="userSpaceOnUse" width="4" height="4">
+    <rect width="4" height="4" fill="transparent"/>
+    <circle cx="2" cy="2" r="0.3" fill="#FFD700" opacity="0.1"/>
+  </pattern>
+  <rect width="350" height="200" rx="15" fill="url(#texture)" opacity="0.3"/>
+  
+  <!-- Logo Section -->
+  <g transform="translate(20, 20)">
+    <!-- Logo Symbol -->
+    <g>
+      <!-- Outer ring -->
+      <circle 
+        cx="20" 
+        cy="20" 
+        r="18" 
+        fill="none"
+        stroke="url(#logoGradientCard)"
+        stroke-width="1.2"
+        opacity="0.9"
+      />
+      
+      <!-- Main hexagon -->
+      <path 
+        d="M20 4 L33 10 L33 30 L20 36 L7 30 L7 10 Z" 
+        fill="url(#logoGradientCard)" 
+        opacity="0.95"
+      />
+      
+      <!-- Inner background -->
+      <path 
+        d="M20 7 L30 12 L30 28 L20 33 L10 28 L10 12 Z" 
+        fill="url(#cardGradient)"
+      />
+      
+      <!-- "M" letter -->
+      <path 
+        d="M15 16 L17 16 L20 22 L23 16 L25 22 L25 26 L23 26 L23 19 L21 23 L19 23 L17 19 L17 26 L15 26 Z"
+        fill="url(#logoGradientCard)"
+      />
+      
+      <!-- Accents -->
+      <circle cx="30" cy="10" r="0.8" fill="#FFD700" opacity="0.8" />
+      <circle cx="10" cy="30" r="0.6" fill="#D4AF37" opacity="0.6" />
+    </g>
+    
+    <!-- Company Text -->
+    <text x="50" y="18" font-family="Cinzel, serif" font-size="12" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="1px">MVA</text>
+    <text x="50" y="28" font-family="Playfair Display, serif" font-size="7" font-weight="500" fill="#B8B8B8" letter-spacing="2px">IMOBILIARE</text>
+    <line x1="50" y1="32" x2="120" y2="32" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.6"/>
   </g>
-
-  <!-- Nume și funcție -->
-  <text x="25" y="90" font-family="Arial" font-size="16" font-weight="bold" fill="white">${data.name}</text>
-  <text x="25" y="110" font-family="Arial" font-size="12" fill="#DAA520">${data.function}</text>
   
-  <!-- Informații contact -->
-  <text x="25" y="135" font-family="Arial" font-size="10" fill="white">📞 ${data.phone}</text>
-  <text x="25" y="150" font-family="Arial" font-size="10" fill="white">✉️ ${data.email}</text>
+  <!-- Main Content Area -->
+  <g transform="translate(20, 80)">
+    <!-- Name and Title -->
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="18" font-weight="bold" fill="#FFFFFF" letter-spacing="0.5px">${data.name}</text>
+    <text x="0" y="18" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="url(#textGradientCard)" letter-spacing="1px">${data.function}</text>
+    
+    <!-- Decorative line -->
+    <line x1="0" y1="25" x2="80" y2="25" stroke="url(#logoGradientCard)" stroke-width="1" opacity="0.8"/>
+  </g>
   
-  <!-- Text vânzări -->
-  <text x="25" y="170" font-family="Arial" font-size="9" fill="#DAA520">Vânzări apartamente direct de la dezvoltator</text>
+  <!-- Contact Information -->
+  <g transform="translate(20, 125)">
+    <!-- Phone -->
+    <g>
+      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <path d="M2 2 L3 2 L4 3 L4 4 L5 5 L6 5 L6 4 L5 3 L4 2 L3 1 L2 2" fill="url(#logoGradientCard)" transform="scale(0.8)"/>
+      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">${data.phone}</text>
+    </g>
+    
+    <!-- Email -->
+    <g transform="translate(0, 20)">
+      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <rect x="1.5" y="2.5" width="5" height="3" rx="0.5" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.5"/>
+      <path d="M2 3 L4 4.5 L6 3" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.4"/>
+      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">${data.email}</text>
+    </g>
+  </g>
   
-  <!-- Program de lucru -->
-  <text x="25" y="185" font-family="Arial" font-size="8" fill="white">Luni-Vineri: 09:00-18:00 | Sâmbătă: 10:00-16:00</text>
+  <!-- Right Side - Details -->
+  <g transform="translate(200, 25)">
+    <!-- Services -->
+    <text x="0" y="20" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
+    <text x="0" y="32" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
+    
+    <!-- WhatsApp QR Code -->
+    <g transform="translate(30, 55)">
+      <rect x="0" y="0" width="70" height="70" rx="5" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      ${generateQRPattern(qrDataUrl)}
+    </g>
+  </g>
   
-  <!-- QR Code -->
-  ${qrImage}
-  <text x="340" y="225" font-family="Arial" font-size="8" fill="white" text-anchor="end">WhatsApp</text>
+  <!-- Decorative Elements -->
+  <circle cx="320" cy="40" r="2" fill="url(#logoGradientCard)" opacity="0.3"/>
+  <circle cx="310" cy="170" r="1.5" fill="url(#logoGradientCard)" opacity="0.2"/>
+  <circle cx="330" cy="160" r="1" fill="#D4AF37" opacity="0.4"/>
+  
+  <!-- Bottom decorative line -->
+  <line x1="20" y1="185" x2="330" y2="185" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.3"/>
 </svg>`;
   };
 
   const generateBackSvg = () => {
     return `<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    <!-- Luxury gradients -->
     <linearGradient id="cardGradientVerso" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#2a2a2a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
     </linearGradient>
-    
     <linearGradient id="logoGradientVerso" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#DAA520;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
     </linearGradient>
-    
-    <radialGradient id="centerGlow" cx="50%" cy="50%" r="40%">
-      <stop offset="0%" style="stop-color:#DAA520;stop-opacity:0.3" />
-      <stop offset="100%" style="stop-color:#DAA520;stop-opacity:0" />
-    </radialGradient>
+    <linearGradient id="textGradientVerso" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <linearGradient id="borderGradientVerso" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <filter id="cardGlowVerso" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   
-  <rect width="350" height="200" fill="url(#cardGradientVerso)" rx="10"/>
-  <rect width="350" height="200" fill="url(#centerGlow)" rx="10"/>
+  <!-- Card Background -->
+  <rect width="350" height="200" rx="15" fill="url(#cardGradientVerso)" stroke="url(#borderGradientVerso)" stroke-width="2" filter="url(#cardGlowVerso)"/>
   
-  <!-- Elemente decorative -->
-  <circle cx="50" cy="50" r="30" fill="none" stroke="#DAA520" stroke-width="0.5" opacity="0.3"/>
-  <circle cx="300" cy="150" r="25" fill="none" stroke="#DAA520" stroke-width="0.5" opacity="0.3"/>
+  <!-- Luxury texture pattern -->
+  <pattern id="textureVerso" patternUnits="userSpaceOnUse" width="6" height="6">
+    <rect width="6" height="6" fill="transparent"/>
+    <circle cx="3" cy="3" r="0.4" fill="#FFD700" opacity="0.08"/>
+  </pattern>
+  <rect width="350" height="200" rx="15" fill="url(#textureVerso)" opacity="0.4"/>
   
-  <!-- Logo central mai mic -->
-  <g transform="translate(175, 100) scale(0.6)">
-    <circle cx="0" cy="0" r="25" fill="url(#logoGradientVerso)" opacity="0.8"/>
-    <path d="M-7 -2 L-4 -2 L0 4 L4 -2 L7 -2 L7 9 L4 9 L4 1 L1 5 L-1 5 L-4 1 L-4 9 L-7 9 Z" fill="white"/>
+  <!-- Central Logo - Smaller -->
+  <g transform="translate(175, 100)">
+    <!-- Outer ring -->
+    <circle 
+      cx="0" 
+      cy="0" 
+      r="25" 
+      fill="none"
+      stroke="url(#logoGradientVerso)"
+      stroke-width="1.2"
+      opacity="0.8"
+    />
     
-    <polygon points="25,-15 40,-15 47.5,0 40,15 25,15 17.5,0" fill="url(#logoGradientVerso)" opacity="0.8"/>
-    <text x="32.5" y="5" font-family="Arial Black" font-size="12" fill="white" text-anchor="middle" font-weight="bold">M</text>
+    <!-- Main hexagon -->
+    <path 
+      d="M0 -20 L17 -10 L17 10 L0 20 L-17 10 L-17 -10 Z" 
+      fill="url(#logoGradientVerso)" 
+      opacity="0.9"
+    />
+    
+    <!-- Inner background -->
+    <path 
+      d="M0 -16 L14 -8 L14 8 L0 16 L-14 8 L-14 -8 Z" 
+      fill="url(#cardGradientVerso)"
+    />
+    
+    <!-- Premium "M" letterform - smaller and lower -->
+    <path 
+      d="M-7 -2 L-4 -2 L0 4 L4 -2 L7 -2 L7 9 L4 9 L4 1 L1 5 L-1 5 L-4 1 L-4 9 L-7 9 Z"
+      fill="url(#logoGradientVerso)"
+    />
+    
+    <!-- Luxury accents -->
+    <circle cx="16" cy="-12" r="1" fill="#FFD700" opacity="0.8" />
+    <circle cx="-16" cy="12" r="0.8" fill="#D4AF37" opacity="0.6" />
+    <polygon points="17,11 19,9 19,13" fill="#B8860B" opacity="0.4" />
   </g>
   
-  <!-- Linii decorative -->
-  <line x1="50" y1="180" x2="300" y2="180" stroke="#DAA520" stroke-width="1" opacity="0.5"/>
-  <line x1="50" y1="20" x2="300" y2="20" stroke="#DAA520" stroke-width="1" opacity="0.5"/>
+  <!-- Company Name - Above Logo -->
+  <g transform="translate(175, 55)">
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="20" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
+    <text x="0" y="14" font-family="Playfair Display, serif" font-size="10" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">IMOBILIARE</text>
+  </g>
+  
+  <!-- Tagline - Below Logo -->
+  <g transform="translate(175, 155)">
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="1px">Excelență în imobiliare</text>
+  </g>
+  
+  <!-- Decorative Elements -->
+  <g opacity="0.3">
+    <!-- Corner decorations -->
+    <circle cx="30" cy="30" r="3" fill="url(#logoGradientVerso)" opacity="0.4"/>
+    <circle cx="320" cy="30" r="2.5" fill="url(#logoGradientVerso)" opacity="0.3"/>
+    <circle cx="30" cy="170" r="2" fill="url(#logoGradientVerso)" opacity="0.2"/>
+    <circle cx="320" cy="170" r="3.5" fill="url(#logoGradientVerso)" opacity="0.4"/>
+    
+    <!-- Elegant corner lines -->
+    <path d="M20 20 L40 20 L40 40" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M330 20 L310 20 L310 40" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M20 180 L40 180 L40 160" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M330 180 L310 180 L310 160" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
+  </g>
 </svg>`;
   };
 
