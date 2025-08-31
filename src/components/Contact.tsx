@@ -194,7 +194,7 @@ const Contact = () => {
                   </h3>
                 </div>
                 <p className="text-muted-foreground mb-4 text-sm">
-                  Pentru răspunsuri rapide și consultație în timp real.
+                  Pentru răspunsuri rapide
                 </p>
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                   <Button variant="luxury" className="w-full">
