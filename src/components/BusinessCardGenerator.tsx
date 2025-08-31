@@ -295,7 +295,7 @@ const BusinessCardGenerator = () => {
   </defs>
   
   <!-- Card Background -->
-  <rect width="1050" height="600" rx="45" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="6" filter="url(#cardGlow)"/>
+  <rect width="1050" height="600" rx="45" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="9" filter="url(#cardGlow)"/>
   
   <!-- Luxury texture pattern -->
   <pattern id="texture" patternUnits="userSpaceOnUse" width="12" height="12">
@@ -460,7 +460,7 @@ const BusinessCardGenerator = () => {
   </defs>
   
   <!-- Card Background -->
-  <rect width="1050" height="600" rx="45" fill="url(#cardGradientVerso)" stroke="url(#borderGradientVerso)" stroke-width="6" filter="url(#cardGlowVerso)"/>
+  <rect width="1050" height="600" rx="45" fill="url(#cardGradientVerso)" stroke="url(#borderGradientVerso)" stroke-width="9" filter="url(#cardGlowVerso)"/>
   
   <!-- Luxury texture pattern -->
   <pattern id="textureVerso" patternUnits="userSpaceOnUse" width="18" height="18">
