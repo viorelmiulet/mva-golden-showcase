@@ -220,6 +220,15 @@ const Properties = () => {
                             </div>
                           )}
 
+                          {/* Project Name */}
+                          {property.project_name && (
+                            <div className="text-center p-3 bg-gold/10 rounded-lg border border-gold/20 mb-4">
+                              <p className="text-sm font-playfair font-semibold text-gold">
+                                {property.project_name}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Actions */}
                           <div className="flex flex-col gap-2">
                             <div className="flex gap-2">
@@ -482,7 +491,7 @@ const Properties = () => {
                     <Building className="w-5 h-5 text-gold" />
                     Proiect
                   </h3>
-                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg font-playfair text-lg font-medium">
                     {selectedPropertyDetails.project_name}
                   </p>
                 </div>
