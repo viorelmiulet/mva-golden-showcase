@@ -142,7 +142,9 @@ const BusinessCardGenerator = () => {
 
   const generateQRCode = async (phone: string) => {
     if (!phone) return "";
-    const whatsappUrl = `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
+    // Remove all non-numeric characters including plus sign
+    const cleanPhone = phone.replace(/[^0-9]/g, "");
+    const whatsappUrl = `https://wa.me/${cleanPhone}`;
     try {
       return await QRCode.toDataURL(whatsappUrl, {
         width: 600, // Increased for high resolution (was 70)
