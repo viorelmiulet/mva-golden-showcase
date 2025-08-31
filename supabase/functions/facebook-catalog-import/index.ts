@@ -31,6 +31,10 @@ Deno.serve(async (req) => {
 
     console.log('Facebook Catalog Import called with action:', action);
 
+    if (action === 'test_basic_fetch') {
+      return await testBasicFetch();
+    }
+
     if (action === 'import_csv') {
       return await importFromCSV(supabase, csvData);
     }
@@ -749,3 +753,72 @@ async function mapImmofluxFeedToProperty(row: any, headers: string[], feedType: 
     storia_link: getValue(['link', 'url', 'property_url', 'listing_url'])
   };
 }
+
+async function testBasicFetch() {
+  console.log('=== Testing basic fetch functionality ===');
+  
+  try {
+    // Test 1: Simple HTTP request to a reliable service
+    console.log('Test 1: Fetching httpbin.org/json...');
+    const response1 = await fetch('https://httpbin.org/json');
+    console.log('httpbin.org response status:', response1.status);
+    const data1 = await response1.text();
+    console.log('httpbin.org response length:', data1.length);
+    console.log('httpbin.org first 100 chars:', data1.substring(0, 100));
+    
+    // Test 2: Test Immoflux directly with minimal setup
+    console.log('Test 2: Fetching Immoflux Google feed...');
+    const immofluxUrl = 'https://web.immoflux.ro/api/bridges/googlefeed/68009c9368d89.csv';
+    const response2 = await fetch(immofluxUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; EdgeFunction/1.0)',
+        'Accept': '*/*'
+      }
+    });
+    
+    console.log('Immoflux response status:', response2.status);
+    console.log('Immoflux response headers:', Object.fromEntries(response2.headers.entries()));
+    
+    if (response2.ok) {
+      const immofluxData = await response2.text();
+      console.log('Immoflux response length:', immofluxData.length);
+      console.log('Immoflux first 200 chars:', immofluxData.substring(0, 200));
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Both fetch tests successful!',
+          httpbin_status: response1.status,
+          immoflux_status: response2.status,
+          immoflux_data_length: immofluxData.length,
+          immoflux_preview: immofluxData.substring(0, 500)
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } else {
+      console.log('Immoflux response not ok:', response2.status, response2.statusText);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Immoflux fetch failed',
+          httpbin_status: response1.status,
+          immoflux_status: response2.status,
+          immoflux_error: response2.statusText
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+  } catch (error) {
+    console.error('Basic fetch test failed:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: `Basic fetch test failed: ${error.message}`,
+        error_name: error.name,
+        error_stack: error.stack
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
+  }

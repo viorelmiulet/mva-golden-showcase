@@ -151,6 +151,41 @@ const Admin = () => {
     }
   }
 
+  const testBasicFetch = async () => {
+    setIsProcessingCsv(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'test_basic_fetch' }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        toast({
+          title: "Fetch Test Reușit!",
+          description: data.message,
+        })
+        console.log('Fetch test rezultate:', data)
+      } else {
+        toast({
+          title: "Fetch Test Eșuat",
+          description: data.message || "Problemă cu fetch",
+          variant: "destructive"
+        })
+        console.log('Fetch test eroare:', data)
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare Test",
+        description: error.message || "Nu am putut testa fetch",
+        variant: "destructive"
+      })
+      console.error('Fetch test error:', error)
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  }
+
   // Immoflux Google Feed Import Functions  
   const GOOGLE_FEED_URL = 'https://web.immoflux.ro/api/bridges/googlefeed/68009c9368d89.csv'
 
@@ -722,6 +757,27 @@ const Admin = () => {
                           {GOOGLE_FEED_URL}
                         </div>
                       </div>
+                      
+                      {/* Debug Button */}
+                      <Button 
+                        onClick={testBasicFetch}
+                        disabled={isProcessingCsv}
+                        variant="secondary"
+                        size="sm"
+                        className="w-full mb-2"
+                      >
+                        {isProcessingCsv ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Debug...
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="w-4 h-4 mr-2" />
+                            🔍 Test Fetch Debug
+                          </>
+                        )}
+                      </Button>
                       
                       <div className="flex gap-2">
                         <Button 
