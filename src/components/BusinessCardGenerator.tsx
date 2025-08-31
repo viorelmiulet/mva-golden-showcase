@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft, Trash2, History } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import wallpaperMobile from "@/assets/mva-wallpaper-mobile.jpg";
+import watermarkLogo from "@/assets/mva-watermark.png";
 
 interface BusinessCardData {
   name: string;
@@ -704,6 +706,80 @@ const BusinessCardGenerator = () => {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* Logo-uri Descărcabile */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Logo-uri Descărcabile</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Wallpaper Mobile */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Smartphone className="w-5 h-5" />
+                  Wallpaper Mobil
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-muted rounded-lg p-4 flex justify-center">
+                  <img 
+                    src={wallpaperMobile} 
+                    alt="MVA Wallpaper Mobile" 
+                    className="max-w-full h-48 object-contain rounded-lg shadow-md"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Wallpaper optimizat pentru telefon (1080x1920px) cu logo-ul MVA pe fundal elegant.
+                </p>
+                <Button 
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = wallpaperMobile;
+                    link.download = 'mva-wallpaper-mobile.jpg';
+                    link.click();
+                  }}
+                  className="w-full"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Descarcă Wallpaper
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Watermark */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="w-5 h-5" />
+                  Watermark pentru Fotografii
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-muted rounded-lg p-4 flex justify-center">
+                  <img 
+                    src={watermarkLogo} 
+                    alt="MVA Watermark" 
+                    className="max-w-full h-48 object-contain rounded-lg shadow-md"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Logo semi-transparent (512x512px) perfect pentru watermark pe fotografii fără a fi intruziv.
+                </p>
+                <Button 
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = watermarkLogo;
+                    link.download = 'mva-watermark.png';
+                    link.click();
+                  }}
+                  className="w-full"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Descarcă Watermark
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Cărți Salvate */}
