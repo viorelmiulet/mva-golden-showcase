@@ -98,7 +98,7 @@ const Admin = () => {
     }
 
     // Construct the full URL
-    const url = `https://web.immoflux.ro/publicproperty/${propertyId.trim()}`
+    const url = `https://web.immoflux.ro/publicproperty/p${propertyId.trim()}`
 
     // Update loading state for this specific property ID
     setLoadingStates(prev => prev.map((state, i) => i === index ? true : state))
@@ -430,7 +430,7 @@ const Admin = () => {
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Search className="w-4 h-4" />
                       <span className="font-medium">Link de bază:</span> 
-                      <code className="bg-background px-2 py-1 rounded text-xs">https://web.immoflux.ro/publicproperty/</code>
+                      <code className="bg-background px-2 py-1 rounded text-xs">https://web.immoflux.ro/publicproperty/p</code>
                     </p>
                   </div>
                   
@@ -443,10 +443,10 @@ const Admin = () => {
                           <span className="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
                           <div className="flex-1 flex items-center">
                             <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l border border-r-0">
-                              https://web.immoflux.ro/publicproperty/
+                              https://web.immoflux.ro/publicproperty/p
                             </span>
                             <Input
-                              placeholder={`${index === 0 ? 'P190741 (obligatoriu)' : 'P190741 (opțional)'}`}
+                              placeholder={`${index === 0 ? '190741 (obligatoriu)' : '190741 (opțional)'}`}
                               value={propertyId}
                               onChange={(e) => updatePropertyId(index, e.target.value)}
                               className="rounded-l-none border-l-0 font-mono"
@@ -487,9 +487,9 @@ const Admin = () => {
                   <div className="bg-muted/50 p-4 rounded-lg">
                     <h4 className="font-medium mb-2">💡 Exemple de ID-uri valide:</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• <code className="bg-background px-1 rounded">P190741</code> - Apartament 2 camere</li>
-                      <li>• <code className="bg-background px-1 rounded">P189985</code> - Apartament zona Militari</li>
-                      <li>• <code className="bg-background px-1 rounded">P196022</code> - Garsonieră</li>
+                      <li>• <code className="bg-background px-1 rounded">190741</code> - Apartament 2 camere</li>
+                      <li>• <code className="bg-background px-1 rounded">189985</code> - Apartament zona Militari</li>
+                      <li>• <code className="bg-background px-1 rounded">196022</code> - Garsonieră</li>
                     </ul>
                     <p className="text-xs text-muted-foreground mt-2">
                       ID-ul se găsește în URL-ul proprietății sau în codul de referință
