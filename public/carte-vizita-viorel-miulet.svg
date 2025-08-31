@@ -1,0 +1,155 @@
+<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Luxury gradients -->
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
+    </linearGradient>
+    <linearGradient id="logoGradientCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="textGradientCard" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <filter id="cardGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Card Background -->
+  <rect width="350" height="200" rx="15" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="2" filter="url(#cardGlow)"/>
+  
+  <!-- Luxury texture pattern -->
+  <pattern id="texture" patternUnits="userSpaceOnUse" width="4" height="4">
+    <rect width="4" height="4" fill="transparent"/>
+    <circle cx="2" cy="2" r="0.3" fill="#FFD700" opacity="0.1"/>
+  </pattern>
+  <rect width="350" height="200" rx="15" fill="url(#texture)" opacity="0.3"/>
+  
+  <!-- Logo Section -->
+  <g transform="translate(20, 20)">
+    <!-- Logo Symbol -->
+    <g>
+      <!-- Outer ring -->
+      <circle 
+        cx="25" 
+        cy="25" 
+        r="23" 
+        fill="none"
+        stroke="url(#logoGradientCard)"
+        stroke-width="1.5"
+        opacity="0.9"
+      />
+      
+      <!-- Main hexagon -->
+      <path 
+        d="M25 5 L42 13 L42 37 L25 45 L8 37 L8 13 Z" 
+        fill="url(#logoGradientCard)" 
+        opacity="0.95"
+      />
+      
+      <!-- Inner background -->
+      <path 
+        d="M25 8 L38 15 L38 35 L25 42 L12 35 L12 15 Z" 
+        fill="url(#cardGradient)"
+      />
+      
+      <!-- "M" letter -->
+      <path 
+        d="M17 18 L20 18 L25 26 L30 18 L33 18 L33 32 L31 32 L31 21 L27 28 L23 28 L19 21 L19 32 L17 32 Z"
+        fill="url(#logoGradientCard)"
+      />
+      
+      <!-- Accents -->
+      <circle cx="38" cy="12" r="1" fill="#FFD700" opacity="0.8" />
+      <circle cx="12" cy="38" r="0.8" fill="#D4AF37" opacity="0.6" />
+    </g>
+    
+    <!-- Company Text -->
+    <text x="60" y="22" font-family="Cinzel, serif" font-size="14" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="1px">MVA</text>
+    <text x="60" y="35" font-family="Playfair Display, serif" font-size="8" font-weight="500" fill="#B8B8B8" letter-spacing="2px">IMOBILIARE</text>
+    <line x1="60" y1="38" x2="140" y2="38" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.6"/>
+  </g>
+  
+  <!-- Main Content Area -->
+  <g transform="translate(20, 80)">
+    <!-- Name and Title -->
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="18" font-weight="bold" fill="#FFFFFF" letter-spacing="0.5px">Viorel Miulet</text>
+    <text x="0" y="18" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="url(#textGradientCard)" letter-spacing="1px">Agent Imobiliar</text>
+    
+    <!-- Decorative line -->
+    <line x1="0" y1="25" x2="80" y2="25" stroke="url(#logoGradientCard)" stroke-width="1" opacity="0.8"/>
+  </g>
+  
+  <!-- Contact Information -->
+  <g transform="translate(20, 125)">
+    <!-- Phone -->
+    <g>
+      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <path d="M2 2 L3 2 L4 3 L4 4 L5 5 L6 5 L6 4 L5 3 L4 2 L3 1 L2 2" fill="url(#logoGradientCard)" transform="scale(0.8)"/>
+      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">0767 941 512</text>
+    </g>
+    
+    <!-- Email -->
+    <g transform="translate(0, 20)">
+      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <rect x="1.5" y="2.5" width="5" height="3" rx="0.5" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.5"/>
+      <path d="M2 3 L4 4.5 L6 3" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.4"/>
+      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">mvaperfectbusiness@gmail.com</text>
+    </g>
+    
+    <!-- Address -->
+    <g transform="translate(0, 40)">
+      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <path d="M4 1 C5.5 1 6.5 2 6.5 3.5 C6.5 5.5 4 8 4 8 S1.5 5.5 1.5 3.5 C1.5 2 2.5 1 4 1 Z M4 2.5 C3.2 2.5 2.5 3.2 2.5 4 S3.2 5.5 4 5.5 S5.5 4.8 5.5 4 S4.8 2.5 4 2.5 Z" fill="url(#logoGradientCard)" transform="scale(0.7)"/>
+      <text x="15" y="4" font-family="Inter, sans-serif" font-size="9" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
+      <text x="15" y="15" font-family="Inter, sans-serif" font-size="9" fill="#E0E0E0">bl. 2 parter ap 24</text>
+    </g>
+  </g>
+  
+  <!-- Right Side - Premium Details -->
+  <g transform="translate(220, 30)">
+    <!-- Premium Real Estate -->
+    <text x="0" y="15" font-family="Playfair Display, serif" font-size="11" font-weight="600" fill="url(#textGradientCard)" letter-spacing="1.5px">Premium Real Estate</text>
+    
+    <!-- Services -->
+    <text x="0" y="40" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Apartamente de Lux</text>
+    <text x="0" y="52" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Consultanță Imobiliară</text>
+    <text x="0" y="64" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Investiții Premium</text>
+    
+    <!-- Program -->
+    <text x="0" y="90" font-family="Inter, sans-serif" font-size="8" font-weight="600" fill="url(#textGradientCard)">PROGRAM:</text>
+    <text x="0" y="102" font-family="Inter, sans-serif" font-size="8" fill="#B0B0B0">L-V: 10:00-18:00</text>
+    <text x="0" y="112" font-family="Inter, sans-serif" font-size="8" fill="#B0B0B0">S: 10:00-15:00</text>
+    
+    <!-- WhatsApp QR placeholder -->
+    <rect x="0" y="125" width="35" height="35" rx="5" fill="url(#logoGradientCard)" opacity="0.1" stroke="url(#logoGradientCard)" stroke-width="0.5"/>
+    <text x="17.5" y="138" font-family="Inter, sans-serif" font-size="6" text-anchor="middle" fill="#FFD700">QR</text>
+    <text x="17.5" y="148" font-family="Inter, sans-serif" font-size="6" text-anchor="middle" fill="#FFD700">WhatsApp</text>
+    <text x="0" y="170" font-family="Inter, sans-serif" font-size="7" fill="#B0B0B0">Scan pentru WhatsApp</text>
+  </g>
+  
+  <!-- Decorative Elements -->
+  <circle cx="320" cy="40" r="2" fill="url(#logoGradientCard)" opacity="0.3"/>
+  <circle cx="310" cy="170" r="1.5" fill="url(#logoGradientCard)" opacity="0.2"/>
+  <circle cx="330" cy="160" r="1" fill="#D4AF37" opacity="0.4"/>
+  
+  <!-- Bottom decorative line -->
+  <line x1="20" y1="185" x2="330" y2="185" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.3"/>
+</svg>
