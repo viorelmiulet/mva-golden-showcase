@@ -12,8 +12,6 @@ interface ScrapedProperty {
   images: string[];
   price_min: number;
   price_max: number;
-  surface_min?: number;
-  surface_max?: number;
   rooms: number;
   features: string[];
 }
@@ -128,41 +126,6 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
         }
         if (price_min > 0) break;
       }
-    }
-  }
-
-  // OBLIGATORIU: Surface extraction - Multiple strategies  
-  let surface_min: number | undefined;
-  let surface_max: number | undefined;
-  
-  // Strategy 1: Direct mp/m² patterns
-  const surfacePatterns = [
-    /([0-9]+)\s*m[p²2]/gi,
-    /suprafata[^0-9]*([0-9]+)/gi,
-    /([0-9]+)\s*mp/gi,
-    /([0-9]+)\s*metri/gi,
-    /([0-9]{2,3})\s*(?=\s*(?:mp|m²|metri|suprafata))/gi, // 2-3 digits before area keywords
-    // Immoflux specific patterns
-    /([0-9]+)\s*sqm/gi,
-    /apartament[^0-9]*([0-9]{2,3})\s*m/gi,
-    /([0-9]{2,3})\s*m\b/gi, // Generic m pattern for immoflux
-    /surface[^0-9]*([0-9]+)/gi,
-    /area[^0-9]*([0-9]+)/gi
-  ];
-
-  for (const pattern of surfacePatterns) {
-    const matches = text.match(pattern);
-    if (matches) {
-      for (const match of matches) {
-        const surfaceStr = match.replace(/[^0-9]/g, '');
-        const surface = parseInt(surfaceStr);
-        if (surface > 15 && surface < 500) { // Realistic surface range
-          surface_min = surface_max = surface;
-          console.log(`Found surface: ${surface} mp`);
-          break;
-        }
-      }
-      if (surface_min) break;
     }
   }
 
@@ -325,7 +288,6 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
   console.log(`Validation results for "${title}":`, {
     price_min,
     currency,
-    surface_min, 
     rooms,
     errors: validationErrors
   });
@@ -344,8 +306,6 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     price_min,
     price_max,
     currency,
-    surface_min,
-    surface_max,
     rooms,
     features
   };
