@@ -103,8 +103,8 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Telefon",
-      info: "+40767 941 512",
-      action: "tel:+40767941512"
+      info: "0767 941 512",
+      action: "tel:0767941512"
     },
     {
       icon: Mail,
@@ -115,13 +115,13 @@ const Contact = () => {
     {
       icon: MapPin,
       title: "Adresă",
-      info: "Strada Tineretului nr. 17 bloc 2, parter, ap. 24, Chiajna, Ilfov",
+      info: "jud. IF com. Chiajna str. Tineretului nr. 17 bl. 2 parter ap 24",
       action: null
     },
     {
       icon: Clock,
       title: "Program",
-      info: "NON-STOP",
+      info: "L-V 10:00-18:00 • S 10:00-15:00 • D închis",
       action: null
     }
   ]
