@@ -317,10 +317,6 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     validationErrors.push('Prețul nu a putut fi găsit');
   }
   
-  if (!surface_min || surface_min === 0) {
-    validationErrors.push('Suprafața nu a putut fi găsită');  
-  }
-  
   if (rooms === 0) {
     validationErrors.push('Numărul de camere nu a putut fi găsit');
   }
