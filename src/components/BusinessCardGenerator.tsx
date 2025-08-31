@@ -617,7 +617,7 @@ const BusinessCardGenerator = () => {
             <CardContent>
               {frontSvg && backSvg ? (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-medium mb-2">Fața</h3>
                       <div 
