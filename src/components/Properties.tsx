@@ -98,7 +98,7 @@ const Properties = () => {
   }
 
   const renderProjects = (projects: typeof projectsList) => (
-    <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
+    <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-12">
       {projects.map((property) => (
         <Card 
           key={property.id} 
@@ -106,7 +106,7 @@ const Properties = () => {
             property.highlight 
               ? 'border-gold/30 bg-gradient-to-br from-gold/5 to-gold-dark/5' 
               : 'border-border/30 bg-card/50'
-          } backdrop-blur-sm hover:border-gold/50`}
+          } backdrop-blur-sm hover:border-gold/50 touch-manipulation`}
         >
           {property.highlight && (
             <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
@@ -152,28 +152,28 @@ const Properties = () => {
             </div>
             
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4">
-              <div className="text-center">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+              <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
                   <Euro className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Preț</div>
-                <div className="text-xs sm:text-sm font-semibold text-foreground">{property.price}</div>
+                <div className="text-xs text-muted-foreground">Preț</div>
+                <div className="text-xs sm:text-sm font-semibold text-foreground leading-tight">{property.price}</div>
               </div>
               
-              <div className="text-center">
+              <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
                   <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Suprafață</div>
+                <div className="text-xs text-muted-foreground">Suprafață</div>
                 <div className="text-xs sm:text-sm font-semibold text-foreground">{property.size}</div>
               </div>
               
-              <div className="text-center">
+              <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
                   <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 </div>
-                <div className="text-xs sm:text-sm text-muted-foreground">Camere</div>
+                <div className="text-xs text-muted-foreground">Camere</div>
                 <div className="text-xs sm:text-sm font-semibold text-foreground">{property.rooms}</div>
               </div>
             </div>
@@ -269,25 +269,25 @@ const Properties = () => {
           {/* Properties Tabs */}
           <div className="mb-16">
             <Tabs defaultValue="toate" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 max-w-sm sm:max-w-md mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20">
+              <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-8 sm:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20 h-auto p-1">
                 <TabsTrigger 
                   value="toate" 
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2.5 px-3 touch-manipulation"
                 >
                   Toate
                 </TabsTrigger>
                 <TabsTrigger 
                   value="disponibile"
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2.5 px-3 touch-manipulation"
                 >
                   Disponibile
                 </TabsTrigger>
                 <TabsTrigger 
                   value="catalog"
-                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm cursor-pointer"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2.5 px-3 cursor-pointer touch-manipulation"
                   onClick={() => window.open('https://wa.me/40767941512', '_blank')}
                 >
-                  Vezi catalogul
+                  Catalog
                 </TabsTrigger>
               </TabsList>
               

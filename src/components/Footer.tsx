@@ -35,12 +35,12 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         
         {/* Main Footer Content */}
-        <div className="py-16">
+        <div className="py-12 sm:py-16">
           <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
               
               {/* Logo & Description */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 text-center md:text-left">
                 <div className="flex items-center space-x-4 mb-6 group cursor-pointer" onClick={scrollToTop}>
                   <div className="relative">
                     {/* Matching Luxury Footer Logo */}
@@ -166,32 +166,32 @@ const Footer = () => {
         <Separator className="bg-gold/20" />
 
         {/* Bottom Footer */}
-        <div className="py-6">
+        <div className="py-4 sm:py-6">
           <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               
-              <div className="flex items-center space-x-4">
-                <p className="text-muted-foreground text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   © 2025 MVA IMOBILIARE. Toate drepturile rezervate.
                 </p>
-                <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs mx-auto sm:mx-0 w-fit">
                   Premium Real Estate
                 </Badge>
               </div>
               
-              <div className="flex items-center space-x-6">
-                <div className="flex space-x-4 text-xs">
-                  <button className="text-muted-foreground hover:text-gold transition-colors">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                <div className="flex gap-3 sm:gap-4 text-xs">
+                  <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
                     Politică Confidențialitate
                   </button>
-                  <button className="text-muted-foreground hover:text-gold transition-colors">
+                  <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
                     Termeni & Condiții
                   </button>
                 </div>
                 
                 <button 
                   onClick={scrollToTop}
-                  className="w-8 h-8 bg-gold/10 rounded-lg flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40"
+                  className="w-10 h-10 sm:w-8 sm:h-8 bg-gold/10 rounded-lg flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
                   title="Înapoi sus"
                 >
                   <ArrowUp className="w-4 h-4 text-gold group-hover:text-gold-light transition-colors" />

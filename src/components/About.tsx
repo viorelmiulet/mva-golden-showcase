@@ -56,7 +56,7 @@ const About = () => {
           </header>
 
           {/* Achievements Grid */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mb-16 lg:mb-20">
             {achievements.map((achievement, index) => {
               const Icon = achievement.icon
               return (
