@@ -54,10 +54,6 @@ const Admin = () => {
   const [isProcessingCsv, setIsProcessingCsv] = useState(false)
   const [csvStatus, setCsvStatus] = useState<'idle' | 'validated' | 'error'>('idle')
   const [csvValidation, setCsvValidation] = useState<any>(null)
-  const [isImportingListings, setIsImportingListings] = useState(false)
-  const [isImportingProducts, setIsImportingProducts] = useState(false)
-  const [listingsStatus, setListingsStatus] = useState<'idle' | 'connected' | 'error'>('idle')
-  const [productsStatus, setProductsStatus] = useState<'idle' | 'connected' | 'error'>('idle')
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -155,81 +151,75 @@ const Admin = () => {
     }
   }
 
-  // Immoflux Feed Import Functions
-  const LISTINGS_FEED_URL = 'https://web.immoflux.ro/api/bridges/facebookfeed/listings/6800a236c901a.csv'
-  const PRODUCTS_FEED_URL = 'https://web.immoflux.ro/api/bridges/facebookfeed/products/6800a236c901a.csv'
+  // Immoflux Google Feed Import Functions  
+  const GOOGLE_FEED_URL = 'https://web.immoflux.ro/api/bridges/googlefeed/68009c9368d89.csv'
 
-  const testImmofluxFeed = async (feedUrl: string, feedType: string) => {
-    const setStatus = feedType === 'listings' ? setListingsStatus : setProductsStatus
-    
+  const testGoogleFeed = async () => {
+    setIsProcessingCsv(true)
     try {
-      setStatus('idle')
       const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'test_url', feedUrl }
+        body: { action: 'test_url', feedUrl: GOOGLE_FEED_URL }
       })
 
       if (error) throw error
 
       if (data.success) {
-        setStatus('connected')
+        setCsvStatus('validated')
         toast({
-          title: `Feed ${feedType} valid!`,
+          title: "Google Feed valid!",
           description: data.message,
         })
       } else {
-        setStatus('error')
+        setCsvStatus('error')
         toast({
-          title: `Eroare feed ${feedType}`,
-          description: data.error || `Nu am putut accesa feed-ul ${feedType}`,
+          title: "Eroare Google Feed",
+          description: data.error || "Nu am putut accesa Google feed-ul",
           variant: "destructive"
         })
       }
     } catch (error: any) {
-      setStatus('error')
+      setCsvStatus('error')
       toast({
         title: "Eroare",
-        description: error.message || `Nu am putut testa feed-ul ${feedType}`,
-        variant: "destructive"
-      })
-    }
-  }
-
-  const importImmofluxFeed = async (feedUrl: string, feedType: string) => {
-    const setImporting = feedType === 'listings' ? setIsImportingListings : setIsImportingProducts
-    const setStatus = feedType === 'listings' ? setListingsStatus : setProductsStatus
-    
-    setImporting(true)
-    try {
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'import_from_url', feedUrl, feedType }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        setStatus('connected')
-        toast({
-          title: `Import ${feedType} reușit!`,
-          description: data.message,
-        })
-        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-      } else {
-        setStatus('error') 
-        toast({
-          title: `Eroare import ${feedType}`,
-          description: data.error || `Nu am putut importa feed-ul ${feedType}`,
-          variant: "destructive"
-        })
-      }
-    } catch (error: any) {
-      setStatus('error')
-      toast({
-        title: "Eroare",
-        description: error.message || `Nu am putut importa feed-ul ${feedType}`,
+        description: error.message || "Nu am putut testa Google feed-ul",
         variant: "destructive"
       })
     } finally {
-      setImporting(false)
+      setIsProcessingCsv(false)
+    }
+  }
+
+  const importGoogleFeed = async () => {
+    setIsProcessingCsv(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'import_from_url', feedUrl: GOOGLE_FEED_URL, feedType: 'google' }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        toast({
+          title: "Import Google Feed reușit!",
+          description: data.message,
+        })
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+        setCsvStatus('idle')
+      } else {
+        toast({
+          title: "Eroare import Google Feed",
+          description: data.error || "Nu am putut importa Google feed-ul",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut importa Google feed-ul",
+        variant: "destructive"
+      })
+    } finally {
+      setIsProcessingCsv(false)
     }
   }
 
@@ -692,64 +682,75 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Immoflux Feed Import Section */}
+            {/* Immoflux Google Feed Import Section */}
             <div className="mt-8">
               <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      csvStatus === 'validated' ? 'bg-green-500' : 
+                      csvStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                    }`} />
                     <Database className="w-5 h-5 text-blue-600" />
-                    Import Immoflux Feed-uri
+                    Import Immoflux Google Feed
+                    {csvStatus === 'validated' && <CheckCircle className="w-5 h-5 text-green-600" />}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Importă automat proprietățile din feed-urile Facebook Catalog de pe Immoflux
+                    Importă automat proprietățile din Google feed-ul de pe Immoflux
                   </p>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     
-                    {/* Listings Feed */}
+                    {/* Google Feed */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${
-                          listingsStatus === 'connected' ? 'bg-green-500' : 
-                          listingsStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                        }`} />
-                        <h4 className="font-medium">Feed Listings</h4>
+                        <h4 className="font-medium">Google Feed Immoflux</h4>
                         <Badge variant={
-                          listingsStatus === 'connected' ? 'default' :
-                          listingsStatus === 'error' ? 'destructive' : 'secondary'
+                          csvStatus === 'validated' ? 'default' :
+                          csvStatus === 'error' ? 'destructive' : 'secondary'
                         }>
-                          {listingsStatus === 'connected' ? '✓ Valid' :
-                           listingsStatus === 'error' ? '✗ Eroare' : '○ Netest'}
+                          {csvStatus === 'validated' ? '✓ Valid' :
+                           csvStatus === 'error' ? '✗ Eroare' : '○ Netest'}
                         </Badge>
                       </div>
                       
                       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">🏠 Listings Feed:</div>
+                        <div className="font-medium mb-1">🏠 Google Feed URL:</div>
                         <div className="font-mono text-xs break-all">
-                          {LISTINGS_FEED_URL}
+                          {GOOGLE_FEED_URL}
                         </div>
                       </div>
                       
                       <div className="flex gap-2">
                         <Button 
-                          onClick={() => testImmofluxFeed(LISTINGS_FEED_URL, 'listings')}
+                          onClick={testGoogleFeed}
+                          disabled={isProcessingCsv}
                           variant="outline"
                           size="sm"
                           className="flex-1"
                         >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Test Feed
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Testez...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Test Google Feed
+                            </>
+                          )}
                         </Button>
                         
                         <Button 
-                          onClick={() => importImmofluxFeed(LISTINGS_FEED_URL, 'listings')}
-                          disabled={isImportingListings}
+                          onClick={importGoogleFeed}
+                          disabled={isProcessingCsv || csvStatus !== 'validated'}
                           size="sm"
                           className="flex-1"
                         >
-                          {isImportingListings ? (
+                          {isProcessingCsv ? (
                             <>
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                               Import...
@@ -757,66 +758,30 @@ const Admin = () => {
                           ) : (
                             <>
                               <Upload className="w-4 h-4 mr-2" />
-                              Import
+                              Import Proprietăți
                             </>
                           )}
                         </Button>
                       </div>
                     </div>
 
-                    {/* Products Feed */}
+                    {/* Instructions */}
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${
-                          productsStatus === 'connected' ? 'bg-green-500' : 
-                          productsStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                        }`} />
-                        <h4 className="font-medium">Feed Products</h4>
-                        <Badge variant={
-                          productsStatus === 'connected' ? 'default' :
-                          productsStatus === 'error' ? 'destructive' : 'secondary'
-                        }>
-                          {productsStatus === 'connected' ? '✓ Valid' :
-                           productsStatus === 'error' ? '✗ Eroare' : '○ Netest'}
-                        </Badge>
-                      </div>
+                      <h4 className="font-medium">Cum funcționează</h4>
                       
                       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">🏢 Products Feed:</div>
-                        <div className="font-mono text-xs break-all">
-                          {PRODUCTS_FEED_URL}
-                        </div>
+                        <div className="font-medium mb-1">⚡ Pași simpli:</div>
+                        <div>1. Testează Google feed-ul mai întâi</div>
+                        <div>2. Dacă este valid, apasă "Import Proprietăți"</div>
+                        <div>3. Proprietățile vor fi marcate ca "IMMOFLUX_GOOGLE"</div>
+                        <div>4. Datele vechi Google vor fi șterse automat</div>
                       </div>
                       
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => testImmofluxFeed(PRODUCTS_FEED_URL, 'products')}
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Test Feed
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => importImmofluxFeed(PRODUCTS_FEED_URL, 'products')}
-                          disabled={isImportingProducts}
-                          size="sm"
-                          className="flex-1"
-                        >
-                          {isImportingProducts ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Import...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Import
-                            </>
-                          )}
-                        </Button>
+                      <div className="text-xs text-muted-foreground bg-green-50 border border-green-200 p-3 rounded-lg">
+                        <div className="font-medium mb-1 text-green-700">✨ Avantaje Google Feed:</div>
+                        <div className="text-green-600">• Un singur feed pentru toate proprietățile</div>
+                        <div className="text-green-600">• Structură optimizată pentru căutare</div>
+                        <div className="text-green-600">• Import mai rapid și mai stabil</div>
                       </div>
                     </div>
                   </div>
@@ -878,7 +843,7 @@ const Admin = () => {
                           ) : (
                             <>
                               <Upload className="w-4 h-4 mr-2" />
-                              Import CSV
+                              Import CSV Manual
                             </>
                           )}
                         </Button>
@@ -907,15 +872,15 @@ const Admin = () => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                         <div>
                           <div className="text-lg font-bold text-blue-600">
-                            {properties.filter(p => p.project_name === 'IMMOFLUX_LISTINGS').length}
+                            {properties.filter(p => p.project_name === 'IMMOFLUX_GOOGLE').length}
                           </div>
-                          <div className="text-xs text-muted-foreground">Listings</div>
+                          <div className="text-xs text-muted-foreground">Google Feed</div>
                         </div>
                         <div>
                           <div className="text-lg font-bold text-green-600">
-                            {properties.filter(p => p.project_name === 'IMMOFLUX_PRODUCTS').length}
+                            {properties.filter(p => p.availability_status === 'available').length}
                           </div>
-                          <div className="text-xs text-muted-foreground">Products</div>
+                          <div className="text-xs text-muted-foreground">Disponibile</div>
                         </div>
                         <div>
                           <div className="text-lg font-bold text-gold">
@@ -937,7 +902,7 @@ const Admin = () => {
                   {csvValidation && (
                     <div className="border-t pt-4">
                       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h5 className="font-medium text-green-800 mb-2">✅ CSV Validat</h5>
+                        <h5 className="font-medium text-green-800 mb-2">✅ Google Feed Validat</h5>
                         <div className="text-sm text-green-700">
                           {csvValidation.total_rows} proprietăți găsite și gata de import
                         </div>

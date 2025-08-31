@@ -646,11 +646,11 @@ async function mapImmofluxFeedToProperty(row: any, headers: string[], feedType: 
     return null;
   };
 
-  // Extract basic required fields
-  const title = getValue(['title', 'name', 'property_name']) || 'Proprietate Immoflux';
-  const description = getValue(['description', 'desc']) || 'Proprietate din feed Immoflux';
-  const priceStr = getValue(['price', 'price_min', 'cost']);
-  const location = getValue(['location', 'address', 'city']) || 'București';
+  // Extract basic required fields for Google Feed (different structure than Facebook)
+  const title = getValue(['title', 'name', 'property_name', 'listing_title']) || 'Proprietate Immoflux';
+  const description = getValue(['description', 'desc', 'details', 'listing_description']) || 'Proprietate din Google feed Immoflux';
+  const priceStr = getValue(['price', 'price_min', 'cost', 'listing_price']);
+  const location = getValue(['location', 'address', 'city', 'listing_location']) || 'București';
 
   // Parse price
   let price_min = 0;
@@ -658,14 +658,14 @@ async function mapImmofluxFeedToProperty(row: any, headers: string[], feedType: 
   let currency = 'EUR';
 
   if (priceStr) {
-    const priceMatch = priceStr.toString().match(/(\d+(?:\.\d+)?)/);
+    const priceMatch = priceStr.toString().match(/(\d+(?:[.,]\d+)?)/);
     if (priceMatch) {
-      const priceValue = parseFloat(priceMatch[1]);
+      const priceValue = parseFloat(priceMatch[1].replace(',', '.'));
       price_min = priceValue;
       price_max = priceValue;
     }
     
-    // Detect currency
+    // Detect currency from Google feed
     if (priceStr.includes('RON') || priceStr.includes('lei')) {
       currency = 'RON';
     } else if (priceStr.includes('USD') || priceStr.includes('$')) {
@@ -674,43 +674,59 @@ async function mapImmofluxFeedToProperty(row: any, headers: string[], feedType: 
   }
 
   // Parse rooms
-  const roomsStr = getValue(['rooms', 'bedrooms', 'camere']);
+  const roomsStr = getValue(['rooms', 'bedrooms', 'camere', 'room_count']);
   const rooms = roomsStr ? parseInt(roomsStr.toString()) || 1 : 1;
 
   // Parse surface
-  const surfaceStr = getValue(['surface', 'area', 'suprafata']);
+  const surfaceStr = getValue(['surface', 'area', 'suprafata', 'size', 'surface_area']);
   let surface_min = null;
   let surface_max = null;
   if (surfaceStr) {
-    const surfaceMatch = surfaceStr.toString().match(/(\d+(?:\.\d+)?)/);
+    const surfaceMatch = surfaceStr.toString().match(/(\d+(?:[.,]\d+)?)/);
     if (surfaceMatch) {
-      const surfaceValue = parseFloat(surfaceMatch[1]);
+      const surfaceValue = parseFloat(surfaceMatch[1].replace(',', '.'));
       surface_min = surfaceValue;
       surface_max = surfaceValue;
     }
   }
 
-  // Parse images
-  const mainImage = getValue(['image_link', 'main_image', 'primary_image']);
-  const additionalImages = getValue(['additional_image_link', 'images', 'gallery']);
+  // Parse images for Google feed
+  const mainImage = getValue(['image_link', 'main_image', 'primary_image', 'photo']);
+  const additionalImages = getValue(['additional_image_link', 'images', 'gallery', 'photos']);
   
   const images = [];
   if (mainImage) images.push(mainImage);
   if (additionalImages) {
-    const additionalImageUrls = additionalImages.split('|').map((url: string) => url.trim()).filter(Boolean);
-    images.push(...additionalImageUrls);
+    // Google feed might use different separators
+    const separators = ['|', ';', ','];
+    let imageUrls = [];
+    
+    for (const sep of separators) {
+      if (additionalImages.includes(sep)) {
+        imageUrls = additionalImages.split(sep).map((url: string) => url.trim()).filter(Boolean);
+        break;
+      }
+    }
+    
+    if (imageUrls.length === 0) {
+      imageUrls = [additionalImages]; // Single additional image
+    }
+    
+    images.push(...imageUrls);
   }
 
   // Parse features
-  const featuresStr = getValue(['features', 'amenities', 'caracteristici']);
-  const features = featuresStr ? featuresStr.split(',').map((f: string) => f.trim()).filter(Boolean) : [];
+  const featuresStr = getValue(['features', 'amenities', 'caracteristici', 'facilities']);
+  const features = featuresStr ? featuresStr.split(/[,;|]/).map((f: string) => f.trim()).filter(Boolean) : [];
 
-  // Mark as Immoflux feed import
+  // Mark as Google feed import
   const project_name = `IMMOFLUX_${feedType.toUpperCase()}`;
 
   // Map availability status
   const availability = getValue(['availability', 'status', 'availability_status']);
   const availability_status = availability && availability.toLowerCase().includes('available') ? 'available' : 'available';
+
+  console.log(`Mapped property: ${title} - Price: ${price_min} ${currency} - Rooms: ${rooms}`);
 
   return {
     title: `${title} - IMMOFLUX_${feedType.toUpperCase()}`,
@@ -724,12 +740,12 @@ async function mapImmofluxFeedToProperty(row: any, headers: string[], feedType: 
     rooms,
     images,
     features,
-    amenities: [],
+    amenities: [], // Default empty
     project_name,
     availability_status,
     contact_info: null,
-    whatsapp_catalog_id: getValue(['id', 'property_id', 'listing_id']),
+    whatsapp_catalog_id: getValue(['id', 'property_id', 'listing_id', 'google_id']),
     is_featured: false,
-    storia_link: getValue(['link', 'url', 'property_url'])
+    storia_link: getValue(['link', 'url', 'property_url', 'listing_url'])
   };
 }
