@@ -65,17 +65,17 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group cursor-pointer">
             <div className="relative flex items-center justify-center">
-              {/* Modern SVG Logo */}
+              {/* Ultra Modern Minimal Logo */}
               <div className="relative">
-                <svg width="48" height="48" viewBox="0 0 48 48" className="transition-transform group-hover:scale-105">
-                  {/* Background gradient circle */}
+                <svg width="44" height="44" viewBox="0 0 44 44" className="transition-all duration-300 group-hover:scale-105 group-hover:rotate-1">
                   <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="hsl(var(--gold))" stopOpacity="1" />
-                      <stop offset="100%" stopColor="hsl(var(--gold-light))" stopOpacity="0.8" />
+                    <linearGradient id="modernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--gold))" />
+                      <stop offset="50%" stopColor="hsl(var(--gold-light))" />
+                      <stop offset="100%" stopColor="hsl(var(--gold))" />
                     </linearGradient>
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <filter id="modernGlow">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                       <feMerge> 
                         <feMergeNode in="coloredBlur"/>
                         <feMergeNode in="SourceGraphic"/>
@@ -83,45 +83,41 @@ const Header = () => {
                     </filter>
                   </defs>
                   
-                  {/* Main circle background */}
-                  <circle 
-                    cx="24" 
-                    cy="24" 
-                    r="22" 
-                    fill="url(#logoGradient)" 
-                    className="opacity-90 group-hover:opacity-100 transition-opacity"
-                    filter="url(#glow)"
+                  {/* Geometric Modern Shape */}
+                  <path 
+                    d="M22 2 L40 12 L40 32 L22 42 L4 32 L4 12 Z" 
+                    fill="url(#modernGradient)" 
+                    className="opacity-90 group-hover:opacity-100 transition-all duration-300"
+                    filter="url(#modernGlow)"
                   />
                   
-                  {/* Building icon */}
-                  <g transform="translate(24, 24)">
-                    <Building 
-                      size={20} 
-                      className="text-background translate-x-[-10] translate-y-[-10]" 
-                      strokeWidth={2.5}
-                    />
-                  </g>
+                  {/* Stylized M */}
+                  <path 
+                    d="M14 16 L18 16 L22 24 L26 16 L30 16 L30 28 L28 28 L28 18.5 L24.5 26 L19.5 26 L16 18.5 L16 28 L14 28 Z"
+                    fill="hsl(var(--background))"
+                    className="drop-shadow-sm"
+                  />
                   
-                  {/* Decorative elements */}
-                  <circle cx="12" cy="12" r="2" fill="hsl(var(--background))" className="opacity-60" />
-                  <circle cx="36" cy="36" r="1.5" fill="hsl(var(--background))" className="opacity-40" />
+                  {/* Accent dots */}
+                  <circle cx="35" cy="10" r="1.5" fill="hsla(var(--background), 0.7)" />
+                  <circle cx="9" cy="34" r="1" fill="hsla(var(--background), 0.5)" />
                 </svg>
                 
-                {/* Hover glow effect */}
-                <div className="absolute inset-0 bg-gold/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                {/* Dynamic glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-gold/20 via-gold-light/30 to-gold/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
               </div>
             </div>
             
             <div className="hidden sm:block">
-              <div className="relative">
-                <div className="text-gold font-bold text-2xl tracking-wider bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+              <div className="relative overflow-hidden">
+                <div className="text-2xl font-black tracking-tight bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent group-hover:from-gold-light group-hover:via-gold group-hover:to-gold-light transition-all duration-300">
                   MVA
                 </div>
-                <div className="text-muted-foreground text-sm -mt-1 font-medium tracking-widest">
+                <div className="text-xs font-semibold text-muted-foreground/80 tracking-[0.3em] uppercase -mt-0.5 group-hover:text-muted-foreground transition-colors">
                   IMOBILIARE
                 </div>
-                {/* Subtle underline decoration */}
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent mt-1"></div>
+                {/* Modern accent line */}
+                <div className="w-0 group-hover:w-full h-[2px] bg-gradient-to-r from-gold to-gold-light mt-1 transition-all duration-500 ease-out"></div>
               </div>
             </div>
           </Link>

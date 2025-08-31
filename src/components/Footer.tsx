@@ -43,44 +43,41 @@ const Footer = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-center space-x-4 mb-6 group cursor-pointer" onClick={scrollToTop}>
                   <div className="relative">
-                    {/* Modern SVG Logo for Footer */}
-                    <svg width="40" height="40" viewBox="0 0 40 40" className="transition-transform group-hover:scale-105">
+                    {/* Matching Footer Logo */}
+                    <svg width="36" height="36" viewBox="0 0 36 36" className="transition-all duration-300 group-hover:scale-105 group-hover:rotate-1">
                       <defs>
-                        <linearGradient id="footerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="hsl(var(--gold))" stopOpacity="0.9" />
-                          <stop offset="100%" stopColor="hsl(var(--gold-light))" stopOpacity="0.7" />
+                        <linearGradient id="footerModernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="hsl(var(--gold))" />
+                          <stop offset="50%" stopColor="hsl(var(--gold-light))" />
+                          <stop offset="100%" stopColor="hsl(var(--gold))" />
                         </linearGradient>
                       </defs>
                       
-                      <circle 
-                        cx="20" 
-                        cy="20" 
-                        r="18" 
-                        fill="url(#footerLogoGradient)" 
+                      <path 
+                        d="M18 2 L32 9 L32 27 L18 34 L4 27 L4 9 Z" 
+                        fill="url(#footerModernGradient)" 
                         className="opacity-80 group-hover:opacity-100 transition-opacity"
                       />
                       
-                      <g transform="translate(20, 20)">
-                        <Building 
-                          size={16} 
-                          className="text-background translate-x-[-8] translate-y-[-8]" 
-                          strokeWidth={2}
-                        />
-                      </g>
+                      <path 
+                        d="M12 13 L15 13 L18 20 L21 13 L24 13 L24 23 L22.5 23 L22.5 15.5 L20 21 L16 21 L13.5 15.5 L13.5 23 L12 23 Z"
+                        fill="hsl(var(--background))"
+                        className="drop-shadow-sm"
+                      />
                       
-                      <circle cx="10" cy="10" r="1.5" fill="hsl(var(--background))" className="opacity-50" />
-                      <circle cx="30" cy="30" r="1" fill="hsl(var(--background))" className="opacity-30" />
+                      <circle cx="28" cy="8" r="1" fill="hsla(var(--background), 0.6)" />
+                      <circle cx="8" cy="28" r="0.8" fill="hsla(var(--background), 0.4)" />
                     </svg>
                     
                     <div className="absolute inset-0 bg-gold/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
                   
                   <div>
-                    <div className="text-gold font-bold text-xl tracking-wide bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                    <div className="text-xl font-black tracking-tight bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
-                    <div className="text-muted-foreground text-sm -mt-1 font-medium">Premium Real Estate</div>
-                    <div className="w-full h-[1px] bg-gradient-to-r from-gold/30 via-gold/60 to-transparent mt-1"></div>
+                    <div className="text-muted-foreground/80 text-xs font-semibold tracking-[0.2em] uppercase -mt-0.5">Premium Real Estate</div>
+                    <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-gold to-gold-light mt-1 transition-all duration-500"></div>
                   </div>
                 </div>
                 
