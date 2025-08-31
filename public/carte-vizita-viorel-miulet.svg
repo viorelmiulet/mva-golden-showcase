@@ -129,111 +129,111 @@
     <text x="0" y="20" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Vanzari apartamente direct</text>
     <text x="0" y="32" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
     
-    <!-- WhatsApp QR Code - Larger -->
-    <g transform="translate(0, 65)">
-      <rect x="0" y="0" width="50" height="50" rx="4" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="1"/>
-      <!-- QR Code Pattern - Larger -->
+    <!-- WhatsApp QR Code - Much Larger -->
+    <g transform="translate(0, 55)">
+      <rect x="0" y="0" width="70" height="70" rx="5" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <!-- QR Code Pattern - Much Larger -->
       <g fill="url(#logoGradientCard)">
         <!-- Corner squares -->
-        <rect x="4" y="4" width="9" height="9"/>
-        <rect x="37" y="4" width="9" height="9"/>
-        <rect x="4" y="37" width="9" height="9"/>
+        <rect x="5" y="5" width="12" height="12"/>
+        <rect x="53" y="5" width="12" height="12"/>
+        <rect x="5" y="53" width="12" height="12"/>
         <!-- Inner corner squares -->
-        <rect x="6" y="6" width="5" height="5" fill="#FFFFFF"/>
-        <rect x="39" y="6" width="5" height="5" fill="#FFFFFF"/>
-        <rect x="6" y="39" width="5" height="5" fill="#FFFFFF"/>
-        <!-- Data pattern - scaled up -->
-        <rect x="16" y="4" width="1.5" height="1.5"/>
-        <rect x="19" y="4" width="1.5" height="1.5"/>
-        <rect x="22" y="4" width="1.5" height="1.5"/>
-        <rect x="27" y="4" width="1.5" height="1.5"/>
-        <rect x="32" y="4" width="1.5" height="1.5"/>
-        <rect x="16" y="7" width="1.5" height="1.5"/>
-        <rect x="22" y="7" width="1.5" height="1.5"/>
-        <rect x="25" y="7" width="1.5" height="1.5"/>
-        <rect x="30" y="7" width="1.5" height="1.5"/>
-        <rect x="32" y="7" width="1.5" height="1.5"/>
-        <rect x="16" y="10" width="1.5" height="1.5"/>
-        <rect x="19" y="10" width="1.5" height="1.5"/>
-        <rect x="25" y="10" width="1.5" height="1.5"/>
-        <rect x="27" y="10" width="1.5" height="1.5"/>
-        <rect x="32" y="10" width="1.5" height="1.5"/>
-        <rect x="4" y="16" width="1.5" height="1.5"/>
-        <rect x="7" y="16" width="1.5" height="1.5"/>
-        <rect x="12" y="16" width="1.5" height="1.5"/>
-        <rect x="16" y="16" width="1.5" height="1.5"/>
-        <rect x="22" y="16" width="1.5" height="1.5"/>
-        <rect x="27" y="16" width="1.5" height="1.5"/>
-        <rect x="32" y="16" width="1.5" height="1.5"/>
-        <rect x="4" y="19" width="1.5" height="1.5"/>
-        <rect x="9" y="19" width="1.5" height="1.5"/>
-        <rect x="14" y="19" width="1.5" height="1.5"/>
-        <rect x="19" y="19" width="1.5" height="1.5"/>
-        <rect x="25" y="19" width="1.5" height="1.5"/>
-        <rect x="30" y="19" width="1.5" height="1.5"/>
-        <rect x="4" y="22" width="1.5" height="1.5"/>
-        <rect x="7" y="22" width="1.5" height="1.5"/>
-        <rect x="12" y="22" width="1.5" height="1.5"/>
-        <rect x="16" y="22" width="1.5" height="1.5"/>
-        <rect x="22" y="22" width="1.5" height="1.5"/>
-        <rect x="27" y="22" width="1.5" height="1.5"/>
-        <rect x="32" y="22" width="1.5" height="1.5"/>
-        <rect x="16" y="27" width="1.5" height="1.5"/>
-        <rect x="19" y="27" width="1.5" height="1.5"/>
-        <rect x="25" y="27" width="1.5" height="1.5"/>
-        <rect x="30" y="27" width="1.5" height="1.5"/>
-        <rect x="32" y="27" width="1.5" height="1.5"/>
-        <rect x="16" y="30" width="1.5" height="1.5"/>
-        <rect x="22" y="30" width="1.5" height="1.5"/>
-        <rect x="25" y="30" width="1.5" height="1.5"/>
-        <rect x="27" y="30" width="1.5" height="1.5"/>
-        <rect x="32" y="30" width="1.5" height="1.5"/>
-        <rect x="16" y="33" width="1.5" height="1.5"/>
-        <rect x="19" y="33" width="1.5" height="1.5"/>
-        <rect x="22" y="33" width="1.5" height="1.5"/>
-        <rect x="27" y="33" width="1.5" height="1.5"/>
-        <rect x="30" y="33" width="1.5" height="1.5"/>
-        <rect x="37" y="16" width="1.5" height="1.5"/>
-        <rect x="39" y="16" width="1.5" height="1.5"/>
-        <rect x="44" y="16" width="1.5" height="1.5"/>
-        <rect x="37" y="19" width="1.5" height="1.5"/>
-        <rect x="42" y="19" width="1.5" height="1.5"/>
-        <rect x="44" y="19" width="1.5" height="1.5"/>
-        <rect x="37" y="22" width="1.5" height="1.5"/>
-        <rect x="39" y="22" width="1.5" height="1.5"/>
-        <rect x="44" y="22" width="1.5" height="1.5"/>
-        <rect x="37" y="27" width="1.5" height="1.5"/>
-        <rect x="42" y="27" width="1.5" height="1.5"/>
-        <rect x="44" y="27" width="1.5" height="1.5"/>
-        <rect x="37" y="30" width="1.5" height="1.5"/>
-        <rect x="39" y="30" width="1.5" height="1.5"/>
-        <rect x="42" y="30" width="1.5" height="1.5"/>
-        <rect x="37" y="33" width="1.5" height="1.5"/>
-        <rect x="44" y="33" width="1.5" height="1.5"/>
-        <rect x="16" y="37" width="1.5" height="1.5"/>
-        <rect x="19" y="37" width="1.5" height="1.5"/>
-        <rect x="25" y="37" width="1.5" height="1.5"/>
-        <rect x="27" y="37" width="1.5" height="1.5"/>
-        <rect x="32" y="37" width="1.5" height="1.5"/>
-        <rect x="16" y="40" width="1.5" height="1.5"/>
-        <rect x="22" y="40" width="1.5" height="1.5"/>
-        <rect x="25" y="40" width="1.5" height="1.5"/>
-        <rect x="30" y="40" width="1.5" height="1.5"/>
-        <rect x="32" y="40" width="1.5" height="1.5"/>
-        <rect x="16" y="43" width="1.5" height="1.5"/>
-        <rect x="19" y="43" width="1.5" height="1.5"/>
-        <rect x="22" y="43" width="1.5" height="1.5"/>
-        <rect x="27" y="43" width="1.5" height="1.5"/>
-        <rect x="30" y="43" width="1.5" height="1.5"/>
-        <rect x="32" y="43" width="1.5" height="1.5"/>
-        <rect x="16" y="46" width="1.5" height="1.5"/>
-        <rect x="22" y="46" width="1.5" height="1.5"/>
-        <rect x="27" y="46" width="1.5" height="1.5"/>
-        <rect x="32" y="46" width="1.5" height="1.5"/>
+        <rect x="8" y="8" width="6" height="6" fill="#FFFFFF"/>
+        <rect x="56" y="8" width="6" height="6" fill="#FFFFFF"/>
+        <rect x="8" y="56" width="6" height="6" fill="#FFFFFF"/>
+        <!-- Data pattern - much larger -->
+        <rect x="22" y="5" width="2" height="2"/>
+        <rect x="26" y="5" width="2" height="2"/>
+        <rect x="30" y="5" width="2" height="2"/>
+        <rect x="36" y="5" width="2" height="2"/>
+        <rect x="42" y="5" width="2" height="2"/>
+        <rect x="22" y="9" width="2" height="2"/>
+        <rect x="30" y="9" width="2" height="2"/>
+        <rect x="34" y="9" width="2" height="2"/>
+        <rect x="40" y="9" width="2" height="2"/>
+        <rect x="42" y="9" width="2" height="2"/>
+        <rect x="22" y="13" width="2" height="2"/>
+        <rect x="26" y="13" width="2" height="2"/>
+        <rect x="34" y="13" width="2" height="2"/>
+        <rect x="36" y="13" width="2" height="2"/>
+        <rect x="42" y="13" width="2" height="2"/>
+        <rect x="5" y="22" width="2" height="2"/>
+        <rect x="9" y="22" width="2" height="2"/>
+        <rect x="16" y="22" width="2" height="2"/>
+        <rect x="22" y="22" width="2" height="2"/>
+        <rect x="30" y="22" width="2" height="2"/>
+        <rect x="36" y="22" width="2" height="2"/>
+        <rect x="42" y="22" width="2" height="2"/>
+        <rect x="5" y="26" width="2" height="2"/>
+        <rect x="12" y="26" width="2" height="2"/>
+        <rect x="18" y="26" width="2" height="2"/>
+        <rect x="26" y="26" width="2" height="2"/>
+        <rect x="34" y="26" width="2" height="2"/>
+        <rect x="40" y="26" width="2" height="2"/>
+        <rect x="5" y="30" width="2" height="2"/>
+        <rect x="9" y="30" width="2" height="2"/>
+        <rect x="16" y="30" width="2" height="2"/>
+        <rect x="22" y="30" width="2" height="2"/>
+        <rect x="30" y="30" width="2" height="2"/>
+        <rect x="36" y="30" width="2" height="2"/>
+        <rect x="42" y="30" width="2" height="2"/>
+        <rect x="22" y="36" width="2" height="2"/>
+        <rect x="26" y="36" width="2" height="2"/>
+        <rect x="34" y="36" width="2" height="2"/>
+        <rect x="40" y="36" width="2" height="2"/>
+        <rect x="42" y="36" width="2" height="2"/>
+        <rect x="22" y="40" width="2" height="2"/>
+        <rect x="30" y="40" width="2" height="2"/>
+        <rect x="34" y="40" width="2" height="2"/>
+        <rect x="36" y="40" width="2" height="2"/>
+        <rect x="42" y="40" width="2" height="2"/>
+        <rect x="22" y="44" width="2" height="2"/>
+        <rect x="26" y="44" width="2" height="2"/>
+        <rect x="30" y="44" width="2" height="2"/>
+        <rect x="36" y="44" width="2" height="2"/>
+        <rect x="40" y="44" width="2" height="2"/>
+        <rect x="53" y="22" width="2" height="2"/>
+        <rect x="56" y="22" width="2" height="2"/>
+        <rect x="62" y="22" width="2" height="2"/>
+        <rect x="53" y="26" width="2" height="2"/>
+        <rect x="60" y="26" width="2" height="2"/>
+        <rect x="62" y="26" width="2" height="2"/>
+        <rect x="53" y="30" width="2" height="2"/>
+        <rect x="56" y="30" width="2" height="2"/>
+        <rect x="62" y="30" width="2" height="2"/>
+        <rect x="53" y="36" width="2" height="2"/>
+        <rect x="60" y="36" width="2" height="2"/>
+        <rect x="62" y="36" width="2" height="2"/>
+        <rect x="53" y="40" width="2" height="2"/>
+        <rect x="56" y="40" width="2" height="2"/>
+        <rect x="60" y="40" width="2" height="2"/>
+        <rect x="53" y="44" width="2" height="2"/>
+        <rect x="62" y="44" width="2" height="2"/>
+        <rect x="22" y="53" width="2" height="2"/>
+        <rect x="26" y="53" width="2" height="2"/>
+        <rect x="34" y="53" width="2" height="2"/>
+        <rect x="36" y="53" width="2" height="2"/>
+        <rect x="42" y="53" width="2" height="2"/>
+        <rect x="22" y="57" width="2" height="2"/>
+        <rect x="30" y="57" width="2" height="2"/>
+        <rect x="34" y="57" width="2" height="2"/>
+        <rect x="40" y="57" width="2" height="2"/>
+        <rect x="42" y="57" width="2" height="2"/>
+        <rect x="22" y="61" width="2" height="2"/>
+        <rect x="26" y="61" width="2" height="2"/>
+        <rect x="30" y="61" width="2" height="2"/>
+        <rect x="36" y="61" width="2" height="2"/>
+        <rect x="40" y="61" width="2" height="2"/>
+        <rect x="42" y="61" width="2" height="2"/>
+        <rect x="22" y="65" width="2" height="2"/>
+        <rect x="30" y="65" width="2" height="2"/>
+        <rect x="36" y="65" width="2" height="2"/>
+        <rect x="42" y="65" width="2" height="2"/>
       </g>
       <!-- WhatsApp logo in center - larger -->
-      <circle cx="25" cy="25" r="5" fill="#25D366"/>
-      <path d="M22 21 C22 20 23 19 25 19 C27 19 28 20 28 21 C28 23 25 27 25 27 S22 23 22 21 Z M25 20.5 C24 20.5 23 21.5 23 22.5 S24 24.5 25 24.5 S27 23.5 27 22.5 S26 20.5 25 20.5 Z" fill="white" transform="scale(0.9) translate(1.5, 1.5)"/>
+      <circle cx="35" cy="35" r="7" fill="#25D366"/>
+      <path d="M31 30 C31 28 33 26 35 26 C37 26 39 28 39 30 C39 33 35 39 35 39 S31 33 31 30 Z M35 28 C33.5 28 32 29.5 32 31 S33.5 34 35 34 S38 32.5 38 31 S36.5 28 35 28 Z" fill="white" transform="scale(1.1) translate(-0.5, -0.5)"/>
     </g>
   </g>
   
