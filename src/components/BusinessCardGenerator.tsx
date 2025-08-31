@@ -410,7 +410,7 @@ const BusinessCardGenerator = () => {
       <rect x="0" y="0" width="210" height="210" rx="15" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="4.5"/>
       ${qrDataUrl ? `<image href="${qrDataUrl}" x="15" y="15" width="180" height="180"/>` : generateQRPattern(qrDataUrl)}
       <!-- QR Code text -->
-      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">${data.qrLink ? 'Contact Digital' : 'Contact WhatsApp'}</text>
+      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">Contact WhatsApp</text>
     </g>
   </g>
   
@@ -661,10 +661,10 @@ const BusinessCardGenerator = () => {
                        <h3 className="text-lg font-medium mb-2">Fața</h3>
                        <div 
                          className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
-                         style={{ height: '360px', width: '100%' }}
+                         style={{ height: '420px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.35]"
+                           className="transform scale-[0.4]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: frontSvg }}
                          />
@@ -675,10 +675,10 @@ const BusinessCardGenerator = () => {
                        <h3 className="text-lg font-medium mb-2">Verso</h3>
                        <div 
                          className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
-                         style={{ height: '360px', width: '100%' }}
+                         style={{ height: '420px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.35]"
+                           className="transform scale-[0.4]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: backSvg }}
                          />
