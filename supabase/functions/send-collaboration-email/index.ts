@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const SENDGRID_API_KEY = Deno.env.get("SENDGRID_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,12 +40,12 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log("Processing POST request...");
     
-    // Check if RESEND_API_KEY exists
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    console.log("Resend API Key exists:", !!resendApiKey);
+    // Check if SENDGRID_API_KEY exists
+    const sendgridApiKey = Deno.env.get("SENDGRID_API_KEY");
+    console.log("SendGrid API Key exists:", !!sendgridApiKey);
     
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY not configured");
+    if (!sendgridApiKey) {
+      throw new Error("SENDGRID_API_KEY not configured");
     }
     
     const requestBody = await req.text();
@@ -63,79 +62,105 @@ const handler = async (req: Request): Promise<Response> => {
       imagesCount: formData.images?.length || 0
     });
 
-    // Prepare attachments from base64 images
+    // Prepare attachments from base64 images for SendGrid
     const attachments = formData.images?.map(image => ({
-      filename: image.name,
       content: image.data.split(',')[1], // Remove data:image/jpeg;base64, prefix
-      type: "attachment" as const,
-      disposition: "attachment" as const
+      filename: image.name,
+      type: image.type,
+      disposition: "attachment"
     })) || [];
 
     console.log("Sending collaboration email with", attachments.length, "attachments");
 
-    const emailResponse = await resend.emails.send({
-      from: "Colaborare MVA <onboarding@resend.dev>",
-      to: ["mvaperfectbusiness@gmail.com"],
-      subject: `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`,
-      attachments: attachments,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #DAA520;">Propunere de Colaborare Nouă</h2>
-          
-          <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #333; margin-top: 0;">Informații Contact:</h3>
-            
-            <p><strong>Nume:</strong> ${formData.nume} ${formData.prenume}</p>
-            <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
-            <p><strong>Telefon:</strong> <a href="tel:${formData.telefon}">${formData.telefon}</a></p>
-          </div>
-          
-          <div style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #333; margin-top: 0;">Detalii Proprietate:</h3>
-            
-            <p><strong>Tip proprietate:</strong> ${formData.tipProprietate}</p>
-            <p><strong>Tip tranzacție:</strong> ${formData.tipTranzactie}</p>
-            <p><strong>Adresa:</strong> ${formData.adresa}</p>
-            <p><strong>Preț:</strong> ${formData.pret}</p>
-            <p><strong>Suprafața:</strong> ${formData.suprafata}</p>
-            
-            <h4 style="color: #333; margin-top: 20px;">Descriere:</h4>
-            <div style="background-color: white; padding: 15px; border-left: 4px solid #DAA520; margin-top: 10px;">
-              ${formData.descriere.replace(/\n/g, '<br>')}
-            </div>
-          </div>
-          
-          ${formData.images && formData.images.length > 0 ? `
-          <div style="background-color: #fff8dc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #333; margin-top: 0;">Imagini Atașate:</h3>
-            <p>Au fost atașate <strong>${formData.images.length}</strong> imagini cu proprietatea.</p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-              ${formData.images.map(img => `<li>${img.name} (${(img.size / 1024 / 1024).toFixed(2)} MB)</li>`).join('')}
-            </ul>
-          </div>
-          ` : ''}
-          
-          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-          
-          <p style="color: #666; font-size: 12px;">
-            Acest email a fost trimis prin formularul de colaborare de pe website-ul MVA IMOBILIARE.
-          </p>
-        </div>
-      `,
-    });
-
-    console.log("Collaboration email sent successfully:", emailResponse);
-
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: "Propunerea de colaborare a fost trimisă cu succes!" 
-    }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
+    const emailData = {
+      personalizations: [
+        {
+          to: [{ email: "mvaperfectbusiness@gmail.com" }],
+          subject: `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`
+        }
+      ],
+      from: { 
+        email: "noreply@mvaimobiliare.ro", 
+        name: "MVA IMOBILIARE - Colaborare" 
       },
+      content: [
+        {
+          type: "text/html",
+          value: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #DAA520;">Propunere de Colaborare Nouă</h2>
+              
+              <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-top: 0;">Informații Contact:</h3>
+                
+                <p><strong>Nume:</strong> ${formData.nume} ${formData.prenume}</p>
+                <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
+                <p><strong>Telefon:</strong> <a href="tel:${formData.telefon}">${formData.telefon}</a></p>
+              </div>
+              
+              <div style="background-color: #f0f8ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-top: 0;">Detalii Proprietate:</h3>
+                
+                <p><strong>Tip proprietate:</strong> ${formData.tipProprietate}</p>
+                <p><strong>Tip tranzacție:</strong> ${formData.tipTranzactie}</p>
+                <p><strong>Adresa:</strong> ${formData.adresa}</p>
+                <p><strong>Preț:</strong> ${formData.pret}</p>
+                <p><strong>Suprafața:</strong> ${formData.suprafata}</p>
+                
+                <h4 style="color: #333; margin-top: 20px;">Descriere:</h4>
+                <div style="background-color: white; padding: 15px; border-left: 4px solid #DAA520; margin-top: 10px;">
+                  ${formData.descriere.replace(/\n/g, '<br>')}
+                </div>
+              </div>
+              
+              ${formData.images && formData.images.length > 0 ? `
+              <div style="background-color: #fff8dc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-top: 0;">Imagini Atașate:</h3>
+                <p>Au fost atașate <strong>${formData.images.length}</strong> imagini cu proprietatea.</p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  ${formData.images.map(img => `<li>${img.name} (${(img.size / 1024 / 1024).toFixed(2)} MB)</li>`).join('')}
+                </ul>
+              </div>
+              ` : ''}
+              
+              <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+              
+              <p style="color: #666; font-size: 12px;">
+                Acest email a fost trimis prin formularul de colaborare de pe website-ul MVA IMOBILIARE.
+              </p>
+            </div>
+          `
+        }
+      ],
+      attachments: attachments
+    };
+
+    const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${sendgridApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(emailData)
     });
+
+    if (emailResponse.ok) {
+      console.log("Collaboration email sent successfully via SendGrid");
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Propunerea de colaborare a fost trimisă cu succes!" 
+      }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    } else {
+      const errorText = await emailResponse.text();
+      console.error("SendGrid API error:", errorText);
+      throw new Error(`SendGrid API error: ${errorText}`);
+    }
   } catch (error: any) {
     console.error("Error in send-collaboration-email function:", error);
     return new Response(

@@ -91,40 +91,49 @@ serve(async (req) => {
       emailContent += '<p>Nu au fost găsite conversații în perioada selectată.</p>';
     }
 
-    // Send email using Resend (you'll need to add RESEND_API_KEY secret)
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    if (!resendApiKey) {
-      throw new Error('RESEND_API_KEY not configured');
+    // Send email using SendGrid (you'll need to add SENDGRID_API_KEY secret)
+    const sendgridApiKey = Deno.env.get('SENDGRID_API_KEY');
+    if (!sendgridApiKey) {
+      throw new Error('SENDGRID_API_KEY not configured');
     }
 
-    const emailResponse = await fetch('https://api.resend.com/emails', {
+    const emailData = {
+      personalizations: [
+        {
+          to: [{ email: email }],
+          subject: `Raport Conversații MVA Imobiliare - ${new Date().toLocaleDateString('ro-RO')}`
+        }
+      ],
+      from: { email: "noreply@mvaimobiliare.ro", name: "MVA Imobiliare" },
+      content: [
+        {
+          type: "text/html",
+          value: emailContent
+        }
+      ]
+    };
+
+    const emailResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
+        'Authorization': `Bearer ${sendgridApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: 'MVA Imobiliare <noreply@mvaimobiliare.com>',
-        to: [email],
-        subject: `Raport Conversații MVA Imobiliare - ${new Date().toLocaleDateString('ro-RO')}`,
-        html: emailContent,
-      }),
+      body: JSON.stringify(emailData),
     });
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error('Resend API error:', errorText);
+      console.error('SendGrid API error:', errorText);
       throw new Error('Failed to send email');
     }
 
-    const emailResult = await emailResponse.json();
-    console.log('Email sent successfully:', emailResult);
+    console.log('Email sent successfully via SendGrid');
 
     return new Response(JSON.stringify({ 
       success: true,
       message: 'Conversațiile au fost trimise cu succes!',
-      conversations_count: conversations?.length || 0,
-      email_id: emailResult.id
+      conversations_count: conversations?.length || 0
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
