@@ -356,25 +356,47 @@ async function testURL(feedUrl: string) {
   
   try {
     if (!feedUrl) {
+      console.error('URL feed-ul este gol');
       throw new Error('URL feed-ului este obligatoriu');
     }
 
-    const response = await fetch(feedUrl);
+    console.log('Starting fetch request to:', feedUrl);
+    const response = await fetch(feedUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Supabase-Edge-Function)',
+        'Accept': 'text/csv,text/plain,*/*'
+      },
+      // Add timeout
+      signal: AbortSignal.timeout(10000) // 10 seconds timeout
+    });
     
+    console.log('Fetch completed. Status:', response.status, 'OK:', response.ok);
+
     if (!response.ok) {
+      console.error('HTTP Error:', response.status, response.statusText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
+    console.log('Reading response text...');
     const csvData = await response.text();
+    console.log('CSV data length:', csvData.length);
     
     if (!csvData || csvData.trim().length === 0) {
+      console.error('CSV data is empty');
       throw new Error('URL-ul nu conține date CSV');
     }
 
     const lines = csvData.trim().split('\n');
+    console.log('CSV lines count:', lines.length);
+    
     if (lines.length < 2) {
+      console.error('Not enough CSV lines:', lines.length);
       throw new Error('CSV-ul trebuie să conțină cel puțin un header și o linie de date');
     }
+
+    console.log('CSV validation successful');
+    console.log('First 3 lines preview:', lines.slice(0, 3).join('\\n'));
 
     return new Response(
       JSON.stringify({ 
@@ -387,11 +409,27 @@ async function testURL(feedUrl: string) {
     );
 
   } catch (error) {
-    console.error('URL test error:', error);
+    console.error('URL test error details:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    let errorMessage = `Eroare acces URL: ${error.message}`;
+    
+    if (error.name === 'TimeoutError') {
+      errorMessage = 'Eroare: Timeout - URL-ul nu răspunde în 10 secunde';
+    } else if (error.name === 'TypeError') {
+      errorMessage = 'Eroare: Nu am putut conecta la URL - verifică adresa';
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Eroare acces URL: ${error.message}` 
+        error: errorMessage,
+        debug_info: {
+          error_name: error.name,
+          error_message: error.message,
+          tested_url: feedUrl
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     );
@@ -403,38 +441,56 @@ async function importFromURL(supabase: any, feedUrl: string, feedType: string) {
   
   try {
     if (!feedUrl) {
+      console.error('URL feed-ul este gol');
       throw new Error('URL feed-ului este obligatoriu');
     }
 
     // Fetch CSV data from URL
-    const response = await fetch(feedUrl);
+    console.log('Fetching CSV data...');
+    const response = await fetch(feedUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Supabase-Edge-Function)',
+        'Accept': 'text/csv,text/plain,*/*'
+      },
+      signal: AbortSignal.timeout(30000) // 30 seconds timeout for import
+    });
+    
+    console.log('Fetch response status:', response.status);
     
     if (!response.ok) {
+      console.error('HTTP error:', response.status, response.statusText);
       throw new Error(`HTTP ${response.status}: Nu am putut accesa feed-ul Immoflux`);
     }
 
     const csvData = await response.text();
+    console.log('CSV data received, length:', csvData.length);
     
     if (!csvData || csvData.trim().length === 0) {
+      console.error('CSV data is empty');
       throw new Error('Feed-ul Immoflux este gol');
     }
 
-    console.log(`CSV data fetched successfully, length: ${csvData.length}`);
+    console.log(`CSV data fetched successfully, processing...`);
 
     // Clear existing Immoflux data for this feed type
     console.log(`Clearing existing ${feedType} data...`);
     const { error: deleteError } = await supabase
       .from('catalog_offers')
       .delete()
-      .ilike('title', `%IMMOFLUX_${feedType.toUpperCase()}%`);
+      .ilike('project_name', `IMMOFLUX_${feedType.toUpperCase()}`);
 
     if (deleteError) {
       console.error('Error clearing existing data:', deleteError);
       // Continue anyway, this is not critical
+    } else {
+      console.log('Existing data cleared successfully');
     }
 
     // Process the CSV data
     const lines = csvData.trim().split('\n');
+    console.log('Total CSV lines:', lines.length);
+    
     if (lines.length < 2) {
       throw new Error('Feed-ul nu conține proprietăți');
     }
@@ -442,7 +498,8 @@ async function importFromURL(supabase: any, feedUrl: string, feedType: string) {
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
     const dataLines = lines.slice(1);
 
-    console.log(`Processing ${dataLines.length} rows from ${feedType} feed...`);
+    console.log(`Headers found:`, headers.slice(0, 5).join(', ') + '...');
+    console.log(`Processing ${dataLines.length} data rows from ${feedType} feed...`);
 
     const properties = [];
     let successCount = 0;
@@ -470,7 +527,14 @@ async function importFromURL(supabase: any, feedUrl: string, feedType: string) {
         errors.push(`Linia ${i + 2}: ${error.message}`);
         console.error(`Error processing row ${i + 2}:`, error);
       }
+
+      // Log progress every 100 rows
+      if ((i + 1) % 100 === 0) {
+        console.log(`Processed ${i + 1}/${dataLines.length} rows...`);
+      }
     }
+
+    console.log(`Processing complete. Success: ${successCount}, Errors: ${errorCount}`);
 
     if (properties.length === 0) {
       throw new Error('Nu s-au putut procesa proprietăți din feed');
@@ -488,6 +552,7 @@ async function importFromURL(supabase: any, feedUrl: string, feedType: string) {
       throw new Error(`Eroare inserare în baza de date: ${error.message}`);
     }
 
+    console.log('Database insert successful');
     const message = `Import ${feedType} finalizat! ${successCount} proprietăți adăugate.${errorCount > 0 ? ` ${errorCount} erori.` : ''}`;
 
     return new Response(
@@ -498,17 +563,24 @@ async function importFromURL(supabase: any, feedUrl: string, feedType: string) {
         imported_count: successCount,
         error_count: errorCount,
         errors: errors.slice(0, 10),
-        data: data
+        data: data?.slice(0, 5) // Only return first 5 records to avoid large response
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error(`Import from URL error (${feedType}):`, error);
+    console.error('Error details:', error.name, error.message);
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Eroare import ${feedType}: ${error.message}` 
+        error: `Eroare import ${feedType}: ${error.message}`,
+        debug_info: {
+          error_name: error.name,
+          feed_url: feedUrl,
+          feed_type: feedType
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
