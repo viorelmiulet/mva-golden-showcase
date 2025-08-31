@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,7 +23,10 @@ import {
   Images,
   ExternalLink,
   Edit,
-  Save
+  Save,
+  Lock,
+  Eye,
+  EyeOff
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -37,8 +40,45 @@ const Admin = () => {
   const [editingProperty, setEditingProperty] = useState<any>(null)
   const [editForm, setEditForm] = useState<any>({})
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+
+  // Check if user is already authenticated on component mount
+  useEffect(() => {
+    const isAuth = localStorage.getItem('admin_authenticated') === 'true'
+    setIsAuthenticated(isAuth)
+  }, [])
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password === '123456') {
+      setIsAuthenticated(true)
+      localStorage.setItem('admin_authenticated', 'true')
+      toast({
+        title: "Acces autorizat",
+        description: "Bine ai venit în panoul de administrare!"
+      })
+    } else {
+      toast({
+        title: "Parolă incorectă",
+        description: "Te rog să introduci parola corectă",
+        variant: "destructive"
+      })
+    }
+    setPassword("")
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    localStorage.removeItem('admin_authenticated')
+    toast({
+      title: "Deconectat",
+      description: "Ai fost deconectat cu succes"
+    })
+  }
 
   // Fetch properties
   const { data: properties, isLoading: propertiesLoading } = useQuery({
@@ -210,6 +250,69 @@ const Admin = () => {
     }
   }
 
+  // Show password form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4">
+              <Lock className="w-6 h-6 text-gold" />
+            </div>
+            <CardTitle className="text-2xl">Acces Administrare</CardTitle>
+            <p className="text-muted-foreground">
+              Introdu parola pentru a accesa panoul de administrare
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Parolă</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Introdu parola"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <Button type="submit" className="w-full" disabled={!password}>
+                <Lock className="w-4 h-4 mr-2" />
+                Accesează Panoul
+              </Button>
+            </form>
+            
+            <div className="mt-6 pt-4 border-t">
+              <Link 
+                to="/" 
+                className="flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Înapoi la site
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
@@ -228,6 +331,15 @@ const Admin = () => {
                   <ArrowLeft className="w-5 h-5 mr-2" />
                   Înapoi Acasă
                 </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  Deconectare
+                </Button>
               </div>
               
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
