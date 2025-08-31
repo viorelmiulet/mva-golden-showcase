@@ -506,19 +506,35 @@ const BusinessCardGenerator = () => {
   };
 
   const handleGenerate = async () => {
+    console.log('Generating card with data:', cardData);
+    
     if (!cardData.name || !cardData.function || !cardData.phone || !cardData.email) {
-      alert("Vă rugăm completați toate câmpurile!");
+      console.log('Missing fields:', {
+        name: !cardData.name,
+        function: !cardData.function,
+        phone: !cardData.phone,
+        email: !cardData.email
+      });
+      toast.error("Vă rugăm completați toate câmpurile!");
       return;
     }
 
+    console.log('Starting QR generation...');
     const qrDataUrl = await generateQRCode(cardData.phone);
+    console.log('QR generated:', qrDataUrl ? 'Success' : 'Failed');
     setQrCodeDataUrl(qrDataUrl);
     
+    console.log('Generating SVGs...');
     const front = generateFrontSvg(cardData, qrDataUrl);
     const back = generateBackSvg();
     
+    console.log('Front SVG length:', front.length);
+    console.log('Back SVG length:', back.length);
+    
     setFrontSvg(front);
     setBackSvg(back);
+    
+    toast.success('Carte de vizită generată cu succes!');
   };
 
   const downloadSvg = (svgContent: string, filename: string) => {
@@ -616,19 +632,29 @@ const BusinessCardGenerator = () => {
                      <div>
                        <h3 className="text-lg font-medium mb-2">Fața</h3>
                        <div 
-                         className="bg-white p-4 rounded-lg shadow-md transform scale-[0.35] origin-top-left overflow-hidden"
-                         style={{ width: '368px', height: '210px' }}
-                         dangerouslySetInnerHTML={{ __html: frontSvg }}
-                       />
+                         className="bg-white p-2 rounded-lg shadow-md max-w-full overflow-hidden"
+                         style={{ height: '240px' }}
+                       >
+                         <div 
+                           className="transform scale-[0.4] origin-top-left"
+                           style={{ width: '1050px', height: '600px' }}
+                           dangerouslySetInnerHTML={{ __html: frontSvg }}
+                         />
+                       </div>
                      </div>
                      
                      <div>
                        <h3 className="text-lg font-medium mb-2">Verso</h3>
                        <div 
-                         className="bg-white p-4 rounded-lg shadow-md transform scale-[0.35] origin-top-left overflow-hidden"
-                         style={{ width: '368px', height: '210px' }}
-                         dangerouslySetInnerHTML={{ __html: backSvg }}
-                       />
+                         className="bg-white p-2 rounded-lg shadow-md max-w-full overflow-hidden"
+                         style={{ height: '240px' }}
+                       >
+                         <div 
+                           className="transform scale-[0.4] origin-top-left"
+                           style={{ width: '1050px', height: '600px' }}
+                           dangerouslySetInnerHTML={{ __html: backSvg }}
+                         />
+                       </div>
                      </div>
                   </div>
                   
