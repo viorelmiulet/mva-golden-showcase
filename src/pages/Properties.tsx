@@ -221,17 +221,32 @@ const Properties = () => {
                           {/* Actions */}
                           <div className="flex flex-col gap-2">
                             <div className="flex gap-2">
-                              {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => openPropertyGallery(property)}
-                                  className="flex-1"
-                                >
+                              {/* Call Now Button */}
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                asChild
+                                className="flex-1 hover:bg-gold/10 hover:border-gold"
+                              >
+                                <a href="tel:0767941512">
+                                  <Building className="w-4 h-4 mr-2" />
+                                  Sună acum
+                                </a>
+                              </Button>
+                              
+                              {/* WhatsApp Button */}
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                asChild
+                                className="flex-1 hover:bg-green-50 hover:border-green-400"
+                              >
+                                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                                   <Images className="w-4 h-4 mr-2" />
-                                  Vezi Poze ({(property.images as string[]).length})
-                                </Button>
-                              )}
+                                  Contact WhatsApp
+                                </a>
+                              </Button>
+                              
                               {property.storia_link && (
                                 <Button variant="outline" size="sm" asChild>
                                   <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
