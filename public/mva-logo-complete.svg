@@ -1,0 +1,90 @@
+<svg width="300" height="80" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradientComplete" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="innerGradientComplete" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
+    </linearGradient>
+    <linearGradient id="textGradientMVA" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="33%" stop-color="#F4E5B1" />
+      <stop offset="66%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <filter id="luxuryGlowComplete" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="innerShadowComplete">
+      <feOffset dx="0" dy="1"/>
+      <feGaussianBlur stdDeviation="1" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3"/>
+      <feComposite operator="in" in2="inverse"/>
+      <feComposite operator="over" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  
+  <!-- Logo Symbol -->
+  <g>
+    <!-- Outer luxury ring -->
+    <circle 
+      cx="40" 
+      cy="40" 
+      r="38" 
+      fill="none"
+      stroke="url(#logoGradientComplete)"
+      stroke-width="2"
+      opacity="0.8"
+      filter="url(#luxuryGlowComplete)"
+    />
+    
+    <!-- Main luxury hexagon -->
+    <path 
+      d="M40 5 L68 20 L68 60 L40 75 L12 60 L12 20 Z" 
+      fill="url(#logoGradientComplete)" 
+      opacity="0.95"
+      filter="url(#luxuryGlowComplete)"
+    />
+    
+    <!-- Inner dark background -->
+    <path 
+      d="M40 10 L63 23 L63 57 L40 70 L17 57 L17 23 Z" 
+      fill="url(#innerGradientComplete)"
+      filter="url(#innerShadowComplete)"
+    />
+    
+    <!-- Premium "M" letterform -->
+    <path 
+      d="M26 28 L31 28 L40 44 L49 28 L54 28 L54 52 L51 52 L51 33 L43 46 L37 46 L29 33 L29 52 L26 52 Z"
+      fill="url(#logoGradientComplete)"
+    />
+    
+    <!-- Luxury corner accents -->
+    <circle cx="63" cy="17" r="1.5" fill="#FFD700" opacity="0.8" />
+    <circle cx="17" cy="63" r="1" fill="#D4AF37" opacity="0.6" />
+    <polygon points="66,60 68,58 68,62" fill="#B8860B" opacity="0.4" />
+  </g>
+  
+  <!-- Text Content -->
+  <g>
+    <!-- MVA Text -->
+    <text x="90" y="35" font-family="Cinzel, serif" font-size="24" font-weight="bold" fill="url(#textGradientMVA)" letter-spacing="1.5px">MVA</text>
+    
+    <!-- IMOBILIARE Text -->
+    <text x="90" y="55" font-family="Playfair Display, serif" font-size="10" font-weight="500" fill="#8B8B8B" letter-spacing="3px">IMOBILIARE</text>
+    
+    <!-- Decorative accent line -->
+    <line x1="90" y1="60" x2="200" y2="60" stroke="url(#logoGradientComplete)" stroke-width="1" opacity="0.5"/>
+  </g>
+</svg>
