@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { 
   Plus, 
+  Search, 
   Loader2,
   ArrowLeft,
   Trash2,
@@ -39,6 +40,7 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 const Admin = () => {
+  const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingProperty, setEditingProperty] = useState<any>(null)
@@ -84,6 +86,67 @@ const Admin = () => {
     })
   }
 
+  const scrapeProperty = async () => {
+    if (!url) {
+      toast({
+        title: "Eroare",
+        description: "Te rog să introduci un link valid",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      // Call edge function to scrape the URL
+      const { data, error } = await supabase.functions.invoke('scrape-property', {
+        body: { url }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        // Add the scraped property to database
+        const { error: insertError } = await supabase
+          .from('catalog_offers')
+          .insert({
+            title: data.property.title,
+            description: data.property.description,
+            location: data.property.location,
+            images: data.property.images,
+            price_min: data.property.price_min,
+            price_max: data.property.price_max,
+            currency: data.property.currency,
+            surface_min: data.property.surface_min,
+            surface_max: data.property.surface_max,
+            rooms: data.property.rooms,
+            features: data.property.features,
+            availability_status: 'available'
+          })
+
+        if (insertError) throw insertError
+
+        toast({
+          title: "Succes!",
+          description: "Proprietatea a fost adăugată cu succes"
+        })
+
+        // Refresh the properties list
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+        setUrl("")
+      } else {
+        throw new Error(data.error || "Eroare la preluarea datelor")
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut prelua datele din link",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Fetch properties
   const { data: properties, isLoading: propertiesLoading } = useQuery({
@@ -297,8 +360,62 @@ const Admin = () => {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-1 gap-8">
+            <div className="grid lg:grid-cols-2 gap-8">
               
+              {/* Add Property Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-gold" />
+                    Adaugă Proprietate prin URL
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Link către proprietate</label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://www.imobiliare.ro/vanzare-apartamente/..."
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={scrapeProperty}
+                        disabled={isLoading || !url}
+                        className="min-w-[120px]"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Preiau...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4 mr-2" />
+                            Preia Date
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Introdu linkul către o proprietate pentru a prelua automat imaginile, descrierea și detaliile
+                    </p>
+                  </div>
+
+                  {/* Tips Section */}
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-2">💡 Site-uri compatibile:</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• imobiliare.ro - Anunțuri de apartamente și case</li>
+                      <li>• olx.ro - Proprietăți rezidențiale</li>
+                      <li>• storia.ro - Oferte imobiliare</li>
+                      <li>• immoflux.ro - Proprietăți noi</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Manage Properties Section */}
               <div className="lg:col-span-1">
                 <Card>
