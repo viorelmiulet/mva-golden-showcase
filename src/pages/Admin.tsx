@@ -228,6 +228,34 @@ const Admin = () => {
     }
   }
 
+  const testWorkingFunction = async () => {
+    setIsProcessingCsv(true)
+    try {
+      console.log('Testing working edge function...');
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'simple_test' }
+      })
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Test Reușit ✅",
+        description: `Mesaj: ${data?.message || 'Funcția funcționează!'}`,
+      });
+    } catch (error: any) {
+      console.error('Working function test error:', error);
+      toast({
+        title: "Test Eșuat ❌",
+        description: `Eroare: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  };
+
   // Immoflux Google Feed Import Functions  
   const GOOGLE_FEED_URL = 'https://web.immoflux.ro/api/bridges/googlefeed/68009c9368d89.csv'
 
@@ -838,6 +866,26 @@ const Admin = () => {
                             <>
                               <AlertTriangle className="w-4 h-4 mr-2" />
                               🔍 Test Fetch Debug
+                            </>
+                          )}
+                        </Button>
+
+                        <Button 
+                          onClick={testWorkingFunction}
+                          disabled={isProcessingCsv}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Test funcția...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              ✅ Test Edge Function (Facebook)
                             </>
                           )}
                         </Button>

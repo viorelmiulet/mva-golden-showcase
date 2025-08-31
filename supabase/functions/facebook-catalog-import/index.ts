@@ -31,6 +31,18 @@ Deno.serve(async (req) => {
 
     console.log('Facebook Catalog Import called with action:', action);
 
+    if (action === 'simple_test') {
+      console.log('Simple test called successfully');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Edge function funcționează perfect!',
+          timestamp: new Date().toISOString() 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (action === 'test_basic_fetch') {
       return await testBasicFetch();
     }
