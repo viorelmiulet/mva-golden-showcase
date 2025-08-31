@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { 
   Plus, 
-  Search, 
   Loader2,
   ArrowLeft,
   Trash2,
@@ -40,7 +39,6 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 const Admin = () => {
-  const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingProperty, setEditingProperty] = useState<any>(null)
@@ -101,67 +99,6 @@ const Admin = () => {
     }
   })
 
-  const scrapeProperty = async () => {
-    if (!url) {
-      toast({
-        title: "Eroare",
-        description: "Te rog să introduci un link valid",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      // Call edge function to scrape the URL
-      const { data, error } = await supabase.functions.invoke('scrape-property', {
-        body: { url }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        // Add the scraped property to database
-        const { error: insertError } = await supabase
-          .from('catalog_offers')
-          .insert({
-            title: data.property.title,
-            description: data.property.description,
-            location: data.property.location,
-            images: data.property.images,
-            price_min: data.property.price_min,
-            price_max: data.property.price_max,
-            currency: data.property.currency,
-            surface_min: data.property.surface_min,
-            surface_max: data.property.surface_max,
-            rooms: data.property.rooms,
-            features: data.property.features,
-            availability_status: 'available'
-          })
-
-        if (insertError) throw insertError
-
-        toast({
-          title: "Succes!",
-          description: "Proprietatea a fost adăugată cu succes"
-        })
-
-        // Refresh the properties list
-        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-        setUrl("")
-      } else {
-        throw new Error(data.error || "Eroare la preluarea datelor")
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut prelua datele din link",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const deleteProperty = async (id: string) => {
     setDeletingId(id)
@@ -360,61 +297,8 @@ const Admin = () => {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-1 gap-8">
               
-              {/* Add Property Section */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-gold" />
-                    Adaugă Proprietate Nouă
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Link către proprietate</label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="https://www.imobiliare.ro/vanzare-apartamente/..."
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button 
-                        onClick={scrapeProperty}
-                        disabled={isLoading || !url}
-                        className="min-w-[120px]"
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Preiau...
-                          </>
-                        ) : (
-                          <>
-                            <Search className="w-4 h-4 mr-2" />
-                            Preia Date
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Introdu linkul către o proprietate pentru a prelua automat imaginile, descrierea și detaliile
-                    </p>
-                  </div>
-
-                  {/* Tips Section */}
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">💡 Site-uri compatibile:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• imobiliare.ro - Anunțuri de apartamente și case</li>
-                      <li>• olx.ro - Proprietăți rezidențiale</li>
-                      <li>• storia.ro - Oferte imobiliare</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Manage Properties Section */}
               <div className="lg:col-span-1">
                 <Card>
@@ -504,81 +388,6 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* URL Scraping Tool */}
-            <div className="mt-8">
-              <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Database className="w-5 h-5 text-blue-600" />
-                    Adaugă Proprietate prin URL
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Preluați automat datele unei proprietăți dintr-un link
-                  </p>
-                </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <Input
-                      type="url"
-                      placeholder="Introdu link-ul proprietății (ex: https://www.imobiliare.ro/...)"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="bg-white"
-                    />
-                    
-                    <Button 
-                      onClick={scrapeProperty}
-                      disabled={isLoading || !url}
-                      className="w-full"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Preluare în curs...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Adaugă Proprietate
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Stats Overview */}
-                  {properties && (
-                    <div className="p-6">
-                      <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-foreground mb-2">📊 Statistici</h3>
-                        <p className="text-muted-foreground">Prezentare generală proprietăți</p>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="text-lg font-bold text-green-600">
-                            {properties.filter(p => p.availability_status === 'available').length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Disponibile</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-gold">
-                            {properties.filter(p => p.availability_status === 'sold').length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Vândute</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-purple-600">
-                            {properties.length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Total</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Detailed Properties Grid */}
             {!propertiesLoading && properties && properties.length > 0 && (
