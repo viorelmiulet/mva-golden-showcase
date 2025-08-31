@@ -151,6 +151,48 @@ const Admin = () => {
     }
   }
 
+  const testSimpleFunction = async () => {
+    setIsProcessingCsv(true)
+    try {
+      console.log('Calling simple test function...')
+      const { data, error } = await supabase.functions.invoke('test-simple', {
+        body: { test: 'hello world', timestamp: new Date().toISOString() }
+      })
+
+      console.log('Simple function response data:', data)
+      console.log('Simple function response error:', error)
+
+      if (error) {
+        console.error('Supabase function error:', error)
+        throw error
+      }
+
+      if (data && data.success) {
+        toast({
+          title: "Funcția simplă merge!",
+          description: data.message,
+        })
+        console.log('SUCCESS: Simple function works:', data)
+      } else {
+        toast({
+          title: "Funcția simplă nu merge",
+          description: data?.error || "Eroare necunoscută",
+          variant: "destructive"
+        })
+        console.log('FAILED: Simple function failed:', data)
+      }
+    } catch (error: any) {
+      console.error('Catch block error:', error)
+      toast({
+        title: "Eroare completă",
+        description: error.message || "Eroare totală",
+        variant: "destructive"
+      })
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  }
+
   const testBasicFetch = async () => {
     setIsProcessingCsv(true)
     try {
@@ -758,26 +800,48 @@ const Admin = () => {
                         </div>
                       </div>
                       
-                      {/* Debug Button */}
-                      <Button 
-                        onClick={testBasicFetch}
-                        disabled={isProcessingCsv}
-                        variant="secondary"
-                        size="sm"
-                        className="w-full mb-2"
-                      >
-                        {isProcessingCsv ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Debug...
-                          </>
-                        ) : (
-                          <>
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            🔍 Test Fetch Debug
-                          </>
-                        )}
-                      </Button>
+                      {/* Debug Buttons */}
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={testSimpleFunction}
+                          disabled={isProcessingCsv}
+                          variant="secondary"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Test simplu...
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-4 h-4 mr-2" />
+                              🟢 Test Funcție Simplă
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button 
+                          onClick={testBasicFetch}
+                          disabled={isProcessingCsv}
+                          variant="secondary"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Debug fetch...
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="w-4 h-4 mr-2" />
+                              🔍 Test Fetch Debug
+                            </>
+                          )}
+                        </Button>
+                      </div>
                       
                       <div className="flex gap-2">
                         <Button 
