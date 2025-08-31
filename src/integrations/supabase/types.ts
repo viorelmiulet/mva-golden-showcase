@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_cards: {
+        Row: {
+          back_svg: string
+          created_at: string
+          email: string
+          front_svg: string
+          function_title: string
+          id: string
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          back_svg: string
+          created_at?: string
+          email: string
+          front_svg: string
+          function_title: string
+          id?: string
+          name: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          back_svg?: string
+          created_at?: string
+          email?: string
+          front_svg?: string
+          function_title?: string
+          id?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       catalog_offers: {
         Row: {
           amenities: string[] | null

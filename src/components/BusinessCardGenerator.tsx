@@ -1,17 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface BusinessCardData {
   name: string;
   function: string;
   phone: string;
   email: string;
+}
+
+interface SavedBusinessCard {
+  id: string;
+  name: string;
+  function_title: string;
+  phone: string;
+  email: string;
+  front_svg: string;
+  back_svg: string;
+  created_at: string;
 }
 
 const BusinessCardGenerator = () => {
@@ -25,6 +38,107 @@ const BusinessCardGenerator = () => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [frontSvg, setFrontSvg] = useState<string>("");
   const [backSvg, setBackSvg] = useState<string>("");
+  const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load saved cards on component mount
+  useEffect(() => {
+    loadSavedCards();
+  }, []);
+
+  const loadSavedCards = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('business_cards')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading saved cards:', error);
+        toast.error('Eroare la încărcarea cărților salvate');
+        return;
+      }
+
+      setSavedCards(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Eroare la încărcarea cărților salvate');
+    }
+  };
+
+  const saveCard = async () => {
+    if (!frontSvg || !backSvg) {
+      toast.error('Generați mai întâi cartea de vizită');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('business_cards')
+        .insert([{
+          name: cardData.name,
+          function_title: cardData.function,
+          phone: cardData.phone,
+          email: cardData.email,
+          front_svg: frontSvg,
+          back_svg: backSvg
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving card:', error);
+        toast.error('Eroare la salvarea cărții de vizită');
+        return;
+      }
+
+      toast.success('Carte de vizită salvată cu succes!');
+      loadSavedCards(); // Reload the list
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Eroare la salvarea cărții de vizită');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteCard = async (id: string) => {
+    if (!confirm('Sunteți sigur că doriți să ștergeți această carte de vizită?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('business_cards')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting card:', error);
+        toast.error('Eroare la ștergerea cărții de vizită');
+        return;
+      }
+
+      toast.success('Carte de vizită ștearsă cu succes!');
+      loadSavedCards(); // Reload the list
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Eroare la ștergerea cărții de vizită');
+    }
+  };
+
+  const loadSavedCard = (card: SavedBusinessCard) => {
+    setCardData({
+      name: card.name,
+      function: card.function_title,
+      phone: card.phone,
+      email: card.email
+    });
+    setFrontSvg(card.front_svg);
+    setBackSvg(card.back_svg);
+    toast.success('Carte de vizită încărcată!');
+  };
 
   const generateQRCode = async (phone: string) => {
     if (!phone) return "";
@@ -513,10 +627,16 @@ const BusinessCardGenerator = () => {
                     </div>
                   </div>
                   
-                  <Button onClick={downloadBoth} className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Descarcă Ambele Părți
-                  </Button>
+                   <div className="flex gap-2">
+                     <Button onClick={downloadBoth} className="flex-1">
+                       <Download className="w-4 h-4 mr-2" />
+                       Descarcă Ambele Părți
+                     </Button>
+                     <Button onClick={saveCard} disabled={isLoading} variant="outline" className="flex-1">
+                       <History className="w-4 h-4 mr-2" />
+                       {isLoading ? 'Se salvează...' : 'Salvează'}
+                     </Button>
+                   </div>
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
@@ -526,6 +646,87 @@ const BusinessCardGenerator = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Cărți Salvate */}
+        {savedCards.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Cărți de Vizită Salvate</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {savedCards.map((card) => (
+                <Card key={card.id} className="relative">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{card.name}</CardTitle>
+                        <p className="text-sm text-muted-foreground">{card.function_title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(card.created_at).toLocaleDateString('ro-RO', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteCard(card.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Previzualizare miniaturală */}
+                      <div className="bg-white p-2 rounded border">
+                        <div 
+                          className="transform scale-50 origin-top-left"
+                          style={{ width: '350px', height: '200px' }}
+                          dangerouslySetInnerHTML={{ __html: card.front_svg }}
+                        />
+                      </div>
+                      
+                      {/* Informații contact */}
+                      <div className="text-sm space-y-1">
+                        <p><span className="font-medium">Telefon:</span> {card.phone}</p>
+                        <p><span className="font-medium">Email:</span> {card.email}</p>
+                      </div>
+                      
+                      {/* Butoane acțiuni */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => loadSavedCard(card)}
+                          className="flex-1"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Încarcă
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            downloadSvg(card.front_svg, `${card.name}-fata.svg`);
+                            setTimeout(() => downloadSvg(card.back_svg, `${card.name}-verso.svg`), 100);
+                          }}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Descarcă
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
