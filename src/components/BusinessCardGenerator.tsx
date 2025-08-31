@@ -14,6 +14,7 @@ interface BusinessCardData {
   function: string;
   phone: string;
   email: string;
+  qrLink: string;
 }
 
 interface SavedBusinessCard {
@@ -22,6 +23,7 @@ interface SavedBusinessCard {
   function_title: string;
   phone: string;
   email: string;
+  qr_link: string;
   front_svg: string;
   back_svg: string;
   created_at: string;
@@ -32,7 +34,8 @@ const BusinessCardGenerator = () => {
     name: "",
     function: "",
     phone: "",
-    email: ""
+    email: "",
+    qrLink: ""
   });
   
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
@@ -81,6 +84,7 @@ const BusinessCardGenerator = () => {
           function_title: cardData.function,
           phone: cardData.phone,
           email: cardData.email,
+          qr_link: cardData.qrLink || `https://wa.me/${cardData.phone.replace(/[^0-9]/g, "")}`,
           front_svg: frontSvg,
           back_svg: backSvg
         }])
@@ -133,21 +137,23 @@ const BusinessCardGenerator = () => {
       name: card.name,
       function: card.function_title,
       phone: card.phone,
-      email: card.email
+      email: card.email,
+      qrLink: card.qr_link || ""
     });
     setFrontSvg(card.front_svg);
     setBackSvg(card.back_svg);
     toast.success('Carte de vizită încărcată!');
   };
 
-  const generateQRCode = async (phone: string) => {
-    if (!phone) return "";
-    // Remove all non-numeric characters including plus sign
-    const cleanPhone = phone.replace(/[^0-9]/g, "");
-    const whatsappUrl = `https://wa.me/${cleanPhone}`;
+  const generateQRCode = async (data: BusinessCardData) => {
+    // Use custom qrLink if provided, otherwise generate WhatsApp link from phone
+    const qrUrl = data.qrLink || `https://wa.me/${data.phone.replace(/[^0-9]/g, "")}`;
+    
+    if (!qrUrl) return "";
+    
     try {
-      return await QRCode.toDataURL(whatsappUrl, {
-        width: 600, // Increased for high resolution (was 70)
+      return await QRCode.toDataURL(qrUrl, {
+        width: 600, // Increased for high resolution
         margin: 2,
         color: { dark: "#D4AF37", light: "#ffffff" }, // Gold color instead of black
         errorCorrectionLevel: 'M'
@@ -394,8 +400,8 @@ const BusinessCardGenerator = () => {
     <g transform="translate(90, 165)">
       <rect x="0" y="0" width="210" height="210" rx="15" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="4.5"/>
       ${qrDataUrl ? `<image href="${qrDataUrl}" x="15" y="15" width="180" height="180"/>` : generateQRPattern(qrDataUrl)}
-      <!-- WhatsApp text -->
-      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">Contact WhatsApp</text>
+      <!-- QR Code text -->
+      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">${data.qrLink ? 'Contact Digital' : 'Contact WhatsApp'}</text>
     </g>
   </g>
   
@@ -520,7 +526,7 @@ const BusinessCardGenerator = () => {
     }
 
     console.log('Starting QR generation...');
-    const qrDataUrl = await generateQRCode(cardData.phone);
+    const qrDataUrl = await generateQRCode(cardData);
     console.log('QR generated:', qrDataUrl ? 'Success' : 'Failed');
     setQrCodeDataUrl(qrDataUrl);
     
@@ -611,6 +617,19 @@ const BusinessCardGenerator = () => {
                   onChange={(e) => setCardData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="ex: viorel@mvaimobiliare.ro"
                 />
+              </div>
+              
+              <div>
+                <Label htmlFor="qrLink">Link QR Code (opțional)</Label>
+                <Input
+                  id="qrLink"
+                  value={cardData.qrLink}
+                  onChange={(e) => setCardData(prev => ({ ...prev, qrLink: e.target.value }))}
+                  placeholder="ex: https://wa.me/40721234567 sau alt link personalizat"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Dacă nu completezi, se va genera automat link WhatsApp din numărul de telefon
+                </p>
               </div>
               
               <Button onClick={handleGenerate} className="w-full">
