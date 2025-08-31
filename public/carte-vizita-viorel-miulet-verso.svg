@@ -42,53 +42,48 @@
   </pattern>
   <rect width="350" height="200" rx="15" fill="url(#textureVerso)" opacity="0.4"/>
   
-  <!-- Central Logo - Larger -->
+  <!-- Central Logo - Smaller -->
   <g transform="translate(175, 100)">
     <!-- Outer ring -->
     <circle 
       cx="0" 
       cy="0" 
-      r="45" 
+      r="35" 
       fill="none"
       stroke="url(#logoGradientVerso)"
-      stroke-width="2"
+      stroke-width="1.5"
       opacity="0.8"
     />
     
     <!-- Main hexagon -->
     <path 
-      d="M0 -35 L30 -17 L30 17 L0 35 L-30 17 L-30 -17 Z" 
+      d="M0 -28 L24 -14 L24 14 L0 28 L-24 14 L-24 -14 Z" 
       fill="url(#logoGradientVerso)" 
       opacity="0.9"
     />
     
     <!-- Inner background -->
     <path 
-      d="M0 -28 L24 -14 L24 14 L0 28 L-24 14 L-24 -14 Z" 
+      d="M0 -22 L19 -11 L19 11 L0 22 L-19 11 L-19 -11 Z" 
       fill="url(#cardGradientVerso)"
     />
     
     <!-- Premium "M" letterform -->
     <path 
-      d="M-12 -8 L-7 -8 L0 4 L7 -8 L12 -8 L12 12 L8 12 L8 -2 L3 6 L-3 6 L-8 -2 L-8 12 L-12 12 Z"
+      d="M-10 -6 L-6 -6 L0 3 L6 -6 L10 -6 L10 10 L6 10 L6 -1 L2 5 L-2 5 L-6 -1 L-6 10 L-10 10 Z"
       fill="url(#logoGradientVerso)"
     />
     
     <!-- Luxury accents -->
-    <circle cx="28" cy="-22" r="2" fill="#FFD700" opacity="0.8" />
-    <circle cx="-28" cy="22" r="1.5" fill="#D4AF37" opacity="0.6" />
-    <polygon points="30,20 32,18 32,22" fill="#B8860B" opacity="0.4" />
+    <circle cx="22" cy="-17" r="1.5" fill="#FFD700" opacity="0.8" />
+    <circle cx="-22" cy="17" r="1.2" fill="#D4AF37" opacity="0.6" />
+    <polygon points="24,16 26,14 26,18" fill="#B8860B" opacity="0.4" />
   </g>
   
   <!-- Company Name - Top -->
   <g transform="translate(175, 40)">
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="28" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
-    <text x="0" y="18" font-family="Playfair Display, serif" font-size="14" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="4px">IMOBILIARE</text>
-  </g>
-  
-  <!-- Tagline - Bottom -->
-  <g transform="translate(175, 180)">
-    <text x="0" y="0" font-family="Playfair Display, serif" font-size="16" font-weight="600" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">Premium Real Estate</text>
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="24" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
+    <text x="0" y="16" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">IMOBILIARE</text>
   </g>
   
   <!-- Decorative Elements -->
