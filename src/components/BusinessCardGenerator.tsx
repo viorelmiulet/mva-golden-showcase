@@ -723,19 +723,19 @@ const BusinessCardGenerator = () => {
               <CardContent className="space-y-4">
                 <div className="bg-muted rounded-lg p-4 flex justify-center">
                   <img 
-                    src={wallpaperMobile} 
+                    src="/mva-wallpaper-exact-logo.svg" 
                     alt="MVA Wallpaper Mobile" 
                     className="max-w-full h-48 object-contain rounded-lg shadow-md"
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Wallpaper optimizat pentru telefon (1080x1920px) cu logo-ul MVA pe fundal elegant.
+                  Wallpaper optimizat pentru telefon (1080x1920px) cu logo-ul exact de pe site pe fundal elegant.
                 </p>
                 <Button 
                   onClick={() => {
                     const link = document.createElement('a');
-                    link.href = wallpaperMobile;
-                    link.download = 'mva-wallpaper-mobile.jpg';
+                    link.href = '/mva-wallpaper-exact-logo.svg';
+                    link.download = 'mva-wallpaper-mobile.svg';
                     link.click();
                   }}
                   className="w-full"

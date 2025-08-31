@@ -1,0 +1,149 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0F0F" />
+      <stop offset="25%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="75%" stop-color="#1A1A1A" />
+      <stop offset="100%" stop-color="#0F0F0F" />
+    </linearGradient>
+    
+    <!-- Logo gradients -->
+    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    
+    <linearGradient id="innerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
+    </linearGradient>
+    
+    <!-- Text gradients -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="100%" stop-color="#FFD700" />
+    </linearGradient>
+    
+    <!-- Glow effects -->
+    <filter id="luxuryGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="innerShadow">
+      <feOffset dx="0" dy="4"/>
+      <feGaussianBlur stdDeviation="4" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3"/>
+      <feComposite operator="in" in2="inverse"/>
+      <feComposite operator="over" in2="SourceGraphic"/>
+    </filter>
+    
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Subtle pattern -->
+    <pattern id="luxuryPattern" patternUnits="userSpaceOnUse" width="60" height="60">
+      <circle cx="30" cy="30" r="1" fill="#D4AF37" opacity="0.1"/>
+      <circle cx="15" cy="15" r="0.5" fill="#FFD700" opacity="0.05"/>
+      <circle cx="45" cy="45" r="0.5" fill="#FFD700" opacity="0.05"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1080" height="1920" fill="url(#backgroundGradient)"/>
+  <rect width="1080" height="1920" fill="url(#luxuryPattern)"/>
+  
+  <!-- Main logo centered -->
+  <g transform="translate(540, 960)">
+    <!-- Outer luxury ring -->
+    <circle 
+      cx="0" 
+      cy="0" 
+      r="192" 
+      fill="none"
+      stroke="url(#luxuryGradient)"
+      stroke-width="16"
+      opacity="0.8"
+      filter="url(#luxuryGlow)"
+    />
+    
+    <!-- Main luxury hexagon -->
+    <path 
+      d="M0 -184 L159.5 -92 L159.5 92 L0 184 L-159.5 92 L-159.5 -92 Z" 
+      fill="url(#luxuryGradient)" 
+      opacity="0.95"
+      filter="url(#luxuryGlow)"
+    />
+    
+    <!-- Inner dark background -->
+    <path 
+      d="M0 -152 L131.5 -76 L131.5 76 L0 152 L-131.5 76 L-131.5 -76 Z" 
+      fill="url(#innerGradient)"
+      filter="url(#innerShadow)"
+    />
+    
+    <!-- Premium "M" letterform -->
+    <path 
+      d="M-72 -56 L-42 -56 L0 24 L42 -56 L72 -56 L72 56 L48 56 L48 -24 L18 40 L-18 40 L-48 -24 L-48 56 L-72 56 Z"
+      fill="url(#luxuryGradient)"
+      filter="url(#luxuryGlow)"
+    />
+    
+    <!-- Luxury corner accents -->
+    <circle cx="131.5" cy="-76" r="12" fill="#FFD700" opacity="0.8" />
+    <circle cx="-131.5" cy="76" r="8" fill="#D4AF37" opacity="0.6" />
+    <polygon points="143.5,76 155.5,64 155.5,88" fill="#B8860B" opacity="0.4" />
+  </g>
+  
+  <!-- MVA Text below logo -->
+  <text x="540" y="1250" 
+        font-family="Cinzel, serif" 
+        font-size="120" 
+        font-weight="bold" 
+        fill="url(#textGradient)" 
+        text-anchor="middle"
+        letter-spacing="8px"
+        filter="url(#textGlow)">MVA</text>
+  
+  <!-- IMOBILIARE text -->
+  <text x="540" y="1320" 
+        font-family="Playfair Display, serif" 
+        font-size="32" 
+        font-weight="500" 
+        fill="#8B8B8B" 
+        text-anchor="middle"
+        letter-spacing="12px">IMOBILIARE</text>
+  
+  <!-- Premium Real Estate -->
+  <text x="540" y="1380" 
+        font-family="Playfair Display, serif" 
+        font-size="24" 
+        font-weight="400" 
+        fill="#666666" 
+        text-anchor="middle"
+        letter-spacing="6px">Premium Real Estate</text>
+  
+  <!-- Decorative lines -->
+  <line x1="340" y1="1340" x2="740" y2="1340" stroke="url(#luxuryGradient)" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Subtle corner decorations -->
+  <circle cx="100" cy="200" r="8" fill="#D4AF37" opacity="0.3"/>
+  <circle cx="980" cy="1720" r="6" fill="#FFD700" opacity="0.2"/>
+  <polygon points="950,250 970,230 970,270" fill="#B8860B" opacity="0.15"/>
+</svg>
