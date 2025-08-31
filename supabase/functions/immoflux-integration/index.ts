@@ -14,18 +14,33 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== Immoflux Integration Function Started ===');
+    
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const immofluxApiKey = Deno.env.get('IMMOFLUX_API_KEY');
     const immofluxApiUser = Deno.env.get('IMMOFLUX_API_USER');
 
+    console.log('Environment check:');
+    console.log('- SUPABASE_URL exists:', !!supabaseUrl);
+    console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseKey);
+    console.log('- IMMOFLUX_API_KEY exists:', !!immofluxApiKey);
+    console.log('- IMMOFLUX_API_USER exists:', !!immofluxApiUser);
+
     if (!immofluxApiKey || !immofluxApiUser) {
+      console.error('Missing Immoflux credentials!');
+      console.error('IMMOFLUX_API_KEY:', immofluxApiKey ? 'SET' : 'NOT SET');
+      console.error('IMMOFLUX_API_USER:', immofluxApiUser ? 'SET' : 'NOT SET');
       throw new Error('Immoflux API credentials not configured');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { action, propertyId } = await req.json();
+    console.log('Request body parsing...');
+    const requestBody = await req.json();
+    console.log('Request body received:', requestBody);
+    
+    const { action, propertyId } = requestBody;
 
     console.log('Immoflux integration called with action:', action);
 
