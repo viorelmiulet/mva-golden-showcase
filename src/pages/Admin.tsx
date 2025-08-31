@@ -421,37 +421,19 @@ const Admin = () => {
                     <Plus className="w-5 h-5 text-gold" />
                     Adaugă Proprietate prin ID
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Introdu doar ID-ul proprietății din Immoflux
-                  </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="bg-muted/50 p-3 rounded-lg mb-4">
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Search className="w-4 h-4" />
-                      <span className="font-medium">Link de bază:</span> 
-                      <code className="bg-background px-2 py-1 rounded text-xs">https://web.immoflux.ro/publicproperty/p</code>
-                    </p>
-                  </div>
-                  
                   <div className="space-y-4">
-                    <label className="text-sm font-medium">ID-uri proprietăți (max 5)</label>
-                    
                     {propertyIds.map((propertyId, index) => (
                       <div key={index} className="space-y-2">
                         <div className="flex gap-2 items-center">
                           <span className="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
-                          <div className="flex-1 flex items-center">
-                            <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l border border-r-0">
-                              https://web.immoflux.ro/publicproperty/p
-                            </span>
-                            <Input
-                              placeholder={`${index === 0 ? '190741 (obligatoriu)' : '190741 (opțional)'}`}
-                              value={propertyId}
-                              onChange={(e) => updatePropertyId(index, e.target.value)}
-                              className="rounded-l-none border-l-0 font-mono"
-                            />
-                          </div>
+                          <Input
+                            placeholder={`${index === 0 ? '190741 (obligatoriu)' : '190741 (opțional)'}`}
+                            value={propertyId}
+                            onChange={(e) => updatePropertyId(index, e.target.value)}
+                            className="flex-1 font-mono"
+                          />
                           {loadingStates[index] && (
                             <Loader2 className="w-4 h-4 animate-spin text-gold" />
                           )}
@@ -476,25 +458,8 @@ const Admin = () => {
                         </>
                       )}
                     </Button>
-                    
-                    <p className="text-xs text-muted-foreground">
-                      Introdu ID-urile proprietăților pentru a prelua automat imaginile, descrierea și detaliile. 
-                      Prima proprietate este obligatorie, restul sunt opționale.
-                    </p>
                   </div>
 
-                  {/* Tips Section */}
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">💡 Exemple de ID-uri valide:</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• <code className="bg-background px-1 rounded">190741</code> - Apartament 2 camere</li>
-                      <li>• <code className="bg-background px-1 rounded">189985</code> - Apartament zona Militari</li>
-                      <li>• <code className="bg-background px-1 rounded">196022</code> - Garsonieră</li>
-                    </ul>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      ID-ul se găsește în URL-ul proprietății sau în codul de referință
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
 
