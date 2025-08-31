@@ -145,9 +145,10 @@ const BusinessCardGenerator = () => {
     const whatsappUrl = `https://wa.me/${phone.replace(/[^0-9]/g, "")}`;
     try {
       return await QRCode.toDataURL(whatsappUrl, {
-        width: 70,
-        margin: 0,
-        color: { dark: "#000000", light: "#ffffff" }
+        width: 600, // Increased for high resolution (was 70)
+        margin: 2,
+        color: { dark: "#000000", light: "#ffffff" },
+        errorCorrectionLevel: 'M'
       });
     } catch (error) {
       console.error("Error generating QR code:", error);
@@ -385,7 +386,9 @@ const BusinessCardGenerator = () => {
     <!-- WhatsApp QR Code -->
     <g transform="translate(90, 165)">
       <rect x="0" y="0" width="210" height="210" rx="15" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="4.5"/>
-      ${generateQRPattern(qrDataUrl)}
+      ${qrDataUrl ? `<image href="${qrDataUrl}" x="15" y="15" width="180" height="180"/>` : generateQRPattern(qrDataUrl)}
+      <!-- WhatsApp text -->
+      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">Contact WhatsApp</text>
     </g>
   </g>
   
@@ -694,8 +697,8 @@ const BusinessCardGenerator = () => {
                         <div className="bg-white p-2 rounded border">
                           <div className="text-xs font-medium mb-1 text-center">Fața</div>
                           <div 
-                            className="transform scale-50 origin-top-left"
-                            style={{ width: '350px', height: '200px' }}
+                            className="transform scale-[0.17] origin-top-left"
+                            style={{ width: '1050px', height: '600px' }}
                             dangerouslySetInnerHTML={{ __html: card.front_svg }}
                           />
                         </div>
@@ -703,8 +706,8 @@ const BusinessCardGenerator = () => {
                         <div className="bg-white p-2 rounded border">
                           <div className="text-xs font-medium mb-1 text-center">Verso</div>
                           <div 
-                            className="transform scale-50 origin-top-left"
-                            style={{ width: '350px', height: '200px' }}
+                            className="transform scale-[0.17] origin-top-left"
+                            style={{ width: '1050px', height: '600px' }}
                             dangerouslySetInnerHTML={{ __html: card.back_svg }}
                           />
                         </div>
