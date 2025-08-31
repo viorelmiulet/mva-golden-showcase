@@ -43,41 +43,51 @@ const Footer = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-center space-x-4 mb-6 group cursor-pointer" onClick={scrollToTop}>
                   <div className="relative">
-                    {/* Matching Footer Logo */}
-                    <svg width="36" height="36" viewBox="0 0 36 36" className="transition-all duration-300 group-hover:scale-105 group-hover:rotate-1">
+                    {/* Matching Luxury Footer Logo */}
+                    <svg width="42" height="42" viewBox="0 0 42 42" className="transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
                       <defs>
-                        <linearGradient id="footerModernGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="hsl(var(--gold))" />
-                          <stop offset="50%" stopColor="hsl(var(--gold-light))" />
-                          <stop offset="100%" stopColor="hsl(var(--gold))" />
+                        <linearGradient id="footerLuxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#D4AF37" />
+                          <stop offset="50%" stopColor="#FFD700" />
+                          <stop offset="100%" stopColor="#B8860B" />
+                        </linearGradient>
+                        <linearGradient id="footerInnerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#1A1A1A" />
+                          <stop offset="100%" stopColor="#2D2D2D" />
                         </linearGradient>
                       </defs>
                       
+                      <circle cx="21" cy="21" r="20" fill="none" stroke="url(#footerLuxuryGradient)" strokeWidth="1.5" className="opacity-70" />
+                      
                       <path 
-                        d="M18 2 L32 9 L32 27 L18 34 L4 27 L4 9 Z" 
-                        fill="url(#footerModernGradient)" 
-                        className="opacity-80 group-hover:opacity-100 transition-opacity"
+                        d="M21 3 L37 12 L37 30 L21 39 L5 30 L5 12 Z" 
+                        fill="url(#footerLuxuryGradient)" 
+                        className="opacity-90 group-hover:opacity-100 transition-opacity"
                       />
                       
                       <path 
-                        d="M12 13 L15 13 L18 20 L21 13 L24 13 L24 23 L22.5 23 L22.5 15.5 L20 21 L16 21 L13.5 15.5 L13.5 23 L12 23 Z"
-                        fill="hsl(var(--background))"
-                        className="drop-shadow-sm"
+                        d="M21 6 L34 14 L34 28 L21 36 L8 28 L8 14 Z" 
+                        fill="url(#footerInnerGradient)"
                       />
                       
-                      <circle cx="28" cy="8" r="1" fill="hsla(var(--background), 0.6)" />
-                      <circle cx="8" cy="28" r="0.8" fill="hsla(var(--background), 0.4)" />
+                      <path 
+                        d="M14 16 L17 16 L21 24 L25 16 L28 16 L28 26 L26.5 26 L26.5 18.5 L23.5 24 L18.5 24 L15.5 18.5 L15.5 26 L14 26 Z"
+                        fill="url(#footerLuxuryGradient)"
+                      />
+                      
+                      <circle cx="33" cy="9" r="1" fill="#FFD700" className="opacity-60" />
+                      <circle cx="9" cy="33" r="0.8" fill="#D4AF37" className="opacity-40" />
                     </svg>
                     
-                    <div className="absolute inset-0 bg-gold/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute inset-0 bg-gradient-radial from-yellow-400/20 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
                   
                   <div>
-                    <div className="text-xl font-black tracking-tight bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                    <div className="font-cinzel text-xl font-bold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
-                    <div className="text-muted-foreground/80 text-xs font-semibold tracking-[0.2em] uppercase -mt-0.5">Premium Real Estate</div>
-                    <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-gold to-gold-light mt-1 transition-all duration-500"></div>
+                    <div className="font-playfair text-muted-foreground/90 text-xs font-medium tracking-[0.25em] uppercase -mt-0.5">Premium Real Estate</div>
+                    <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-yellow-400 to-yellow-600 mt-1 transition-all duration-700"></div>
                   </div>
                 </div>
                 
