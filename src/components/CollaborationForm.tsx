@@ -93,6 +93,9 @@ export const CollaborationForm = ({ children }: CollaborationFormProps) => {
   }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("=== STARTING FORM SUBMISSION ===")
+    console.log("Form values:", values)
+    console.log("Selected images:", selectedImages.length)
     setIsSubmitting(true)
     
     try {
