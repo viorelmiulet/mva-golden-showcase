@@ -350,67 +350,67 @@ const BusinessCardGenerator = () => {
   </g>
   
   <!-- Main Content Area -->
-  <g transform="translate(60, 240)">
+  <g transform="translate(60, 220)">
     <!-- Name and Title -->
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="54" font-weight="bold" fill="#FFFFFF" letter-spacing="1.5px">${data.name}</text>
-    <text x="0" y="54" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="url(#textGradientCard)" letter-spacing="3px">${data.function}</text>
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="48" font-weight="bold" fill="#FFFFFF" letter-spacing="1px">${data.name}</text>
+    <text x="0" y="45" font-family="Playfair Display, serif" font-size="32" font-weight="500" fill="url(#textGradientCard)" letter-spacing="2px">${data.function}</text>
     
     <!-- Decorative line -->
-    <line x1="0" y1="75" x2="240" y2="75" stroke="url(#logoGradientCard)" stroke-width="3" opacity="0.8"/>
+    <line x1="0" y1="60" x2="200" y2="60" stroke="url(#logoGradientCard)" stroke-width="2" opacity="0.8"/>
   </g>
   
   <!-- Contact Information -->
-  <g transform="translate(60, 375)">
+  <g transform="translate(60, 330)">
     <!-- Phone -->
     <g>
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
       <!-- Modern phone icon -->
       <rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <line x1="10" y1="17" x2="14" y2="17" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.phone}</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="#E0E0E0">${data.phone}</text>
     </g>
     
     <!-- Email -->
-    <g transform="translate(0, 60)">
+    <g transform="translate(0, 50)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
       <!-- Modern email icon -->
       <rect x="3" y="7" width="18" height="12" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <path d="M3 9 L12 15 L21 9" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.email}</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="24" fill="#E0E0E0">${data.email}</text>
     </g>
     
     <!-- Website -->
-    <g transform="translate(0, 120)">
+    <g transform="translate(0, 100)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
       <!-- Modern website/globe icon -->
       <circle cx="12" cy="12" r="8" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <path d="M4 12h16M12 4c3.5 2.5 3.5 13.5 0 16M12 4c-3.5 2.5-3.5 13.5 0 16" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.2"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">mvaimobiliare.ro</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="#E0E0E0">mvaimobiliare.ro</text>
     </g>
     
     <!-- Address -->
-    <g transform="translate(0, 180)">
+    <g transform="translate(0, 150)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
       <!-- Modern location pin icon -->
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <circle cx="12" cy="9" r="3" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="12" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
-      <text x="45" y="45" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">bl. 2 parter ap 24</text>
+      <text x="45" y="12" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
+      <text x="45" y="35" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">bl. 2 parter ap 24</text>
     </g>
   </g>
   
   <!-- Right Side - Details -->
-  <g transform="translate(600, 75)">
+  <g transform="translate(580, 75)">
     <!-- Services -->
-    <text x="0" y="60" font-family="Inter, sans-serif" font-size="27" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
-    <text x="0" y="96" font-family="Inter, sans-serif" font-size="27" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
+    <text x="0" y="80" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
     
     <!-- WhatsApp QR Code -->
-    <g transform="translate(90, 165)">
-      <rect x="0" y="0" width="210" height="210" rx="15" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="4.5"/>
-      ${qrDataUrl ? `<image href="${qrDataUrl}" x="15" y="15" width="180" height="180"/>` : generateQRPattern(qrDataUrl)}
+    <g transform="translate(60, 140)">
+      <rect x="0" y="0" width="180" height="180" rx="12" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="3"/>
+      ${qrDataUrl ? `<image href="${qrDataUrl}" x="12" y="12" width="156" height="156"/>` : generateQRPattern(qrDataUrl)}
       <!-- QR Code text -->
-      <text x="105" y="240" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0" text-anchor="middle">Contact WhatsApp</text>
+      <text x="90" y="210" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#C0C0C0" text-anchor="middle">Contact WhatsApp</text>
     </g>
   </g>
   
