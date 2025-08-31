@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.update-storia-offers]
 verify_jwt = false
+
+[functions.immoflux-integration]
+verify_jwt = false
