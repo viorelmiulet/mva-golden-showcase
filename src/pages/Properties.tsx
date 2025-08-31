@@ -18,7 +18,9 @@ import {
   X,
   Info,
   Calendar,
-  Building
+  Building,
+  MessageCircle,
+  Phone
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -229,7 +231,7 @@ const Properties = () => {
                                 className="flex-1 hover:bg-gold/10 hover:border-gold"
                               >
                                 <a href="tel:0767941512">
-                                  <Building className="w-4 h-4 mr-2" />
+                                  <Phone className="w-4 h-4 mr-2" />
                                   Sună acum
                                 </a>
                               </Button>
@@ -242,7 +244,7 @@ const Properties = () => {
                                 className="flex-1 hover:bg-green-50 hover:border-green-400"
                               >
                                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                                  <Images className="w-4 h-4 mr-2" />
+                                  <MessageCircle className="w-4 h-4 mr-2" />
                                   Contact WhatsApp
                                 </a>
                               </Button>
@@ -582,6 +584,7 @@ const Properties = () => {
                 
                 <Button asChild className="flex-1">
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="w-4 h-4 mr-2" />
                     Contactează-ne pe WhatsApp
                   </a>
                 </Button>
