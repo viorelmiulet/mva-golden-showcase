@@ -46,7 +46,7 @@ const CarteVizita = () => {
                 <h3 className="text-lg font-medium text-foreground">Fața (Front)</h3>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <img 
-                    src="/carte-vizita-viorel-miulet.svg" 
+                    src={`/carte-vizita-viorel-miulet.svg?v=${Date.now()}`}
                     alt="Carte de vizită Viorel Miulet - Fața" 
                     className="w-full h-auto max-w-[350px] mx-auto"
                   />
@@ -62,7 +62,7 @@ const CarteVizita = () => {
                 <h3 className="text-lg font-medium text-foreground">Verso (Back)</h3>
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <img 
-                    src="/carte-vizita-viorel-miulet-verso.svg" 
+                    src={`/carte-vizita-viorel-miulet-verso.svg?v=${Date.now()}`}
                     alt="Carte de vizită Viorel Miulet - Verso" 
                     className="w-full h-auto max-w-[350px] mx-auto"
                   />
@@ -88,24 +88,24 @@ const CarteVizita = () => {
 
           <div className="grid md:grid-cols-2 gap-6 mt-8">
             <div className="p-6 bg-muted rounded-lg">
-              <h3 className="font-semibold mb-3">Fața - Caracteristici:</h3>
+              <h3 className="font-semibold mb-3">Fața - Caracteristici Actualizate:</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Logo MVA Imobiliare cu nume complet</li>
+                <li>• Logo MVA Imobiliare mai mic și reechilibrat</li>
                 <li>• Numele: Viorel Miulet, Agent Imobiliar</li>
                 <li>• Informații complete de contact</li>
-                <li>• Cod QR WhatsApp funcțional (0767941512)</li>
+                <li>• Cod QR WhatsApp curat (fără text lângă QR)</li>
                 <li>• Text: "Vanzari apartamente direct de la dezvoltator"</li>
                 <li>• Program de lucru detaliat</li>
               </ul>
             </div>
 
             <div className="p-6 bg-muted rounded-lg">
-              <h3 className="font-semibold mb-3">Verso - Caracteristici:</h3>
+              <h3 className="font-semibold mb-3">Verso - Caracteristici Actualizate:</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>• Design elegant și minimalist</li>
-                <li>• Logo central MVA Imobiliare mărit</li>
+                <li>• Logo central MVA Imobiliare mai mic</li>
                 <li>• Gradiente luxury aurii</li>
-                <li>• Text "Premium Real Estate"</li>
+                <li>• Design curat (fără "Premium Real Estate")</li>
                 <li>• Elemente decorative sofisticate</li>
                 <li>• Perfect pentru imprimare profesională</li>
               </ul>
