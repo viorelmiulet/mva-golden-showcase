@@ -660,7 +660,7 @@ const BusinessCardGenerator = () => {
                      <div>
                        <h3 className="text-lg font-medium mb-2">Fața</h3>
                        <div 
-                         className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
+                         className="flex justify-center items-center rounded-lg shadow-md"
                          style={{ height: '500px', width: '100%' }}
                        >
                          <div 
@@ -674,7 +674,7 @@ const BusinessCardGenerator = () => {
                      <div>
                        <h3 className="text-lg font-medium mb-2">Verso</h3>
                        <div 
-                         className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
+                         className="flex justify-center items-center rounded-lg shadow-md"
                          style={{ height: '500px', width: '100%' }}
                        >
                          <div 
