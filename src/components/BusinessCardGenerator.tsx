@@ -661,10 +661,10 @@ const BusinessCardGenerator = () => {
                        <h3 className="text-lg font-medium mb-2">Fața</h3>
                        <div 
                          className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
-                         style={{ height: '420px', width: '100%' }}
+                         style={{ height: '500px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.4]"
+                           className="transform scale-[0.5]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: frontSvg }}
                          />
@@ -675,10 +675,10 @@ const BusinessCardGenerator = () => {
                        <h3 className="text-lg font-medium mb-2">Verso</h3>
                        <div 
                          className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
-                         style={{ height: '420px', width: '100%' }}
+                         style={{ height: '500px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.4]"
+                           className="transform scale-[0.5]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: backSvg }}
                          />
