@@ -352,85 +352,133 @@ async function mapFacebookCatalogToProperty(row: any, headers: string[]) {
 }
 
 async function testURL(feedUrl: string) {
+  console.log('=== Starting testURL function ===');
   console.log('Testing URL access:', feedUrl);
   
   try {
     if (!feedUrl) {
-      console.error('URL feed-ul este gol');
+      console.error('ERROR: URL feed-ul este gol');
       throw new Error('URL feed-ului este obligatoriu');
     }
 
-    console.log('Starting fetch request to:', feedUrl);
-    const response = await fetch(feedUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Supabase-Edge-Function)',
-        'Accept': 'text/csv,text/plain,*/*'
-      },
-      // Add timeout
-      signal: AbortSignal.timeout(10000) // 10 seconds timeout
+    console.log('Step 1: Starting fetch request to:', feedUrl);
+    console.log('Using headers:', {
+      'User-Agent': 'Mozilla/5.0 (compatible; Supabase-Edge-Function)',
+      'Accept': 'text/csv,text/plain,*/*'
     });
+
+    // First, let's try a simple fetch without timeout to see if it works
+    let response;
+    try {
+      console.log('Step 2: Executing fetch...');
+      response = await fetch(feedUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; Supabase-Edge-Function)',
+          'Accept': 'text/csv,text/plain,*/*',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      console.log('Step 3: Fetch completed successfully');
+    } catch (fetchError) {
+      console.error('Step 3: Fetch failed with error:', fetchError);
+      console.error('Fetch error name:', fetchError.name);
+      console.error('Fetch error message:', fetchError.message);
+      throw new Error(`Fetch failed: ${fetchError.message}`);
+    }
     
-    console.log('Fetch completed. Status:', response.status, 'OK:', response.ok);
+    console.log('Step 4: Checking response status...');
+    console.log('Response status:', response.status);
+    console.log('Response statusText:', response.statusText);
+    console.log('Response ok:', response.ok);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
-      console.error('HTTP Error:', response.status, response.statusText);
+      console.error('Step 4: HTTP Error - Status:', response.status, 'StatusText:', response.statusText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    console.log('Reading response text...');
-    const csvData = await response.text();
-    console.log('CSV data length:', csvData.length);
+    console.log('Step 5: Reading response body...');
+    let csvData;
+    try {
+      csvData = await response.text();
+      console.log('Step 6: Response body read successfully');
+      console.log('CSV data length:', csvData.length);
+      console.log('First 200 characters:', csvData.substring(0, 200));
+    } catch (textError) {
+      console.error('Step 6: Failed to read response text:', textError);
+      throw new Error(`Failed to read response: ${textError.message}`);
+    }
     
     if (!csvData || csvData.trim().length === 0) {
-      console.error('CSV data is empty');
+      console.error('Step 7: CSV data is empty or null');
       throw new Error('URL-ul nu conține date CSV');
     }
 
+    console.log('Step 7: Processing CSV data...');
     const lines = csvData.trim().split('\n');
     console.log('CSV lines count:', lines.length);
     
     if (lines.length < 2) {
-      console.error('Not enough CSV lines:', lines.length);
+      console.error('Step 8: Not enough CSV lines:', lines.length);
       throw new Error('CSV-ul trebuie să conțină cel puțin un header și o linie de date');
     }
 
-    console.log('CSV validation successful');
-    console.log('First 3 lines preview:', lines.slice(0, 3).join('\\n'));
+    console.log('Step 8: CSV validation successful');
+    console.log('Headers (first line):', lines[0].substring(0, 100) + '...');
+    console.log('First data line:', lines[1].substring(0, 100) + '...');
+
+    const result = {
+      success: true, 
+      message: `URL valid! ${lines.length - 1} proprietăți găsite`,
+      preview: lines.slice(0, 3).join('\n'),
+      total_rows: lines.length - 1,
+      debug_info: {
+        url: feedUrl,
+        response_status: response.status,
+        content_length: csvData.length,
+        lines_count: lines.length
+      }
+    };
+
+    console.log('Step 9: Returning success response');
+    console.log('Result:', JSON.stringify(result, null, 2));
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: `URL valid! ${lines.length - 1} proprietăți găsite`,
-        preview: lines.slice(0, 3).join('\n'),
-        total_rows: lines.length - 1
-      }),
+      JSON.stringify(result),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('URL test error details:', error);
+    console.error('=== ERROR in testURL function ===');
+    console.error('Error type:', typeof error);
     console.error('Error name:', error.name);
     console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     
     let errorMessage = `Eroare acces URL: ${error.message}`;
     
     if (error.name === 'TimeoutError') {
-      errorMessage = 'Eroare: Timeout - URL-ul nu răspunde în 10 secunde';
-    } else if (error.name === 'TypeError') {
-      errorMessage = 'Eroare: Nu am putut conecta la URL - verifică adresa';
+      errorMessage = 'Eroare: Timeout - URL-ul nu răspunde în timp util';
+    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      errorMessage = 'Eroare: Nu am putut conecta la URL - verifică dacă URL-ul este accesibil';
     }
+
+    const errorResult = {
+      success: false, 
+      error: errorMessage,
+      debug_info: {
+        error_name: error.name,
+        error_message: error.message,
+        tested_url: feedUrl,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    console.log('Returning error response:', JSON.stringify(errorResult, null, 2));
     
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: errorMessage,
-        debug_info: {
-          error_name: error.name,
-          error_message: error.message,
-          tested_url: feedUrl
-        }
-      }),
+      JSON.stringify(errorResult),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
     );
   }
