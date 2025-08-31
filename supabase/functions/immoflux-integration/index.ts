@@ -60,32 +60,64 @@ serve(async (req) => {
 
 async function testConnection(apiKey: string, apiUser: string) {
   try {
-    // Test connection to Immoflux API
-    // This is a generic approach - adjust URL based on actual Immoflux API documentation
-    const testResponse = await fetch('https://api.immoflux.ro/v1/properties', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'X-API-User': apiUser,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!testResponse.ok) {
-      throw new Error(`API connection failed: ${testResponse.status} ${testResponse.statusText}`);
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Connection to Immoflux API successful',
-        status: testResponse.status
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    console.log('Testing connection with API Key:', apiKey?.substring(0, 10) + '...');
+    console.log('Testing connection with API User:', apiUser);
     
+    // Test multiple possible API endpoints
+    const possibleUrls = [
+      'https://api.immoflux.ro/v1/properties',
+      'https://immoflux.ro/api/v1/properties',
+      'https://app.immoflux.ro/api/properties',
+      'https://web.immoflux.ro/api/properties'
+    ];
+    
+    let lastError = '';
+    
+    for (const url of possibleUrls) {
+      try {
+        console.log(`Trying URL: ${url}`);
+        
+        const testResponse = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'X-API-User': apiUser,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log(`Response status for ${url}:`, testResponse.status);
+        console.log(`Response headers:`, Object.fromEntries(testResponse.headers.entries()));
+        
+        if (testResponse.ok) {
+          const responseText = await testResponse.text();
+          console.log(`Success response from ${url}:`, responseText.substring(0, 200));
+          
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              message: `Connection successful to ${url}`,
+              status: testResponse.status,
+              url: url
+            }),
+            {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+        
+        const errorText = await testResponse.text();
+        lastError = `${url}: ${testResponse.status} - ${errorText}`;
+        console.log(`Error from ${url}:`, lastError);
+        
+      } catch (fetchError: any) {
+        lastError = `${url}: Network error - ${fetchError.message}`;
+        console.log(`Network error for ${url}:`, fetchError.message);
+      }
+    }
+    
+    throw new Error(`All API endpoints failed. Last error: ${lastError}`);
+
   } catch (error) {
     console.error('Connection test failed:', error);
     return new Response(
