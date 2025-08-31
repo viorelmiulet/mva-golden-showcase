@@ -149,7 +149,7 @@ const BusinessCardGenerator = () => {
       return await QRCode.toDataURL(whatsappUrl, {
         width: 600, // Increased for high resolution (was 70)
         margin: 2,
-        color: { dark: "#000000", light: "#ffffff" },
+        color: { dark: "#D4AF37", light: "#ffffff" }, // Gold color instead of black
         errorCorrectionLevel: 'M'
       });
     } catch (error) {
@@ -632,11 +632,11 @@ const BusinessCardGenerator = () => {
                      <div>
                        <h3 className="text-lg font-medium mb-2">Fața</h3>
                        <div 
-                         className="bg-white p-2 rounded-lg shadow-md max-w-full overflow-hidden"
-                         style={{ height: '240px' }}
+                         className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
+                         style={{ height: '280px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.4] origin-top-left"
+                           className="transform scale-[0.25]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: frontSvg }}
                          />
@@ -646,11 +646,11 @@ const BusinessCardGenerator = () => {
                      <div>
                        <h3 className="text-lg font-medium mb-2">Verso</h3>
                        <div 
-                         className="bg-white p-2 rounded-lg shadow-md max-w-full overflow-hidden"
-                         style={{ height: '240px' }}
+                         className="bg-white p-4 rounded-lg shadow-md flex justify-center items-center"
+                         style={{ height: '280px', width: '100%' }}
                        >
                          <div 
-                           className="transform scale-[0.4] origin-top-left"
+                           className="transform scale-[0.25]"
                            style={{ width: '1050px', height: '600px' }}
                            dangerouslySetInnerHTML={{ __html: backSvg }}
                          />
