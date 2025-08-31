@@ -40,8 +40,9 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 const Admin = () => {
-  const [url, setUrl] = useState("")
+  const [urls, setUrls] = useState(Array(5).fill(""))
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingStates, setLoadingStates] = useState(Array(5).fill(false))
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingProperty, setEditingProperty] = useState<any>(null)
   const [editForm, setEditForm] = useState<any>({})
@@ -86,7 +87,7 @@ const Admin = () => {
     })
   }
 
-  const scrapeProperty = async () => {
+  const scrapeProperty = async (url: string, index: number) => {
     if (!url) {
       toast({
         title: "Eroare",
@@ -96,7 +97,9 @@ const Admin = () => {
       return
     }
 
-    setIsLoading(true)
+    // Update loading state for this specific URL
+    setLoadingStates(prev => prev.map((state, i) => i === index ? true : state))
+    
     try {
       // Call edge function to scrape the URL
       const { data, error } = await supabase.functions.invoke('scrape-property', {
@@ -128,24 +131,70 @@ const Admin = () => {
 
         toast({
           title: "Succes!",
-          description: "Proprietatea a fost adăugată cu succes"
+          description: `Proprietatea ${index + 1} a fost adăugată cu succes`
         })
 
-        // Refresh the properties list
-        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-        setUrl("")
+        // Clear this URL
+        setUrls(prev => prev.map((u, i) => i === index ? "" : u))
       } else {
         throw new Error(data.error || "Eroare la preluarea datelor")
       }
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: error.message || "Nu am putut prelua datele din link",
+        description: `URL ${index + 1}: ${error.message || "Nu am putut prelua datele din link"}`,
+        variant: "destructive"
+      })
+    } finally {
+      setLoadingStates(prev => prev.map((state, i) => i === index ? false : state))
+    }
+  }
+
+  const scrapeAllProperties = async () => {
+    const validUrls = urls.filter(url => url.trim() !== "")
+    
+    if (validUrls.length === 0) {
+      toast({
+        title: "Eroare",
+        description: "Te rog să introduci cel puțin un link valid",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsLoading(true)
+    
+    try {
+      // Process all URLs in parallel
+      const promises = urls.map((url, index) => {
+        if (url.trim() !== "") {
+          return scrapeProperty(url, index)
+        }
+        return Promise.resolve()
+      })
+
+      await Promise.all(promises)
+      
+      // Refresh the properties list
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+      
+      toast({
+        title: "Procesare completă!",
+        description: `Am procesat ${validUrls.length} link-uri`
+      })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: "Eroare la procesarea link-urilor",
         variant: "destructive"
       })
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const updateUrl = (index: number, value: string) => {
+    setUrls(prev => prev.map((url, i) => i === index ? value : url))
   }
 
   // Fetch properties
@@ -371,35 +420,47 @@ const Admin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Link către proprietate</label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="https://www.imobiliare.ro/vanzare-apartamente/..."
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button 
-                        onClick={scrapeProperty}
-                        disabled={isLoading || !url}
-                        className="min-w-[120px]"
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Preiau...
-                          </>
-                        ) : (
-                          <>
-                            <Search className="w-4 h-4 mr-2" />
-                            Preia Date
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium">Link-uri către proprietăți (max 5)</label>
+                    
+                    {urls.map((url, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex gap-2 items-center">
+                          <span className="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
+                          <Input
+                            placeholder={`https://web.immoflux.ro/publicproperty/... ${index === 0 ? '(obligatoriu)' : '(opțional)'}`}
+                            value={url}
+                            onChange={(e) => updateUrl(index, e.target.value)}
+                            className="flex-1"
+                          />
+                          {loadingStates[index] && (
+                            <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <Button 
+                      onClick={scrapeAllProperties}
+                      disabled={isLoading || urls.every(url => !url.trim())}
+                      className="w-full"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Preluare în curs...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4 mr-2" />
+                          Preia Date din Toate Link-urile
+                        </>
+                      )}
+                    </Button>
+                    
                     <p className="text-xs text-muted-foreground">
-                      Introdu linkul către o proprietate pentru a prelua automat imaginile, descrierea și detaliile
+                      Introdu link-urile către proprietăți pentru a prelua automat imaginile, descrierea și detaliile. 
+                      Primul link este obligatoriu, restul sunt opționale.
                     </p>
                   </div>
 
