@@ -231,9 +231,9 @@ const Admin = () => {
   const testWorkingFunction = async () => {
     setIsProcessingCsv(true)
     try {
-      console.log('Testing working edge function...');
+      console.log('Testing existing validate_csv action...');
       const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'simple_test' }
+        body: { action: 'validate_csv', csvData: 'id,title,description\n1,test,test desc' }
       })
       
       if (error) {
@@ -241,13 +241,13 @@ const Admin = () => {
       }
       
       toast({
-        title: "Test Reușit ✅",
-        description: `Mesaj: ${data?.message || 'Funcția funcționează!'}`,
+        title: "Edge Function Funcționează! ✅",
+        description: `Test validate_csv reușit!`,
       });
     } catch (error: any) {
       console.error('Working function test error:', error);
       toast({
-        title: "Test Eșuat ❌",
+        title: "Edge Function Nu Funcționează ❌",
         description: `Eroare: ${error.message}`,
         variant: "destructive",
       });
