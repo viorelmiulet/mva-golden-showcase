@@ -26,7 +26,12 @@ import {
   Save,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  RefreshCw,
+  Database,
+  Wifi,
+  WifiOff,
+  CheckCircle
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -43,6 +48,9 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [isImmofluxSyncing, setIsImmofluxSyncing] = useState(false)
+  const [isImmofluxTesting, setIsImmofluxTesting] = useState(false)
+  const [immofluxStatus, setImmofluxStatus] = useState<'idle' | 'connected' | 'error'>('idle')
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -78,6 +86,78 @@ const Admin = () => {
       title: "Deconectat",
       description: "Ai fost deconectat cu succes"
     })
+  }
+
+  // Immoflux Integration Functions
+  const testImmofluxConnection = async () => {
+    setIsImmofluxTesting(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: { action: 'test_connection' }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        setImmofluxStatus('connected')
+        toast({
+          title: "Conexiune reușită!",
+          description: data.message,
+        })
+      } else {
+        setImmofluxStatus('error')
+        toast({
+          title: "Eroare conexiune",
+          description: data.error || "Nu am putut conecta la Immoflux API",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setImmofluxStatus('error')
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut testa conexiunea",
+        variant: "destructive"
+      })
+    } finally {
+      setIsImmofluxTesting(false)
+    }
+  }
+
+  const syncImmofluxProperties = async () => {
+    setIsImmofluxSyncing(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: { action: 'sync_properties' }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        toast({
+          title: "Sincronizare reușită!",
+          description: data.message,
+        })
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+        setImmofluxStatus('connected')
+      } else {
+        toast({
+          title: "Eroare sincronizare",
+          description: data.error || "Nu am putut sincroniza proprietățile",
+          variant: "destructive"
+        })
+        setImmofluxStatus('error')
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut sincroniza proprietățile",
+        variant: "destructive"
+      })
+      setImmofluxStatus('error')
+    } finally {
+      setIsImmofluxSyncing(false)
+    }
   }
 
   // Fetch properties
@@ -495,6 +575,136 @@ const Admin = () => {
                   </CardContent>
                 </Card>
               </div>
+            </div>
+
+            {/* Immoflux Integration Section */}
+            <div className="mt-8">
+              <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      immofluxStatus === 'connected' ? 'bg-green-500' : 
+                      immofluxStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                    }`} />
+                    <Database className="w-5 h-5 text-blue-600" />
+                    Integrare Immoflux CRM
+                    {immofluxStatus === 'connected' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                    {immofluxStatus === 'error' && <WifiOff className="w-5 h-5 text-red-600" />}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Sincronizează proprietățile din platforma Immoflux direct în catalogul tău
+                  </p>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    
+                    {/* Connection Status */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <h4 className="font-medium">Status Conexiune</h4>
+                        <Badge variant={
+                          immofluxStatus === 'connected' ? 'default' :
+                          immofluxStatus === 'error' ? 'destructive' : 'secondary'
+                        }>
+                          {immofluxStatus === 'connected' ? '✓ Conectat' :
+                           immofluxStatus === 'error' ? '✗ Eroare' : '○ Nedeformat'}
+                        </Badge>
+                      </div>
+                      
+                      <Button 
+                        onClick={testImmofluxConnection}
+                        disabled={isImmofluxTesting}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        {isImmofluxTesting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Testez conexiunea...
+                          </>
+                        ) : (
+                          <>
+                            <Wifi className="w-4 h-4 mr-2" />
+                            Testează Conexiunea
+                          </>
+                        )}
+                      </Button>
+                      
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                        <div className="font-medium mb-1">ℹ️ Info API:</div>
+                        <div>• API User și API Key configurate în secrets</div>
+                        <div>• Conexiune automată la Immoflux CRM</div>
+                        <div>• Date transformate automat pentru catalog</div>
+                      </div>
+                    </div>
+
+                    {/* Sync Actions */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Acțiuni Sincronizare</h4>
+                      
+                      <Button 
+                        onClick={syncImmofluxProperties}
+                        disabled={isImmofluxSyncing || immofluxStatus === 'error'}
+                        className="w-full"
+                        variant={immofluxStatus === 'connected' ? 'default' : 'secondary'}
+                      >
+                        {isImmofluxSyncing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sincronizez proprietăți...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Sincronizează Proprietăți
+                          </>
+                        )}
+                      </Button>
+                      
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                        <div className="font-medium mb-1">⚡ Sincronizare automată:</div>
+                        <div>• Șterge proprietățile existente Immoflux</div>
+                        <div>• Importă cele mai noi proprietăți</div>
+                        <div>• Transformă datele pentru afișare</div>
+                        <div className="text-orange-600 mt-1">• Testează conexiunea mai întâi!</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats Bar */}
+                  {properties && (
+                    <div className="border-t pt-4">
+                      <div className="grid grid-cols-4 gap-4 text-center">
+                        <div>
+                          <div className="text-lg font-bold text-blue-600">
+                            {properties.filter(p => p.project_name === 'IMMOFLUX_SYNC').length}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Din Immoflux</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-green-600">
+                            {properties.filter(p => p.project_name !== 'IMMOFLUX_SYNC').length}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Alte surse</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-gold">
+                            {properties.length}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Total proprietăți</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-purple-600">
+                            {immofluxStatus === 'connected' ? '🟢' : immofluxStatus === 'error' ? '🔴' : '🟡'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Status API</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
 
             {/* Detailed Properties Grid */}
