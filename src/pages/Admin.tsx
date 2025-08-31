@@ -228,6 +228,36 @@ const Admin = () => {
     }
   }
 
+  const testSupabaseConnection = async () => {
+    setIsProcessingCsv(true)
+    try {
+      console.log('Testing direct Supabase database connection...');
+      
+      // Test basic database read
+      const { data, error, count } = await supabase
+        .from('catalog_offers')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Supabase DB Funcționează! ✅",
+        description: `Găsite ${count} proprietăți în baza de date`,
+      });
+    } catch (error: any) {
+      console.error('Supabase connection test error:', error);
+      toast({
+        title: "Supabase DB Nu Funcționează ❌", 
+        description: `Eroare: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  };
+
   const testWorkingFunction = async () => {
     setIsProcessingCsv(true)
     try {
@@ -886,6 +916,26 @@ const Admin = () => {
                             <>
                               <CheckCircle className="w-4 h-4 mr-2" />
                               ✅ Test Edge Function (Facebook)
+                            </>
+                          )}
+                        </Button>
+
+                        <Button 
+                          onClick={testSupabaseConnection}
+                          disabled={isProcessingCsv}
+                          variant="default"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Test DB...
+                            </>
+                          ) : (
+                            <>
+                              <Database className="w-4 h-4 mr-2" />
+                              🔵 Test Supabase DB
                             </>
                           )}
                         </Button>
