@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, Sparkles, MapPin, Phone, MessageCircle } from "lucide-react"
+import { ArrowDown, Sparkles, MapPin, Phone, MessageCircle, UserPlus } from "lucide-react"
 import heroProperty from "@/assets/hero-property.jpg"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
+import { CollaborationForm } from "@/components/CollaborationForm"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
@@ -59,26 +60,28 @@ const Hero = () => {
             </div>
             
             <nav className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-2 sm:px-0">
-              <Button 
-                variant="luxury" 
-                size="lg" 
-                className="group px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
-                onClick={() => scrollToSection('proprietati')}
-              >
-                Explorează Proiectele
-                <ArrowDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
-              </Button>
-              
-              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button 
-                  variant="luxuryOutline" 
-                  size="lg"
-                  className="w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
+                  variant="luxury" 
+                  size="lg" 
+                  className="group px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
+                  onClick={() => scrollToSection('proprietati')}
                 >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
+                  Explorează Proiectele
+                  <ArrowDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
                 </Button>
-              </a>
+                
+                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
+                  <Button 
+                    variant="luxuryOutline" 
+                    size="lg"
+                    className="w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
+                  >
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
+                  </Button>
+                </a>
+              </div>
             </nav>
           </header>
 
@@ -111,6 +114,33 @@ const Hero = () => {
               <div className="text-xs sm:text-sm text-foreground font-medium">Acces facil la centru</div>
             </div>
           </div>
+        </div>
+        
+        {/* Collaboration CTA */}
+        <div className="absolute top-1/2 right-4 lg:right-8 transform -translate-y-1/2 z-30 hidden md:block">
+          <CollaborationForm>
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="bg-card/90 backdrop-blur-sm border-gold/20 text-foreground hover:bg-gold/10 hover:border-gold/40 transition-all duration-300 px-6 py-3 rounded-full shadow-lg"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Colaborează cu noi
+            </Button>
+          </CollaborationForm>
+        </div>
+        
+        {/* Mobile Collaboration Button */}
+        <div className="absolute bottom-20 right-4 z-30 md:hidden">
+          <CollaborationForm>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="bg-card/90 backdrop-blur-sm border-gold/20 text-foreground hover:bg-gold/10 hover:border-gold/40 transition-all duration-300 rounded-full shadow-lg"
+            >
+              <UserPlus className="h-4 w-4" />
+            </Button>
+          </CollaborationForm>
         </div>
       </main>
 
