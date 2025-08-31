@@ -141,7 +141,13 @@ function extractQuickly(html: string, text: string): ScrapedProperty {
     /suprafata[^0-9]*([0-9]+)/gi,
     /([0-9]+)\s*mp/gi,
     /([0-9]+)\s*metri/gi,
-    /([0-9]{2,3})\s*(?=\s*(?:mp|m²|metri|suprafata))/gi // 2-3 digits before area keywords
+    /([0-9]{2,3})\s*(?=\s*(?:mp|m²|metri|suprafata))/gi, // 2-3 digits before area keywords
+    // Immoflux specific patterns
+    /([0-9]+)\s*sqm/gi,
+    /apartament[^0-9]*([0-9]{2,3})\s*m/gi,
+    /([0-9]{2,3})\s*m\b/gi, // Generic m pattern for immoflux
+    /surface[^0-9]*([0-9]+)/gi,
+    /area[^0-9]*([0-9]+)/gi
   ];
 
   for (const pattern of surfacePatterns) {
