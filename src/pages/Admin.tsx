@@ -258,6 +258,46 @@ const Admin = () => {
     }
   };
 
+  const importFromFacebookCatalog = async () => {
+    setIsProcessingCsv(true)
+    try {
+      console.log('Importing from Facebook Catalog ID: 692780016592905...');
+      
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { 
+          action: 'import_by_catalog_id',
+          catalog_id: '692780016592905'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Import Facebook Reușit! ✅",
+          description: `Importate ${data.imported_count} proprietăți din catalogul Facebook`,
+        });
+        console.log('Facebook import rezultate:', data);
+      } else {
+        toast({
+          title: "Import Facebook Eșuat ❌",
+          description: data.error || "Problemă cu importul din Facebook",
+          variant: "destructive"
+        });
+        console.log('Facebook import eroare:', data);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare Import Facebook ❌",
+        description: error.message || "Nu am putut importa din catalogul Facebook",
+        variant: "destructive"
+      });
+      console.error('Facebook import error:', error);
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  };
+
   const testWorkingFunction = async () => {
     setIsProcessingCsv(true)
     try {
@@ -936,6 +976,26 @@ const Admin = () => {
                             <>
                               <Database className="w-4 h-4 mr-2" />
                               🔵 Test Supabase DB
+                            </>
+                          )}
+                        </Button>
+
+                        <Button 
+                          onClick={importFromFacebookCatalog}
+                          disabled={isProcessingCsv}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Importing...
+                            </>
+                          ) : (
+                            <>
+                              <Database className="w-4 h-4 mr-2" />
+                              📘 Import Facebook Catalog
                             </>
                           )}
                         </Button>
