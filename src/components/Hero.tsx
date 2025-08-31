@@ -61,15 +61,16 @@ const Hero = () => {
             
             <nav className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-2 sm:px-0">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Button 
-                  variant="luxury" 
-                  size="lg" 
-                  className="group px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
-                  onClick={() => scrollToSection('proprietati')}
-                >
-                  Explorează Proiectele
-                  <ArrowDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" />
-                </Button>
+                <CollaborationForm>
+                  <Button 
+                    variant="luxury" 
+                    size="lg" 
+                    className="group px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Colaborează cu noi
+                  </Button>
+                </CollaborationForm>
                 
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
                   <Button 
@@ -116,32 +117,6 @@ const Hero = () => {
           </div>
         </div>
         
-        {/* Collaboration CTA */}
-        <div className="absolute top-1/2 right-4 lg:right-8 transform -translate-y-1/2 z-30 hidden md:block">
-          <CollaborationForm>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="bg-card/90 backdrop-blur-sm border-gold/20 text-foreground hover:bg-gold/10 hover:border-gold/40 transition-all duration-300 px-6 py-3 rounded-full shadow-lg"
-            >
-              <UserPlus className="mr-2 h-4 w-4" />
-              Colaborează cu noi
-            </Button>
-          </CollaborationForm>
-        </div>
-        
-        {/* Mobile Collaboration Button */}
-        <div className="absolute bottom-20 right-4 z-30 md:hidden">
-          <CollaborationForm>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="bg-card/90 backdrop-blur-sm border-gold/20 text-foreground hover:bg-gold/10 hover:border-gold/40 transition-all duration-300 rounded-full shadow-lg"
-            >
-              <UserPlus className="h-4 w-4" />
-            </Button>
-          </CollaborationForm>
-        </div>
       </main>
 
       {/* Scroll Indicator */}

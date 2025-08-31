@@ -19,6 +19,7 @@ const formSchema = z.object({
   email: z.string().email("Email invalid"),
   telefon: z.string().min(10, "Numărul de telefon trebuie să aibă cel puțin 10 cifre"),
   tipProprietate: z.string().min(1, "Selectează tipul proprietății"),
+  tipTranzactie: z.string().min(1, "Selectează tipul tranzacției"),
   adresa: z.string().min(5, "Adresa trebuie să aibă cel puțin 5 caractere"),
   pret: z.string().min(1, "Prețul este obligatoriu"),
   suprafata: z.string().min(1, "Suprafața este obligatorie"),
@@ -43,6 +44,7 @@ export const CollaborationForm = ({ children }: CollaborationFormProps) => {
       email: "",
       telefon: "",
       tipProprietate: "",
+      tipTranzactie: "",
       adresa: "",
       pret: "",
       suprafata: "",
@@ -229,6 +231,7 @@ export const CollaborationForm = ({ children }: CollaborationFormProps) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value="garsoniera">Garsonieră</SelectItem>
                           <SelectItem value="apartament">Apartament</SelectItem>
                           <SelectItem value="casa">Casă</SelectItem>
                           <SelectItem value="vila">Vilă</SelectItem>
@@ -240,6 +243,30 @@ export const CollaborationForm = ({ children }: CollaborationFormProps) => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="tipTranzactie"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tip tranzacție</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selectează tipul" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="vanzare">Vânzare</SelectItem>
+                          <SelectItem value="inchiriere">Închiriere</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="suprafata"

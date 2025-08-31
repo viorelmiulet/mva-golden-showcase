@@ -14,6 +14,7 @@ interface CollaborationFormData {
   email: string;
   telefon: string;
   tipProprietate: string;
+  tipTranzactie: string;
   adresa: string;
   pret: string;
   suprafata: string;
@@ -75,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Colaborare MVA <onboarding@resend.dev>",
       to: ["mvaperfectbusiness@gmail.com"],
-      subject: `Propunere Colaborare - ${formData.tipProprietate} în ${formData.adresa}`,
+      subject: `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`,
       attachments: attachments,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -93,6 +94,7 @@ const handler = async (req: Request): Promise<Response> => {
             <h3 style="color: #333; margin-top: 0;">Detalii Proprietate:</h3>
             
             <p><strong>Tip proprietate:</strong> ${formData.tipProprietate}</p>
+            <p><strong>Tip tranzacție:</strong> ${formData.tipTranzactie}</p>
             <p><strong>Adresa:</strong> ${formData.adresa}</p>
             <p><strong>Preț:</strong> ${formData.pret}</p>
             <p><strong>Suprafața:</strong> ${formData.suprafata}</p>
