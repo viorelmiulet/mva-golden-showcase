@@ -129,8 +129,8 @@
     <text x="0" y="20" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Vanzari apartamente direct</text>
     <text x="0" y="32" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
     
-    <!-- WhatsApp QR Code - Much Larger -->
-    <g transform="translate(0, 55)">
+    <!-- WhatsApp QR Code - Much Larger and moved right -->
+    <g transform="translate(30, 55)">
       <rect x="0" y="0" width="70" height="70" rx="5" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <!-- QR Code Pattern - Much Larger -->
       <g fill="url(#logoGradientCard)">
