@@ -609,7 +609,7 @@ const BusinessCardGenerator = () => {
             <CardContent>
               {frontSvg && backSvg ? (
                 <div className="space-y-6">
-                  <div className="grid gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h3 className="text-lg font-medium mb-2">Fața</h3>
                       <div 
@@ -681,13 +681,25 @@ const BusinessCardGenerator = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {/* Previzualizare miniaturală */}
-                      <div className="bg-white p-2 rounded border">
-                        <div 
-                          className="transform scale-50 origin-top-left"
-                          style={{ width: '350px', height: '200px' }}
-                          dangerouslySetInnerHTML={{ __html: card.front_svg }}
-                        />
+                      {/* Previzualizare miniaturală - Ambele părți */}
+                      <div className="space-y-2">
+                        <div className="bg-white p-2 rounded border">
+                          <div className="text-xs font-medium mb-1 text-center">Fața</div>
+                          <div 
+                            className="transform scale-50 origin-top-left"
+                            style={{ width: '350px', height: '200px' }}
+                            dangerouslySetInnerHTML={{ __html: card.front_svg }}
+                          />
+                        </div>
+                        
+                        <div className="bg-white p-2 rounded border">
+                          <div className="text-xs font-medium mb-1 text-center">Verso</div>
+                          <div 
+                            className="transform scale-50 origin-top-left"
+                            style={{ width: '350px', height: '200px' }}
+                            dangerouslySetInnerHTML={{ __html: card.back_svg }}
+                          />
+                        </div>
                       </div>
                       
                       {/* Informații contact */}
