@@ -105,9 +105,8 @@ const Properties = () => {
             {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-foreground">Catalog </span>
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Proprietăți
+                  Ofertele Noastre
                 </span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
