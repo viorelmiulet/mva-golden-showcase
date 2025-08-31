@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     const requestBody = await req.json();
     console.log('Request body received:', requestBody);
     
-    const { action, csvData, feedUrl, feedType } = requestBody;
+    const { action, csvData, feedUrl, feedType, catalog_id } = requestBody;
 
     console.log('Facebook Catalog Import called with action:', action);
 
@@ -61,6 +61,10 @@ Deno.serve(async (req) => {
 
     if (action === 'test_url') {
       return await testURL(feedUrl);
+    }
+
+    if (action === 'import_by_catalog_id') {
+      return await importFromFacebookCatalog(supabase, catalog_id);
     }
 
     return new Response(
@@ -834,3 +838,269 @@ async function testBasicFetch() {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
+}
+
+async function importFromFacebookCatalog(supabase: any, catalog_id: string) {
+  console.log('=== Starting Facebook Catalog Import ===');
+  console.log('Catalog ID:', catalog_id);
+  
+  try {
+    if (!catalog_id) {
+      throw new Error('Catalog ID este obligatoriu');
+    }
+
+    // Get Facebook credentials from environment
+    const facebookAppId = Deno.env.get('FACEBOOK_APP_ID');
+    const facebookCatalogId = Deno.env.get('FACEBOOK_CATALOG_ID');
+    
+    console.log('Environment check:');
+    console.log('- FACEBOOK_APP_ID exists:', !!facebookAppId);
+    console.log('- FACEBOOK_CATALOG_ID exists:', !!facebookCatalogId);
+
+    if (!facebookAppId) {
+      throw new Error('FACEBOOK_APP_ID nu este configurat în secrets');
+    }
+
+    // Use provided catalog_id or fallback to environment
+    const catalogIdToUse = catalog_id || facebookCatalogId;
+    if (!catalogIdToUse) {
+      throw new Error('Nu există Catalog ID valid');
+    }
+
+    console.log('Using catalog ID:', catalogIdToUse);
+
+    // Facebook Graph API URL for catalog products
+    // Note: This requires an access token, but for public catalogs we can try without it first
+    const graphApiUrl = `https://graph.facebook.com/v18.0/${catalogIdToUse}/products?fields=id,name,description,price,currency,availability,condition,brand,material,pattern,size,color,image_url,url,custom_data&limit=100`;
+    
+    console.log('Facebook Graph API URL:', graphApiUrl);
+
+    // Try to fetch from Facebook Graph API
+    console.log('Fetching products from Facebook Catalog...');
+    const response = await fetch(graphApiUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; FacebookCatalogImporter/1.0)',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('Facebook API response status:', response.status);
+    console.log('Facebook API response headers:', Object.fromEntries(response.headers.entries()));
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Facebook API error response:', errorText);
+      
+      if (response.status === 400) {
+        throw new Error('Catalog ID invalid sau nu este accesibil public. Verifică ID-ul catalogului din URL.');
+      } else if (response.status === 403) {
+        throw new Error('Acces interzis. Catalogul necesită autentificare sau nu este public.');
+      } else {
+        throw new Error(`Facebook API error: ${response.status} - ${errorText}`);
+      }
+    }
+
+    const facebookData = await response.json();
+    console.log('Facebook API response received');
+    console.log('Products found:', facebookData.data?.length || 0);
+
+    if (!facebookData.data || facebookData.data.length === 0) {
+      throw new Error('Nu s-au găsit produse în catalogul Facebook');
+    }
+
+    // Clear existing Facebook catalog data
+    console.log('Clearing existing Facebook catalog data...');
+    const { error: deleteError } = await supabase
+      .from('catalog_offers')
+      .delete()
+      .ilike('project_name', 'FACEBOOK_%');
+
+    if (deleteError) {
+      console.error('Error clearing existing Facebook data:', deleteError);
+      // Continue anyway, this is not critical
+    } else {
+      console.log('Existing Facebook data cleared successfully');
+    }
+
+    // Process Facebook products and convert to our format
+    console.log('Processing Facebook products...');
+    const properties = [];
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < facebookData.data.length; i++) {
+      try {
+        const fbProduct = facebookData.data[i];
+        const property = await mapFacebookProductToProperty(fbProduct, catalogIdToUse);
+        
+        if (property) {
+          properties.push(property);
+          successCount++;
+        }
+      } catch (error) {
+        errorCount++;
+        errors.push(`Produsul ${i + 1}: ${error.message}`);
+        console.error(`Error processing Facebook product ${i + 1}:`, error);
+      }
+    }
+
+    console.log(`Processing complete. Success: ${successCount}, Errors: ${errorCount}`);
+
+    if (properties.length === 0) {
+      throw new Error('Nu s-au putut procesa produse din catalogul Facebook');
+    }
+
+    // Insert properties into database
+    console.log(`Inserting ${properties.length} properties from Facebook Catalog...`);
+    const { data, error } = await supabase
+      .from('catalog_offers')
+      .insert(properties)
+      .select();
+
+    if (error) {
+      console.error('Database insert error:', error);
+      throw new Error(`Eroare inserare în baza de date: ${error.message}`);
+    }
+
+    console.log('Facebook Catalog import successful');
+    const message = `Import Facebook Catalog finalizat! ${successCount} proprietăți importate din catalogul ${catalogIdToUse}.${errorCount > 0 ? ` ${errorCount} erori.` : ''}`;
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message,
+        catalog_id: catalogIdToUse,
+        imported_count: successCount,
+        error_count: errorCount,
+        errors: errors.slice(0, 10),
+        data: data?.slice(0, 5) // Only return first 5 records to avoid large response
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Facebook Catalog import error:', error);
+    console.error('Error details:', error.name, error.message);
+    
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: `Eroare import Facebook Catalog: ${error.message}`,
+        debug_info: {
+          error_name: error.name,
+          catalog_id: catalog_id,
+          timestamp: new Date().toISOString()
+        }
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
+  }
+}
+
+async function mapFacebookProductToProperty(fbProduct: any, catalogId: string) {
+  console.log(`Mapping Facebook product: ${fbProduct.name || fbProduct.id}`);
+
+  // Extract basic info from Facebook product
+  const title = fbProduct.name || `Proprietate Facebook ${fbProduct.id}`;
+  const description = fbProduct.description || 'Proprietate importată din catalogul Facebook';
+  
+  // Parse price
+  let price_min = 0;
+  let price_max = 0;
+  let currency = 'EUR';
+  
+  if (fbProduct.price) {
+    // Facebook price format might be "75000 EUR" or just number
+    const priceStr = fbProduct.price.toString();
+    const priceMatch = priceStr.match(/(\d+(?:\.\d+)?)/);
+    if (priceMatch) {
+      const priceValue = parseFloat(priceMatch[1]);
+      price_min = priceValue;
+      price_max = priceValue;
+    }
+    
+    // Get currency from Facebook product
+    if (fbProduct.currency) {
+      currency = fbProduct.currency;
+    } else if (priceStr.includes('RON')) {
+      currency = 'RON';
+    } else if (priceStr.includes('USD')) {
+      currency = 'USD';
+    }
+  }
+
+  // Parse custom data for rooms, surface, etc.
+  let rooms = 1;
+  let surface_min = null;
+  let surface_max = null;
+  let location = 'București';
+  const features = [];
+
+  if (fbProduct.custom_data) {
+    // Facebook custom_data might contain structured info about the property
+    const customData = fbProduct.custom_data;
+    
+    if (customData.rooms || customData.bedrooms || customData.camere) {
+      rooms = parseInt(customData.rooms || customData.bedrooms || customData.camere) || 1;
+    }
+    
+    if (customData.surface || customData.area || customData.suprafata) {
+      const surfaceValue = parseFloat(customData.surface || customData.area || customData.suprafata);
+      if (surfaceValue) {
+        surface_min = surfaceValue;
+        surface_max = surfaceValue;
+      }
+    }
+    
+    if (customData.location || customData.city || customData.address) {
+      location = customData.location || customData.city || customData.address;
+    }
+    
+    if (customData.features || customData.amenities) {
+      const featuresStr = customData.features || customData.amenities;
+      if (typeof featuresStr === 'string') {
+        features.push(...featuresStr.split(',').map((f: string) => f.trim()).filter(Boolean));
+      } else if (Array.isArray(featuresStr)) {
+        features.push(...featuresStr);
+      }
+    }
+  }
+
+  // Handle images
+  const images = [];
+  if (fbProduct.image_url) {
+    images.push(fbProduct.image_url);
+  }
+
+  // Map availability status
+  let availability_status = 'available';
+  if (fbProduct.availability) {
+    availability_status = fbProduct.availability.toLowerCase() === 'in stock' ? 'available' : 'unavailable';
+  }
+
+  // Use brand or set default project name
+  const project_name = fbProduct.brand ? `FACEBOOK_${fbProduct.brand.toUpperCase()}` : `FACEBOOK_CATALOG_${catalogId}`;
+
+  return {
+    title,
+    description,
+    location,
+    price_min,
+    price_max,
+    currency,
+    surface_min,
+    surface_max,
+    rooms,
+    images,
+    features,
+    amenities: [], // Default empty
+    project_name,
+    availability_status,
+    contact_info: null,
+    whatsapp_catalog_id: fbProduct.id,
+    is_featured: false,
+    storia_link: fbProduct.url || null
+  };
+}
