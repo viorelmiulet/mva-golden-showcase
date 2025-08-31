@@ -156,102 +156,102 @@ const BusinessCardGenerator = () => {
   };
 
   const generateQRPattern = (qrDataUrl: string) => {
-    // Convertim QR code-ul într-un pattern SVG simplu pentru compatibilitate
+    // QR code pattern scalat pentru rezoluția înaltă (3x mai mare)
     return `
-    <!-- QR Code Pattern -->
+    <!-- QR Code Pattern - High Resolution -->
     <g fill="#000000">
-      <!-- Corner squares -->
-      <rect x="5" y="5" width="12" height="12"/>
-      <rect x="53" y="5" width="12" height="12"/>
-      <rect x="5" y="53" width="12" height="12"/>
-      <!-- Inner corner squares -->
-      <rect x="8" y="8" width="6" height="6" fill="#FFFFFF"/>
-      <rect x="56" y="8" width="6" height="6" fill="#FFFFFF"/>
-      <rect x="8" y="56" width="6" height="6" fill="#FFFFFF"/>
-      <!-- Data pattern -->
-      <rect x="22" y="5" width="2" height="2"/>
-      <rect x="26" y="5" width="2" height="2"/>
-      <rect x="30" y="5" width="2" height="2"/>
-      <rect x="36" y="5" width="2" height="2"/>
-      <rect x="42" y="5" width="2" height="2"/>
-      <rect x="22" y="9" width="2" height="2"/>
-      <rect x="30" y="9" width="2" height="2"/>
-      <rect x="34" y="9" width="2" height="2"/>
-      <rect x="40" y="9" width="2" height="2"/>
-      <rect x="42" y="9" width="2" height="2"/>
-      <rect x="22" y="13" width="2" height="2"/>
-      <rect x="26" y="13" width="2" height="2"/>
-      <rect x="34" y="13" width="2" height="2"/>
-      <rect x="36" y="13" width="2" height="2"/>
-      <rect x="42" y="13" width="2" height="2"/>
-      <rect x="22" y="22" width="2" height="2"/>
-      <rect x="30" y="22" width="2" height="2"/>
-      <rect x="36" y="22" width="2" height="2"/>
-      <rect x="42" y="22" width="2" height="2"/>
-      <rect x="22" y="26" width="2" height="2"/>
-      <rect x="34" y="26" width="2" height="2"/>
-      <rect x="40" y="26" width="2" height="2"/>
-      <rect x="22" y="30" width="2" height="2"/>
-      <rect x="30" y="30" width="2" height="2"/>
-      <rect x="36" y="30" width="2" height="2"/>
-      <rect x="42" y="30" width="2" height="2"/>
-      <rect x="22" y="36" width="2" height="2"/>
-      <rect x="26" y="36" width="2" height="2"/>
-      <rect x="34" y="36" width="2" height="2"/>
-      <rect x="40" y="36" width="2" height="2"/>
-      <rect x="42" y="36" width="2" height="2"/>
-      <rect x="22" y="40" width="2" height="2"/>
-      <rect x="30" y="40" width="2" height="2"/>
-      <rect x="34" y="40" width="2" height="2"/>
-      <rect x="36" y="40" width="2" height="2"/>
-      <rect x="42" y="40" width="2" height="2"/>
-      <rect x="22" y="44" width="2" height="2"/>
-      <rect x="26" y="44" width="2" height="2"/>
-      <rect x="30" y="44" width="2" height="2"/>
-      <rect x="36" y="44" width="2" height="2"/>
-      <rect x="40" y="44" width="2" height="2"/>
-      <rect x="53" y="22" width="2" height="2"/>
-      <rect x="56" y="22" width="2" height="2"/>
-      <rect x="62" y="22" width="2" height="2"/>
-      <rect x="53" y="26" width="2" height="2"/>
-      <rect x="60" y="26" width="2" height="2"/>
-      <rect x="62" y="26" width="2" height="2"/>
-      <rect x="53" y="30" width="2" height="2"/>
-      <rect x="56" y="30" width="2" height="2"/>
-      <rect x="62" y="30" width="2" height="2"/>
-      <rect x="53" y="36" width="2" height="2"/>
-      <rect x="60" y="36" width="2" height="2"/>
-      <rect x="62" y="36" width="2" height="2"/>
-      <rect x="53" y="40" width="2" height="2"/>
-      <rect x="56" y="40" width="2" height="2"/>
-      <rect x="60" y="40" width="2" height="2"/>
-      <rect x="53" y="44" width="2" height="2"/>
-      <rect x="62" y="44" width="2" height="2"/>
-      <rect x="22" y="53" width="2" height="2"/>
-      <rect x="26" y="53" width="2" height="2"/>
-      <rect x="34" y="53" width="2" height="2"/>
-      <rect x="36" y="53" width="2" height="2"/>
-      <rect x="42" y="53" width="2" height="2"/>
-      <rect x="22" y="57" width="2" height="2"/>
-      <rect x="30" y="57" width="2" height="2"/>
-      <rect x="34" y="57" width="2" height="2"/>
-      <rect x="40" y="57" width="2" height="2"/>
-      <rect x="42" y="57" width="2" height="2"/>
-      <rect x="22" y="61" width="2" height="2"/>
-      <rect x="26" y="61" width="2" height="2"/>
-      <rect x="30" y="61" width="2" height="2"/>
-      <rect x="36" y="61" width="2" height="2"/>
-      <rect x="40" y="61" width="2" height="2"/>
-      <rect x="42" y="61" width="2" height="2"/>
-      <rect x="22" y="65" width="2" height="2"/>
-      <rect x="30" y="65" width="2" height="2"/>
-      <rect x="36" y="65" width="2" height="2"/>
-      <rect x="42" y="65" width="2" height="2"/>
+      <!-- Corner squares (3x scaled) -->
+      <rect x="15" y="15" width="36" height="36"/>
+      <rect x="159" y="15" width="36" height="36"/>
+      <rect x="15" y="159" width="36" height="36"/>
+      <!-- Inner corner squares (3x scaled) -->
+      <rect x="24" y="24" width="18" height="18" fill="#FFFFFF"/>
+      <rect x="168" y="24" width="18" height="18" fill="#FFFFFF"/>
+      <rect x="24" y="168" width="18" height="18" fill="#FFFFFF"/>
+      <!-- Data pattern (3x scaled) -->
+      <rect x="66" y="15" width="6" height="6"/>
+      <rect x="78" y="15" width="6" height="6"/>
+      <rect x="90" y="15" width="6" height="6"/>
+      <rect x="108" y="15" width="6" height="6"/>
+      <rect x="126" y="15" width="6" height="6"/>
+      <rect x="66" y="27" width="6" height="6"/>
+      <rect x="90" y="27" width="6" height="6"/>
+      <rect x="102" y="27" width="6" height="6"/>
+      <rect x="120" y="27" width="6" height="6"/>
+      <rect x="126" y="27" width="6" height="6"/>
+      <rect x="66" y="39" width="6" height="6"/>
+      <rect x="78" y="39" width="6" height="6"/>
+      <rect x="102" y="39" width="6" height="6"/>
+      <rect x="108" y="39" width="6" height="6"/>
+      <rect x="126" y="39" width="6" height="6"/>
+      <rect x="66" y="66" width="6" height="6"/>
+      <rect x="90" y="66" width="6" height="6"/>
+      <rect x="108" y="66" width="6" height="6"/>
+      <rect x="126" y="66" width="6" height="6"/>
+      <rect x="66" y="78" width="6" height="6"/>
+      <rect x="102" y="78" width="6" height="6"/>
+      <rect x="120" y="78" width="6" height="6"/>
+      <rect x="66" y="90" width="6" height="6"/>
+      <rect x="90" y="90" width="6" height="6"/>
+      <rect x="108" y="90" width="6" height="6"/>
+      <rect x="126" y="90" width="6" height="6"/>
+      <rect x="66" y="108" width="6" height="6"/>
+      <rect x="78" y="108" width="6" height="6"/>
+      <rect x="102" y="108" width="6" height="6"/>
+      <rect x="120" y="108" width="6" height="6"/>
+      <rect x="126" y="108" width="6" height="6"/>
+      <rect x="66" y="120" width="6" height="6"/>
+      <rect x="90" y="120" width="6" height="6"/>
+      <rect x="102" y="120" width="6" height="6"/>
+      <rect x="108" y="120" width="6" height="6"/>
+      <rect x="126" y="120" width="6" height="6"/>
+      <rect x="66" y="132" width="6" height="6"/>
+      <rect x="78" y="132" width="6" height="6"/>
+      <rect x="90" y="132" width="6" height="6"/>
+      <rect x="108" y="132" width="6" height="6"/>
+      <rect x="120" y="132" width="6" height="6"/>
+      <rect x="159" y="66" width="6" height="6"/>
+      <rect x="168" y="66" width="6" height="6"/>
+      <rect x="186" y="66" width="6" height="6"/>
+      <rect x="159" y="78" width="6" height="6"/>
+      <rect x="180" y="78" width="6" height="6"/>
+      <rect x="186" y="78" width="6" height="6"/>
+      <rect x="159" y="90" width="6" height="6"/>
+      <rect x="168" y="90" width="6" height="6"/>
+      <rect x="186" y="90" width="6" height="6"/>
+      <rect x="159" y="108" width="6" height="6"/>
+      <rect x="180" y="108" width="6" height="6"/>
+      <rect x="186" y="108" width="6" height="6"/>
+      <rect x="159" y="120" width="6" height="6"/>
+      <rect x="168" y="120" width="6" height="6"/>
+      <rect x="180" y="120" width="6" height="6"/>
+      <rect x="159" y="132" width="6" height="6"/>
+      <rect x="186" y="132" width="6" height="6"/>
+      <rect x="66" y="159" width="6" height="6"/>
+      <rect x="78" y="159" width="6" height="6"/>
+      <rect x="102" y="159" width="6" height="6"/>
+      <rect x="108" y="159" width="6" height="6"/>
+      <rect x="126" y="159" width="6" height="6"/>
+      <rect x="66" y="171" width="6" height="6"/>
+      <rect x="90" y="171" width="6" height="6"/>
+      <rect x="102" y="171" width="6" height="6"/>
+      <rect x="120" y="171" width="6" height="6"/>
+      <rect x="126" y="171" width="6" height="6"/>
+      <rect x="66" y="183" width="6" height="6"/>
+      <rect x="78" y="183" width="6" height="6"/>
+      <rect x="90" y="183" width="6" height="6"/>
+      <rect x="108" y="183" width="6" height="6"/>
+      <rect x="120" y="183" width="6" height="6"/>
+      <rect x="126" y="183" width="6" height="6"/>
+      <rect x="66" y="195" width="6" height="6"/>
+      <rect x="90" y="195" width="6" height="6"/>
+      <rect x="108" y="195" width="6" height="6"/>
+      <rect x="126" y="195" width="6" height="6"/>
     </g>`;
   };
 
   const generateFrontSvg = (data: BusinessCardData, qrDataUrl: string) => {
-    return `<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Luxury gradients -->
     <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -277,7 +277,7 @@ const BusinessCardGenerator = () => {
       <stop offset="100%" stop-color="#B8860B" />
     </linearGradient>
     <filter id="cardGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="9" result="coloredBlur"/>
       <feMerge> 
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -286,121 +286,121 @@ const BusinessCardGenerator = () => {
   </defs>
   
   <!-- Card Background -->
-  <rect width="350" height="200" rx="15" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="2" filter="url(#cardGlow)"/>
+  <rect width="1050" height="600" rx="45" fill="url(#cardGradient)" stroke="url(#borderGradient)" stroke-width="6" filter="url(#cardGlow)"/>
   
   <!-- Luxury texture pattern -->
-  <pattern id="texture" patternUnits="userSpaceOnUse" width="4" height="4">
-    <rect width="4" height="4" fill="transparent"/>
-    <circle cx="2" cy="2" r="0.3" fill="#FFD700" opacity="0.1"/>
+  <pattern id="texture" patternUnits="userSpaceOnUse" width="12" height="12">
+    <rect width="12" height="12" fill="transparent"/>
+    <circle cx="6" cy="6" r="0.9" fill="#FFD700" opacity="0.1"/>
   </pattern>
-  <rect width="350" height="200" rx="15" fill="url(#texture)" opacity="0.3"/>
+  <rect width="1050" height="600" rx="45" fill="url(#texture)" opacity="0.3"/>
   
   <!-- Logo Section -->
-  <g transform="translate(20, 20)">
+  <g transform="translate(60, 60)">
     <!-- Logo Symbol -->
     <g>
       <!-- Outer ring -->
       <circle 
-        cx="20" 
-        cy="20" 
-        r="18" 
+        cx="60" 
+        cy="60" 
+        r="54" 
         fill="none"
         stroke="url(#logoGradientCard)"
-        stroke-width="1.2"
+        stroke-width="3.6"
         opacity="0.9"
       />
       
       <!-- Main hexagon -->
       <path 
-        d="M20 4 L33 10 L33 30 L20 36 L7 30 L7 10 Z" 
+        d="M60 12 L99 30 L99 90 L60 108 L21 90 L21 30 Z" 
         fill="url(#logoGradientCard)" 
         opacity="0.95"
       />
       
       <!-- Inner background -->
       <path 
-        d="M20 7 L30 12 L30 28 L20 33 L10 28 L10 12 Z" 
+        d="M60 21 L90 36 L90 84 L60 99 L30 84 L30 36 Z" 
         fill="url(#cardGradient)"
       />
       
       <!-- "M" letter -->
       <path 
-        d="M15 16 L17 16 L20 22 L23 16 L25 22 L25 26 L23 26 L23 19 L21 23 L19 23 L17 19 L17 26 L15 26 Z"
+        d="M45 48 L51 48 L60 66 L69 48 L75 66 L75 78 L69 78 L69 57 L63 69 L57 69 L51 57 L51 78 L45 78 Z"
         fill="url(#logoGradientCard)"
       />
       
       <!-- Accents -->
-      <circle cx="30" cy="10" r="0.8" fill="#FFD700" opacity="0.8" />
-      <circle cx="10" cy="30" r="0.6" fill="#D4AF37" opacity="0.6" />
+      <circle cx="90" cy="30" r="2.4" fill="#FFD700" opacity="0.8" />
+      <circle cx="30" cy="90" r="1.8" fill="#D4AF37" opacity="0.6" />
     </g>
     
     <!-- Company Text -->
-    <text x="50" y="18" font-family="Cinzel, serif" font-size="12" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="1px">MVA</text>
-    <text x="50" y="28" font-family="Playfair Display, serif" font-size="7" font-weight="500" fill="#B8B8B8" letter-spacing="2px">IMOBILIARE</text>
-    <line x1="50" y1="32" x2="120" y2="32" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.6"/>
+    <text x="150" y="54" font-family="Cinzel, serif" font-size="36" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="3px">MVA</text>
+    <text x="150" y="84" font-family="Playfair Display, serif" font-size="21" font-weight="500" fill="#B8B8B8" letter-spacing="6px">IMOBILIARE</text>
+    <line x1="150" y1="96" x2="360" y2="96" stroke="url(#logoGradientCard)" stroke-width="1.5" opacity="0.6"/>
   </g>
   
   <!-- Main Content Area -->
-  <g transform="translate(20, 80)">
+  <g transform="translate(60, 240)">
     <!-- Name and Title -->
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="18" font-weight="bold" fill="#FFFFFF" letter-spacing="0.5px">${data.name}</text>
-    <text x="0" y="18" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="url(#textGradientCard)" letter-spacing="1px">${data.function}</text>
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="54" font-weight="bold" fill="#FFFFFF" letter-spacing="1.5px">${data.name}</text>
+    <text x="0" y="54" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="url(#textGradientCard)" letter-spacing="3px">${data.function}</text>
     
     <!-- Decorative line -->
-    <line x1="0" y1="25" x2="80" y2="25" stroke="url(#logoGradientCard)" stroke-width="1" opacity="0.8"/>
+    <line x1="0" y1="75" x2="240" y2="75" stroke="url(#logoGradientCard)" stroke-width="3" opacity="0.8"/>
   </g>
   
   <!-- Contact Information -->
-  <g transform="translate(20, 125)">
+  <g transform="translate(60, 375)">
     <!-- Phone -->
     <g>
-      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <path d="M2 2 L3 2 L4 3 L4 4 L5 5 L6 5 L6 4 L5 3 L4 2 L3 1 L2 2" fill="url(#logoGradientCard)" transform="scale(0.8)"/>
-      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">${data.phone}</text>
+      <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <path d="M6 6 L9 6 L12 9 L12 12 L15 15 L18 15 L18 12 L15 9 L12 6 L9 3 L6 6" fill="url(#logoGradientCard)" transform="scale(2.4)"/>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.phone}</text>
     </g>
     
     <!-- Email -->
-    <g transform="translate(0, 20)">
-      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <rect x="1.5" y="2.5" width="5" height="3" rx="0.5" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.5"/>
-      <path d="M2 3 L4 4.5 L6 3" fill="none" stroke="url(#logoGradientCard)" stroke-width="0.4"/>
-      <text x="15" y="7" font-family="Inter, sans-serif" font-size="10" fill="#E0E0E0">${data.email}</text>
+    <g transform="translate(0, 60)">
+      <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <rect x="4.5" y="7.5" width="15" height="9" rx="1.5" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <path d="M6 9 L12 13.5 L18 9" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.2"/>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.email}</text>
     </g>
     
     <!-- Address -->
-    <g transform="translate(0, 40)">
-      <circle cx="4" cy="4" r="3" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <path d="M4 1 C5.5 1 6.5 2 6.5 3.5 C6.5 5.5 4 8 4 8 S1.5 5.5 1.5 3.5 C1.5 2 2.5 1 4 1 Z M4 2.5 C3.2 2.5 2.5 3.2 2.5 4 S3.2 5.5 4 5.5 S5.5 4.8 5.5 4 S4.8 2.5 4 2.5 Z" fill="url(#logoGradientCard)" transform="scale(0.7)"/>
-      <text x="15" y="4" font-family="Inter, sans-serif" font-size="9" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
-      <text x="15" y="15" font-family="Inter, sans-serif" font-size="9" fill="#E0E0E0">bl. 2 parter ap 24</text>
+    <g transform="translate(0, 120)">
+      <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <path d="M12 3 C16.5 3 19.5 6 19.5 10.5 C19.5 16.5 12 24 12 24 S4.5 16.5 4.5 10.5 C4.5 6 7.5 3 12 3 Z M12 7.5 C9.6 7.5 7.5 9.6 7.5 12 S9.6 16.5 12 16.5 S16.5 14.4 16.5 12 S14.4 7.5 12 7.5 Z" fill="url(#logoGradientCard)" transform="scale(2.1)"/>
+      <text x="45" y="12" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
+      <text x="45" y="45" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">bl. 2 parter ap 24</text>
     </g>
   </g>
   
   <!-- Right Side - Details -->
-  <g transform="translate(200, 25)">
+  <g transform="translate(600, 75)">
     <!-- Services -->
-    <text x="0" y="20" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
-    <text x="0" y="32" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
+    <text x="0" y="60" font-family="Inter, sans-serif" font-size="27" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
+    <text x="0" y="96" font-family="Inter, sans-serif" font-size="27" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
     
     <!-- WhatsApp QR Code -->
-    <g transform="translate(30, 55)">
-      <rect x="0" y="0" width="70" height="70" rx="5" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+    <g transform="translate(90, 165)">
+      <rect x="0" y="0" width="210" height="210" rx="15" fill="#FFFFFF" stroke="url(#logoGradientCard)" stroke-width="4.5"/>
       ${generateQRPattern(qrDataUrl)}
     </g>
   </g>
   
   <!-- Decorative Elements -->
-  <circle cx="320" cy="40" r="2" fill="url(#logoGradientCard)" opacity="0.3"/>
-  <circle cx="310" cy="170" r="1.5" fill="url(#logoGradientCard)" opacity="0.2"/>
-  <circle cx="330" cy="160" r="1" fill="#D4AF37" opacity="0.4"/>
+  <circle cx="960" cy="120" r="6" fill="url(#logoGradientCard)" opacity="0.3"/>
+  <circle cx="930" cy="510" r="4.5" fill="url(#logoGradientCard)" opacity="0.2"/>
+  <circle cx="990" cy="480" r="3" fill="#D4AF37" opacity="0.4"/>
   
   <!-- Bottom decorative line -->
-  <line x1="20" y1="185" x2="330" y2="185" stroke="url(#logoGradientCard)" stroke-width="0.5" opacity="0.3"/>
+  <line x1="60" y1="555" x2="990" y2="555" stroke="url(#logoGradientCard)" stroke-width="1.5" opacity="0.3"/>
 </svg>`;
   };
 
   const generateBackSvg = () => {
-    return `<svg width="350" height="200" viewBox="0 0 350 200" xmlns="http://www.w3.org/2000/svg">
+    return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Luxury gradients -->
     <linearGradient id="cardGradientVerso" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -426,7 +426,7 @@ const BusinessCardGenerator = () => {
       <stop offset="100%" stop-color="#B8860B" />
     </linearGradient>
     <filter id="cardGlowVerso" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feGaussianBlur stdDeviation="9" result="coloredBlur"/>
       <feMerge> 
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -435,77 +435,77 @@ const BusinessCardGenerator = () => {
   </defs>
   
   <!-- Card Background -->
-  <rect width="350" height="200" rx="15" fill="url(#cardGradientVerso)" stroke="url(#borderGradientVerso)" stroke-width="2" filter="url(#cardGlowVerso)"/>
+  <rect width="1050" height="600" rx="45" fill="url(#cardGradientVerso)" stroke="url(#borderGradientVerso)" stroke-width="6" filter="url(#cardGlowVerso)"/>
   
   <!-- Luxury texture pattern -->
-  <pattern id="textureVerso" patternUnits="userSpaceOnUse" width="6" height="6">
-    <rect width="6" height="6" fill="transparent"/>
-    <circle cx="3" cy="3" r="0.4" fill="#FFD700" opacity="0.08"/>
+  <pattern id="textureVerso" patternUnits="userSpaceOnUse" width="18" height="18">
+    <rect width="18" height="18" fill="transparent"/>
+    <circle cx="9" cy="9" r="1.2" fill="#FFD700" opacity="0.08"/>
   </pattern>
-  <rect width="350" height="200" rx="15" fill="url(#textureVerso)" opacity="0.4"/>
+  <rect width="1050" height="600" rx="45" fill="url(#textureVerso)" opacity="0.4"/>
   
-  <!-- Central Logo - Smaller -->
-  <g transform="translate(175, 100)">
+  <!-- Central Logo - Scaled up -->
+  <g transform="translate(525, 300)">
     <!-- Outer ring -->
     <circle 
       cx="0" 
       cy="0" 
-      r="25" 
+      r="75" 
       fill="none"
       stroke="url(#logoGradientVerso)"
-      stroke-width="1.2"
+      stroke-width="3.6"
       opacity="0.8"
     />
     
     <!-- Main hexagon -->
     <path 
-      d="M0 -20 L17 -10 L17 10 L0 20 L-17 10 L-17 -10 Z" 
+      d="M0 -60 L51 -30 L51 30 L0 60 L-51 30 L-51 -30 Z" 
       fill="url(#logoGradientVerso)" 
       opacity="0.9"
     />
     
     <!-- Inner background -->
     <path 
-      d="M0 -16 L14 -8 L14 8 L0 16 L-14 8 L-14 -8 Z" 
+      d="M0 -48 L42 -24 L42 24 L0 48 L-42 24 L-42 -24 Z" 
       fill="url(#cardGradientVerso)"
     />
     
-    <!-- Premium "M" letterform - smaller and lower -->
+    <!-- Premium "M" letterform - scaled up -->
     <path 
-      d="M-7 -2 L-4 -2 L0 4 L4 -2 L7 -2 L7 9 L4 9 L4 1 L1 5 L-1 5 L-4 1 L-4 9 L-7 9 Z"
+      d="M-21 -6 L-12 -6 L0 12 L12 -6 L21 -6 L21 27 L12 27 L12 3 L3 15 L-3 15 L-12 3 L-12 27 L-21 27 Z"
       fill="url(#logoGradientVerso)"
     />
     
     <!-- Luxury accents -->
-    <circle cx="16" cy="-12" r="1" fill="#FFD700" opacity="0.8" />
-    <circle cx="-16" cy="12" r="0.8" fill="#D4AF37" opacity="0.6" />
-    <polygon points="17,11 19,9 19,13" fill="#B8860B" opacity="0.4" />
+    <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
+    <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
+    <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />
   </g>
   
   <!-- Company Name - Above Logo -->
-  <g transform="translate(175, 55)">
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="20" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
-    <text x="0" y="14" font-family="Playfair Display, serif" font-size="10" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">IMOBILIARE</text>
+  <g transform="translate(525, 165)">
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="60" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="6px">MVA</text>
+    <text x="0" y="42" font-family="Playfair Display, serif" font-size="30" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="9px">IMOBILIARE</text>
   </g>
   
   <!-- Tagline - Below Logo -->
-  <g transform="translate(175, 155)">
-    <text x="0" y="0" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="1px">Excelență în imobiliare</text>
+  <g transform="translate(525, 465)">
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">Excelență în imobiliare</text>
   </g>
   
   <!-- Decorative Elements -->
   <g opacity="0.3">
     <!-- Corner decorations -->
-    <circle cx="30" cy="30" r="3" fill="url(#logoGradientVerso)" opacity="0.4"/>
-    <circle cx="320" cy="30" r="2.5" fill="url(#logoGradientVerso)" opacity="0.3"/>
-    <circle cx="30" cy="170" r="2" fill="url(#logoGradientVerso)" opacity="0.2"/>
-    <circle cx="320" cy="170" r="3.5" fill="url(#logoGradientVerso)" opacity="0.4"/>
+    <circle cx="90" cy="90" r="9" fill="url(#logoGradientVerso)" opacity="0.4"/>
+    <circle cx="960" cy="90" r="7.5" fill="url(#logoGradientVerso)" opacity="0.3"/>
+    <circle cx="90" cy="510" r="6" fill="url(#logoGradientVerso)" opacity="0.2"/>
+    <circle cx="960" cy="510" r="10.5" fill="url(#logoGradientVerso)" opacity="0.4"/>
     
     <!-- Elegant corner lines -->
-    <path d="M20 20 L40 20 L40 40" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
-    <path d="M330 20 L310 20 L310 40" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
-    <path d="M20 180 L40 180 L40 160" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
-    <path d="M330 180 L310 180 L310 160" stroke="url(#logoGradientVerso)" stroke-width="1" fill="none" opacity="0.3"/>
+    <path d="M60 60 L120 60 L120 120" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
+    <path d="M990 60 L930 60 L930 120" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
+    <path d="M60 540 L120 540 L120 480" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
+    <path d="M990 540 L930 540 L930 480" stroke="url(#logoGradientVerso)" stroke-width="3" fill="none" opacity="0.3"/>
   </g>
 </svg>`;
   };
