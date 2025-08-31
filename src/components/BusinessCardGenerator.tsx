@@ -757,19 +757,19 @@ const BusinessCardGenerator = () => {
               <CardContent className="space-y-4">
                 <div className="bg-muted rounded-lg p-4 flex justify-center">
                   <img 
-                    src={watermarkLogo} 
+                    src="/mva-watermark-exact.svg" 
                     alt="MVA Watermark" 
                     className="max-w-full h-48 object-contain rounded-lg shadow-md"
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Logo semi-transparent (512x512px) perfect pentru watermark pe fotografii fără a fi intruziv.
+                  Logo semi-transparent (512x512px) cu exact același design de pe site, perfect pentru watermark pe fotografii.
                 </p>
                 <Button 
                   onClick={() => {
                     const link = document.createElement('a');
-                    link.href = watermarkLogo;
-                    link.download = 'mva-watermark.png';
+                    link.href = '/mva-watermark-exact.svg';
+                    link.download = 'mva-watermark.svg';
                     link.click();
                   }}
                   className="w-full"
