@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
+import { Menu, MessageCircle } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import mvaLogo from "@/assets/mva-logo.png"
 
@@ -106,6 +106,7 @@ const Header = () => {
           <div className="hidden md:block">
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" className="shadow-lg shadow-gold/20">
+                <MessageCircle className="w-4 h-4 mr-2" />
                 Contactează-ne pe WhatsApp
               </Button>
             </a>
@@ -145,6 +146,7 @@ const Header = () => {
                 ))}
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="mt-4">
                   <Button variant="luxury" className="w-full">
+                    <MessageCircle className="w-4 h-4 mr-2" />
                     Contactează-ne pe WhatsApp
                   </Button>
                 </a>

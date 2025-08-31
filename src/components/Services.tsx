@@ -7,7 +7,8 @@ import {
   Key, 
   Scale, 
   Camera,
-  ArrowRight 
+  ArrowRight,
+  MessageCircle 
 } from "lucide-react"
 
 const Services = () => {
@@ -140,6 +141,7 @@ const Services = () => {
               </p>
               <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                 <button className="inline-flex items-center px-6 py-3 bg-gold text-primary-foreground rounded-lg font-medium hover:bg-gold-dark transition-colors">
+                  <MessageCircle className="mr-2 w-4 h-4" />
                   Contactează-ne pe WhatsApp
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </button>

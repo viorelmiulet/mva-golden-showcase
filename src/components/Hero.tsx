@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, Sparkles, MapPin, Phone } from "lucide-react"
+import { ArrowDown, Sparkles, MapPin, Phone, MessageCircle } from "lucide-react"
 import heroProperty from "@/assets/hero-property.jpg"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 
@@ -75,7 +75,7 @@ const Hero = () => {
                   size="lg"
                   className="w-full sm:w-auto px-8"
                 >
-                  <Phone className="mr-2 h-4 w-4" />
+                  <MessageCircle className="mr-2 h-4 w-4" />
                   Contactează-ne pe WhatsApp
                 </Button>
               </a>
