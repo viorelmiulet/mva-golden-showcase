@@ -40,7 +40,7 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 const Admin = () => {
-  const [urls, setUrls] = useState(Array(5).fill(""))
+  const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStates, setLoadingStates] = useState(Array(5).fill(false))
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -87,17 +87,20 @@ const Admin = () => {
     })
   }
 
-  const scrapeProperty = async (url: string, index: number) => {
-    if (!url) {
+  const scrapeProperty = async (propertyId: string, index: number) => {
+    if (!propertyId.trim()) {
       toast({
         title: "Eroare",
-        description: "Te rog să introduci un link valid",
+        description: "Te rog să introduci un ID valid",
         variant: "destructive"
       })
       return
     }
 
-    // Update loading state for this specific URL
+    // Construct the full URL
+    const url = `https://web.immoflux.ro/publicproperty/${propertyId.trim()}`
+
+    // Update loading state for this specific property ID
     setLoadingStates(prev => prev.map((state, i) => i === index ? true : state))
     
     try {
@@ -131,18 +134,18 @@ const Admin = () => {
 
         toast({
           title: "Succes!",
-          description: `Proprietatea ${index + 1} a fost adăugată cu succes`
+          description: `Proprietatea ${index + 1} (ID: ${propertyId}) a fost adăugată cu succes`
         })
 
-        // Clear this URL
-        setUrls(prev => prev.map((u, i) => i === index ? "" : u))
+        // Clear this property ID
+        setPropertyIds(prev => prev.map((id, i) => i === index ? "" : id))
       } else {
         throw new Error(data.error || "Eroare la preluarea datelor")
       }
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: `URL ${index + 1}: ${error.message || "Nu am putut prelua datele din link"}`,
+        description: `ID ${propertyId}: ${error.message || "Nu am putut prelua datele"}`,
         variant: "destructive"
       })
     } finally {
@@ -151,12 +154,12 @@ const Admin = () => {
   }
 
   const scrapeAllProperties = async () => {
-    const validUrls = urls.filter(url => url.trim() !== "")
+    const validIds = propertyIds.filter(id => id.trim() !== "")
     
-    if (validUrls.length === 0) {
+    if (validIds.length === 0) {
       toast({
         title: "Eroare",
-        description: "Te rog să introduci cel puțin un link valid",
+        description: "Te rog să introduci cel puțin un ID valid",
         variant: "destructive"
       })
       return
@@ -165,10 +168,10 @@ const Admin = () => {
     setIsLoading(true)
     
     try {
-      // Process all URLs in parallel
-      const promises = urls.map((url, index) => {
-        if (url.trim() !== "") {
-          return scrapeProperty(url, index)
+      // Process all property IDs in parallel
+      const promises = propertyIds.map((propertyId, index) => {
+        if (propertyId.trim() !== "") {
+          return scrapeProperty(propertyId, index)
         }
         return Promise.resolve()
       })
@@ -180,12 +183,12 @@ const Admin = () => {
       
       toast({
         title: "Procesare completă!",
-        description: `Am procesat ${validUrls.length} link-uri`
+        description: `Am procesat ${validIds.length} proprietăți`
       })
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: "Eroare la procesarea link-urilor",
+        description: "Eroare la procesarea proprietăților",
         variant: "destructive"
       })
     } finally {
@@ -193,8 +196,8 @@ const Admin = () => {
     }
   }
 
-  const updateUrl = (index: number, value: string) => {
-    setUrls(prev => prev.map((url, i) => i === index ? value : url))
+  const updatePropertyId = (index: number, value: string) => {
+    setPropertyIds(prev => prev.map((id, i) => i === index ? value : id))
   }
 
   // Fetch properties
@@ -416,23 +419,39 @@ const Admin = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="w-5 h-5 text-gold" />
-                    Adaugă Proprietate prin URL
+                    Adaugă Proprietate prin ID
                   </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Introdu doar ID-ul proprietății din Immoflux
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  <div className="bg-muted/50 p-3 rounded-lg mb-4">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Search className="w-4 h-4" />
+                      <span className="font-medium">Link de bază:</span> 
+                      <code className="bg-background px-2 py-1 rounded text-xs">https://web.immoflux.ro/publicproperty/</code>
+                    </p>
+                  </div>
+                  
                   <div className="space-y-4">
-                    <label className="text-sm font-medium">Link-uri către proprietăți (max 5)</label>
+                    <label className="text-sm font-medium">ID-uri proprietăți (max 5)</label>
                     
-                    {urls.map((url, index) => (
+                    {propertyIds.map((propertyId, index) => (
                       <div key={index} className="space-y-2">
                         <div className="flex gap-2 items-center">
                           <span className="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
-                          <Input
-                            placeholder={`https://web.immoflux.ro/publicproperty/... ${index === 0 ? '(obligatoriu)' : '(opțional)'}`}
-                            value={url}
-                            onChange={(e) => updateUrl(index, e.target.value)}
-                            className="flex-1"
-                          />
+                          <div className="flex-1 flex items-center">
+                            <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l border border-r-0">
+                              https://web.immoflux.ro/publicproperty/
+                            </span>
+                            <Input
+                              placeholder={`${index === 0 ? 'P190741 (obligatoriu)' : 'P190741 (opțional)'}`}
+                              value={propertyId}
+                              onChange={(e) => updatePropertyId(index, e.target.value)}
+                              className="rounded-l-none border-l-0 font-mono"
+                            />
+                          </div>
                           {loadingStates[index] && (
                             <Loader2 className="w-4 h-4 animate-spin text-gold" />
                           )}
@@ -442,7 +461,7 @@ const Admin = () => {
                     
                     <Button 
                       onClick={scrapeAllProperties}
-                      disabled={isLoading || urls.every(url => !url.trim())}
+                      disabled={isLoading || propertyIds.every(id => !id.trim())}
                       className="w-full"
                     >
                       {isLoading ? (
@@ -453,26 +472,28 @@ const Admin = () => {
                       ) : (
                         <>
                           <Search className="w-4 h-4 mr-2" />
-                          Preia Date din Toate Link-urile
+                          Preia Proprietățile
                         </>
                       )}
                     </Button>
                     
                     <p className="text-xs text-muted-foreground">
-                      Introdu link-urile către proprietăți pentru a prelua automat imaginile, descrierea și detaliile. 
-                      Primul link este obligatoriu, restul sunt opționale.
+                      Introdu ID-urile proprietăților pentru a prelua automat imaginile, descrierea și detaliile. 
+                      Prima proprietate este obligatorie, restul sunt opționale.
                     </p>
                   </div>
 
                   {/* Tips Section */}
                   <div className="bg-muted/50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">💡 Site-uri compatibile:</h4>
+                    <h4 className="font-medium mb-2">💡 Exemple de ID-uri valide:</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• imobiliare.ro - Anunțuri de apartamente și case</li>
-                      <li>• olx.ro - Proprietăți rezidențiale</li>
-                      <li>• storia.ro - Oferte imobiliare</li>
-                      <li>• immoflux.ro - Proprietăți noi</li>
+                      <li>• <code className="bg-background px-1 rounded">P190741</code> - Apartament 2 camere</li>
+                      <li>• <code className="bg-background px-1 rounded">P189985</code> - Apartament zona Militari</li>
+                      <li>• <code className="bg-background px-1 rounded">P196022</code> - Garsonieră</li>
                     </ul>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ID-ul se găsește în URL-ul proprietății sau în codul de referință
+                    </p>
                   </div>
                 </CardContent>
               </Card>
