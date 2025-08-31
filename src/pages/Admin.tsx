@@ -29,9 +29,10 @@ import {
   EyeOff,
   RefreshCw,
   Database,
-  Wifi,
-  WifiOff,
-  CheckCircle
+  CheckCircle,
+  Upload,
+  FileText,
+  Download
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -48,9 +49,11 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [isImmofluxSyncing, setIsImmofluxSyncing] = useState(false)
-  const [isImmofluxTesting, setIsImmofluxTesting] = useState(false)
-  const [immofluxStatus, setImmofluxStatus] = useState<'idle' | 'connected' | 'error'>('idle')
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+  const [csvData, setCsvData] = useState<string>('')
+  const [isProcessingCsv, setIsProcessingCsv] = useState(false)
+  const [csvStatus, setCsvStatus] = useState<'idle' | 'validated' | 'error'>('idle')
+  const [csvValidation, setCsvValidation] = useState<any>(null)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -88,75 +91,105 @@ const Admin = () => {
     })
   }
 
-  // Immoflux Integration Functions
-  const testImmofluxConnection = async () => {
-    setIsImmofluxTesting(true)
-    try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
-        body: { action: 'test_connection' }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        setImmofluxStatus('connected')
-        toast({
-          title: "Conexiune reușită!",
-          description: data.message,
-        })
-      } else {
-        setImmofluxStatus('error')
-        toast({
-          title: "Eroare conexiune",
-          description: data.error || "Nu am putut conecta la Immoflux API",
-          variant: "destructive"
-        })
+  // Facebook Catalog CSV Import Functions
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && file.type === 'text/csv') {
+      setCsvFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const content = e.target?.result as string
+        setCsvData(content)
+        setCsvStatus('idle')
+        setCsvValidation(null)
       }
-    } catch (error: any) {
-      setImmofluxStatus('error')
+      reader.readAsText(file)
+    } else {
       toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut testa conexiunea",
+        title: "Fișier invalid",
+        description: "Te rog să selectezi un fișier CSV",
         variant: "destructive"
       })
-    } finally {
-      setIsImmofluxTesting(false)
     }
   }
 
-  const syncImmofluxProperties = async () => {
-    setIsImmofluxSyncing(true)
+  const validateCsv = async () => {
+    if (!csvData) return
+    
+    setIsProcessingCsv(true)
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
-        body: { action: 'sync_properties' }
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'validate_csv', csvData }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        setCsvStatus('validated')
+        setCsvValidation(data)
+        toast({
+          title: "CSV valid!",
+          description: data.message,
+        })
+      } else {
+        setCsvStatus('error')
+        toast({
+          title: "Eroare validare",
+          description: data.error || "CSV-ul nu este valid",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setCsvStatus('error')
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut valida CSV-ul",
+        variant: "destructive"
+      })
+    } finally {
+      setIsProcessingCsv(false)
+    }
+  }
+
+  const importCsv = async () => {
+    if (!csvData || csvStatus !== 'validated') return
+    
+    setIsProcessingCsv(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'import_csv', csvData }
       })
 
       if (error) throw error
 
       if (data.success) {
         toast({
-          title: "Sincronizare reușită!",
+          title: "Import reușit!",
           description: data.message,
         })
         queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-        setImmofluxStatus('connected')
+        setCsvFile(null)
+        setCsvData('')
+        setCsvStatus('idle')
+        setCsvValidation(null)
+        // Reset file input
+        const fileInput = document.getElementById('csv-file-input') as HTMLInputElement
+        if (fileInput) fileInput.value = ''
       } else {
         toast({
-          title: "Eroare sincronizare",
-          description: data.error || "Nu am putut sincroniza proprietățile",
+          title: "Eroare import",
+          description: data.error || "Nu am putut importa proprietățile",
           variant: "destructive"
         })
-        setImmofluxStatus('error')
       }
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: error.message || "Nu am putut sincroniza proprietățile",
+        description: error.message || "Nu am putut importa proprietățile",
         variant: "destructive"
       })
-      setImmofluxStatus('error')
     } finally {
-      setIsImmofluxSyncing(false)
+      setIsProcessingCsv(false)
     }
   }
 
@@ -577,100 +610,162 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Immoflux Integration Section */}
+            {/* Facebook Catalog CSV Import Section */}
             <div className="mt-8">
               <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${
-                      immofluxStatus === 'connected' ? 'bg-green-500' : 
-                      immofluxStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                      csvStatus === 'validated' ? 'bg-green-500' : 
+                      csvStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
                     }`} />
                     <Database className="w-5 h-5 text-blue-600" />
-                    Integrare Immoflux CRM
-                    {immofluxStatus === 'connected' && <CheckCircle className="w-5 h-5 text-green-600" />}
-                    {immofluxStatus === 'error' && <WifiOff className="w-5 h-5 text-red-600" />}
+                    Import CSV Facebook Catalog
+                    {csvStatus === 'validated' && <CheckCircle className="w-5 h-5 text-green-600" />}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Sincronizează proprietățile din platforma Immoflux direct în catalogul tău
+                    Importă proprietățile din fișier CSV folosind structura Facebook Catalog
                   </p>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     
-                    {/* Connection Status */}
+                    {/* File Upload Section */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <h4 className="font-medium">Status Conexiune</h4>
+                        <h4 className="font-medium">Selectează Fișier CSV</h4>
                         <Badge variant={
-                          immofluxStatus === 'connected' ? 'default' :
-                          immofluxStatus === 'error' ? 'destructive' : 'secondary'
+                          csvStatus === 'validated' ? 'default' :
+                          csvStatus === 'error' ? 'destructive' : 'secondary'
                         }>
-                          {immofluxStatus === 'connected' ? '✓ Conectat' :
-                           immofluxStatus === 'error' ? '✗ Eroare' : '○ Nedeformat'}
+                          {csvStatus === 'validated' ? '✓ Valid' :
+                           csvStatus === 'error' ? '✗ Eroare' : '○ Neselectat'}
                         </Badge>
                       </div>
                       
+                      <div className="space-y-2">
+                        <Input
+                          id="csv-file-input"
+                          type="file"
+                          accept=".csv"
+                          onChange={handleFileUpload}
+                          className="cursor-pointer"
+                        />
+                        {csvFile && (
+                          <p className="text-sm text-muted-foreground">
+                            Fișier selectat: {csvFile.name}
+                          </p>
+                        )}
+                      </div>
+                      
                       <Button 
-                        onClick={testImmofluxConnection}
-                        disabled={isImmofluxTesting}
+                        onClick={validateCsv}
+                        disabled={!csvData || isProcessingCsv}
                         variant="outline"
                         className="w-full"
                       >
-                        {isImmofluxTesting ? (
+                        {isProcessingCsv ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Testez conexiunea...
+                            Validez CSV...
                           </>
                         ) : (
                           <>
-                            <Wifi className="w-4 h-4 mr-2" />
-                            Testează Conexiunea
+                            <FileText className="w-4 h-4 mr-2" />
+                            Validează CSV
                           </>
                         )}
                       </Button>
                       
                       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">ℹ️ Info API:</div>
-                        <div>• API User și API Key configurate în secrets</div>
-                        <div>• Conexiune automată la Immoflux CRM</div>
-                        <div>• Date transformate automat pentru catalog</div>
+                        <div className="font-medium mb-1">📋 Câmpuri obligatorii:</div>
+                        <div>• title - titlul proprietății</div>
+                        <div>• description - descrierea</div>
+                        <div>• price - prețul</div>
+                        <div>• availability - disponibilitate</div>
+                        <div>• image_link - link imagine principală</div>
                       </div>
                     </div>
 
-                    {/* Sync Actions */}
+                    {/* Import Actions */}
                     <div className="space-y-4">
-                      <h4 className="font-medium">Acțiuni Sincronizare</h4>
+                      <h4 className="font-medium">Acțiuni Import</h4>
                       
                       <Button 
-                        onClick={syncImmofluxProperties}
-                        disabled={isImmofluxSyncing || immofluxStatus === 'error'}
+                        onClick={importCsv}
+                        disabled={csvStatus !== 'validated' || isProcessingCsv}
                         className="w-full"
-                        variant={immofluxStatus === 'connected' ? 'default' : 'secondary'}
                       >
-                        {isImmofluxSyncing ? (
+                        {isProcessingCsv ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Sincronizez proprietăți...
+                            Importez proprietăți...
                           </>
                         ) : (
                           <>
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            Sincronizează Proprietăți
+                            <Upload className="w-4 h-4 mr-2" />
+                            Importă Proprietăți
                           </>
                         )}
                       </Button>
                       
+                      <Button 
+                        variant="outline"
+                        className="w-full"
+                        asChild
+                      >
+                        <a 
+                          href="data:text/csv;charset=utf-8,id,title,description,availability,condition,price,link,image_link,brand,location,rooms,surface,features%0A1,%22Apartament 2 camere Militari%22,%22Apartament modern cu 2 camere in Militari Residence%22,available,new,75000,https://example.com,https://example.com/image.jpg,%22MVA Imobiliare%22,Bucuresti,2,60,%22Balcon,Centrala,Parcare%22"
+                          download="template_facebook_catalog.csv"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Template CSV
+                        </a>
+                      </Button>
+                      
                       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">⚡ Sincronizare automată:</div>
-                        <div>• Șterge proprietățile existente Immoflux</div>
-                        <div>• Importă cele mai noi proprietăți</div>
-                        <div>• Transformă datele pentru afișare</div>
-                        <div className="text-orange-600 mt-1">• Testează conexiunea mai întâi!</div>
+                        <div className="font-medium mb-1">⚡ Cum funcționează:</div>
+                        <div>• Descarcă template-ul CSV</div>
+                        <div>• Completează cu proprietățile tale</div>
+                        <div>• Încarcă și validează fișierul</div>
+                        <div>• Importă în catalogul tău</div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Validation Results */}
+                  {csvValidation && (
+                    <div className="border-t pt-4">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h5 className="font-medium text-green-800 mb-2">✅ Rezultate Validare</h5>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <div className="font-medium text-green-700">
+                              {csvValidation.total_rows}
+                            </div>
+                            <div className="text-green-600">Proprietăți găsite</div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-green-700">
+                              {Object.keys(csvValidation.mapped_fields || {}).length}
+                            </div>
+                            <div className="text-green-600">Câmpuri mapate</div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-green-700">
+                              {csvValidation.sample_rows?.length || 0}
+                            </div>
+                            <div className="text-green-600">Probe verificate</div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-green-700">✓</div>
+                            <div className="text-green-600">Gata de import</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Stats Bar */}
                   {properties && (
@@ -678,27 +773,27 @@ const Admin = () => {
                       <div className="grid grid-cols-4 gap-4 text-center">
                         <div>
                           <div className="text-lg font-bold text-blue-600">
-                            {properties.filter(p => p.project_name === 'IMMOFLUX_SYNC').length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Din Immoflux</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-green-600">
-                            {properties.filter(p => p.project_name !== 'IMMOFLUX_SYNC').length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Alte surse</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-gold">
                             {properties.length}
                           </div>
                           <div className="text-xs text-muted-foreground">Total proprietăți</div>
                         </div>
                         <div>
-                          <div className="text-lg font-bold text-purple-600">
-                            {immofluxStatus === 'connected' ? '🟢' : immofluxStatus === 'error' ? '🔴' : '🟡'}
+                          <div className="text-lg font-bold text-green-600">
+                            {properties.filter(p => p.availability_status === 'available').length}
                           </div>
-                          <div className="text-xs text-muted-foreground">Status API</div>
+                          <div className="text-xs text-muted-foreground">Disponibile</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-gold">
+                            {csvFile ? '📁' : '📄'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Fișier CSV</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-purple-600">
+                            {csvStatus === 'validated' ? '🟢' : csvStatus === 'error' ? '🔴' : '🟡'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Status validare</div>
                         </div>
                       </div>
                     </div>

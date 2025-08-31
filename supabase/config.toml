@@ -9,5 +9,5 @@ verify_jwt = false
 [functions.update-storia-offers]
 verify_jwt = false
 
-[functions.immoflux-integration]
+[functions.facebook-catalog-import]
 verify_jwt = false
