@@ -311,9 +311,9 @@ const Properties = () => {
                 Explorează catalogul nostru complet pentru a vedea toate opțiunile 
                 disponibile, planuri detaliate și programarea vizitelor.
               </p>
-              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+              <a href="https://mvaimobiliare.ro/proprietati" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
-                  Vezi toate ofertele
+                  Vezi toate proprietățile
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </a>
