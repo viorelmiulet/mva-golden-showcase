@@ -49,11 +49,6 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [csvFile, setCsvFile] = useState<File | null>(null)
-  const [csvData, setCsvData] = useState<string>('')
-  const [isProcessingCsv, setIsProcessingCsv] = useState(false)
-  const [csvStatus, setCsvStatus] = useState<'idle' | 'validated' | 'error'>('idle')
-  const [csvValidation, setCsvValidation] = useState<any>(null)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -91,282 +86,6 @@ const Admin = () => {
     })
   }
 
-  // Facebook Catalog CSV Import Functions
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file && file.type === 'text/csv') {
-      setCsvFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const content = e.target?.result as string
-        setCsvData(content)
-        setCsvStatus('idle')
-        setCsvValidation(null)
-      }
-      reader.readAsText(file)
-    } else {
-      toast({
-        title: "Fișier invalid",
-        description: "Te rog să selectezi un fișier CSV",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const validateCsv = async () => {
-    if (!csvData) return
-    
-    setIsProcessingCsv(true)
-    try {
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'validate_csv', csvData }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        setCsvStatus('validated')
-        setCsvValidation(data)
-        toast({
-          title: "CSV valid!",
-          description: data.message,
-        })
-      } else {
-        setCsvStatus('error')
-        toast({
-          title: "Eroare validare",
-          description: data.error || "CSV-ul nu este valid",
-          variant: "destructive"
-        })
-      }
-    } catch (error: any) {
-      setCsvStatus('error')
-      toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut valida CSV-ul",
-        variant: "destructive"
-      })
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  }
-
-  const testSimpleFunction = async () => {
-    setIsProcessingCsv(true)
-    try {
-      console.log('Calling simple test function...')
-      const { data, error } = await supabase.functions.invoke('test-simple', {
-        body: { test: 'hello world', timestamp: new Date().toISOString() }
-      })
-
-      console.log('Simple function response data:', data)
-      console.log('Simple function response error:', error)
-
-      if (error) {
-        console.error('Supabase function error:', error)
-        throw error
-      }
-
-      if (data && data.success) {
-        toast({
-          title: "Funcția simplă merge!",
-          description: data.message,
-        })
-        console.log('SUCCESS: Simple function works:', data)
-      } else {
-        toast({
-          title: "Funcția simplă nu merge",
-          description: data?.error || "Eroare necunoscută",
-          variant: "destructive"
-        })
-        console.log('FAILED: Simple function failed:', data)
-      }
-    } catch (error: any) {
-      console.error('Catch block error:', error)
-      toast({
-        title: "Eroare completă",
-        description: error.message || "Eroare totală",
-        variant: "destructive"
-      })
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  }
-
-  const testBasicFetch = async () => {
-    setIsProcessingCsv(true)
-    try {
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'test_basic_fetch' }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        toast({
-          title: "Fetch Test Reușit!",
-          description: data.message,
-        })
-        console.log('Fetch test rezultate:', data)
-      } else {
-        toast({
-          title: "Fetch Test Eșuat",
-          description: data.message || "Problemă cu fetch",
-          variant: "destructive"
-        })
-        console.log('Fetch test eroare:', data)
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare Test",
-        description: error.message || "Nu am putut testa fetch",
-        variant: "destructive"
-      })
-      console.error('Fetch test error:', error)
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  }
-
-  const testSupabaseConnection = async () => {
-    setIsProcessingCsv(true)
-    try {
-      console.log('Testing direct Supabase database connection...');
-      
-      // Test basic database read
-      const { data, error, count } = await supabase
-        .from('catalog_offers')
-        .select('*', { count: 'exact', head: true });
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Supabase DB Funcționează! ✅",
-        description: `Găsite ${count} proprietăți în baza de date`,
-      });
-    } catch (error: any) {
-      console.error('Supabase connection test error:', error);
-      toast({
-        title: "Supabase DB Nu Funcționează ❌", 
-        description: `Eroare: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  };
-
-  const importFromFacebookCatalog = async () => {
-    setIsProcessingCsv(true)
-    try {
-      console.log('Importing from Facebook Catalog ID: 692780016592905...');
-      
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { 
-          action: 'import_by_catalog_id',
-          catalog_id: '692780016592905'
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.success) {
-        toast({
-          title: "Import Facebook Reușit! ✅",
-          description: `Importate ${data.imported_count} proprietăți din catalogul Facebook`,
-        });
-        console.log('Facebook import rezultate:', data);
-      } else {
-        toast({
-          title: "Import Facebook Eșuat ❌",
-          description: data.error || "Problemă cu importul din Facebook",
-          variant: "destructive"
-        });
-        console.log('Facebook import eroare:', data);
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare Import Facebook ❌",
-        description: error.message || "Nu am putut importa din catalogul Facebook",
-        variant: "destructive"
-      });
-      console.error('Facebook import error:', error);
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  };
-
-  const testWorkingFunction = async () => {
-    setIsProcessingCsv(true)
-    try {
-      console.log('Testing existing validate_csv action...');
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'validate_csv', csvData: 'id,title,description\n1,test,test desc' }
-      })
-      
-      if (error) {
-        throw error;
-      }
-      
-      toast({
-        title: "Edge Function Funcționează! ✅",
-        description: `Test validate_csv reușit!`,
-      });
-    } catch (error: any) {
-      console.error('Working function test error:', error);
-      toast({
-        title: "Edge Function Nu Funcționează ❌",
-        description: `Eroare: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  };
-
-  const importCsv = async () => {
-    if (!csvData || csvStatus !== 'validated') return
-    
-    setIsProcessingCsv(true)
-    try {
-      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
-        body: { action: 'import_csv', csvData }
-      })
-
-      if (error) throw error
-
-      if (data.success) {
-        toast({
-          title: "Import reușit!",
-          description: data.message,
-        })
-        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
-        setCsvFile(null)
-        setCsvData('')
-        setCsvStatus('idle')
-        setCsvValidation(null)
-        // Reset file input
-        const fileInput = document.getElementById('csv-file-input') as HTMLInputElement
-        if (fileInput) fileInput.value = ''
-      } else {
-        toast({
-          title: "Eroare import",
-          description: data.error || "Nu am putut importa proprietățile",
-          variant: "destructive"
-        })
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut importa proprietățile",
-        variant: "destructive"
-      })
-    } finally {
-      setIsProcessingCsv(false)
-    }
-  }
 
   // Fetch properties
   const { data: properties, isLoading: propertiesLoading } = useQuery({
@@ -785,249 +504,56 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* CSV Import Functionalities */}
+            {/* URL Scraping Tool */}
             <div className="mt-8">
               <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      csvStatus === 'validated' ? 'bg-green-500' : 
-                      csvStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                    }`} />
                     <Database className="w-5 h-5 text-blue-600" />
-                    Import Properties & Data Management
-                    {csvStatus === 'validated' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                    Adaugă Proprietate prin URL
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Manage property imports and data operations
+                    Preluați automat datele unei proprietăți dintr-un link
                   </p>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <Input
+                      type="url"
+                      placeholder="Introdu link-ul proprietății (ex: https://www.imobiliare.ro/...)"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="bg-white"
+                    />
                     
-                    {/* Debug & Import Functions */}
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-medium">System Operations</h4>
-                        <Badge variant="secondary">Debug Tools</Badge>
-                      </div>
-                      
-                      {/* Debug Buttons */}
-                      <div className="space-y-2">
-                        <Button 
-                          onClick={testSimpleFunction}
-                          disabled={isProcessingCsv}
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Test simplu...
-                            </>
-                          ) : (
-                            <>
-                              <AlertTriangle className="w-4 h-4 mr-2" />
-                              🟢 Test Funcție Simplă
-                            </>
-                          )}
-                        </Button>
-                        
-                        <Button 
-                          onClick={testBasicFetch}
-                          disabled={isProcessingCsv}
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Debug fetch...
-                            </>
-                          ) : (
-                            <>
-                              <AlertTriangle className="w-4 h-4 mr-2" />
-                              🔍 Test Fetch Debug
-                            </>
-                          )}
-                        </Button>
-
-                        <Button 
-                          onClick={testWorkingFunction}
-                          disabled={isProcessingCsv}
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Test funcția...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              ✅ Test Edge Function (Facebook)
-                            </>
-                          )}
-                        </Button>
-
-                        <Button 
-                          onClick={testSupabaseConnection}
-                          disabled={isProcessingCsv}
-                          variant="default"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Test DB...
-                            </>
-                          ) : (
-                            <>
-                              <Database className="w-4 h-4 mr-2" />
-                              🔵 Test Supabase DB
-                            </>
-                          )}
-                        </Button>
-
-                        <Button 
-                          onClick={importFromFacebookCatalog}
-                          disabled={isProcessingCsv}
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Importing...
-                            </>
-                          ) : (
-                            <>
-                              <Database className="w-4 h-4 mr-2" />
-                              📘 Import Facebook Catalog
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Instructions */}
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Operations Guide</h4>
-                      
-                      <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">⚡ Available Operations:</div>
-                        <div>• Test system functions and connections</div>
-                        <div>• Import data from Facebook Catalog</div>
-                        <div>• Debug network and database operations</div>
-                        <div>• Validate data integrity</div>
-                      </div>
-                      
-                      <div className="text-xs text-muted-foreground bg-green-50 border border-green-200 p-3 rounded-lg">
-                        <div className="font-medium mb-1 text-green-700">✨ System Features:</div>
-                        <div className="text-green-600">• Real-time data validation</div>
-                        <div className="text-green-600">• Automated error handling</div>
-                        <div className="text-green-600">• Performance monitoring</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Manual CSV Upload Section */}
-                  <div className="border-t pt-6">
-                    <h4 className="font-medium mb-4">Sau încarcă manual fișier CSV</h4>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div>
-                          <Input
-                            id="csv-file-input"
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileUpload}
-                            className="cursor-pointer"
-                          />
-                          {csvFile && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              Fișier: {csvFile.name}
-                            </p>
-                          )}
-                        </div>
-                        
-                        <Button 
-                          onClick={validateCsv}
-                          disabled={!csvData || isProcessingCsv}
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Validez...
-                            </>
-                          ) : (
-                            <>
-                              <FileText className="w-4 h-4 mr-2" />
-                              Validează CSV
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <Button 
-                          onClick={importCsv}
-                          disabled={csvStatus !== 'validated' || isProcessingCsv}
-                          size="sm"
-                          className="w-full"
-                        >
-                          {isProcessingCsv ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Importez...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Import CSV Manual
-                            </>
-                          )}
-                        </Button>
-                        
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          asChild
-                        >
-                          <a 
-                            href="data:text/csv;charset=utf-8,id,title,description,availability,condition,price,link,image_link,brand,location,rooms,surface,features%0A1,%22Apartament 2 camere Militari%22,%22Apartament modern cu 2 camere in Militari Residence%22,available,new,75000,https://example.com,https://example.com/image.jpg,%22MVA Imobiliare%22,Bucuresti,2,60,%22Balcon,Centrala,Parcare%22"
-                            download="template_facebook_catalog.csv"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Template CSV
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
+                    <Button 
+                      onClick={scrapeProperty}
+                      disabled={isLoading || !url}
+                      className="w-full"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Preluare în curs...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Adaugă Proprietate
+                        </>
+                      )}
+                    </Button>
                   </div>
 
                   {/* Stats Overview */}
                   {properties && (
-                    <div className="border-t pt-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                        <div>
-                          <div className="text-lg font-bold text-blue-600">
-                            {properties.filter(p => p.project_name?.startsWith('FACEBOOK')).length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Facebook Catalog</div>
-                        </div>
+                    <div className="p-6">
+                      <div className="text-center mb-6">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">📊 Statistici</h3>
+                        <p className="text-muted-foreground">Prezentare generală proprietăți</p>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                         <div>
                           <div className="text-lg font-bold text-green-600">
                             {properties.filter(p => p.availability_status === 'available').length}
@@ -1036,9 +562,9 @@ const Admin = () => {
                         </div>
                         <div>
                           <div className="text-lg font-bold text-gold">
-                            {properties.filter(p => !p.project_name?.startsWith('FACEBOOK')).length}
+                            {properties.filter(p => p.availability_status === 'sold').length}
                           </div>
-                          <div className="text-xs text-muted-foreground">Altele</div>
+                          <div className="text-xs text-muted-foreground">Vândute</div>
                         </div>
                         <div>
                           <div className="text-lg font-bold text-purple-600">
@@ -1050,17 +576,6 @@ const Admin = () => {
                     </div>
                   )}
 
-                  {/* Validation Results */}
-                  {csvValidation && (
-                    <div className="border-t pt-4">
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h5 className="font-medium text-green-800 mb-2">✅ CSV Validat</h5>
-                        <div className="text-sm text-green-700">
-                          {csvValidation.total_rows} proprietăți găsite și gata de import
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </div>
