@@ -358,22 +358,27 @@ const BusinessCardGenerator = () => {
     <!-- Phone -->
     <g>
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <path d="M6 6 L9 6 L12 9 L12 12 L15 15 L18 15 L18 12 L15 9 L12 6 L9 3 L6 6" fill="url(#logoGradientCard)" transform="scale(2.4)"/>
+      <!-- Modern phone icon -->
+      <rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <line x1="10" y1="17" x2="14" y2="17" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.phone}</text>
     </g>
     
     <!-- Email -->
     <g transform="translate(0, 60)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <rect x="4.5" y="7.5" width="15" height="9" rx="1.5" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <path d="M6 9 L12 13.5 L18 9" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.2"/>
+      <!-- Modern email icon -->
+      <rect x="3" y="7" width="18" height="12" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <path d="M3 9 L12 15 L21 9" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.email}</text>
     </g>
     
     <!-- Address -->
     <g transform="translate(0, 120)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
-      <path d="M12 3 C16.5 3 19.5 6 19.5 10.5 C19.5 16.5 12 24 12 24 S4.5 16.5 4.5 10.5 C4.5 6 7.5 3 12 3 Z M12 7.5 C9.6 7.5 7.5 9.6 7.5 12 S9.6 16.5 12 16.5 S16.5 14.4 16.5 12 S14.4 7.5 12 7.5 Z" fill="url(#logoGradientCard)" transform="scale(2.1)"/>
+      <!-- Modern location pin icon -->
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <circle cx="12" cy="9" r="3" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <text x="45" y="12" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
       <text x="45" y="45" font-family="Inter, sans-serif" font-size="27" fill="#E0E0E0">bl. 2 parter ap 24</text>
     </g>
@@ -608,21 +613,23 @@ const BusinessCardGenerator = () => {
               {frontSvg && backSvg ? (
                 <div className="space-y-6">
                   <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Fața</h3>
-                      <div 
-                        className="bg-white p-4 rounded-lg shadow-md"
-                        dangerouslySetInnerHTML={{ __html: frontSvg }}
-                      />
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">Verso</h3>
-                      <div 
-                        className="bg-white p-4 rounded-lg shadow-md"
-                        dangerouslySetInnerHTML={{ __html: backSvg }}
-                      />
-                    </div>
+                     <div>
+                       <h3 className="text-lg font-medium mb-2">Fața</h3>
+                       <div 
+                         className="bg-white p-4 rounded-lg shadow-md transform scale-[0.35] origin-top-left overflow-hidden"
+                         style={{ width: '368px', height: '210px' }}
+                         dangerouslySetInnerHTML={{ __html: frontSvg }}
+                       />
+                     </div>
+                     
+                     <div>
+                       <h3 className="text-lg font-medium mb-2">Verso</h3>
+                       <div 
+                         className="bg-white p-4 rounded-lg shadow-md transform scale-[0.35] origin-top-left overflow-hidden"
+                         style={{ width: '368px', height: '210px' }}
+                         dangerouslySetInnerHTML={{ __html: backSvg }}
+                       />
+                     </div>
                   </div>
                   
                    <div className="flex gap-2">
