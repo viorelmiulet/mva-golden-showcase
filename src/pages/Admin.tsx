@@ -54,6 +54,10 @@ const Admin = () => {
   const [isProcessingCsv, setIsProcessingCsv] = useState(false)
   const [csvStatus, setCsvStatus] = useState<'idle' | 'validated' | 'error'>('idle')
   const [csvValidation, setCsvValidation] = useState<any>(null)
+  const [isImportingListings, setIsImportingListings] = useState(false)
+  const [isImportingProducts, setIsImportingProducts] = useState(false)
+  const [listingsStatus, setListingsStatus] = useState<'idle' | 'connected' | 'error'>('idle')
+  const [productsStatus, setProductsStatus] = useState<'idle' | 'connected' | 'error'>('idle')
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -148,6 +152,84 @@ const Admin = () => {
       })
     } finally {
       setIsProcessingCsv(false)
+    }
+  }
+
+  // Immoflux Feed Import Functions
+  const LISTINGS_FEED_URL = 'https://web.immoflux.ro/api/bridges/facebookfeed/listings/6800a236c901a.csv'
+  const PRODUCTS_FEED_URL = 'https://web.immoflux.ro/api/bridges/facebookfeed/products/6800a236c901a.csv'
+
+  const testImmofluxFeed = async (feedUrl: string, feedType: string) => {
+    const setStatus = feedType === 'listings' ? setListingsStatus : setProductsStatus
+    
+    try {
+      setStatus('idle')
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'test_url', feedUrl }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        setStatus('connected')
+        toast({
+          title: `Feed ${feedType} valid!`,
+          description: data.message,
+        })
+      } else {
+        setStatus('error')
+        toast({
+          title: `Eroare feed ${feedType}`,
+          description: data.error || `Nu am putut accesa feed-ul ${feedType}`,
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setStatus('error')
+      toast({
+        title: "Eroare",
+        description: error.message || `Nu am putut testa feed-ul ${feedType}`,
+        variant: "destructive"
+      })
+    }
+  }
+
+  const importImmofluxFeed = async (feedUrl: string, feedType: string) => {
+    const setImporting = feedType === 'listings' ? setIsImportingListings : setIsImportingProducts
+    const setStatus = feedType === 'listings' ? setListingsStatus : setProductsStatus
+    
+    setImporting(true)
+    try {
+      const { data, error } = await supabase.functions.invoke('facebook-catalog-import', {
+        body: { action: 'import_from_url', feedUrl, feedType }
+      })
+
+      if (error) throw error
+
+      if (data.success) {
+        setStatus('connected')
+        toast({
+          title: `Import ${feedType} reușit!`,
+          description: data.message,
+        })
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+      } else {
+        setStatus('error') 
+        toast({
+          title: `Eroare import ${feedType}`,
+          description: data.error || `Nu am putut importa feed-ul ${feedType}`,
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      setStatus('error')
+      toast({
+        title: "Eroare",
+        description: error.message || `Nu am putut importa feed-ul ${feedType}`,
+        variant: "destructive"
+      })
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -610,190 +692,254 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Facebook Catalog CSV Import Section */}
+            {/* Immoflux Feed Import Section */}
             <div className="mt-8">
               <Card className="border-blue-200 bg-gradient-to-r from-blue-50/50 to-cyan-50/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      csvStatus === 'validated' ? 'bg-green-500' : 
-                      csvStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
-                    }`} />
                     <Database className="w-5 h-5 text-blue-600" />
-                    Import CSV Facebook Catalog
-                    {csvStatus === 'validated' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                    Import Immoflux Feed-uri
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Importă proprietățile din fișier CSV folosind structura Facebook Catalog
+                    Importă automat proprietățile din feed-urile Facebook Catalog de pe Immoflux
                   </p>
                 </CardHeader>
                 
                 <CardContent className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     
-                    {/* File Upload Section */}
+                    {/* Listings Feed */}
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <h4 className="font-medium">Selectează Fișier CSV</h4>
+                        <div className={`w-3 h-3 rounded-full ${
+                          listingsStatus === 'connected' ? 'bg-green-500' : 
+                          listingsStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                        }`} />
+                        <h4 className="font-medium">Feed Listings</h4>
                         <Badge variant={
-                          csvStatus === 'validated' ? 'default' :
-                          csvStatus === 'error' ? 'destructive' : 'secondary'
+                          listingsStatus === 'connected' ? 'default' :
+                          listingsStatus === 'error' ? 'destructive' : 'secondary'
                         }>
-                          {csvStatus === 'validated' ? '✓ Valid' :
-                           csvStatus === 'error' ? '✗ Eroare' : '○ Neselectat'}
+                          {listingsStatus === 'connected' ? '✓ Valid' :
+                           listingsStatus === 'error' ? '✗ Eroare' : '○ Netest'}
                         </Badge>
                       </div>
                       
-                      <div className="space-y-2">
-                        <Input
-                          id="csv-file-input"
-                          type="file"
-                          accept=".csv"
-                          onChange={handleFileUpload}
-                          className="cursor-pointer"
-                        />
-                        {csvFile && (
-                          <p className="text-sm text-muted-foreground">
-                            Fișier selectat: {csvFile.name}
-                          </p>
-                        )}
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                        <div className="font-medium mb-1">🏠 Listings Feed:</div>
+                        <div className="font-mono text-xs break-all">
+                          {LISTINGS_FEED_URL}
+                        </div>
                       </div>
                       
-                      <Button 
-                        onClick={validateCsv}
-                        disabled={!csvData || isProcessingCsv}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        {isProcessingCsv ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Validez CSV...
-                          </>
-                        ) : (
-                          <>
-                            <FileText className="w-4 h-4 mr-2" />
-                            Validează CSV
-                          </>
-                        )}
-                      </Button>
-                      
-                      <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">📋 Câmpuri obligatorii:</div>
-                        <div>• title - titlul proprietății</div>
-                        <div>• description - descrierea</div>
-                        <div>• price - prețul</div>
-                        <div>• availability - disponibilitate</div>
-                        <div>• image_link - link imagine principală</div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => testImmofluxFeed(LISTINGS_FEED_URL, 'listings')}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Test Feed
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => importImmofluxFeed(LISTINGS_FEED_URL, 'listings')}
+                          disabled={isImportingListings}
+                          size="sm"
+                          className="flex-1"
+                        >
+                          {isImportingListings ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Import...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
 
-                    {/* Import Actions */}
+                    {/* Products Feed */}
                     <div className="space-y-4">
-                      <h4 className="font-medium">Acțiuni Import</h4>
-                      
-                      <Button 
-                        onClick={importCsv}
-                        disabled={csvStatus !== 'validated' || isProcessingCsv}
-                        className="w-full"
-                      >
-                        {isProcessingCsv ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Importez proprietăți...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            Importă Proprietăți
-                          </>
-                        )}
-                      </Button>
-                      
-                      <Button 
-                        variant="outline"
-                        className="w-full"
-                        asChild
-                      >
-                        <a 
-                          href="data:text/csv;charset=utf-8,id,title,description,availability,condition,price,link,image_link,brand,location,rooms,surface,features%0A1,%22Apartament 2 camere Militari%22,%22Apartament modern cu 2 camere in Militari Residence%22,available,new,75000,https://example.com,https://example.com/image.jpg,%22MVA Imobiliare%22,Bucuresti,2,60,%22Balcon,Centrala,Parcare%22"
-                          download="template_facebook_catalog.csv"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Template CSV
-                        </a>
-                      </Button>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          productsStatus === 'connected' ? 'bg-green-500' : 
+                          productsStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                        }`} />
+                        <h4 className="font-medium">Feed Products</h4>
+                        <Badge variant={
+                          productsStatus === 'connected' ? 'default' :
+                          productsStatus === 'error' ? 'destructive' : 'secondary'
+                        }>
+                          {productsStatus === 'connected' ? '✓ Valid' :
+                           productsStatus === 'error' ? '✗ Eroare' : '○ Netest'}
+                        </Badge>
+                      </div>
                       
                       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                        <div className="font-medium mb-1">⚡ Cum funcționează:</div>
-                        <div>• Descarcă template-ul CSV</div>
-                        <div>• Completează cu proprietățile tale</div>
-                        <div>• Încarcă și validează fișierul</div>
-                        <div>• Importă în catalogul tău</div>
+                        <div className="font-medium mb-1">🏢 Products Feed:</div>
+                        <div className="font-mono text-xs break-all">
+                          {PRODUCTS_FEED_URL}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => testImmofluxFeed(PRODUCTS_FEED_URL, 'products')}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Test Feed
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => importImmofluxFeed(PRODUCTS_FEED_URL, 'products')}
+                          disabled={isImportingProducts}
+                          size="sm"
+                          className="flex-1"
+                        >
+                          {isImportingProducts ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Import...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Validation Results */}
-                  {csvValidation && (
+                  {/* Manual CSV Upload Section */}
+                  <div className="border-t pt-6">
+                    <h4 className="font-medium mb-4">Sau încarcă manual fișier CSV</h4>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <Input
+                            id="csv-file-input"
+                            type="file"
+                            accept=".csv"
+                            onChange={handleFileUpload}
+                            className="cursor-pointer"
+                          />
+                          {csvFile && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              Fișier: {csvFile.name}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <Button 
+                          onClick={validateCsv}
+                          disabled={!csvData || isProcessingCsv}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Validez...
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="w-4 h-4 mr-2" />
+                              Validează CSV
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <Button 
+                          onClick={importCsv}
+                          disabled={csvStatus !== 'validated' || isProcessingCsv}
+                          size="sm"
+                          className="w-full"
+                        >
+                          {isProcessingCsv ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Importez...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import CSV
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          asChild
+                        >
+                          <a 
+                            href="data:text/csv;charset=utf-8,id,title,description,availability,condition,price,link,image_link,brand,location,rooms,surface,features%0A1,%22Apartament 2 camere Militari%22,%22Apartament modern cu 2 camere in Militari Residence%22,available,new,75000,https://example.com,https://example.com/image.jpg,%22MVA Imobiliare%22,Bucuresti,2,60,%22Balcon,Centrala,Parcare%22"
+                            download="template_facebook_catalog.csv"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Template CSV
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats Overview */}
+                  {properties && (
                     <div className="border-t pt-4">
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h5 className="font-medium text-green-800 mb-2">✅ Rezultate Validare</h5>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <div className="font-medium text-green-700">
-                              {csvValidation.total_rows}
-                            </div>
-                            <div className="text-green-600">Proprietăți găsite</div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div>
+                          <div className="text-lg font-bold text-blue-600">
+                            {properties.filter(p => p.project_name === 'IMMOFLUX_LISTINGS').length}
                           </div>
-                          <div>
-                            <div className="font-medium text-green-700">
-                              {Object.keys(csvValidation.mapped_fields || {}).length}
-                            </div>
-                            <div className="text-green-600">Câmpuri mapate</div>
+                          <div className="text-xs text-muted-foreground">Listings</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-green-600">
+                            {properties.filter(p => p.project_name === 'IMMOFLUX_PRODUCTS').length}
                           </div>
-                          <div>
-                            <div className="font-medium text-green-700">
-                              {csvValidation.sample_rows?.length || 0}
-                            </div>
-                            <div className="text-green-600">Probe verificate</div>
+                          <div className="text-xs text-muted-foreground">Products</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-gold">
+                            {properties.filter(p => !p.project_name?.startsWith('IMMOFLUX_')).length}
                           </div>
-                          <div>
-                            <div className="font-medium text-green-700">✓</div>
-                            <div className="text-green-600">Gata de import</div>
+                          <div className="text-xs text-muted-foreground">Altele</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-purple-600">
+                            {properties.length}
                           </div>
+                          <div className="text-xs text-muted-foreground">Total</div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Stats Bar */}
-                  {properties && (
+                  {/* Validation Results */}
+                  {csvValidation && (
                     <div className="border-t pt-4">
-                      <div className="grid grid-cols-4 gap-4 text-center">
-                        <div>
-                          <div className="text-lg font-bold text-blue-600">
-                            {properties.length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Total proprietăți</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-green-600">
-                            {properties.filter(p => p.availability_status === 'available').length}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Disponibile</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-gold">
-                            {csvFile ? '📁' : '📄'}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Fișier CSV</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-bold text-purple-600">
-                            {csvStatus === 'validated' ? '🟢' : csvStatus === 'error' ? '🔴' : '🟡'}
-                          </div>
-                          <div className="text-xs text-muted-foreground">Status validare</div>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h5 className="font-medium text-green-800 mb-2">✅ CSV Validat</h5>
+                        <div className="text-sm text-green-700">
+                          {csvValidation.total_rows} proprietăți găsite și gata de import
                         </div>
                       </div>
                     </div>
