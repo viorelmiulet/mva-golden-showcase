@@ -68,9 +68,9 @@
       fill="url(#cardGradientVerso)"
     />
     
-    <!-- Premium "M" letterform - smaller -->
+    <!-- Premium "M" letterform - smaller and lower -->
     <path 
-      d="M-7 -4 L-4 -4 L0 2 L4 -4 L7 -4 L7 7 L4 7 L4 -1 L1 3 L-1 3 L-4 -1 L-4 7 L-7 7 Z"
+      d="M-7 -2 L-4 -2 L0 4 L4 -2 L7 -2 L7 9 L4 9 L4 1 L1 5 L-1 5 L-4 1 L-4 9 L-7 9 Z"
       fill="url(#logoGradientVerso)"
     />
     

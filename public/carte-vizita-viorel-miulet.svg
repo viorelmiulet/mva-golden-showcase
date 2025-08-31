@@ -231,9 +231,6 @@
         <rect x="36" y="65" width="2" height="2"/>
         <rect x="42" y="65" width="2" height="2"/>
       </g>
-      <!-- WhatsApp logo in center - larger -->
-      <circle cx="35" cy="35" r="7" fill="#25D366"/>
-      <path d="M31 30 C31 28 33 26 35 26 C37 26 39 28 39 30 C39 33 35 39 35 39 S31 33 31 30 Z M35 28 C33.5 28 32 29.5 32 31 S33.5 34 35 34 S38 32.5 38 31 S36.5 28 35 28 Z" fill="white" transform="scale(1.1) translate(-0.5, -0.5)"/>
     </g>
   </g>
   
