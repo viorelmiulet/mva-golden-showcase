@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowUp } from "lucide-react"
-import mvaLogo from "@/assets/mva-logo.png"
+import { ArrowUp, Building, Home } from "lucide-react"
 
 const Footer = () => {
   const scrollToSection = (sectionId: string) => {
@@ -42,14 +41,46 @@ const Footer = () => {
               
               {/* Logo & Description */}
               <div className="lg:col-span-2">
-                <div className="flex items-center space-x-3 mb-6 group cursor-pointer" onClick={scrollToTop}>
+                <div className="flex items-center space-x-4 mb-6 group cursor-pointer" onClick={scrollToTop}>
                   <div className="relative">
-                    <img src={mvaLogo} alt="MVA IMOBILIARE" className="h-10 w-auto transition-transform group-hover:scale-105" />
+                    {/* Modern SVG Logo for Footer */}
+                    <svg width="40" height="40" viewBox="0 0 40 40" className="transition-transform group-hover:scale-105">
+                      <defs>
+                        <linearGradient id="footerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="hsl(var(--gold))" stopOpacity="0.9" />
+                          <stop offset="100%" stopColor="hsl(var(--gold-light))" stopOpacity="0.7" />
+                        </linearGradient>
+                      </defs>
+                      
+                      <circle 
+                        cx="20" 
+                        cy="20" 
+                        r="18" 
+                        fill="url(#footerLogoGradient)" 
+                        className="opacity-80 group-hover:opacity-100 transition-opacity"
+                      />
+                      
+                      <g transform="translate(20, 20)">
+                        <Building 
+                          size={16} 
+                          className="text-background translate-x-[-8] translate-y-[-8]" 
+                          strokeWidth={2}
+                        />
+                      </g>
+                      
+                      <circle cx="10" cy="10" r="1.5" fill="hsl(var(--background))" className="opacity-50" />
+                      <circle cx="30" cy="30" r="1" fill="hsl(var(--background))" className="opacity-30" />
+                    </svg>
+                    
                     <div className="absolute inset-0 bg-gold/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
+                  
                   <div>
-                    <div className="text-gold font-bold text-xl tracking-wide">MVA IMOBILIARE</div>
-                    <div className="text-muted-foreground text-sm -mt-1">Premium Real Estate</div>
+                    <div className="text-gold font-bold text-xl tracking-wide bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                      MVA IMOBILIARE
+                    </div>
+                    <div className="text-muted-foreground text-sm -mt-1 font-medium">Premium Real Estate</div>
+                    <div className="w-full h-[1px] bg-gradient-to-r from-gold/30 via-gold/60 to-transparent mt-1"></div>
                   </div>
                 </div>
                 

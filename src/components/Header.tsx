@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, MessageCircle } from "lucide-react"
+import { Menu, MessageCircle, Home, Building } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import mvaLogo from "@/assets/mva-logo.png"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -65,13 +64,65 @@ const Header = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group cursor-pointer">
-            <div className="relative">
-              <img src={mvaLogo} alt="MVA IMOBILIARE" className="h-12 w-auto transition-transform group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gold/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex items-center justify-center">
+              {/* Modern SVG Logo */}
+              <div className="relative">
+                <svg width="48" height="48" viewBox="0 0 48 48" className="transition-transform group-hover:scale-105">
+                  {/* Background gradient circle */}
+                  <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="hsl(var(--gold))" stopOpacity="1" />
+                      <stop offset="100%" stopColor="hsl(var(--gold-light))" stopOpacity="0.8" />
+                    </linearGradient>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                      <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  {/* Main circle background */}
+                  <circle 
+                    cx="24" 
+                    cy="24" 
+                    r="22" 
+                    fill="url(#logoGradient)" 
+                    className="opacity-90 group-hover:opacity-100 transition-opacity"
+                    filter="url(#glow)"
+                  />
+                  
+                  {/* Building icon */}
+                  <g transform="translate(24, 24)">
+                    <Building 
+                      size={20} 
+                      className="text-background translate-x-[-10] translate-y-[-10]" 
+                      strokeWidth={2.5}
+                    />
+                  </g>
+                  
+                  {/* Decorative elements */}
+                  <circle cx="12" cy="12" r="2" fill="hsl(var(--background))" className="opacity-60" />
+                  <circle cx="36" cy="36" r="1.5" fill="hsl(var(--background))" className="opacity-40" />
+                </svg>
+                
+                {/* Hover glow effect */}
+                <div className="absolute inset-0 bg-gold/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+              </div>
             </div>
+            
             <div className="hidden sm:block">
-              <div className="text-gold font-bold text-xl tracking-wide">MVA</div>
-              <div className="text-muted-foreground text-sm -mt-1">IMOBILIARE</div>
+              <div className="relative">
+                <div className="text-gold font-bold text-2xl tracking-wider bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                  MVA
+                </div>
+                <div className="text-muted-foreground text-sm -mt-1 font-medium tracking-widest">
+                  IMOBILIARE
+                </div>
+                {/* Subtle underline decoration */}
+                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent mt-1"></div>
+              </div>
             </div>
           </Link>
           
