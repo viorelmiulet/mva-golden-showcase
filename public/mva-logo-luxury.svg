@@ -1,0 +1,69 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="innerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
+    </linearGradient>
+    <filter id="luxuryGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="innerShadow">
+      <feOffset dx="0" dy="4"/>
+      <feGaussianBlur stdDeviation="4" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3"/>
+      <feComposite operator="in" in2="inverse"/>
+      <feComposite operator="over" in2="SourceGraphic"/>
+    </filter>
+  </defs>
+  
+  <!-- Outer luxury ring -->
+  <circle 
+    cx="100" 
+    cy="100" 
+    r="96" 
+    fill="none"
+    stroke="url(#luxuryGradient)"
+    stroke-width="8"
+    opacity="0.9"
+    filter="url(#luxuryGlow)"
+  />
+  
+  <!-- Main luxury hexagon -->
+  <path 
+    d="M100 12 L172 52 L172 148 L100 188 L28 148 L28 52 Z" 
+    fill="url(#luxuryGradient)" 
+    opacity="0.95"
+    filter="url(#luxuryGlow)"
+  />
+  
+  <!-- Inner dark background -->
+  <path 
+    d="M100 24 L160 60 L160 140 L100 176 L40 140 L40 60 Z" 
+    fill="url(#innerGradient)"
+    filter="url(#innerShadow)"
+  />
+  
+  <!-- Premium "M" letterform -->
+  <path 
+    d="M64 72 L78 72 L100 112 L122 72 L136 72 L136 128 L126 128 L126 88 L108 120 L92 120 L74 88 L74 128 L64 128 Z"
+    fill="url(#luxuryGradient)"
+  />
+  
+  <!-- Luxury corner accents -->
+  <circle cx="160" cy="40" r="6" fill="#FFD700" opacity="0.8" />
+  <circle cx="40" cy="160" r="4" fill="#D4AF37" opacity="0.6" />
+  <polygon points="168,160 176,152 176,168" fill="#B8860B" opacity="0.4" />
+</svg>

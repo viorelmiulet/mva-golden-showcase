@@ -1,0 +1,83 @@
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="luxuryGradientH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="25%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#F4E5B1" />
+      <stop offset="75%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    <linearGradient id="innerGradientH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="50%" stop-color="#2D2D2D" />
+      <stop offset="100%" stop-color="#1A1A1A" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="33%" stop-color="#FFD700" />
+      <stop offset="66%" stop-color="#F4E5B1" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <filter id="luxuryGlowH" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Logo Symbol -->
+  <g>
+    <!-- Outer ring -->
+    <circle 
+      cx="60" 
+      cy="60" 
+      r="48" 
+      fill="none"
+      stroke="url(#luxuryGradientH)"
+      stroke-width="3"
+      opacity="0.8"
+      filter="url(#luxuryGlowH)"
+    />
+    
+    <!-- Main hexagon -->
+    <path 
+      d="M60 6 L102 26 L102 94 L60 114 L18 94 L18 26 Z" 
+      fill="url(#luxuryGradientH)" 
+      opacity="0.95"
+      filter="url(#luxuryGlowH)"
+    />
+    
+    <!-- Inner background -->
+    <path 
+      d="M60 12 L96 30 L96 90 L60 108 L24 90 L24 30 Z" 
+      fill="url(#innerGradientH)"
+    />
+    
+    <!-- "M" letter -->
+    <path 
+      d="M38 36 L46 36 L60 56 L74 36 L82 36 L82 84 L76 84 L76 44 L66 60 L54 60 L44 44 L44 84 L38 84 Z"
+      fill="url(#luxuryGradientH)"
+    />
+    
+    <!-- Accents -->
+    <circle cx="90" cy="30" r="2" fill="#FFD700" opacity="0.8" />
+    <circle cx="30" cy="90" r="1.5" fill="#D4AF37" opacity="0.6" />
+  </g>
+  
+  <!-- Text -->
+  <g>
+    <!-- MVA -->
+    <text x="140" y="50" font-family="Cinzel, serif" font-size="36" font-weight="bold" fill="url(#textGradient)" letter-spacing="2px">MVA</text>
+    
+    <!-- IMOBILIARE -->
+    <text x="140" y="80" font-family="Playfair Display, serif" font-size="14" font-weight="500" fill="#8B8B8B" letter-spacing="4px">IMOBILIARE</text>
+    
+    <!-- Premium Real Estate -->
+    <text x="140" y="100" font-family="Playfair Display, serif" font-size="10" font-weight="400" fill="#666666" letter-spacing="2px">Premium Real Estate</text>
+    
+    <!-- Decorative line -->
+    <line x1="140" y1="85" x2="350" y2="85" stroke="url(#luxuryGradientH)" stroke-width="1" opacity="0.6"/>
+  </g>
+</svg>
