@@ -379,8 +379,17 @@ const BusinessCardGenerator = () => {
       <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">${data.email}</text>
     </g>
     
-    <!-- Address -->
+    <!-- Website -->
     <g transform="translate(0, 120)">
+      <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
+      <!-- Modern website/globe icon -->
+      <circle cx="12" cy="12" r="8" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
+      <path d="M4 12h16M12 4c3.5 2.5 3.5 13.5 0 16M12 4c-3.5 2.5-3.5 13.5 0 16" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.2"/>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="30" fill="#E0E0E0">mvaimobiliare.ro</text>
+    </g>
+    
+    <!-- Address -->
+    <g transform="translate(0, 180)">
       <circle cx="12" cy="12" r="9" fill="url(#logoGradientCard)" opacity="0.2"/>
       <!-- Modern location pin icon -->
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
