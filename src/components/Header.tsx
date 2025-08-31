@@ -23,6 +23,14 @@ const Header = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+      // If already on home page, scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // If not on home page, the Link component will handle navigation
+  };
+
   type NavItem = {
     name: string;
     id: string;
@@ -63,7 +71,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-4 group cursor-pointer">
+          <Link to="/" className="flex items-center space-x-4 group cursor-pointer" onClick={handleLogoClick}>
             <div className="relative flex items-center justify-center">
               {/* Ultra Luxury Premium Logo */}
               <div className="relative">
