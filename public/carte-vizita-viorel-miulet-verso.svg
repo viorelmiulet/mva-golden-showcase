@@ -42,7 +42,7 @@
   </pattern>
   <rect width="350" height="200" rx="15" fill="url(#textureVerso)" opacity="0.4"/>
   
-  <!-- Central Logo - Smaller -->
+  <!-- Central Logo - Perfectly Centered -->
   <g transform="translate(175, 100)">
     <!-- Outer ring -->
     <circle 
@@ -80,10 +80,15 @@
     <polygon points="24,16 26,14 26,18" fill="#B8860B" opacity="0.4" />
   </g>
   
-  <!-- Company Name - Top -->
-  <g transform="translate(175, 40)">
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="24" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
-    <text x="0" y="16" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">IMOBILIARE</text>
+  <!-- Company Name - Above Logo -->
+  <g transform="translate(175, 55)">
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="20" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="2px">MVA</text>
+    <text x="0" y="14" font-family="Playfair Display, serif" font-size="10" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">IMOBILIARE</text>
+  </g>
+  
+  <!-- Tagline - Below Logo -->
+  <g transform="translate(175, 155)">
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="12" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="1px">Excelență în imobiliare</text>
   </g>
   
   <!-- Decorative Elements -->
