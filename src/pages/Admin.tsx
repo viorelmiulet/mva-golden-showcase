@@ -501,8 +501,44 @@ const Admin = () => {
             {!propertiesLoading && properties && properties.length > 0 && (
               <div className="mt-12">
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold mb-2">Toate Proprietățile</h2>
-                  <p className="text-muted-foreground">Vizualizare detaliată cu opțiuni de gestionare</p>
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Home className="w-6 h-6 text-gold" />
+                    <h2 className="text-3xl font-bold">Proprietățile Noastre</h2>
+                    <Badge variant="secondary" className="text-lg px-3 py-1">
+                      {properties?.length || 0} proprietăți
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Portofoliul complet al proprietăților MVA Imobiliare - apartamente și garsoniere premium în Militari Residence
+                  </p>
+                  
+                  {/* Stats Overview */}
+                  <div className="grid md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
+                    <Card className="p-4 text-center border-gold/20">
+                      <div className="text-2xl font-bold text-gold mb-1">
+                        {properties.filter(p => p.availability_status === 'available').length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Disponibile</div>
+                    </Card>
+                    <Card className="p-4 text-center border-gold/20">
+                      <div className="text-2xl font-bold text-gold mb-1">
+                        {properties.filter(p => p.rooms === 1).length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Garsoniere</div>
+                    </Card>
+                    <Card className="p-4 text-center border-gold/20">
+                      <div className="text-2xl font-bold text-gold mb-1">
+                        {properties.filter(p => p.rooms === 2).length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">2 camere</div>
+                    </Card>
+                    <Card className="p-4 text-center border-gold/20">
+                      <div className="text-2xl font-bold text-gold mb-1">
+                        {properties.filter(p => p.rooms >= 3).length}
+                      </div>
+                      <div className="text-sm text-muted-foreground">3+ camere</div>
+                    </Card>
+                  </div>
                 </div>
                 
                 <div className="grid lg:grid-cols-2 gap-6">
