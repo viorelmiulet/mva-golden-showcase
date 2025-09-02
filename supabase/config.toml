@@ -15,5 +15,8 @@ verify_jwt = false
 [functions.facebook-catalog-import]
 verify_jwt = false
 
+[functions.immoflux-integration]
+verify_jwt = false
+
 [functions.test-simple]
 verify_jwt = false
