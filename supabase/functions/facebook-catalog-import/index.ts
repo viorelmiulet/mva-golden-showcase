@@ -41,17 +41,19 @@ Deno.serve(async (req) => {
 
       const facebookAppId = Deno.env.get('FACEBOOK_APP_ID')
       const facebookCatalogId = Deno.env.get('FACEBOOK_CATALOG_ID')
+      const facebookAccessToken = Deno.env.get('FACEBOOK_ACCESS_TOKEN')
 
       if (!facebookAppId || !facebookCatalogId) {
         throw new Error('Facebook App ID and Catalog ID are required')
       }
 
-      // Note: For production, you'll need a Facebook App Access Token
-      // For now, we'll use a placeholder approach - you'll need to implement proper Facebook Graph API authentication
+      if (!facebookAccessToken) {
+        throw new Error('Facebook Access Token is required. App ID cannot be used as access token.')
+      }
       
       try {
         // Facebook Graph API endpoint to fetch catalog products
-        const graphApiUrl = `https://graph.facebook.com/v18.0/${facebookCatalogId}/products?fields=id,name,description,url,image_url,availability,condition,price,currency,brand,retailer_id,custom_data&access_token=${facebookAppId}`
+        const graphApiUrl = `https://graph.facebook.com/v18.0/${facebookCatalogId}/products?fields=id,name,description,url,image_url,availability,condition,price,currency,brand,retailer_id,custom_data&access_token=${facebookAccessToken}`
         
         console.log('Fetching from Facebook Graph API...')
         const response = await fetch(graphApiUrl)
@@ -171,6 +173,20 @@ Deno.serve(async (req) => {
       // Test Facebook API connection
       const facebookAppId = Deno.env.get('FACEBOOK_APP_ID')
       const facebookCatalogId = Deno.env.get('FACEBOOK_CATALOG_ID')
+      const facebookAccessToken = Deno.env.get('FACEBOOK_ACCESS_TOKEN')
+
+      if (!facebookAccessToken) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Facebook Access Token nu este configurat. Ai nevoie de un Access Token valid, nu doar App ID.'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        )
+      }
 
       return new Response(
         JSON.stringify({
@@ -178,7 +194,8 @@ Deno.serve(async (req) => {
           message: 'Facebook integration configured',
           config: {
             app_id_configured: !!facebookAppId,
-            catalog_id_configured: !!facebookCatalogId
+            catalog_id_configured: !!facebookCatalogId,
+            access_token_configured: !!facebookAccessToken
           }
         }),
         {
