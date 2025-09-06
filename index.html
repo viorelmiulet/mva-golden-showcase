@@ -98,60 +98,79 @@
     <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
     
-    // Configure Tawk to show only green dot
-    Tawk_API.onLoad = function(){
-        // Hide all text messages and emoticons, keep only the green dot
-        var hideElements = function() {
-            // Hide bubble text content
-            var bubbleText = document.querySelector('[data-testid="chat-bubble-text"]');
-            if (bubbleText) {
-                bubbleText.style.display = 'none';
+    // Configure Tawk to minimize all content
+    Tawk_API.customStyle = {
+        visibility : {
+            desktop : {
+                position : 'br',
+                xOffset : 20,
+                yOffset : 20
+            },
+            mobile : {
+                position : 'br',
+                xOffset : 10,
+                yOffset : 10
             }
-            
-            // Hide any text in the bubble
-            var textElements = document.querySelectorAll('.tawk-text-regular-md, .tawk-text-regular-sm, .tawk-text-bold-md');
-            textElements.forEach(function(el) {
-                if (el.closest('[data-testid="chat-bubble"]')) {
-                    el.style.display = 'none';
-                }
-            });
-            
-            // Hide emoticons and images in bubble
-            var bubbleImages = document.querySelectorAll('[data-testid="chat-bubble"] img, [data-testid="chat-bubble"] svg');
-            bubbleImages.forEach(function(img) {
-                if (!img.closest('.tawk-online-indicator')) { // Keep the green dot
-                    img.style.display = 'none';
-                }
-            });
-            
-            // Hide message containers in bubble
-            var messageContainers = document.querySelectorAll('[data-testid="chat-bubble"] .tawk-flex');
-            messageContainers.forEach(function(container) {
-                var hasOnlineIndicator = container.querySelector('.tawk-online-indicator');
-                if (!hasOnlineIndicator && container.textContent.trim() !== '') {
-                    container.style.display = 'none';
-                }
-            });
-        };
-        
-        // Run immediately and then periodically
-        hideElements();
-        var interval = setInterval(hideElements, 200);
-        
-        // Clear interval after 15 seconds
-        setTimeout(function() {
-            clearInterval(interval);
-        }, 15000);
+        },
+        widget : {
+            color : {
+                theme : '00A652',
+                launcherText : '#FFFFFF'
+            }
+        }
     };
     
-    // Hide bubble content on status change
-    Tawk_API.onStatusChange = function(status) {
+    // Add CSS to hide all text and keep only the dot
+    var style = document.createElement('style');
+    style.textContent = `
+        /* Hide all Tawk text content */
+        [data-testid="chat-bubble-text"],
+        .tawk-text-regular-md,
+        .tawk-text-regular-sm,
+        .tawk-text-bold-md,
+        .tawk-flex-column .tawk-text-regular-md,
+        .tawk-flex-column .tawk-text-regular-sm {
+            display: none !important;
+        }
+        
+        /* Hide emoticons and images except status indicator */
+        #tawk-bubble img:not([alt*="online"]),
+        #tawk-bubble svg:not([data-testid*="indicator"]) {
+            display: none !important;
+        }
+        
+        /* Make bubble smaller - just the green dot */
+        #tawk-bubble {
+            width: 20px !important;
+            height: 20px !important;
+            border-radius: 50% !important;
+        }
+        
+        /* Hide the entire message container */
+        .tawk-flex.tawk-flex-column.tawk-justify-center {
+            display: none !important;
+        }
+        
+        /* Keep only the online indicator */
+        .tawk-online-indicator {
+            display: block !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    Tawk_API.onLoad = function(){
+        // Additional hiding after load
         setTimeout(function() {
-            var bubbleText = document.querySelector('[data-testid="chat-bubble-text"]');
-            if (bubbleText) {
-                bubbleText.style.display = 'none';
-            }
-        }, 100);
+            var bubbles = document.querySelectorAll('[data-testid="chat-bubble"]');
+            bubbles.forEach(function(bubble) {
+                var textElements = bubble.querySelectorAll('*');
+                textElements.forEach(function(el) {
+                    if (el.textContent && el.textContent.trim() && !el.querySelector('.tawk-online-indicator')) {
+                        el.style.display = 'none';
+                    }
+                });
+            });
+        }, 1000);
     };
     
     (function(){
