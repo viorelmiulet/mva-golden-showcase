@@ -97,6 +97,39 @@
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    
+    // Hide the "We are live" message
+    Tawk_API.onLoad = function(){
+        // Remove the default "we are live" message
+        var interval = setInterval(function() {
+            var liveMessage = document.querySelector('[data-testid="chat-bubble-text"]');
+            if (liveMessage && liveMessage.textContent.includes('We are live')) {
+                liveMessage.style.display = 'none';
+            }
+            
+            // Also check for Romanian version
+            if (liveMessage && liveMessage.textContent.includes('Suntem live')) {
+                liveMessage.style.display = 'none';
+            }
+            
+            // Hide the entire message container if it contains the live message
+            var messageContainer = document.querySelector('.tawk-flex.tawk-flex-column.tawk-justify-center.tawk-min-h-0');
+            if (messageContainer) {
+                var textElements = messageContainer.querySelectorAll('.tawk-text-regular-md, .tawk-text-regular-sm');
+                textElements.forEach(function(el) {
+                    if (el.textContent.includes('We are live') || el.textContent.includes('Suntem live') || el.textContent.includes('ready to chat')) {
+                        el.style.display = 'none';
+                    }
+                });
+            }
+        }, 500);
+        
+        // Clear interval after 10 seconds
+        setTimeout(function() {
+            clearInterval(interval);
+        }, 10000);
+    };
+    
     (function(){
     var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
     s1.async=true;
