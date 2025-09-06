@@ -98,36 +98,60 @@
     <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
     
-    // Hide the "We are live" message
+    // Configure Tawk to show only green dot
     Tawk_API.onLoad = function(){
-        // Remove the default "we are live" message
-        var interval = setInterval(function() {
-            var liveMessage = document.querySelector('[data-testid="chat-bubble-text"]');
-            if (liveMessage && liveMessage.textContent.includes('We are live')) {
-                liveMessage.style.display = 'none';
+        // Hide all text messages and emoticons, keep only the green dot
+        var hideElements = function() {
+            // Hide bubble text content
+            var bubbleText = document.querySelector('[data-testid="chat-bubble-text"]');
+            if (bubbleText) {
+                bubbleText.style.display = 'none';
             }
             
-            // Also check for Romanian version
-            if (liveMessage && liveMessage.textContent.includes('Suntem live')) {
-                liveMessage.style.display = 'none';
-            }
+            // Hide any text in the bubble
+            var textElements = document.querySelectorAll('.tawk-text-regular-md, .tawk-text-regular-sm, .tawk-text-bold-md');
+            textElements.forEach(function(el) {
+                if (el.closest('[data-testid="chat-bubble"]')) {
+                    el.style.display = 'none';
+                }
+            });
             
-            // Hide the entire message container if it contains the live message
-            var messageContainer = document.querySelector('.tawk-flex.tawk-flex-column.tawk-justify-center.tawk-min-h-0');
-            if (messageContainer) {
-                var textElements = messageContainer.querySelectorAll('.tawk-text-regular-md, .tawk-text-regular-sm');
-                textElements.forEach(function(el) {
-                    if (el.textContent.includes('We are live') || el.textContent.includes('Suntem live') || el.textContent.includes('ready to chat')) {
-                        el.style.display = 'none';
-                    }
-                });
-            }
-        }, 500);
+            // Hide emoticons and images in bubble
+            var bubbleImages = document.querySelectorAll('[data-testid="chat-bubble"] img, [data-testid="chat-bubble"] svg');
+            bubbleImages.forEach(function(img) {
+                if (!img.closest('.tawk-online-indicator')) { // Keep the green dot
+                    img.style.display = 'none';
+                }
+            });
+            
+            // Hide message containers in bubble
+            var messageContainers = document.querySelectorAll('[data-testid="chat-bubble"] .tawk-flex');
+            messageContainers.forEach(function(container) {
+                var hasOnlineIndicator = container.querySelector('.tawk-online-indicator');
+                if (!hasOnlineIndicator && container.textContent.trim() !== '') {
+                    container.style.display = 'none';
+                }
+            });
+        };
         
-        // Clear interval after 10 seconds
+        // Run immediately and then periodically
+        hideElements();
+        var interval = setInterval(hideElements, 200);
+        
+        // Clear interval after 15 seconds
         setTimeout(function() {
             clearInterval(interval);
-        }, 10000);
+        }, 15000);
+    };
+    
+    // Hide bubble content on status change
+    Tawk_API.onStatusChange = function(status) {
+        setTimeout(function() {
+            var bubbleText = document.querySelector('[data-testid="chat-bubble-text"]');
+            if (bubbleText) {
+                bubbleText.style.display = 'none';
+            }
+        }, 100);
     };
     
     (function(){
