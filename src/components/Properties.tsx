@@ -311,7 +311,7 @@ const Properties = () => {
                 Explorează catalogul nostru complet pentru a vedea toate opțiunile 
                 disponibile, planuri detaliate și programarea vizitelor.
               </p>
-              <a href="https://mvaimobiliare.ro/proprietati" rel="noopener noreferrer">
+              <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer">
                 <Button variant="luxury" size="lg" className="group px-8">
                   Vezi toate proprietățile
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
