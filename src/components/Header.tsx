@@ -201,7 +201,7 @@ const Header = () => {
             <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer">
               <Button variant="luxuryOutline" className="shadow-lg shadow-gold/10">
                 <Building className="w-4 h-4 mr-2" />
-                Vezi proprietățile
+                Vezi toate ofertele
               </Button>
             </a>
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
@@ -247,7 +247,7 @@ const Header = () => {
                 <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer" className="mt-2">
                   <Button variant="luxuryOutline" className="w-full">
                     <Building className="w-4 h-4 mr-2" />
-                    Vezi toate proprietățile
+                    Vezi toate ofertele
                   </Button>
                 </a>
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="mt-4">
