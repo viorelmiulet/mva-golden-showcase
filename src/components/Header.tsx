@@ -68,14 +68,14 @@ const Header = () => {
         ? 'bg-background/95 backdrop-blur-lg shadow-lg border-b border-gold/10' 
         : 'bg-transparent'
     }`}>
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-4 group cursor-pointer" onClick={handleLogoClick}>
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          {/* Logo - Optimized for mobile */}
+          <Link to="/" className="flex items-center space-x-2 sm:space-x-4 group cursor-pointer" onClick={handleLogoClick}>
             <div className="relative flex items-center justify-center">
               {/* Ultra Luxury Premium Logo */}
               <div className="relative">
-                <svg width="50" height="50" viewBox="0 0 50 50" className="transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 filter drop-shadow-2xl">
+                <svg width="40" height="40" viewBox="0 0 50 50" className="sm:w-[50px] sm:h-[50px] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 filter drop-shadow-2xl">
                   <defs>
                     <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#D4AF37" />
@@ -154,10 +154,10 @@ const Header = () => {
             
             <div className="hidden sm:block">
               <div className="relative overflow-hidden">
-                <div className="font-cinzel text-3xl font-bold tracking-wider bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent group-hover:from-yellow-300 group-hover:via-yellow-400 group-hover:to-yellow-600 transition-all duration-500 filter drop-shadow-lg">
+                <div className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wider bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent group-hover:from-yellow-300 group-hover:via-yellow-400 group-hover:to-yellow-600 transition-all duration-500 filter drop-shadow-lg">
                   MVA
                 </div>
-                <div className="font-playfair text-xs font-medium text-muted-foreground/90 tracking-[0.4em] uppercase -mt-1 group-hover:text-muted-foreground transition-all duration-300 relative">
+                <div className="font-playfair text-muted-foreground/90 text-xs font-medium tracking-[0.4em] uppercase -mt-1 group-hover:text-muted-foreground transition-all duration-300 relative">
                   <span className="relative z-10">IMOBILIARE</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 </div>
@@ -169,14 +169,14 @@ const Header = () => {
             </div>
           </Link>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-1">
+          {/* Desktop Navigation - Hidden on mobile/tablet */}
+          <nav className="hidden xl:flex items-center space-x-1">
             {navItems.map((item) => (
               item.type === 'link' ? (
                 <Link 
                   key={item.id}
                   to={item.id}
-                  className={`px-4 py-2 transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium ${
+                  className={`px-3 py-2 transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm ${
                     location.pathname === item.id 
                       ? 'text-gold bg-gold/10' 
                       : 'text-foreground hover:text-gold'
@@ -188,7 +188,7 @@ const Header = () => {
                 <button 
                   key={item.id}
                   onClick={() => handleNavigation(item)} 
-                  className="px-4 py-2 text-foreground hover:text-gold transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium"
+                  className="px-3 py-2 text-foreground hover:text-gold transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm"
                 >
                   {item.name}
                 </button>
@@ -196,40 +196,50 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* CTA Buttons - Desktop only */}
+          <div className="hidden lg:flex items-center space-x-3">
             <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer">
-              <Button variant="luxuryOutline" className="shadow-lg shadow-gold/10">
-                <Building className="w-4 h-4 mr-2" />
+              <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
+                <Building className="w-3 h-3 mr-2" />
                 Vezi toate ofertele
               </Button>
             </a>
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-              <Button variant="luxury" className="shadow-lg shadow-gold/20">
-                <MessageCircle className="w-4 h-4 mr-2" />
+              <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
+                <MessageCircle className="w-3 h-3 mr-2" />
                 Contact WhatsApp
               </Button>
             </a>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Visible on mobile/tablet */}
           <Sheet>
-            <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+            <SheetTrigger asChild className="xl:hidden">
+              <Button variant="ghost" size="icon" className="relative w-10 h-10">
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80">
+            <SheetContent side="right" className="w-80 sm:w-96">
               <div className="flex flex-col space-y-6 mt-8">
+                {/* Mobile Logo in Sheet */}
+                <div className="flex items-center justify-center pb-6 border-b border-border/30">
+                  <div className="text-center">
+                    <div className="font-cinzel text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+                      MVA IMOBILIARE
+                    </div>
+                    <div className="text-xs text-muted-foreground tracking-widest uppercase">Premium Real Estate</div>
+                  </div>
+                </div>
+
                 {navItems.map((item) => (
                   item.type === 'link' ? (
                     <Link 
                       key={item.id}
                       to={item.id}
-                      className={`text-left px-4 py-3 transition-colors text-lg border-b border-border/30 ${
+                      className={`text-left px-4 py-4 transition-colors text-base border-b border-border/30 rounded-lg ${
                         location.pathname === item.id 
-                          ? 'text-gold bg-gold/10' 
-                          : 'text-foreground hover:text-gold'
+                          ? 'text-gold bg-gold/10 border-gold/20' 
+                          : 'text-foreground hover:text-gold hover:bg-gold/5'
                       }`}
                     >
                       {item.name}
@@ -238,24 +248,28 @@ const Header = () => {
                     <button 
                       key={item.id}
                       onClick={() => handleNavigation(item)} 
-                      className="text-left px-4 py-3 text-foreground hover:text-gold transition-colors text-lg border-b border-border/30"
+                      className="text-left px-4 py-4 text-foreground hover:text-gold hover:bg-gold/5 transition-colors text-base border-b border-border/30 rounded-lg"
                     >
                       {item.name}
                     </button>
                   )
                 ))}
-                <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer" className="mt-2">
-                  <Button variant="luxuryOutline" className="w-full">
-                    <Building className="w-4 h-4 mr-2" />
-                    Vezi toate ofertele
-                  </Button>
-                </a>
-                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="mt-4">
-                  <Button variant="luxury" className="w-full">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Contactează-ne pe WhatsApp
-                  </Button>
-                </a>
+                
+                {/* Mobile CTA Buttons */}
+                <div className="space-y-3 pt-4">
+                  <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer">
+                    <Button variant="luxuryOutline" className="w-full h-12 text-base">
+                      <Building className="w-4 h-4 mr-2" />
+                      Vezi toate ofertele
+                    </Button>
+                  </a>
+                  <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+                    <Button variant="luxury" className="w-full h-12 text-base">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contactează-ne pe WhatsApp
+                    </Button>
+                  </a>
+                </div>
               </div>
             </SheetContent>
           </Sheet>

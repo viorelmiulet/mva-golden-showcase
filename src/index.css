@@ -123,5 +123,84 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Optimize for mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Enhanced responsive breakpoints */
+  .container {
+    @apply mx-auto px-4;
+  }
+
+  /* Touch targets optimization for mobile */
+  @media (max-width: 768px) {
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Performance optimizations */
+  img {
+    @apply max-w-full h-auto;
+    /* Lazy loading optimization */
+    loading: lazy;
+  }
+
+  /* Smooth animations for better UX */
+  * {
+    transition: var(--transition-luxury);
+  }
+
+  /* Focus states for accessibility */
+  button:focus-visible, 
+  a:focus-visible, 
+  input:focus-visible, 
+  textarea:focus-visible {
+    @apply ring-2 ring-gold ring-offset-2 ring-offset-background outline-none;
+  }
+
+  /* Typography scale optimization */
+  .text-responsive-xs { @apply text-xs sm:text-sm; }
+  .text-responsive-sm { @apply text-sm sm:text-base; }
+  .text-responsive-base { @apply text-base sm:text-lg; }
+  .text-responsive-lg { @apply text-lg sm:text-xl lg:text-2xl; }
+  .text-responsive-xl { @apply text-xl sm:text-2xl lg:text-3xl; }
+  .text-responsive-2xl { @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl; }
+  .text-responsive-3xl { @apply text-3xl sm:text-4xl lg:text-5xl xl:text-6xl; }
+
+  /* Spacing utilities for responsive design */
+  .space-responsive { @apply space-y-4 sm:space-y-6 lg:space-y-8; }
+  .p-responsive { @apply p-4 sm:p-6 lg:p-8; }
+  .px-responsive { @apply px-4 sm:px-6 lg:px-8; }
+  .py-responsive { @apply py-6 sm:py-8 lg:py-12; }
+
+  /* Grid utilities */
+  .grid-responsive-2 { @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6; }
+  .grid-responsive-3 { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6; }
+  .grid-responsive-4 { @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6; }
+
+  /* Card enhancements for mobile */
+  .card-responsive {
+    @apply p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl lg:rounded-2xl;
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+
+  /* Button optimizations */
+  .btn-responsive {
+    @apply px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4;
+    @apply text-sm sm:text-base lg:text-lg;
+    @apply min-h-[44px] touch-manipulation;
+  }
+
+  /* Hide scrollbars but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }

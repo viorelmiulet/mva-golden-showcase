@@ -127,46 +127,46 @@ const Contact = () => {
   ]
 
   return (
-    <section id="contact" className="py-24 bg-gradient-to-b from-secondary/20 to-background">
-      <div className="container mx-auto px-4">
+    <section id="contact" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 to-background">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <div className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
               Hai să vorbim
             </Badge>
             
-            <h2 className="text-5xl md:text-6xl font-bold mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
               <span className="text-foreground">Contactează-ne </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Astăzi
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
               Suntem aici să răspundem la întrebările tale despre complexele rezidențiale 
               și să te ghidăm către apartamentul perfect pentru tine.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
+          <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 items-start">
             
             {/* Contact Information */}
-            <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-              <div className="space-y-4 lg:space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+              <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                 {contactInfo.map((item, index) => {
                   const Icon = item.icon
                   const content = (
-                    <div className="flex items-start space-x-3 sm:space-x-4 p-4 sm:p-6 rounded-xl lg:rounded-2xl bg-card/50 backdrop-blur-sm border border-gold/10 hover:border-gold/20 transition-all duration-300 group touch-manipulation">
-                      <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold/20 to-gold-dark/20 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:from-gold/30 group-hover:to-gold-dark/30 transition-all">
-                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                    <div className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl lg:rounded-2xl bg-card/50 backdrop-blur-sm border border-gold/10 hover:border-gold/20 transition-all duration-300 group touch-manipulation">
+                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-gold/20 to-gold-dark/20 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:from-gold/30 group-hover:to-gold-dark/30 transition-all">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gold" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground mb-1 text-sm sm:text-base">
+                        <h3 className="font-semibold text-foreground mb-1 text-xs sm:text-sm lg:text-base">
                           {item.title}
                         </h3>
-                        <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                        <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed break-words">
                           {item.info}
                         </p>
                       </div>
@@ -186,10 +186,10 @@ const Contact = () => {
               </div>
 
               {/* WhatsApp CTA */}
-              <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-xl lg:rounded-2xl p-4 sm:p-6 border border-gold/20">
+              <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-lg sm:rounded-xl lg:rounded-2xl p-4 sm:p-6 border border-gold/20">
                 <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-                  <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-gold" />
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-gold flex-shrink-0" />
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground">
                     Răspuns Imediat pe WhatsApp
                   </h3>
                 </div>
@@ -197,9 +197,9 @@ const Contact = () => {
                   Pentru răspunsuri rapide
                 </p>
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                  <Button variant="luxury" className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold touch-manipulation">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Contactează-ne pe WhatsApp
+                  <Button variant="luxury" className="w-full h-10 sm:h-11 lg:h-12 text-xs sm:text-sm lg:text-base font-semibold touch-manipulation">
+                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Contactează-ne pe WhatsApp</span>
                   </Button>
                 </a>
               </div>
@@ -209,19 +209,19 @@ const Contact = () => {
             <div className="lg:col-span-3">
               <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-2xl">
                 <CardContent className="p-4 sm:p-6 lg:p-8">
-                  <div className="mb-6 lg:mb-8">
-                    <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+                  <div className="mb-4 sm:mb-6 lg:mb-8">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
                       Trimite-ne un mesaj
                     </h3>
-                    <p className="text-muted-foreground text-sm sm:text-base">
+                    <p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
                       Completează formularul și îți vom răspunde în cel mai scurt timp.
                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
+                        <label className="text-xs sm:text-sm font-medium text-foreground">
                           Nume *
                         </label>
                         <Input 
@@ -229,12 +229,12 @@ const Contact = () => {
                           value={formData.nume}
                           onChange={handleChange}
                           placeholder="Numele tău" 
-                          className="bg-background/50 border-border/50 focus:border-gold/50 h-11 sm:h-12 touch-manipulation" 
+                          className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
+                        <label className="text-xs sm:text-sm font-medium text-foreground">
                           Prenume *
                         </label>
                         <Input 
@@ -242,14 +242,14 @@ const Contact = () => {
                           value={formData.prenume}
                           onChange={handleChange}
                           placeholder="Prenumele tău" 
-                          className="bg-background/50 border-border/50 focus:border-gold/50 h-11 sm:h-12 touch-manipulation" 
+                          className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
                           required
                         />
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-xs sm:text-sm font-medium text-foreground">
                         Email *
                       </label>
                       <Input 
@@ -258,13 +258,13 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="email@exemplu.com" 
-                        className="bg-background/50 border-border/50 focus:border-gold/50 h-11 sm:h-12 touch-manipulation" 
+                        className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
                         required
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-xs sm:text-sm font-medium text-foreground">
                         Telefon *
                       </label>
                       <Input 
@@ -272,13 +272,13 @@ const Contact = () => {
                         value={formData.telefon}
                         onChange={handleChange}
                         placeholder="+40767 941 512" 
-                        className="bg-background/50 border-border/50 focus:border-gold/50 h-11 sm:h-12 touch-manipulation" 
+                        className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
                         required
                       />
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-xs sm:text-sm font-medium text-foreground">
                         Mesaj *
                       </label>
                       <Textarea 
@@ -287,7 +287,7 @@ const Contact = () => {
                         onChange={handleChange}
                         placeholder="Descrie-ne ce tip de apartament cauți, bugetul tău sau orice întrebări ai despre complexele noastre..."
                         rows={4}
-                        className="bg-background/50 border-border/50 focus:border-gold/50 resize-none min-h-[120px] touch-manipulation"
+                        className="bg-background/50 border-border/50 focus:border-gold/50 resize-none min-h-[100px] sm:min-h-[120px] text-sm touch-manipulation"
                         required
                       />
                     </div>
@@ -296,7 +296,7 @@ const Contact = () => {
                       type="submit" 
                       variant="luxury" 
                       size="lg" 
-                      className="w-full group h-12 sm:h-14 text-base font-semibold touch-manipulation" 
+                      className="w-full group h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold touch-manipulation" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -304,7 +304,7 @@ const Contact = () => {
                       ) : (
                         <>
                           Trimite Mesajul
-                          <Send className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          <Send className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                         </>
                       )}
                     </Button>

@@ -30,83 +30,82 @@ const Hero = () => {
           src={heroProperty} 
           alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului" 
           className="w-full h-full object-cover scale-110 animate-fade-in"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
       </div>
 
       {/* Content Grid */}
-      <main className="relative z-20 container mx-auto px-4 sm:px-6 min-h-screen flex items-center">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+      <main className="relative z-20 container mx-auto px-3 sm:px-4 lg:px-6 min-h-screen flex items-center">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center w-full pt-16 sm:pt-20">
           
           {/* Left Column - Main Content */}
-          <header className="space-y-6 lg:space-y-8 text-center lg:text-left">
-            <div className="space-y-4 lg:space-y-6">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 px-3 py-1.5 sm:px-4 sm:py-2 text-sm">
+          <header className="space-y-4 sm:space-y-6 lg:space-y-8 text-center lg:text-left">
+            <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm">
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Premium Real Estate
               </Badge>
               
-              <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight">
-                <span className="block text-foreground">Soluții Imobiliare</span>
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+                <span className="block text-foreground mb-1 sm:mb-2">Soluții Imobiliare</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Complete
                 </span>
               </h1>
               
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
+              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0 px-2 sm:px-0">
                 Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. 
                 Investiții sigure cu finisaje premium și locații strategice.
               </p>
             </div>
             
-            <nav className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-2 sm:px-0">
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <CollaborationForm>
-                  <Button 
-                    variant="luxury" 
-                    size="lg" 
-                    className="group px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
-                  >
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Colaborează cu noi
-                  </Button>
-                </CollaborationForm>
-                
-                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
-                  <Button 
-                    variant="luxuryOutline" 
-                    size="lg"
-                    className="w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 text-base font-semibold"
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
-                  </Button>
-                </a>
-              </div>
+            <nav className="flex flex-col xs:flex-row gap-3 sm:gap-4 px-2 sm:px-0">
+              <CollaborationForm>
+                <Button 
+                  variant="luxury" 
+                  size="lg" 
+                  className="group px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold w-full xs:w-auto"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <span className="hidden xs:inline">Colaborează cu </span>noi
+                </Button>
+              </CollaborationForm>
+              
+              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}>
+                <Button 
+                  variant="luxuryOutline" 
+                  size="lg"
+                  className="w-full xs:w-auto px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold"
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
+                </Button>
+              </a>
             </nav>
           </header>
 
           {/* Right Column - Stats Cards */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0">
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">€40K+</div>
+          <div className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0">
+            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">€40K+</div>
               <div className="text-xs text-muted-foreground">Preturi de la</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Apartamente moderne</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">3</div>
+            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">3</div>
               <div className="text-xs text-muted-foreground">Complexe disponibile</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
-              <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">1-3</div>
+            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">1-3</div>
               <div className="text-xs text-muted-foreground">Camere disponibile</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">30-75 mp</div>
             </div>
             
-            <div className="bg-card/60 backdrop-blur-sm border border-gold/10 rounded-xl lg:rounded-2xl p-3 sm:p-4 lg:p-6 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
+            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
               <div className="flex items-center mb-1 sm:mb-2">
                 <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold mr-1" />
                 <div className="text-xs sm:text-sm text-gold font-semibold">Vest București</div>
@@ -116,12 +115,11 @@ const Hero = () => {
             </div>
           </div>
         </div>
-        
       </main>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-20">
-        <div className="w-6 h-10 border-2 border-gold rounded-full flex justify-center cursor-pointer hover:border-gold-light transition-colors"
+      {/* Scroll Indicator - Hidden on small screens */}
+      <div className="hidden sm:block absolute bottom-6 lg:bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-20">
+        <div className="w-6 h-10 border-2 border-gold rounded-full flex justify-center cursor-pointer hover:border-gold-light transition-colors touch-manipulation"
              onClick={() => scrollToSection('despre')}>
           <div className="w-1 h-3 bg-gold rounded-full mt-2 animate-pulse"></div>
         </div>
