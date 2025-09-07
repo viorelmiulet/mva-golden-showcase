@@ -196,12 +196,18 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer">
+              <Button variant="luxuryOutline" className="shadow-lg shadow-gold/10">
+                <Building className="w-4 h-4 mr-2" />
+                Vezi proprietățile
+              </Button>
+            </a>
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" className="shadow-lg shadow-gold/20">
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Contactează-ne pe WhatsApp
+                Contact WhatsApp
               </Button>
             </a>
           </div>
@@ -238,6 +244,12 @@ const Header = () => {
                     </button>
                   )
                 ))}
+                <a href="https://imobiliaremilitari.storia.ro" target="_blank" rel="noopener noreferrer" className="mt-2">
+                  <Button variant="luxuryOutline" className="w-full">
+                    <Building className="w-4 h-4 mr-2" />
+                    Vezi toate proprietățile
+                  </Button>
+                </a>
                 <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="mt-4">
                   <Button variant="luxury" className="w-full">
                     <MessageCircle className="w-4 h-4 mr-2" />
