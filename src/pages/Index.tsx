@@ -5,6 +5,7 @@ import Services from "@/components/Services"
 import Properties from "@/components/Properties"
 import Contact from "@/components/Contact"
 import Footer from "@/components/Footer"
+import ChatWidget from "@/components/ChatWidget"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect } from "react"
 
@@ -28,6 +29,7 @@ const Index = () => {
         <Contact />
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   );
 };
