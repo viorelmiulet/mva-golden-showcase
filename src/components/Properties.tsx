@@ -256,9 +256,7 @@ const Properties = () => {
                 size="lg" 
                 className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base"
                 onClick={() => {
-                  if ((window as any).Tawk_API) {
-                    (window as any).Tawk_API.toggle();
-                  }
+                  window.open('https://wa.me/40767941512?text=Bună%20ziua,%20sunt%20interesat%20de%20ofertele%20disponibile.', '_blank');
                 }}
               >
                 Contactează-ne acum

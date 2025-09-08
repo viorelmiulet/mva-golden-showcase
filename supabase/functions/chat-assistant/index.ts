@@ -80,28 +80,9 @@ INFORMAȚII DE CONTACT:
       systemPrompt += "\nOFERTE DISPONIBILE:\n\n";
       
       catalogOffers.forEach((offer, index) => {
-        systemPrompt += `${index + 1}. ${offer.title}:\n`;
-        systemPrompt += `   - Descriere: ${offer.description}\n`;
-        systemPrompt += `   - Preț: ${offer.price_min.toLocaleString()} EUR\n`;
-        if (offer.surface_min && offer.surface_max) {
-          systemPrompt += `   - Suprafață: ${offer.surface_min} - ${offer.surface_max} mp\n`;
-        }
-        systemPrompt += `   - Camere: ${offer.rooms}\n`;
-        systemPrompt += `   - Locație: ${offer.location}\n`;
-        if (offer.project_name) {
-          systemPrompt += `   - Proiect: ${offer.project_name}\n`;
-        }
-        if (offer.features && offer.features.length > 0) {
-          systemPrompt += `   - Caracteristici: ${offer.features.join(', ')}\n`;
-        }
-        if (offer.amenities && offer.amenities.length > 0) {
-          systemPrompt += `   - Facilități: ${offer.amenities.join(', ')}\n`;
-        }
-        if (offer.is_featured) {
-          systemPrompt += `   - Status: OFERTĂ PREMIUM\n`;
-        }
+        systemPrompt += `${index + 1}. ${offer.title} - ${offer.price_min.toLocaleString()} EUR\n`;
         if (offer.storia_link) {
-          systemPrompt += `   - Link Storia: ${offer.storia_link}\n`;
+          systemPrompt += `   Link: ${offer.storia_link}\n`;
         }
         systemPrompt += "\n";
       });
