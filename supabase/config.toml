@@ -20,3 +20,9 @@ verify_jwt = false
 
 [functions.test-simple]
 verify_jwt = false
+
+[functions.api-keys-manager]
+verify_jwt = false
+
+[functions.public-api]
+verify_jwt = false

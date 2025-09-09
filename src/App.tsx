@@ -10,6 +10,7 @@ import AddProperty from "./pages/AddProperty";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import CarteVizita from "./pages/CarteVizita";
+import ApiKeysAdmin from "./pages/ApiKeysAdmin";
 import CookieConsent from "@/components/CookieConsent";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/proprietati" element={<Properties />} />
           <Route path="/adauga" element={<AddProperty />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/api-keys" element={<ApiKeysAdmin />} />
           <Route path="/carte-vizita" element={<CarteVizita />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Index />} />
