@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          api_key: string
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_name: string
+          last_used_at: string | null
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name: string
+          last_used_at?: string | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          last_used_at?: string | null
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       business_cards: {
         Row: {
           back_svg: string
@@ -232,6 +271,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_api_key: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_conversations_summary: {
         Args: { end_date?: string; start_date?: string }
         Returns: {
