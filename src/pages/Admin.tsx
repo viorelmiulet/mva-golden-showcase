@@ -39,6 +39,7 @@ import Footer from "@/components/Footer"
 import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import FacebookCatalogSync from "@/components/FacebookCatalogSync"
+import WebsiteScrapingManager from "@/components/WebsiteScrapingManager"
 
 const Admin = () => {
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
@@ -551,6 +552,11 @@ const Admin = () => {
                   </CardContent>
                 </Card>
               </div>
+            </div>
+
+            {/* Website Scraping Integration */}
+            <div className="mt-8">
+              <WebsiteScrapingManager />
             </div>
 
             {/* Facebook Catalog Integration */}

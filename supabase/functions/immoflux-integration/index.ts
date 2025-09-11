@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0'
+import FirecrawlApp from 'https://esm.sh/@mendable/firecrawl-js@1.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,13 +41,16 @@ serve(async (req) => {
     const requestBody = await req.json();
     console.log('Request body received:', requestBody);
     
-    const { action, propertyId } = requestBody;
+    const { action, propertyId, url } = requestBody;
 
     console.log('Immoflux integration called with action:', action);
 
     switch (action) {
       case 'sync_properties':
         return await syncProperties(supabase, immofluxApiKey, immofluxApiUser);
+      
+      case 'scrape_website':
+        return await scrapeWebsiteProperties(supabase, url || 'https://imobiliaremilitari.ro/crm/properties');
       
       case 'get_property':
         return await getProperty(supabase, immofluxApiKey, immofluxApiUser, propertyId);
@@ -272,6 +276,211 @@ async function getProperty(supabase: any, apiKey: string, apiUser: string, prope
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
+  }
+}
+
+async function scrapeWebsiteProperties(supabase: any, url: string) {
+  try {
+    console.log('Starting property scraping from website:', url);
+    
+    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlApiKey) {
+      throw new Error('FIRECRAWL_API_KEY not configured');
+    }
+
+    // Initialize Firecrawl
+    const app = new FirecrawlApp({ apiKey: firecrawlApiKey });
+    
+    // Scrape the website
+    const scrapeResult = await app.scrapeUrl(url, {
+      formats: ['markdown', 'html'],
+      onlyMainContent: true
+    });
+
+    if (!scrapeResult.success) {
+      throw new Error('Failed to scrape website: ' + scrapeResult.error);
+    }
+
+    console.log('Scraping successful, parsing properties...');
+    
+    // Parse properties from the scraped content
+    const properties = parsePropertiesFromContent(scrapeResult.markdown || '');
+    
+    if (properties.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'No properties found to scrape',
+          scraped: 0
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Clear existing scraped offers
+    await supabase
+      .from('catalog_offers')
+      .delete()
+      .eq('project_name', 'WEBSITE_SCRAPE');
+
+    // Insert new offers
+    const { data: insertedData, error: insertError } = await supabase
+      .from('catalog_offers')
+      .insert(properties);
+
+    if (insertError) {
+      throw new Error(`Database insert failed: ${insertError.message}`);
+    }
+
+    console.log(`Successfully scraped ${properties.length} properties from website`);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: `Successfully scraped ${properties.length} properties from ${url}`,
+        scraped: properties.length,
+        properties: properties
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
+  } catch (error) {
+    console.error('Website scraping failed:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: `Website scraping failed: ${error.message}`
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+}
+
+function parsePropertiesFromContent(content: string): any[] {
+  const properties: any[] = [];
+  
+  try {
+    console.log('Parsing content length:', content.length);
+    
+    // Enhanced regex to match property blocks with more flexibility
+    const lines = content.split('\n');
+    let currentProperty: any = null;
+    let i = 0;
+    
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      
+      // Look for property titles (headers starting with ###)
+      if (line.startsWith('### ')) {
+        // If we were building a property, save it
+        if (currentProperty && currentProperty.title) {
+          properties.push(currentProperty);
+        }
+        
+        // Start new property
+        currentProperty = {
+          title: line.replace('### ', '').trim(),
+          description: '',
+          location: '',
+          price_min: 0,
+          price_max: 0,
+          surface_min: null,
+          surface_max: null,
+          rooms: 1,
+          currency: 'EUR',
+          images: [],
+          features: [],
+          amenities: [],
+          availability_status: 'available',
+          is_featured: false,
+          project_name: 'WEBSITE_SCRAPE',
+          contact_info: null,
+          storia_link: null,
+          whatsapp_catalog_id: null
+        };
+      }
+      
+      // Extract location (usually follows title)
+      else if (currentProperty && line && !line.startsWith('#') && !line.match(/^\d/) && !line.startsWith('€') && currentProperty.location === '') {
+        currentProperty.location = line;
+      }
+      
+      // Extract description (paragraph after location)
+      else if (currentProperty && line && !line.startsWith('#') && !line.match(/^\d/) && !line.startsWith('€') && currentProperty.description === '' && currentProperty.location !== '') {
+        currentProperty.description = line;
+      }
+      
+      // Extract numeric values (rooms, bathrooms, surface)
+      else if (currentProperty && line.match(/^\d+$/)) {
+        const num = parseInt(line);
+        if (!currentProperty.rooms || currentProperty.rooms === 1) {
+          currentProperty.rooms = num;
+        } else if (!currentProperty.surface_min) {
+          currentProperty.surface_min = num;
+          currentProperty.surface_max = num;
+        }
+      }
+      
+      // Extract surface with "mp"
+      else if (currentProperty && line.match(/(\d+)\s*mp/)) {
+        const match = line.match(/(\d+)\s*mp/);
+        if (match) {
+          const surface = parseInt(match[1]);
+          currentProperty.surface_min = surface;
+          currentProperty.surface_max = surface;
+        }
+      }
+      
+      // Extract price
+      else if (currentProperty && line.startsWith('€')) {
+        const priceMatch = line.match(/€([\d,]+)/);
+        if (priceMatch) {
+          const price = parseInt(priceMatch[1].replace(',', ''));
+          currentProperty.price_min = price;
+          currentProperty.price_max = price;
+        }
+      }
+      
+      // Extract image URLs
+      else if (line.includes('![') && line.includes('](')) {
+        const imageMatch = line.match(/!\[[^\]]*\]\(([^)]+)\)/);
+        if (imageMatch && currentProperty) {
+          currentProperty.images.push(imageMatch[1]);
+        }
+      }
+      
+      // Extract status keywords
+      else if (currentProperty && (line === 'Nou' || line === 'Activ' || line === 'Premium' || line === 'Rezervat' || line === 'Negociere')) {
+        if (line === 'Rezervat') {
+          currentProperty.availability_status = 'reserved';
+        } else if (line === 'Premium') {
+          currentProperty.is_featured = true;
+        }
+      }
+      
+      i++;
+    }
+    
+    // Don't forget the last property
+    if (currentProperty && currentProperty.title) {
+      properties.push(currentProperty);
+    }
+    
+    console.log(`Successfully parsed ${properties.length} properties`);
+    console.log('Sample property:', properties[0] ? JSON.stringify(properties[0], null, 2) : 'None');
+    
+    return properties;
+    
+  } catch (error) {
+    console.error('Error parsing properties:', error);
+    return [];
   }
 }
 
