@@ -175,7 +175,8 @@ Deno.serve(async (req) => {
             is_featured: body.is_featured || false,
             contact_info: body.contact_info || null,
             storia_link: body.storia_link || null,
-            whatsapp_catalog_id: body.whatsapp_catalog_id || null
+            whatsapp_catalog_id: body.whatsapp_catalog_id || null,
+            source: body.source || 'api' // Default to 'api' if not specified, 'crm' for CRM properties
           };
 
           const { data: newOffer, error } = await supabaseClient

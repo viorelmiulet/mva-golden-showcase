@@ -109,6 +109,7 @@ export type Database = {
           price_min: number
           project_name: string | null
           rooms: number
+          source: string
           storia_link: string | null
           surface_max: number | null
           surface_min: number | null
@@ -132,6 +133,7 @@ export type Database = {
           price_min: number
           project_name?: string | null
           rooms: number
+          source?: string
           storia_link?: string | null
           surface_max?: number | null
           surface_min?: number | null
@@ -155,6 +157,7 @@ export type Database = {
           price_min?: number
           project_name?: string | null
           rooms?: number
+          source?: string
           storia_link?: string | null
           surface_max?: number | null
           surface_min?: number | null
