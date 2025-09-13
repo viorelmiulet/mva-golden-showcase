@@ -911,6 +911,15 @@ const Admin = () => {
 
                         {/* Actions */}
                         <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => openEditModal(property)}
+                            className="flex-1"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Editează
+                          </Button>
                           {property.images && Array.isArray(property.images) && property.images.length > 0 && (
                             <Button variant="outline" size="sm" className="flex-1">
                               <Images className="w-4 h-4 mr-2" />
@@ -937,6 +946,131 @@ const Admin = () => {
       </main>
 
       <Footer />
+      
+      {/* Edit Property Dialog */}
+      <Dialog open={!!editingProperty} onOpenChange={closeEditModal}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editează Proprietatea</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Titlu</Label>
+              <Input
+                id="edit-title"
+                value={editForm.title}
+                onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Titlul proprietății"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">Descriere</Label>
+              <textarea
+                id="edit-description"
+                className="w-full px-3 py-2 border rounded-md min-h-[100px]"
+                value={editForm.description}
+                onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descrierea proprietății"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-price-min">Preț Minim (EUR)</Label>
+                <Input
+                  id="edit-price-min"
+                  type="number"
+                  value={editForm.price_min || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, price_min: parseInt(e.target.value) || 0 }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-price-max">Preț Maxim (EUR)</Label>
+                <Input
+                  id="edit-price-max"
+                  type="number"
+                  value={editForm.price_max || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, price_max: parseInt(e.target.value) || 0 }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit-surface-min">Suprafață Min (mp)</Label>
+                <Input
+                  id="edit-surface-min"
+                  type="number"
+                  value={editForm.surface_min || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, surface_min: parseInt(e.target.value) || null }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-surface-max">Suprafață Max (mp)</Label>
+                <Input
+                  id="edit-surface-max"
+                  type="number"
+                  value={editForm.surface_max || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, surface_max: parseInt(e.target.value) || null }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-rooms">Camere</Label>
+                <Input
+                  id="edit-rooms"
+                  type="number"
+                  value={editForm.rooms || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, rooms: parseInt(e.target.value) || 1 }))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-location">Locație</Label>
+              <Input
+                id="edit-location"
+                value={editForm.location}
+                onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="Orașul/Zona"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-features">Caracteristici (separate prin virgulă)</Label>
+              <Input
+                id="edit-features"
+                value={editForm.features}
+                onChange={(e) => setEditForm(prev => ({ ...prev, features: e.target.value }))}
+                placeholder="ex: Balcon, Parcare, Lift"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-amenities">Facilități (separate prin virgulă)</Label>
+              <Input
+                id="edit-amenities"
+                value={editForm.amenities}
+                onChange={(e) => setEditForm(prev => ({ ...prev, amenities: e.target.value }))}
+                placeholder="ex: Piscină, Sală fitness, Grădiniță"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={closeEditModal}>
+              Anulează
+            </Button>
+            <Button 
+              onClick={updateProperty}
+              disabled={isUpdating || !editForm.title || !editForm.description}
+            >
+              {isUpdating ? "Se salvează..." : "Salvează"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
