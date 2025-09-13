@@ -219,12 +219,13 @@ const Admin = () => {
   const deleteProperty = async (id: string) => {
     setDeletingId(id)
     try {
-      const { error } = await supabase
-        .from('catalog_offers')
-        .delete()
-        .eq('id', id)
+      // Prefer edge function with service role to avoid any RLS issues
+      const { data, error } = await supabase.functions.invoke('admin-offers', {
+        body: { action: 'delete_offer', id }
+      })
 
       if (error) throw error
+      if (!data?.success) throw new Error(data?.error || 'Delete failed')
 
       toast({
         title: "Succes!",
@@ -234,11 +235,23 @@ const Admin = () => {
       // Refresh the properties list
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
     } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error.message || "Nu am putut șterge proprietatea",
-        variant: "destructive"
-      })
+      // Fallback: try client-side delete in case function is unavailable
+      try {
+        const { error: fallbackError } = await supabase
+          .from('catalog_offers')
+          .delete()
+          .eq('id', id)
+        if (fallbackError) throw fallbackError
+
+        toast({ title: 'Succes!', description: 'Proprietatea a fost ștearsă cu succes' })
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+      } catch (finalErr: any) {
+        toast({
+          title: 'Eroare',
+          description: finalErr?.message || error?.message || 'Nu am putut șterge proprietatea',
+          variant: 'destructive'
+        })
+      }
     } finally {
       setDeletingId(null)
     }
