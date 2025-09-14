@@ -67,10 +67,10 @@ serve(async (req) => {
     // Search online for MVA Imobiliare offers when user asks about offers
     let webSearchResults = '';
     const lowerMessage = message.toLowerCase();
-    const searchTriggers = ['ofert', 'apartament', 'proprietat', 'casa', 'teren', 'imobil', 'vanz', 'cumpăr', 'închiri', 'buget', 'preț', 'caută', 'găsește'];
+    const searchTriggers = ['ofert', 'apartament', 'proprietat', 'casa', 'teren', 'imobil', 'vanz', 'cumpăr', 'închiri', 'buget', 'preț', 'caută', 'găsește', 'disponibil', 'camere'];
     
     if (perplexityApiKey && searchTriggers.some(trigger => lowerMessage.includes(trigger))) {
-      console.log('Triggering web search for real estate related query');
+      console.log('Triggering web search for real estate related query:', message);
       try {
         const searchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
           method: 'POST',
@@ -83,15 +83,15 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: 'Caută oferte imobiliare de la MVA Imobiliare pe storia.ro. Returnează linkurile exacte către ofertele găsite, prețurile și scurtele descrieri.'
+                content: 'Ești un expert în căutarea ofertelor imobiliare. Caută DOAR pe storia.ro oferte de la agenția "MVA Imobiliare" sau agentul "Viorel Miulet". Returnează linkurile complete Storia.ro, prețurile exacte și descrierile scurte pentru fiecare ofertă găsită. Fii foarte specific cu linkurile exacte și nu inventa informații.'
               },
               {
                 role: 'user',
-                content: `Caută pe storia.ro oferte imobiliare de la agenția MVA Imobiliare sau Viorel Miulet. Fii specific cu linkurile Storia și prețurile. Mesajul utilizatorului: ${message}`
+                content: `Caută pe storia.ro oferte imobiliare DOAR de la MVA Imobiliare sau Viorel Miulet. Pentru mesajul: "${message}" - găsește ofertele corespunzătoare și returnează linkurile exacte Storia.ro cu prețurile și descrierile.`
               }
             ],
-            temperature: 0.2,
-            max_tokens: 800,
+            temperature: 0.1,
+            max_tokens: 1000,
             search_domain_filter: ['storia.ro'],
             search_recency_filter: 'month',
             return_related_questions: false
@@ -101,13 +101,16 @@ serve(async (req) => {
         if (searchResponse.ok) {
           const searchData = await searchResponse.json();
           webSearchResults = searchData.choices[0].message.content || '';
-          console.log('Web search completed successfully');
+          console.log('Web search completed successfully, results:', webSearchResults.length > 0 ? 'Found results' : 'No results');
         } else {
-          console.error('Error in web search:', await searchResponse.text());
+          const errorText = await searchResponse.text();
+          console.error('Error in web search, status:', searchResponse.status, 'error:', errorText);
         }
       } catch (error) {
         console.error('Error performing web search:', error);
       }
+    } else {
+      console.log('Web search skipped - no API key or no trigger words found');
     }
 
     // Build comprehensive system prompt with catalog offers and web results
@@ -145,14 +148,13 @@ INFORMAȚII DE CONTACT:
 
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
-- PRIORITATE MAXIMĂ: Când clienții cer oferte sau specifică criterii, folosește ÎNTÂI rezultatele din căutarea web de pe Storia.ro pentru cele mai recente oferte MVA
-- Dacă ai rezultate web cu linkuri Storia.ro, prezintă-le PRIMUL cu linkurile exacte către Storia.ro
-- Completează cu ofertele din catalogul local dacă este necesar
-- Când clienții specifică un buget, combină rezultatele web cu catalogul local pentru recomandări complete
-- Pentru fiecare ofertă din căutarea web, INCLUDE linkul complet către Storia.ro
-- Dacă nu găsești rezultate web, folosește catalogul local ca backup
-- Prezintă linkurile Storia.ro în formatul: "Vezi detalii complete: [link Storia.ro]"
-- Ofertele din căutarea web sunt cele mai recente și actuale
+- PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, execută ÎNTOTDEAUNA căutarea web pe Storia.ro pentru cele mai recente oferte MVA
+- Folosește PRIMUL rezultatele căutării web de pe Storia.ro cu linkurile complete și exacte
+- Completează cu ofertele din catalogul local doar dacă căutarea web nu găsește suficiente rezultate
+- Pentru fiecare ofertă din căutarea web, INCLUDE linkul complet și exact către Storia.ro
+- Prezintă linkurile Storia.ro în formatul: "🔗 Vezi detalii complete: [link Storia.ro]"
+- Când ai rezultate web, menționează că sunt "cele mai recente oferte de pe Storia.ro"
+- Dacă nu găsești rezultate web, folosește catalogul local și menționează că îi recomandi să contacteze direct agenția pentru ofertele cele mai noi
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
