@@ -83,11 +83,11 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: 'Ești un expert în căutarea ofertelor imobiliare. Caută DOAR pe storia.ro oferte de la agenția "MVA Imobiliare" sau agentul "Viorel Miulet". Returnează linkurile complete Storia.ro, prețurile exacte și descrierile scurte pentru fiecare ofertă găsită. Fii foarte specific cu linkurile exacte și nu inventa informații.'
+                content: 'Ești un expert în căutarea ofertelor imobiliare. Caută DOAR pe storia.ro oferte de la agenția "MVA Imobiliare" sau "MVA Perfect Business". Returnează linkurile complete Storia.ro, prețurile exacte și descrierile scurte pentru fiecare ofertă găsită. Fii foarte specific cu linkurile exacte și nu inventa informații.'
               },
               {
                 role: 'user',
-                content: `Caută pe storia.ro oferte imobiliare DOAR de la MVA Imobiliare sau Viorel Miulet. Pentru mesajul: "${message}" - găsește ofertele corespunzătoare și returnează linkurile exacte Storia.ro cu prețurile și descrierile.`
+                content: `Caută pe storia.ro oferte imobiliare DOAR de la MVA Imobiliare sau MVA Perfect Business. Pentru mesajul: "${message}" - găsește ofertele corespunzătoare și returnează linkurile exacte Storia.ro cu prețurile și descrierile.`
               }
             ],
             temperature: 0.1,
