@@ -75,8 +75,8 @@ const ChatWidget: React.FC = () => {
               <MessageCircle className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Asistent MVA</h3>
-              <p className="text-xs opacity-80">Expert în imobiliare</p>
+              <h3 className="font-semibold text-sm">Sofia</h3>
+              <p className="text-xs opacity-80">Asistentul tău MVA</p>
             </div>
           </div>
           <Button
@@ -95,7 +95,7 @@ const ChatWidget: React.FC = () => {
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground text-sm py-8">
                 <MessageCircle className="h-8 w-8 mx-auto mb-3 opacity-50" />
-                <p>Bună! Sunt asistentul MVA Imobiliare.</p>
+                <p>Bună! Sunt Sofia, asistentul MVA Imobiliare.</p>
                 <p>Cu ce vă pot ajuta astăzi?</p>
               </div>
             )}

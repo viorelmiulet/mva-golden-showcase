@@ -62,7 +62,7 @@ serve(async (req) => {
     }
 
     // Build comprehensive system prompt with catalog offers only
-    let systemPrompt = `Ești un asistent AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
+    let systemPrompt = `Ești Sofia, asistentul AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
 
 INFORMAȚII DESPRE COMPANIE:
 - MVA Imobiliare - agenție specializată în proprietăți premium
