@@ -30,12 +30,15 @@ serve(async (req) => {
     const currentSessionId = sessionId || crypto.randomUUID();
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
+    
     if (!openAIApiKey) {
       console.error('OPENAI_API_KEY environment variable is not set');
       throw new Error('OpenAI API key not configured');
     }
     
     console.log('OpenAI API key found:', openAIApiKey ? 'Yes' : 'No');
+    console.log('Perplexity API key found:', perplexityApiKey ? 'Yes' : 'No');
 
     // Save user message to database
     const { error: saveUserError } = await supabase
@@ -61,8 +64,54 @@ serve(async (req) => {
       console.error('Error fetching catalog offers:', catalogError);
     }
 
-    // Build comprehensive system prompt with catalog offers only
-    let systemPrompt = `Ești Sofia, asistentul AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului. 
+    // Search online for MVA Imobiliare offers when user asks about offers
+    let webSearchResults = '';
+    const lowerMessage = message.toLowerCase();
+    const searchTriggers = ['ofert', 'apartament', 'proprietat', 'casa', 'teren', 'imobil', 'vanz', 'cumpăr', 'închiri', 'buget', 'preț', 'caută', 'găsește'];
+    
+    if (perplexityApiKey && searchTriggers.some(trigger => lowerMessage.includes(trigger))) {
+      console.log('Triggering web search for real estate related query');
+      try {
+        const searchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${perplexityApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama-3.1-sonar-small-128k-online',
+            messages: [
+              {
+                role: 'system',
+                content: 'Caută oferte imobiliare de la MVA Imobiliare pe storia.ro. Returnează linkurile exacte către ofertele găsite, prețurile și scurtele descrieri.'
+              },
+              {
+                role: 'user',
+                content: `Caută pe storia.ro oferte imobiliare de la agenția MVA Imobiliare sau Viorel Miulet. Fii specific cu linkurile Storia și prețurile. Mesajul utilizatorului: ${message}`
+              }
+            ],
+            temperature: 0.2,
+            max_tokens: 800,
+            search_domain_filter: ['storia.ro'],
+            search_recency_filter: 'month',
+            return_related_questions: false
+          }),
+        });
+
+        if (searchResponse.ok) {
+          const searchData = await searchResponse.json();
+          webSearchResults = searchData.choices[0].message.content || '';
+          console.log('Web search completed successfully');
+        } else {
+          console.error('Error in web search:', await searchResponse.text());
+        }
+      } catch (error) {
+        console.error('Error performing web search:', error);
+      }
+    }
+
+    // Build comprehensive system prompt with catalog offers and web results
+    let systemPrompt = `Ești Sofia, asistentul AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului.
 
 INFORMAȚII DESPRE COMPANIE:
 - MVA Imobiliare - agenție specializată în proprietăți premium
@@ -88,24 +137,31 @@ INFORMAȚII DE CONTACT:
       });
     }
 
+    // Add web search results if available
+    if (webSearchResults) {
+      systemPrompt += "\nRESULTATE CĂUTARE WEB (Storia.ro și alte surse):\n\n";
+      systemPrompt += webSearchResults + "\n\n";
+    }
+
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
-- PRIORITATE: Când clienții specifică un buget, folosește ÎNTOTDEAUNA ofertele din CATALOG pentru a recomanda apartamentele potrivite
-- Când clienții cer "oferte" sau "apartamente", prezintă PRIMUL ofertele din catalog cu prețuri exacte
-- Când clienții specifică un buget (ex: "apartament până în 100.000 EUR"), caută în ofertele din catalog și recomandă apartamentele care se încadrează în buget
-- Când cer un anumit număr de camere (ex: "apartament cu 2 camere"), filtrează ofertele corespunzătoare din catalog
-- Când au cerințe speciale (ex: "cu terasă", "cu parcare"), caută în caracteristicile și facilitățile ofertelor din catalog
-- Prezintă detaliile complete ale ofertelor din catalog, inclusiv prețul exact și caracteristicile
-- Ofertele din catalog au prețuri exacte și sunt disponibile pentru vânzare imediată
+- PRIORITATE MAXIMĂ: Când clienții cer oferte sau specifică criterii, folosește ÎNTÂI rezultatele din căutarea web de pe Storia.ro pentru cele mai recente oferte MVA
+- Dacă ai rezultate web cu linkuri Storia.ro, prezintă-le PRIMUL cu linkurile exacte către Storia.ro
+- Completează cu ofertele din catalogul local dacă este necesar
+- Când clienții specifică un buget, combină rezultatele web cu catalogul local pentru recomandări complete
+- Pentru fiecare ofertă din căutarea web, INCLUDE linkul complet către Storia.ro
+- Dacă nu găsești rezultate web, folosește catalogul local ca backup
+- Prezintă linkurile Storia.ro în formatul: "Vezi detalii complete: [link Storia.ro]"
+- Ofertele din căutarea web sunt cele mai recente și actuale
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
-- Când clienții cer oferte sau specifică un buget/cerințe, prezintă ÎNTOTDEAUNA PRIMUL ofertele din CATALOG cu prețuri exacte
-- Pentru fiecare ofertă prezentată, include linkul către Storia DOAR dacă există (storia_link nu este null)
-- Când oferta are link Storia, prezintă-l astfel: "Detalii complete: [linkul Storia]" 
-- Când oferta nu are link Storia, menționează: "Pentru detalii și poze, contactează-ne direct"
-- Folosește ofertele din catalog pentru a răspunde la întrebări despre prețuri și disponibilitate
-- Ofertele din catalog sunt prioritare și singurele oferte pe care le prezinți
+- PRIORITATE: Când clienții cer oferte, prezintă PRIMUL rezultatele din căutarea web de pe Storia.ro cu linkurile complete
+- Pentru ofertele găsite pe web, include linkul complet către Storia.ro în formatul: "Vezi detalii complete: [link Storia.ro]"
+- Completează cu ofertele din catalogul local dacă este necesar sau dacă nu ai rezultate web
+- Pentru ofertele din catalog local, include linkul Storia doar dacă există (storia_link nu este null)
+- Combină informațiile din ambele surse pentru a oferi cea mai completă listă de opțiuni
+- Ofertele web sunt cele mai recente și au prioritate în prezentare
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
@@ -114,11 +170,13 @@ ROLUL TĂU:
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
 IMPORTANT: 
-- Folosește DOAR ofertele din catalog - nu mai menciona proiectele rezidențiale generale
-- Nu mai oferi linkul către catalogul WhatsApp 
-- Când clienții cer "oferte", "catalog" sau specifică criterii (buget, camere), caută în ofertele din catalog și prezintă opțiunile potrivite
-- Nu inventa informații care nu sunt furnizate
-- Dacă nu știi ceva, spune că vei verifica cu echipa și îi vei reveni cu detalii`;
+- Folosește PRIMUL rezultatele căutării web de pe Storia.ro când sunt disponibile
+- Combină rezultatele web cu ofertele din catalog pentru o imagine completă
+- ÎNTOTDEAUNA include linkurile complete către Storia.ro pentru ofertele găsite online
+- Când prezinți oferte web, menționează că sunt cele mai recente de pe Storia.ro
+- Pentru ofertele din catalogul local fără linkuri web, menționează: "Pentru detalii și poze, contactează-ne direct"
+- Nu inventa linkuri sau informații care nu sunt furnizate
+- Dacă nu găsești oferte web și nu ai în catalog, recomandă să contacteze direct agenția`;
 
     // Prepare messages for OpenAI
     const messages = [
@@ -128,11 +186,16 @@ IMPORTANT:
     ];
 
     console.log('Sending request to OpenAI with', catalogOffers?.length || 0, 'catalog offers loaded');
+    console.log('Web search results available:', webSearchResults ? 'Yes' : 'No');
     
     if (catalogOffers && catalogOffers.length > 0) {
       console.log('Catalog offers loaded:', catalogOffers.map(offer => `${offer.title} - ${offer.price_min} EUR`));
     } else {
       console.log('No catalog offers found!');
+    }
+    
+    if (webSearchResults) {
+      console.log('Web search results preview:', webSearchResults.substring(0, 200) + '...');
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
