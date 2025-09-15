@@ -113,6 +113,41 @@ serve(async (req) => {
       console.log('Web search skipped - no API key or no trigger words found');
     }
 
+    // Local projects from the website
+    const localProjects = [
+      {
+        title: "RENEW RESIDENCE",
+        location: "Chiajna", 
+        price: "€44,000 - €90,000",
+        size: "32 - 65 mp",
+        rooms: "1-2 camere",
+        description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei.",
+        features: ["Finisaje Premium", "Spații Verzi"],
+        link: "https://renewresidence.ro/",
+        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+      },
+      {
+        title: "EUROCASA RESIDENCE",
+        location: "Chiajna",
+        price: "€40,000 - €102,000", 
+        size: "30 - 75 mp",
+        rooms: "1-3 camere",
+        description: "Proiect imobiliar de excepție, situat în vestul capitalei.",
+        features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
+        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+      },
+      {
+        title: "CITY MILITARI",
+        location: "Militari",
+        price: "€45,000 - €100,000",
+        size: "32 - 55 mp", 
+        rooms: "1-2 camere",
+        description: "Complex rezidențial modern în zona Militari, cu apartamente compacte și funcționale.",
+        features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
+        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+      }
+    ];
+
     // Build comprehensive system prompt with catalog offers and web results
     let systemPrompt = `Ești Sofia, asistentul AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului.
 
@@ -125,6 +160,25 @@ INFORMAȚII DE CONTACT:
 - Telefon: 0767941512
 - Email: mvaperfectbusiness@gmail.com
 
+PROIECTE PRINCIPALE (pe site-ul nostru):
+`;
+
+    // Add local projects information
+    localProjects.forEach((project, index) => {
+      systemPrompt += `${index + 1}. ${project.title}\n`;
+      systemPrompt += `   📍 ${project.location}\n`;
+      systemPrompt += `   💰 ${project.price}\n`;
+      systemPrompt += `   📐 ${project.size}\n`;
+      systemPrompt += `   🏠 ${project.rooms}\n`;
+      systemPrompt += `   📝 ${project.description}\n`;
+      systemPrompt += `   ✨ ${project.features.join(', ')}\n`;
+      if (project.link) {
+        systemPrompt += `   🔗 Link dedicat: ${project.link}\n`;
+      }
+      systemPrompt += `   🔗 Vezi pe site: ${project.websiteLink}\n\n`;
+    });
+
+    systemPrompt += `
 `;
 
     // Add catalog offers information only
@@ -158,12 +212,13 @@ FUNCȚIONALITĂȚI SPECIALE:
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
-- PRIORITATE: Când clienții cer oferte, prezintă PRIMUL rezultatele din căutarea web de pe Storia.ro cu linkurile complete
-- Pentru ofertele găsite pe web, include linkul complet către Storia.ro în formatul: "Vezi detalii complete: [link Storia.ro]"
-- Completează cu ofertele din catalogul local dacă este necesar sau dacă nu ai rezultate web
-- Pentru ofertele din catalog local, include linkul Storia doar dacă există (storia_link nu este null)
-- Combină informațiile din ambele surse pentru a oferi cea mai completă listă de opțiuni
-- Ofertele web sunt cele mai recente și au prioritate în prezentare
+- PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă PRIMUL proiectele principale de pe site-ul nostru cu linkurile complete
+- Pentru căutările web suplimentare pe Storia.ro, prezintă rezultatele cu linkurile complete și exacte
+- Pentru proiectele principale (RENEW RESIDENCE, EUROCASA RESIDENCE, CITY MILITARI), folosește linkurile de pe site-ul nostru
+- Pentru RENEW RESIDENCE, menționează linkul dedicat: https://renewresidence.ro/
+- Pentru toate proiectele, include linkul: "🔗 Vezi pe site: https://mva-imobiliare.lovable.app/#proprietati"
+- Completează cu ofertele din catalogul din baza de date și căutările web dacă este necesar
+- Combină informațiile din toate sursele pentru a oferi cea mai completă listă de opțiuni
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
@@ -172,7 +227,10 @@ ROLUL TĂU:
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
 IMPORTANT: 
-- Folosește PRIMUL rezultatele căutării web de pe Storia.ro când sunt disponibile
+- ÎNTOTDEAUNA prezintă PRIMUL proiectele principale de pe site-ul nostru când sunt solicitate oferte
+- Pentru RENEW RESIDENCE, include linkul dedicat: https://renewresidence.ro/
+- Pentru toate proiectele principale, include: "🔗 Vezi pe site: https://mva-imobiliare.lovable.app/#proprietati"
+- Folosește apoi rezultatele căutării web de pe Storia.ro când sunt disponibile
 - Combină rezultatele web cu ofertele din catalog pentru o imagine completă
 - ÎNTOTDEAUNA include linkurile complete către Storia.ro pentru ofertele găsite online
 - Când prezinți oferte web, menționează că sunt cele mai recente de pe Storia.ro
