@@ -369,10 +369,11 @@ function parsePropertiesFromContent(content: string): any[] {
   try {
     console.log('Parsing content length:', content.length);
     
-    // Enhanced regex to match property blocks with more flexibility
     const lines = content.split('\n');
     let currentProperty: any = null;
     let i = 0;
+    let lookingForPrice = false;
+    let lookingForRooms = false;
     
     while (i < lines.length) {
       const line = lines[i].trim();
@@ -400,51 +401,56 @@ function parsePropertiesFromContent(content: string): any[] {
           amenities: [],
           availability_status: 'available',
           is_featured: false,
-          project_name: 'WEBSITE_SCRAPE',
+          project_name: 'IMOBILIAREMILITARI_SCRAPE',
           contact_info: null,
           storia_link: null,
           whatsapp_catalog_id: null
         };
+        lookingForPrice = false;
+        lookingForRooms = false;
       }
       
-      // Extract location (usually follows title)
-      else if (currentProperty && line && !line.startsWith('#') && !line.match(/^\d/) && !line.startsWith('€') && currentProperty.location === '') {
+      // Extract location (Bucuresti typically appears after title)
+      else if (currentProperty && line === 'Bucuresti' && !currentProperty.location) {
         currentProperty.location = line;
       }
       
-      // Extract description (paragraph after location)
-      else if (currentProperty && line && !line.startsWith('#') && !line.match(/^\d/) && !line.startsWith('€') && currentProperty.description === '' && currentProperty.location !== '') {
+      // Look for "Preț" keyword to know next line is price
+      else if (currentProperty && line === 'Preț') {
+        lookingForPrice = true;
+      }
+      
+      // Look for "Camere" keyword to know next line is room count
+      else if (currentProperty && line === 'Camere') {
+        lookingForRooms = true;
+      }
+      
+      // Extract price (after "Preț" keyword)
+      else if (currentProperty && lookingForPrice && line.includes('EUR')) {
+        const priceMatch = line.match(/([\d,\.]+)\s*EUR/);
+        if (priceMatch) {
+          const price = parseInt(priceMatch[1].replace(/[,\.]/g, ''));
+          currentProperty.price_min = price;
+          currentProperty.price_max = price;
+        }
+        lookingForPrice = false;
+      }
+      
+      // Extract rooms (after "Camere" keyword)
+      else if (currentProperty && lookingForRooms && line.match(/^\d+$/)) {
+        currentProperty.rooms = parseInt(line);
+        lookingForRooms = false;
+      }
+      
+      // Extract longer descriptions (lines with substantial text)
+      else if (currentProperty && line.length > 50 && !line.includes('![') && !line.includes('http') && !line.includes('tel:') && !line.includes('wa.me') && currentProperty.description === '') {
         currentProperty.description = line;
       }
       
-      // Extract numeric values (rooms, bathrooms, surface)
-      else if (currentProperty && line.match(/^\d+$/)) {
-        const num = parseInt(line);
-        if (!currentProperty.rooms || currentProperty.rooms === 1) {
-          currentProperty.rooms = num;
-        } else if (!currentProperty.surface_min) {
-          currentProperty.surface_min = num;
-          currentProperty.surface_max = num;
-        }
-      }
-      
-      // Extract surface with "mp"
-      else if (currentProperty && line.match(/(\d+)\s*mp/)) {
-        const match = line.match(/(\d+)\s*mp/);
-        if (match) {
-          const surface = parseInt(match[1]);
-          currentProperty.surface_min = surface;
-          currentProperty.surface_max = surface;
-        }
-      }
-      
-      // Extract price
-      else if (currentProperty && line.startsWith('€')) {
-        const priceMatch = line.match(/€([\d,]+)/);
-        if (priceMatch) {
-          const price = parseInt(priceMatch[1].replace(',', ''));
-          currentProperty.price_min = price;
-          currentProperty.price_max = price;
+      // Extract features (common amenity words)
+      else if (currentProperty && (line === 'Balcon' || line === 'Parcare' || line === 'Lift' || line === 'Centrala' || line === 'TVA INCLUS !!' || line === 'Comision 0%')) {
+        if (!currentProperty.features.includes(line)) {
+          currentProperty.features.push(line);
         }
       }
       
@@ -456,12 +462,22 @@ function parsePropertiesFromContent(content: string): any[] {
         }
       }
       
-      // Extract status keywords
-      else if (currentProperty && (line === 'Nou' || line === 'Activ' || line === 'Premium' || line === 'Rezervat' || line === 'Negociere')) {
-        if (line === 'Rezervat') {
-          currentProperty.availability_status = 'reserved';
-        } else if (line === 'Premium') {
-          currentProperty.is_featured = true;
+      // Extract contact information
+      else if (currentProperty && (line.includes('tel:') || line.includes('wa.me'))) {
+        if (!currentProperty.contact_info) {
+          currentProperty.contact_info = {};
+        }
+        if (line.includes('tel:')) {
+          const phoneMatch = line.match(/tel:(\d+)/);
+          if (phoneMatch) {
+            currentProperty.contact_info.phone = phoneMatch[1];
+          }
+        }
+        if (line.includes('wa.me')) {
+          const whatsappMatch = line.match(/wa\.me\/(\d+)/);
+          if (whatsappMatch) {
+            currentProperty.contact_info.whatsapp = whatsappMatch[1];
+          }
         }
       }
       
@@ -473,8 +489,10 @@ function parsePropertiesFromContent(content: string): any[] {
       properties.push(currentProperty);
     }
     
-    console.log(`Successfully parsed ${properties.length} properties`);
-    console.log('Sample property:', properties[0] ? JSON.stringify(properties[0], null, 2) : 'None');
+    console.log(`Successfully parsed ${properties.length} properties from imobiliaremilitari.ro`);
+    if (properties.length > 0) {
+      console.log('Sample property:', JSON.stringify(properties[0], null, 2));
+    }
     
     return properties;
     
