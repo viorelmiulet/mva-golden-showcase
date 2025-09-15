@@ -37,12 +37,6 @@ const ChatWidget: React.FC = () => {
 
   const handleToggleChat = () => {
     setIsOpen(!isOpen);
-    if (!isOpen && messages.length === 0) {
-      // Send welcome message when opening chat for the first time
-      setTimeout(() => {
-        sendMessage('Salut! Vreau să aflu despre ofertele disponibile.');
-      }, 500);
-    }
   };
 
   const formatMessageContent = (content: string) => {
@@ -76,7 +70,7 @@ const ChatWidget: React.FC = () => {
             </div>
             <div>
               <h3 className="font-semibold text-sm">Sofia</h3>
-              <p className="text-xs opacity-80">Asistentul tău MVA</p>
+              <p className="text-xs opacity-80">asistentul tău AI</p>
             </div>
           </div>
           <Button
@@ -93,10 +87,13 @@ const ChatWidget: React.FC = () => {
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             {messages.length === 0 && (
-              <div className="text-center text-muted-foreground text-sm py-8">
-                <MessageCircle className="h-8 w-8 mx-auto mb-3 opacity-50" />
-                <p>Bună! Sunt Sofia, asistentul MVA Imobiliare.</p>
-                <p>Cu ce vă pot ajuta astăzi?</p>
+              <div className="flex justify-start">
+                <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm mr-4">
+                  <div>
+                    <p>Bună! Sunt Sofia, asistentul tău AI pentru MVA Imobiliare.</p>
+                    <p className="mt-2">Vă pot ajuta să găsiți proprietatea perfectă din portofoliul nostru. Cu ce vă pot ajuta astăzi?</p>
+                  </div>
+                </div>
               </div>
             )}
             

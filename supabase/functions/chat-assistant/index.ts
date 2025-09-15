@@ -124,7 +124,7 @@ serve(async (req) => {
         description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei.",
         features: ["Finisaje Premium", "Spații Verzi"],
         link: "https://renewresidence.ro/",
-        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+        websiteLink: "https://mvaimobiliare.ro/#proprietati"
       },
       {
         title: "EUROCASA RESIDENCE",
@@ -134,7 +134,7 @@ serve(async (req) => {
         rooms: "1-3 camere",
         description: "Proiect imobiliar de excepție, situat în vestul capitalei.",
         features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
-        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+        websiteLink: "https://mvaimobiliare.ro/#proprietati"
       },
       {
         title: "CITY MILITARI",
@@ -144,7 +144,7 @@ serve(async (req) => {
         rooms: "1-2 camere",
         description: "Complex rezidențial modern în zona Militari, cu apartamente compacte și funcționale.",
         features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
-        websiteLink: "https://mva-imobiliare.lovable.app/#proprietati"
+        websiteLink: "https://mvaimobiliare.ro/#proprietati"
       }
     ];
 
@@ -216,7 +216,7 @@ ROLUL TĂU:
 - Pentru căutările web suplimentare pe Storia.ro, prezintă rezultatele cu linkurile complete și exacte
 - Pentru proiectele principale (RENEW RESIDENCE, EUROCASA RESIDENCE, CITY MILITARI), folosește linkurile de pe site-ul nostru
 - Pentru RENEW RESIDENCE, menționează linkul dedicat: https://renewresidence.ro/
-- Pentru toate proiectele, include linkul: "🔗 Vezi pe site: https://mva-imobiliare.lovable.app/#proprietati"
+- Pentru toate proiectele, include linkul: "🔗 Vezi pe site: https://mvaimobiliare.ro/#proprietati"
 - Completează cu ofertele din catalogul din baza de date și căutările web dacă este necesar
 - Combină informațiile din toate sursele pentru a oferi cea mai completă listă de opțiuni
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
@@ -229,7 +229,7 @@ ROLUL TĂU:
 IMPORTANT: 
 - ÎNTOTDEAUNA prezintă PRIMUL proiectele principale de pe site-ul nostru când sunt solicitate oferte
 - Pentru RENEW RESIDENCE, include linkul dedicat: https://renewresidence.ro/
-- Pentru toate proiectele principale, include: "🔗 Vezi pe site: https://mva-imobiliare.lovable.app/#proprietati"
+- Pentru toate proiectele principale, include: "🔗 Vezi pe site: https://mvaimobiliare.ro/#proprietati"
 - Folosește apoi rezultatele căutării web de pe Storia.ro când sunt disponibile
 - Combină rezultatele web cu ofertele din catalog pentru o imagine completă
 - ÎNTOTDEAUNA include linkurile complete către Storia.ro pentru ofertele găsite online
