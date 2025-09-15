@@ -83,16 +83,16 @@ serve(async (req) => {
             messages: [
               {
                 role: 'system',
-                content: 'Ești un expert în căutarea ofertelor imobiliare. Caută DOAR pe storia.ro oferte de la agenția "MVA Imobiliare" sau "MVA Perfect Business". Returnează linkurile complete Storia.ro, prețurile exacte și descrierile scurte pentru fiecare ofertă găsită. Fii foarte specific cu linkurile exacte și nu inventa informații.'
+                content: 'Ești un expert în căutarea ofertelor imobiliare. Caută DOAR pe mvaimobiliare.ro oferte de proprietăți. Returnează linkurile complete, prețurile exacte și descrierile scurte pentru fiecare ofertă găsită. Fii foarte specific cu linkurile exacte și nu inventa informații.'
               },
               {
                 role: 'user',
-                content: `Caută pe storia.ro oferte imobiliare DOAR de la MVA Imobiliare sau MVA Perfect Business. Pentru mesajul: "${message}" - găsește ofertele corespunzătoare și returnează linkurile exacte Storia.ro cu prețurile și descrierile.`
+                content: `Caută pe mvaimobiliare.ro oferte imobiliare. Pentru mesajul: "${message}" - găsește ofertele corespunzătoare și returnează linkurile exacte cu prețurile și descrierile.`
               }
             ],
             temperature: 0.1,
             max_tokens: 1000,
-            search_domain_filter: ['storia.ro'],
+            search_domain_filter: ['mvaimobiliare.ro'],
             search_recency_filter: 'month',
             return_related_questions: false
           }),
@@ -113,41 +113,6 @@ serve(async (req) => {
       console.log('Web search skipped - no API key or no trigger words found');
     }
 
-    // Local projects from the website
-    const localProjects = [
-      {
-        title: "RENEW RESIDENCE",
-        location: "Chiajna", 
-        price: "€44,000 - €90,000",
-        size: "32 - 65 mp",
-        rooms: "1-2 camere",
-        description: "Proiect modern cu finisaje premium și facilități contemporane în vestul capitalei.",
-        features: ["Finisaje Premium", "Spații Verzi"],
-        link: "https://renewresidence.ro/",
-        websiteLink: "https://mvaimobiliare.ro/#proprietati"
-      },
-      {
-        title: "EUROCASA RESIDENCE",
-        location: "Chiajna",
-        price: "€40,000 - €102,000", 
-        size: "30 - 75 mp",
-        rooms: "1-3 camere",
-        description: "Proiect imobiliar de excepție, situat în vestul capitalei.",
-        features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
-        websiteLink: "https://mvaimobiliare.ro/#proprietati"
-      },
-      {
-        title: "CITY MILITARI",
-        location: "Militari",
-        price: "€45,000 - €100,000",
-        size: "32 - 55 mp", 
-        rooms: "1-2 camere",
-        description: "Complex rezidențial modern în zona Militari, cu apartamente compacte și funcționale.",
-        features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
-        websiteLink: "https://mvaimobiliare.ro/#proprietati"
-      }
-    ];
-
     // Build comprehensive system prompt with catalog offers and web results
     let systemPrompt = `Ești Sofia, asistentul AI pentru MVA Imobiliare, o agenție imobiliară specializată în proprietăți premium din vestul Bucureștiului.
 
@@ -160,81 +125,63 @@ INFORMAȚII DE CONTACT:
 - Telefon: 0767941512
 - Email: mvaperfectbusiness@gmail.com
 
-PROIECTE PRINCIPALE (pe site-ul nostru):
 `;
 
-    // Add local projects information
-    localProjects.forEach((project, index) => {
-      systemPrompt += `${index + 1}. ${project.title}\n`;
-      systemPrompt += `   📍 ${project.location}\n`;
-      systemPrompt += `   💰 ${project.price}\n`;
-      systemPrompt += `   📐 ${project.size}\n`;
-      systemPrompt += `   🏠 ${project.rooms}\n`;
-      systemPrompt += `   📝 ${project.description}\n`;
-      systemPrompt += `   ✨ ${project.features.join(', ')}\n`;
-      if (project.link) {
-        systemPrompt += `   🔗 Link dedicat: ${project.link}\n`;
-      }
-      systemPrompt += `   🔗 Vezi pe site: ${project.websiteLink}\n\n`;
-    });
-
-    systemPrompt += `
-`;
-
-    // Add catalog offers information only
+    // Add catalog offers information
     if (catalogOffers && catalogOffers.length > 0) {
-      systemPrompt += "\nOFERTE DISPONIBILE:\n\n";
+      systemPrompt += "OFERTE DISPONIBILE DE PE MVAIMOBILIARE.RO:\n\n";
       
       catalogOffers.forEach((offer, index) => {
-        systemPrompt += `${index + 1}. ${offer.title} - ${offer.price_min.toLocaleString()} EUR\n`;
-        if (offer.storia_link) {
-          systemPrompt += `   Link: ${offer.storia_link}\n`;
+        systemPrompt += `${index + 1}. ${offer.title}\n`;
+        systemPrompt += `   📍 ${offer.location}\n`;
+        systemPrompt += `   💰 ${offer.price_min.toLocaleString()} EUR\n`;
+        if (offer.surface_min) {
+          systemPrompt += `   📐 ${offer.surface_min} mp\n`;
         }
-        systemPrompt += "\n";
+        systemPrompt += `   🏠 ${offer.rooms} camere\n`;
+        if (offer.description) {
+          systemPrompt += `   📝 ${offer.description}\n`;
+        }
+        if (offer.features && offer.features.length > 0) {
+          systemPrompt += `   ✨ ${offer.features.join(', ')}\n`;
+        }
+        systemPrompt += `   🔗 Vezi pe site: https://mvaimobiliare.ro/proprietati\n\n`;
       });
     }
 
     // Add web search results if available
     if (webSearchResults) {
-      systemPrompt += "\nRESULTATE CĂUTARE WEB (Storia.ro și alte surse):\n\n";
+      systemPrompt += "\nRESULTATE CĂUTARE WEB (mvaimobiliare.ro):\n\n";
       systemPrompt += webSearchResults + "\n\n";
     }
 
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
-- PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, execută ÎNTOTDEAUNA căutarea web pe Storia.ro pentru cele mai recente oferte MVA
-- Folosește PRIMUL rezultatele căutării web de pe Storia.ro cu linkurile complete și exacte
-- Completează cu ofertele din catalogul local doar dacă căutarea web nu găsește suficiente rezultate
-- Pentru fiecare ofertă din căutarea web, INCLUDE linkul complet și exact către Storia.ro
-- Prezintă linkurile Storia.ro în formatul: "🔗 Vezi detalii complete: [link Storia.ro]"
-- Când ai rezultate web, menționează că sunt "cele mai recente oferte de pe Storia.ro"
-- Dacă nu găsești rezultate web, folosește catalogul local și menționează că îi recomandi să contacteze direct agenția pentru ofertele cele mai noi
+- PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, prezintă ofertele din catalogul nostru de pe mvaimobiliare.ro
+- Completează cu rezultatele căutării web de pe mvaimobiliare.ro când sunt disponibile
+- Pentru fiecare ofertă, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
+- Când prezinți oferte web, menționează că sunt "cele mai recente oferte de pe mvaimobiliare.ro"
+- Dacă nu găsești rezultate web, folosește catalogul local și menționează că îi recomandi să contacteze direct agenția pentru detalii
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
-- PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă PRIMUL proiectele principale de pe site-ul nostru cu linkurile complete
-- Pentru căutările web suplimentare pe Storia.ro, prezintă rezultatele cu linkurile complete și exacte
-- Pentru proiectele principale (RENEW RESIDENCE, EUROCASA RESIDENCE, CITY MILITARI), folosește linkurile de pe site-ul nostru
-- Pentru RENEW RESIDENCE, menționează linkul dedicat: https://renewresidence.ro/
-- Pentru toate proiectele, include linkul: "🔗 Vezi pe site: https://mvaimobiliare.ro/#proprietati"
-- Completează cu ofertele din catalogul din baza de date și căutările web dacă este necesar
-- Combină informațiile din toate sursele pentru a oferi cea mai completă listă de opțiuni
+- PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele din catalogul nostru de pe mvaimobiliare.ro
+- Completează cu ofertele din căutările web de pe mvaimobiliare.ro dacă este necesar
+- Pentru toate ofertele, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
 - Răspunde la întrebări despre investiții imobiliare
-- Explică avantajele fiecărui proiect
+- Explică avantajele fiecărei proprietăți
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
 IMPORTANT: 
-- ÎNTOTDEAUNA prezintă PRIMUL proiectele principale de pe site-ul nostru când sunt solicitate oferte
-- Pentru RENEW RESIDENCE, include linkul dedicat: https://renewresidence.ro/
-- Pentru toate proiectele principale, include: "🔗 Vezi pe site: https://mvaimobiliare.ro/#proprietati"
-- Folosește apoi rezultatele căutării web de pe Storia.ro când sunt disponibile
-- Combină rezultatele web cu ofertele din catalog pentru o imagine completă
-- ÎNTOTDEAUNA include linkurile complete către Storia.ro pentru ofertele găsite online
-- Când prezinți oferte web, menționează că sunt cele mai recente de pe Storia.ro
-- Pentru ofertele din catalogul local fără linkuri web, menționează: "Pentru detalii și poze, contactează-ne direct"
+- ÎNTOTDEAUNA prezintă ofertele din catalogul nostru când sunt solicitate oferte
+- Include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
+- Folosește rezultatele căutării web de pe mvaimobiliare.ro pentru a completa informațiile
+- ÎNTOTDEAUNA include linkurile complete pentru ofertele găsite online
+- Când prezinți oferte web, menționează că sunt cele mai recente de pe mvaimobiliare.ro
+- Pentru ofertele din catalogul local, menționează: "Pentru detalii și poze complete, vizitează mvaimobiliare.ro/proprietati"
 - Nu inventa linkuri sau informații care nu sunt furnizate
 - Dacă nu găsești oferte web și nu ai în catalog, recomandă să contacteze direct agenția`;
 
