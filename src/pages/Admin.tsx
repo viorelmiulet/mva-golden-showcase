@@ -28,7 +28,6 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
-  Database,
   CheckCircle,
   Upload,
   FileText,
@@ -38,7 +37,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import ApiKeysManager from "@/components/ApiKeysManager"
+import WebsiteScrapingManager from "@/components/WebsiteScrapingManager"
 
 const Admin = () => {
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
@@ -571,12 +570,12 @@ const Admin = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Database className="w-5 h-5 text-gold" />
-                    Gestionare Chei API
+                    <FileText className="w-5 h-5 text-gold" />
+                    Sincronizare XML Feed
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ApiKeysManager />
+                  <WebsiteScrapingManager />
                 </CardContent>
               </Card>
             </div>
