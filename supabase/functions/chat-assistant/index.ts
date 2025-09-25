@@ -254,10 +254,10 @@ IMPORTANT:
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in chat-assistant function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message || 'Internal server error',
+      error: error?.message || 'Internal server error',
       message: 'Ne pare rău, a apărut o problemă. Te rugăm să încerci din nou sau să ne contactezi direct.'
     }), {
       status: 500,

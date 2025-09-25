@@ -155,12 +155,12 @@ Deno.serve(async (req) => {
           )
         }
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('Facebook catalog sync error:', error)
         return new Response(
           JSON.stringify({
             success: false,
-            error: error.message || 'Failed to sync Facebook catalog'
+            error: error?.message || 'Failed to sync Facebook catalog'
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -213,12 +213,12 @@ Deno.serve(async (req) => {
       }
     )
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Facebook catalog import error:', error)
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Internal server error'
+        error: error?.message || 'Internal server error'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

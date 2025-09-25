@@ -162,16 +162,25 @@ serve(async (req) => {
       throw new Error('Crawl job timed out after 5 minutes');
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in update-storia-offers function:', error);
     return new Response(JSON.stringify({
-      error: error.message || 'Internal server error',
+      error: error?.message || 'Internal server error',
       success: false
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+
+  // This should never be reached, but ensures we always return a Response
+  return new Response(JSON.stringify({
+    error: 'Unexpected error - no response generated',
+    success: false
+  }), {
+    status: 500,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 });
 
 function parseStoryOffers(markdown: string): StoryOffer[] {

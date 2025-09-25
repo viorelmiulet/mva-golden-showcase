@@ -36,13 +36,13 @@ Deno.serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in simple test function:', error);
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error?.message || 'Unknown error occurred',
         timestamp: new Date().toISOString()
       }),
       { 

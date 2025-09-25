@@ -409,15 +409,15 @@ Deno.serve(async (req) => {
       }
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in Public API function:', error);
     
-    const status = error.message.includes('API key') ? 401 : 500;
+    const status = error?.message?.includes('API key') ? 401 : 500;
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error?.message || 'Unknown error occurred',
         timestamp: new Date().toISOString()
       }),
       { 

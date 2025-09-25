@@ -12,6 +12,7 @@ interface ScrapedProperty {
   images: string[];
   price_min: number;
   price_max: number;
+  currency: string;
   rooms: number;
   features: string[];
 }
@@ -371,12 +372,12 @@ serve(async (req) => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
         );
-      } catch (extractError) {
-        console.error('Extraction error:', extractError.message);
+      } catch (extractError: any) {
+        console.error('Extraction error:', extractError?.message);
         return new Response(
           JSON.stringify({ 
             success: false, 
-            error: `Nu am putut extrage datele necesare: ${extractError.message}` 
+            error: `Nu am putut extrage datele necesare: ${extractError?.message || 'Unknown extraction error'}` 
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -385,7 +386,7 @@ serve(async (req) => {
         );
       }
 
-    } catch (fetchError) {
+    } catch (fetchError: any) {
       clearTimeout(timeoutId);
       console.error('Fetch error:', fetchError);
       if (fetchError.name === 'AbortError') {
@@ -412,13 +413,13 @@ serve(async (req) => {
       );
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('General error in scrape-property:', error);
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Eroare generală: ${error.message || 'Eroare necunoscută'}` 
+        error: `Eroare generală: ${error?.message || 'Eroare necunoscută'}` 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
