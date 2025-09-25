@@ -138,10 +138,81 @@ export const useWebsiteScraper = () => {
     }
   };
 
+  const analyzeXmlStructure = async (xmlUrl: string): Promise<any> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: {
+          action: 'analyze_xml',
+          xml_url: xmlUrl
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        return data;
+      } else {
+        throw new Error(data?.error || 'XML analysis failed');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'XML analysis failed';
+      console.error('Error analyzing XML:', err);
+      setError(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const importXmlFeed = async (xmlUrl: string): Promise<ScrapeResult | null> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: {
+          action: 'import_xml_feed',
+          xml_url: xmlUrl
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "XML Import Successful",
+          description: data.message,
+        });
+        return data;
+      } else {
+        throw new Error(data?.error || 'XML import failed');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'XML import failed';
+      console.error('Error importing XML:', err);
+      setError(errorMessage);
+      
+      toast({
+        title: "XML Import Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     scrapeWebsite,
     testImmofluxConnection,
     syncImmofluxProperties,
+    importXmlFeed,
+    analyzeXmlStructure,
     isLoading,
     error,
   };

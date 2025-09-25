@@ -41,7 +41,7 @@ serve(async (req) => {
     const requestBody = await req.json();
     console.log('Request body received:', requestBody);
     
-    const { action, propertyId, url } = requestBody;
+    const { action, propertyId, url, xml_url } = requestBody;
 
     console.log('Immoflux integration called with action:', action);
 
@@ -55,6 +55,12 @@ serve(async (req) => {
       case 'get_property':
         return await getProperty(supabase, immofluxApiKey, immofluxApiUser, propertyId);
       
+      case 'analyze_xml':
+        return await analyzeXmlStructure(xml_url);
+      
+      case 'import_xml_feed':
+        return await importXmlFeed(supabase, xml_url);
+      
       case 'test_connection':
         return await testConnection(immofluxApiKey, immofluxApiUser);
       
@@ -62,7 +68,7 @@ serve(async (req) => {
         throw new Error('Invalid action specified');
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in immoflux-integration function:', error);
     return new Response(
       JSON.stringify({ 
@@ -137,7 +143,7 @@ async function testConnection(apiKey: string, apiUser: string) {
     
     throw new Error(`All API endpoints failed. Last error: ${lastError}`);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Connection test failed:', error);
     return new Response(
       JSON.stringify({ 
@@ -219,7 +225,7 @@ async function syncProperties(supabase: any, apiKey: string, apiUser: string) {
       }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Property sync failed:', error);
     return new Response(
       JSON.stringify({ 
@@ -264,7 +270,7 @@ async function getProperty(supabase: any, apiKey: string, apiUser: string, prope
       }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get property failed:', error);
     return new Response(
       JSON.stringify({ 
@@ -348,7 +354,7 @@ async function scrapeWebsiteProperties(supabase: any, url: string) {
       }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Website scraping failed:', error);
     return new Response(
       JSON.stringify({ 
@@ -528,8 +534,246 @@ function transformImmofluxData(data: any): any[] {
       is_featured: property.featured || false,
     }));
     
-  } catch (error) {
-    console.error('Data transformation failed:', error);
+  } catch (error: any) {
+    console.error('Error transforming Immoflux data:', error);
     return [];
   }
+}
+
+// Analyze XML structure function
+async function analyzeXmlStructure(xmlUrl: string) {
+  try {
+    console.log('Analyzing XML structure from:', xmlUrl);
+    
+    const response = await fetch(xmlUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch XML: ${response.status}`);
+    }
+    
+    const xmlContent = await response.text();
+    console.log('XML Content length:', xmlContent.length);
+    
+    // Return first 5000 characters for analysis
+    const preview = xmlContent.substring(0, 5000);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'XML structure analyzed successfully',
+      data: {
+        fullLength: xmlContent.length,
+        preview: preview,
+        firstElement: xmlContent.match(/<[^>]+>/)?.[0] || 'No XML element found'
+      }
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error: any) {
+    console.error('Error analyzing XML:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Import XML feed function
+async function importXmlFeed(supabase: any, xmlUrl: string) {
+  try {
+    console.log('Starting XML feed import from:', xmlUrl);
+    
+    const response = await fetch(xmlUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch XML: ${response.status}`);
+    }
+    
+    const xmlContent = await response.text();
+    console.log('XML Content fetched, length:', xmlContent.length);
+    
+    // Parse XML content to extract properties
+    const properties = parseXmlProperties(xmlContent);
+    
+    if (properties.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'No properties found in XML feed',
+          imported: 0
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Clear existing XML imported offers
+    await supabase
+      .from('catalog_offers')
+      .delete()
+      .eq('project_name', 'XML_IMPORT');
+
+    // Insert new offers
+    const { data: insertedData, error: insertError } = await supabase
+      .from('catalog_offers')
+      .insert(properties);
+
+    if (insertError) {
+      throw new Error(`Database insert failed: ${insertError.message}`);
+    }
+
+    console.log(`Successfully imported ${properties.length} properties from XML`);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: `Successfully imported ${properties.length} properties from XML feed`,
+        imported: properties.length,
+        properties: properties
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
+  } catch (error: any) {
+    console.error('XML feed import failed:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: `XML feed import failed: ${error.message}`
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+}
+
+// Parse XML properties function
+function parseXmlProperties(xmlContent: string): any[] {
+  const properties: any[] = [];
+  
+  try {
+    console.log('Parsing XML content...');
+    
+    // Basic XML parsing - this needs to be adapted based on actual XML structure
+    // For now, let's create a simple pattern matcher for common property XML elements
+    
+    // Match property blocks - adjust regex based on actual XML structure
+    const propertyBlocks = xmlContent.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
+                          xmlContent.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
+                          xmlContent.match(/<item[^>]*>[\s\S]*?<\/item>/gi);
+    
+    if (!propertyBlocks) {
+      console.log('No property blocks found in XML');
+      return [];
+    }
+    
+    console.log(`Found ${propertyBlocks.length} property blocks`);
+    
+    propertyBlocks.forEach((block, index) => {
+      try {
+        const property = {
+          title: extractXmlValue(block, 'title') || extractXmlValue(block, 'name') || `Proprietate ${index + 1}`,
+          description: extractXmlValue(block, 'description') || extractXmlValue(block, 'content') || '',
+          price_min: parseXmlPrice(extractXmlValue(block, 'price') || extractXmlValue(block, 'cost')),
+          price_max: parseXmlPrice(extractXmlValue(block, 'price') || extractXmlValue(block, 'cost')),
+          surface_min: parseXmlNumber(extractXmlValue(block, 'surface') || extractXmlValue(block, 'area')),
+          surface_max: parseXmlNumber(extractXmlValue(block, 'surface') || extractXmlValue(block, 'area')),
+          rooms: parseXmlNumber(extractXmlValue(block, 'rooms') || extractXmlValue(block, 'bedrooms')) || 1,
+          location: extractXmlValue(block, 'location') || extractXmlValue(block, 'address') || 'Bucuresti',
+          features: extractXmlArray(block, 'features') || extractXmlArray(block, 'amenities') || [],
+          amenities: extractXmlArray(block, 'amenities') || [],
+          images: extractXmlImages(block),
+          contact_info: extractXmlContact(block),
+          project_name: 'XML_IMPORT',
+          currency: extractXmlValue(block, 'currency') || 'EUR',
+          availability_status: 'available',
+          is_featured: false,
+        };
+        
+        if (property.title && property.price_min > 0) {
+          properties.push(property);
+        }
+        
+      } catch (blockError: any) {
+        console.error(`Error parsing property block ${index}:`, blockError.message);
+      }
+    });
+    
+    console.log(`Successfully parsed ${properties.length} properties from XML`);
+    return properties;
+    
+  } catch (error: any) {
+    console.error('Error parsing XML properties:', error);
+    return [];
+  }
+}
+
+// Helper functions for XML parsing
+function extractXmlValue(xmlBlock: string, tagName: string): string | null {
+  const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i');
+  const match = xmlBlock.match(regex);
+  return match ? match[1].trim() : null;
+}
+
+function parseXmlPrice(priceStr: string | null): number {
+  if (!priceStr) return 0;
+  const cleanPrice = priceStr.replace(/[^\d.,]/g, '').replace(/,/g, '.');
+  return parseInt(parseFloat(cleanPrice).toString()) || 0;
+}
+
+function parseXmlNumber(numStr: string | null): number | null {
+  if (!numStr) return null;
+  const cleanNum = numStr.replace(/[^\d.,]/g, '').replace(/,/g, '.');
+  const parsed = parseInt(parseFloat(cleanNum).toString());
+  return isNaN(parsed) ? null : parsed;
+}
+
+function extractXmlArray(xmlBlock: string, tagName: string): string[] {
+  const items: string[] = [];
+  const itemRegex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'gi');
+  let match;
+  while ((match = itemRegex.exec(xmlBlock)) !== null) {
+    items.push(match[1].trim());
+  }
+  return items;
+}
+
+function extractXmlImages(xmlBlock: string): string[] {
+  const images: string[] = [];
+  const imageRegex = /<image[^>]*>([^<]+)<\/image>/gi;
+  const urlRegex = /<url[^>]*>([^<]+)<\/url>/gi;
+  
+  let match;
+  while ((match = imageRegex.exec(xmlBlock)) !== null) {
+    images.push(match[1].trim());
+  }
+  
+  while ((match = urlRegex.exec(xmlBlock)) !== null) {
+    const url = match[1].trim();
+    if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg')) {
+      images.push(url);
+    }
+  }
+  
+  return images;
+}
+
+function extractXmlContact(xmlBlock: string): any {
+  const contact: any = {};
+  
+  const phone = extractXmlValue(xmlBlock, 'phone') || extractXmlValue(xmlBlock, 'telephone');
+  const email = extractXmlValue(xmlBlock, 'email') || extractXmlValue(xmlBlock, 'contact_email');
+  const agent = extractXmlValue(xmlBlock, 'agent') || extractXmlValue(xmlBlock, 'contact_person');
+  
+  if (phone) contact.phone = phone;
+  if (email) contact.email = email;
+  if (agent) contact.agent = agent;
+  
+  return Object.keys(contact).length > 0 ? contact : null;
 }

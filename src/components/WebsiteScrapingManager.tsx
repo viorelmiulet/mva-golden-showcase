@@ -6,17 +6,22 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Globe, Download, TestTube, RefreshCw } from 'lucide-react';
+import { Loader2, Globe, Download, TestTube, RefreshCw, FileText } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const WebsiteScrapingManager = () => {
   const [websiteUrl, setWebsiteUrl] = useState('https://imobiliaremilitari.ro/crm/properties');
+  const [xmlUrl, setXmlUrl] = useState('https://web.immoflux.ro/api/bridges/oferte360/68d0ec5a4a1e5.xml');
   const { 
     scrapeWebsite, 
     testImmofluxConnection, 
-    syncImmofluxProperties, 
+    syncImmofluxProperties,
+    importXmlFeed,
+    analyzeXmlStructure,
     isLoading, 
     error 
   } = useWebsiteScraper();
+  const { toast } = useToast();
 
   const handleScrapeWebsite = async () => {
     if (!websiteUrl.trim()) {
@@ -31,6 +36,37 @@ const WebsiteScrapingManager = () => {
 
   const handleSyncProperties = async () => {
     await syncImmofluxProperties();
+  };
+
+  const handleAnalyzeXml = async () => {
+    if (!xmlUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid XML URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    const result = await analyzeXmlStructure(xmlUrl);
+    if (result) {
+      console.log('XML Structure Analysis:', result);
+      toast({
+        title: "XML Analysis Complete",
+        description: `XML structure analyzed. Check console for details. Length: ${result.data?.fullLength} chars`,
+      });
+    }
+  };
+
+  const handleImportXml = async () => {
+    if (!xmlUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid XML URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    await importXmlFeed(xmlUrl);
   };
 
   return (
@@ -83,6 +119,66 @@ const WebsiteScrapingManager = () => {
                   </>
                 )}
               </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* XML Import Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">XML Feed Import</h3>
+              <Badge variant="outline">XML</Badge>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="xml-url">XML Feed URL</Label>
+                <Input
+                  id="xml-url"
+                  type="url"
+                  value={xmlUrl}
+                  onChange={(e) => setXmlUrl(e.target.value)}
+                  placeholder="https://example.com/properties.xml"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  onClick={handleAnalyzeXml}
+                  disabled={isLoading || !xmlUrl.trim()}
+                  variant="outline"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Analyze XML
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleImportXml}
+                  disabled={isLoading || !xmlUrl.trim()}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Import XML
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
 
