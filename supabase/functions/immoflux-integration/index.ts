@@ -659,30 +659,79 @@ function parseXmlProperties(xmlContent: string): any[] {
   
   try {
     console.log('Parsing XML content...');
+    console.log('XML content length:', xmlContent.length);
     
-    // Log first 1000 characters to see XML structure
-    console.log('XML structure sample:', xmlContent.substring(0, 1000));
+    // Log a sample of the XML structure to understand the format
+    const firstPart = xmlContent.substring(0, 2000);
+    console.log('XML structure sample:', firstPart);
     
-    // Try multiple common XML property element patterns
-    let propertyBlocks = xmlContent.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
-                        xmlContent.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
-                        xmlContent.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||
-                        xmlContent.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
-                        xmlContent.match(/<real_estate[^>]*>[\s\S]*?<\/real_estate>/gi) ||
-                        xmlContent.match(/<imobil[^>]*>[\s\S]*?<\/imobil>/gi) ||
-                        xmlContent.match(/<anunt[^>]*>[\s\S]*?<\/anunt>/gi) ||
-                        xmlContent.match(/<proprietate[^>]*>[\s\S]*?<\/proprietate>/gi);
+    // Remove XML declaration and namespaces for easier parsing
+    const cleanXml = xmlContent.replace(/<\?xml[^>]*\?>/gi, '')
+                               .replace(/xmlns[^=]*="[^"]*"/gi, '')
+                               .replace(/\s+/g, ' ');
+    
+    // Try multiple property element patterns - be very comprehensive
+    let propertyBlocks = 
+      cleanXml.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
+      cleanXml.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
+      cleanXml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||
+      cleanXml.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
+      cleanXml.match(/<real_estate[^>]*>[\s\S]*?<\/real_estate>/gi) ||
+      cleanXml.match(/<imobil[^>]*>[\s\S]*?<\/imobil>/gi) ||
+      cleanXml.match(/<anunt[^>]*>[\s\S]*?<\/anunt>/gi) ||
+      cleanXml.match(/<proprietate[^>]*>[\s\S]*?<\/proprietate>/gi) ||
+      cleanXml.match(/<advert[^>]*>[\s\S]*?<\/advert>/gi) ||
+      cleanXml.match(/<ad[^>]*>[\s\S]*?<\/ad>/gi) ||
+      cleanXml.match(/<unit[^>]*>[\s\S]*?<\/unit>/gi) ||
+      cleanXml.match(/<entry[^>]*>[\s\S]*?<\/entry>/gi);
     
     if (!propertyBlocks) {
-      console.log('No property blocks found with standard patterns, trying to extract root elements...');
+      console.log('No property blocks found with standard patterns');
       
-      // Extract all major XML elements to identify structure
-      const majorElements = xmlContent.match(/<[a-zA-Z][a-zA-Z0-9_-]*[^>]*>(?:[^<]*(?:<(?![a-zA-Z][a-zA-Z0-9_-]*)[^<]*)*)?<\/[a-zA-Z][a-zA-Z0-9_-]*>/gi);
-      if (majorElements) {
-        console.log('Found major elements:', majorElements.slice(0, 5).map(el => el.substring(0, 100)));
+      // Try to find any repeating elements that might contain properties
+      const allTags = cleanXml.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g);
+      if (allTags) {
+        const tagCounts: { [key: string]: number } = {};
+        allTags.forEach(tag => {
+          const tagName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
+          if (tagName) {
+            tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
+          }
+        });
+        
+        console.log('Tag frequency analysis:', tagCounts);
+        
+        // Find the most frequent tag that might represent properties
+        const frequentTags = Object.entries(tagCounts)
+          .filter(([_, count]: [string, number]) => count > 5)
+          .sort(([_,a]: [string, number], [__,b]: [string, number]) => b - a);
+        
+        console.log('Most frequent tags:', frequentTags.slice(0, 5));
+        
+        // Try the most frequent tag as property container
+        if (frequentTags.length > 0) {
+          const candidateTag = frequentTags[0][0];
+          console.log(`Trying candidate tag: ${candidateTag}`);
+          
+          propertyBlocks = cleanXml.match(new RegExp(`<${candidateTag}[^>]*>[\\s\\S]*?<\\/${candidateTag}>`, 'gi'));
+          
+          if (propertyBlocks) {
+            console.log(`Found ${propertyBlocks.length} blocks using tag: ${candidateTag}`);
+          }
+        }
       }
       
-      return [];
+      if (!propertyBlocks) {
+        console.log('Could not identify property structure in XML');
+        return [];
+      }
+    }
+    
+    console.log(`Found ${propertyBlocks.length} potential property blocks`);
+    
+    // Log first block structure for debugging
+    if (propertyBlocks.length > 0) {
+      console.log('First property block sample:', propertyBlocks[0].substring(0, 500));
     }
     
     console.log(`Found ${propertyBlocks.length} property blocks`);
