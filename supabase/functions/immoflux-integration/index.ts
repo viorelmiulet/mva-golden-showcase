@@ -660,16 +660,28 @@ function parseXmlProperties(xmlContent: string): any[] {
   try {
     console.log('Parsing XML content...');
     
-    // Basic XML parsing - this needs to be adapted based on actual XML structure
-    // For now, let's create a simple pattern matcher for common property XML elements
+    // Log first 1000 characters to see XML structure
+    console.log('XML structure sample:', xmlContent.substring(0, 1000));
     
-    // Match property blocks - adjust regex based on actual XML structure
-    const propertyBlocks = xmlContent.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
-                          xmlContent.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
-                          xmlContent.match(/<item[^>]*>[\s\S]*?<\/item>/gi);
+    // Try multiple common XML property element patterns
+    let propertyBlocks = xmlContent.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
+                        xmlContent.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
+                        xmlContent.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||
+                        xmlContent.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
+                        xmlContent.match(/<real_estate[^>]*>[\s\S]*?<\/real_estate>/gi) ||
+                        xmlContent.match(/<imobil[^>]*>[\s\S]*?<\/imobil>/gi) ||
+                        xmlContent.match(/<anunt[^>]*>[\s\S]*?<\/anunt>/gi) ||
+                        xmlContent.match(/<proprietate[^>]*>[\s\S]*?<\/proprietate>/gi);
     
     if (!propertyBlocks) {
-      console.log('No property blocks found in XML');
+      console.log('No property blocks found with standard patterns, trying to extract root elements...');
+      
+      // Extract all major XML elements to identify structure
+      const majorElements = xmlContent.match(/<[a-zA-Z][a-zA-Z0-9_-]*[^>]*>(?:[^<]*(?:<(?![a-zA-Z][a-zA-Z0-9_-]*)[^<]*)*)?<\/[a-zA-Z][a-zA-Z0-9_-]*>/gi);
+      if (majorElements) {
+        console.log('Found major elements:', majorElements.slice(0, 5).map(el => el.substring(0, 100)));
+      }
+      
       return [];
     }
     
