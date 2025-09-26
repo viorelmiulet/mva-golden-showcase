@@ -197,7 +197,7 @@ const Contact = () => {
                   Pentru răspunsuri rapide
                 </p>
                 <a 
-                  href="https://wa.me/40767941512?text=Buna%20ziua!%20Am%20vazut%20pe%20site%20apartamentele%20voastre%20si%20as%20dori%20sa%20aflu%20mai%20multe%20detalii.%20Puteti%20sa%20ma%20ajutati%3F" 
+                  href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >

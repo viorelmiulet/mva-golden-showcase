@@ -256,7 +256,7 @@ const Properties = () => {
                 size="lg" 
                 className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base"
                 onClick={() => {
-                  window.open('https://wa.me/40767941512?text=Bună%20ziua,%20sunt%20interesat%20de%20ofertele%20disponibile.', '_blank');
+                  window.open('https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F', '_blank');
                 }}
               >
                 Contactează-ne acum
