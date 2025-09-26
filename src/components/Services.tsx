@@ -8,7 +8,7 @@ import {
   Scale, 
   Camera,
   ArrowRight,
-  MessageCircle 
+  Phone 
 } from "lucide-react"
 
 const Services = () => {
@@ -139,10 +139,10 @@ const Services = () => {
                 Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem 
                 să te ajutăm să găsești proprietatea ideală.
               </p>
-              <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+              <a href="tel:0767941512">
                 <button className="inline-flex items-center px-6 py-3 bg-gold text-primary-foreground rounded-lg font-medium hover:bg-gold-dark transition-colors">
-                  <MessageCircle className="mr-2 w-4 h-4" />
-                  Contactează-ne pe WhatsApp
+                  <Phone className="mr-2 w-4 h-4" />
+                  Sună-ne acum: 0767 941 512
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </button>
               </a>
