@@ -196,7 +196,11 @@ const Contact = () => {
                 <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">
                   Pentru răspunsuri rapide
                 </p>
-                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+                <a 
+                  href="https://wa.me/40767941512?text=Buna%20ziua!%20Am%20vazut%20pe%20site%20apartamentele%20voastre%20si%20as%20dori%20sa%20aflu%20mai%20multe%20detalii.%20Puteti%20sa%20ma%20ajutati%3F" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
                   <Button variant="luxury" className="w-full h-10 sm:h-11 lg:h-12 text-xs sm:text-sm lg:text-base font-semibold touch-manipulation">
                     <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
                     <span className="truncate">Contactează-ne pe WhatsApp</span>
