@@ -37,7 +37,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import WebsiteScrapingManager from "@/components/WebsiteScrapingManager"
+import XmlImportManager from "@/components/XmlImportManager"
 
 const Admin = () => {
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
@@ -662,7 +662,7 @@ const Admin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <WebsiteScrapingManager />
+                  <XmlImportManager />
                 </CardContent>
               </Card>
             </div>

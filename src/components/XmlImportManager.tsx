@@ -3,20 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Globe, Download, TestTube, RefreshCw, FileText } from 'lucide-react';
+import { Loader2, Download, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
 const WebsiteScrapingManager = () => {
-  const [websiteUrl, setWebsiteUrl] = useState('https://imobiliaremilitari.ro/crm/properties');
   const [xmlUrl, setXmlUrl] = useState('https://web.immoflux.ro/api/bridges/oferte360/68d0ec5a4a1e5.xml');
   const { 
-    scrapeWebsite, 
-    testImmofluxConnection, 
-    syncImmofluxProperties,
     importXmlFeed,
     analyzeXmlStructure,
     isLoading, 
@@ -24,21 +19,6 @@ const WebsiteScrapingManager = () => {
   } = useWebsiteScraper();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  const handleScrapeWebsite = async () => {
-    if (!websiteUrl.trim()) {
-      return;
-    }
-    await scrapeWebsite(websiteUrl);
-  };
-
-  const handleTestConnection = async () => {
-    await testImmofluxConnection();
-  };
-
-  const handleSyncProperties = async () => {
-    await syncImmofluxProperties();
-  };
 
   const handleAnalyzeXml = async () => {
     if (!xmlUrl.trim()) {
@@ -74,61 +54,20 @@ const WebsiteScrapingManager = () => {
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
     }
   };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Import Properties from External Sources
+            <FileText className="h-5 w-5" />
+            XML Feed Import
           </CardTitle>
           <CardDescription>
-            Import properties from external websites or API sources into your catalog
+            Import properties from XML feeds into your catalog
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Website Scraping Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Website Scraping</h3>
-              <Badge variant="secondary">Firecrawl</Badge>
-            </div>
-            
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="website-url">Website URL</Label>
-                <Input
-                  id="website-url"
-                  type="url"
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                  placeholder="https://example.com/properties"
-                  className="mt-1"
-                />
-              </div>
-              
-              <Button 
-                onClick={handleScrapeWebsite}
-                disabled={isLoading || !websiteUrl.trim()}
-                className="w-full"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Scraping Website...
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4" />
-                    Scrape Properties from Website
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <Separator />
-
           {/* XML Import Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -187,53 +126,6 @@ const WebsiteScrapingManager = () => {
             </div>
           </div>
 
-          <Separator />
-
-          {/* Immoflux Integration Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Immoflux API Integration</h3>
-              <Badge variant="outline">API</Badge>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Button 
-                onClick={handleTestConnection}
-                disabled={isLoading}
-                variant="outline"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Testing...
-                  </>
-                ) : (
-                  <>
-                    <TestTube className="mr-2 h-4 w-4" />
-                    Test Connection
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                onClick={handleSyncProperties}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Syncing...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Sync Properties
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-
           {error && (
             <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/10">
               <p className="text-sm text-destructive">{error}</p>
@@ -248,8 +140,8 @@ const WebsiteScrapingManager = () => {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-sm space-y-2">
-            <p><strong>Website Scraping:</strong> Uses Firecrawl to extract property data from any real estate website. Properties are automatically parsed and imported into your catalog.</p>
-            <p><strong>Immoflux API:</strong> Direct integration with Immoflux platform for seamless property synchronization.</p>
+            <p><strong>XML Feed Import:</strong> Analyze and import properties from XML feeds. The system automatically detects the XML structure and maps property data to your catalog format.</p>
+            <p><strong>Supported Formats:</strong> OFERTE360, generic property XML feeds, and most real estate XML formats.</p>
             <p><strong>Data Processing:</strong> All imported properties are automatically formatted to match your catalog structure with titles, descriptions, prices, images, and features.</p>
           </div>
         </CardContent>
