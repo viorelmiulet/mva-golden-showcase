@@ -176,9 +176,14 @@ const Admin = () => {
   }
 
   const scrapeAllProperties = async () => {
+    console.log('[ADMIN DEBUG] Functia scrapeAllProperties a fost apelata!')
+    console.log('[ADMIN DEBUG] Property IDs curente:', propertyIds)
+    
     const validIds = propertyIds.filter(id => id.trim() !== "")
+    console.log('[ADMIN DEBUG] Valid IDs filtrate:', validIds)
     
     if (validIds.length === 0) {
+      console.log('[ADMIN DEBUG] Niciun ID valid gasit')
       toast({
         title: "Eroare",
         description: "Te rog să introduci cel puțin un ID valid",
@@ -187,19 +192,25 @@ const Admin = () => {
       return
     }
 
+    console.log('[ADMIN DEBUG] Setez loading state la true')
     setIsLoading(true)
     
     try {
+      console.log('[ADMIN DEBUG] Incepem procesarea proprietatilor')
+      
       // Process all property IDs in parallel
       const promises = propertyIds.map((propertyId, index) => {
         if (propertyId.trim() !== "") {
+          console.log(`[ADMIN DEBUG] Adaug promisiune pentru ID ${propertyId} la index ${index}`)
           return scrapeProperty(propertyId, index)
         }
         return Promise.resolve()
       })
 
+      console.log('[ADMIN DEBUG] Astept toate promisiunile sa se finalizeze')
       await Promise.all(promises)
       
+      console.log('[ADMIN DEBUG] Toate promisiunile finalizate, refresh properties list')
       // Refresh the properties list
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
       
@@ -208,12 +219,14 @@ const Admin = () => {
         description: `Am procesat ${validIds.length} proprietăți`
       })
     } catch (error: any) {
+      console.error('[ADMIN DEBUG] Eroare in scrapeAllProperties:', error)
       toast({
         title: "Eroare",
         description: "Eroare la procesarea proprietăților",
         variant: "destructive"
       })
     } finally {
+      console.log('[ADMIN DEBUG] Setez loading state la false')
       setIsLoading(false)
     }
   }
@@ -492,6 +505,50 @@ const Admin = () => {
                           Preia Proprietățile
                         </>
                       )}
+                    </Button>
+                    
+                    {/* Test button for debugging */}
+                    <Button 
+                      onClick={async () => {
+                        console.log('[TEST] Butonul de test a fost apasat!')
+                        toast({
+                          title: "Test",
+                          description: "Funcția de test a fost apelată!"
+                        })
+                        
+                        try {
+                          console.log('[TEST] Apelam direct edge function-ul')
+                          const { data, error } = await supabase.functions.invoke('scrape-property', {
+                            body: { url: 'https://web.immoflux.ro/publicproperty/p190741' }
+                          })
+                          console.log('[TEST] Raspuns direct:', { data, error })
+                          
+                          if (error) {
+                            toast({
+                              title: "Test Error",
+                              description: `Edge function error: ${error.message}`,
+                              variant: "destructive"
+                            })
+                          } else {
+                            toast({
+                              title: "Test Success",
+                              description: `Edge function works: ${data?.success ? 'Success' : 'Failed'}`,
+                            })
+                          }
+                        } catch (err: any) {
+                          console.error('[TEST] Eroare generala:', err)
+                          toast({
+                            title: "Test Exception",
+                            description: `Exception: ${err.message}`,
+                            variant: "destructive"
+                          })
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Test Edge Function
                     </Button>
                   </div>
 
