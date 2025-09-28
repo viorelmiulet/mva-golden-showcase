@@ -141,13 +141,21 @@ const Admin = () => {
         
         console.log(`[ADMIN DEBUG] Inserez in baza de date:`, insertData)
         
-        const { error: insertError } = await supabase
-          .from('catalog_offers')
-          .insert(insertData)
+        console.log(`[ADMIN DEBUG] Inserez prin edge function admin-offers:`, insertData)
+        const { data: adminInsertData, error: adminInsertError } = await supabase.functions.invoke('admin-offers', {
+          body: { action: 'insert_offer', offer: insertData }
+        })
 
-        if (insertError) {
-          console.error(`[ADMIN DEBUG] Eroare inserare:`, insertError)
-          throw insertError
+        console.log(`[ADMIN DEBUG] Raspuns admin-offers insert:`, { adminInsertData, adminInsertError })
+
+        if (adminInsertError) {
+          console.error(`[ADMIN DEBUG] Eroare admin-offers insert:`, adminInsertError)
+          throw adminInsertError
+        }
+
+        if (!adminInsertData?.success) {
+          console.error(`[ADMIN DEBUG] admin-offers a returnat success=false:`, adminInsertData)
+          throw new Error(adminInsertData?.error || 'Insert failed in admin-offers')
         }
 
         console.log(`[ADMIN DEBUG] Inserare reusita!`)

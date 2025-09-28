@@ -33,9 +33,52 @@ Deno.serve(async (req: Request) => {
     const body = method !== 'GET' && method !== 'HEAD' ? await req.json().catch(() => ({})) : {};
     const action = (body?.action || url.searchParams.get('action')) as string | null;
 
+    if (action === 'insert_offer') {
+      const offer = body?.offer as Record<string, unknown> | null;
+      if (!offer) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required field: offer' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Minimal validation for required catalog_offers fields
+      const required = ['title','description','location','price_min','price_max','rooms'];
+      const missing = required.filter(k => offer[k] === undefined || offer[k] === null || (typeof offer[k] === 'string' && String(offer[k]).trim() === ''));
+      if (missing.length > 0) {
+        return new Response(
+          JSON.stringify({ success: false, error: `Missing required offer fields: ${missing.join(', ')}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Defaults
+      if (!('currency' in offer)) offer['currency'] = 'EUR';
+      if (!('availability_status' in offer)) offer['availability_status'] = 'available';
+      if (!('source' in offer)) offer['source'] = 'manual';
+      if (!('images' in offer)) offer['images'] = [];
+      if (!('features' in offer)) offer['features'] = [];
+      if (!('amenities' in offer)) offer['amenities'] = [];
+
+      console.log('[admin-offers] Inserting offer');
+      const { data, error } = await supabase.from('catalog_offers').insert(offer).select('id').maybeSingle();
+      if (error) {
+        console.error('[admin-offers] Insert error', error);
+        return new Response(
+          JSON.stringify({ success: false, error: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Offer inserted successfully', id: data?.id }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (action !== 'delete_offer') {
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer".' }),
+        JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer" or "insert_offer".' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
