@@ -867,8 +867,9 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
           imagesCount: images.length
         });
 
-        // Build property with special handling for OFERTE360 <oferta> format
+        // Build property with special handling for OFERTE360 <oferta> format and Rubrikk <ad> format
         const isOferta = /<oferta[\s>]/i.test(block);
+        const isRubrikkAd = /<ad__headline[\s>]/i.test(block) || /<ad__price[\s>]/i.test(block);
         let property: any;
 
         if (isOferta) {
@@ -933,6 +934,55 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
             project_name: 'IMMOFLUX_XML_IMPORT',
             currency: currencyFinal,
             availability_status: availability,
+            is_featured: false,
+            source: 'api'
+          };
+        } else if (isRubrikkAd) {
+          // Rubrikk export (<ad> container with ad__* tags)
+          const titleR = extractImmofluxField(block, ['ad__headline']) || title;
+          const descR = extractImmofluxField(block, ['ad__description']) || description || '';
+          const priceR = parseImmofluxPrice(extractImmofluxField(block, ['ad__price']));
+          const currencyR = (extractImmofluxField(block, ['ad__price_currency']) || 'EUR').toUpperCase();
+
+          const city = extractImmofluxField(block, ['location__municipality_city']);
+          const county = extractImmofluxField(block, ['location__county']);
+          const district = extractImmofluxField(block, ['location__district_quarter_part_of_town']);
+          const locationFinal = [city, district, county].filter(Boolean).join(', ') || location || 'Bucuresti';
+
+          const roomsR = parseImmofluxNumber(extractImmofluxField(block, ['real_estate__number_of_rooms'])) || rooms || 1;
+          const surfaceR = parseImmofluxNumber(extractImmofluxField(block, ['real_estate__size_living_space'])) || surface || null;
+
+          // Prefer images declared under <ad__all_imageurls><image>...</image></ad__all_imageurls>
+          const imagesBlockMatch = block.match(/<ad__all_imageurls[^>]*>([\s\S]*?)<\/ad__all_imageurls>/i);
+          const imagesFinal = imagesBlockMatch ? extractImmofluxImages(imagesBlockMatch[1]) : extractImmofluxImages(block);
+
+          const contact_info: any = {};
+          const company = extractImmofluxField(block, ['advertiser__name_company_name']);
+          const email = extractImmofluxField(block, ['advertiser__email']);
+          const mobile = extractImmofluxField(block, ['advertiser__mobile']);
+          const phone = extractImmofluxField(block, ['advertiser__phone']);
+          if (company) contact_info.company = company;
+          if (email) contact_info.email = email;
+          if (mobile) contact_info.mobile = mobile;
+          if (phone) contact_info.phone = phone;
+          const contactFinal = Object.keys(contact_info).length ? contact_info : null;
+
+          property = {
+            title: titleR || `Anunt ${index + 1}`,
+            description: descR,
+            price_min: priceR,
+            price_max: priceR,
+            surface_min: surfaceR,
+            surface_max: surfaceR,
+            rooms: roomsR,
+            location: locationFinal,
+            features: [],
+            amenities: [],
+            images: imagesFinal,
+            contact_info: contactFinal,
+            project_name: 'IMMOFLUX_XML_IMPORT',
+            currency: currencyR,
+            availability_status: 'available',
             is_featured: false,
             source: 'api'
           };
