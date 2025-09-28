@@ -867,25 +867,96 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
           imagesCount: images.length
         });
 
-        const property = {
-          title: title,
-          description: description,
-          price_min: price,
-          price_max: price,
-          surface_min: surface,
-          surface_max: surface,
-          rooms: rooms,
-          location: location,
-          features: features,
-          amenities: features, // Use same as features for now
-          images: images,
-          contact_info: contact,
-          project_name: 'IMMOFLUX_XML_IMPORT',
-          currency: currency,
-          availability_status: 'available',
-          is_featured: false,
-          source: 'api'
-        };
+        // Build property with special handling for OFERTE360 <oferta> format
+        const isOferta = /<oferta[\s>]/i.test(block);
+        let property: any;
+
+        if (isOferta) {
+          const titleRoMatch = block.match(/<titlu[^>]*>[\s\S]*?<ro[^>]*>([\s\S]*?)<\/ro>[\s\S]*?<\/titlu>/i);
+          const descRoMatch = block.match(/<descriere[^>]*>[\s\S]*?<ro[^>]*>([\s\S]*?)<\/ro>[\s\S]*?<\/descriere>/i);
+          const titleFinal = (titleRoMatch?.[1] || title || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+          const descFinal = (descRoMatch?.[1] || description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+          const locParts: string[] = [];
+          const locLocalitate = extractImmofluxField(block, ['localitate']);
+          const locJudet = extractImmofluxField(block, ['judet']);
+          const locZona = extractImmofluxField(block, ['zona']);
+          if (locLocalitate) locParts.push(locLocalitate);
+          if (locJudet) locParts.push(locJudet);
+          if (locZona) locParts.push(locZona);
+          const locationFinal = (locParts.join(', ') || location || 'Bucuresti').trim();
+
+          const devanzare = parseInt(extractImmofluxField(block, ['devanzare']) || '0');
+          const priceRaw = devanzare === 1
+            ? (extractImmofluxField(block, ['pretvanzare']) || extractImmofluxField(block, ['pretfaratva']))
+            : (extractImmofluxField(block, ['pretinchiriere']) || extractImmofluxField(block, ['pretvanzare']) || extractImmofluxField(block, ['pretfaratva']));
+          const priceParsed = parseImmofluxPrice(priceRaw);
+
+          let currencyFinal = extractImmofluxField(block, devanzare === 1 ? ['monedavanzare'] : ['monedainchiriere'])
+            || extractImmofluxField(block, ['monedavanzare','monedainchiriere'])
+            || 'EUR';
+          currencyFinal = currencyFinal.toUpperCase().includes('RON') ? 'LEI' : (currencyFinal.toUpperCase().includes('LEI') ? 'LEI' : 'EUR');
+
+          const roomsParsed = parseImmofluxNumber(extractImmofluxField(block, ['nrcamere'])) || rooms || 1;
+          const surfaceParsed = parseImmofluxNumber(extractImmofluxField(block, ['suprafatautila']) || extractImmofluxField(block, ['suprafataconstruita'])) || surface || null;
+
+          const imagesFinal = extractImmofluxImages(block);
+
+          const featuresArr: string[] = [];
+          const f1 = extractImmofluxField(block, ['utilitati']);
+          const f2 = extractImmofluxField(block, ['finisaje']);
+          const f3 = extractImmofluxField(block, ['dotari']);
+          [f1, f2, f3].filter(Boolean).forEach((s: any) => {
+            (String(s).split(/[,;|]/).map(x => x.trim()).filter(Boolean)).forEach(v => featuresArr.push(v));
+          });
+          const compart = extractImmofluxField(block, ['tipcompartimentare']); if (compart) featuresArr.push(compart);
+          const tiploc = extractImmofluxField(block, ['tiplocuinta']); if (tiploc) featuresArr.push(tiploc);
+          const pretNeg = extractImmofluxField(block, ['pretnegociabil']); if (pretNeg === '1') featuresArr.push('Pret negociabil');
+          const uniqueFeatures = Array.from(new Set(featuresArr)).slice(0, 10);
+
+          const statusRaw = (extractImmofluxField(block, ['status']) || 'activ').toLowerCase();
+          const availability = statusRaw.includes('activ') || statusRaw.includes('available') ? 'available' : 'unavailable';
+
+          property = {
+            title: titleFinal || title,
+            description: descFinal || description,
+            price_min: priceParsed,
+            price_max: priceParsed,
+            surface_min: surfaceParsed,
+            surface_max: surfaceParsed,
+            rooms: roomsParsed,
+            location: locationFinal,
+            features: uniqueFeatures,
+            amenities: uniqueFeatures,
+            images: imagesFinal,
+            contact_info: null,
+            project_name: 'IMMOFLUX_XML_IMPORT',
+            currency: currencyFinal,
+            availability_status: availability,
+            is_featured: false,
+            source: 'api'
+          };
+        } else {
+          property = {
+            title: title,
+            description: description,
+            price_min: price,
+            price_max: price,
+            surface_min: surface,
+            surface_max: surface,
+            rooms: rooms,
+            location: location,
+            features: features,
+            amenities: features, // Use same as features for now
+            images: images,
+            contact_info: contact,
+            project_name: 'IMMOFLUX_XML_IMPORT',
+            currency: currency,
+            availability_status: 'available',
+            is_featured: false,
+            source: 'api'
+          };
+        }
         
         // Only add if it has minimum required data
         if (property.title && property.price_min > 0 && property.rooms > 0) {
