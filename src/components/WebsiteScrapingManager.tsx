@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
 import { Loader2, Globe, Download, TestTube, RefreshCw, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 const WebsiteScrapingManager = () => {
   const [websiteUrl, setWebsiteUrl] = useState('https://imobiliaremilitari.ro/crm/properties');
@@ -22,6 +23,7 @@ const WebsiteScrapingManager = () => {
     error 
   } = useWebsiteScraper();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleScrapeWebsite = async () => {
     if (!websiteUrl.trim()) {
@@ -66,9 +68,12 @@ const WebsiteScrapingManager = () => {
       });
       return;
     }
-    await importXmlFeed(xmlUrl);
+    const res = await importXmlFeed(xmlUrl);
+    if (res?.success) {
+      // Refresh properties lists
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+    }
   };
-
   return (
     <div className="space-y-6">
       <Card>

@@ -700,57 +700,25 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
       );
     }
 
-    console.log(`Parsed ${properties.length} properties, inserting with admin-offers function...`);
+    console.log(`Parsed ${properties.length} properties, inserting directly into catalog_offers...`);
 
-    // Use admin-offers function to insert multiple properties
-    let successCount = 0;
-    let failCount = 0;
-    const errors: string[] = [];
+    // Insert new offers directly with service role (bypasses RLS)
+    const { data: insertedData, error: insertError } = await supabase
+      .from('catalog_offers')
+      .insert(properties);
 
-    for (let i = 0; i < properties.length; i++) {
-      try {
-        console.log(`Inserting property ${i + 1}/${properties.length}:`, properties[i].title);
-        
-        const { data: adminInsertData, error: adminInsertError } = await supabase.functions.invoke('admin-offers', {
-          body: { action: 'insert_offer', offer: properties[i] }
-        })
-
-        if (adminInsertError) {
-          console.error(`Error inserting property ${i + 1}:`, adminInsertError)
-          errors.push(`Property ${i + 1} (${properties[i].title}): ${adminInsertError.message}`)
-          failCount++
-          continue
-        }
-
-        if (!adminInsertData?.success) {
-          console.error(`admin-offers returned success=false for property ${i + 1}:`, adminInsertData)
-          errors.push(`Property ${i + 1} (${properties[i].title}): ${adminInsertData?.error || 'Insert failed'}`)
-          failCount++
-          continue
-        }
-
-        successCount++
-        console.log(`Successfully inserted property ${i + 1}: ${properties[i].title}`)
-      } catch (insertError: any) {
-        console.error(`Exception inserting property ${i + 1}:`, insertError)
-        errors.push(`Property ${i + 1} (${properties[i].title}): ${insertError.message}`)
-        failCount++
-      }
+    if (insertError) {
+      throw new Error(`Database insert failed: ${insertError.message}`);
     }
 
-    console.log(`Import completed: ${successCount} success, ${failCount} failed`);
-    if (errors.length > 0) {
-      console.log('Errors encountered:', errors);
-    }
+    console.log(`Successfully imported ${properties.length} properties from XML`);
 
     return new Response(
       JSON.stringify({ 
-        success: successCount > 0, 
-        message: `XML import completed: ${successCount} properties imported, ${failCount} failed`,
-        imported: successCount,
-        failed: failCount,
-        errors: errors.length > 0 ? errors : undefined,
-        properties: properties.slice(0, 3) // Return first 3 for preview
+        success: true, 
+        message: `XML import completed: ${properties.length} properties imported`,
+        imported: properties.length,
+        preview: properties.slice(0, 3)
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -916,7 +884,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
           currency: currency,
           availability_status: 'available',
           is_featured: false,
-          source: 'xml'
+          source: 'api'
         };
         
         // Only add if it has minimum required data
