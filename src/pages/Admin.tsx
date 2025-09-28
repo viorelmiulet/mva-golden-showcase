@@ -100,37 +100,57 @@ const Admin = () => {
     // Construct the full URL
     const url = `https://web.immoflux.ro/publicproperty/p${propertyId.trim()}`
 
+    console.log(`[ADMIN DEBUG] Incepem scraping pentru ID: ${propertyId}`)
+    console.log(`[ADMIN DEBUG] URL construit: ${url}`)
+
     // Update loading state for this specific property ID
     setLoadingStates(prev => prev.map((state, i) => i === index ? true : state))
     
     try {
       // Call edge function to scrape the URL
+      console.log(`[ADMIN DEBUG] Apelam edge function scrape-property cu URL: ${url}`)
       const { data, error } = await supabase.functions.invoke('scrape-property', {
         body: { url }
       })
 
-      if (error) throw error
+      console.log(`[ADMIN DEBUG] Raspuns edge function:`, { data, error })
 
-      if (data.success) {
+      if (error) {
+        console.error(`[ADMIN DEBUG] Eroare edge function:`, error)
+        throw error
+      }
+
+      if (data?.success) {
+        console.log(`[ADMIN DEBUG] Datele primite de la scraper:`, data.property)
+        
         // Add the scraped property to database
+        const insertData = {
+          title: data.property.title,
+          description: data.property.description,
+          location: data.property.location,
+          images: data.property.images,
+          price_min: data.property.price_min,
+          price_max: data.property.price_max,
+          currency: data.property.currency,
+          surface_min: data.property.surface_min || 0,
+          surface_max: data.property.surface_max || 0,
+          rooms: data.property.rooms,
+          features: data.property.features,
+          availability_status: 'available'
+        }
+        
+        console.log(`[ADMIN DEBUG] Inserez in baza de date:`, insertData)
+        
         const { error: insertError } = await supabase
           .from('catalog_offers')
-          .insert({
-            title: data.property.title,
-            description: data.property.description,
-            location: data.property.location,
-            images: data.property.images,
-            price_min: data.property.price_min,
-            price_max: data.property.price_max,
-            currency: data.property.currency,
-            surface_min: data.property.surface_min,
-            surface_max: data.property.surface_max,
-            rooms: data.property.rooms,
-            features: data.property.features,
-            availability_status: 'available'
-          })
+          .insert(insertData)
 
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error(`[ADMIN DEBUG] Eroare inserare:`, insertError)
+          throw insertError
+        }
+
+        console.log(`[ADMIN DEBUG] Inserare reusita!`)
 
         toast({
           title: "Succes!",
@@ -140,9 +160,11 @@ const Admin = () => {
         // Clear this property ID
         setPropertyIds(prev => prev.map((id, i) => i === index ? "" : id))
       } else {
-        throw new Error(data.error || "Eroare la preluarea datelor")
+        console.error(`[ADMIN DEBUG] Edge function returneaza success: false`, data)
+        throw new Error(data?.error || "Eroare la preluarea datelor")
       }
     } catch (error: any) {
+      console.error(`[ADMIN DEBUG] Eroare generala:`, error)
       toast({
         title: "Eroare",
         description: `ID ${propertyId}: ${error.message || "Nu am putut prelua datele"}`,
