@@ -131,219 +131,163 @@ const Properties = () => {
                 </CardContent>
               </Card>
             ) : (
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-8">
-                  <TabsTrigger value="all">Toate</TabsTrigger>
-                  <TabsTrigger value="crm">Proprietăți Noi</TabsTrigger>
-                  <TabsTrigger value="manual">Proprietăți Existente</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="all">
-                  <div className="grid lg:grid-cols-2 gap-6">
-                    {properties.map((property) => (
-                      <Card key={property.id} className="group">
-                        <CardContent className="p-6">
-                          {/* Images */}
-                          {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                            <div className="aspect-video mb-4 overflow-hidden rounded-lg">
-                              <img 
-                                src={(property.images as string[])[0]} 
-                                alt={property.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            </div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                {properties.map((property) => (
+                  <Card key={property.id} className="group">
+                    <CardContent className="p-6">
+                      {/* Images */}
+                      {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                        <div className="aspect-video mb-4 overflow-hidden rounded-lg">
+                          <img 
+                            src={(property.images as string[])[0]} 
+                            alt={property.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Title & Location with Source Badge */}
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-start justify-between">
+                          <h3 className="text-xl font-bold text-foreground group-hover:text-gold transition-colors flex-1">
+                            {property.title}
+                          </h3>
+                          {(property.source === 'crm' || property.source === 'api') && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 ml-2">
+                              Nou
+                            </Badge>
                           )}
+                        </div>
+                        {property.location && (
+                          <div className="flex items-center text-muted-foreground">
+                            <MapPin className="w-4 h-4 mr-2 text-gold" />
+                            <span>{property.location}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="text-center">
+                          <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <Euro className="w-5 h-5 text-gold" />
+                          </div>
+                          <div className="text-xs text-muted-foreground">Preț</div>
+                          <div className="text-sm font-semibold">
+                            {property.price_min?.toLocaleString('de-DE')} {property.currency || 'EUR'}
+                            {property.price_max && property.price_max !== property.price_min && 
+                              ` - ${property.price_max.toLocaleString('de-DE')} ${property.currency || 'EUR'}`
+                            }
+                          </div>
+                        </div>
+
+                        {(property.surface_min || property.surface_max) && (
+                          <div className="text-center">
+                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                              <Ruler className="w-5 h-5 text-gold" />
+                            </div>
+                            <div className="text-xs text-muted-foreground">Suprafață</div>
+                            <div className="text-sm font-semibold">
+                              {property.surface_min}
+                              {property.surface_max && property.surface_max !== property.surface_min && 
+                                ` - ${property.surface_max}`
+                              } mp
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-center">
+                          <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                            <Home className="w-5 h-5 text-gold" />
+                          </div>
+                          <div className="text-xs text-muted-foreground">Camere</div>
+                          <div className="text-sm font-semibold">{property.rooms}</div>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      {property.description && (
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                          {property.description}
+                        </p>
+                      )}
+
+                      {/* Features */}
+                      {property.features && Array.isArray(property.features) && property.features.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {(property.features as string[]).slice(0, 3).map((feature, index) => (
+                            <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                          {(property.features as string[]).length > 3 && (
+                            <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
+                              +{(property.features as string[]).length - 3} mai multe
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Project Name */}
+                      {property.project_name && (
+                        <div className="text-center p-3 bg-gold/10 rounded-lg border border-gold/20 mb-4">
+                          <p className="text-sm font-cormorant font-medium text-gold tracking-wide">
+                            {property.project_name}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          {/* Call Now Button */}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            asChild
+                            className="flex-1 hover:bg-gold/10 hover:border-gold"
+                          >
+                            <a href="tel:0767941512">
+                              <Phone className="w-4 h-4 mr-2" />
+                              Sună acum
+                            </a>
+                          </Button>
                           
-                          {/* Title & Location with Source Badge */}
-                          <div className="space-y-2 mb-4">
-                            <div className="flex items-start justify-between">
-                              <h3 className="text-xl font-bold text-foreground group-hover:text-gold transition-colors flex-1">
-                                {property.title}
-                              </h3>
-                              {(property.source === 'crm' || property.source === 'api') && (
-                                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 ml-2">
-                                  Nou
-                                </Badge>
-                              )}
-                            </div>
-                            {property.location && (
-                              <div className="flex items-center text-muted-foreground">
-                                <MapPin className="w-4 h-4 mr-2 text-gold" />
-                                <span>{property.location}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Stats */}
-                          <div className="grid grid-cols-3 gap-4 mb-4">
-                            <div className="text-center">
-                              <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                                <Euro className="w-5 h-5 text-gold" />
-                              </div>
-                              <div className="text-xs text-muted-foreground">Preț</div>
-                              <div className="text-sm font-semibold">
-                                {property.price_min?.toLocaleString('de-DE')} {property.currency || 'EUR'}
-                                {property.price_max && property.price_max !== property.price_min && 
-                                  ` - ${property.price_max.toLocaleString('de-DE')} ${property.currency || 'EUR'}`
-                                }
-                              </div>
-                            </div>
-
-                            {(property.surface_min || property.surface_max) && (
-                              <div className="text-center">
-                                <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                                  <Ruler className="w-5 h-5 text-gold" />
-                                </div>
-                                <div className="text-xs text-muted-foreground">Suprafață</div>
-                                <div className="text-sm font-semibold">
-                                  {property.surface_min}
-                                  {property.surface_max && property.surface_max !== property.surface_min && 
-                                    ` - ${property.surface_max}`
-                                  } mp
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="text-center">
-                              <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                                <Home className="w-5 h-5 text-gold" />
-                              </div>
-                              <div className="text-xs text-muted-foreground">Camere</div>
-                              <div className="text-sm font-semibold">{property.rooms}</div>
-                            </div>
-                          </div>
-
-                          {/* Description */}
-                          {property.description && (
-                            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                              {property.description}
-                            </p>
-                          )}
-
-                          {/* Features */}
-                          {property.features && Array.isArray(property.features) && property.features.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {(property.features as string[]).slice(0, 3).map((feature, index) => (
-                                <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
-                                  {feature}
-                                </Badge>
-                              ))}
-                              {(property.features as string[]).length > 3 && (
-                                <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
-                                  +{(property.features as string[]).length - 3} mai multe
-                                </Badge>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Project Name */}
-                          {property.project_name && (
-                            <div className="text-center p-3 bg-gold/10 rounded-lg border border-gold/20 mb-4">
-                              <p className="text-sm font-cormorant font-medium text-gold tracking-wide">
-                                {property.project_name}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Actions */}
-                          <div className="flex flex-col gap-2">
-                            <div className="flex gap-2">
-                              {/* Call Now Button */}
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                asChild
-                                className="flex-1 hover:bg-gold/10 hover:border-gold"
-                              >
-                                <a href="tel:0767941512">
-                                  <Phone className="w-4 h-4 mr-2" />
-                                  Sună acum
-                                </a>
-                              </Button>
-                              
-                              {/* WhatsApp Button */}
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                asChild
-                                className="flex-1 hover:bg-green-50 hover:border-green-400"
-                              >
-                                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                                  <MessageCircle className="w-4 h-4 mr-2" />
-                                  Contact WhatsApp
-                                </a>
-                              </Button>
-                              
-                              {property.storia_link && (
-                                <Button variant="outline" size="sm" asChild>
-                                  <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    Original
-                                  </a>
-                                </Button>
-                              )}
-                            </div>
-                            <Button 
-                              onClick={() => openPropertyDetails(property)}
-                              className="w-full"
-                              size="sm"
-                            >
-                              <Info className="w-4 h-4 mr-2" />
-                              Vezi Detalii Complete
+                          {/* WhatsApp Button */}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            asChild
+                            className="flex-1 hover:bg-green-50 hover:border-green-400"
+                          >
+                            <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Contact WhatsApp
+                            </a>
+                          </Button>
+                          
+                          {property.storia_link && (
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                Original
+                              </a>
                             </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="crm">
-                  {properties.filter(p => p.source === 'crm' || p.source === 'api').length === 0 ? (
-                    <Card className="max-w-2xl mx-auto">
-                      <CardContent className="py-12 text-center">
-                        <Building className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Nu sunt proprietăți noi</h3>
-                        <p className="text-muted-foreground">Proprietățile importate din CRM vor apărea aici</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="grid lg:grid-cols-2 gap-6">
-                      {properties.filter(p => p.source === 'crm' || p.source === 'api').map((property) => (
-                        <Card key={property.id} className="group">
-                          <CardContent className="p-6">
-                            {/* Same property card content as above but for CRM properties */}
-                            {/* ... keep existing code ... */}
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="manual">
-                  {properties.filter(p => p.source === 'manual' || !p.source).length === 0 ? (
-                    <Card className="max-w-2xl mx-auto">
-                      <CardContent className="py-12 text-center">
-                        <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">Nu sunt proprietăți existente</h3>
-                        <p className="text-muted-foreground">Proprietățile adăugate manual vor apărea aici</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="grid lg:grid-cols-2 gap-6">
-                      {properties.filter(p => p.source === 'manual' || !p.source).map((property) => (
-                        <Card key={property.id} className="group">
-                          <CardContent className="p-6">
-                            {/* Same property card content as above but for manual properties */}
-                            {/* ... keep existing code ... */}
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
+                          )}
+                        </div>
+                        <Button 
+                          onClick={() => openPropertyDetails(property)}
+                          className="w-full"
+                          size="sm"
+                        >
+                          <Info className="w-4 h-4 mr-2" />
+                          Vezi Detalii Complete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </div>
         </div>
