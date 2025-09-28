@@ -31,13 +31,16 @@ import {
   CheckCircle,
   Upload,
   FileText,
-  Download
+  Download,
+  BarChart3
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import XmlImportManager from "@/components/XmlImportManager"
+import AdminAnalytics from "@/components/AdminAnalytics"
+import { useAnalytics } from "@/hooks/useAnalytics"
 
 const Admin = () => {
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
@@ -52,6 +55,9 @@ const Admin = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  
+  // Analytics data
+  const { data: analyticsData, loading: analyticsLoading } = useAnalytics(7)
 
   // Check if user is already authenticated on component mount
   useEffect(() => {
@@ -467,6 +473,13 @@ const Admin = () => {
                 Adaugă, gestionează și șterge proprietățile din catalog
               </p>
             </div>
+
+            {/* Analytics Section */}
+            {analyticsData && (
+              <div className="mb-12">
+                <AdminAnalytics data={analyticsData} />
+              </div>
+            )}
 
             <div className="grid lg:grid-cols-2 gap-8">
               
