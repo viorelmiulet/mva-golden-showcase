@@ -763,6 +763,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
     // Immoflux bridge format typically uses <item> elements or <ofertas> or similar
     // Try specific Immoflux patterns first, then fallback to generic patterns
     let propertyBlocks = 
+      cleanXml.match(/<ad[^>]*>[\s\S]*?<\/ad>/gi) ||               // Rubrikk: <ad>
       cleanXml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||           // Most common for RSS/XML bridges
       cleanXml.match(/<oferta[^>]*>[\s\S]*?<\/oferta>/gi) ||       // Spanish/Romanian format
       cleanXml.match(/<ofertas[^>]*>[\s\S]*?<\/ofertas>/gi) ||     // Multiple offers
@@ -799,9 +800,11 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
         
         console.log('Candidate property tags:', frequentTags.slice(0, 5));
         
-        // Try the most frequent reasonable tag as property container
+        // Try the most relevant tag as property container (prefer <ad>, avoid <image>)
         if (frequentTags.length > 0) {
-          const candidateTag = frequentTags[0][0];
+          const preferred = frequentTags.find(([tag]) => tag.toLowerCase() === 'ad');
+          const nonImage = frequentTags.find(([tag]) => !['image','img','url'].includes(tag.toLowerCase()));
+          const candidateTag = (preferred?.[0]) || (nonImage?.[0]) || frequentTags[0][0];
           console.log(`Trying candidate tag: ${candidateTag}`);
           
           propertyBlocks = cleanXml.match(new RegExp(`<${candidateTag}[^>]*>[\\s\\S]*?<\\/${candidateTag}>`, 'gi'));
