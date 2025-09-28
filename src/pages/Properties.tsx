@@ -418,11 +418,8 @@ const Properties = () => {
       <Dialog open={!!selectedPropertyDetails} onOpenChange={closePropertyDetails}>
         <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="flex items-center justify-between">
-              <span className="text-xl font-bold">{selectedPropertyDetails?.title}</span>
-              <Button variant="ghost" size="sm" onClick={closePropertyDetails}>
-                <X className="w-4 h-4" />
-              </Button>
+            <DialogTitle className="text-xl font-bold">
+              {selectedPropertyDetails?.title}
             </DialogTitle>
           </DialogHeader>
           
