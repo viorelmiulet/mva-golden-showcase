@@ -700,7 +700,20 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
       );
     }
 
-    console.log(`Parsed ${properties.length} properties, inserting directly into catalog_offers...`);
+    console.log(`Parsed ${properties.length} properties, clearing previous XML imports and inserting new ones...`);
+
+    // Delete previous XML imports (source = 'api') before inserting new ones
+    const { error: deleteError } = await supabase
+      .from('catalog_offers')
+      .delete()
+      .eq('source', 'api');
+
+    if (deleteError) {
+      console.error('Error deleting previous XML imports:', deleteError.message);
+      // Continue with insert even if delete fails
+    } else {
+      console.log('Successfully cleared previous XML imports');
+    }
 
     // Insert new offers directly with service role (bypasses RLS)
     const { data: insertedData, error: insertError } = await supabase
