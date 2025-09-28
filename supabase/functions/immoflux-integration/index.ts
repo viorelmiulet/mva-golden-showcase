@@ -540,7 +540,7 @@ function transformImmofluxData(data: any): any[] {
   }
 }
 
-// Analyze XML structure function
+// Analyze XML structure function - ENHANCED FOR IMMOFLUX
 async function analyzeXmlStructure(xmlUrl: string) {
   try {
     console.log('Analyzing XML structure from:', xmlUrl);
@@ -553,16 +553,106 @@ async function analyzeXmlStructure(xmlUrl: string) {
     const xmlContent = await response.text();
     console.log('XML Content length:', xmlContent.length);
     
-    // Return first 5000 characters for analysis
+    // Basic analysis
     const preview = xmlContent.substring(0, 5000);
+    
+    // Extract root element
+    const rootMatch = xmlContent.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/);
+    const rootElement = rootMatch ? rootMatch[1] : 'Unknown';
+    
+    // Clean XML for analysis
+    const cleanXml = xmlContent.replace(/<\?xml[^>]*\?>/gi, '')
+                               .replace(/xmlns[^=]*="[^"]*"/gi, '')
+                               .replace(/\s+/g, ' ');
+    
+    // Analyze all tags
+    const allTags = cleanXml.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g) || [];
+    const tagCounts: { [key: string]: number } = {};
+    
+    allTags.forEach(tag => {
+      const tagName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
+      if (tagName && tagName !== 'br' && tagName !== 'hr' && tagName !== 'img') {
+        tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
+      }
+    });
+    
+    // Find potential property container tags
+    const frequentTags = Object.entries(tagCounts)
+      .filter(([_, count]: [string, number]) => count > 1 && count < 1000)
+      .sort(([_,a]: [string, number], [__,b]: [string, number]) => b - a)
+      .slice(0, 10);
+    
+    // Try to detect property blocks with common patterns
+    const propertyPatterns = [
+      'item', 'property', 'offer', 'listing', 'oferta', 'anunt', 'imobil', 'unit', 'entry'
+    ];
+    
+    let detectedPattern = null;
+    let blockCount = 0;
+    
+    for (const pattern of propertyPatterns) {
+      const regex = new RegExp(`<${pattern}[^>]*>[\\s\\S]*?<\\/${pattern}>`, 'gi');
+      const matches = cleanXml.match(regex);
+      if (matches && matches.length > 0) {
+        detectedPattern = pattern;
+        blockCount = matches.length;
+        break;
+      }
+    }
+    
+    // If no standard pattern found, use the most frequent tag
+    if (!detectedPattern && frequentTags.length > 0) {
+      const candidateTag = frequentTags[0][0];
+      const regex = new RegExp(`<${candidateTag}[^>]*>[\\s\\S]*?<\\/${candidateTag}>`, 'gi');
+      const matches = cleanXml.match(regex);
+      if (matches && matches.length > 1) {
+        detectedPattern = candidateTag;
+        blockCount = matches.length;
+      }
+    }
+    
+    // Sample property fields detection
+    const sampleFields: string[] = [];
+    if (detectedPattern) {
+      const regex = new RegExp(`<${detectedPattern}[^>]*>([\\s\\S]*?)<\\/${detectedPattern}>`, 'i');
+      const firstBlock = cleanXml.match(regex);
+      if (firstBlock) {
+        const fieldMatches = firstBlock[1].match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g) || [];
+        const fieldsInBlock = new Set<string>();
+        fieldMatches.forEach(tag => {
+          const fieldName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
+          if (fieldName) {
+            fieldsInBlock.add(fieldName);
+          }
+        });
+        sampleFields.push(...Array.from(fieldsInBlock).slice(0, 15));
+      }
+    }
     
     return new Response(JSON.stringify({
       success: true,
       message: 'XML structure analyzed successfully',
       data: {
-        fullLength: xmlContent.length,
+        summary: {
+          totalLength: xmlContent.length,
+          rootElement: rootElement,
+          detectedPropertyPattern: detectedPattern,
+          estimatedPropertyCount: blockCount,
+          samplePropertyFields: sampleFields
+        },
+        tagFrequency: frequentTags,
+        potentialPropertyContainers: frequentTags.filter(([tag, count]) => 
+          tag.toLowerCase().includes('item') || 
+          tag.toLowerCase().includes('property') || 
+          tag.toLowerCase().includes('offer') ||
+          tag.toLowerCase().includes('oferta') ||
+          tag.toLowerCase().includes('anunt') ||
+          count > 5
+        ),
         preview: preview,
-        firstElement: xmlContent.match(/<[^>]+>/)?.[0] || 'No XML element found'
+        recommendation: detectedPattern ? 
+          `Use pattern: <${detectedPattern}> (found ${blockCount} blocks)` : 
+          'No clear property pattern detected - may need manual inspection'
       }
     }), {
       status: 200,
@@ -580,7 +670,7 @@ async function analyzeXmlStructure(xmlUrl: string) {
   }
 }
 
-// Import XML feed function
+// Import XML feed function - OPTIMIZED FOR IMMOFLUX FORMAT
 async function importXmlFeed(supabase: any, xmlUrl: string) {
   try {
     console.log('Starting XML feed import from:', xmlUrl);
@@ -592,9 +682,10 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
     
     const xmlContent = await response.text();
     console.log('XML Content fetched, length:', xmlContent.length);
+    console.log('XML preview (first 2000 chars):', xmlContent.substring(0, 2000));
     
-    // Parse XML content to extract properties
-    const properties = parseXmlProperties(xmlContent);
+    // Parse XML content to extract properties specifically for Immoflux format
+    const properties = parseImmofluxXmlProperties(xmlContent);
     
     if (properties.length === 0) {
       return new Response(
@@ -609,29 +700,57 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
       );
     }
 
-    // Clear existing XML imported offers
-    await supabase
-      .from('catalog_offers')
-      .delete()
-      .eq('project_name', 'XML_IMPORT');
+    console.log(`Parsed ${properties.length} properties, inserting with admin-offers function...`);
 
-    // Insert new offers
-    const { data: insertedData, error: insertError } = await supabase
-      .from('catalog_offers')
-      .insert(properties);
+    // Use admin-offers function to insert multiple properties
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
 
-    if (insertError) {
-      throw new Error(`Database insert failed: ${insertError.message}`);
+    for (let i = 0; i < properties.length; i++) {
+      try {
+        console.log(`Inserting property ${i + 1}/${properties.length}:`, properties[i].title);
+        
+        const { data: adminInsertData, error: adminInsertError } = await supabase.functions.invoke('admin-offers', {
+          body: { action: 'insert_offer', offer: properties[i] }
+        })
+
+        if (adminInsertError) {
+          console.error(`Error inserting property ${i + 1}:`, adminInsertError)
+          errors.push(`Property ${i + 1} (${properties[i].title}): ${adminInsertError.message}`)
+          failCount++
+          continue
+        }
+
+        if (!adminInsertData?.success) {
+          console.error(`admin-offers returned success=false for property ${i + 1}:`, adminInsertData)
+          errors.push(`Property ${i + 1} (${properties[i].title}): ${adminInsertData?.error || 'Insert failed'}`)
+          failCount++
+          continue
+        }
+
+        successCount++
+        console.log(`Successfully inserted property ${i + 1}: ${properties[i].title}`)
+      } catch (insertError: any) {
+        console.error(`Exception inserting property ${i + 1}:`, insertError)
+        errors.push(`Property ${i + 1} (${properties[i].title}): ${insertError.message}`)
+        failCount++
+      }
     }
 
-    console.log(`Successfully imported ${properties.length} properties from XML`);
+    console.log(`Import completed: ${successCount} success, ${failCount} failed`);
+    if (errors.length > 0) {
+      console.log('Errors encountered:', errors);
+    }
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        message: `Successfully imported ${properties.length} properties from XML feed`,
-        imported: properties.length,
-        properties: properties
+        success: successCount > 0, 
+        message: `XML import completed: ${successCount} properties imported, ${failCount} failed`,
+        imported: successCount,
+        failed: failCount,
+        errors: errors.length > 0 ? errors : undefined,
+        properties: properties.slice(0, 3) // Return first 3 for preview
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -653,16 +772,16 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
   }
 }
 
-// Parse XML properties function
-function parseXmlProperties(xmlContent: string): any[] {
+// Parse XML properties function - OPTIMIZED FOR IMMOFLUX BRIDGE FORMAT
+function parseImmofluxXmlProperties(xmlContent: string): any[] {
   const properties: any[] = [];
   
   try {
-    console.log('Parsing XML content...');
+    console.log('Parsing Immoflux XML content...');
     console.log('XML content length:', xmlContent.length);
     
     // Log a sample of the XML structure to understand the format
-    const firstPart = xmlContent.substring(0, 2000);
+    const firstPart = xmlContent.substring(0, 3000);
     console.log('XML structure sample:', firstPart);
     
     // Remove XML declaration and namespaces for easier parsing
@@ -670,23 +789,24 @@ function parseXmlProperties(xmlContent: string): any[] {
                                .replace(/xmlns[^=]*="[^"]*"/gi, '')
                                .replace(/\s+/g, ' ');
     
-    // Try multiple property element patterns - be very comprehensive
+    // Immoflux bridge format typically uses <item> elements or <ofertas> or similar
+    // Try specific Immoflux patterns first, then fallback to generic patterns
     let propertyBlocks = 
-      cleanXml.match(/<property[^>]*>[\s\S]*?<\/property>/gi) || 
-      cleanXml.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
-      cleanXml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||
-      cleanXml.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
-      cleanXml.match(/<real_estate[^>]*>[\s\S]*?<\/real_estate>/gi) ||
-      cleanXml.match(/<imobil[^>]*>[\s\S]*?<\/imobil>/gi) ||
-      cleanXml.match(/<anunt[^>]*>[\s\S]*?<\/anunt>/gi) ||
-      cleanXml.match(/<proprietate[^>]*>[\s\S]*?<\/proprietate>/gi) ||
-      cleanXml.match(/<advert[^>]*>[\s\S]*?<\/advert>/gi) ||
-      cleanXml.match(/<ad[^>]*>[\s\S]*?<\/ad>/gi) ||
-      cleanXml.match(/<unit[^>]*>[\s\S]*?<\/unit>/gi) ||
-      cleanXml.match(/<entry[^>]*>[\s\S]*?<\/entry>/gi);
+      cleanXml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||           // Most common for RSS/XML bridges
+      cleanXml.match(/<oferta[^>]*>[\s\S]*?<\/oferta>/gi) ||       // Spanish/Romanian format
+      cleanXml.match(/<ofertas[^>]*>[\s\S]*?<\/ofertas>/gi) ||     // Multiple offers
+      cleanXml.match(/<property[^>]*>[\s\S]*?<\/property>/gi) ||   // English format
+      cleanXml.match(/<propriedade[^>]*>[\s\S]*?<\/propriedade>/gi) || // Portuguese
+      cleanXml.match(/<immobile[^>]*>[\s\S]*?<\/immobile>/gi) ||   // Italian/French
+      cleanXml.match(/<imobil[^>]*>[\s\S]*?<\/imobil>/gi) ||       // Romanian
+      cleanXml.match(/<anunt[^>]*>[\s\S]*?<\/anunt>/gi) ||         // Romanian ads
+      cleanXml.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||     // Generic listing
+      cleanXml.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||         // Generic offer
+      cleanXml.match(/<entry[^>]*>[\s\S]*?<\/entry>/gi) ||         // RSS entry
+      cleanXml.match(/<unit[^>]*>[\s\S]*?<\/unit>/gi);             // Unit
     
     if (!propertyBlocks) {
-      console.log('No property blocks found with standard patterns');
+      console.log('No property blocks found with Immoflux patterns');
       
       // Try to find any repeating elements that might contain properties
       const allTags = cleanXml.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g);
@@ -694,21 +814,21 @@ function parseXmlProperties(xmlContent: string): any[] {
         const tagCounts: { [key: string]: number } = {};
         allTags.forEach(tag => {
           const tagName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
-          if (tagName) {
+          if (tagName && tagName !== 'br' && tagName !== 'hr' && tagName !== 'img') {
             tagCounts[tagName] = (tagCounts[tagName] || 0) + 1;
           }
         });
         
         console.log('Tag frequency analysis:', tagCounts);
         
-        // Find the most frequent tag that might represent properties
+        // Find the most frequent tag that might represent properties (but has a reasonable count)
         const frequentTags = Object.entries(tagCounts)
-          .filter(([_, count]: [string, number]) => count > 5)
+          .filter(([_, count]: [string, number]) => count > 3 && count < 1000) // Reasonable range
           .sort(([_,a]: [string, number], [__,b]: [string, number]) => b - a);
         
-        console.log('Most frequent tags:', frequentTags.slice(0, 5));
+        console.log('Candidate property tags:', frequentTags.slice(0, 5));
         
-        // Try the most frequent tag as property container
+        // Try the most frequent reasonable tag as property container
         if (frequentTags.length > 0) {
           const candidateTag = frequentTags[0][0];
           console.log(`Trying candidate tag: ${candidateTag}`);
@@ -722,8 +842,9 @@ function parseXmlProperties(xmlContent: string): any[] {
       }
       
       if (!propertyBlocks) {
-        console.log('Could not identify property structure in XML');
-        return [];
+        console.log('Could not identify property structure in XML - trying full document as single property');
+        // Try parsing the entire document as a single property (some feeds have only one)
+        propertyBlocks = [cleanXml];
       }
     }
     
@@ -731,48 +852,272 @@ function parseXmlProperties(xmlContent: string): any[] {
     
     // Log first block structure for debugging
     if (propertyBlocks.length > 0) {
-      console.log('First property block sample:', propertyBlocks[0].substring(0, 500));
+      console.log('First property block sample (first 800 chars):', propertyBlocks[0].substring(0, 800));
     }
-    
-    console.log(`Found ${propertyBlocks.length} property blocks`);
     
     propertyBlocks.forEach((block, index) => {
       try {
+        // Enhanced extraction with multiple field patterns
+        const title = extractImmofluxField(block, ['title', 'titulo', 'titlu', 'name', 'denumire', 'subject']) || `Proprietate importata ${index + 1}`;
+        const description = extractImmofluxField(block, ['description', 'desc', 'content', 'continut', 'detalii', 'details', 'body']) || '';
+        const location = extractImmofluxField(block, ['location', 'address', 'adresa', 'zona', 'oras', 'city', 'localitate', 'judet']) || 'Bucuresti';
+        
+        // Price handling - multiple possible fields and formats
+        const priceRaw = extractImmofluxField(block, ['price', 'pret', 'cost', 'valor', 'amount', 'suma']);
+        const price = parseImmofluxPrice(priceRaw);
+        
+        // Currency detection
+        const currency = extractImmofluxField(block, ['currency', 'moneda', 'valuta']) || 
+                        (priceRaw && priceRaw.includes('EUR') ? 'EUR' : 
+                         priceRaw && priceRaw.includes('RON') ? 'RON' : 
+                         priceRaw && priceRaw.includes('LEI') ? 'LEI' : 'EUR');
+        
+        // Surface/area
+        const surfaceRaw = extractImmofluxField(block, ['surface', 'area', 'suprafata', 'mp', 'metripatrati', 'size']);
+        const surface = parseImmofluxNumber(surfaceRaw);
+        
+        // Rooms
+        const roomsRaw = extractImmofluxField(block, ['rooms', 'camere', 'dormitoare', 'bedrooms', 'nr_camere']);
+        const rooms = parseImmofluxNumber(roomsRaw) || 1;
+        
+        // Images - multiple patterns
+        const images = extractImmofluxImages(block);
+        
+        // Features/amenities
+        const features = extractImmofluxFeatures(block);
+        
+        // Contact info
+        const contact = extractImmofluxContact(block);
+        
+        console.log(`Property ${index + 1} parsed:`, {
+          title: title.substring(0, 50),
+          price,
+          currency,
+          surface,
+          rooms,
+          location,
+          imagesCount: images.length
+        });
+
         const property = {
-          title: extractXmlValue(block, 'title') || extractXmlValue(block, 'name') || `Proprietate ${index + 1}`,
-          description: extractXmlValue(block, 'description') || extractXmlValue(block, 'content') || '',
-          price_min: parseXmlPrice(extractXmlValue(block, 'price') || extractXmlValue(block, 'cost')),
-          price_max: parseXmlPrice(extractXmlValue(block, 'price') || extractXmlValue(block, 'cost')),
-          surface_min: parseXmlNumber(extractXmlValue(block, 'surface') || extractXmlValue(block, 'area')),
-          surface_max: parseXmlNumber(extractXmlValue(block, 'surface') || extractXmlValue(block, 'area')),
-          rooms: parseXmlNumber(extractXmlValue(block, 'rooms') || extractXmlValue(block, 'bedrooms')) || 1,
-          location: extractXmlValue(block, 'location') || extractXmlValue(block, 'address') || 'Bucuresti',
-          features: extractXmlArray(block, 'features') || extractXmlArray(block, 'amenities') || [],
-          amenities: extractXmlArray(block, 'amenities') || [],
-          images: extractXmlImages(block),
-          contact_info: extractXmlContact(block),
-          project_name: 'XML_IMPORT',
-          currency: extractXmlValue(block, 'currency') || 'EUR',
+          title: title,
+          description: description,
+          price_min: price,
+          price_max: price,
+          surface_min: surface,
+          surface_max: surface,
+          rooms: rooms,
+          location: location,
+          features: features,
+          amenities: features, // Use same as features for now
+          images: images,
+          contact_info: contact,
+          project_name: 'IMMOFLUX_XML_IMPORT',
+          currency: currency,
           availability_status: 'available',
           is_featured: false,
+          source: 'xml'
         };
         
-        if (property.title && property.price_min > 0) {
+        // Only add if it has minimum required data
+        if (property.title && property.price_min > 0 && property.rooms > 0) {
           properties.push(property);
+          console.log(`✓ Added property ${index + 1}: ${property.title} - ${property.price_min} ${property.currency}`);
+        } else {
+          console.log(`✗ Skipped property ${index + 1}: incomplete data`, {
+            hasTitle: !!property.title,
+            price: property.price_min,
+            rooms: property.rooms
+          });
         }
         
       } catch (blockError: any) {
-        console.error(`Error parsing property block ${index}:`, blockError.message);
+        console.error(`Error parsing property block ${index + 1}:`, blockError.message);
+        console.log('Problematic block:', block.substring(0, 500));
       }
     });
     
-    console.log(`Successfully parsed ${properties.length} properties from XML`);
+    console.log(`Successfully parsed ${properties.length} valid properties from ${propertyBlocks.length} blocks`);
+    
+    // Log sample of parsed properties
+    if (properties.length > 0) {
+      console.log('Sample parsed property:', JSON.stringify(properties[0], null, 2));
+    }
+    
     return properties;
     
   } catch (error: any) {
-    console.error('Error parsing XML properties:', error);
+    console.error('Error parsing Immoflux XML properties:', error);
+    console.log('XML content that caused error:', xmlContent.substring(0, 1000));
     return [];
   }
+}
+
+// Enhanced helper functions for Immoflux XML parsing
+function extractImmofluxField(xmlBlock: string, possibleTags: string[]): string | null {
+  for (const tag of possibleTags) {
+    // Try both with and without attributes
+    const patterns = [
+      new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'),  // With attributes
+      new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i'),       // Without attributes
+      new RegExp(`<${tag}[^>]*\\/>([^<]*?)`, 'i'),              // Self-closing with content after
+      new RegExp(`${tag}[:\\s]*["']?([^"'\\r\\n<]+)`, 'i')      // Key-value format
+    ];
+    
+    for (const pattern of patterns) {
+      const match = xmlBlock.match(pattern);
+      if (match && match[1] && match[1].trim()) {
+        let value = match[1].trim();
+        // Clean HTML entities and tags
+        value = value.replace(/&[a-zA-Z0-9#]+;/g, ' ')  // HTML entities
+                    .replace(/<[^>]+>/g, ' ')            // HTML tags
+                    .replace(/\s+/g, ' ')                // Multiple whitespace
+                    .trim();
+        if (value && value !== '') {
+          return value;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function parseImmofluxPrice(priceStr: string | null): number {
+  if (!priceStr) return 0;
+  
+  // Remove everything except digits, dots, and commas
+  const cleanPrice = priceStr.replace(/[^\d.,]/g, '');
+  
+  // Handle European format (123.456,78) vs American format (123,456.78)
+  let finalPrice = cleanPrice;
+  
+  // If there's both comma and dot, assume European format if comma is last
+  if (finalPrice.includes(',') && finalPrice.includes('.')) {
+    if (finalPrice.lastIndexOf(',') > finalPrice.lastIndexOf('.')) {
+      // European format: 123.456,78 -> 123456.78
+      finalPrice = finalPrice.replace(/\./g, '').replace(',', '.');
+    } else {
+      // American format: 123,456.78 -> 123456.78
+      finalPrice = finalPrice.replace(/,/g, '');
+    }
+  } else if (finalPrice.includes(',')) {
+    // Only comma - could be thousands separator or decimal
+    const parts = finalPrice.split(',');
+    if (parts.length === 2 && parts[1].length <= 2) {
+      // Likely decimal: 123,50 -> 123.50
+      finalPrice = finalPrice.replace(',', '.');
+    } else {
+      // Likely thousands: 123,456 -> 123456
+      finalPrice = finalPrice.replace(/,/g, '');
+    }
+  }
+  
+  const parsed = parseFloat(finalPrice);
+  return isNaN(parsed) ? 0 : Math.round(parsed);
+}
+
+function parseImmofluxNumber(numStr: string | null): number | null {
+  if (!numStr) return null;
+  const cleanNum = numStr.replace(/[^\d.,]/g, '');
+  if (!cleanNum) return null;
+  
+  // Simple parsing for numbers (assume last dot/comma is decimal if <= 2 digits after)
+  let finalNum = cleanNum;
+  const lastDot = finalNum.lastIndexOf('.');
+  const lastComma = finalNum.lastIndexOf(',');
+  
+  if (lastComma > lastDot && lastComma > -1) {
+    const afterComma = finalNum.substring(lastComma + 1);
+    if (afterComma.length <= 2) {
+      finalNum = finalNum.replace(',', '.');
+    } else {
+      finalNum = finalNum.replace(/,/g, '');
+    }
+  } else {
+    finalNum = finalNum.replace(/,/g, '');
+  }
+  
+  const parsed = parseFloat(finalNum);
+  return isNaN(parsed) ? null : Math.round(parsed);
+}
+
+function extractImmofluxImages(xmlBlock: string): string[] {
+  const images: string[] = [];
+  const imageSet = new Set<string>(); // Prevent duplicates
+  
+  // Multiple patterns for image URLs
+  const patterns = [
+    /<image[^>]*>([^<]+)<\/image>/gi,                    // <image>url</image>
+    /<img[^>]+src=["']([^"']+)["']/gi,                   // <img src="url">
+    /<url[^>]*>([^<]+)<\/url>/gi,                        // <url>url</url>
+    /<foto[^>]*>([^<]+)<\/foto>/gi,                      // <foto>url</foto>
+    /<picture[^>]*>([^<]+)<\/picture>/gi,                // <picture>url</picture>
+    /https?:\/\/[^\s<>"']+\.(?:jpg|jpeg|png|gif|webp)/gi // Direct URLs
+  ];
+  
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(xmlBlock)) !== null) {
+      let url = match[1] || match[0];
+      url = url.trim();
+      
+      // Validate URL
+      if (url.startsWith('http') && (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif') || url.includes('.webp'))) {
+        imageSet.add(url);
+      }
+    }
+  });
+  
+  return Array.from(imageSet).slice(0, 15); // Limit to 15 images
+}
+
+function extractImmofluxFeatures(xmlBlock: string): string[] {
+  const features: string[] = [];
+  
+  // Common feature patterns
+  const featurePatterns = [
+    /balcon/gi, /parcare/gi, /lift/gi, /centrala/gi, /gradina/gi, /terasa/gi,
+    /garaj/gi, /subsol/gi, /mansarda/gi, /boiler/gi, /aer\s*conditionat/gi,
+    /furnished/gi, /mobilat/gi, /internet/gi, /cable/gi, /security/gi, /securitate/gi
+  ];
+  
+  featurePatterns.forEach(pattern => {
+    if (pattern.test(xmlBlock)) {
+      const match = pattern.exec(xmlBlock);
+      if (match) {
+        features.push(match[0].toLowerCase());
+      }
+    }
+  });
+  
+  // Also extract from specific feature tags
+  const featureTags = ['amenities', 'features', 'dotari', 'facilitati'];
+  featureTags.forEach(tag => {
+    const featureValue = extractImmofluxField(xmlBlock, [tag]);
+    if (featureValue) {
+      // Split by common separators
+      const individualFeatures = featureValue.split(/[,;|]/).map(f => f.trim()).filter(f => f);
+      features.push(...individualFeatures);
+    }
+  });
+  
+  return [...new Set(features)].slice(0, 10); // Remove duplicates, limit to 10
+}
+
+function extractImmofluxContact(xmlBlock: string): any {
+  const contact: any = {};
+  
+  const phone = extractImmofluxField(xmlBlock, ['phone', 'telefon', 'tel', 'telephone', 'contact_phone']);
+  const email = extractImmofluxField(xmlBlock, ['email', 'mail', 'contact_email', 'e_mail']);
+  const agent = extractImmofluxField(xmlBlock, ['agent', 'contact_person', 'person', 'nume_agent', 'consultant']);
+  const company = extractImmofluxField(xmlBlock, ['company', 'firma', 'agentie', 'agency']);
+  
+  if (phone) contact.phone = phone;
+  if (email) contact.email = email;
+  if (agent) contact.agent = agent;
+  if (company) contact.company = company;
+  
+  return Object.keys(contact).length > 0 ? contact : null;
 }
 
 // Helper functions for XML parsing
