@@ -133,9 +133,9 @@ const Properties = () => {
             ) : (
               <Tabs defaultValue="all" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-8">
-                  <TabsTrigger value="all">Toate ({properties.length})</TabsTrigger>
-                  <TabsTrigger value="crm">Proprietăți Noi ({properties.filter(p => p.source === 'crm' || p.source === 'api').length})</TabsTrigger>
-                  <TabsTrigger value="manual">Proprietăți Existente ({properties.filter(p => p.source === 'manual' || !p.source).length})</TabsTrigger>
+                  <TabsTrigger value="all">Toate</TabsTrigger>
+                  <TabsTrigger value="crm">Proprietăți Noi</TabsTrigger>
+                  <TabsTrigger value="manual">Proprietăți Existente</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="all">
