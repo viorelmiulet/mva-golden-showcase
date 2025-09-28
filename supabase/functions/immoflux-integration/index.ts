@@ -753,7 +753,10 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
     console.log('XML structure sample:', firstPart);
     
     // Remove XML declaration and namespaces for easier parsing
-    const cleanXml = xmlContent.replace(/<\?xml[^>]*\?>/gi, '')
+    const cleanXml = xmlContent
+                               .replace(/<\?xml[^>]*\?>/gi, '')
+                               .replace(/<!\[CDATA\[/g, '')
+                               .replace(/\]\]>/g, '')
                                .replace(/xmlns[^=]*="[^"]*"/gi, '')
                                .replace(/\s+/g, ' ');
     
