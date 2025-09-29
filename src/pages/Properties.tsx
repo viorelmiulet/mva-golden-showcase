@@ -53,7 +53,7 @@ const Properties = () => {
   const [priceFilter, setPriceFilter] = useState("all")
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
-  const [surfaceFilter, setSurfaceFilter] = useState("all")
+  
   const [showFilters, setShowFilters] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -102,19 +102,9 @@ const Properties = () => {
         return false
       }
 
-      // Surface filter
-      if (surfaceFilter && surfaceFilter !== "all") {
-        const [minSurface, maxSurface] = surfaceFilter.split('-').map(s => parseInt(s))
-        if (maxSurface) {
-          if (!property.surface_min || property.surface_min < minSurface || property.surface_min > maxSurface) return false
-        } else {
-          if (!property.surface_min || property.surface_min < minSurface) return false
-        }
-      }
-
       return true
     })
-  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter, surfaceFilter])
+  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter])
 
   // Get unique locations for filter dropdown
   const uniqueLocations = useMemo(() => {
@@ -179,17 +169,8 @@ const Properties = () => {
 
             {/* Filters */}
             <div className="mb-8">
-              {/* Search and Filter Toggle */}
-              <div className="flex flex-col lg:flex-row gap-4 mb-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder="Caută proprietăți..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 glass"
-                  />
-                </div>
+              {/* Filter Toggle */}
+              <div className="flex justify-center mb-4">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowFilters(!showFilters)}
@@ -205,6 +186,19 @@ const Properties = () => {
                 <Card className="glass">
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Search Field */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Căutare</label>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                          <Input
+                            placeholder="Caută proprietăți..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10 glass"
+                          />
+                        </div>
+                      </div>
                       {/* Price Filter */}
                       <div>
                         <label className="text-sm font-medium mb-2 block">Preț (EUR)</label>
@@ -241,24 +235,6 @@ const Properties = () => {
                         </Select>
                       </div>
 
-                      {/* Surface Filter */}
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Suprafață (mp)</label>
-                        <Select value={surfaceFilter} onValueChange={setSurfaceFilter}>
-                          <SelectTrigger className="glass">
-                            <SelectValue placeholder="Suprafața" />
-                          </SelectTrigger>
-                           <SelectContent>
-                            <SelectItem value="all">Toate</SelectItem>
-                            <SelectItem value="0-50">Sub 50 mp</SelectItem>
-                            <SelectItem value="50-100">50 - 100 mp</SelectItem>
-                            <SelectItem value="100-150">100 - 150 mp</SelectItem>
-                            <SelectItem value="150-200">150 - 200 mp</SelectItem>
-                            <SelectItem value="200">Peste 200 mp</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
                       {/* Location Filter */}
                       <div>
                         <label className="text-sm font-medium mb-2 block">Locație</label>
@@ -266,7 +242,7 @@ const Properties = () => {
                           <SelectTrigger className="glass">
                             <SelectValue placeholder="Selectează locația" />
                           </SelectTrigger>
-                           <SelectContent>
+                          <SelectContent>
                             <SelectItem value="all">Toate locațiile</SelectItem>
                             {uniqueLocations.map((location) => (
                               <SelectItem key={location} value={location}>
@@ -291,7 +267,6 @@ const Properties = () => {
                           setPriceFilter("all")
                           setRoomsFilter("all")
                           setLocationFilter("all")
-                          setSurfaceFilter("all")
                         }}
                         className="glass hover:glass-hover"
                       >
