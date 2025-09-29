@@ -50,10 +50,10 @@ const Properties = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [priceFilter, setPriceFilter] = useState("")
-  const [roomsFilter, setRoomsFilter] = useState("")
-  const [locationFilter, setLocationFilter] = useState("")
-  const [surfaceFilter, setSurfaceFilter] = useState("")
+  const [priceFilter, setPriceFilter] = useState("all")
+  const [roomsFilter, setRoomsFilter] = useState("all")
+  const [locationFilter, setLocationFilter] = useState("all")
+  const [surfaceFilter, setSurfaceFilter] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -83,7 +83,7 @@ const Properties = () => {
       }
 
       // Price filter
-      if (priceFilter) {
+      if (priceFilter && priceFilter !== "all") {
         const [minPrice, maxPrice] = priceFilter.split('-').map(p => parseInt(p))
         if (maxPrice) {
           if (property.price_min < minPrice || property.price_min > maxPrice) return false
@@ -93,17 +93,17 @@ const Properties = () => {
       }
 
       // Rooms filter
-      if (roomsFilter && property.rooms !== parseInt(roomsFilter)) {
+      if (roomsFilter && roomsFilter !== "all" && property.rooms !== parseInt(roomsFilter)) {
         return false
       }
 
       // Location filter
-      if (locationFilter && !property.location?.toLowerCase().includes(locationFilter.toLowerCase())) {
+      if (locationFilter && locationFilter !== "all" && !property.location?.toLowerCase().includes(locationFilter.toLowerCase())) {
         return false
       }
 
       // Surface filter
-      if (surfaceFilter) {
+      if (surfaceFilter && surfaceFilter !== "all") {
         const [minSurface, maxSurface] = surfaceFilter.split('-').map(s => parseInt(s))
         if (maxSurface) {
           if (!property.surface_min || property.surface_min < minSurface || property.surface_min > maxSurface) return false
@@ -212,8 +212,8 @@ const Properties = () => {
                           <SelectTrigger className="glass">
                             <SelectValue placeholder="Selectează prețul" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">Toate prețurile</SelectItem>
+                           <SelectContent>
+                            <SelectItem value="all">Toate prețurile</SelectItem>
                             <SelectItem value="0-50000">Sub 50.000 EUR</SelectItem>
                             <SelectItem value="50000-100000">50.000 - 100.000 EUR</SelectItem>
                             <SelectItem value="100000-200000">100.000 - 200.000 EUR</SelectItem>
@@ -230,8 +230,8 @@ const Properties = () => {
                           <SelectTrigger className="glass">
                             <SelectValue placeholder="Numărul de camere" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">Toate</SelectItem>
+                           <SelectContent>
+                            <SelectItem value="all">Toate</SelectItem>
                             <SelectItem value="1">1 cameră</SelectItem>
                             <SelectItem value="2">2 camere</SelectItem>
                             <SelectItem value="3">3 camere</SelectItem>
@@ -248,8 +248,8 @@ const Properties = () => {
                           <SelectTrigger className="glass">
                             <SelectValue placeholder="Suprafața" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">Toate</SelectItem>
+                           <SelectContent>
+                            <SelectItem value="all">Toate</SelectItem>
                             <SelectItem value="0-50">Sub 50 mp</SelectItem>
                             <SelectItem value="50-100">50 - 100 mp</SelectItem>
                             <SelectItem value="100-150">100 - 150 mp</SelectItem>
@@ -266,8 +266,8 @@ const Properties = () => {
                           <SelectTrigger className="glass">
                             <SelectValue placeholder="Selectează locația" />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">Toate locațiile</SelectItem>
+                           <SelectContent>
+                            <SelectItem value="all">Toate locațiile</SelectItem>
                             {uniqueLocations.map((location) => (
                               <SelectItem key={location} value={location}>
                                 {location}
@@ -288,10 +288,10 @@ const Properties = () => {
                         size="sm"
                         onClick={() => {
                           setSearchQuery("")
-                          setPriceFilter("")
-                          setRoomsFilter("")
-                          setLocationFilter("")
-                          setSurfaceFilter("")
+                          setPriceFilter("all")
+                          setRoomsFilter("all")
+                          setLocationFilter("all")
+                          setSurfaceFilter("all")
                         }}
                         className="glass hover:glass-hover"
                       >
