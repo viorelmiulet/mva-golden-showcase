@@ -202,7 +202,7 @@ All colors MUST be HSL.
     background: var(--gradient-glass);
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
-    border: 1px solid hsl(var(--glass-border));
+    border: 0.5px solid hsl(var(--glass-border));
     box-shadow: var(--shadow-glass);
     transition: var(--transition-glass);
   }
@@ -218,7 +218,7 @@ All colors MUST be HSL.
     background: hsla(220, 30%, 10%, 0.4);
     backdrop-filter: var(--backdrop-blur-strong);
     -webkit-backdrop-filter: var(--backdrop-blur-strong);
-    border: 1px solid hsl(var(--glass-border));
+    border: 0.5px solid hsl(var(--glass-border));
     box-shadow: var(--shadow-glass-hover);
   }
 
