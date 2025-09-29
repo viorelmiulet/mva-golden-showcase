@@ -66,10 +66,12 @@ const Hero = () => {
                 <Button 
                   variant="luxury" 
                   size="lg" 
-                  className="group px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold w-full xs:w-auto"
+                  className="group px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold w-full xs:w-auto shadow-2xl"
                 >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">Colaborează cu </span>noi
+                  <UserPlus className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">Colaborează cu </span>
+                  <span className="sm:hidden">Colaborează</span>
+                  <span className="hidden sm:inline">noi</span>
                 </Button>
               </CollaborationForm>
               
