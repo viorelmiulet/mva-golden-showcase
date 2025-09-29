@@ -23,16 +23,17 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background with Parallax Effect */}
+      {/* Liquid Glass Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/90 to-background/70 z-10"></div>
+        <div className="absolute inset-0 z-10" style={{ background: 'var(--gradient-hero-glass)' }}></div>
         <img 
           src={heroProperty} 
           alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului" 
           className="w-full h-full object-cover scale-110 animate-fade-in"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
+        <div className="absolute inset-0 backdrop-blur-[2px] z-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent z-10"></div>
       </div>
 
       {/* Content Grid */}
@@ -92,28 +93,28 @@ const Hero = () => {
 
           {/* Right Column - Stats Cards */}
           <div className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0">
-            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">€40K+</div>
+            <div className="card-responsive group touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">€40K+</div>
               <div className="text-xs text-muted-foreground">Preturi de la</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Apartamente moderne</div>
             </div>
             
-            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">3</div>
+            <div className="card-responsive group lg:mt-8 touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">3</div>
               <div className="text-xs text-muted-foreground">Complexe disponibile</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
             
-            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group touch-manipulation">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2">1-3</div>
+            <div className="card-responsive group touch-manipulation">
+              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">1-3</div>
               <div className="text-xs text-muted-foreground">Camere disponibile</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">30-75 mp</div>
             </div>
             
-            <div className="card-responsive bg-card/60 backdrop-blur-sm border border-gold/10 hover:bg-card/80 transition-all duration-300 group lg:mt-8 touch-manipulation">
+            <div className="card-responsive group lg:mt-8 touch-manipulation">
               <div className="flex items-center mb-1 sm:mb-2">
-                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold mr-1" />
-                <div className="text-xs sm:text-sm text-gold font-semibold">Vest București</div>
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold mr-1 drop-shadow-lg" />
+                <div className="text-xs sm:text-sm text-gold font-semibold drop-shadow-lg">Vest București</div>
               </div>
               <div className="text-xs text-muted-foreground">Locație strategică</div>
               <div className="text-xs sm:text-sm text-foreground font-medium">Acces facil la centru</div>

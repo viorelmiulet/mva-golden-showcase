@@ -102,11 +102,11 @@ const Properties = () => {
       {projects.map((property) => (
         <Card 
           key={property.id} 
-          className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl ${
+          className={`group relative overflow-hidden glass glass-hover touch-manipulation ${
             property.highlight 
-              ? 'border-gold/30 bg-gradient-to-br from-gold/5 to-gold-dark/5' 
-              : 'border-border/30 bg-card/50'
-          } backdrop-blur-sm hover:border-gold/50 touch-manipulation`}
+              ? 'border-gold/40' 
+              : 'border-gold/20'
+          }`}
         >
           {property.highlight && (
             <div className="absolute top-3 sm:top-4 lg:top-6 left-3 sm:left-4 lg:left-6 z-10">
@@ -128,7 +128,7 @@ const Properties = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
             {/* Price Badge */}
-            <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 bg-background/90 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 border border-gold/20">
+            <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 glass rounded-xl px-3 sm:px-4 py-2 sm:py-3 border border-gold/30">
               <div className="flex items-center text-gold font-bold">
                 <Euro className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 <span className="text-xs sm:text-sm">{property.price.split(' - ')[0]} +</span>
@@ -268,7 +268,7 @@ const Properties = () => {
           {/* Properties Tabs */}
           <div className="mb-12 sm:mb-16">
             <Tabs defaultValue="toate" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8 lg:mb-12 bg-background/50 backdrop-blur-sm border border-gold/20 h-auto p-1">
+              <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8 lg:mb-12 glass border border-gold/30 h-auto p-1">
                 <TabsTrigger 
                   value="toate" 
                   className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2 sm:py-2.5 px-2 sm:px-3 touch-manipulation"
@@ -300,9 +300,9 @@ const Properties = () => {
             </Tabs>
           </div>
 
-          {/* CTA Section */}
+            {/* CTA Section */}
           <footer className="text-center">
-            <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-xl lg:rounded-2xl p-6 sm:p-8 border border-gold/20 max-w-4xl mx-auto">
+            <div className="glass rounded-2xl lg:rounded-3xl p-6 sm:p-8 border border-gold/30 max-w-4xl mx-auto">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
                 Explorează Toate Apartamentele Disponibile
               </h2>

@@ -8,55 +8,71 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 6%;
-    --foreground: 45 100% 85%;
+    --background: 220 30% 8%;
+    --foreground: 45 100% 95%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 45 100% 85%;
+    --card: 220 30% 12% / 0.3;
+    --card-foreground: 45 100% 95%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 45 100% 85%;
+    --popover: 220 30% 10% / 0.8;
+    --popover-foreground: 45 100% 95%;
 
     --primary: 45 100% 60%;
-    --primary-foreground: 0 0% 6%;
+    --primary-foreground: 220 30% 8%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 45 100% 85%;
+    --secondary: 220 30% 15% / 0.4;
+    --secondary-foreground: 45 100% 95%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 45 20% 60%;
+    --muted: 220 30% 12% / 0.5;
+    --muted-foreground: 45 40% 75%;
 
     --accent: 45 100% 60%;
-    --accent-foreground: 0 0% 6%;
+    --accent-foreground: 220 30% 8%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 45 100% 85%;
+    --destructive-foreground: 45 100% 95%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
+    --border: 220 30% 30% / 0.2;
+    --input: 220 30% 15% / 0.6;
     --ring: 45 100% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Custom luxury design tokens */
+    /* Liquid Glass Design Tokens */
     --gold: 45 100% 60%;
     --gold-light: 45 100% 70%;
     --gold-dark: 45 100% 45%;
-    --black: 0 0% 6%;
-    --black-light: 0 0% 12%;
-    --black-lighter: 0 0% 20%;
+    --glass-white: 255 255 255% / 0.1;
+    --glass-dark: 220 30% 5% / 0.3;
+    --glass-border: 255 255 255% / 0.15;
     
-    /* Gradients */
-    --gradient-gold: linear-gradient(135deg, hsl(45 100% 60%), hsl(45 100% 45%));
-    --gradient-black-gold: linear-gradient(135deg, hsl(0 0% 6%), hsl(45 100% 60% / 0.2));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(0 0% 8%) 50%, hsl(45 100% 60% / 0.1) 100%);
+    /* Liquid Glass Gradients */
+    --gradient-glass: linear-gradient(135deg, 
+      hsla(220, 30%, 20%, 0.3) 0%, 
+      hsla(45, 100%, 60%, 0.1) 50%, 
+      hsla(220, 30%, 15%, 0.4) 100%);
+    --gradient-glass-hover: linear-gradient(135deg, 
+      hsla(220, 30%, 25%, 0.4) 0%, 
+      hsla(45, 100%, 60%, 0.2) 50%, 
+      hsla(220, 30%, 20%, 0.5) 100%);
+    --gradient-hero-glass: linear-gradient(135deg, 
+      hsla(220, 30%, 8%, 0.8) 0%, 
+      hsla(220, 30%, 12%, 0.6) 50%, 
+      hsla(45, 100%, 60%, 0.1) 100%);
     
-    /* Shadows */
-    --shadow-gold: 0 10px 40px hsl(45 100% 60% / 0.3);
-    --shadow-elegant: 0 20px 60px hsl(0 0% 0% / 0.8);
+    /* Glass Shadows & Effects */
+    --shadow-glass: 0 8px 32px hsla(220, 30%, 5%, 0.6), 
+                    0 4px 16px hsla(45, 100%, 60%, 0.1),
+                    inset 0 1px 0 hsla(255, 255, 255%, 0.2);
+    --shadow-glass-hover: 0 12px 48px hsla(220, 30%, 5%, 0.8), 
+                          0 6px 24px hsla(45, 100%, 60%, 0.15),
+                          inset 0 1px 0 hsla(255, 255, 255%, 0.3);
+    --backdrop-blur: blur(24px);
+    --backdrop-blur-strong: blur(40px);
     
-    /* Animations */
-    --transition-luxury: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Liquid Glass Animations */
+    --transition-glass: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-glass-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
     --radius: 0.75rem;
 
@@ -181,10 +197,35 @@ All colors MUST be HSL.
   .grid-responsive-3 { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6; }
   .grid-responsive-4 { @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6; }
 
-  /* Card enhancements for mobile */
+  /* Liquid Glass Effects */
+  .glass {
+    background: var(--gradient-glass);
+    backdrop-filter: var(--backdrop-blur);
+    -webkit-backdrop-filter: var(--backdrop-blur);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--shadow-glass);
+    transition: var(--transition-glass);
+  }
+
+  .glass-hover:hover {
+    background: var(--gradient-glass-hover);
+    box-shadow: var(--shadow-glass-hover);
+    backdrop-filter: var(--backdrop-blur-strong);
+    -webkit-backdrop-filter: var(--backdrop-blur-strong);
+  }
+
+  .glass-strong {
+    background: hsla(220, 30%, 10%, 0.4);
+    backdrop-filter: var(--backdrop-blur-strong);
+    -webkit-backdrop-filter: var(--backdrop-blur-strong);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--shadow-glass-hover);
+  }
+
+  /* Card enhancements for liquid glass */
   .card-responsive {
-    @apply p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl lg:rounded-2xl;
-    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+    @apply p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl lg:rounded-3xl;
+    @apply glass glass-hover;
   }
 
   /* Button optimizations */
