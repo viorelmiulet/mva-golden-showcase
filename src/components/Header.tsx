@@ -256,7 +256,7 @@ const Header = () => {
                 ))}
                 
                 {/* Mobile CTA Buttons */}
-                <div className="space-y-3 pt-4">
+                <div className="space-y-4 pt-4">
                   <Link to="/proprietati">
                     <Button variant="luxuryOutline" className="w-full h-12 text-base">
                       <Building className="w-4 h-4 mr-2" />
