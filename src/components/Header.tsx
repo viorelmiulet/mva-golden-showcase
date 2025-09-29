@@ -219,8 +219,8 @@ const Header = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 sm:w-96">
-              <div className="flex flex-col space-y-6 mt-8">
+            <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
+              <div className="flex flex-col space-y-6 mt-8 pb-8">
                 {/* Mobile Logo in Sheet */}
                 <div className="flex items-center justify-center pb-6 border-b border-border/30">
                   <div className="text-center">
