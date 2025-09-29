@@ -183,7 +183,7 @@ const Properties = () => {
 
               {/* Advanced Filters */}
               {showFilters && (
-                <Card className="glass">
+                <Card className="glass border-[0.5px]">
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Search Field */}
@@ -284,7 +284,7 @@ const Properties = () => {
                 <Loader2 className="w-8 h-8 animate-spin text-gold" />
               </div>
             ) : filteredProperties.length === 0 && properties.length > 0 ? (
-              <Card className="max-w-2xl mx-auto glass">
+              <Card className="max-w-2xl mx-auto glass border-[0.5px]">
                 <CardContent className="py-12 text-center">
                   <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Nu s-au găsit proprietăți</h3>
@@ -292,7 +292,7 @@ const Properties = () => {
                 </CardContent>
               </Card>
             ) : properties.length === 0 ? (
-              <Card className="max-w-2xl mx-auto glass">
+              <Card className="max-w-2xl mx-auto glass border-[0.5px]">
                 <CardContent className="py-12 text-center">
                   <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
@@ -302,7 +302,7 @@ const Properties = () => {
             ) : (
               <div className="grid lg:grid-cols-2 gap-6">
                 {filteredProperties.map((property) => (
-                  <Card key={property.id} className="group glass hover:glass-hover">
+                  <Card key={property.id} className="group glass hover:glass-hover border-[0.5px]">
                     <CardContent className="p-6">
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
@@ -322,7 +322,7 @@ const Properties = () => {
                             {property.title}
                           </h3>
                           {(property.source === 'crm' || property.source === 'api') && (
-                            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 ml-2">
+                            <Badge variant="secondary" className="bg-gold/10 text-gold border-[0.5px] border-gold/20 ml-2">
                               Nou
                             </Badge>
                           )}
@@ -385,7 +385,7 @@ const Properties = () => {
                       {property.features && Array.isArray(property.features) && property.features.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-4">
                           {(property.features as string[]).slice(0, 3).map((feature, index) => (
-                            <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                            <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-[0.5px] border-gold/20 text-xs">
                               {feature}
                             </Badge>
                           ))}
@@ -399,7 +399,7 @@ const Properties = () => {
 
                       {/* Project Name */}
                       {property.project_name && (
-                        <div className="text-center p-3 bg-gold/10 rounded-lg border border-gold/20 mb-4">
+                        <div className="text-center p-3 bg-gold/10 rounded-lg border-[0.5px] border-gold/20 mb-4">
                           <p className="text-sm font-cormorant font-medium text-gold tracking-wide">
                             {property.project_name}
                           </p>
