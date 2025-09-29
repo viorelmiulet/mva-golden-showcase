@@ -322,7 +322,7 @@ const Properties = () => {
                             {property.title}
                           </h3>
                           {(property.source === 'crm' || property.source === 'api') && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 ml-2">
+                            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 ml-2">
                               Nou
                             </Badge>
                           )}
