@@ -140,10 +140,12 @@ const Services = () => {
                 să te ajutăm să găsești proprietatea ideală.
               </p>
               <a href="tel:0767941512">
-                <button className="inline-flex items-center px-6 py-3 bg-gold text-primary-foreground rounded-lg font-medium hover:bg-gold-dark transition-colors">
-                  <Phone className="mr-2 w-4 h-4" />
-                  Sună-ne acum: 0767 941 512
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                <button className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gold text-primary-foreground rounded-lg text-sm sm:text-base font-medium hover:bg-gold-dark transition-colors">
+                  <Phone className="mr-1.5 sm:mr-2 w-4 h-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Sună-ne acum: </span>
+                  <span className="xs:hidden">Sună: </span>
+                  <span>0767 941 512</span>
+                  <ArrowRight className="ml-1.5 sm:ml-2 w-4 h-4 flex-shrink-0" />
                 </button>
               </a>
             </div>
