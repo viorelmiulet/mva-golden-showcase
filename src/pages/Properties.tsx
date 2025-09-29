@@ -1,10 +1,12 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
 import { 
   MapPin, 
@@ -21,7 +23,9 @@ import {
   Calendar,
   Building,
   MessageCircle,
-  Phone
+  Phone,
+  Filter,
+  Search
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -45,6 +49,12 @@ const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [priceFilter, setPriceFilter] = useState("")
+  const [roomsFilter, setRoomsFilter] = useState("")
+  const [locationFilter, setLocationFilter] = useState("")
+  const [surfaceFilter, setSurfaceFilter] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -61,6 +71,56 @@ const Properties = () => {
       return data
     }
   })
+
+  // Filter properties based on filters
+  const filteredProperties = useMemo(() => {
+    return properties.filter(property => {
+      // Search query filter
+      if (searchQuery && !property.title?.toLowerCase().includes(searchQuery.toLowerCase()) && 
+          !property.description?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !property.location?.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false
+      }
+
+      // Price filter
+      if (priceFilter) {
+        const [minPrice, maxPrice] = priceFilter.split('-').map(p => parseInt(p))
+        if (maxPrice) {
+          if (property.price_min < minPrice || property.price_min > maxPrice) return false
+        } else {
+          if (property.price_min < minPrice) return false
+        }
+      }
+
+      // Rooms filter
+      if (roomsFilter && property.rooms !== parseInt(roomsFilter)) {
+        return false
+      }
+
+      // Location filter
+      if (locationFilter && !property.location?.toLowerCase().includes(locationFilter.toLowerCase())) {
+        return false
+      }
+
+      // Surface filter
+      if (surfaceFilter) {
+        const [minSurface, maxSurface] = surfaceFilter.split('-').map(s => parseInt(s))
+        if (maxSurface) {
+          if (!property.surface_min || property.surface_min < minSurface || property.surface_min > maxSurface) return false
+        } else {
+          if (!property.surface_min || property.surface_min < minSurface) return false
+        }
+      }
+
+      return true
+    })
+  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter, surfaceFilter])
+
+  // Get unique locations for filter dropdown
+  const uniqueLocations = useMemo(() => {
+    const locations = properties.map(p => p.location).filter(Boolean)
+    return [...new Set(locations)]
+  }, [properties])
 
 
   const openPropertyGallery = (property: any) => {
@@ -117,13 +177,147 @@ const Properties = () => {
               </p>
             </div>
 
+            {/* Filters */}
+            <div className="mb-8">
+              {/* Search and Filter Toggle */}
+              <div className="flex flex-col lg:flex-row gap-4 mb-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Caută proprietăți..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 glass"
+                  />
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="glass hover:glass-hover"
+                >
+                  <Filter className="w-4 h-4 mr-2" />
+                  {showFilters ? 'Ascunde Filtre' : 'Filtre'}
+                </Button>
+              </div>
+
+              {/* Advanced Filters */}
+              {showFilters && (
+                <Card className="glass">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Price Filter */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Preț (EUR)</label>
+                        <Select value={priceFilter} onValueChange={setPriceFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Selectează prețul" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Toate prețurile</SelectItem>
+                            <SelectItem value="0-50000">Sub 50.000 EUR</SelectItem>
+                            <SelectItem value="50000-100000">50.000 - 100.000 EUR</SelectItem>
+                            <SelectItem value="100000-200000">100.000 - 200.000 EUR</SelectItem>
+                            <SelectItem value="200000-300000">200.000 - 300.000 EUR</SelectItem>
+                            <SelectItem value="300000">Peste 300.000 EUR</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Rooms Filter */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Camere</label>
+                        <Select value={roomsFilter} onValueChange={setRoomsFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Numărul de camere" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Toate</SelectItem>
+                            <SelectItem value="1">1 cameră</SelectItem>
+                            <SelectItem value="2">2 camere</SelectItem>
+                            <SelectItem value="3">3 camere</SelectItem>
+                            <SelectItem value="4">4 camere</SelectItem>
+                            <SelectItem value="5">5+ camere</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Surface Filter */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Suprafață (mp)</label>
+                        <Select value={surfaceFilter} onValueChange={setSurfaceFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Suprafața" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Toate</SelectItem>
+                            <SelectItem value="0-50">Sub 50 mp</SelectItem>
+                            <SelectItem value="50-100">50 - 100 mp</SelectItem>
+                            <SelectItem value="100-150">100 - 150 mp</SelectItem>
+                            <SelectItem value="150-200">150 - 200 mp</SelectItem>
+                            <SelectItem value="200">Peste 200 mp</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Location Filter */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Locație</label>
+                        <Select value={locationFilter} onValueChange={setLocationFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Selectează locația" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Toate locațiile</SelectItem>
+                            {uniqueLocations.map((location) => (
+                              <SelectItem key={location} value={location}>
+                                {location}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Clear Filters */}
+                    <div className="mt-4 flex justify-between items-center">
+                      <div className="text-sm text-muted-foreground">
+                        {filteredProperties.length} proprietăți găsite
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSearchQuery("")
+                          setPriceFilter("")
+                          setRoomsFilter("")
+                          setLocationFilter("")
+                          setSurfaceFilter("")
+                        }}
+                        className="glass hover:glass-hover"
+                      >
+                        Resetează filtrele
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
             {/* Properties List */}
             {isLoadingProperties ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-gold" />
               </div>
+            ) : filteredProperties.length === 0 && properties.length > 0 ? (
+              <Card className="max-w-2xl mx-auto glass">
+                <CardContent className="py-12 text-center">
+                  <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Nu s-au găsit proprietăți</h3>
+                  <p className="text-muted-foreground">Modifică filtrele pentru a găsi proprietăți</p>
+                </CardContent>
+              </Card>
             ) : properties.length === 0 ? (
-              <Card className="max-w-2xl mx-auto">
+              <Card className="max-w-2xl mx-auto glass">
                 <CardContent className="py-12 text-center">
                   <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
@@ -132,8 +326,8 @@ const Properties = () => {
               </Card>
             ) : (
               <div className="grid lg:grid-cols-2 gap-6">
-                {properties.map((property) => (
-                  <Card key={property.id} className="group">
+                {filteredProperties.map((property) => (
+                  <Card key={property.id} className="group glass hover:glass-hover">
                     <CardContent className="p-6">
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
