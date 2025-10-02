@@ -31,6 +31,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
+import { Helmet } from "react-helmet-async"
 
 interface ScrapedProperty {
   title: string
@@ -148,8 +149,15 @@ const Properties = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <Header />
+    <>
+      <Helmet>
+        <title>Proprietăți de Vânzare - Apartamente și Case Premium | MVA Imobiliare</title>
+        <meta name="description" content="Descoperă portofoliul nostru de apartamente și case premium de vânzare în Chiajna și vestul Bucureștiului. Proprietăți verificate cu finisaje de lux, preturi competitive și consultanță expertă." />
+        <meta name="keywords" content="apartamente de vânzare București, case premium Chiajna, proprietăți vest București, apartamente noi, vânzare imobiliare, oferte apartamente" />
+        <link rel="canonical" href="https://mva-imobiliare.lovable.app/proprietati" />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+        <Header />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
@@ -780,6 +788,7 @@ const Properties = () => {
 
       <Footer />
     </div>
+    </>
   )
 }
 

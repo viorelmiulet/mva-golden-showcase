@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
+import { Helmet } from "react-helmet-async"
 import { 
   Shield, 
   Award, 
@@ -89,8 +90,15 @@ const WhyChooseUs = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <Header />
+    <>
+      <Helmet>
+        <title>De ce să ne alegi pe noi? - Agenție Imobiliară Expertă | MVA Imobiliare</title>
+        <meta name="description" content="Descoperă avantajele de a lucra cu MVA Imobiliare: experiență dovedită, transparență completă, consultanță personalizată și portofoliu curat de proprietăți premium în vestul Bucureștiului." />
+        <meta name="keywords" content="agenție imobiliară de încredere, consultant imobiliar expert, servicii imobiliare premium, agenție imobiliară București vest, agent imobiliar profesionist" />
+        <link rel="canonical" href="https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi" />
+      </Helmet>
+      <div className="min-h-screen">
+        <Header />
       
       <main>
         {/* Hero Section */}
@@ -468,6 +476,7 @@ const WhyChooseUs = () => {
       
       <Footer />
     </div>
+    </>
   );
 };
 
