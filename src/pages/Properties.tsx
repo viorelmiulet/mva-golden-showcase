@@ -55,7 +55,7 @@ const Properties = () => {
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
   
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -177,20 +177,7 @@ const Properties = () => {
 
             {/* Filters */}
             <div className="mb-8">
-              {/* Filter Toggle */}
-              <div className="flex justify-center mb-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="glass hover:glass-hover"
-                >
-                  <Filter className="w-4 h-4 mr-2" />
-                  {showFilters ? 'Ascunde Filtre' : 'Filtre'}
-                </Button>
-              </div>
-
               {/* Advanced Filters */}
-              {showFilters && (
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -283,7 +270,6 @@ const Properties = () => {
                     </div>
                   </CardContent>
                 </Card>
-              )}
             </div>
 
             {/* Properties List */}
