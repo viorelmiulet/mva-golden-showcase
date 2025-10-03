@@ -438,19 +438,19 @@ const Admin = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
       
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+      <main className="pt-20 pb-12 px-2 sm:px-4">
+        <div className="container mx-auto">
           <div className="max-w-6xl mx-auto">
             
             {/* Header */}
-            <div className="text-center mb-12">
-              <div className="flex items-center justify-center mb-6">
+            <div className="text-center mb-8 sm:mb-12">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4 sm:mb-6">
                 <Link 
                   to="/" 
-                  className="flex items-center text-muted-foreground hover:text-foreground transition-colors mr-4"
+                  className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Înapoi Acasă
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                  <span className="text-sm sm:text-base">Înapoi Acasă</span>
                 </Link>
                 <Button
                   variant="outline"
@@ -459,52 +459,52 @@ const Admin = () => {
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <Lock className="w-4 h-4 mr-2" />
-                  Deconectare
+                  <span className="text-sm">Deconectare</span>
                 </Button>
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 px-2">
                 <span className="text-foreground">Administrare </span>
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Proprietăți
                 </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
                 Adaugă, gestionează și șterge proprietățile din catalog
               </p>
             </div>
 
             {/* Analytics Section */}
             {analyticsData && (
-              <div className="mb-12">
+              <div className="mb-8 sm:mb-12">
                 <AdminAnalytics data={analyticsData} />
               </div>
             )}
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               
               {/* Add Property Section */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-gold" />
-                    Adaugă Proprietate prin ID
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                    <span className="text-sm sm:text-base">Adaugă Proprietate prin ID</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
+                <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+                  <div className="space-y-3 sm:space-y-4">
                     {propertyIds.map((propertyId, index) => (
                       <div key={index} className="space-y-2">
                         <div className="flex gap-2 items-center">
-                          <span className="text-sm font-medium text-muted-foreground w-6">{index + 1}.</span>
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground w-5 sm:w-6">{index + 1}.</span>
                           <Input
                             placeholder={`${index === 0 ? '190741 (obligatoriu)' : '190741 (opțional)'}`}
                             value={propertyId}
                             onChange={(e) => updatePropertyId(index, e.target.value)}
-                            className="flex-1 font-mono"
+                            className="flex-1 font-mono text-sm sm:text-base"
                           />
                           {loadingStates[index] && (
-                            <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                            <Loader2 className="w-4 h-4 animate-spin text-gold flex-shrink-0" />
                           )}
                         </div>
                       </div>
@@ -513,17 +513,19 @@ const Admin = () => {
                     <Button 
                       onClick={scrapeAllProperties}
                       disabled={isLoading || propertyIds.every(id => !id.trim())}
-                      className="w-full"
+                      className="w-full text-sm sm:text-base h-10 sm:h-11"
                     >
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Preluare în curs...
+                          <span className="hidden sm:inline">Preluare în curs...</span>
+                          <span className="sm:hidden">Preluare...</span>
                         </>
                       ) : (
                         <>
                           <Search className="w-4 h-4 mr-2" />
-                          Preia Proprietățile
+                          <span className="hidden sm:inline">Preia Proprietățile</span>
+                          <span className="sm:hidden">Preia</span>
                         </>
                       )}
                     </Button>
@@ -579,13 +581,13 @@ const Admin = () => {
               {/* Manage Properties Section */}
               <div className="lg:col-span-1">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Home className="w-5 h-5 text-gold" />
-                      Proprietăți Existente ({properties?.length || 0})
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                      <span className="text-sm sm:text-base">Proprietăți Existente ({properties?.length || 0})</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6">
                     {propertiesLoading ? (
                       <div className="flex items-center justify-center py-8">
                         <Loader2 className="w-6 h-6 animate-spin" />
@@ -596,21 +598,21 @@ const Admin = () => {
                         <p className="text-muted-foreground">Nu există proprietăți adăugate</p>
                       </div>
                     ) : (
-                      <div className="space-y-4 max-h-96 overflow-y-auto">
-                        <p className="text-sm text-muted-foreground mb-4">
+                      <div className="space-y-3 sm:space-y-4 max-h-96 overflow-y-auto">
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                           Scroll pentru a vedea toate proprietățile în detaliu mai jos
                         </p>
                         {properties.slice(0, 5).map((property) => (
                           <div 
                             key={property.id} 
-                            className="flex items-center justify-between p-3 border rounded-lg bg-card hover:bg-muted/50 transition-colors"
+                            className="flex items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg bg-card hover:bg-muted/50 transition-colors"
                           >
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium truncate text-sm">{property.title}</h4>
+                              <h4 className="font-medium truncate text-xs sm:text-sm">{property.title}</h4>
                               <p className="text-xs text-muted-foreground truncate">{property.location}</p>
-                              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs text-muted-foreground">
                                 <span>{property.rooms} camere</span>
-                                <span>€{property.price_min.toLocaleString('de-DE')} EUR</span>
+                                <span>€{property.price_min.toLocaleString('de-DE')}</span>
                               </div>
                             </div>
                             
@@ -666,15 +668,15 @@ const Admin = () => {
             </div>
 
             {/* API Keys Management */}
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gold" />
-                    Sincronizare XML Feed
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                    <span className="text-sm sm:text-base">Sincronizare XML Feed</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6">
                   <XmlImportManager />
                 </CardContent>
               </Card>
@@ -683,53 +685,53 @@ const Admin = () => {
 
             {/* Detailed Properties Grid */}
             {!propertiesLoading && properties && properties.length > 0 && (
-              <div className="mt-12">
-                <div className="text-center mb-8">
-                  <div className="flex items-center justify-center gap-3 mb-4">
-                    <Home className="w-6 h-6 text-gold" />
-                    <h2 className="text-3xl font-bold">Proprietățile Noastre</h2>
-                    <Badge variant="secondary" className="text-lg px-3 py-1">
+              <div className="mt-8 sm:mt-12">
+                <div className="text-center mb-6 sm:mb-8 px-2">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <Home className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Proprietățile Noastre</h2>
+                    <Badge variant="secondary" className="text-sm sm:text-base md:text-lg px-2 sm:px-3 py-0.5 sm:py-1">
                       {properties?.length || 0} proprietăți
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                  <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
                     Portofoliul complet al proprietăților MVA Imobiliare - apartamente și garsoniere premium în Militari Residence
                   </p>
                   
                   {/* Stats Overview */}
-                  <div className="grid md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
-                    <Card className="p-4 text-center border-gold/20">
-                      <div className="text-2xl font-bold text-gold mb-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8 max-w-4xl mx-auto">
+                    <Card className="p-3 sm:p-4 text-center border-gold/20">
+                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
                         {properties.filter(p => p.availability_status === 'available').length}
                       </div>
-                      <div className="text-sm text-muted-foreground">Disponibile</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Disponibile</div>
                     </Card>
-                    <Card className="p-4 text-center border-gold/20">
-                      <div className="text-2xl font-bold text-gold mb-1">
+                    <Card className="p-3 sm:p-4 text-center border-gold/20">
+                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
                         {properties.filter(p => p.rooms === 1).length}
                       </div>
-                      <div className="text-sm text-muted-foreground">Garsoniere</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Garsoniere</div>
                     </Card>
-                    <Card className="p-4 text-center border-gold/20">
-                      <div className="text-2xl font-bold text-gold mb-1">
+                    <Card className="p-3 sm:p-4 text-center border-gold/20">
+                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
                         {properties.filter(p => p.rooms === 2).length}
                       </div>
-                      <div className="text-sm text-muted-foreground">2 camere</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">2 camere</div>
                     </Card>
-                    <Card className="p-4 text-center border-gold/20">
-                      <div className="text-2xl font-bold text-gold mb-1">
+                    <Card className="p-3 sm:p-4 text-center border-gold/20">
+                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
                         {properties.filter(p => p.rooms >= 3).length}
                       </div>
-                      <div className="text-sm text-muted-foreground">3+ camere</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">3+ camere</div>
                     </Card>
                   </div>
                 </div>
                 
-                <div className="grid lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   {properties.map((property) => (
                     <Card key={property.id} className="group relative">
                       {/* Edit and Delete Buttons - Top Right Corner */}
-                      <div className="absolute top-4 right-4 z-10 flex gap-2">
+                      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 flex gap-1 sm:gap-2">
                         {/* Edit Button */}
                         <Dialog>
                           <DialogTrigger asChild>
@@ -737,12 +739,12 @@ const Admin = () => {
                               variant="outline"
                               size="sm"
                               onClick={() => openEditModal(property)}
-                              className="shadow-lg opacity-80 hover:opacity-100 transition-opacity bg-background"
+                              className="shadow-lg opacity-80 hover:opacity-100 transition-opacity bg-background h-8 w-8 sm:h-9 sm:w-9 p-0"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                          <DialogContent className="w-[95vw] sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
                             <DialogHeader>
                               <DialogTitle>Editează Proprietatea</DialogTitle>
                             </DialogHeader>
