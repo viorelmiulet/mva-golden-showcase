@@ -148,6 +148,67 @@ const Properties = () => {
     }
   }
 
+  // Enhanced structured data for AI understanding
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Acasă",
+        "item": "https://mva-imobiliare.lovable.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Proprietăți",
+        "item": "https://mva-imobiliare.lovable.app/proprietati"
+      }
+    ]
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Proprietăți disponibile de vânzare",
+    "description": "Lista completă de apartamente și case premium disponibile pentru vânzare",
+    "numberOfItems": filteredProperties.length,
+    "itemListElement": filteredProperties.slice(0, 10).map((property, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": property.rooms > 2 ? "House" : "Apartment",
+        "@id": `https://mva-imobiliare.lovable.app/proprietati#${property.id}`,
+        "name": property.title,
+        "description": property.description,
+        "image": property.images?.[0] || "",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": property.location,
+          "addressRegion": "București",
+          "addressCountry": "RO"
+        },
+        "numberOfRooms": property.rooms,
+        "floorSize": {
+          "@type": "QuantitativeValue",
+          "value": property.surface_min,
+          "unitCode": "MTK"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": property.price_min,
+          "priceCurrency": property.currency || "EUR",
+          "availability": "https://schema.org/InStock",
+          "seller": {
+            "@type": "RealEstateAgent",
+            "name": "MVA Imobiliare"
+          }
+        }
+      }
+    }))
+  };
+
   return (
     <>
       <Helmet>
@@ -155,6 +216,26 @@ const Properties = () => {
         <meta name="description" content="Descoperă portofoliul nostru de apartamente și case premium de vânzare în Chiajna și vestul Bucureștiului. Proprietăți verificate cu finisaje de lux, preturi competitive și consultanță expertă." />
         <meta name="keywords" content="apartamente de vânzare București, case premium Chiajna, proprietăți vest București, apartamente noi, vânzare imobiliare, oferte apartamente" />
         <link rel="canonical" href="https://mva-imobiliare.lovable.app/proprietati" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mva-imobiliare.lovable.app/proprietati" />
+        <meta property="og:title" content="Proprietăți Premium de Vânzare - MVA Imobiliare" />
+        <meta property="og:description" content={`${filteredProperties.length} proprietăți disponibile în Chiajna și vestul Bucureștiului`} />
+        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg"} />
+
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="Proprietăți Premium de Vânzare" />
+        <meta property="twitter:description" content={`${filteredProperties.length} proprietăți verificate în București`} />
+
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(itemListSchema)}
+        </script>
       </Helmet>
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />

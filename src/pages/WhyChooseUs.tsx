@@ -89,6 +89,65 @@ const WhyChooseUs = () => {
     }
   ];
 
+  // FAQ Schema for AI
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "De ce să aleg MVA Imobiliare pentru vânzarea proprietății?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MVA Imobiliare oferă experiență dovedită de peste 5 ani, atingem o medie de 97% din prețul cerut, avem o echipă dedicată disponibilă 24/7 și asigurăm expunere maximă online și offline pe multiple platforme."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Cât timp durează să vindeți o proprietate?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "98% dintre proprietățile noastre sunt live online în termen de 48 de ore de la fotografiere. Datorită bazei noastre mari de cumpărători și tehnicilor de marketing avansate, reușim să vindem rapid."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ce zone deservește MVA Imobiliare?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Suntem specializați în zona Chiajna și vestul Bucureștiului, cu peste 15.000 de proprietăți în baza de date, actualizate lunar."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Oferiți consultanță pentru credite ipotecare?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Da, oferim suport complet pentru credite ipotecare, asistență juridică, evaluări gratuite și profesionale, precum și consultanță în investiții imobiliare."
+        }
+      }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Acasă",
+        "item": "https://mva-imobiliare.lovable.app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "De ce să ne alegi",
+        "item": "https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi"
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
@@ -96,6 +155,24 @@ const WhyChooseUs = () => {
         <meta name="description" content="Descoperă avantajele de a lucra cu MVA Imobiliare: experiență dovedită, transparență completă, consultanță personalizată și portofoliu curat de proprietăți premium în vestul Bucureștiului." />
         <meta name="keywords" content="agenție imobiliară de încredere, consultant imobiliar expert, servicii imobiliare premium, agenție imobiliară București vest, agent imobiliar profesionist" />
         <link rel="canonical" href="https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi" />
+        <meta property="og:title" content="De ce MVA Imobiliare - Agenție Expertă în București" />
+        <meta property="og:description" content="Experiență dovedită, transparență completă și rezultate garantate în tranzacții imobiliare" />
+        
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:title" content="De ce MVA Imobiliare" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       </Helmet>
       <div className="min-h-screen">
         <Header />
