@@ -2,13 +2,15 @@ import Header from "@/components/Header"
 import Hero from "@/components/Hero"
 import About from "@/components/About"
 import Services from "@/components/Services"
-import Properties from "@/components/Properties"
-import Contact from "@/components/Contact"
-import Footer from "@/components/Footer"
-import ChatWidget from "@/components/ChatWidget"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
-import { useEffect } from "react"
+import { useEffect, lazy, Suspense } from "react"
 import { Helmet } from "react-helmet-async"
+
+// Lazy load components that are below the fold
+const Properties = lazy(() => import("@/components/Properties"))
+const Contact = lazy(() => import("@/components/Contact"))
+const Footer = lazy(() => import("@/components/Footer"))
+const ChatWidget = lazy(() => import("@/components/ChatWidget"))
 
 const Index = () => {
   // Track page view pentru pagina principală
@@ -33,11 +35,19 @@ const Index = () => {
           <Hero />
           <About />
           <Services />
-          <Properties />
-          <Contact />
+          <Suspense fallback={<div className="py-24" />}>
+            <Properties />
+          </Suspense>
+          <Suspense fallback={<div className="py-24" />}>
+            <Contact />
+          </Suspense>
         </main>
-        <Footer />
-        <ChatWidget />
+        <Suspense fallback={<div />}>
+          <Footer />
+        </Suspense>
+        <Suspense fallback={<div />}>
+          <ChatWidget />
+        </Suspense>
       </div>
     </>
   );

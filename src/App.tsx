@@ -4,15 +4,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
-import WhyChooseUs from "./pages/WhyChooseUs";
-import Properties from "./pages/Properties";
-import AddProperty from "./pages/AddProperty";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
-import CarteVizita from "./pages/CarteVizita";
-import ApiKeysAdmin from "./pages/ApiKeysAdmin";
 import CookieConsent from "@/components/CookieConsent";
+
+// Lazy load pages for code splitting
+const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
+const Properties = lazy(() => import("./pages/Properties"));
+const AddProperty = lazy(() => import("./pages/AddProperty"));
+const Admin = lazy(() => import("./pages/Admin"));
+const CarteVizita = lazy(() => import("./pages/CarteVizita"));
+const ApiKeysAdmin = lazy(() => import("./pages/ApiKeysAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -23,17 +25,21 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
-            <Route path="/proprietati" element={<Properties />} />
-            <Route path="/adauga" element={<AddProperty />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/api-keys" element={<ApiKeysAdmin />} />
-            <Route path="/carte-vizita" element={<CarteVizita />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<Index />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+            <div className="animate-pulse text-gold">Se încarcă...</div>
+          </div>}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
+              <Route path="/proprietati" element={<Properties />} />
+              <Route path="/adauga" element={<AddProperty />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/api-keys" element={<ApiKeysAdmin />} />
+              <Route path="/carte-vizita" element={<CarteVizita />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<Index />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
         <CookieConsent />
       </TooltipProvider>
