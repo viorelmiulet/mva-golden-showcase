@@ -118,6 +118,54 @@ const Properties = () => {
     return [...new Set(locations)]
   }, [properties])
 
+  // Extract zone from title or description
+  const extractZone = (property: any): string | null => {
+    const text = `${property.title || ''} ${property.description || ''}`.toUpperCase()
+    
+    // Common zones/neighborhoods to look for
+    const zones = [
+      'MILITARI RESIDENCE',
+      'MILITARI',
+      'CHIAJNA',
+      'DRUMUL TABEREI',
+      'RAHOVA',
+      'EROII REVOLUTIEI',
+      'GHENCEA',
+      'TITAN',
+      'PANTELIMON',
+      'BERCENI',
+      'PIPERA',
+      'BĂNEASA',
+      'FLOREASCA',
+      'AVIATIEI',
+      'UNIRII',
+      'VITAN',
+      'DRISTOR',
+      'IANCULUI',
+      'OBOR',
+      'COLENTINA',
+      'PANTELIMON',
+      'METALURGIEI',
+      'APARATORII PATRIEI',
+      'VALEA CASCADELOR',
+      'RENEW RESIDENCE',
+      'EUROCASA',
+      'COSMOPOLIS',
+      'GREENFIELD',
+      'BRAGADIRU',
+      'POPESTI-LEORDENI',
+      'VOLUNTARI'
+    ]
+    
+    for (const zone of zones) {
+      if (text.includes(zone)) {
+        return zone
+      }
+    }
+    
+    return null
+  }
+
 
   const openPropertyGallery = (property: any) => {
     setSelectedProperty(property)
@@ -410,12 +458,19 @@ const Properties = () => {
                             </Badge>
                           )}
                         </div>
-                        {property.location && (
-                          <div className="flex items-center text-muted-foreground">
-                            <MapPin className="w-4 h-4 mr-2 text-gold" />
-                            <span>{property.location}</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {property.location && (
+                            <div className="flex items-center text-muted-foreground">
+                              <MapPin className="w-4 h-4 mr-2 text-gold" />
+                              <span>{property.location}</span>
+                            </div>
+                          )}
+                          {extractZone(property) && (
+                            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-semibold">
+                              {extractZone(property)}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       {/* Stats */}
