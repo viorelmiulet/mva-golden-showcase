@@ -134,17 +134,8 @@ const Properties = () => {
     })
   }, [properties, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
 
-  // Get unique zones for filter dropdown (using extractZone function)
-  const uniqueZones = useMemo(() => {
-    const zones = properties
-      .map(p => extractZone(p))
-      .filter(Boolean)
-      .filter((zone): zone is string => zone !== null)
-    return [...new Set(zones)].sort()
-  }, [properties])
-
   // Extract zone from title or description
-  const extractZone = (property: any): string | null => {
+  function extractZone(property: any): string | null {
     const text = `${property.title || ''} ${property.description || ''}`.toUpperCase()
     
     // Common zones/neighborhoods to look for (ordered by priority - more specific first)
@@ -211,6 +202,14 @@ const Properties = () => {
     return null
   }
 
+  // Get unique zones for filter dropdown (using extractZone function)
+  const uniqueZones = useMemo(() => {
+    const zones = properties
+      .map(p => extractZone(p))
+      .filter(Boolean)
+      .filter((zone): zone is string => zone !== null)
+    return [...new Set(zones)].sort()
+  }, [properties])
 
   const openPropertyGallery = (property: any) => {
     setSelectedProperty(property)
