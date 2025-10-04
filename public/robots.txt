@@ -18,7 +18,7 @@ Disallow: /api-keys/
 Disallow: /private/
 
 # Sitemaps
-Sitemap: https://mva-imobiliare.lovable.app/sitemap.xml
+Sitemap: https://mvaimobiliare.ro/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

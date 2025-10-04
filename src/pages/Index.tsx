@@ -26,9 +26,9 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": "MVA Imobiliare",
-    "image": "https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg",
-    "logo": "https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg",
-    "url": "https://mva-imobiliare.lovable.app",
+    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "logo": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "url": "https://mvaimobiliare.ro",
     "telephone": "+40767941512",
     "email": "contact@mvaimobiliare.ro",
     "address": {
@@ -72,10 +72,10 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "MVA Imobiliare",
-    "url": "https://mva-imobiliare.lovable.app",
+    "url": "https://mvaimobiliare.ro",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://mva-imobiliare.lovable.app/proprietati?search={search_term_string}",
+      "target": "https://mvaimobiliare.ro/proprietati?search={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -86,21 +86,21 @@ const Index = () => {
         <title>MVA Imobiliare - Agenție Imobiliară Premium în Chiajna și Vestul Bucureștiului</title>
         <meta name="description" content="MVA Imobiliare - Agenție imobiliară de încredere specializată în apartamente și case premium în Chiajna, Militari Residence și vestul Bucureștiului. Consultanță expertă în vânzare și cumpărare proprietăți." />
         <meta name="keywords" content="agenție imobiliară București, apartamente Chiajna, case premium vest București, Militari Residence, vânzare apartamente, cumpărare proprietăți, agent imobiliar București" />
-        <link rel="canonical" href="https://mva-imobiliare.lovable.app/" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mva-imobiliare.lovable.app/" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/" />
         <meta property="og:title" content="MVA Imobiliare - Agenție Imobiliară Premium în Chiajna" />
         <meta property="og:description" content="Apartamente și case premium în Chiajna și vestul Bucureștiului. Consultanță expertă în tranzacții imobiliare." />
-        <meta property="og:image" content="https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://mva-imobiliare.lovable.app/" />
+        <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
         <meta property="twitter:title" content="MVA Imobiliare - Agenție Imobiliară Premium" />
         <meta property="twitter:description" content="Apartamente și case premium în Chiajna și vestul Bucureștiului." />
-        <meta property="twitter:image" content="https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg" />
+        <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Structured Data for AI */}
         <script type="application/ld+json">
