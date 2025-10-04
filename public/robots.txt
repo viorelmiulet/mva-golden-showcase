@@ -13,6 +13,8 @@ Allow: /
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /adauga/
+Disallow: /api-keys/
 Disallow: /private/
 
 # Sitemaps
