@@ -94,8 +94,15 @@ const Properties = () => {
       }
 
       // Rooms filter
-      if (roomsFilter && roomsFilter !== "all" && property.rooms !== parseInt(roomsFilter)) {
-        return false
+      if (roomsFilter && roomsFilter !== "all") {
+        const selectedRooms = parseInt(roomsFilter)
+        if (roomsFilter === "7") {
+          // 7+ means 7 or more rooms
+          if (property.rooms < 7) return false
+        } else {
+          // Exact match for other values
+          if (property.rooms !== selectedRooms) return false
+        }
       }
 
       // Location filter
@@ -306,7 +313,9 @@ const Properties = () => {
                             <SelectItem value="2">2 camere</SelectItem>
                             <SelectItem value="3">3 camere</SelectItem>
                             <SelectItem value="4">4 camere</SelectItem>
-                            <SelectItem value="5">5+ camere</SelectItem>
+                            <SelectItem value="5">5 camere</SelectItem>
+                            <SelectItem value="6">6 camere</SelectItem>
+                            <SelectItem value="7">7+ camere</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
