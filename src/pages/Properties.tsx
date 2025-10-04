@@ -73,6 +73,24 @@ const Properties = () => {
     }
   })
 
+  // Helper: detect transaction type from text when missing or incorrect
+  const detectTransactionType = (property: any): 'sale' | 'rent' => {
+    const base = `${property.title || ''} ${property.description || ''}`.toLowerCase()
+    const text = base
+      .replace(/ă/g,'a').replace(/â/g,'a').replace(/î/g,'i')
+      .replace(/ș/g,'s').replace(/ş/g,'s').replace(/ț/g,'t').replace(/ţ/g,'t')
+
+    const rentKeywords = [
+      'inchiriere', 'inchiriez', 'de inchiriat', 'chirie',
+      'for rent', 'rent', 'se inchiriaza', 'se inchiriază'
+    ]
+
+    if (rentKeywords.some(k => text.includes(k))) return 'rent'
+    return (property.transaction_type === 'rent' || property.transaction_type === 'sale')
+      ? property.transaction_type
+      : 'sale'
+  }
+
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
@@ -107,8 +125,9 @@ const Properties = () => {
       }
 
       // Transaction type filter
-      if (transactionTypeFilter && transactionTypeFilter !== "all" && property.transaction_type !== transactionTypeFilter) {
-        return false
+      if (transactionTypeFilter && transactionTypeFilter !== "all") {
+        const txType = detectTransactionType(property)
+        if (txType !== transactionTypeFilter) return false
       }
 
       return true
