@@ -98,9 +98,12 @@ const Properties = () => {
         }
       }
 
-      // Location filter
-      if (locationFilter && locationFilter !== "all" && !property.location?.toLowerCase().includes(locationFilter.toLowerCase())) {
-        return false
+      // Zone filter (using extracted zone from title/description)
+      if (locationFilter && locationFilter !== "all") {
+        const propertyZone = extractZone(property)
+        if (!propertyZone || propertyZone !== locationFilter) {
+          return false
+        }
       }
 
       // Transaction type filter
@@ -112,10 +115,13 @@ const Properties = () => {
     })
   }, [properties, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
 
-  // Get unique locations for filter dropdown
-  const uniqueLocations = useMemo(() => {
-    const locations = properties.map(p => p.location).filter(Boolean)
-    return [...new Set(locations)]
+  // Get unique zones for filter dropdown (using extractZone function)
+  const uniqueZones = useMemo(() => {
+    const zones = properties
+      .map(p => extractZone(p))
+      .filter(Boolean)
+      .filter((zone): zone is string => zone !== null)
+    return [...new Set(zones)].sort()
   }, [properties])
 
   // Extract zone from title or description
@@ -387,18 +393,18 @@ const Properties = () => {
                         </Select>
                       </div>
 
-                      {/* Location Filter */}
+                      {/* Zone Filter */}
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Locație</label>
+                        <label className="text-sm font-medium mb-2 block">Zonă</label>
                         <Select value={locationFilter} onValueChange={setLocationFilter}>
                           <SelectTrigger className="glass">
-                            <SelectValue placeholder="Selectează locația" />
+                            <SelectValue placeholder="Selectează zona" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">Toate locațiile</SelectItem>
-                            {uniqueLocations.map((location) => (
-                              <SelectItem key={location} value={location}>
-                                {location}
+                            <SelectItem value="all">Toate zonele</SelectItem>
+                            {uniqueZones.map((zone) => (
+                              <SelectItem key={zone} value={zone}>
+                                {zone}
                               </SelectItem>
                             ))}
                           </SelectContent>
