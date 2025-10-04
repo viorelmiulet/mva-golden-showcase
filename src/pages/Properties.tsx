@@ -50,7 +50,6 @@ const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
-  const [searchQuery, setSearchQuery] = useState("")
   const [priceFilter, setPriceFilter] = useState("all")
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
@@ -77,13 +76,6 @@ const Properties = () => {
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
-      // Search query filter
-      if (searchQuery && !property.title?.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !property.description?.toLowerCase().includes(searchQuery.toLowerCase()) &&
-          !property.location?.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return false
-      }
-
       // Price filter
       if (priceFilter && priceFilter !== "all") {
         const [minPrice, maxPrice] = priceFilter.split('-').map(p => parseInt(p))
@@ -118,7 +110,7 @@ const Properties = () => {
 
       return true
     })
-  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
+  }, [properties, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
 
   // Get unique locations for filter dropdown
   const uniqueLocations = useMemo(() => {
@@ -274,19 +266,20 @@ const Properties = () => {
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                      {/* Search Field */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Transaction Type Filter */}
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Căutare</label>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                          <Input
-                            placeholder="Caută proprietăți..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 glass"
-                          />
-                        </div>
+                        <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
+                        <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Selectează tipul" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Toate</SelectItem>
+                            <SelectItem value="sale">Vânzare</SelectItem>
+                            <SelectItem value="rent">Chirie</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       {/* Price Filter */}
                       <div>
@@ -343,21 +336,6 @@ const Properties = () => {
                           </SelectContent>
                         </Select>
                       </div>
-
-                      {/* Transaction Type Filter */}
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
-                        <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
-                          <SelectTrigger className="glass">
-                            <SelectValue placeholder="Selectează tipul" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Toate</SelectItem>
-                            <SelectItem value="sale">Vânzare</SelectItem>
-                            <SelectItem value="rent">Chirie</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
                     </div>
 
                     {/* Clear Filters */}
@@ -369,7 +347,6 @@ const Properties = () => {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          setSearchQuery("")
                           setPriceFilter("all")
                           setRoomsFilter("all")
                           setLocationFilter("all")
