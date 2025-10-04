@@ -435,57 +435,63 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
       <Header />
       
-      <main className="pt-20 pb-12 px-2 sm:px-4">
-        <div className="container mx-auto">
-          <div className="max-w-6xl mx-auto">
-            
-            {/* Header */}
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4 sm:mb-6">
+      <main className="pt-24 pb-16 px-3 sm:px-6">
+        <div className="container mx-auto max-w-7xl">
+          
+          {/* Header Card with Glass Effect */}
+          <Card className="glass mb-8 border-gold/20">
+            <CardContent className="p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                 <Link 
                   to="/" 
-                  className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors group"
                 >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  <span className="text-sm sm:text-base">Înapoi Acasă</span>
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:transform group-hover:-translate-x-1 transition-transform" />
+                  <span className="text-sm sm:text-base font-medium">Înapoi Acasă</span>
                 </Link>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="border-gold/30 hover:bg-gold/10 hover:border-gold/50 transition-all"
                 >
                   <Lock className="w-4 h-4 mr-2" />
                   <span className="text-sm">Deconectare</span>
                 </Button>
               </div>
               
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 px-2">
-                <span className="text-foreground">Administrare </span>
-                <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Proprietăți
-                </span>
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                Adaugă, gestionează și șterge proprietățile din catalog
-              </p>
-            </div>
-
-            {/* Analytics Section */}
-            {analyticsData && (
-              <div className="mb-8 sm:mb-12">
-                <AdminAnalytics data={analyticsData} />
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-gold/20 to-gold-light/20 mb-4">
+                  <BarChart3 className="w-8 h-8 text-gold" />
+                </div>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
+                  <span className="text-foreground">Panou </span>
+                  <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                    Administrare
+                  </span>
+                </h1>
+                <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Gestionează proprietățile, analizează performanțele și importă date noi
+                </p>
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-              
-              {/* Add Property Section */}
-              <Card>
-                <CardHeader className="p-4 sm:p-6">
+          {/* Analytics Section */}
+          {analyticsData && (
+            <div className="mb-8">
+              <AdminAnalytics data={analyticsData} />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            
+            {/* Add Property Section */}
+            <Card className="glass-hover border-gold/10">
+              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                     <span className="text-sm sm:text-base">Adaugă Proprietate prin ID</span>
@@ -579,9 +585,8 @@ const Admin = () => {
               </Card>
 
               {/* Manage Properties Section */}
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader className="p-4 sm:p-6">
+              <Card className="glass-hover border-gold/10">
+                <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
                     <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                       <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                       <span className="text-sm sm:text-base">Proprietăți Existente ({properties?.length || 0})</span>
@@ -662,71 +667,75 @@ const Admin = () => {
                         )}
                       </div>
                     )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* API Keys Management */}
-            <div className="mt-6 sm:mt-8">
-              <Card>
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
-                    <span className="text-sm sm:text-base">Sincronizare XML Feed</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6">
-                  <XmlImportManager />
                 </CardContent>
               </Card>
             </div>
 
+            {/* XML Import Manager */}
+            <Card className="glass-hover border-gold/10 mt-6">
+              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                <div className="p-2 rounded-lg bg-gold/10">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                </div>
+                Sincronizare XML Feed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              <XmlImportManager />
+            </CardContent>
+          </Card>
 
-            {/* Detailed Properties Grid */}
-            {!propertiesLoading && properties && properties.length > 0 && (
-              <div className="mt-8 sm:mt-12">
-                <div className="text-center mb-6 sm:mb-8 px-2">
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                    <Home className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Proprietățile Noastre</h2>
-                    <Badge variant="secondary" className="text-sm sm:text-base md:text-lg px-2 sm:px-3 py-0.5 sm:py-1">
-                      {properties?.length || 0} proprietăți
-                    </Badge>
+
+          {/* Detailed Properties Grid */}
+          {!propertiesLoading && properties && properties.length > 0 && (
+            <Card className="glass-hover border-gold/10 mt-8">
+              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
+                    <div className="p-2 rounded-lg bg-gold/10">
+                      <Home className="w-6 h-6 text-gold" />
+                    </div>
+                    Toate Proprietățile
+                  </CardTitle>
+                  <Badge variant="secondary" className="text-base px-4 py-2">
+                    {properties?.length || 0} proprietăți
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground max-w-2xl mt-3">
+                  Portofoliul complet al proprietăților MVA Imobiliare - apartamente și garsoniere premium în Militari Residence
+                </p>
+                
+                {/* Stats Overview */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6">
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                      {properties.filter(p => p.availability_status === 'available').length}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">Disponibile</div>
                   </div>
-                  <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-                    Portofoliul complet al proprietăților MVA Imobiliare - apartamente și garsoniere premium în Militari Residence
-                  </p>
-                  
-                  {/* Stats Overview */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8 max-w-4xl mx-auto">
-                    <Card className="p-3 sm:p-4 text-center border-gold/20">
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
-                        {properties.filter(p => p.availability_status === 'available').length}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">Disponibile</div>
-                    </Card>
-                    <Card className="p-3 sm:p-4 text-center border-gold/20">
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
-                        {properties.filter(p => p.rooms === 1).length}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">Garsoniere</div>
-                    </Card>
-                    <Card className="p-3 sm:p-4 text-center border-gold/20">
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
-                        {properties.filter(p => p.rooms === 2).length}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">2 camere</div>
-                    </Card>
-                    <Card className="p-3 sm:p-4 text-center border-gold/20">
-                      <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
-                        {properties.filter(p => p.rooms >= 3).length}
-                      </div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">3+ camere</div>
-                    </Card>
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                      {properties.filter(p => p.rooms === 1).length}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">Garsoniere</div>
+                  </div>
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                      {properties.filter(p => p.rooms === 2).length}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">2 camere</div>
+                  </div>
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                      {properties.filter(p => p.rooms >= 3).length}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">3+ camere</div>
                   </div>
                 </div>
-                
+              </CardHeader>
+              
+              <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   {properties.map((property) => (
                     <Card key={property.id} className="group relative">
@@ -1040,9 +1049,9 @@ const Admin = () => {
                     </Card>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
 
