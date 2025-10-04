@@ -509,6 +509,14 @@ const Properties = () => {
                               <span>{property.location}</span>
                             </div>
                           )}
+                          <Badge 
+                            variant={detectTransactionType(property) === 'rent' ? 'default' : 'secondary'}
+                            className={detectTransactionType(property) === 'rent' 
+                              ? 'bg-blue-600 hover:bg-blue-700 text-white font-semibold border-0' 
+                              : 'bg-gold/20 hover:bg-gold/30 text-gold-dark border-gold/30 font-semibold'}
+                          >
+                            {detectTransactionType(property) === 'rent' ? 'Închiriere' : 'Vânzare'}
+                          </Badge>
                           {extractZone(property) && (
                             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-semibold">
                               {extractZone(property)}
