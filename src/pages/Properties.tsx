@@ -54,6 +54,7 @@ const Properties = () => {
   const [priceFilter, setPriceFilter] = useState("all")
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
   
   const [showFilters, setShowFilters] = useState(true)
   const { toast } = useToast()
@@ -110,9 +111,14 @@ const Properties = () => {
         return false
       }
 
+      // Transaction type filter
+      if (transactionTypeFilter && transactionTypeFilter !== "all" && property.transaction_type !== transactionTypeFilter) {
+        return false
+      }
+
       return true
     })
-  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter])
+  }, [properties, searchQuery, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
 
   // Get unique locations for filter dropdown
   const uniqueLocations = useMemo(() => {
@@ -268,7 +274,7 @@ const Properties = () => {
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                       {/* Search Field */}
                       <div>
                         <label className="text-sm font-medium mb-2 block">Căutare</label>
@@ -337,6 +343,21 @@ const Properties = () => {
                           </SelectContent>
                         </Select>
                       </div>
+
+                      {/* Transaction Type Filter */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
+                        <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
+                          <SelectTrigger className="glass">
+                            <SelectValue placeholder="Selectează tipul" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Toate</SelectItem>
+                            <SelectItem value="sale">Vânzare</SelectItem>
+                            <SelectItem value="rent">Chirie</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     {/* Clear Filters */}
@@ -352,6 +373,7 @@ const Properties = () => {
                           setPriceFilter("all")
                           setRoomsFilter("all")
                           setLocationFilter("all")
+                          setTransactionTypeFilter("all")
                         }}
                         className="glass hover:glass-hover"
                       >
