@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
@@ -748,21 +748,27 @@ const BusinessCardGenerator = () => {
                 </p>
               </div>
 
-              <div>
-                <Label htmlFor="logo">Logo Personalizat (opțional)</Label>
+              <div className="border-2 border-dashed border-gold/30 rounded-lg p-4 bg-gold/5">
+                <Label htmlFor="logo" className="text-base font-semibold flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-gold" />
+                  Logo Personalizat (opțional)
+                </Label>
                 <Input
                   id="logo"
                   type="file"
                   accept="image/*"
                   onChange={handleLogoUpload}
-                  className="cursor-pointer"
+                  className="cursor-pointer mt-2"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-2">
                   Încarcă un logo personalizat (PNG, JPG, SVG - max 2MB). Dacă nu încarci, se va folosi logo-ul MVA implicit.
                 </p>
                 {customLogo && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <img src={customLogo} alt="Logo preview" className="w-16 h-16 object-contain border rounded" />
+                  <div className="mt-3 flex items-center gap-3 p-3 bg-background rounded-lg border border-gold/20">
+                    <img src={customLogo} alt="Logo preview" className="w-20 h-20 object-contain border rounded" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-600">✓ Logo încărcat</p>
+                    </div>
                     <Button
                       variant="ghost"
                       size="sm"

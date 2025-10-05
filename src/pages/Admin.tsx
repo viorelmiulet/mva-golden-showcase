@@ -672,6 +672,24 @@ const Admin = () => {
               </Card>
             </div>
 
+          {/* Business Card Generator */}
+          <Card className="glass-hover border-gold/10 mt-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                <div className="p-2 rounded-lg bg-gold/10">
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                </div>
+                Generator Cărți de Vizită (cu Upload Logo)
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Creează cărți de vizită personalizate și încarcă logo-uri proprii
+              </p>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              <BusinessCardGenerator />
+            </CardContent>
+          </Card>
+
           {/* XML Import Manager */}
             <Card className="glass-hover border-gold/10 mt-6">
               <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
@@ -684,21 +702,6 @@ const Admin = () => {
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <XmlImportManager />
-            </CardContent>
-          </Card>
-
-          {/* Business Card Generator */}
-          <Card className="glass-hover border-gold/10 mt-6">
-            <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
-              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
-                <div className="p-2 rounded-lg bg-gold/10">
-                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
-                </div>
-                Generator Cărți de Vizită
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              <BusinessCardGenerator />
             </CardContent>
           </Card>
 
