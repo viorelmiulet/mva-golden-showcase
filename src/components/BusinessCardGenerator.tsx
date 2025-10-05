@@ -45,6 +45,7 @@ const BusinessCardGenerator = () => {
   const [backSvg, setBackSvg] = useState<string>("");
   const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [customLogo, setCustomLogo] = useState<string>("");
 
   // Load saved cards on component mount
   useEffect(() => {
@@ -145,6 +146,34 @@ const BusinessCardGenerator = () => {
     setFrontSvg(card.front_svg);
     setBackSvg(card.back_svg);
     toast.success('Carte de vizită încărcată!');
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vă rugăm să încărcați o imagine');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Imaginea trebuie să fie mai mică de 2MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setCustomLogo(result);
+      toast.success('Logo încărcat cu succes!');
+    };
+    reader.onerror = () => {
+      toast.error('Eroare la încărcarea logo-ului');
+    };
+    reader.readAsDataURL(file);
   };
 
   const generateQRCode = async (data: BusinessCardData) => {
@@ -262,6 +291,44 @@ const BusinessCardGenerator = () => {
   };
 
   const generateFrontSvg = (data: BusinessCardData, qrDataUrl: string) => {
+    const logoSection = customLogo 
+      ? `<image href="${customLogo}" x="0" y="0" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>`
+      : `<g>
+      <!-- Outer ring -->
+      <circle 
+        cx="60" 
+        cy="60" 
+        r="54" 
+        fill="none"
+        stroke="url(#logoGradientCard)"
+        stroke-width="3.6"
+        opacity="0.9"
+      />
+      
+      <!-- Main hexagon -->
+      <path 
+        d="M60 12 L99 30 L99 90 L60 108 L21 90 L21 30 Z" 
+        fill="url(#logoGradientCard)" 
+        opacity="0.95"
+      />
+      
+      <!-- Inner background -->
+      <path 
+        d="M60 21 L90 36 L90 84 L60 99 L30 84 L30 36 Z" 
+        fill="url(#cardGradient)"
+      />
+      
+      <!-- "M" letter -->
+      <path 
+        d="M45 48 L51 48 L60 66 L69 48 L75 66 L75 78 L69 78 L69 57 L63 69 L57 69 L51 57 L51 78 L45 78 Z"
+        fill="url(#logoGradientCard)"
+      />
+      
+      <!-- Accents -->
+      <circle cx="90" cy="30" r="2.4" fill="#FFD700" opacity="0.8" />
+      <circle cx="30" cy="90" r="1.8" fill="#D4AF37" opacity="0.6" />
+    </g>`;
+
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Luxury gradients -->
@@ -309,6 +376,7 @@ const BusinessCardGenerator = () => {
   <!-- Logo Section -->
   <g transform="translate(60, 60)">
     <!-- Logo Symbol -->
+    ${logoSection}
     <g>
       <!-- Outer ring -->
       <circle 
@@ -427,6 +495,43 @@ const BusinessCardGenerator = () => {
   };
 
   const generateBackSvg = () => {
+    const backLogoSection = customLogo
+      ? `<image href="${customLogo}" x="-75" y="-75" width="150" height="150" preserveAspectRatio="xMidYMid meet"/>`
+      : `<!-- Outer ring -->
+    <circle 
+      cx="0" 
+      cy="0" 
+      r="75" 
+      fill="none"
+      stroke="url(#logoGradientVerso)"
+      stroke-width="3.6"
+      opacity="0.8"
+    />
+    
+    <!-- Main hexagon -->
+    <path 
+      d="M0 -60 L51 -30 L51 30 L0 60 L-51 30 L-51 -30 Z" 
+      fill="url(#logoGradientVerso)" 
+      opacity="0.9"
+    />
+    
+    <!-- Inner background -->
+    <path 
+      d="M0 -48 L42 -24 L42 24 L0 48 L-42 24 L-42 -24 Z" 
+      fill="url(#cardGradientVerso)"
+    />
+    
+    <!-- Premium "M" letterform - scaled up -->
+    <path 
+      d="M-21 -6 L-12 -6 L0 12 L12 -6 L21 -6 L21 27 L12 27 L12 3 L3 15 L-3 15 L-12 3 L-12 27 L-21 27 Z"
+      fill="url(#logoGradientVerso)"
+    />
+    
+    <!-- Luxury accents -->
+    <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
+    <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
+    <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />`;
+
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Luxury gradients -->
@@ -473,7 +578,7 @@ const BusinessCardGenerator = () => {
   
   <!-- Central Logo - Scaled up -->
   <g transform="translate(525, 300)">
-    <!-- Outer ring -->
+    ${backLogoSection}
     <circle 
       cx="0" 
       cy="0" 
@@ -641,6 +746,36 @@ const BusinessCardGenerator = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Dacă nu completezi, se va genera automat link WhatsApp din numărul de telefon
                 </p>
+              </div>
+
+              <div>
+                <Label htmlFor="logo">Logo Personalizat (opțional)</Label>
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Încarcă un logo personalizat (PNG, JPG, SVG - max 2MB). Dacă nu încarci, se va folosi logo-ul MVA implicit.
+                </p>
+                {customLogo && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img src={customLogo} alt="Logo preview" className="w-16 h-16 object-contain border rounded" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setCustomLogo("");
+                        toast.info("Logo resetat la implicit");
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Resetează
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <Button onClick={handleGenerate} className="w-full">
