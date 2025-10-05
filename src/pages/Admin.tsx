@@ -40,6 +40,7 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import XmlImportManager from "@/components/XmlImportManager"
 import AdminAnalytics from "@/components/AdminAnalytics"
+import BusinessCardGenerator from "@/components/BusinessCardGenerator"
 import { useAnalytics } from "@/hooks/useAnalytics"
 
 const Admin = () => {
@@ -671,7 +672,7 @@ const Admin = () => {
               </Card>
             </div>
 
-            {/* XML Import Manager */}
+          {/* XML Import Manager */}
             <Card className="glass-hover border-gold/10 mt-6">
               <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
               <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
@@ -683,6 +684,21 @@ const Admin = () => {
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <XmlImportManager />
+            </CardContent>
+          </Card>
+
+          {/* Business Card Generator */}
+          <Card className="glass-hover border-gold/10 mt-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+              <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                <div className="p-2 rounded-lg bg-gold/10">
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                </div>
+                Generator Cărți de Vizită
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              <BusinessCardGenerator />
             </CardContent>
           </Card>
 
