@@ -73,78 +73,13 @@ const Header = () => {
           {/* Logo - Optimized for mobile */}
           <Link to="/" className="flex items-center space-x-2 sm:space-x-4 group cursor-pointer" onClick={handleLogoClick}>
             <div className="relative flex items-center justify-center">
-              {/* Ultra Luxury Premium Logo */}
+              {/* Hexagonal Logo with Site Colors */}
               <div className="relative">
-                <svg width="40" height="40" viewBox="0 0 50 50" className="sm:w-[50px] sm:h-[50px] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 filter drop-shadow-2xl">
-                  <defs>
-                    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#D4AF37" />
-                      <stop offset="25%" stopColor="#FFD700" />
-                      <stop offset="50%" stopColor="#F4E5B1" />
-                      <stop offset="75%" stopColor="#FFD700" />
-                      <stop offset="100%" stopColor="#B8860B" />
-                    </linearGradient>
-                    <linearGradient id="innerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#1A1A1A" />
-                      <stop offset="50%" stopColor="#2D2D2D" />
-                      <stop offset="100%" stopColor="#1A1A1A" />
-                    </linearGradient>
-                    <filter id="luxuryGlow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                      <feMerge> 
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                    <filter id="innerShadow">
-                      <feOffset dx="0" dy="2"/>
-                      <feGaussianBlur stdDeviation="2" result="offset-blur"/>
-                      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
-                      <feFlood floodColor="#000000" floodOpacity="0.3"/>
-                      <feComposite operator="in" in2="inverse"/>
-                      <feComposite operator="over" in2="SourceGraphic"/>
-                    </filter>
-                  </defs>
-                  
-                  {/* Outer luxury ring */}
-                  <circle 
-                    cx="25" 
-                    cy="25" 
-                    r="24" 
-                    fill="none"
-                    stroke="url(#luxuryGradient)"
-                    strokeWidth="2"
-                    className="opacity-80 group-hover:opacity-100 transition-all duration-500"
-                    filter="url(#luxuryGlow)"
-                  />
-                  
-                  {/* Main luxury hexagon */}
-                  <path 
-                    d="M25 3 L43 13 L43 37 L25 47 L7 37 L7 13 Z" 
-                    fill="url(#luxuryGradient)" 
-                    className="opacity-95 group-hover:opacity-100 transition-all duration-500"
-                    filter="url(#luxuryGlow)"
-                  />
-                  
-                  {/* Inner dark background */}
-                  <path 
-                    d="M25 6 L40 15 L40 35 L25 44 L10 35 L10 15 Z" 
-                    fill="url(#innerGradient)"
-                    filter="url(#innerShadow)"
-                  />
-                  
-                  {/* Premium "M" letterform */}
-                  <path 
-                    d="M16 18 L19.5 18 L25 28 L30.5 18 L34 18 L34 32 L31.5 32 L31.5 22 L27 30 L23 30 L18.5 22 L18.5 32 L16 32 Z"
-                    fill="url(#luxuryGradient)"
-                    className="drop-shadow-lg"
-                  />
-                  
-                  {/* Luxury corner accents */}
-                  <circle cx="40" cy="10" r="1.5" fill="#FFD700" className="opacity-80" />
-                  <circle cx="10" cy="40" r="1" fill="#D4AF37" className="opacity-60" />
-                  <polygon points="42,40 44,38 44,42" fill="#B8860B" className="opacity-40" />
-                </svg>
+                <img 
+                  src="/mva-logo-hexagon.svg" 
+                  alt="MVA Imobiliare Logo" 
+                  className="w-[45px] h-[54px] sm:w-[50px] sm:h-[60px] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 filter drop-shadow-2xl"
+                />
                 
                 {/* Premium glow effects */}
                 <div className="absolute inset-0 bg-gradient-radial from-yellow-400/30 via-yellow-600/20 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>

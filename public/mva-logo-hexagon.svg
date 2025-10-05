@@ -1,0 +1,84 @@
+<svg width="200" height="240" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="hsl(45, 100%, 70%)" />
+      <stop offset="50%" stop-color="hsl(45, 100%, 60%)" />
+      <stop offset="100%" stop-color="hsl(45, 100%, 45%)" />
+    </linearGradient>
+    <linearGradient id="darkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="hsl(220, 30%, 10%)" />
+      <stop offset="50%" stop-color="hsl(220, 30%, 8%)" />
+      <stop offset="100%" stop-color="hsl(220, 30%, 12%)" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Outer hexagon glow -->
+  <path 
+    d="M100 15 L165 52.5 L165 127.5 L100 165 L35 127.5 L35 52.5 Z" 
+    fill="none"
+    stroke="url(#goldGradient)"
+    stroke-width="3"
+    opacity="0.6"
+    filter="url(#glow)"
+  />
+  
+  <!-- Main hexagon with gradient border -->
+  <path 
+    d="M100 20 L160 55 L160 125 L100 160 L40 125 L40 55 Z" 
+    fill="url(#darkBg)" 
+    stroke="url(#goldGradient)"
+    stroke-width="2.5"
+    opacity="0.95"
+  />
+  
+  <!-- Inner hexagon frame -->
+  <path 
+    d="M100 30 L150 60 L150 120 L100 150 L50 120 L50 60 Z" 
+    fill="none"
+    stroke="url(#goldGradient)"
+    stroke-width="1.5"
+    opacity="0.4"
+  />
+  
+  <!-- "M" Letter -->
+  <path 
+    d="M65 70 L75 70 L100 110 L125 70 L135 70 L135 125 L125 125 L125 90 L105 120 L95 120 L75 90 L75 125 L65 125 Z"
+    fill="url(#goldGradient)"
+    filter="url(#glow)"
+  />
+  
+  <!-- Decorative corner accents -->
+  <circle cx="150" cy="45" r="3" fill="hsl(45, 100%, 60%)" opacity="0.8" />
+  <circle cx="50" cy="135" r="2" fill="hsl(45, 100%, 60%)" opacity="0.6" />
+  
+  <!-- Text: MVA -->
+  <text 
+    x="100" 
+    y="195" 
+    font-family="Cinzel, serif" 
+    font-size="32" 
+    font-weight="bold" 
+    fill="url(#goldGradient)" 
+    text-anchor="middle"
+    letter-spacing="3"
+  >MVA</text>
+  
+  <!-- Text: IMOBILIARE -->
+  <text 
+    x="100" 
+    y="220" 
+    font-family="Playfair Display, serif" 
+    font-size="12" 
+    font-weight="400" 
+    fill="hsl(45, 100%, 95%)" 
+    text-anchor="middle"
+    letter-spacing="6"
+  >IMOBILIARE</text>
+</svg>
