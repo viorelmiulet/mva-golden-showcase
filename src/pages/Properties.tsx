@@ -635,12 +635,14 @@ const Properties = () => {
                           )}
                         </div>
                         <Button 
-                          onClick={() => openPropertyDetails(property)}
+                          asChild
                           className="w-full"
                           size="sm"
                         >
-                          <Info className="w-4 h-4 mr-2" />
-                          Vezi Detalii Complete
+                          <Link to={`/proprietati/${property.id}`}>
+                            <Info className="w-4 h-4 mr-2" />
+                            Vezi Detalii Complete
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>
