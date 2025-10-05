@@ -1039,30 +1039,58 @@ const Admin = () => {
                         )}
 
                         {/* Actions */}
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => openEditModal(property)}
-                            className="flex-1"
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Editează
-                          </Button>
-                          {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                            <Button variant="outline" size="sm" className="flex-1">
-                              <Images className="w-4 h-4 mr-2" />
-                              {(property.images as string[]).length} Poze
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <Link to={`/proprietati/${property.id}`} className="flex-1">
+                              <Button 
+                                variant="default" 
+                                size="sm" 
+                                className="w-full"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                Vezi Proprietate
+                              </Button>
+                            </Link>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => {
+                                const url = `${window.location.origin}/proprietati/${property.id}`;
+                                navigator.clipboard.writeText(url);
+                                toast({
+                                  title: "Link copiat!",
+                                  description: "Link-ul proprietății a fost copiat în clipboard"
+                                });
+                              }}
+                            >
+                              <ExternalLink className="w-4 h-4" />
                             </Button>
-                          )}
-                          {property.storia_link && (
-                            <Button variant="outline" size="sm" asChild>
-                              <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                Original
-                              </a>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => openEditModal(property)}
+                              className="flex-1"
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Editează
                             </Button>
-                          )}
+                            {property.images && Array.isArray(property.images) && property.images.length > 0 && (
+                              <Button variant="outline" size="sm" className="flex-1">
+                                <Images className="w-4 h-4 mr-2" />
+                                {(property.images as string[]).length} Poze
+                              </Button>
+                            )}
+                            {property.storia_link && (
+                              <Button variant="outline" size="sm" asChild>
+                                <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
+                                  <ExternalLink className="w-4 h-4 mr-2" />
+                                  Storia
+                                </a>
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
