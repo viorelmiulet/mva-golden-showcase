@@ -178,33 +178,6 @@ const ChatWidget: React.FC = () => {
           </div>
         </form>
 
-        {/* Quick Actions */}
-        {messages.length === 0 && (
-          <div className="p-3 sm:p-4 pt-0 space-y-2">
-            <p className="text-xs text-muted-foreground mb-2">Întrebări frecvente:</p>
-            <div className="grid grid-cols-1 gap-1.5 sm:gap-1">
-              {[
-                "Oferte disponibile",
-                "Apartamente 2 camere",
-                "Buget până în 100.000 EUR"
-              ].map((quickMessage, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setInputMessage(quickMessage);
-                    sendMessage(quickMessage);
-                  }}
-                  className="text-xs h-9 sm:h-8 justify-start text-muted-foreground hover:text-foreground touch-manipulation"
-                  disabled={isLoading}
-                >
-                  {quickMessage}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
       </Card>
     </div>
   );
