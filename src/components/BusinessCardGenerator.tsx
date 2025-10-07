@@ -55,6 +55,7 @@ const BusinessCardGenerator = () => {
   const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [customLogo, setCustomLogo] = useState<string>("");
+  const [logoType, setLogoType] = useState<"default" | "custom" | "none">("default");
   const [customColors, setCustomColors] = useState<CustomColors>({
     primary: "#D4AF37",
     secondary: "#FFD700",
@@ -318,9 +319,12 @@ const BusinessCardGenerator = () => {
       textSecondary: "#E0E0E0"
     };
     
-    const logoSection = customLogo 
-      ? `<image href="${customLogo}" x="0" y="0" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>`
-      : `<g>
+    let logoSection = "";
+    
+    if (logoType === "custom" && customLogo) {
+      logoSection = `<image href="${customLogo}" x="0" y="0" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>`;
+    } else if (logoType === "default") {
+      logoSection = `<g>
       <!-- Outer ring -->
       <circle 
         cx="60" 
@@ -355,6 +359,8 @@ const BusinessCardGenerator = () => {
       <circle cx="90" cy="30" r="2.4" fill="${colors.secondary}" opacity="0.8" />
       <circle cx="30" cy="90" r="1.8" fill="${colors.primary}" opacity="0.6" />
     </g>`;
+    }
+    // logoType === "none" results in empty logoSection
 
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -773,6 +779,49 @@ const BusinessCardGenerator = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Dacă nu completezi, se va genera automat link WhatsApp din numărul de telefon
                 </p>
+              </div>
+
+              {/* Selectare Tip Logo */}
+              <div className="space-y-3 border-t pt-4">
+                <Label className="text-base font-semibold">Tip Logo pe Carte</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    type="button"
+                    variant={logoType === "default" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setLogoType("default")}
+                    className="h-auto py-3 flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-semibold">Logo MVA</span>
+                    <span className="text-xs opacity-70">Default</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={logoType === "custom" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setLogoType("custom")}
+                    disabled={!customLogo}
+                    className="h-auto py-3 flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-semibold">Logo Personalizat</span>
+                    <span className="text-xs opacity-70">{customLogo ? "Încărcat" : "Nu există"}</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={logoType === "none" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setLogoType("none")}
+                    className="h-auto py-3 flex flex-col gap-1"
+                  >
+                    <span className="text-xs font-semibold">Fără Logo</span>
+                    <span className="text-xs opacity-70">Minimalist</span>
+                  </Button>
+                </div>
+                {logoType === "custom" && !customLogo && (
+                  <p className="text-xs text-destructive">
+                    Te rog să încarci un logo personalizat în secțiunea "Logo-uri Descărcabile" mai jos.
+                  </p>
+                )}
               </div>
 
               {/* Culori Personalizate */}
