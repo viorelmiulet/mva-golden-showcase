@@ -154,6 +154,8 @@ INFORMAȚII DE CONTACT:
         }
         systemPrompt += `   🔗 LINK DIRECT: ${propertyLink}\n\n`;
       });
+      
+      systemPrompt += "\nIMPORTANT: Nu menționa numele proiectelor rezidențiale în conversații. Focusează-te pe caracteristicile proprietății, locație, preț și beneficii.\n\n";
     }
 
     // Add web search results if available
@@ -180,6 +182,8 @@ ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele cu LINKURI DIRECTE
 - Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati/ID-UL_PROPRIETATII"
+- NU MENȚIONA numele proiectelor rezidențiale (ex: Militari Residence, Renew Residence, etc.)
+- Focusează-te pe: caracteristici, locație, preț, beneficii, facilități
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
