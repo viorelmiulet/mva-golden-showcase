@@ -1138,56 +1138,63 @@ const BusinessCardGenerator = () => {
                 {/* Uploaded Logos Grid */}
                 {uploadedLogos.length > 0 && (
                   <div className="mt-6">
-                    <h3 className="text-sm font-semibold mb-3">Logo-uri Încărcate ({uploadedLogos.length})</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-gold" />
+                      Logo-uri Încărcate ({uploadedLogos.length})
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {uploadedLogos.map((logo) => (
-                        <Card key={logo.path} className="overflow-hidden">
-                          <div className="aspect-square bg-white p-4 flex items-center justify-center border-b">
+                        <Card key={logo.path} className="overflow-hidden hover:shadow-lg transition-shadow border-gold/20">
+                          <div className="aspect-square bg-gradient-to-br from-white to-gray-50 p-6 flex items-center justify-center border-b-2 border-gold/10">
                             <img 
                               src={logo.url} 
                               alt={logo.name}
-                              className="max-w-full max-h-full object-contain"
+                              className="max-w-full max-h-full object-contain drop-shadow-sm"
                             />
                           </div>
-                          <CardContent className="p-3 space-y-2">
-                            <p className="text-xs text-muted-foreground truncate" title={logo.name}>
+                          <CardContent className="p-4 space-y-3">
+                            <p className="text-xs text-muted-foreground truncate font-medium" title={logo.name}>
                               {logo.name}
                             </p>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-2">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="flex-1 text-xs"
+                                variant="default"
+                                className="w-full"
                                 onClick={() => {
                                   setCustomLogo(logo.url);
                                   toast.success('Logo selectat pentru carte de vizită!');
                                 }}
                               >
-                                <CheckCircle className="w-3 h-3 mr-1" />
+                                <CheckCircle className="w-4 h-4 mr-2" />
                                 Folosește
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 text-xs"
-                                onClick={() => {
-                                  const link = document.createElement('a');
-                                  link.href = logo.url;
-                                  link.download = logo.name;
-                                  link.click();
-                                  toast.success('Logo descărcat!');
-                                }}
-                              >
-                                <Download className="w-3 h-3 mr-1" />
-                                Descarcă
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => deleteLogo(logo.path)}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="flex-1"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = logo.url;
+                                    link.download = logo.name;
+                                    link.click();
+                                    toast.success('Logo descărcat!');
+                                  }}
+                                >
+                                  <Download className="w-4 h-4 mr-1" />
+                                  Descarcă
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="flex-1"
+                                  onClick={() => deleteLogo(logo.path)}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                  Șterge
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
