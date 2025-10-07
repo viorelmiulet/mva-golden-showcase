@@ -39,7 +39,6 @@ import Footer from "@/components/Footer"
 import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import XmlImportManager from "@/components/XmlImportManager"
-import AdminAnalytics from "@/components/AdminAnalytics"
 import BusinessCardGenerator from "@/components/BusinessCardGenerator"
 
 
@@ -56,32 +55,6 @@ const Admin = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  
-  // Analytics data
-  const [analyticsData, setAnalyticsData] = useState<any>(null)
-  const [analyticsLoading, setAnalyticsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        setAnalyticsLoading(true)
-        const { data, error } = await supabase.functions.invoke('plausible-analytics', {
-          body: { days: 7 }
-        })
-        
-        if (error) throw error
-        setAnalyticsData(data)
-      } catch (error) {
-        console.error('Error fetching analytics:', error)
-      } finally {
-        setAnalyticsLoading(false)
-      }
-    }
-
-    if (isAuthenticated) {
-      fetchAnalytics()
-    }
-  }, [isAuthenticated])
 
   // Check if user is already authenticated on component mount
   useEffect(() => {
@@ -503,13 +476,6 @@ const Admin = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Analytics Section */}
-          {analyticsData && (
-            <div className="mb-8">
-              <AdminAnalytics data={analyticsData} />
-            </div>
-          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             
