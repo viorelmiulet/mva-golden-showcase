@@ -748,70 +748,6 @@ const BusinessCardGenerator = () => {
                 </p>
               </div>
 
-              <Card className="border-2 border-gold/40 bg-gold/10">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-gold" />
-                    Logo Personalizat
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {!customLogo ? (
-                    <div className="space-y-3">
-                      <div className="border-2 border-dashed border-gold/30 rounded-lg p-6 bg-background/50 text-center hover:bg-gold/5 transition-colors">
-                        <Upload className="w-12 h-12 text-gold mx-auto mb-3" />
-                        <Label htmlFor="logo" className="text-base font-semibold block mb-2 cursor-pointer">
-                          Încarcă Logo Personalizat
-                        </Label>
-                        <Input
-                          id="logo"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="cursor-pointer"
-                        />
-                        <p className="text-xs text-muted-foreground mt-3">
-                          Formatul: PNG, JPG, SVG (max 2MB)<br/>
-                          <span className="text-gold">Dacă nu încarci, se va folosi logo-ul MVA implicit</span>
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="bg-background rounded-lg border-2 border-gold/30 p-4">
-                        <div className="flex items-center gap-4">
-                          <img src={customLogo} alt="Logo preview" className="w-24 h-24 object-contain border-2 border-gold/20 rounded-lg bg-white p-2" />
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-green-600 flex items-center gap-2 mb-1">
-                              <CheckCircle className="w-4 h-4" />
-                              Logo încărcat cu succes!
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Acest logo va fi folosit pe cartea de vizită
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="lg"
-                        className="w-full"
-                        onClick={() => {
-                          setCustomLogo("");
-                          toast.info("Logo resetat la implicit");
-                          // Reset file input
-                          const fileInput = document.getElementById('logo') as HTMLInputElement;
-                          if (fileInput) fileInput.value = '';
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Șterge Logo și Folosește Logo-ul MVA
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
               <Button onClick={handleGenerate} className="w-full">
                 <Eye className="w-4 h-4 mr-2" />
                 Generează Previzualizare
@@ -880,7 +816,72 @@ const BusinessCardGenerator = () => {
         {/* Logo-uri Descărcabile */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-foreground mb-6">Logo-uri Descărcabile</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Logo Personalizat */}
+            <Card className="border-2 border-gold/40 bg-gold/10">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-gold" />
+                  Logo Personalizat
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!customLogo ? (
+                  <div className="space-y-3">
+                    <div className="border-2 border-dashed border-gold/30 rounded-lg p-6 bg-background/50 text-center hover:bg-gold/5 transition-colors">
+                      <Upload className="w-12 h-12 text-gold mx-auto mb-3" />
+                      <Label htmlFor="logo" className="text-base font-semibold block mb-2 cursor-pointer">
+                        Încarcă Logo Personalizat
+                      </Label>
+                      <Input
+                        id="logo"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="cursor-pointer"
+                      />
+                      <p className="text-xs text-muted-foreground mt-3">
+                        Formatul: PNG, JPG, SVG (max 2MB)<br/>
+                        <span className="text-gold">Dacă nu încarci, se va folosi logo-ul MVA implicit</span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-background rounded-lg border-2 border-gold/30 p-4">
+                      <div className="flex items-center gap-4">
+                        <img src={customLogo} alt="Logo preview" className="w-24 h-24 object-contain border-2 border-gold/20 rounded-lg bg-white p-2" />
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-green-600 flex items-center gap-2 mb-1">
+                            <CheckCircle className="w-4 h-4" />
+                            Logo încărcat cu succes!
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Acest logo va fi folosit pe cartea de vizită
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="lg"
+                      className="w-full"
+                      onClick={() => {
+                        setCustomLogo("");
+                        toast.info("Logo resetat la implicit");
+                        // Reset file input
+                        const fileInput = document.getElementById('logo') as HTMLInputElement;
+                        if (fileInput) fileInput.value = '';
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Șterge Logo
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Wallpaper Mobile */}
             <Card>
               <CardHeader>
