@@ -41,7 +41,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import XmlImportManager from "@/components/XmlImportManager"
 import AdminAnalytics from "@/components/AdminAnalytics"
 import BusinessCardGenerator from "@/components/BusinessCardGenerator"
-import { useAnalytics } from "@/hooks/useAnalytics"
+
 
 const Admin = () => {
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""))
@@ -58,7 +58,30 @@ const Admin = () => {
   const queryClient = useQueryClient()
   
   // Analytics data
-  const { data: analyticsData, loading: analyticsLoading } = useAnalytics(7)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setAnalyticsLoading(true)
+        const { data, error } = await supabase.functions.invoke('plausible-analytics', {
+          body: { days: 7 }
+        })
+        
+        if (error) throw error
+        setAnalyticsData(data)
+      } catch (error) {
+        console.error('Error fetching analytics:', error)
+      } finally {
+        setAnalyticsLoading(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchAnalytics()
+    }
+  }, [isAuthenticated])
 
   // Check if user is already authenticated on component mount
   useEffect(() => {
