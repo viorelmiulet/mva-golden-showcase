@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { useChat, type Message } from '@/hooks/useChat';
 import { cn } from '@/lib/utils';
+import sofiaAvatar from '@/assets/sofia-avatar.png';
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -82,8 +83,12 @@ const ChatWidget: React.FC = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-gold-light p-4 flex items-center justify-between text-black">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
-              <MessageCircle className="h-4 w-4" />
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black/20 flex-shrink-0">
+              <img 
+                src={sofiaAvatar} 
+                alt="Sofia AI Assistant" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h3 className="font-semibold text-sm">Sofia</h3>
