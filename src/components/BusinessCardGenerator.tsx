@@ -711,7 +711,7 @@ const BusinessCardGenerator = () => {
   
   <!-- Tagline - Below Logo -->
   <g transform="translate(525, 465)">
-    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">${cardData.tagline}</text>
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">${data.tagline}</text>
   </g>`;
     }
 
