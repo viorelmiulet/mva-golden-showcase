@@ -120,6 +120,12 @@ INFORMAȚII DESPRE COMPANIE:
 - MVA Imobiliare - agenție specializată în proprietăți premium
 - Locație: Vestul Bucureștiului (Chiajna)
 - Specializare: Apartamente moderne cu finisaje premium
+- Website: https://mvaimobiliare.ro
+
+PAGINI IMPORTANTE:
+- Pagina principală: https://mvaimobiliare.ro/
+- Toate proprietățile: https://mvaimobiliare.ro/proprietati
+- De ce să ne alegi: https://mvaimobiliare.ro/de-ce-sa-ne-alegi
 
 INFORMAȚII DE CONTACT:
 - Telefon: 0767941512
@@ -127,25 +133,26 @@ INFORMAȚII DE CONTACT:
 
 `;
 
-    // Add catalog offers information
+    // Add catalog offers information with DIRECT LINKS
     if (catalogOffers && catalogOffers.length > 0) {
-      systemPrompt += "OFERTE DISPONIBILE DE PE MVAIMOBILIARE.RO:\n\n";
+      systemPrompt += "OFERTE DISPONIBILE (cu linkuri directe):\n\n";
       
       catalogOffers.forEach((offer, index) => {
+        const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.id}`;
         systemPrompt += `${index + 1}. ${offer.title}\n`;
         systemPrompt += `   📍 ${offer.location}\n`;
-        systemPrompt += `   💰 ${offer.price_min.toLocaleString()} EUR\n`;
+        systemPrompt += `   💰 ${offer.price_min.toLocaleString()} ${offer.currency || 'EUR'}\n`;
         if (offer.surface_min) {
-          systemPrompt += `   📐 ${offer.surface_min} mp\n`;
+          systemPrompt += `   📐 ${offer.surface_min}${offer.surface_max && offer.surface_max !== offer.surface_min ? `-${offer.surface_max}` : ''} mp\n`;
         }
         systemPrompt += `   🏠 ${offer.rooms} camere\n`;
         if (offer.description) {
-          systemPrompt += `   📝 ${offer.description}\n`;
+          systemPrompt += `   📝 ${offer.description.substring(0, 150)}...\n`;
         }
         if (offer.features && offer.features.length > 0) {
-          systemPrompt += `   ✨ ${offer.features.join(', ')}\n`;
+          systemPrompt += `   ✨ ${offer.features.slice(0, 5).join(', ')}\n`;
         }
-        systemPrompt += `   🔗 Vezi pe site: https://mvaimobiliare.ro/proprietati\n\n`;
+        systemPrompt += `   🔗 LINK DIRECT: ${propertyLink}\n\n`;
       });
     }
 
@@ -157,33 +164,37 @@ INFORMAȚII DE CONTACT:
 
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
-- PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, prezintă ofertele din catalogul nostru de pe mvaimobiliare.ro
-- Completează cu rezultatele căutării web de pe mvaimobiliare.ro când sunt disponibile
-- Pentru fiecare ofertă, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
-- Când prezinți oferte web, menționează că sunt "cele mai recente oferte de pe mvaimobiliare.ro"
-- Dacă nu găsești rezultate web, folosește catalogul local și menționează că îi recomandi să contacteze direct agenția pentru detalii
+- PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, prezintă ofertele din catalogul nostru cu LINKURI DIRECTE
+- Pentru fiecare ofertă, include linkul direct: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati/ID"
+- Completează cu rezultatele căutării web când sunt disponibile
+- Când prezinți oferte, ÎNTOTDEAUNA include linkul direct către pagina proprietății
+- Dacă nu găsești rezultate web, folosește catalogul local și oferă linkuri directe
+
+STRUCTURA SITE-ULUI:
+- Pagina principală: informații generale, servicii, contact
+- Pagina proprietăți: toate ofertele disponibile cu filtre
+- Fiecare proprietate: pagină dedicată cu detalii complete, galerie foto, formular contact
+- De ce să ne alegi: avantajele agenției, testimoniale, cifre
 
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
-- PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele din catalogul nostru de pe mvaimobiliare.ro
-- Completează cu ofertele din căutările web de pe mvaimobiliare.ro dacă este necesar
-- Pentru toate ofertele, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
+- PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele cu LINKURI DIRECTE
+- Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati/ID-UL_PROPRIETATII"
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
 - Colectează informațiile de contact (nume, telefon, email)
 - Programează vizite pentru proprietăți
 - Răspunde la întrebări despre investiții imobiliare
-- Explică avantajele fiecărei proprietăți
+- Explică avantajele fiecărei proprietăți și zonei
 - Când oferi informații de contact, folosește: Telefon 0767941512 și Email mvaperfectbusiness@gmail.com
 
 IMPORTANT: 
-- ÎNTOTDEAUNA prezintă ofertele din catalogul nostru când sunt solicitate oferte
-- Include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati"
-- Folosește rezultatele căutării web de pe mvaimobiliare.ro pentru a completa informațiile
-- ÎNTOTDEAUNA include linkurile complete pentru ofertele găsite online
-- Când prezinți oferte web, menționează că sunt cele mai recente de pe mvaimobiliare.ro
-- Pentru ofertele din catalogul local, menționează: "Pentru detalii și poze complete, vizitează mvaimobiliare.ro/proprietati"
+- ÎNTOTDEAUNA include linkul DIRECT către fiecare proprietate când o prezinți
+- Format link: https://mvaimobiliare.ro/proprietati/[ID-ul proprietății]
+- Nu trimite utilizatorii la pagina generală /proprietati, ci la pagina specifică proprietății
+- Folosește rezultatele căutării web pentru a completa informațiile
+- Pentru ofertele din catalog, OBLIGATORIU: linkul direct către pagina proprietății
 - Nu inventa linkuri sau informații care nu sunt furnizate
-- Dacă nu găsești oferte web și nu ai în catalog, recomandă să contacteze direct agenția`;
+- Dacă nu găsești oferte specifice, recomandă să viziteze https://mvaimobiliare.ro/proprietati sau să contacteze direct agenția`;
 
     // Prepare messages for OpenAI
     const messages = [
