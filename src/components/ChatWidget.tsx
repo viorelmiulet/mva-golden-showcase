@@ -65,25 +65,25 @@ const ChatWidget: React.FC = () => {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         <Button
           onClick={handleToggleChat}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-primary to-gold-light shadow-lg hover:shadow-xl transition-all duration-300 group"
+          className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-primary to-gold-light shadow-lg hover:shadow-xl transition-all duration-300 group touch-manipulation"
           aria-label="Deschide chat-ul AI"
         >
-          <MessageCircle className="h-6 w-6 text-black group-hover:scale-110 transition-transform" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-black group-hover:scale-110 transition-transform" />
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <Card className="w-80 h-96 bg-background border-border shadow-2xl flex flex-col overflow-hidden backdrop-blur-none">
+    <div className="fixed bottom-0 right-0 left-0 sm:bottom-4 sm:right-4 sm:left-auto z-50 sm:max-w-sm">
+      <Card className="w-full h-[85vh] sm:h-[500px] sm:w-96 bg-background border-border shadow-2xl flex flex-col overflow-hidden backdrop-blur-none sm:rounded-lg rounded-t-2xl">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-gold-light p-4 flex items-center justify-between text-black">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-black/20 flex-shrink-0">
+        <div className="bg-gradient-to-r from-primary to-gold-light p-3 sm:p-4 flex items-center justify-between text-black">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-black/20 flex-shrink-0">
               <img 
                 src={sofiaAvatar} 
                 alt="Sofia AI Assistant" 
@@ -91,7 +91,7 @@ const ChatWidget: React.FC = () => {
               />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Sofia</h3>
+              <h3 className="font-semibold text-sm sm:text-base">Sofia</h3>
               <p className="text-xs opacity-80">asistentul tău AI</p>
             </div>
           </div>
@@ -99,18 +99,18 @@ const ChatWidget: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-black hover:bg-black/20 h-8 w-8 p-0"
+            className="text-black hover:bg-black/20 h-9 w-9 sm:h-10 sm:w-10 p-0 touch-manipulation"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5 sm:h-4 sm:w-4" />
           </Button>
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
+        <ScrollArea className="flex-1 p-3 sm:p-4">
+          <div className="space-y-3 sm:space-y-4">
             {messages.length === 0 && (
               <div className="flex justify-start">
-                <div className="bg-secondary text-foreground rounded-lg px-4 py-3 text-sm mr-4 leading-relaxed shadow-sm">
+                <div className="bg-secondary text-foreground rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm mr-2 sm:mr-4 leading-relaxed shadow-sm">
                   <div>
                     <p className="font-medium mb-2">Bună! Sunt Sofia, asistentul tău AI pentru MVA Imobiliare.</p>
                     <p>Vă pot ajuta să găsiți proprietatea perfectă din portofoliul nostru. Cu ce vă pot ajuta astăzi?</p>
@@ -129,10 +129,10 @@ const ChatWidget: React.FC = () => {
               >
                 <div
                   className={cn(
-                    "max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed shadow-sm",
+                    "max-w-[85%] sm:max-w-[85%] rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
                     message.role === 'user'
-                      ? "bg-primary text-black ml-4"
-                      : "bg-secondary text-foreground mr-4"
+                      ? "bg-primary text-black ml-2 sm:ml-4"
+                      : "bg-secondary text-foreground mr-2 sm:mr-4"
                   )}
                 >
                   <div 
@@ -147,7 +147,7 @@ const ChatWidget: React.FC = () => {
             
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm mr-4">
+                <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-xs sm:text-sm mr-2 sm:mr-4">
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               </div>
@@ -157,21 +157,21 @@ const ChatWidget: React.FC = () => {
         </ScrollArea>
 
         {/* Input */}
-        <form onSubmit={handleSendMessage} className="p-4 border-t border-border">
+        <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-border">
           <div className="flex space-x-2">
             <Input
               ref={inputRef}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Scrieți mesajul dvs..."
+              placeholder="Scrieți mesajul..."
               disabled={isLoading}
-              className="flex-1 text-sm"
+              className="flex-1 text-sm h-10 sm:h-9"
             />
             <Button
               type="submit"
               size="sm"
               disabled={!inputMessage.trim() || isLoading}
-              className="bg-primary hover:bg-primary/90 text-black"
+              className="bg-primary hover:bg-primary/90 text-black h-10 w-10 sm:h-9 sm:w-auto sm:px-3 p-0 sm:p-2 touch-manipulation"
             >
               <Send className="h-4 w-4" />
             </Button>
@@ -180,9 +180,9 @@ const ChatWidget: React.FC = () => {
 
         {/* Quick Actions */}
         {messages.length === 0 && (
-          <div className="p-4 pt-0 space-y-2">
+          <div className="p-3 sm:p-4 pt-0 space-y-2">
             <p className="text-xs text-muted-foreground mb-2">Întrebări frecvente:</p>
-            <div className="grid grid-cols-1 gap-1">
+            <div className="grid grid-cols-1 gap-1.5 sm:gap-1">
               {[
                 "Oferte disponibile",
                 "Apartamente 2 camere",
@@ -196,7 +196,7 @@ const ChatWidget: React.FC = () => {
                     setInputMessage(quickMessage);
                     sendMessage(quickMessage);
                   }}
-                  className="text-xs h-8 justify-start text-muted-foreground hover:text-foreground"
+                  className="text-xs h-9 sm:h-8 justify-start text-muted-foreground hover:text-foreground touch-manipulation"
                   disabled={isLoading}
                 >
                   {quickMessage}
