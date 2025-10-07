@@ -53,13 +53,62 @@ serve(async (req) => {
       console.error('Error saving user message:', saveUserError);
     }
 
-    // Fetch catalog offers for specific searches - LIMIT TO 30 FOR PERFORMANCE
-    const { data: catalogOffers, error: catalogError } = await supabase
+    // Smart filtering based on user message
+    const lowerMessage = message.toLowerCase();
+    let catalogQuery = supabase
       .from('catalog_offers')
       .select('*')
       .eq('availability_status', 'available')
-      .order('is_featured', { ascending: false })
-      .limit(30); // Limit to prevent context overflow
+      .order('is_featured', { ascending: false });
+
+    // Filter by number of rooms
+    if (lowerMessage.includes('garsoniera') || lowerMessage.includes('studio')) {
+      catalogQuery = catalogQuery.eq('rooms', 1);
+      console.log('Filtering: garsoniera (1 room)');
+    } else if (lowerMessage.match(/\b1\s*cam/i)) {
+      catalogQuery = catalogQuery.eq('rooms', 1);
+      console.log('Filtering: 1 camera');
+    } else if (lowerMessage.match(/\b2\s*cam/i)) {
+      catalogQuery = catalogQuery.eq('rooms', 2);
+      console.log('Filtering: 2 camere');
+    } else if (lowerMessage.match(/\b3\s*cam/i)) {
+      catalogQuery = catalogQuery.eq('rooms', 3);
+      console.log('Filtering: 3 camere');
+    } else if (lowerMessage.match(/\b4\s*cam/i)) {
+      catalogQuery = catalogQuery.eq('rooms', 4);
+      console.log('Filtering: 4 camere');
+    }
+
+    // Filter by price (budget)
+    const priceMatch = lowerMessage.match(/(\d+)[.,]?(\d+)?\s*(?:k|mii|euro|eur|€)/i);
+    if (priceMatch) {
+      let maxPrice = parseInt(priceMatch[1]);
+      if (priceMatch[2]) maxPrice = parseInt(priceMatch[1] + priceMatch[2]);
+      if (lowerMessage.includes('k') || lowerMessage.includes('mii')) maxPrice *= 1000;
+      
+      if (lowerMessage.includes('pana') || lowerMessage.includes('până') || 
+          lowerMessage.includes('sub') || lowerMessage.includes('max')) {
+        catalogQuery = catalogQuery.lte('price_min', maxPrice);
+        console.log(`Filtering: price <= ${maxPrice}`);
+      }
+    }
+
+    // Filter by location
+    if (lowerMessage.includes('chiajna')) {
+      catalogQuery = catalogQuery.ilike('location', '%chiajna%');
+      console.log('Filtering: location Chiajna');
+    } else if (lowerMessage.includes('militari')) {
+      catalogQuery = catalogQuery.ilike('location', '%militari%');
+      console.log('Filtering: location Militari');
+    } else if (lowerMessage.includes('bucuresti') || lowerMessage.includes('bucurești')) {
+      catalogQuery = catalogQuery.ilike('location', '%bucuresti%');
+      console.log('Filtering: location București');
+    }
+
+    // Execute the filtered query - LIMIT TO 50 MAX
+    catalogQuery = catalogQuery.limit(50);
+    
+    const { data: catalogOffers, error: catalogError } = await catalogQuery;
 
     if (catalogError) {
       console.error('Error fetching catalog offers:', catalogError);
@@ -136,7 +185,7 @@ INFORMAȚII DE CONTACT:
 
     // Add catalog offers information with DIRECT LINKS
     if (catalogOffers && catalogOffers.length > 0) {
-      systemPrompt += `OFERTE DISPONIBILE (${catalogOffers.length} proprietăți selectate cu linkuri directe):\n\n`;
+      systemPrompt += `OFERTE RELEVANTE GĂSITE (${catalogOffers.length} proprietăți selectate pentru cererea ta):\n\n`;
       
       catalogOffers.forEach((offer, index) => {
         const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.id}`;
@@ -147,19 +196,19 @@ INFORMAȚII DE CONTACT:
           systemPrompt += `   📐 ${offer.surface_min}${offer.surface_max && offer.surface_max !== offer.surface_min ? `-${offer.surface_max}` : ''} mp\n`;
         }
         systemPrompt += `   🏠 ${offer.rooms} camere\n`;
-        // Shortened description to reduce tokens
         if (offer.description) {
-          systemPrompt += `   📝 ${offer.description.substring(0, 80)}...\n`;
+          systemPrompt += `   📝 ${offer.description.substring(0, 100)}...\n`;
         }
-        // Limit features to 3 to reduce tokens
         if (offer.features && offer.features.length > 0) {
           systemPrompt += `   ✨ ${offer.features.slice(0, 3).join(', ')}\n`;
         }
         systemPrompt += `   🔗 LINK: ${propertyLink}\n\n`;
       });
       
-      systemPrompt += "\nIMPORTANT: Avem mai multe proprietăți disponibile. Pentru lista completă, îndrumă utilizatorii la https://mvaimobiliare.ro/proprietati\n";
-      systemPrompt += "Nu menționa numele proiectelor rezidențiale în conversații. Focusează-te pe caracteristici, locație, preț.\n\n";
+      systemPrompt += "\nNOTĂ: Pentru mai multe opțiuni sau alte criterii, îndrumă utilizatorii la https://mvaimobiliare.ro/proprietati unde pot filtra toate cele 580+ oferte.\n";
+      systemPrompt += "IMPORTANT: Nu menționa numele proiectelor rezidențiale. Focusează-te pe caracteristici, locație, preț.\n\n";
+    } else {
+      systemPrompt += "\nNu am găsit oferte care să corespundă exact criteriilor. Recomandă utilizatorului să viziteze https://mvaimobiliare.ro/proprietati pentru a vedea toate opțiunile sau să îți spună alte preferințe.\n\n";
     }
 
     // Add web search results if available
