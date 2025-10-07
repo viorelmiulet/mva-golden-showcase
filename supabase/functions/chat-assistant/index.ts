@@ -29,15 +29,15 @@ serve(async (req) => {
     // Generate session ID if not provided
     const currentSessionId = sessionId || crypto.randomUUID();
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const deepseekApiKey = Deno.env.get('DEEPSEEK_API_KEY');
     const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
     
-    if (!openAIApiKey) {
-      console.error('OPENAI_API_KEY environment variable is not set');
-      throw new Error('OpenAI API key not configured');
+    if (!deepseekApiKey) {
+      console.error('DEEPSEEK_API_KEY environment variable is not set');
+      throw new Error('DeepSeek API key not configured');
     }
     
-    console.log('OpenAI API key found:', openAIApiKey ? 'Yes' : 'No');
+    console.log('DeepSeek API key found:', deepseekApiKey ? 'Yes' : 'No');
     console.log('Perplexity API key found:', perplexityApiKey ? 'Yes' : 'No');
 
     // Save user message to database
@@ -192,7 +192,7 @@ IMPORTANT:
       { role: 'user', content: message }
     ];
 
-    console.log('Sending request to OpenAI with', catalogOffers?.length || 0, 'catalog offers loaded');
+    console.log('Sending request to DeepSeek with', catalogOffers?.length || 0, 'catalog offers loaded');
     console.log('Web search results available:', webSearchResults ? 'Yes' : 'No');
     
     if (catalogOffers && catalogOffers.length > 0) {
@@ -205,14 +205,14 @@ IMPORTANT:
       console.log('Web search results preview:', webSearchResults.substring(0, 200) + '...');
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${deepseekApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'deepseek-chat',
         messages: messages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -221,12 +221,12 @@ IMPORTANT:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      console.error('DeepSeek API error:', errorText);
+      throw new Error(`DeepSeek API error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('DeepSeek response received');
 
     const assistantMessage = data.choices[0].message.content;
 
