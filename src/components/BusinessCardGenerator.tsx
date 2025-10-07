@@ -56,6 +56,7 @@ const BusinessCardGenerator = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [customLogo, setCustomLogo] = useState<string>("");
   const [logoType, setLogoType] = useState<"default" | "custom" | "none">("default");
+  const [uploadedLogos, setUploadedLogos] = useState<Array<{ name: string; url: string; path: string }>>([]);
   const [customColors, setCustomColors] = useState<CustomColors>({
     primary: "#D4AF37",
     secondary: "#FFD700",
@@ -66,9 +67,10 @@ const BusinessCardGenerator = () => {
   });
   const [useCustomColors, setUseCustomColors] = useState(false);
 
-  // Load saved cards on component mount
+  // Load saved cards and uploaded logos on component mount
   useEffect(() => {
     loadSavedCards();
+    loadUploadedLogos();
   }, []);
 
   const loadSavedCards = async () => {
@@ -167,7 +169,42 @@ const BusinessCardGenerator = () => {
     toast.success('Carte de vizită încărcată!');
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const loadUploadedLogos = async () => {
+    try {
+      const { data, error } = await supabase
+        .storage
+        .from('business-card-logos')
+        .list('', {
+          limit: 100,
+          offset: 0,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+
+      if (error) {
+        console.error('Error loading logos:', error);
+        return;
+      }
+
+      const logosWithUrls = data.map(file => {
+        const { data: urlData } = supabase
+          .storage
+          .from('business-card-logos')
+          .getPublicUrl(file.name);
+        
+        return {
+          name: file.name,
+          url: urlData.publicUrl,
+          path: file.name
+        };
+      });
+
+      setUploadedLogos(logosWithUrls);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -183,16 +220,60 @@ const BusinessCardGenerator = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      setCustomLogo(result);
-      toast.success('Logo încărcat cu succes!');
-    };
-    reader.onerror = () => {
-      toast.error('Eroare la încărcarea logo-ului');
-    };
-    reader.readAsDataURL(file);
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase
+        .storage
+        .from('business-card-logos')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase
+        .storage
+        .from('business-card-logos')
+        .getPublicUrl(fileName);
+
+      setCustomLogo(urlData.publicUrl);
+      toast.success('Logo încărcat și salvat cu succes!');
+      
+      // Reload uploaded logos
+      await loadUploadedLogos();
+      
+      // Reset file input
+      e.target.value = '';
+    } catch (error: any) {
+      console.error('Error uploading logo:', error);
+      toast.error('Eroare la încărcarea logo-ului: ' + error.message);
+    }
+  };
+
+  const deleteLogo = async (path: string) => {
+    try {
+      const { error } = await supabase
+        .storage
+        .from('business-card-logos')
+        .remove([path]);
+
+      if (error) throw error;
+
+      toast.success('Logo șters cu succes!');
+      await loadUploadedLogos();
+      
+      // If the deleted logo was being used, reset it
+      if (customLogo.includes(path)) {
+        setCustomLogo("");
+      }
+    } catch (error: any) {
+      console.error('Error deleting logo:', error);
+      toast.error('Eroare la ștergerea logo-ului');
+    }
   };
 
   const generateQRCode = async (data: BusinessCardData) => {
@@ -1027,65 +1108,114 @@ const BusinessCardGenerator = () => {
           <h2 className="text-2xl font-bold text-foreground mb-6">Logo-uri Descărcabile</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {/* Logo Personalizat */}
-            <Card className="border-2 border-gold/40 bg-gold/10">
+            <Card className="border-2 border-gold/40 bg-gold/10 md:col-span-3">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Upload className="w-5 h-5 text-gold" />
-                  Logo Personalizat
+                  Logo-uri Personalizate
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {!customLogo ? (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed border-gold/30 rounded-lg p-6 bg-background/50 text-center hover:bg-gold/5 transition-colors">
-                      <Upload className="w-12 h-12 text-gold mx-auto mb-3" />
-                      <Label htmlFor="logo" className="text-base font-semibold block mb-2 cursor-pointer">
-                        Încarcă Logo Personalizat
-                      </Label>
-                      <Input
-                        id="logo"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="cursor-pointer"
-                      />
-                      <p className="text-xs text-muted-foreground mt-3">
-                        Formatul: PNG, JPG, SVG (max 2MB)<br/>
-                        <span className="text-gold">Dacă nu încarci, se va folosi logo-ul MVA implicit</span>
-                      </p>
+                {/* Upload Section */}
+                <div className="border-2 border-dashed border-gold/30 rounded-lg p-6 bg-background/50 text-center hover:bg-gold/5 transition-colors">
+                  <Upload className="w-12 h-12 text-gold mx-auto mb-3" />
+                  <Label htmlFor="logo" className="text-base font-semibold block mb-2 cursor-pointer">
+                    Încarcă Logo Nou
+                  </Label>
+                  <Input
+                    id="logo"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="cursor-pointer max-w-md mx-auto"
+                  />
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Formatul: PNG, JPG, SVG (max 2MB)<br/>
+                    <span className="text-gold">Logo-urile se salvează automat și pot fi descărcate oricând</span>
+                  </p>
+                </div>
+
+                {/* Uploaded Logos Grid */}
+                {uploadedLogos.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="text-sm font-semibold mb-3">Logo-uri Încărcate ({uploadedLogos.length})</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {uploadedLogos.map((logo) => (
+                        <Card key={logo.path} className="overflow-hidden">
+                          <div className="aspect-square bg-white p-4 flex items-center justify-center border-b">
+                            <img 
+                              src={logo.url} 
+                              alt={logo.name}
+                              className="max-w-full max-h-full object-contain"
+                            />
+                          </div>
+                          <CardContent className="p-3 space-y-2">
+                            <p className="text-xs text-muted-foreground truncate" title={logo.name}>
+                              {logo.name}
+                            </p>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs"
+                                onClick={() => {
+                                  setCustomLogo(logo.url);
+                                  toast.success('Logo selectat pentru carte de vizită!');
+                                }}
+                              >
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Folosește
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs"
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = logo.url;
+                                  link.download = logo.name;
+                                  link.click();
+                                  toast.success('Logo descărcat!');
+                                }}
+                              >
+                                <Download className="w-3 h-3 mr-1" />
+                                Descarcă
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteLogo(logo.path)}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="bg-background rounded-lg border-2 border-gold/30 p-4">
-                      <div className="flex items-center gap-4">
-                        <img src={customLogo} alt="Logo preview" className="w-24 h-24 object-contain border-2 border-gold/20 rounded-lg bg-white p-2" />
-                        <div className="flex-1">
-                          <p className="text-sm font-bold text-green-600 flex items-center gap-2 mb-1">
-                            <CheckCircle className="w-4 h-4" />
-                            Logo încărcat cu succes!
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Acest logo va fi folosit pe cartea de vizită
-                          </p>
-                        </div>
-                      </div>
+                )}
+
+                {customLogo && (
+                  <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                    <p className="text-sm font-semibold text-green-600 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Logo activ pentru cărțile de vizită
+                    </p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <img src={customLogo} alt="Logo activ" className="w-16 h-16 object-contain border-2 border-gold/20 rounded-lg bg-white p-2" />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setCustomLogo("");
+                          toast.info("Logo resetat la implicit MVA");
+                        }}
+                      >
+                        <Trash2 className="w-3 h-3 mr-2" />
+                        Resetează la logo MVA
+                      </Button>
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="lg"
-                      className="w-full"
-                      onClick={() => {
-                        setCustomLogo("");
-                        toast.info("Logo resetat la implicit");
-                        // Reset file input
-                        const fileInput = document.getElementById('logo') as HTMLInputElement;
-                        if (fileInput) fileInput.value = '';
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Șterge Logo
-                    </Button>
                   </div>
                 )}
               </CardContent>
