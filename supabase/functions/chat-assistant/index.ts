@@ -53,12 +53,13 @@ serve(async (req) => {
       console.error('Error saving user message:', saveUserError);
     }
 
-    // Fetch catalog offers for specific searches
+    // Fetch catalog offers for specific searches - LIMIT TO 30 FOR PERFORMANCE
     const { data: catalogOffers, error: catalogError } = await supabase
       .from('catalog_offers')
       .select('*')
       .eq('availability_status', 'available')
-      .order('is_featured', { ascending: false });
+      .order('is_featured', { ascending: false })
+      .limit(30); // Limit to prevent context overflow
 
     if (catalogError) {
       console.error('Error fetching catalog offers:', catalogError);
@@ -79,7 +80,7 @@ serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'llama-3.1-sonar-small-128k-online',
+            model: 'llama-3.1-sonar-large-128k-online',
             messages: [
               {
                 role: 'system',
@@ -135,7 +136,7 @@ INFORMAȚII DE CONTACT:
 
     // Add catalog offers information with DIRECT LINKS
     if (catalogOffers && catalogOffers.length > 0) {
-      systemPrompt += "OFERTE DISPONIBILE (cu linkuri directe):\n\n";
+      systemPrompt += `OFERTE DISPONIBILE (${catalogOffers.length} proprietăți selectate cu linkuri directe):\n\n`;
       
       catalogOffers.forEach((offer, index) => {
         const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.id}`;
@@ -146,16 +147,19 @@ INFORMAȚII DE CONTACT:
           systemPrompt += `   📐 ${offer.surface_min}${offer.surface_max && offer.surface_max !== offer.surface_min ? `-${offer.surface_max}` : ''} mp\n`;
         }
         systemPrompt += `   🏠 ${offer.rooms} camere\n`;
+        // Shortened description to reduce tokens
         if (offer.description) {
-          systemPrompt += `   📝 ${offer.description.substring(0, 150)}...\n`;
+          systemPrompt += `   📝 ${offer.description.substring(0, 80)}...\n`;
         }
+        // Limit features to 3 to reduce tokens
         if (offer.features && offer.features.length > 0) {
-          systemPrompt += `   ✨ ${offer.features.slice(0, 5).join(', ')}\n`;
+          systemPrompt += `   ✨ ${offer.features.slice(0, 3).join(', ')}\n`;
         }
-        systemPrompt += `   🔗 LINK DIRECT: ${propertyLink}\n\n`;
+        systemPrompt += `   🔗 LINK: ${propertyLink}\n\n`;
       });
       
-      systemPrompt += "\nIMPORTANT: Nu menționa numele proiectelor rezidențiale în conversații. Focusează-te pe caracteristicile proprietății, locație, preț și beneficii.\n\n";
+      systemPrompt += "\nIMPORTANT: Avem mai multe proprietăți disponibile. Pentru lista completă, îndrumă utilizatorii la https://mvaimobiliare.ro/proprietati\n";
+      systemPrompt += "Nu menționa numele proiectelor rezidențiale în conversații. Focusează-te pe caracteristici, locație, preț.\n\n";
     }
 
     // Add web search results if available
