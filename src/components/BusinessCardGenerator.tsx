@@ -19,6 +19,15 @@ interface BusinessCardData {
   qrLink: string;
 }
 
+interface CustomColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+  background: string;
+  textPrimary: string;
+  textSecondary: string;
+}
+
 interface SavedBusinessCard {
   id: string;
   name: string;
@@ -46,6 +55,15 @@ const BusinessCardGenerator = () => {
   const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [customLogo, setCustomLogo] = useState<string>("");
+  const [customColors, setCustomColors] = useState<CustomColors>({
+    primary: "#D4AF37",
+    secondary: "#FFD700",
+    accent: "#B8860B",
+    background: "#1A1A1A",
+    textPrimary: "#FFFFFF",
+    textSecondary: "#E0E0E0"
+  });
+  const [useCustomColors, setUseCustomColors] = useState(false);
 
   // Load saved cards on component mount
   useEffect(() => {
@@ -291,6 +309,15 @@ const BusinessCardGenerator = () => {
   };
 
   const generateFrontSvg = (data: BusinessCardData, qrDataUrl: string) => {
+    const colors = useCustomColors ? customColors : {
+      primary: "#D4AF37",
+      secondary: "#FFD700",
+      accent: "#B8860B",
+      background: "#1A1A1A",
+      textPrimary: "#FFFFFF",
+      textSecondary: "#E0E0E0"
+    };
+    
     const logoSection = customLogo 
       ? `<image href="${customLogo}" x="0" y="0" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>`
       : `<g>
@@ -325,34 +352,34 @@ const BusinessCardGenerator = () => {
       />
       
       <!-- Accents -->
-      <circle cx="90" cy="30" r="2.4" fill="#FFD700" opacity="0.8" />
-      <circle cx="30" cy="90" r="1.8" fill="#D4AF37" opacity="0.6" />
+      <circle cx="90" cy="30" r="2.4" fill="${colors.secondary}" opacity="0.8" />
+      <circle cx="30" cy="90" r="1.8" fill="${colors.primary}" opacity="0.6" />
     </g>`;
 
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Luxury gradients -->
     <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1A1A1A" />
-      <stop offset="50%" stop-color="#2D2D2D" />
-      <stop offset="100%" stop-color="#1A1A1A" />
+      <stop offset="0%" stop-color="${colors.background}" />
+      <stop offset="50%" stop-color="${colors.background}DD" />
+      <stop offset="100%" stop-color="${colors.background}" />
     </linearGradient>
     <linearGradient id="logoGradientCard" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D4AF37" />
-      <stop offset="25%" stop-color="#FFD700" />
-      <stop offset="50%" stop-color="#F4E5B1" />
-      <stop offset="75%" stop-color="#FFD700" />
-      <stop offset="100%" stop-color="#B8860B" />
+      <stop offset="0%" stop-color="${colors.primary}" />
+      <stop offset="25%" stop-color="${colors.secondary}" />
+      <stop offset="50%" stop-color="${colors.secondary}DD" />
+      <stop offset="75%" stop-color="${colors.secondary}" />
+      <stop offset="100%" stop-color="${colors.accent}" />
     </linearGradient>
     <linearGradient id="textGradientCard" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FFD700" />
-      <stop offset="50%" stop-color="#F4E5B1" />
-      <stop offset="100%" stop-color="#D4AF37" />
+      <stop offset="0%" stop-color="${colors.secondary}" />
+      <stop offset="50%" stop-color="${colors.secondary}DD" />
+      <stop offset="100%" stop-color="${colors.primary}" />
     </linearGradient>
     <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D4AF37" />
-      <stop offset="50%" stop-color="#FFD700" />
-      <stop offset="100%" stop-color="#B8860B" />
+      <stop offset="0%" stop-color="${colors.primary}" />
+      <stop offset="50%" stop-color="${colors.secondary}" />
+      <stop offset="100%" stop-color="${colors.accent}" />
     </linearGradient>
     <filter id="cardGlow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="9" result="coloredBlur"/>
@@ -419,10 +446,10 @@ const BusinessCardGenerator = () => {
     <line x1="150" y1="96" x2="360" y2="96" stroke="url(#logoGradientCard)" stroke-width="1.5" opacity="0.6"/>
   </g>
   
-  <!-- Main Content Area -->
+    <!-- Main Content Area -->
   <g transform="translate(60, 220)">
     <!-- Name and Title -->
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="48" font-weight="bold" fill="#FFFFFF" letter-spacing="1px">${data.name}</text>
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="48" font-weight="bold" fill="${colors.textPrimary}" letter-spacing="1px">${data.name}</text>
     <text x="0" y="45" font-family="Playfair Display, serif" font-size="32" font-weight="500" fill="url(#textGradientCard)" letter-spacing="2px">${data.function}</text>
     
     <!-- Decorative line -->
@@ -437,7 +464,7 @@ const BusinessCardGenerator = () => {
       <!-- Modern phone icon -->
       <rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <line x1="10" y1="17" x2="14" y2="17" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="#E0E0E0">${data.phone}</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="${colors.textSecondary}">${data.phone}</text>
     </g>
     
     <!-- Email -->
@@ -446,7 +473,7 @@ const BusinessCardGenerator = () => {
       <!-- Modern email icon -->
       <rect x="3" y="7" width="18" height="12" rx="2" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <path d="M3 9 L12 15 L21 9" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="24" fill="#E0E0E0">${data.email}</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="24" fill="${colors.textSecondary}">${data.email}</text>
     </g>
     
     <!-- Website -->
@@ -455,7 +482,7 @@ const BusinessCardGenerator = () => {
       <!-- Modern website/globe icon -->
       <circle cx="12" cy="12" r="8" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <path d="M4 12h16M12 4c3.5 2.5 3.5 13.5 0 16M12 4c-3.5 2.5-3.5 13.5 0 16" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.2"/>
-      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="#E0E0E0">mvaimobiliare.ro</text>
+      <text x="45" y="21" font-family="Inter, sans-serif" font-size="26" fill="${colors.textSecondary}">mvaimobiliare.ro</text>
     </g>
     
     <!-- Address -->
@@ -464,7 +491,7 @@ const BusinessCardGenerator = () => {
       <!-- Modern location pin icon -->
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <circle cx="12" cy="9" r="3" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="12" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">Chiajna, str. Tineretului nr. 17</text>
+      <text x="45" y="12" font-family="Inter, sans-serif" font-size="22" fill="${colors.textSecondary}">Chiajna, str. Tineretului nr. 17</text>
       <text x="45" y="35" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">bl. 2 parter ap 24</text>
     </g>
   </g>
@@ -746,6 +773,139 @@ const BusinessCardGenerator = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Dacă nu completezi, se va genera automat link WhatsApp din numărul de telefon
                 </p>
+              </div>
+
+              {/* Culori Personalizate */}
+              <div className="space-y-4 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Culori Personalizate</Label>
+                  <Button
+                    type="button"
+                    variant={useCustomColors ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setUseCustomColors(!useCustomColors)}
+                  >
+                    {useCustomColors ? "Activat" : "Dezactivat"}
+                  </Button>
+                </div>
+                
+                {useCustomColors && (
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Label htmlFor="primary" className="text-sm">Culoare Primară</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="primary"
+                          type="color"
+                          value={customColors.primary}
+                          onChange={(e) => setCustomColors({...customColors, primary: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.primary}
+                          onChange={(e) => setCustomColors({...customColors, primary: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="secondary" className="text-sm">Culoare Secundară</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="secondary"
+                          type="color"
+                          value={customColors.secondary}
+                          onChange={(e) => setCustomColors({...customColors, secondary: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.secondary}
+                          onChange={(e) => setCustomColors({...customColors, secondary: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="accent" className="text-sm">Culoare Accent</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="accent"
+                          type="color"
+                          value={customColors.accent}
+                          onChange={(e) => setCustomColors({...customColors, accent: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.accent}
+                          onChange={(e) => setCustomColors({...customColors, accent: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="background" className="text-sm">Fundal</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="background"
+                          type="color"
+                          value={customColors.background}
+                          onChange={(e) => setCustomColors({...customColors, background: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.background}
+                          onChange={(e) => setCustomColors({...customColors, background: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="textPrimary" className="text-sm">Text Principal</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="textPrimary"
+                          type="color"
+                          value={customColors.textPrimary}
+                          onChange={(e) => setCustomColors({...customColors, textPrimary: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.textPrimary}
+                          onChange={(e) => setCustomColors({...customColors, textPrimary: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="textSecondary" className="text-sm">Text Secundar</Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          id="textSecondary"
+                          type="color"
+                          value={customColors.textSecondary}
+                          onChange={(e) => setCustomColors({...customColors, textSecondary: e.target.value})}
+                          className="h-10 w-20 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={customColors.textSecondary}
+                          onChange={(e) => setCustomColors({...customColors, textSecondary: e.target.value})}
+                          className="flex-1 font-mono text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Button onClick={handleGenerate} className="w-full">
