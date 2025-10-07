@@ -609,9 +609,14 @@ const BusinessCardGenerator = () => {
   };
 
   const generateBackSvg = () => {
-    const backLogoSection = customLogo
-      ? `<image href="${customLogo}" x="-75" y="-75" width="150" height="150" preserveAspectRatio="xMidYMid meet"/>`
-      : `<!-- Outer ring -->
+    let backLogoSection = "";
+    let companyNameSection = "";
+    
+    // Generează logo-ul în funcție de tipul selectat
+    if (logoType === "custom" && customLogo) {
+      backLogoSection = `<image href="${customLogo}" x="-75" y="-75" width="150" height="150" preserveAspectRatio="xMidYMid meet"/>`;
+    } else if (logoType === "default") {
+      backLogoSection = `<!-- Outer ring -->
     <circle 
       cx="0" 
       cy="0" 
@@ -645,6 +650,23 @@ const BusinessCardGenerator = () => {
     <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
     <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
     <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />`;
+    }
+    // logoType === "none" results in empty backLogoSection
+    
+    // Adaugă textul "MVA IMOBILIARE" doar pentru logo default
+    if (logoType === "default") {
+      companyNameSection = `
+  <!-- Company Name - Above Logo -->
+  <g transform="translate(525, 165)">
+    <text x="0" y="0" font-family="Cinzel, serif" font-size="60" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="6px">MVA</text>
+    <text x="0" y="42" font-family="Playfair Display, serif" font-size="30" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="9px">IMOBILIARE</text>
+  </g>
+  
+  <!-- Tagline - Below Logo -->
+  <g transform="translate(525, 465)">
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">Excelență în imobiliare</text>
+  </g>`;
+    }
 
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -690,54 +712,11 @@ const BusinessCardGenerator = () => {
   </pattern>
   <rect width="1050" height="600" rx="45" fill="url(#textureVerso)" opacity="0.4"/>
   
-  <!-- Central Logo - Scaled up -->
+  <!-- Central Logo -->
   <g transform="translate(525, 300)">
     ${backLogoSection}
-    <circle 
-      cx="0" 
-      cy="0" 
-      r="75" 
-      fill="none"
-      stroke="url(#logoGradientVerso)"
-      stroke-width="3.6"
-      opacity="0.8"
-    />
-    
-    <!-- Main hexagon -->
-    <path 
-      d="M0 -60 L51 -30 L51 30 L0 60 L-51 30 L-51 -30 Z" 
-      fill="url(#logoGradientVerso)" 
-      opacity="0.9"
-    />
-    
-    <!-- Inner background -->
-    <path 
-      d="M0 -48 L42 -24 L42 24 L0 48 L-42 24 L-42 -24 Z" 
-      fill="url(#cardGradientVerso)"
-    />
-    
-    <!-- Premium "M" letterform - scaled up -->
-    <path 
-      d="M-21 -6 L-12 -6 L0 12 L12 -6 L21 -6 L21 27 L12 27 L12 3 L3 15 L-3 15 L-12 3 L-12 27 L-21 27 Z"
-      fill="url(#logoGradientVerso)"
-    />
-    
-    <!-- Luxury accents -->
-    <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
-    <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
-    <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />
   </g>
-  
-  <!-- Company Name - Above Logo -->
-  <g transform="translate(525, 165)">
-    <text x="0" y="0" font-family="Cinzel, serif" font-size="60" font-weight="bold" fill="url(#textGradientVerso)" text-anchor="middle" letter-spacing="6px">MVA</text>
-    <text x="0" y="42" font-family="Playfair Display, serif" font-size="30" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="9px">IMOBILIARE</text>
-  </g>
-  
-  <!-- Tagline - Below Logo -->
-  <g transform="translate(525, 465)">
-    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">Excelență în imobiliare</text>
-  </g>
+  ${companyNameSection}
 </svg>`;
   };
 
