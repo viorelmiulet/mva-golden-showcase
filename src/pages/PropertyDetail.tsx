@@ -146,18 +146,105 @@ const PropertyDetail = () => {
     return `${min} - ${max} mp`;
   };
 
+  // Structured Data for Property
+  const propertySchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": property.title,
+    "description": property.description,
+    "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "offers": {
+      "@type": "Offer",
+      "url": `https://mvaimobiliare.ro/proprietati/${property.id}`,
+      "priceCurrency": property.currency || "EUR",
+      "price": property.price_min,
+      "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+      "availability": property.availability_status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "RealEstateAgent",
+        "name": "MVA Imobiliare",
+        "url": "https://mvaimobiliare.ro"
+      }
+    },
+    "category": "Real Estate",
+    "additionalProperty": [
+      {
+        "@type": "PropertyValue",
+        "name": "Suprafață",
+        "value": `${property.surface_min}${property.surface_max !== property.surface_min ? `-${property.surface_max}` : ''} mp`
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Camere",
+        "value": property.rooms
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Locație",
+        "value": property.location
+      }
+    ]
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Acasă",
+        "item": "https://mvaimobiliare.ro/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Proprietăți",
+        "item": "https://mvaimobiliare.ro/proprietati"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": property.title,
+        "item": `https://mvaimobiliare.ro/proprietati/${property.id}`
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
         <title>{property.title} | MVA Imobiliare</title>
         <meta name="description" content={property.description} />
+        <meta name="keywords" content={`${property.location}, ${property.rooms} camere, ${formatSurface(property.surface_min, property.surface_max)}, apartamente de vânzare, imobiliare București, ${property.project_name || ''}`} />
+        <link rel="canonical" href={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
         <meta property="og:title" content={`${property.title} | MVA Imobiliare`} />
         <meta property="og:description" content={property.description} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={window.location.href} />
+        <meta property="og:site_name" content="MVA Imobiliare" />
         {property.images?.[0] && (
           <meta property="og:image" content={property.images[0]} />
         )}
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
+        <meta name="twitter:title" content={`${property.title} | MVA Imobiliare`} />
+        <meta name="twitter:description" content={property.description} />
+        {property.images?.[0] && (
+          <meta name="twitter:image" content={property.images[0]} />
+        )}
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(propertySchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
