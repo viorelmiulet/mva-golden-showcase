@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload, CheckCircle, AlertTriangle } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload, CheckCircle, AlertTriangle, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,11 @@ interface BusinessCardData {
   marketingText: string;
   marketingTextLine2: string;
   tagline: string;
+  backNotesTitle: string;
+  backNotesLine1: string;
+  backNotesLine2: string;
+  backNotesLine3: string;
+  backNotesLine4: string;
 }
 
 interface CustomColors {
@@ -56,7 +61,12 @@ const BusinessCardGenerator = () => {
     addressLine2: "bl. 2 parter ap 24",
     marketingText: "Vânzări apartamente direct",
     marketingTextLine2: "de la dezvoltator",
-    tagline: "Excelență în imobiliare"
+    tagline: "Excelență în imobiliare",
+    backNotesTitle: "",
+    backNotesLine1: "",
+    backNotesLine2: "",
+    backNotesLine3: "",
+    backNotesLine4: ""
   });
   
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
@@ -177,7 +187,12 @@ const BusinessCardGenerator = () => {
       addressLine2: "bl. 2 parter ap 24",
       marketingText: "Vânzări apartamente direct",
       marketingTextLine2: "de la dezvoltator",
-      tagline: "Excelență în imobiliare"
+      tagline: "Excelență în imobiliare",
+      backNotesTitle: "",
+      backNotesLine1: "",
+      backNotesLine2: "",
+      backNotesLine3: "",
+      backNotesLine4: ""
     });
     setFrontSvg(card.front_svg);
     setBackSvg(card.back_svg);
@@ -626,6 +641,23 @@ const BusinessCardGenerator = () => {
   const generateBackSvg = (data: BusinessCardData) => {
     let backLogoSection = "";
     let companyNameSection = "";
+    let notesSection = "";
+    
+    // Generează secțiunea de observații dacă există date
+    if (data.backNotesTitle || data.backNotesLine1 || data.backNotesLine2 || data.backNotesLine3 || data.backNotesLine4) {
+      const hasContent = data.backNotesLine1 || data.backNotesLine2 || data.backNotesLine3 || data.backNotesLine4;
+      
+      notesSection = `
+  <!-- Notes Section - Bottom Left -->
+  <g transform="translate(80, 450)">
+    ${data.backNotesTitle ? `<text x="0" y="0" font-family="Playfair Display, serif" font-size="28" font-weight="600" fill="url(#textGradientVerso)" letter-spacing="2px">${data.backNotesTitle}</text>` : ''}
+    ${data.backNotesTitle && hasContent ? `<line x1="0" y1="15" x2="200" y2="15" stroke="url(#logoGradientVerso)" stroke-width="2" opacity="0.6"/>` : ''}
+    ${data.backNotesLine1 ? `<text x="0" y="${data.backNotesTitle ? '45' : '10'}" font-family="Inter, sans-serif" font-size="20" fill="#C0C0C0" letter-spacing="0.5px">${data.backNotesLine1}</text>` : ''}
+    ${data.backNotesLine2 ? `<text x="0" y="${data.backNotesTitle ? '72' : '37'}" font-family="Inter, sans-serif" font-size="20" fill="#C0C0C0" letter-spacing="0.5px">${data.backNotesLine2}</text>` : ''}
+    ${data.backNotesLine3 ? `<text x="0" y="${data.backNotesTitle ? '99' : '64'}" font-family="Inter, sans-serif" font-size="20" fill="#C0C0C0" letter-spacing="0.5px">${data.backNotesLine3}</text>` : ''}
+    ${data.backNotesLine4 ? `<text x="0" y="${data.backNotesTitle ? '126' : '91'}" font-family="Inter, sans-serif" font-size="20" fill="#C0C0C0" letter-spacing="0.5px">${data.backNotesLine4}</text>` : ''}
+  </g>`;
+    }
     
     // Generează logo-ul în funcție de tipul selectat
     if (logoType === "custom" && customLogo) {
@@ -732,6 +764,7 @@ const BusinessCardGenerator = () => {
     ${backLogoSection}
   </g>
   ${companyNameSection}
+  ${notesSection}
 </svg>`;
   };
 
@@ -908,6 +941,58 @@ const BusinessCardGenerator = () => {
                   onChange={(e) => setCardData(prev => ({ ...prev, tagline: e.target.value }))}
                   placeholder="ex: Excelență în imobiliare"
                 />
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-gold" />
+                  Observații pe Spatele Cărții
+                </h3>
+                <div>
+                  <Label htmlFor="backNotesTitle">Titlu Observații (opțional)</Label>
+                  <Input
+                    id="backNotesTitle"
+                    value={cardData.backNotesTitle}
+                    onChange={(e) => setCardData(prev => ({ ...prev, backNotesTitle: e.target.value }))}
+                    placeholder="ex: Note importante"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="backNotesLine1">Observație 1</Label>
+                  <Input
+                    id="backNotesLine1"
+                    value={cardData.backNotesLine1}
+                    onChange={(e) => setCardData(prev => ({ ...prev, backNotesLine1: e.target.value }))}
+                    placeholder="ex: Program: Luni - Vineri 9:00 - 18:00"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="backNotesLine2">Observație 2</Label>
+                  <Input
+                    id="backNotesLine2"
+                    value={cardData.backNotesLine2}
+                    onChange={(e) => setCardData(prev => ({ ...prev, backNotesLine2: e.target.value }))}
+                    placeholder="ex: Consultanță gratuită"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="backNotesLine3">Observație 3</Label>
+                  <Input
+                    id="backNotesLine3"
+                    value={cardData.backNotesLine3}
+                    onChange={(e) => setCardData(prev => ({ ...prev, backNotesLine3: e.target.value }))}
+                    placeholder="ex: Finanțare disponibilă"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="backNotesLine4">Observație 4</Label>
+                  <Input
+                    id="backNotesLine4"
+                    value={cardData.backNotesLine4}
+                    onChange={(e) => setCardData(prev => ({ ...prev, backNotesLine4: e.target.value }))}
+                    placeholder="ex: Vizite la proprietăți"
+                  />
+                </div>
               </div>
 
               {/* Selectare Tip Logo */}
