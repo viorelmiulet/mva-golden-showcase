@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload, CheckCircle } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload, CheckCircle, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
@@ -863,45 +863,87 @@ const BusinessCardGenerator = () => {
               </div>
 
               {/* Selectare Tip Logo */}
-              <div className="space-y-3 border-t pt-4">
-                <Label className="text-base font-semibold">Tip Logo pe Carte</Label>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-3 border-t pt-4 bg-gold/5 -mx-6 px-6 py-4 rounded-lg">
+                <Label className="text-base font-semibold flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-gold" />
+                  Tip Logo pe Carte de Vizită
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Alege ce logo va apărea pe cartea de vizită
+                </p>
+                <div className="grid grid-cols-3 gap-3">
                   <Button
                     type="button"
                     variant={logoType === "default" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setLogoType("default")}
-                    className="h-auto py-3 flex flex-col gap-1"
+                    onClick={() => {
+                      setLogoType("default");
+                      toast.success("Logo MVA Imobiliare selectat!");
+                    }}
+                    className="h-auto py-4 flex flex-col gap-1.5"
                   >
-                    <span className="text-xs font-semibold">Logo MVA</span>
-                    <span className="text-xs opacity-70">Default</span>
+                    <span className="text-sm font-semibold">Logo MVA</span>
+                    <span className="text-xs opacity-70">Design default</span>
                   </Button>
                   <Button
                     type="button"
                     variant={logoType === "custom" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setLogoType("custom")}
+                    onClick={() => {
+                      if (customLogo) {
+                        setLogoType("custom");
+                        toast.success("Logo personalizat selectat!");
+                      }
+                    }}
                     disabled={!customLogo}
-                    className="h-auto py-3 flex flex-col gap-1"
+                    className="h-auto py-4 flex flex-col gap-1.5"
                   >
-                    <span className="text-xs font-semibold">Logo Personalizat</span>
-                    <span className="text-xs opacity-70">{customLogo ? "Încărcat" : "Nu există"}</span>
+                    <span className="text-sm font-semibold">Logo Personalizat</span>
+                    <span className="text-xs opacity-70">{customLogo ? "✓ Activ" : "Nu există"}</span>
                   </Button>
                   <Button
                     type="button"
                     variant={logoType === "none" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setLogoType("none")}
-                    className="h-auto py-3 flex flex-col gap-1"
+                    onClick={() => {
+                      setLogoType("none");
+                      toast.success("Carte fără logo selectată!");
+                    }}
+                    className="h-auto py-4 flex flex-col gap-1.5"
                   >
-                    <span className="text-xs font-semibold">Fără Logo</span>
+                    <span className="text-sm font-semibold">Fără Logo</span>
                     <span className="text-xs opacity-70">Minimalist</span>
                   </Button>
                 </div>
                 {logoType === "custom" && !customLogo && (
-                  <p className="text-xs text-destructive">
-                    Te rog să încarci un logo personalizat în secțiunea "Logo-uri Descărcabile" mai jos.
-                  </p>
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-destructive">
+                      Pentru a folosi logo personalizat, mai întâi încarcă un logo în secțiunea "Logo-uri Personalizate" de mai jos și apasă butonul "Folosește".
+                    </p>
+                  </div>
+                )}
+                {logoType === "default" && (
+                  <div className="bg-gold/10 border border-gold/30 rounded-lg p-3">
+                    <p className="text-xs text-gold">
+                      ✓ Logo-ul MVA Imobiliare va fi afișat pe carte
+                    </p>
+                  </div>
+                )}
+                {logoType === "none" && (
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                    <p className="text-xs text-blue-600">
+                      ✓ Cartea va fi generată fără logo (design minimalist)
+                    </p>
+                  </div>
+                )}
+                {logoType === "custom" && customLogo && (
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 flex items-center gap-3">
+                    <img src={customLogo} alt="Logo selectat" className="w-12 h-12 object-contain border border-gold/20 rounded bg-white p-1" />
+                    <p className="text-xs text-green-600">
+                      ✓ Acest logo va fi afișat pe carte
+                    </p>
+                  </div>
                 )}
               </div>
 
