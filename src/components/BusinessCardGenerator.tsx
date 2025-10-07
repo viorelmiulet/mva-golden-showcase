@@ -17,6 +17,11 @@ interface BusinessCardData {
   phone: string;
   email: string;
   qrLink: string;
+  address: string;
+  addressLine2: string;
+  marketingText: string;
+  marketingTextLine2: string;
+  tagline: string;
 }
 
 interface CustomColors {
@@ -46,7 +51,12 @@ const BusinessCardGenerator = () => {
     function: "",
     phone: "",
     email: "",
-    qrLink: ""
+    qrLink: "",
+    address: "Chiajna, str. Tineretului nr. 17",
+    addressLine2: "bl. 2 parter ap 24",
+    marketingText: "Vânzări apartamente direct",
+    marketingTextLine2: "de la dezvoltator",
+    tagline: "Excelență în imobiliare"
   });
   
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
@@ -162,7 +172,12 @@ const BusinessCardGenerator = () => {
       function: card.function_title,
       phone: card.phone,
       email: card.email,
-      qrLink: card.qr_link || ""
+      qrLink: card.qr_link || "",
+      address: "Chiajna, str. Tineretului nr. 17",
+      addressLine2: "bl. 2 parter ap 24",
+      marketingText: "Vânzări apartamente direct",
+      marketingTextLine2: "de la dezvoltator",
+      tagline: "Excelență în imobiliare"
     });
     setFrontSvg(card.front_svg);
     setBackSvg(card.back_svg);
@@ -578,16 +593,16 @@ const BusinessCardGenerator = () => {
       <!-- Modern location pin icon -->
       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
       <circle cx="12" cy="9" r="3" fill="none" stroke="url(#logoGradientCard)" stroke-width="1.5"/>
-      <text x="45" y="12" font-family="Inter, sans-serif" font-size="22" fill="${colors.textSecondary}">Chiajna, str. Tineretului nr. 17</text>
-      <text x="45" y="35" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">bl. 2 parter ap 24</text>
+      <text x="45" y="12" font-family="Inter, sans-serif" font-size="22" fill="${colors.textSecondary}">${data.address}</text>
+      <text x="45" y="35" font-family="Inter, sans-serif" font-size="22" fill="#E0E0E0">${data.addressLine2}</text>
     </g>
   </g>
   
   <!-- Right Side - Details -->
   <g transform="translate(580, 75)">
     <!-- Services -->
-    <text x="0" y="50" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">Vânzări apartamente direct</text>
-    <text x="0" y="80" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">de la dezvoltator</text>
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">${data.marketingText}</text>
+    <text x="0" y="80" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#C0C0C0">${data.marketingTextLine2}</text>
     
     <!-- WhatsApp QR Code -->
     <g transform="translate(60, 140)">
@@ -608,7 +623,7 @@ const BusinessCardGenerator = () => {
 </svg>`;
   };
 
-  const generateBackSvg = () => {
+  const generateBackSvg = (data: BusinessCardData) => {
     let backLogoSection = "";
     let companyNameSection = "";
     
@@ -664,7 +679,7 @@ const BusinessCardGenerator = () => {
   
   <!-- Tagline - Below Logo -->
   <g transform="translate(525, 465)">
-    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">Excelență în imobiliare</text>
+    <text x="0" y="0" font-family="Playfair Display, serif" font-size="36" font-weight="500" fill="#B8B8B8" text-anchor="middle" letter-spacing="3px">${cardData.tagline}</text>
   </g>`;
     }
 
@@ -741,7 +756,7 @@ const BusinessCardGenerator = () => {
     
     console.log('Generating SVGs...');
     const front = generateFrontSvg(cardData, qrDataUrl);
-    const back = generateBackSvg();
+    const back = generateBackSvg(cardData);
     
     console.log('Front SVG length:', front.length);
     console.log('Back SVG length:', back.length);
@@ -839,6 +854,60 @@ const BusinessCardGenerator = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   Dacă nu completezi, se va genera automat link WhatsApp din numărul de telefon
                 </p>
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="font-semibold text-sm">Adresă</h3>
+                <div>
+                  <Label htmlFor="address">Adresă (linia 1)</Label>
+                  <Input
+                    id="address"
+                    value={cardData.address}
+                    onChange={(e) => setCardData(prev => ({ ...prev, address: e.target.value }))}
+                    placeholder="ex: Chiajna, str. Tineretului nr. 17"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="addressLine2">Adresă (linia 2)</Label>
+                  <Input
+                    id="addressLine2"
+                    value={cardData.addressLine2}
+                    onChange={(e) => setCardData(prev => ({ ...prev, addressLine2: e.target.value }))}
+                    placeholder="ex: bl. 2 parter ap 24"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="font-semibold text-sm">Text Marketing (partea din dreapta)</h3>
+                <div>
+                  <Label htmlFor="marketingText">Text Marketing (linia 1)</Label>
+                  <Input
+                    id="marketingText"
+                    value={cardData.marketingText}
+                    onChange={(e) => setCardData(prev => ({ ...prev, marketingText: e.target.value }))}
+                    placeholder="ex: Vânzări apartamente direct"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="marketingTextLine2">Text Marketing (linia 2)</Label>
+                  <Input
+                    id="marketingTextLine2"
+                    value={cardData.marketingTextLine2}
+                    onChange={(e) => setCardData(prev => ({ ...prev, marketingTextLine2: e.target.value }))}
+                    placeholder="ex: de la dezvoltator"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <Label htmlFor="tagline">Slogan (pe spatele cărții)</Label>
+                <Input
+                  id="tagline"
+                  value={cardData.tagline}
+                  onChange={(e) => setCardData(prev => ({ ...prev, tagline: e.target.value }))}
+                  placeholder="ex: Excelență în imobiliare"
+                />
               </div>
 
               {/* Selectare Tip Logo */}
