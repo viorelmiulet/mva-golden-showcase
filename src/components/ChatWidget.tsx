@@ -40,9 +40,26 @@ const ChatWidget: React.FC = () => {
   };
 
   const formatMessageContent = (content: string) => {
-    // Convert URLs to clickable links
+    // Split into paragraphs
+    let formatted = content;
+    
+    // Convert URLs to clickable links with better styling
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return content.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">$1</a>');
+    formatted = formatted.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-gold underline hover:text-gold-light font-medium break-all inline-block">🔗 Vezi aici</a>');
+    
+    // Format emoji bullets and lists
+    formatted = formatted.replace(/^([📍💰📐🏠📝✨🔗])/gm, '<span class="inline-block mr-1">$1</span>');
+    
+    // Format numbered lists (1., 2., etc.)
+    formatted = formatted.replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2"><span class="font-semibold text-gold">$1.</span> $2</div>');
+    
+    // Add line breaks for better readability
+    formatted = formatted.replace(/\n/g, '<br/>');
+    
+    // Format bold text (optional, if using **text**)
+    formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    
+    return formatted;
   };
 
   if (!isOpen) {
@@ -88,10 +105,10 @@ const ChatWidget: React.FC = () => {
           <div className="space-y-4">
             {messages.length === 0 && (
               <div className="flex justify-start">
-                <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm mr-4">
+                <div className="bg-secondary text-foreground rounded-lg px-4 py-3 text-sm mr-4 leading-relaxed shadow-sm">
                   <div>
-                    <p>Bună! Sunt Sofia, asistentul tău AI pentru MVA Imobiliare.</p>
-                    <p className="mt-2">Vă pot ajuta să găsiți proprietatea perfectă din portofoliul nostru. Cu ce vă pot ajuta astăzi?</p>
+                    <p className="font-medium mb-2">Bună! Sunt Sofia, asistentul tău AI pentru MVA Imobiliare.</p>
+                    <p>Vă pot ajuta să găsiți proprietatea perfectă din portofoliul nostru. Cu ce vă pot ajuta astăzi?</p>
                   </div>
                 </div>
               </div>
@@ -107,13 +124,14 @@ const ChatWidget: React.FC = () => {
               >
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                    "max-w-[85%] rounded-lg px-4 py-3 text-sm leading-relaxed shadow-sm",
                     message.role === 'user'
                       ? "bg-primary text-black ml-4"
                       : "bg-secondary text-foreground mr-4"
                   )}
                 >
                   <div 
+                    className="whitespace-pre-wrap break-words"
                     dangerouslySetInnerHTML={{ 
                       __html: formatMessageContent(message.content) 
                     }} 
