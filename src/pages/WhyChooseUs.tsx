@@ -137,13 +137,13 @@ const WhyChooseUs = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Acasă",
-        "item": "https://mva-imobiliare.lovable.app/"
+        "item": "https://mvaimobiliare.ro/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "De ce să ne alegi",
-        "item": "https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi"
+        "item": "https://mvaimobiliare.ro/de-ce-sa-ne-alegi"
       }
     ]
   };
@@ -154,11 +154,11 @@ const WhyChooseUs = () => {
         <title>De ce să ne alegi pe noi? - Agenție Imobiliară Expertă | MVA Imobiliare</title>
         <meta name="description" content="Descoperă avantajele de a lucra cu MVA Imobiliare: experiență dovedită, transparență completă, consultanță personalizată și portofoliu curat de proprietăți premium în vestul Bucureștiului." />
         <meta name="keywords" content="agenție imobiliară de încredere, consultant imobiliar expert, servicii imobiliare premium, agenție imobiliară București vest, agent imobiliar profesionist" />
-        <link rel="canonical" href="https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mva-imobiliare.lovable.app/de-ce-sa-ne-alegi" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />
         <meta property="og:title" content="De ce MVA Imobiliare - Agenție Expertă în București" />
         <meta property="og:description" content="Experiență dovedită, transparență completă și rezultate garantate în tranzacții imobiliare" />
         
