@@ -79,7 +79,7 @@ const ChatWidget: React.FC = () => {
 
   return (
     <div className="fixed bottom-0 right-0 left-0 sm:bottom-4 sm:right-4 sm:left-auto z-50 sm:max-w-sm">
-      <Card className="w-full h-[85vh] sm:h-[500px] sm:w-96 bg-background border-border shadow-2xl flex flex-col overflow-hidden backdrop-blur-none sm:rounded-lg rounded-t-2xl">
+      <Card className="w-full h-[65vh] sm:h-[500px] sm:w-96 bg-background border-border shadow-2xl flex flex-col overflow-hidden backdrop-blur-none sm:rounded-lg rounded-t-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-gold-light p-3 sm:p-4 flex items-center justify-between text-black">
           <div className="flex items-center space-x-2 sm:space-x-3">
