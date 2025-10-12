@@ -68,27 +68,28 @@ const Cariera = () => {
   }
 
   const onSubmit = async (data: JobApplicationForm) => {
-    if (!cvFile) {
-      toast({
-        title: "CV lipsă",
-        description: "Te rugăm să încarci CV-ul",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsSubmitting(true)
 
     try {
-      // Convert CV to base64
-      const reader = new FileReader()
-      const cvBase64 = await new Promise<string>((resolve) => {
-        reader.onloadend = () => {
-          const base64 = reader.result as string
-          resolve(base64.split(",")[1])
+      let cvData = null
+
+      // Convert CV to base64 if provided
+      if (cvFile) {
+        const reader = new FileReader()
+        const cvBase64 = await new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const base64 = reader.result as string
+            resolve(base64.split(",")[1])
+          }
+          reader.readAsDataURL(cvFile)
+        })
+
+        cvData = {
+          filename: cvFile.name,
+          content: cvBase64,
+          contentType: cvFile.type,
         }
-        reader.readAsDataURL(cvFile)
-      })
+      }
 
       const { error } = await supabase.functions.invoke("send-collaboration-email", {
         body: {
@@ -98,13 +99,7 @@ const Cariera = () => {
           propertyType: data.position,
           description: data.coverLetter,
           experience: data.experience,
-          images: [
-            {
-              filename: cvFile.name,
-              content: cvBase64,
-              contentType: cvFile.type,
-            },
-          ],
+          images: cvData ? [cvData] : [],
         },
       })
 
@@ -284,7 +279,7 @@ const Cariera = () => {
 
                 {/* CV Upload */}
                 <div>
-                  <Label htmlFor="cv">Încarcă CV *</Label>
+                  <Label htmlFor="cv">Încarcă CV (opțional)</Label>
                   <div className="mt-2">
                     <label
                       htmlFor="cv"
