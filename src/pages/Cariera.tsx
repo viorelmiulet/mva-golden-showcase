@@ -21,7 +21,6 @@ const jobApplicationSchema = z.object({
   position: z.string().min(1, "Selectează poziția dorită"),
   experience: z.string().min(1, "Selectează experiența"),
   coverLetter: z.string().min(50, "Scrisoarea de intenție trebuie să conțină minim 50 caractere"),
-  linkedin: z.string().optional(),
 })
 
 type JobApplicationForm = z.infer<typeof jobApplicationSchema>
@@ -99,7 +98,6 @@ const Cariera = () => {
           propertyType: data.position,
           description: data.coverLetter,
           experience: data.experience,
-          linkedin: data.linkedin || "",
           images: [
             {
               filename: cvFile.name,
@@ -245,16 +243,6 @@ const Cariera = () => {
                         <p className="text-destructive text-sm mt-1">{errors.phone.message}</p>
                       )}
                     </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="linkedin">Profil LinkedIn</Label>
-                    <Input
-                      id="linkedin"
-                      {...register("linkedin")}
-                      placeholder="https://linkedin.com/in/username"
-                      className="mt-2"
-                    />
                   </div>
                 </div>
 
