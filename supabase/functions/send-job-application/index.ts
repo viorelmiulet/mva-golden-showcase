@@ -64,7 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Sending job application email with", attachments.length, "attachments");
 
-    const emailData = {
+    const emailData: any = {
       personalizations: [
         {
           to: [{ email: "mvaperfectbusiness@gmail.com" }],
@@ -122,8 +122,11 @@ const handler = async (req: Request): Promise<Response> => {
           `
         }
       ],
-      attachments: attachments
     };
+
+    if (attachments.length > 0) {
+      emailData.attachments = attachments;
+    }
 
     const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
