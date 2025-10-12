@@ -59,6 +59,7 @@ const Header = () => {
     { name: 'Proiecte', id: 'proprietati', type: 'scroll' },
     { name: 'Proprietăți', id: '/proprietati', type: 'link' },
     { name: 'De ce noi?', id: '/de-ce-sa-ne-alegi', type: 'link' },
+    { name: 'Carieră', id: '/cariera', type: 'link' },
     { name: 'Contact', id: 'contact', type: 'scroll' }
   ]
 
