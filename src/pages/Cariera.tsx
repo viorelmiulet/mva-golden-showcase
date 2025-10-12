@@ -91,15 +91,15 @@ const Cariera = () => {
         }
       }
 
-      const { error } = await supabase.functions.invoke("send-collaboration-email", {
+      const { error } = await supabase.functions.invoke("send-job-application", {
         body: {
-          name: data.fullName,
+          fullName: data.fullName,
           email: data.email,
           phone: data.phone,
-          propertyType: data.position,
-          description: data.coverLetter,
+          position: data.position,
           experience: data.experience,
-          images: cvData ? [cvData] : [],
+          coverLetter: data.coverLetter,
+          cv: cvData,
         },
       })
 

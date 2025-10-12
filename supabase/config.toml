@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.send-collaboration-email]
 verify_jwt = false
 
+[functions.send-job-application]
+verify_jwt = false
+
 [functions.scrape-property]
 verify_jwt = false
 
