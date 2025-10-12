@@ -16,6 +16,7 @@ const AddProperty = lazy(() => import("./pages/AddProperty"));
 const Admin = lazy(() => import("./pages/Admin"));
 const CarteVizita = lazy(() => import("./pages/CarteVizita"));
 const ApiKeysAdmin = lazy(() => import("./pages/ApiKeysAdmin"));
+const Cariera = lazy(() => import("./pages/Cariera"));
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
+              <Route path="/cariera" element={<Cariera />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>

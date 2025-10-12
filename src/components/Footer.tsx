@@ -1,8 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUp, Building, Home } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 
 const Footer = () => {
+  const location = useLocation()
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -14,12 +17,25 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleNavigation = (link: { name: string; id: string; type: 'scroll' | 'link' }) => {
+    if (link.type === 'link') {
+      return
+    } else if (link.type === 'scroll') {
+      if (location.pathname !== '/') {
+        window.location.href = `/#${link.id}`
+      } else {
+        scrollToSection(link.id)
+      }
+    }
+  };
+
   const quickLinks = [
-    { name: 'Acasă', id: 'home' },
-    { name: 'Despre Noi', id: 'despre' },
-    { name: 'Servicii', id: 'servicii' },
-    { name: 'Proiecte', id: 'proprietati' },
-    { name: 'Contact', id: 'contact' }
+    { name: 'Acasă', id: 'home', type: 'scroll' as const },
+    { name: 'Despre Noi', id: 'despre', type: 'scroll' as const },
+    { name: 'Servicii', id: 'servicii', type: 'scroll' as const },
+    { name: 'Proiecte', id: 'proprietati', type: 'scroll' as const },
+    { name: 'Carieră', id: '/cariera', type: 'link' as const },
+    { name: 'Contact', id: 'contact', type: 'scroll' as const }
   ];
 
   const services = [
@@ -132,12 +148,21 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {quickLinks.map((link) => (
                     <li key={link.id}>
-                      <button 
-                        onClick={() => scrollToSection(link.id)} 
-                        className="text-muted-foreground hover:text-gold transition-colors text-sm hover:translate-x-1 transform duration-200 block"
-                      >
-                        {link.name}
-                      </button>
+                      {link.type === 'link' ? (
+                        <Link
+                          to={link.id}
+                          className="text-muted-foreground hover:text-gold transition-colors text-sm hover:translate-x-1 transform duration-200 block"
+                        >
+                          {link.name}
+                        </Link>
+                      ) : (
+                        <button 
+                          onClick={() => handleNavigation(link)} 
+                          className="text-muted-foreground hover:text-gold transition-colors text-sm hover:translate-x-1 transform duration-200 block"
+                        >
+                          {link.name}
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>
