@@ -268,10 +268,6 @@ const Cariera = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="agent-imobiliar">Agent Imobiliar</SelectItem>
-                        <SelectItem value="consultant-vanzari">Consultant Vânzări</SelectItem>
-                        <SelectItem value="manager-proiect">Manager Proiect</SelectItem>
-                        <SelectItem value="asistent-marketing">Asistent Marketing</SelectItem>
-                        <SelectItem value="alta">Altă Poziție</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.position && (
