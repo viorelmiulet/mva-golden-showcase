@@ -176,11 +176,8 @@ const Properties = () => {
               Proiecte Exclusive
             </Badge>
             
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
-              <span className="text-foreground">Proprietăți </span>
-              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                Premium
-              </span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8 text-foreground">
+              Proprietăți
             </h1>
             
             <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">

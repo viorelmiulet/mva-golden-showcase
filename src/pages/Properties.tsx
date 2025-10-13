@@ -309,7 +309,7 @@ const Properties = () => {
   return (
     <>
       <Helmet>
-        <title>Proprietăți de Vânzare - Apartamente și Case Premium | MVA Imobiliare</title>
+        <title>Proprietăți de Vânzare - Apartamente și Case | MVA Imobiliare</title>
         <meta name="description" content="Descoperă portofoliul nostru de apartamente și case premium de vânzare în Chiajna și vestul Bucureștiului. Proprietăți verificate cu finisaje de lux, preturi competitive și consultanță expertă." />
         <meta name="keywords" content="apartamente de vânzare București, case premium Chiajna, proprietăți vest București, apartamente noi, vânzare imobiliare, oferte apartamente" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
@@ -317,13 +317,13 @@ const Properties = () => {
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/proprietati" />
-        <meta property="og:title" content="Proprietăți Premium de Vânzare - MVA Imobiliare" />
+        <meta property="og:title" content="Proprietăți de Vânzare - MVA Imobiliare" />
         <meta property="og:description" content={`${filteredProperties.length} proprietăți disponibile în Chiajna și vestul Bucureștiului`} />
         <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg"} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Proprietăți Premium de Vânzare" />
+        <meta property="twitter:title" content="Proprietăți de Vânzare" />
         <meta property="twitter:description" content={`${filteredProperties.length} proprietăți verificate în București`} />
 
         {/* Structured Data */}
