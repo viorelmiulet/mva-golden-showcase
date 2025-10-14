@@ -101,7 +101,7 @@ const Projects = () => {
   }
 
   const renderProjects = (projects: typeof projectsList) => (
-    <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:gap-12">
+    <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2 xl:gap-12">
       {projects.map((property) => (
         <Card 
           key={property.id} 
@@ -254,32 +254,32 @@ const Projects = () => {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
         
-        <main className="pt-24 pb-16">
-          <section className="py-12 sm:py-16 lg:py-24">
-            <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+          <section className="py-8 sm:py-12 lg:py-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-6xl mx-auto">
                 
                 {/* Header */}
-                <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-                  <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                <header className="text-center mb-8 sm:mb-12 lg:mb-16">
+                  <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-3 sm:mb-4 text-xs sm:text-sm px-3 py-1.5">
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                     Ansambluri Exclusive
                   </Badge>
                   
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 lg:mb-6 px-2">
                     <span className="text-foreground">Ansambluri Rezidențiale </span>
                     <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                       Premium
                     </span>
                   </h1>
                   
-                  <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+                  <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
                     Descoperă cele 3 ansambluri rezidențiale disponibile din vestul Bucureștiului, 
                     cu apartamente moderne și facilități premium.
                   </p>
                   
                   {/* See All Properties CTA */}
-                  <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                  <div className="mt-6 sm:mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center px-4">
                     <Link to="/proprietati">
                       <Button 
                         variant="luxury" 
@@ -305,9 +305,9 @@ const Projects = () => {
                 </header>
 
                 {/* Properties Tabs */}
-                <div className="mb-12 sm:mb-16">
+                <div className="mb-8 sm:mb-12">
                   <Tabs defaultValue="toate" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8 lg:mb-12 glass border border-gold/30 h-auto p-1">
+                    <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8 glass border border-gold/30 h-auto p-1">
                       <TabsTrigger 
                         value="toate" 
                         className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2 sm:py-2.5 px-2 sm:px-3 touch-manipulation"
@@ -340,12 +340,12 @@ const Projects = () => {
                 </div>
 
                 {/* CTA Section */}
-                <footer className="text-center">
-                  <div className="glass rounded-2xl lg:rounded-3xl p-6 sm:p-8 border border-gold/30 max-w-4xl mx-auto">
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
+                <footer className="text-center px-4">
+                  <div className="glass rounded-xl sm:rounded-2xl lg:rounded-3xl p-6 sm:p-8 border border-gold/30 max-w-4xl mx-auto">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-3 sm:mb-4">
                       Explorează Toate Apartamentele Disponibile
                     </h2>
-                    <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
+                    <p className="text-base sm:text-lg text-muted-foreground mb-5 sm:mb-6 leading-relaxed">
                       Vezi catalogul complet pentru a descoperi toate opțiunile 
                       disponibile, planuri detaliate și programarea vizitelor.
                     </p>
