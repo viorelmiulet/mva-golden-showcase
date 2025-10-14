@@ -250,28 +250,31 @@ const PropertyDetail = () => {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
         
-        <main className="pt-24 pb-16 px-4">
+        <main className="pt-24 pb-16 px-4" role="main">
           <div className="container mx-auto max-w-6xl">
             
             {/* Back Button */}
-            <Link to="/proprietati">
-              <Button variant="ghost" className="mb-6 group">
-                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Înapoi la Proprietăți
-              </Button>
-            </Link>
+            <nav aria-label="Breadcrumb navigation">
+              <Link to="/proprietati">
+                <Button variant="ghost" className="mb-6 group">
+                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                  Înapoi la Proprietăți
+                </Button>
+              </Link>
+            </nav>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <article className="grid lg:grid-cols-2 gap-8">
               
               {/* Images Section */}
-              <div className="space-y-4">
+              <section className="space-y-4" aria-label="Imagini proprietate">
                 <Card className="overflow-hidden border-gold/20">
                   <div className="aspect-video relative">
                     {property.images && property.images.length > 0 ? (
                       <img
                         src={property.images[selectedImage]}
-                        alt={`${property.title} - Imagine ${selectedImage + 1}`}
+                        alt={`${property.title} în ${property.location} - Imagine principală ${selectedImage + 1} cu ${property.rooms} camere și ${formatSurface(property.surface_min, property.surface_max)}`}
                         className="w-full h-full object-cover"
+                        loading="eager"
                       />
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -292,23 +295,25 @@ const PropertyDetail = () => {
                             ? "border-gold shadow-lg"
                             : "border-transparent hover:border-gold/50"
                         }`}
+                        aria-label={`Vizualizează imaginea ${idx + 1}`}
                       >
                         <img
                           src={img}
-                          alt={`Thumbnail ${idx + 1}`}
+                          alt={`${property.title} - Thumbnail ${idx + 1}`}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                         />
                       </button>
                     ))}
                   </div>
                 )}
-              </div>
+              </section>
 
               {/* Details Section */}
-              <div className="space-y-6">
+              <section className="space-y-6" aria-label="Detalii proprietate">
                 
                 {/* Title & Location */}
-                <div>
+                <header>
                   {property.availability_status === "available" && (
                     <Badge className="bg-green-600 text-white mb-3">
                       <CheckCircle className="w-3 h-3 mr-1" />
@@ -330,7 +335,7 @@ const PropertyDetail = () => {
                     <MapPin className="w-5 h-5 mr-2 text-gold" />
                     <span className="text-lg">{property.location}</span>
                   </div>
-                </div>
+                </header>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4">
@@ -457,8 +462,8 @@ const PropertyDetail = () => {
                   </div>
                 </div>
 
-              </div>
-            </div>
+              </section>
+            </article>
 
             {/* Contact Section */}
             <Card className="mt-12 border-gold/20">

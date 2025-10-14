@@ -32,9 +32,9 @@ const About = () => {
   ]
 
   return (
-    <section id="despre" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 to-background">
+    <section id="despre" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 to-background" itemScope itemType="https://schema.org/AboutPage">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="max-w-6xl mx-auto">
+        <article className="max-w-6xl mx-auto">
           
           {/* Header */}
           <header className="text-center mb-12 sm:mb-16 lg:mb-20">
@@ -42,14 +42,14 @@ const About = () => {
               Despre MVA Imobiliare
             </Badge>
             
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8" itemProp="headline">
               <span className="text-foreground">Partenerii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Tăi de Încredere
               </span>
             </h1>
             
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0" itemProp="description">
               Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE 
               este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.
             </p>
@@ -122,7 +122,7 @@ const About = () => {
               </div>
             </div>
           </div>
-        </div>
+        </article>
       </div>
     </section>
   )

@@ -47,9 +47,9 @@ const Services = () => {
   ]
 
   return (
-    <section id="servicii" className="py-24 bg-background">
+    <section id="servicii" className="py-24 bg-background" itemScope itemType="https://schema.org/Service">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+        <article className="max-w-6xl mx-auto">
           
           {/* Header */}
           <header className="text-center mb-20">
@@ -57,14 +57,14 @@ const Services = () => {
               Servicii Premium
             </Badge>
             
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8" itemProp="name">
               <span className="text-foreground">Servicii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Complete
               </span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed" itemProp="description">
               Oferim o gamă completă de servicii imobiliare premium, adaptate perfect 
               pentru complexele rezidențiale moderne din vestul capitalei.
             </p>
@@ -130,24 +130,24 @@ const Services = () => {
           </div>
 
           {/* CTA Section */}
-          <div className="mt-20 text-center">
+          <footer className="mt-20 text-center">
             <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-2xl p-8 border border-gold/20">
-              <h3 className="text-2xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
                 Pregătit să îți găsești apartamentul perfect?
-              </h3>
+              </h2>
               <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                 Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem 
                 să te ajutăm să găsești proprietatea ideală.
               </p>
-              <a href="tel:0767941512">
+              <a href="tel:0767941512" aria-label="Sună la MVA Imobiliare">
                 <button className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gold text-primary-foreground rounded-lg text-sm sm:text-base font-medium hover:bg-gold-dark transition-colors">
-                  <Phone className="mr-2 w-4 h-4 flex-shrink-0" />
+                  <Phone className="mr-2 w-4 h-4 flex-shrink-0" aria-hidden="true" />
                   <span>0767 941 512</span>
                 </button>
               </a>
             </div>
-          </div>
-        </div>
+          </footer>
+        </article>
       </div>
     </section>
   )

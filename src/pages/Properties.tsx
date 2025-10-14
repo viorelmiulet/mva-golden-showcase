@@ -647,12 +647,12 @@ const Properties = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
       {/* Image Gallery Modal */}
       <Dialog open={!!selectedProperty} onOpenChange={closeGallery}>
@@ -963,10 +963,10 @@ const Properties = () => {
                     Contactează-ne pe WhatsApp
                   </a>
                 </Button>
-              </div>
-              </div>
-            )}
-          </div>
+                  </div>
+                </div>
+              )}
+            </div>
         </DialogContent>
       </Dialog>
 

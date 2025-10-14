@@ -127,36 +127,73 @@ const Cariera = () => {
   return (
     <>
       <Helmet>
-        <title>Carieră - Alătură-te Echipei MVA Imobiliare</title>
+        <title>Carieră Agent Imobiliar - Alătură-te Echipei MVA Imobiliare București</title>
         <meta
           name="description"
-          content="Caută o carieră în domeniul imobiliar? Descoperă oportunitățile de angajare la MVA Imobiliare și alătură-te echipei noastre de profesioniști."
+          content="Construiește o carieră de succes ca agent imobiliar la MVA Imobiliare. Oferim training profesional, recompense competitive și oportunități de creștere în domeniul imobiliar premium din București."
         />
+        <meta name="keywords" content="job agent imobiliar, carieră imobiliare București, angajare consultant imobiliar, locuri de muncă imobiliare, agent vânzări proprietăți" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/cariera" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/cariera" />
+        <meta property="og:title" content="Carieră Agent Imobiliar - MVA Imobiliare" />
+        <meta property="og:description" content="Alătură-te echipei MVA Imobiliare și construiește o carieră de succes în domeniul imobiliar premium" />
+        
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:title" content="Carieră MVA Imobiliare" />
+        
+        {/* Structured Data - Job Posting */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            "title": "Agent Imobiliar",
+            "description": "MVA Imobiliare caută agenți imobiliari motivați pentru a se alătura echipei noastre în domeniul proprietăților premium din București",
+            "hiringOrganization": {
+              "@type": "Organization",
+              "name": "MVA Imobiliare",
+              "sameAs": "https://mvaimobiliare.ro"
+            },
+            "jobLocation": {
+              "@type": "Place",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "București",
+                "addressCountry": "RO"
+              }
+            },
+            "employmentType": "FULL_TIME",
+            "datePosted": "2024-01-01"
+          })}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
         <Header />
 
-        <main className="container mx-auto px-4 pt-32 pb-20">
+        <main className="container mx-auto px-4 pt-32 pb-20" role="main">
           {/* Hero Section */}
-          <div className="max-w-4xl mx-auto text-center mb-16">
+          <header className="max-w-4xl mx-auto text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold/20 mb-6">
               <Briefcase className="w-4 h-4 text-gold" />
               <span className="text-sm text-gold">Alătură-te Echipei</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-cinzel font-bold mb-6 bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-              Construiește o Carieră de Succes
+              Construiește o Carieră ca Agent Imobiliar
             </h1>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               La MVA Imobiliare căutăm constant profesioniști pasionați care doresc să facă parte
               dintr-o echipă dinamică și orientată spre excelență în domeniul imobiliar premium.
             </p>
-          </div>
+          </header>
 
           {/* Benefits Section */}
-          <div className="max-w-6xl mx-auto mb-16">
+          <section className="max-w-6xl mx-auto mb-16">
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
@@ -181,21 +218,21 @@ const Cariera = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
           {/* Application Form */}
-          <div className="max-w-3xl mx-auto">
-            <div className="card-responsive">
-              <div className="text-center mb-8">
+          <section className="max-w-3xl mx-auto">
+            <article className="card-responsive">
+              <header className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-cinzel font-bold mb-3">
                   Formular de Aplicare
                 </h2>
                 <p className="text-muted-foreground">
                   Completează formularul de mai jos și ne vom întoarce cu un răspuns în maximum 48 de ore
                 </p>
-              </div>
+              </header>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" aria-label="Formular aplicare job">
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <div>
@@ -335,8 +372,8 @@ const Cariera = () => {
                   )}
                 </Button>
               </form>
-            </div>
-          </div>
+            </article>
+          </section>
         </main>
 
         <Footer />
