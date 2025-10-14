@@ -228,21 +228,21 @@ const Projects = () => {
   return (
     <>
       <Helmet>
-        <title>Ansambluri Rezidențiale Premium - MVA Imobiliare</title>
-        <meta name="description" content="Descoperă cele mai noi ansambluri rezidențiale din vestul Bucureștiului: Renew Residence, Eurocasa Residence și City Militari. Apartamente moderne cu facilități premium." />
+        <title>Ansambluri Rezidențiale - MVA Imobiliare</title>
+        <meta name="description" content="Descoperă cele mai noi ansambluri rezidențiale din vestul Bucureștiului: Renew Residence, Eurocasa Residence și City Militari. Apartamente moderne cu facilități de top." />
         <meta name="keywords" content="ansambluri rezidențiale, proiecte noi București, Renew Residence, Eurocasa Residence, City Militari, apartamente noi Chiajna" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proiecte" />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/proiecte" />
-        <meta property="og:title" content="Ansambluri Rezidențiale Premium - MVA Imobiliare" />
+        <meta property="og:title" content="Ansambluri Rezidențiale - MVA Imobiliare" />
         <meta property="og:description" content="Descoperă cele mai noi ansambluri rezidențiale din vestul Bucureștiului" />
         <meta property="og:image" content={projectsList[0]?.image || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Ansambluri Rezidențiale Premium" />
+        <meta property="twitter:title" content="Ansambluri Rezidențiale" />
         <meta property="twitter:description" content="Proiecte rezidențiale moderne în București" />
 
         {/* Structured Data */}
@@ -267,15 +267,14 @@ const Projects = () => {
                   </Badge>
                   
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 lg:mb-6 px-2">
-                    <span className="text-foreground">Ansambluri Rezidențiale </span>
                     <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                      Premium
+                      Ansambluri Rezidențiale
                     </span>
                   </h1>
                   
                   <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
                     Descoperă cele 3 ansambluri rezidențiale disponibile din vestul Bucureștiului, 
-                    cu apartamente moderne și facilități premium.
+                    cu apartamente moderne și facilități de top.
                   </p>
                   
                   {/* See All Properties CTA */}
