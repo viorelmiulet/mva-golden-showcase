@@ -88,6 +88,11 @@ const Index = () => {
         <meta name="keywords" content="agenție imobiliară București, apartamente Chiajna, case premium vest București, Militari Residence, vânzare apartamente, cumpărare proprietăți, agent imobiliar București" />
         <link rel="canonical" href="https://mvaimobiliare.ro/" />
         
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content="MVA Imobiliare este o agenție imobiliară specializată în zona Chiajna și vestul Bucureștiului, oferind servicii de vânzare și cumpărare proprietăți premium, consultanță expertă, evaluări gratuite și asistență completă în tranzacții imobiliare. Contact: 0767941512, email: contact@mvaimobiliare.ro" />
+        <meta name="category" content="Real Estate Agency" />
+        <meta name="coverage" content="București, Chiajna, Ilfov, Romania" />
+        
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/" />

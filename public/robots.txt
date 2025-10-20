@@ -1,3 +1,21 @@
+# AI Crawlers - OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# AI Crawlers - Anthropic
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# AI Crawlers - Google
+User-agent: Google-Extended
+Allow: /
+
 User-agent: Googlebot
 Allow: /
 

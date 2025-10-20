@@ -135,6 +135,11 @@ const Cariera = () => {
         <meta name="keywords" content="job agent imobiliar, carieră imobiliare București, angajare consultant imobiliar, locuri de muncă imobiliare, agent vânzări proprietăți" />
         <link rel="canonical" href="https://mvaimobiliare.ro/cariera" />
         
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content="MVA Imobiliare recrutează agenți imobiliari în București. Poziție: Agent Imobiliar pentru proprietăți premium. Oferim: training profesional gratuit, comisioane competitive (50-70%), suport marketing complet, portofoliu exclusiv de proprietăți, oportunități de creștere rapidă. Locație: București, Chiajna. Aplicare: contact@mvaimobiliare.ro sau 0767941512." />
+        <meta name="category" content="Job Posting" />
+        <meta name="employment-type" content="Full-time, Commission-based" />
+        
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/cariera" />

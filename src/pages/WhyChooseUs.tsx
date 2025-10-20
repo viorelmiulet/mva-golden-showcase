@@ -156,6 +156,10 @@ const WhyChooseUs = () => {
         <meta name="keywords" content="agenție imobiliară de încredere, consultant imobiliar expert, servicii imobiliare premium, agenție imobiliară București vest, agent imobiliar profesionist" />
         <link rel="canonical" href="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />
         
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content="MVA Imobiliare oferă servicii imobiliare premium cu peste 5 ani experiență în vestul Bucureștiului. Avantaje cheie: rată de succes 97% în atingerea prețului cerut, echipă disponibilă 24/7, proprietăți live online în 48h, bază de date cu 15.000+ proprietăți, expunere maximă pe multiple platforme, consultanță completă și asistență juridică." />
+        <meta name="category" content="Real Estate Services" />
+        
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />

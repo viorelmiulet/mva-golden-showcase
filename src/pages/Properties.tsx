@@ -314,6 +314,11 @@ const Properties = () => {
         <meta name="keywords" content="apartamente de vânzare București, case premium Chiajna, proprietăți vest București, apartamente noi, vânzare imobiliare, oferte apartamente" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
         
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content="Catalog complet de proprietăți imobiliare în București și Chiajna disponibile pentru vânzare și închiriere. Include apartamente cu 1-4 camere, case și proprietăți premium cu prețuri de la 30.000€ până la 200.000€+. Fiecare proprietate include detalii complete: suprafață, număr camere, locație, preț, fotografii și caracteristici. Contact direct: 0767941512." />
+        <meta name="category" content="Real Estate Listings" />
+        <meta name="inventory-size" content={`${filteredProperties.length} properties`} />
+        
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/proprietati" />

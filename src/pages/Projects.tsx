@@ -233,6 +233,10 @@ const Projects = () => {
         <meta name="keywords" content="ansambluri rezidențiale, proiecte noi București, Renew Residence, Eurocasa Residence, City Militari, apartamente noi Chiajna" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proiecte" />
         
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content="Ansambluri rezidențiale premium în vestul Bucureștiului: Renew Residence Chiajna (44.000-90.000€, 32-65mp, 1-2 camere), Eurocasa Residence Chiajna (40.000-102.000€, 30-75mp, 1-3 camere), City Militari (45.000-100.000€, 32-55mp, 1-2 camere). Proiecte noi cu finisaje premium, sisteme moderne de securitate și facilități complete." />
+        <meta name="category" content="Residential Complexes" />
+        
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/proiecte" />
