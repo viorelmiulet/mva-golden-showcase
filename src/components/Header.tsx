@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, MessageCircle, Home, Building } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import { ThemeToggle } from "@/components/ThemeToggle"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -200,7 +199,6 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <ThemeToggle />
             <Link to="/proprietati">
               <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
                 <Building className="w-3 h-3 mr-2" />
@@ -215,15 +213,13 @@ const Header = () => {
             </a>
           </div>
 
-          {/* Mobile Theme Toggle and Menu */}
-          <div className="flex items-center gap-2 xl:hidden">
-            <ThemeToggle />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative w-10 h-10">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
+          {/* Mobile Menu - Visible on mobile/tablet */}
+          <Sheet>
+            <SheetTrigger asChild className="xl:hidden">
+              <Button variant="ghost" size="icon" className="relative w-10 h-10">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
             <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
               <div className="flex flex-col space-y-6 mt-8 pb-8">
                 {/* Mobile Logo in Sheet */}
@@ -277,8 +273,7 @@ const Header = () => {
                 </div>
               </div>
             </SheetContent>
-            </Sheet>
-          </div>
+          </Sheet>
         </div>
       </div>
     </header>
