@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { ThemeProvider } from "next-themes";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import CookieConsent from "@/components/CookieConsent";
@@ -24,10 +25,11 @@ const queryClient = new QueryClient();
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
             <div className="animate-pulse text-gold">Se încarcă...</div>
           </div>}>
@@ -46,9 +48,10 @@ const App = () => (
               <Route path="*" element={<Index />} />
             </Routes>
           </Suspense>
+          <CookieConsent />
         </BrowserRouter>
-        <CookieConsent />
       </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </HelmetProvider>
 );
