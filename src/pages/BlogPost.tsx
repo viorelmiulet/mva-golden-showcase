@@ -1,21 +1,21 @@
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Calendar, User, ArrowLeft } from "lucide-react";
+import { Calendar, User, ArrowLeft, ArrowRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const blogPosts = {
   "ghidul-complet-cumparare-proprietate": {
-    title: "Ghidul Complet pentru Cumpărarea unei Proprietăți în București",
+    title: "🏠 Ghidul Complet pentru Cumpărarea unei Proprietăți în București",
     date: "15 Octombrie 2025",
     author: "Viorel Miulet",
-    category: "Ghiduri",
+    category: "📚 Ghiduri",
     content: `
-      <h2>Introducere</h2>
-      <p>Cumpărarea unei proprietăți este una dintre cele mai importante decizii financiare din viața oricărei persoane. În București, piața imobiliară este dinamică și oferă numeroase oportunități, dar procesul poate părea copleșitor pentru cumpărătorii la prima casă.</p>
+      <h2>🎯 Introducere</h2>
+      <p>Cumpărarea unei proprietăți este una dintre cele mai importante decizii financiare din viața oricărei persoane. În București, piața imobiliară este dinamică și oferă numeroase oportunități, dar procesul poate părea copleșitor pentru cumpărătorii la prima casă. Nu-ți face griji - suntem aici să te ghidăm pas cu pas! 💪</p>
 
-      <h2>1. Stabilirea Bugetului</h2>
+      <h2>💰 1. Stabilirea Bugetului</h2>
       <p>Primul pas esențial este să vă evaluați capacitatea financiară realistă. Luați în considerare:</p>
       <ul>
         <li><strong>Avansul:</strong> De obicei 15-20% din valoarea proprietății</li>
@@ -24,8 +24,8 @@ const blogPosts = {
         <li><strong>Fond de rezervă:</strong> Pentru renovări și mobilare</li>
       </ul>
 
-      <h2>2. Alegerea Zonei Potrivite</h2>
-      <p>Locația este factorul cel mai important în valoarea pe termen lung a proprietății. Analizați:</p>
+      <h2>🗺️ 2. Alegerea Zonei Potrivite</h2>
+      <p>Locația este factorul cel mai important în valoarea pe termen lung a proprietății. Analizați cu atenție:</p>
       <ul>
         <li>Proximitatea față de locul de muncă</li>
         <li>Accesul la transport în comun</li>
@@ -34,8 +34,8 @@ const blogPosts = {
         <li>Potențialul de dezvoltare al zonei</li>
       </ul>
 
-      <h2>3. Vizionarea Proprietăților</h2>
-      <p>La vizionare, fiți atenți la:</p>
+      <h2>👀 3. Vizionarea Proprietăților</h2>
+      <p>La vizionare, fiți atenți la detaliile importante:</p>
       <ul>
         <li>Starea structurii: pereți, tavan, fundație</li>
         <li>Instalații: electrică, sanitară, termică</li>
@@ -44,8 +44,8 @@ const blogPosts = {
         <li>Vecinătățile și atmosfera blocului</li>
       </ul>
 
-      <h2>4. Verificarea Documentelor</h2>
-      <p>Documentele necesare pentru verificare includ:</p>
+      <h2>📋 4. Verificarea Documentelor</h2>
+      <p>Documentele necesare pentru verificare includ (foarte important! ⚠️):</p>
       <ul>
         <li>Actul de proprietate</li>
         <li>Certificatul de urbanism</li>
@@ -54,8 +54,8 @@ const blogPosts = {
         <li>Autorizația de construcție (pentru imobile noi)</li>
       </ul>
 
-      <h2>5. Negocierea Prețului</h2>
-      <p>Sfaturi pentru negociere:</p>
+      <h2>🤝 5. Negocierea Prețului</h2>
+      <p>Sfaturi pentru o negociere de succes:</p>
       <ul>
         <li>Informați-vă despre prețurile din zonă</li>
         <li>Identificați punctele slabe ale proprietății</li>
@@ -63,21 +63,21 @@ const blogPosts = {
         <li>Fiți pregătiți să plecați dacă prețul nu este corect</li>
       </ul>
 
-      <h2>Concluzie</h2>
-      <p>Procesul de cumpărare a unei proprietăți necesită timp, răbdare și atenție la detalii. Colaborarea cu o agenție imobiliară de încredere vă poate simplifica semnificativ procesul și vă poate proteja de posibile probleme.</p>
+      <h2>✅ Concluzie</h2>
+      <p>Procesul de cumpărare a unei proprietăți necesită timp, răbdare și atenție la detalii. Colaborarea cu o agenție imobiliară de încredere vă poate simplifica semnificativ procesul și vă poate proteja de posibile probleme. Noi suntem aici pentru tine! 🏆</p>
     `,
   },
   "tendinte-piata-imobiliara-2025": {
-    title: "Tendințe pe Piața Imobiliară în 2025",
+    title: "📈 Tendințe pe Piața Imobiliară în 2025",
     date: "10 Octombrie 2025",
     author: "MVA Imobiliare",
-    category: "Piața Imobiliară",
+    category: "📊 Piața Imobiliară",
     content: `
-      <h2>Situația Actuală a Pieței Imobiliare</h2>
-      <p>Piața imobiliară din București și Ilfov continuă să fie una dintre cele mai dinamice din Europa de Est. Anul 2025 aduce cu sine schimbări importante în comportamentul cumpărătorilor și în dinamica prețurilor.</p>
+      <h2>📊 Situația Actuală a Pieței Imobiliare</h2>
+      <p>Piața imobiliară din București și Ilfov continuă să fie una dintre cele mai dinamice din Europa de Est. Anul 2025 aduce cu sine schimbări importante în comportamentul cumpărătorilor și în dinamica prețurilor. Hai să vedem ce se întâmplă! 🔍</p>
 
-      <h2>Evoluția Prețurilor</h2>
-      <p>În prima parte a anului 2025, am observat următoarele tendințe:</p>
+      <h2>💶 Evoluția Prețurilor</h2>
+      <p>În prima parte a anului 2025, am observat următoarele tendințe interesante:</p>
       <ul>
         <li><strong>Sectorul 1:</strong> Prețuri medii de 2.200-2.800 €/mp pentru apartamente noi</li>
         <li><strong>Sectorul 3:</strong> Creștere de 8% față de 2024, prețuri de 1.900-2.300 €/mp</li>
@@ -85,8 +85,8 @@ const blogPosts = {
         <li><strong>Ilfov:</strong> Zonele limitrofe Bucureștiului sunt în plină expansiune</li>
       </ul>
 
-      <h2>Zonele în Dezvoltare</h2>
-      <p>Zonele care înregistrează cel mai mare interes în 2025:</p>
+      <h2>🏗️ Zonele în Dezvoltare</h2>
+      <p>Zonele care înregistrează cel mai mare interes în 2025 (atenție la acestea! 🎯):</p>
       <ul>
         <li><strong>Voluntari:</strong> Creștere explozivă datorită infrastructurii moderne</li>
         <li><strong>Pipera:</strong> Rămâne zona premium a Bucureștiului</li>
@@ -94,8 +94,8 @@ const blogPosts = {
         <li><strong>Băneasa:</strong> Zona verde cu dezvoltări rezidențiale de lux</li>
       </ul>
 
-      <h2>Preferințele Cumpărătorilor</h2>
-      <p>Cerințele au evoluat semnificativ:</p>
+      <h2>🎨 Preferințele Cumpărătorilor</h2>
+      <p>Cerințele au evoluat semnificativ în ultimul an:</p>
       <ul>
         <li>Spații de lucru dedicate (home office)</li>
         <li>Balcoane și terase generoase</li>
@@ -104,16 +104,16 @@ const blogPosts = {
         <li>Facilități în complex: sală fitness, spații verzi</li>
       </ul>
 
-      <h2>Finanțare și Credite</h2>
-      <p>Condițiile de creditare în 2025:</p>
+      <h2>🏦 Finanțare și Credite</h2>
+      <p>Condițiile de creditare în 2025 (vestea bună! 📢):</p>
       <ul>
         <li>Dobânzi în scădere ușoară față de 2024</li>
         <li>Programe guvernamentale pentru prima casă</li>
         <li>Creșterea perioadei de creditare (până la 35-40 ani)</li>
       </ul>
 
-      <h2>Predicții pentru Finalul Anului</h2>
-      <p>Ne așteptăm ca până la finalul lui 2025:</p>
+      <h2>🔮 Predicții pentru Finalul Anului</h2>
+      <p>Ne așteptăm ca până la finalul lui 2025 să vedem:</p>
       <ul>
         <li>Stabilizarea prețurilor în zonele centrale</li>
         <li>Creștere continuă în zonele periferice</li>
@@ -123,15 +123,15 @@ const blogPosts = {
     `,
   },
   "pregatirea-casei-pentru-vanzare": {
-    title: "Cum Pregătești Casa pentru Vânzare: 10 Sfaturi Esențiale",
+    title: "✨ Cum Pregătești Casa pentru Vânzare: 10 Sfaturi Esențiale",
     date: "5 Octombrie 2025",
     author: "Viorel Miulet",
-    category: "Sfaturi",
+    category: "💡 Sfaturi",
     content: `
-      <h2>Introducere</h2>
-      <p>Prima impresie contează enorm când vine vorba de vânzarea unei proprietăți. O casă bine pregătită poate face diferența între o vânzare rapidă la un preț bun și luni de așteptare.</p>
+      <h2>✨ Introducere</h2>
+      <p>Prima impresie contează enorm când vine vorba de vânzarea unei proprietăți! O casă bine pregătită poate face diferența între o vânzare rapidă la un preț bun și luni de așteptare. Hai să vedem ce trebuie să faci! 🎯</p>
 
-      <h2>1. Curățenie Generală Profundă</h2>
+      <h2>🧹 1. Curățenie Generală Profundă</h2>
       <p>Începeți cu o curățenie completă a întregii case:</p>
       <ul>
         <li>Spălați toate ferestrele și oglinzile</li>
@@ -141,7 +141,7 @@ const blogPosts = {
         <li>Curățați balcoanele și terasele</li>
       </ul>
 
-      <h2>2. Declutter - Eliminați Dezordinea</h2>
+      <h2>📦 2. Declutter - Eliminați Dezordinea</h2>
       <p>O casă aerisită pare mai mare și mai primitor:</p>
       <ul>
         <li>Eliminați obiectele personale în exces</li>
@@ -150,7 +150,7 @@ const blogPosts = {
         <li>Donați sau aruncați lucrurile neutilizate</li>
       </ul>
 
-      <h2>3. Reparații Minore</h2>
+      <h2>🔧 3. Reparații Minore</h2>
       <p>Rezolvați problemele mici care pot crea o impresie negativă:</p>
       <ul>
         <li>Robinetele care picură</li>
@@ -160,7 +160,7 @@ const blogPosts = {
         <li>Prizele defecte</li>
       </ul>
 
-      <h2>4. Vopsea Proaspătă</h2>
+      <h2>🎨 4. Vopsea Proaspătă</h2>
       <p>O vopsea nouă poate transforma complet aspectul casei:</p>
       <ul>
         <li>Alegeți culori neutre și luminoase</li>
@@ -169,7 +169,7 @@ const blogPosts = {
         <li>Nu uitați de băi și bucătărie</li>
       </ul>
 
-      <h2>5. Îmbunătățirea Iluminatului</h2>
+      <h2>💡 5. Îmbunătățirea Iluminatului</h2>
       <p>Lumina face casa să pară mai mare și mai primitoare:</p>
       <ul>
         <li>Înlocuiți becurile cu unele mai puternice</li>
@@ -178,7 +178,7 @@ const blogPosts = {
         <li>Adăugați lămpi suplimentare în colțurile întunecate</li>
       </ul>
 
-      <h2>6. Curb Appeal - Prima Impresie Contează</h2>
+      <h2>🌳 6. Curb Appeal - Prima Impresie Contează</h2>
       <p>Exteriorul este prima vedere a cumpărătorului:</p>
       <ul>
         <li>Întreținerea gazonului și plantelor</li>
@@ -187,7 +187,7 @@ const blogPosts = {
         <li>Adăugarea de ghivece cu flori</li>
       </ul>
 
-      <h2>7. Neutralizarea Mirosurilor</h2>
+      <h2>👃 7. Neutralizarea Mirosurilor</h2>
       <p>Mirosurile pot fi un factor decisiv:</p>
       <ul>
         <li>Aerisiți casa zilnic</li>
@@ -196,7 +196,7 @@ const blogPosts = {
         <li>Folosiți difuzoare discrete cu arome neutre</li>
       </ul>
 
-      <h2>8. Staging - Aranjarea Mobilierului</h2>
+      <h2>🛋️ 8. Staging - Aranjarea Mobilierului</h2>
       <p>Prezentați casa în cea mai bună lumină:</p>
       <ul>
         <li>Aranjați mobila pentru a maximiza spațiul</li>
@@ -205,7 +205,7 @@ const blogPosts = {
         <li>Evidențiați punctele forte ale fiecărei camere</li>
       </ul>
 
-      <h2>9. Fotografii Profesionale</h2>
+      <h2>📸 9. Fotografii Profesionale</h2>
       <p>Majoritatea cumpărătorilor văd anunțul online mai întâi:</p>
       <ul>
         <li>Angajați un fotograf profesionist</li>
@@ -214,7 +214,7 @@ const blogPosts = {
         <li>Faceți și fotografii exterioarelor</li>
       </ul>
 
-      <h2>10. Flexibilitate la Vizionări</h2>
+      <h2>🗓️ 10. Flexibilitate la Vizionări</h2>
       <p>Cu cât mai mulți cumpărători potențiali, cu atât mai bine:</p>
       <ul>
         <li>Fiți disponibili pentru vizionări și în weekend</li>
@@ -223,20 +223,20 @@ const blogPosts = {
         <li>Lăsați agenția să gestioneze procesul</li>
       </ul>
 
-      <h2>Concluzie</h2>
-      <p>Investiția de timp și bani în pregătirea casei pentru vânzare se întoarce de obicei sub formă de preț mai bun și vânzare mai rapidă. O casă bine pregătită demonstrează că a fost îngrijită și valorificată corect.</p>
+      <h2>🎯 Concluzie</h2>
+      <p>Investiția de timp și bani în pregătirea casei pentru vânzare se întoarce de obicei sub formă de preț mai bun și vânzare mai rapidă. O casă bine pregătită demonstrează că a fost îngrijită și valorificată corect. Succes! 🏆</p>
     `,
   },
   "investitii-imobiliare-ghid": {
-    title: "Investiții Imobiliare: Ce Trebuie să Știi Înainte să Începi",
+    title: "💎 Investiții Imobiliare: Ce Trebuie să Știi Înainte să Începi",
     date: "1 Octombrie 2025",
     author: "MVA Imobiliare",
-    category: "Investiții",
+    category: "💰 Investiții",
     content: `
-      <h2>De Ce Investiții Imobiliare?</h2>
-      <p>Investițiile imobiliare rămân una dintre cele mai sigure și profitabile modalități de a-ți construi averea pe termen lung. Spre deosebire de alte forme de investiții, proprietățile imobiliare oferă venit pasiv constant și protecție împotriva inflației.</p>
+      <h2>💡 De Ce Investiții Imobiliare?</h2>
+      <p>Investițiile imobiliare rămân una dintre cele mai sigure și profitabile modalități de a-ți construi averea pe termen lung! 📈 Spre deosebire de alte forme de investiții, proprietățile imobiliare oferă venit pasiv constant și protecție împotriva inflației.</p>
 
-      <h2>Tipuri de Investiții Imobiliare</h2>
+      <h2>🏢 Tipuri de Investiții Imobiliare</h2>
       
       <h3>1. Buy-to-Let (Cumpără pentru Închiriere)</h3>
       <ul>
@@ -259,7 +259,7 @@ const blogPosts = {
         <li><strong>Ideal pentru:</strong> Investitori pe termen mediu</li>
       </ul>
 
-      <h2>Calcularea Rentabilității</h2>
+      <h2>🧮 Calcularea Rentabilității</h2>
       
       <h3>Formula Rentabilității Brute</h3>
       <p><code>ROI = (Venit anual din chirie / Investiția totală) x 100</code></p>
@@ -275,7 +275,7 @@ const blogPosts = {
         <li><strong>ROI brut: 6.26%</strong></li>
       </ul>
 
-      <h2>Zonele Cele Mai Profitabile în București</h2>
+      <h2>🗺️ Zonele Cele Mai Profitabile în București</h2>
       
       <h3>Pentru Închiriere</h3>
       <ul>
@@ -291,7 +291,7 @@ const blogPosts = {
         <li><strong>Militari:</strong> Cartier în transformare</li>
       </ul>
 
-      <h2>Riscuri și Cum să le Eviți</h2>
+      <h2>⚠️ Riscuri și Cum să le Eviți</h2>
       
       <h3>Risc 1: Perioade de Neocupare</h3>
       <p><strong>Soluție:</strong> Alegeți zone cu cerere mare constantă și prețuri competitive.</p>
@@ -305,7 +305,7 @@ const blogPosts = {
       <h3>Risc 4: Lichiditate Scăzută</h3>
       <p><strong>Soluție:</strong> Nu investiți bani de care ați putea avea nevoie urgent.</p>
 
-      <h2>Sfaturi pentru Începători</h2>
+      <h2>🎓 Sfaturi pentru Începători</h2>
       
       <h3>1. Începeți cu Cercetare Amănunțită</h3>
       <ul>
@@ -336,7 +336,7 @@ const blogPosts = {
         <li>Diversificați investițiile</li>
       </ul>
 
-      <h2>Aspecte Fiscale</h2>
+      <h2>💼 Aspecte Fiscale</h2>
       <p>În România, veniturile din chirii sunt impozitate cu:</p>
       <ul>
         <li><strong>Impozit pe venit:</strong> 10% din venitul brut</li>
@@ -345,10 +345,10 @@ const blogPosts = {
         <li><strong>Impozit pe profit vânzare:</strong> 3% din valoarea tranzacției (sub 3 ani)</li>
       </ul>
 
-      <h2>Concluzie</h2>
-      <p>Investițiile imobiliare pot fi extrem de profitabile dacă sunt făcute corect. Educația, răbdarea și o analiză atentă sunt cheia succesului. Începeți mic, învățați din experiență și extindeți-vă portofoliul gradual.</p>
+      <h2>🎯 Concluzie</h2>
+      <p>Investițiile imobiliare pot fi extrem de profitabile dacă sunt făcute corect! Educația, răbdarea și o analiză atentă sunt cheia succesului. Începeți mic, învățați din experiență și extindeți-vă portofoliul gradual. 🚀</p>
 
-      <p><strong>Nu uitați:</strong> Consultați întotdeauna profesioniști - agenți imobiliari, avocați, contabili - înainte de a face investiții majore.</p>
+      <p><strong>Nu uitați! ⚠️</strong> Consultați întotdeauna profesioniști - agenți imobiliari, avocați, contabili - înainte de a face investiții majore. Noi suntem aici pentru tine! 🤝</p>
     `,
   },
 };
@@ -423,14 +423,17 @@ const BlogPost = () => {
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
 
-              <div className="mt-12 pt-8 border-t border-border">
-                <h3 className="text-xl font-bold mb-4">Ai întrebări despre piața imobiliară?</h3>
-                <p className="text-muted-foreground mb-6">
-                  Echipa MVA Imobiliare este aici să te ajute cu sfaturi personalizate.
+              <div className="mt-12 pt-8 border-t-2 border-gold/20 bg-gradient-to-r from-gold/5 to-transparent p-8 rounded-lg">
+                <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  💬 Ai întrebări despre piața imobiliară?
+                </h3>
+                <p className="text-muted-foreground mb-6 text-lg">
+                  Echipa MVA Imobiliare este aici să te ajute cu sfaturi personalizate și expertiză locală. Nu ezita să ne contactezi! 🤝
                 </p>
                 <Link to="/">
-                  <Button variant="luxury">
-                    Contactează-ne
+                  <Button variant="luxury" size="lg" className="group">
+                    Contactează-ne acum
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
