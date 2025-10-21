@@ -2,11 +2,13 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, User } from "lucide-react";
+import { Calendar, User, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const blogPosts = [
   {
     id: 1,
+    slug: "ghidul-complet-cumparare-proprietate",
     title: "Ghidul Complet pentru Cumpărarea unei Proprietăți în București",
     excerpt: "Tot ce trebuie să știi despre procesul de achiziție imobiliară în capitală, de la căutare până la semnarea actelor.",
     date: "15 Octombrie 2025",
@@ -15,6 +17,7 @@ const blogPosts = [
   },
   {
     id: 2,
+    slug: "tendinte-piata-imobiliara-2025",
     title: "Tendințe pe Piața Imobiliară în 2025",
     excerpt: "Analiză detaliată a evoluției prețurilor și a celor mai căutate zone din București și Ilfov.",
     date: "10 Octombrie 2025",
@@ -23,6 +26,7 @@ const blogPosts = [
   },
   {
     id: 3,
+    slug: "pregatirea-casei-pentru-vanzare",
     title: "Cum Pregătești Casa pentru Vânzare: 10 Sfaturi Esențiale",
     excerpt: "Strategii dovedite pentru a-ți maximiza șansele de vânzare și pentru a obține cel mai bun preț.",
     date: "5 Octombrie 2025",
@@ -31,6 +35,7 @@ const blogPosts = [
   },
   {
     id: 4,
+    slug: "investitii-imobiliare-ghid",
     title: "Investiții Imobiliare: Ce Trebuie să Știi Înainte să Începi",
     excerpt: "Ghid pentru investitori: analiza rentabilității, zonele promițătoare și riscurile de evitat.",
     date: "1 Octombrie 2025",
@@ -70,31 +75,38 @@ const Blog = () => {
 
             <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-2">
               {blogPosts.map((post) => (
-                <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                      <span className="px-3 py-1 rounded-full bg-gold/10 text-gold">
-                        {post.category}
-                      </span>
-                    </div>
-                    <CardTitle className="text-2xl mb-2">{post.title}</CardTitle>
-                    <CardDescription className="text-base">
-                      {post.excerpt}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{post.date}</span>
+                <Link key={post.id} to={`/blog/${post.slug}`}>
+                  <Card className="hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer h-full">
+                    <CardHeader>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <span className="px-3 py-1 rounded-full bg-gold/10 text-gold">
+                          {post.category}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{post.author}</span>
+                      <CardTitle className="text-2xl mb-2 group-hover:text-gold transition-colors">
+                        {post.title}
+                      </CardTitle>
+                      <CardDescription className="text-base">
+                        {post.excerpt}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>{post.date}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <User className="h-4 w-4" />
+                            <span>{post.author}</span>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-gold" />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
