@@ -52,6 +52,19 @@ const faqItems = [
 ];
 
 const FAQ = () => {
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
+      }
+    }))
+  };
+
   return (
     <>
       <Helmet>
@@ -64,6 +77,16 @@ const FAQ = () => {
         <meta property="og:description" content="Răspunsuri la cele mai frecvente întrebări despre serviciile MVA Imobiliare: comisioane, proces de vânzare, evaluări, documente necesare și mult mai mult." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/faq" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Întrebări Frecvente - FAQ | MVA Imobiliare" />
+        <meta name="twitter:description" content="Răspunsuri la cele mai frecvente întrebări despre serviciile MVA Imobiliare" />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(faqStructuredData)}
+        </script>
       </Helmet>
 
       <Header />

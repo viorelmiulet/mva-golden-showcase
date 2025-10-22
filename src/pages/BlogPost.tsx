@@ -374,16 +374,85 @@ const BlogPost = () => {
     );
   }
 
+  const articleStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.title,
+    "image": "https://mvaimobiliare.ro/mva-logo-luxury.svg",
+    "datePublished": post.date,
+    "dateModified": post.date,
+    "author": {
+      "@type": "Person",
+      "name": post.author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "MVA Imobiliare",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://mvaimobiliare.ro/mva-logo-luxury.svg"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://mvaimobiliare.ro/blog/${slug}`
+    }
+  };
+
+  const breadcrumbStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Acasă",
+        "item": "https://mvaimobiliare.ro/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://mvaimobiliare.ro/blog"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title,
+        "item": `https://mvaimobiliare.ro/blog/${slug}`
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
         <title>{post.title} | MVA Imobiliare Blog</title>
         <meta name="description" content={post.title} />
+        <meta name="keywords" content={`${post.category}, piata imobiliara bucuresti, sfaturi imobiliare, ${post.author}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro/blog/${slug}`} />
         
-        <meta property="og:title" content={`${post.title} | MVA Imobiliare Blog`} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.title} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`https://mvaimobiliare.ro/blog/${slug}`} />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="article:published_time" content={post.date} />
+        <meta property="article:author" content={post.author} />
+        <meta property="article:section" content={post.category} />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.title} />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(articleStructuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbStructuredData)}
+        </script>
       </Helmet>
 
       <Header />

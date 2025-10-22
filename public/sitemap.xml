@@ -55,4 +55,33 @@
     <priority>0.7</priority>
   </url>
   
+  <!-- Blog Posts -->
+  <url>
+    <loc>https://mvaimobiliare.ro/blog/ghidul-complet-cumparare-proprietate-bucuresti</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://mvaimobiliare.ro/blog/tendinte-piata-imobiliara-2025</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://mvaimobiliare.ro/blog/cum-pregatesti-casa-pentru-vanzare</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://mvaimobiliare.ro/blog/investitii-imobiliare-ghid-incepatori</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
 </urlset>
