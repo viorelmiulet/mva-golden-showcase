@@ -93,32 +93,32 @@ const Hero = () => {
           </header>
 
           {/* Right Column - Stats Cards */}
-          <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0" aria-label="Statistici cheie proprietăți">
-            <div className="card-responsive group touch-manipulation h-full aspect-[4/3] flex flex-col justify-center">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">€40K+</div>
-              <div className="text-xs text-muted-foreground">Preturi de la</div>
-              <div className="text-xs sm:text-sm text-foreground font-medium">Apartamente moderne</div>
+          <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:mx-0" aria-label="Statistici cheie proprietăți">
+            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
+              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">€40K+</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">Preturi de la</div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">Apartamente moderne</div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-[4/3] flex flex-col justify-center">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">3</div>
-              <div className="text-xs text-muted-foreground">Complexe disponibile</div>
-              <div className="text-xs sm:text-sm text-foreground font-medium">Chiajna, Ilfov</div>
+            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
+              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">3</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">Complexe disponibile</div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-[4/3] flex flex-col justify-center">
-              <div className="text-lg xs:text-xl sm:text-2xl lg:text-3xl font-bold text-gold mb-1 sm:mb-2 drop-shadow-lg">1-3</div>
-              <div className="text-xs text-muted-foreground">Camere disponibile</div>
-              <div className="text-xs sm:text-sm text-foreground font-medium">30-75 mp</div>
+            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
+              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">1-3</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">Camere disponibile</div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">30-75 mp</div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-[4/3] flex flex-col justify-center">
-              <div className="flex items-center mb-1 sm:mb-2">
-                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold mr-1 drop-shadow-lg" />
-                <div className="text-xs sm:text-sm text-gold font-semibold drop-shadow-lg">Vest București</div>
+            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
+              <div className="flex items-center mb-1">
+                <MapPin className="w-3 h-3 text-gold mr-1 drop-shadow-lg" />
+                <div className="text-[10px] xs:text-xs text-gold font-semibold drop-shadow-lg">Vest București</div>
               </div>
-              <div className="text-xs text-muted-foreground">Locație strategică</div>
-              <div className="text-xs sm:text-sm text-foreground font-medium">Acces facil la centru</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">Locație strategică</div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">Acces facil la centru</div>
             </div>
           </aside>
         </div>
