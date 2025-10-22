@@ -40,6 +40,7 @@ import { Link } from "react-router-dom"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import XmlImportManager from "@/components/XmlImportManager"
 import BusinessCardGenerator from "@/components/BusinessCardGenerator"
+import ProjectsAdmin from "@/components/ProjectsAdmin"
 
 
 const Admin = () => {
@@ -660,6 +661,11 @@ const Admin = () => {
                 </CardContent>
               </Card>
             </div>
+
+          {/* Projects Admin Section */}
+          <div className="mt-6">
+            <ProjectsAdmin />
+          </div>
 
           {/* Business Card Generator */}
           <Card className="glass-hover border-gold/10 mt-6">

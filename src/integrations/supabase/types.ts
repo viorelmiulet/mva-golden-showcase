@@ -96,6 +96,7 @@ export type Database = {
         Row: {
           amenities: string[] | null
           availability_status: string | null
+          available_units: number | null
           contact_info: Json | null
           created_at: string
           currency: string | null
@@ -107,6 +108,7 @@ export type Database = {
           location: string
           price_max: number
           price_min: number
+          project_id: string | null
           project_name: string | null
           rooms: number
           source: string
@@ -121,6 +123,7 @@ export type Database = {
         Insert: {
           amenities?: string[] | null
           availability_status?: string | null
+          available_units?: number | null
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
@@ -132,6 +135,7 @@ export type Database = {
           location: string
           price_max: number
           price_min: number
+          project_id?: string | null
           project_name?: string | null
           rooms: number
           source?: string
@@ -146,6 +150,7 @@ export type Database = {
         Update: {
           amenities?: string[] | null
           availability_status?: string | null
+          available_units?: number | null
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
@@ -157,6 +162,7 @@ export type Database = {
           location?: string
           price_max?: number
           price_min?: number
+          project_id?: string | null
           project_name?: string | null
           rooms?: number
           source?: string
@@ -168,7 +174,15 @@ export type Database = {
           updated_at?: string
           whatsapp_catalog_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "catalog_offers_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_conversations: {
         Row: {
