@@ -573,18 +573,18 @@ const Admin = () => {
                     </Button>
                   </div>
 
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
 
-              {/* Manage Properties Section */}
-              <Card className="glass-hover border-gold/10">
-                <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
-                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                      <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
-                      <span className="text-sm sm:text-base">Proprietăți Existente ({properties?.length || 0})</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6">
+                  {/* Manage Properties Section */}
+                  <Card className="glass-hover border-gold/10">
+                    <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+                        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                          <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                          <span className="text-sm sm:text-base">Proprietăți Existente ({properties?.length || 0})</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 sm:p-6">
                     {propertiesLoading ? (
                       <div className="flex items-center justify-center py-8">
                         <Loader2 className="w-6 h-6 animate-spin" />
@@ -705,7 +705,6 @@ const Admin = () => {
               <XmlImportManager />
             </CardContent>
           </Card>
-
 
           {/* Detailed Properties Grid */}
           {!propertiesLoading && properties && properties.length > 0 && (
