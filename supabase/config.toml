@@ -15,6 +15,9 @@ verify_jwt = false
 [functions.update-storia-offers]
 verify_jwt = false
 
+[functions.generate-facebook-content]
+verify_jwt = true
+
 [functions.facebook-catalog-import]
 verify_jwt = false
 

@@ -41,6 +41,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import XmlImportManager from "@/components/XmlImportManager"
 import BusinessCardGenerator from "@/components/BusinessCardGenerator"
 import ProjectsAdmin from "@/components/ProjectsAdmin"
+import { FacebookContentGenerator } from "@/components/FacebookContentGenerator"
 
 
 const Admin = () => {
@@ -665,6 +666,11 @@ const Admin = () => {
           {/* Projects Admin Section */}
           <div className="mt-6">
             <ProjectsAdmin />
+          </div>
+
+          {/* Facebook AI Generator */}
+          <div className="mt-6">
+            <FacebookContentGenerator />
           </div>
 
           {/* Business Card Generator */}
