@@ -23,6 +23,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 interface Property {
   id: string;
@@ -50,6 +51,7 @@ const PropertyDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -267,15 +269,22 @@ const PropertyDetail = () => {
               
               {/* Images Section */}
               <section className="space-y-4" aria-label="Imagini proprietate">
-                <Card className="overflow-hidden border-gold/20">
-                  <div className="aspect-video relative">
+                <Card className="overflow-hidden border-gold/20 cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
+                  <div className="aspect-video relative group">
                     {property.images && property.images.length > 0 ? (
-                      <img
-                        src={property.images[selectedImage]}
-                        alt={`${property.title} în ${property.location} - Imagine principală ${selectedImage + 1} cu ${property.rooms} camere și ${formatSurface(property.surface_min, property.surface_max)}`}
-                        className="w-full h-full object-cover"
-                        loading="eager"
-                      />
+                      <>
+                        <img
+                          src={property.images[selectedImage]}
+                          alt={`${property.title} în ${property.location} - Imagine principală ${selectedImage + 1} cu ${property.rooms} camere și ${formatSurface(property.surface_min, property.surface_max)}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="eager"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-lg font-semibold bg-black/50 px-6 py-3 rounded-lg">
+                            Click pentru vedere mare
+                          </div>
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center">
                         <Home className="w-16 h-16 text-muted-foreground" />
@@ -289,8 +298,12 @@ const PropertyDetail = () => {
                     {property.images.slice(0, 4).map((img, idx) => (
                       <button
                         key={idx}
-                        onClick={() => setSelectedImage(idx)}
-                        className={`aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImage(idx);
+                          setIsLightboxOpen(true);
+                        }}
+                        className={`aspect-video rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
                           selectedImage === idx
                             ? "border-gold shadow-lg"
                             : "border-transparent hover:border-gold/50"
@@ -307,6 +320,14 @@ const PropertyDetail = () => {
                     ))}
                   </div>
                 )}
+                
+                {/* Image Lightbox */}
+                <ImageLightbox
+                  images={property.images || []}
+                  isOpen={isLightboxOpen}
+                  onClose={() => setIsLightboxOpen(false)}
+                  initialIndex={selectedImage}
+                />
               </section>
 
               {/* Details Section */}
