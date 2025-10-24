@@ -48,6 +48,9 @@ const ProjectsAdmin = () => {
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false)
   const [propertyForm, setPropertyForm] = useState<any>({})
   const [isUpdatingProperty, setIsUpdatingProperty] = useState(false)
+  const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false)
+  const [newPropertyForm, setNewPropertyForm] = useState<any>({})
+  const [isCreatingProperty, setIsCreatingProperty] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -236,6 +239,96 @@ const ProjectsAdmin = () => {
       })
     } finally {
       setIsUpdatingProperty(false)
+    }
+  }
+
+  const openAddPropertyModal = () => {
+    setNewPropertyForm({
+      title: '',
+      location: editingProject?.location || '',
+      description: '',
+      price_min: 0,
+      price_max: 0,
+      surface_min: 0,
+      surface_max: 0,
+      rooms: 1,
+      available_units: 1,
+      project_id: editingProject?.id
+    })
+    setIsAddPropertyOpen(true)
+  }
+
+  const closeAddPropertyModal = () => {
+    setNewPropertyForm({})
+    setIsAddPropertyOpen(false)
+  }
+
+  const createProperty = async () => {
+    if (!editingProject) return
+    
+    setIsCreatingProperty(true)
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .insert({
+          title: newPropertyForm.title,
+          location: newPropertyForm.location,
+          description: newPropertyForm.description,
+          price_min: parseInt(newPropertyForm.price_min),
+          price_max: parseInt(newPropertyForm.price_max),
+          surface_min: parseInt(newPropertyForm.surface_min),
+          surface_max: parseInt(newPropertyForm.surface_max),
+          rooms: parseInt(newPropertyForm.rooms),
+          available_units: parseInt(newPropertyForm.available_units),
+          project_id: editingProject.id,
+          project_name: editingProject.name,
+          source: 'manual',
+          images: []
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Tipul de proprietate a fost adăugat"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+      closeAddPropertyModal()
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut adăuga proprietatea",
+        variant: "destructive"
+      })
+    } finally {
+      setIsCreatingProperty(false)
+    }
+  }
+
+  const deleteProperty = async (propertyId: string) => {
+    if (!confirm('Sigur doriți să ștergeți acest tip de proprietate?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .eq('id', propertyId)
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Tipul de proprietate a fost șters"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut șterge proprietatea",
+        variant: "destructive"
+      })
     }
   }
 
@@ -515,24 +608,33 @@ const ProjectsAdmin = () => {
                                      <CollapsibleContent className="mt-2 space-y-1">
                                        {group.properties.map((property: any) => (
                                          <div key={property.id} className="p-2 bg-background/50 rounded text-xs space-y-2">
-                                           <div className="flex items-start justify-between">
-                                             <div className="flex-1">
-                                               <div className="font-medium">{property.title}</div>
-                                               <div className="text-muted-foreground">
-                                                 {property.surface_min}-{property.surface_max} mp | 
-                                                 {formatPrice(property.price_min)}-{formatPrice(property.price_max)} € |
-                                                 {property.available_units || 1} disponibile
-                                               </div>
-                                             </div>
-                                             <Button
-                                               size="sm"
-                                               variant="ghost"
-                                               onClick={() => openPropertyEditModal(property)}
-                                               className="ml-2"
-                                             >
-                                               <Edit className="w-3 h-3" />
-                                             </Button>
-                                           </div>
+                                       <div className="flex items-start justify-between">
+                                              <div className="flex-1">
+                                                <div className="font-medium">{property.title}</div>
+                                                <div className="text-muted-foreground">
+                                                  {property.surface_min}-{property.surface_max} mp | 
+                                                  {formatPrice(property.price_min)}-{formatPrice(property.price_max)} € |
+                                                  {property.available_units || 1} disponibile
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-1">
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  onClick={() => openPropertyEditModal(property)}
+                                                >
+                                                  <Edit className="w-3 h-3" />
+                                                </Button>
+                                                <Button
+                                                  size="sm"
+                                                  variant="ghost"
+                                                  onClick={() => deleteProperty(property.id)}
+                                                  className="text-destructive hover:text-destructive"
+                                                >
+                                                  <Trash2 className="w-3 h-3" />
+                                                </Button>
+                                              </div>
+                                            </div>
                                            {Array.isArray(property.images) && property.images.length > 0 && (
                                              <div className="flex gap-1 flex-wrap">
                                                {property.images.slice(0, 3).map((img: string, idx: number) => (
@@ -758,6 +860,61 @@ const ProjectsAdmin = () => {
               </div>
             </div>
 
+            {/* Property Types Management */}
+            <div className="space-y-2 border-t pt-4">
+              <div className="flex items-center justify-between">
+                <Label>Tipuri de Proprietăți</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openAddPropertyModal}
+                  className="border-gold/30 hover:bg-gold/10"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adaugă Tip
+                </Button>
+              </div>
+              
+              {editingProject && propertiesByProject?.[editingProject.id] && (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {Object.values(propertiesByProject[editingProject.id]).map((group: PropertyGroup, idx) => (
+                    <Card key={idx} className="bg-secondary/20">
+                      <CardContent className="p-3">
+                        <div className="text-sm font-medium mb-2">
+                          {group.rooms} {group.rooms === 1 ? 'cameră' : 'camere'} - {group.available_units} unități
+                        </div>
+                        <div className="space-y-1">
+                          {group.properties.map((property: any) => (
+                            <div key={property.id} className="flex items-center justify-between text-xs bg-background/50 p-2 rounded">
+                              <span className="flex-1">{property.title}</span>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openPropertyEditModal(property)}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => deleteProperty(property.id)}
+                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2 justify-end pt-4">
               <Button variant="outline" onClick={closeEditModal}>
                 <X className="w-4 h-4 mr-2" />
@@ -766,6 +923,121 @@ const ProjectsAdmin = () => {
               <Button onClick={updateProject} disabled={isUpdating}>
                 <Save className="w-4 h-4 mr-2" />
                 {isUpdating ? 'Se salvează...' : 'Salvează'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Property Dialog */}
+      <Dialog open={isAddPropertyOpen} onOpenChange={setIsAddPropertyOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Adaugă Tip de Proprietate</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_title">Titlu</Label>
+                <Input
+                  id="new_title"
+                  value={newPropertyForm.title || ''}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, title: e.target.value })}
+                  placeholder="ex: Apartament 2 Camere Tip A"
+                />
+              </div>
+              <div>
+                <Label htmlFor="new_location">Locație</Label>
+                <Input
+                  id="new_location"
+                  value={newPropertyForm.location || ''}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, location: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_price_min">Preț Min (€)</Label>
+                <Input
+                  id="new_price_min"
+                  type="number"
+                  value={newPropertyForm.price_min || 0}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, price_min: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new_price_max">Preț Max (€)</Label>
+                <Input
+                  id="new_price_max"
+                  type="number"
+                  value={newPropertyForm.price_max || 0}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, price_max: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_surface_min">Suprafață Min (mp)</Label>
+                <Input
+                  id="new_surface_min"
+                  type="number"
+                  value={newPropertyForm.surface_min || 0}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, surface_min: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new_surface_max">Suprafață Max (mp)</Label>
+                <Input
+                  id="new_surface_max"
+                  type="number"
+                  value={newPropertyForm.surface_max || 0}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, surface_max: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_rooms">Camere</Label>
+                <Input
+                  id="new_rooms"
+                  type="number"
+                  value={newPropertyForm.rooms || 1}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, rooms: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="new_available_units">Unități Disponibile</Label>
+                <Input
+                  id="new_available_units"
+                  type="number"
+                  value={newPropertyForm.available_units || 1}
+                  onChange={(e) => setNewPropertyForm({ ...newPropertyForm, available_units: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="new_description">Descriere</Label>
+              <Textarea
+                id="new_description"
+                value={newPropertyForm.description || ''}
+                onChange={(e) => setNewPropertyForm({ ...newPropertyForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={closeAddPropertyModal}>
+                <X className="w-4 h-4 mr-2" />
+                Anulează
+              </Button>
+              <Button onClick={createProperty} disabled={isCreatingProperty}>
+                <Plus className="w-4 h-4 mr-2" />
+                {isCreatingProperty ? 'Se adaugă...' : 'Adaugă'}
               </Button>
             </div>
           </div>
