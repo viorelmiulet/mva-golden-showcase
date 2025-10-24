@@ -4,9 +4,11 @@ import { ArrowDown, Sparkles, MapPin, Phone, MessageCircle, UserPlus } from "luc
 import heroProperty from "@/assets/hero-property.jpg"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { CollaborationForm } from "@/components/CollaborationForm"
+import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
+  const { data: stats, isLoading } = useRealEstateStats();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -95,13 +97,17 @@ const Hero = () => {
           {/* Right Column - Stats Cards */}
           <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:ml-auto lg:mr-0" aria-label="Statistici cheie proprietăți">
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">€40K+</div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">Preturi de la</div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">Apartamente moderne</div>
+              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
+                {isLoading ? "..." : stats?.propertiesCount || 0}
+              </div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">Proprietăți listate</div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">Apartamente disponibile</div>
             </div>
             
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">3</div>
+              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
+                {isLoading ? "..." : stats?.projectsCount || 0}
+              </div>
               <div className="text-[10px] xs:text-xs text-muted-foreground">Complexe disponibile</div>
               <div className="text-[10px] xs:text-xs text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
