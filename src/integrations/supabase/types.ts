@@ -229,6 +229,7 @@ export type Database = {
           is_recommended: boolean | null
           location: string
           location_advantages: string[]
+          main_image: string | null
           name: string
           payment_plans: string[]
           price_range: string
@@ -252,6 +253,7 @@ export type Database = {
           is_recommended?: boolean | null
           location: string
           location_advantages?: string[]
+          main_image?: string | null
           name: string
           payment_plans?: string[]
           price_range: string
@@ -275,6 +277,7 @@ export type Database = {
           is_recommended?: boolean | null
           location?: string
           location_advantages?: string[]
+          main_image?: string | null
           name?: string
           payment_plans?: string[]
           price_range?: string
@@ -291,10 +294,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_api_key: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_api_key: { Args: never; Returns: string }
       get_conversations_summary: {
         Args: { end_date?: string; start_date?: string }
         Returns: {

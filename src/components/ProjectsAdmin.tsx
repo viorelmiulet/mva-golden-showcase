@@ -19,7 +19,10 @@ import {
   Home,
   Ruler,
   Euro,
-  X
+  X,
+  Upload,
+  Image as ImageIcon,
+  Trash2
 } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
@@ -40,6 +43,9 @@ const ProjectsAdmin = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [expandedProjects, setExpandedProjects] = useState<Record<string, boolean>>({})
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({})
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [editingProperty, setEditingProperty] = useState<any>(null)
+  const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -129,9 +135,144 @@ const ProjectsAdmin = () => {
       investment_details: project.investment_details || '',
       payment_plans: Array.isArray(project.payment_plans) ? project.payment_plans.join(', ') : '',
       completion_date: project.completion_date || '',
-      status: project.status || 'available'
+      status: project.status || 'available',
+      main_image: project.main_image || ''
     })
     setIsEditOpen(true)
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('project-images')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('project-images')
+        .getPublicUrl(filePath)
+
+      setEditForm({ ...editForm, main_image: publicUrl })
+      toast({ title: "Succes!", description: "Imaginea a fost încărcată" })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut încărca imaginea",
+        variant: "destructive"
+      })
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const openPropertyEditModal = (property: any) => {
+    setEditingProperty(property)
+    setIsEditPropertyOpen(true)
+  }
+
+  const closePropertyEditModal = () => {
+    setEditingProperty(null)
+    setIsEditPropertyOpen(false)
+  }
+
+  const handlePropertyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, propertyId: string) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploadingImage(true)
+    try {
+      const uploadedUrls: string[] = []
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Math.random()}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('project-images')
+          .upload(filePath, file)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('project-images')
+          .getPublicUrl(filePath)
+
+        uploadedUrls.push(publicUrl)
+      }
+
+      // Get current property images
+      const { data: currentProperty } = await supabase
+        .from('catalog_offers')
+        .select('images')
+        .eq('id', propertyId)
+        .single()
+
+      const currentImages = Array.isArray(currentProperty?.images) 
+        ? currentProperty.images as string[]
+        : []
+      const updatedImages = [...currentImages, ...uploadedUrls]
+
+      // Update property with new images
+      const { error: updateError } = await supabase
+        .from('catalog_offers')
+        .update({ images: updatedImages })
+        .eq('id', propertyId)
+
+      if (updateError) throw updateError
+
+      toast({ title: "Succes!", description: "Imaginile au fost adăugate" })
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut încărca imaginile",
+        variant: "destructive"
+      })
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const deletePropertyImage = async (propertyId: string, imageUrl: string) => {
+    try {
+      const { data: currentProperty } = await supabase
+        .from('catalog_offers')
+        .select('images')
+        .eq('id', propertyId)
+        .single()
+
+      const currentImages = Array.isArray(currentProperty?.images)
+        ? currentProperty.images as string[]
+        : []
+      const updatedImages = currentImages.filter((img: string) => img !== imageUrl)
+
+      const { error: updateError } = await supabase
+        .from('catalog_offers')
+        .update({ images: updatedImages })
+        .eq('id', propertyId)
+
+      if (updateError) throw updateError
+
+      toast({ title: "Succes!", description: "Imaginea a fost ștearsă" })
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut șterge imaginea",
+        variant: "destructive"
+      })
+    }
   }
 
   const closeEditModal = () => {
@@ -162,6 +303,7 @@ const ProjectsAdmin = () => {
           payment_plans: editForm.payment_plans ? editForm.payment_plans.split(',').map((p: string) => p.trim()).filter(Boolean) : [],
           completion_date: editForm.completion_date,
           status: editForm.status,
+          main_image: editForm.main_image,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingProject.id)
@@ -315,18 +457,47 @@ const ProjectsAdmin = () => {
                                       </div>
                                     </CollapsibleTrigger>
                                     
-                                    <CollapsibleContent className="mt-2 space-y-1">
-                                      {group.properties.map((property: any) => (
-                                        <div key={property.id} className="p-2 bg-background/50 rounded text-xs space-y-1">
-                                          <div className="font-medium">{property.title}</div>
-                                          <div className="text-muted-foreground">
-                                            {property.surface_min}-{property.surface_max} mp | 
-                                            {formatPrice(property.price_min)}-{formatPrice(property.price_max)} € |
-                                            {property.available_units || 1} disponibile
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </CollapsibleContent>
+                                     <CollapsibleContent className="mt-2 space-y-1">
+                                       {group.properties.map((property: any) => (
+                                         <div key={property.id} className="p-2 bg-background/50 rounded text-xs space-y-2">
+                                           <div className="flex items-start justify-between">
+                                             <div className="flex-1">
+                                               <div className="font-medium">{property.title}</div>
+                                               <div className="text-muted-foreground">
+                                                 {property.surface_min}-{property.surface_max} mp | 
+                                                 {formatPrice(property.price_min)}-{formatPrice(property.price_max)} € |
+                                                 {property.available_units || 1} disponibile
+                                               </div>
+                                             </div>
+                                             <Button
+                                               size="sm"
+                                               variant="ghost"
+                                               onClick={() => openPropertyEditModal(property)}
+                                               className="ml-2"
+                                             >
+                                               <Edit className="w-3 h-3" />
+                                             </Button>
+                                           </div>
+                                           {Array.isArray(property.images) && property.images.length > 0 && (
+                                             <div className="flex gap-1 flex-wrap">
+                                               {property.images.slice(0, 3).map((img: string, idx: number) => (
+                                                 <img
+                                                   key={idx}
+                                                   src={img}
+                                                   alt={`Property ${idx + 1}`}
+                                                   className="w-12 h-12 object-cover rounded"
+                                                 />
+                                               ))}
+                                               {property.images.length > 3 && (
+                                                 <div className="w-12 h-12 bg-secondary rounded flex items-center justify-center text-xs">
+                                                   +{property.images.length - 3}
+                                                 </div>
+                                               )}
+                                             </div>
+                                           )}
+                                         </div>
+                                       ))}
+                                     </CollapsibleContent>
                                   </Collapsible>
                                 </CardContent>
                               </Card>
@@ -422,6 +593,40 @@ const ProjectsAdmin = () => {
               />
             </div>
 
+            {/* Image Upload Section */}
+            <div className="space-y-2">
+              <Label>Imagine Principală</Label>
+              {editForm.main_image && (
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                  <img
+                    src={editForm.main_image}
+                    alt="Main project"
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => setEditForm({ ...editForm, main_image: '' })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="flex-1"
+                />
+                {uploadingImage && (
+                  <span className="text-sm text-muted-foreground">Se încarcă...</span>
+                )}
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="features">Caracteristici (separate prin virgulă)</Label>
               <Textarea
@@ -509,6 +714,105 @@ const ProjectsAdmin = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Property Dialog */}
+      <Dialog open={isEditPropertyOpen} onOpenChange={setIsEditPropertyOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editează Proprietate</DialogTitle>
+          </DialogHeader>
+          
+          {editingProperty && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2">{editingProperty.title}</h3>
+                <p className="text-sm text-muted-foreground">{editingProperty.location}</p>
+              </div>
+
+              {/* Property Images */}
+              <div className="space-y-2">
+                <Label>Imagini Proprietate</Label>
+                {Array.isArray(editingProperty.images) && editingProperty.images.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {editingProperty.images.map((img: string, idx: number) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={img}
+                          alt={`Property ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => deletePropertyImage(editingProperty.id, img)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handlePropertyImageUpload(e, editingProperty.id)}
+                    disabled={uploadingImage}
+                    className="flex-1"
+                  />
+                  {uploadingImage && (
+                    <span className="text-sm text-muted-foreground">Se încarcă...</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Property Details */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Preț Min</Label>
+                  <div className="text-sm font-medium">{formatPrice(editingProperty.price_min)} €</div>
+                </div>
+                <div>
+                  <Label>Preț Max</Label>
+                  <div className="text-sm font-medium">{formatPrice(editingProperty.price_max)} €</div>
+                </div>
+                <div>
+                  <Label>Suprafață Min</Label>
+                  <div className="text-sm font-medium">{editingProperty.surface_min} mp</div>
+                </div>
+                <div>
+                  <Label>Suprafață Max</Label>
+                  <div className="text-sm font-medium">{editingProperty.surface_max} mp</div>
+                </div>
+                <div>
+                  <Label>Camere</Label>
+                  <div className="text-sm font-medium">{editingProperty.rooms}</div>
+                </div>
+                <div>
+                  <Label>Unități disponibile</Label>
+                  <div className="text-sm font-medium">{editingProperty.available_units || 1}</div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label>Descriere</Label>
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                  {editingProperty.description}
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4">
+                <Button variant="outline" onClick={closePropertyEditModal}>
+                  Închide
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
