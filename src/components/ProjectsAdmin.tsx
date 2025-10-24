@@ -571,7 +571,10 @@ const ProjectsAdmin = () => {
         description: "Proiectul a fost actualizat cu succes"
       })
 
-      queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] })
+      // Invalidate both queries to refresh the data
+      await queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] })
+      await queryClient.invalidateQueries({ queryKey: ['real_estate_projects_public'] })
+      
       closeEditModal()
     } catch (error: any) {
       toast({
