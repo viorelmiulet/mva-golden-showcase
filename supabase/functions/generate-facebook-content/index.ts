@@ -26,7 +26,7 @@ serve(async (req) => {
       const textPrompt = propertyData 
         ? `Creează un text promoțional captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Proprietate: ${propertyData.title || 'Proprietate exclusivă'}
-           Locație: ${propertyData.location || 'Locație premium'}
+           Locație: ${propertyData.location || 'Locație excelentă'}
            Preț: ${propertyData.price ? `${propertyData.price} EUR` : 'Preț atractiv'}
            Cameră: ${propertyData.rooms || '-'}
            Suprafață: ${propertyData.surface ? `${propertyData.surface} mp` : '-'}
@@ -36,14 +36,16 @@ serve(async (req) => {
            - Să evidențieze punctele forte
            - Să includă call-to-action
            - Maxim 250 caractere pentru Facebook
-           - În limba română`
+           - În limba română
+           - NU folosi cuvintele "lux" sau "luxury"`
         : `Creează un text promoțional captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Textul trebuie să:
            - Prezinte serviciile agenției
            - Fie profesional și atractiv
            - Includă un call-to-action
            - Fie optimizat pentru Facebook (maxim 250 caractere)
-           - Fie în limba română`;
+           - Fie în limba română
+           - NU folosi cuvintele "lux" sau "luxury"`;
 
       const textResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -78,16 +80,18 @@ serve(async (req) => {
       // Generate promotional image using Gemini Image Preview
       const imagePrompt = propertyData
         ? `Create a professional real estate promotional image for Facebook. 
-           Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'premium location'}.
-           Style: Bright, modern, luxury real estate photography.
+           Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'excellent location'}.
+           Style: Bright, modern, contemporary real estate photography.
            Include: Beautiful interior or exterior view, professional composition.
            Aspect ratio: 1200x630 (Facebook post format).
-           High quality, ultra realistic, professional photography.`
+           High quality, ultra realistic, professional photography.
+           DO NOT include the words "luxury" or "lux" in any form.`
         : `Create a professional real estate agency promotional image for MVA IMOBILIARE.
-           Style: Modern, elegant, luxury real estate branding.
-           Include: Abstract luxury home concepts, golden accents, professional composition.
+           Style: Modern, elegant, contemporary real estate branding.
+           Include: Abstract modern home concepts, golden accents, professional composition.
            Aspect ratio: 1200x630 (Facebook post format).
-           High quality, ultra realistic, professional design.`;
+           High quality, ultra realistic, professional design.
+           DO NOT include the words "luxury" or "lux" in any form.`;
 
       const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
