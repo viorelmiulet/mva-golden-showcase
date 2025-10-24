@@ -121,7 +121,7 @@ const AdminLayout = () => {
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-4 gap-4">
-            <SidebarTrigger />
+            <SidebarTrigger className="hover:bg-gold/10 hover:text-gold transition-colors" />
             <div className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-gold" />
               <h1 className="text-lg font-semibold">

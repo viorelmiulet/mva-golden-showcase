@@ -7,6 +7,8 @@ import {
   BarChart3,
   Share2,
   Lock,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import {
@@ -36,7 +38,7 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ onLogout }: AdminSidebarProps) {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
@@ -49,6 +51,23 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
   return (
     <Sidebar className={`${collapsed ? "w-14" : "w-64"} bg-background/95 border-r border-gold/10`} collapsible="icon">
       <SidebarContent className="bg-background/95">
+        {/* Toggle button at top */}
+        <div className="p-2 border-b border-border/40">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="w-full justify-center hover:bg-gold/10 hover:text-gold"
+            title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? "justify-center" : ""}>
             {!collapsed && "Administrare"}
