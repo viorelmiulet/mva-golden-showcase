@@ -24,7 +24,7 @@ serve(async (req) => {
     if (type === 'text') {
       // Generate promotional text using Gemini Flash
       const textPrompt = propertyData 
-        ? `Creează un text promoțional captivant și detaliat pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
+        ? `Creează un text promoțional FOARTE DETALIAT și captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Proprietate: ${propertyData.title || 'Proprietate exclusivă'}
            Locație: ${propertyData.location || 'Locație excelentă'}
            Preț: ${propertyData.price ? `${propertyData.price} EUR` : 'Preț atractiv'}
@@ -32,46 +32,54 @@ serve(async (req) => {
            Suprafață: ${propertyData.surface ? `${propertyData.surface} mp` : '-'}
            
            Textul trebuie să fie:
+           - FOARTE LUNG și EXTREM DE DETALIAT (minim 1200-1500 caractere pentru conținutul principal)
            - Profesional dar accesibil și prietenos
-           - Foarte detaliat și cuprinzător (600-800 caractere pentru conținutul principal)
-           - Să evidențieze toate punctele forte și avantajele proprietății
-           - Să descrie în detaliu caracteristicile și facilitățile
-           - Să prezinte zona și vecinătatea
-           - Să creeze o imagine vie și atractivă a proprietății
-           - Să includă multiple call-to-action
+           - Să folosească MULTE emoticoane relevante pe tot parcursul textului (🏠 🌟 ✨ 🔑 💎 🏡 🌳 🚗 🛋️ 🍽️ 🛁 🚿 💡 🎯 ⭐ 📍 🌆 🏢 etc.)
+           - Să evidențieze în detaliu toate punctele forte și avantajele proprietății
+           - Să descrie extensiv caracteristicile și facilitățile
+           - Să prezinte zona și vecinătatea în detaliu
+           - Să creeze o imagine vie, bogată și atractivă a proprietății
+           - Să includă call-to-action puternic la final
            - În limba română
            - NU folosi cuvintele "lux" sau "luxury"
            
-           Structura textului:
-           1. O introducere captivantă despre proprietate
-           2. Descriere detaliată a caracteristicilor principale
-           3. Avantajele locației și zonei
-           4. Informații despre facilități și dotări
-           5. Call-to-action puternic
+           Structura textului (FIECARE SECȚIUNE TREBUIE SĂ FIE FOARTE DETALIATĂ):
+           1. 🏠 Introducere captivantă despre proprietate (3-4 paragrafe)
+           2. ✨ Descriere AMĂNUNȚITĂ a caracteristicilor principale și a fiecărei camere
+           3. 📍 Avantajele locației, zonei și vecinătății (transportul, facilitățile din apropiere)
+           4. 💎 Informații detaliate despre facilități, dotări și finisaje
+           5. 🔑 Informații despre investiție și oportunitate
+           6. 🎯 Call-to-action puternic
+           
+           IMPORTANT: Folosește emoticoane frecvent pentru a face textul mai atractiv și ușor de citit!
            
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
            📧 contact@mvaimobiliare.ro
            🌐 mvaimobiliare.ro`
-        : `Creează un text promoțional captivant și detaliat pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
+        : `Creează un text promoțional FOARTE DETALIAT și captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Textul trebuie să:
-           - Prezinte în detaliu serviciile și avantajele agenției
-           - Fie profesional, atractiv și cuprinzător
-           - Fie foarte detaliat (600-800 caractere pentru conținutul principal)
-           - Să descrie experiența și expertiza echipei
-           - Să prezinte portofoliul și realizările
-           - Să evidențieze ce ne diferențiază de competiție
-           - Să includă multiple call-to-action
+           - Fie EXTREM DE LUNG și DETALIAT (minim 1200-1500 caractere pentru conținutul principal)
+           - Să folosească MULTE emoticoane relevante pe tot parcursul textului (🏠 🌟 ✨ 🔑 💎 🏡 🤝 💼 📊 📈 ⭐ 🎯 👨‍💼 👩‍💼 etc.)
+           - Prezinte în detaliu TOATE serviciile și avantajele agenției
+           - Fie profesional, atractiv și FOARTE cuprinzător
+           - Să descrie EXTENSIV experiența și expertiza echipei
+           - Să prezinte portofoliul și realizările în detaliu
+           - Să evidențieze CE NE FACE SPECIALI față de competiție
+           - Să includă call-to-action puternic
            - Fie optimizat pentru Facebook
            - Fie în limba română
            - NU folosi cuvintele "lux" sau "luxury"
            
-           Structura textului:
-           1. Introducere despre MVA IMOBILIARE
-           2. Servicii oferite în detaliu
-           3. Avantajele de a colabora cu noi
-           4. Experiența și profesionalismul echipei
-           5. Call-to-action puternic
+           Structura textului (FIECARE SECȚIUNE TREBUIE SĂ FIE FOARTE DETALIATĂ):
+           1. 🏠 Introducere captivantă despre MVA IMOBILIARE (3-4 paragrafe)
+           2. ✨ Servicii oferite în DETALIU AMPLU (vânzări, închirieri, consultanță, etc.)
+           3. 💎 Avantajele de a colabora cu noi - FIECARE AVANTAJ EXPLICAT
+           4. 👨‍💼 Experiența și profesionalismul echipei - POVEȘTI DE SUCCES
+           5. 📊 Rezultate și realizări concrete
+           6. 🎯 Call-to-action puternic
+           
+           IMPORTANT: Folosește emoticoane frecvent pentru a face textul mai atractiv și ușor de citit!
            
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
