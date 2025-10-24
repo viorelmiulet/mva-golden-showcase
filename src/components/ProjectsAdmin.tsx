@@ -46,6 +46,8 @@ const ProjectsAdmin = () => {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [editingProperty, setEditingProperty] = useState<any>(null)
   const [isEditPropertyOpen, setIsEditPropertyOpen] = useState(false)
+  const [propertyForm, setPropertyForm] = useState<any>({})
+  const [isUpdatingProperty, setIsUpdatingProperty] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -176,12 +178,65 @@ const ProjectsAdmin = () => {
 
   const openPropertyEditModal = (property: any) => {
     setEditingProperty(property)
+    setPropertyForm({
+      title: property.title || '',
+      location: property.location || '',
+      description: property.description || '',
+      price_min: property.price_min || 0,
+      price_max: property.price_max || 0,
+      surface_min: property.surface_min || 0,
+      surface_max: property.surface_max || 0,
+      rooms: property.rooms || 1,
+      available_units: property.available_units || 1
+    })
     setIsEditPropertyOpen(true)
   }
 
   const closePropertyEditModal = () => {
     setEditingProperty(null)
+    setPropertyForm({})
     setIsEditPropertyOpen(false)
+  }
+
+  const updateProperty = async () => {
+    if (!editingProperty) return
+    
+    setIsUpdatingProperty(true)
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .update({
+          title: propertyForm.title,
+          location: propertyForm.location,
+          description: propertyForm.description,
+          price_min: parseInt(propertyForm.price_min),
+          price_max: parseInt(propertyForm.price_max),
+          surface_min: parseInt(propertyForm.surface_min),
+          surface_max: parseInt(propertyForm.surface_max),
+          rooms: parseInt(propertyForm.rooms),
+          available_units: parseInt(propertyForm.available_units),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingProperty.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Proprietatea a fost actualizată cu succes"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+      closePropertyEditModal()
+    } catch (error: any) {
+      toast({
+        title: "Eroare", 
+        description: error.message || "Nu am putut actualiza proprietatea",
+        variant: "destructive"
+      })
+    } finally {
+      setIsUpdatingProperty(false)
+    }
   }
 
   const handlePropertyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, propertyId: string) => {
@@ -726,9 +781,23 @@ const ProjectsAdmin = () => {
           
           {editingProperty && (
             <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">{editingProperty.title}</h3>
-                <p className="text-sm text-muted-foreground">{editingProperty.location}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="property_title">Titlu</Label>
+                  <Input
+                    id="property_title"
+                    value={propertyForm.title || ''}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="property_location">Locație</Label>
+                  <Input
+                    id="property_location"
+                    value={propertyForm.location || ''}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, location: e.target.value })}
+                  />
+                </div>
               </div>
 
               {/* Property Images */}
@@ -773,42 +842,80 @@ const ProjectsAdmin = () => {
               {/* Property Details */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Preț Min</Label>
-                  <div className="text-sm font-medium">{formatPrice(editingProperty.price_min)} €</div>
+                  <Label htmlFor="price_min">Preț Min (€)</Label>
+                  <Input
+                    id="price_min"
+                    type="number"
+                    value={propertyForm.price_min || 0}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, price_min: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <Label>Preț Max</Label>
-                  <div className="text-sm font-medium">{formatPrice(editingProperty.price_max)} €</div>
+                  <Label htmlFor="price_max">Preț Max (€)</Label>
+                  <Input
+                    id="price_max"
+                    type="number"
+                    value={propertyForm.price_max || 0}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, price_max: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <Label>Suprafață Min</Label>
-                  <div className="text-sm font-medium">{editingProperty.surface_min} mp</div>
+                  <Label htmlFor="surface_min">Suprafață Min (mp)</Label>
+                  <Input
+                    id="surface_min"
+                    type="number"
+                    value={propertyForm.surface_min || 0}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, surface_min: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <Label>Suprafață Max</Label>
-                  <div className="text-sm font-medium">{editingProperty.surface_max} mp</div>
+                  <Label htmlFor="surface_max">Suprafață Max (mp)</Label>
+                  <Input
+                    id="surface_max"
+                    type="number"
+                    value={propertyForm.surface_max || 0}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, surface_max: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <Label>Camere</Label>
-                  <div className="text-sm font-medium">{editingProperty.rooms}</div>
+                  <Label htmlFor="rooms">Camere</Label>
+                  <Input
+                    id="rooms"
+                    type="number"
+                    value={propertyForm.rooms || 1}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, rooms: e.target.value })}
+                  />
                 </div>
                 <div>
-                  <Label>Unități disponibile</Label>
-                  <div className="text-sm font-medium">{editingProperty.available_units || 1}</div>
+                  <Label htmlFor="available_units">Unități disponibile</Label>
+                  <Input
+                    id="available_units"
+                    type="number"
+                    value={propertyForm.available_units || 1}
+                    onChange={(e) => setPropertyForm({ ...propertyForm, available_units: e.target.value })}
+                  />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <Label>Descriere</Label>
-                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {editingProperty.description}
-                </div>
+                <Label htmlFor="property_description">Descriere</Label>
+                <Textarea
+                  id="property_description"
+                  value={propertyForm.description || ''}
+                  onChange={(e) => setPropertyForm({ ...propertyForm, description: e.target.value })}
+                  rows={4}
+                />
               </div>
 
               <div className="flex gap-2 justify-end pt-4">
                 <Button variant="outline" onClick={closePropertyEditModal}>
-                  Închide
+                  <X className="w-4 h-4 mr-2" />
+                  Anulează
+                </Button>
+                <Button onClick={updateProperty} disabled={isUpdatingProperty}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {isUpdatingProperty ? 'Se salvează...' : 'Salvează'}
                 </Button>
               </div>
             </div>
