@@ -15,9 +15,41 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Helmet } from "react-helmet-async"
 import { Link } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { supabase } from "@/integrations/supabase/client"
 
 const Projects = () => {
-  const projectsList = [
+  // Fetch projects from database
+  const { data: dbProjects, isLoading } = useQuery({
+    queryKey: ['real_estate_projects_public'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('real_estate_projects')
+        .select('*')
+        .eq('status', 'available')
+        .order('is_recommended', { ascending: false })
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      return data || []
+    }
+  })
+
+  // Transform database projects to match the expected format
+  const projectsList = dbProjects?.map((project: any) => ({
+    id: project.id,
+    title: project.name,
+    location: project.location,
+    price: project.price_range,
+    size: project.surface_range,
+    rooms: project.rooms_range,
+    image: project.main_image || "/lovable-uploads/7e4ce4f4-4a39-4844-be2f-f0cbfeedb2dd.png",
+    description: project.description,
+    highlight: project.is_recommended || false,
+    features: project.features || [],
+    category: "noi",
+    status: project.status
+  })) || [
     {
       id: 1,
       title: "RENEW RESIDENCE",
@@ -30,7 +62,7 @@ const Projects = () => {
       highlight: true,
       features: ["Finisaje Premium", "Spații Verzi"],
       category: "noi",
-      status: "disponibil"
+      status: "available"
     },
     {
       id: 2,
@@ -44,7 +76,7 @@ const Projects = () => {
       highlight: false,
       features: ["Design Modern", "Sistem Securitate", "Zonă Comercială"],
       category: "noi",
-      status: "disponibil"
+      status: "available"
     },
     {
       id: 3,
@@ -58,12 +90,30 @@ const Projects = () => {
       highlight: false,
       features: ["Locuințe Moderne", "Acces Rapid", "Parcare"],
       category: "noi",
-      status: "disponibil"
+      status: "available"
     }
   ]
 
   const allProjects = projectsList
-  const availableProjects = projectsList.filter(p => p.status === "disponibil")
+  const availableProjects = projectsList.filter((p: any) => p.status === "available")
+
+  if (isLoading) {
+    return (
+      <>
+        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+          <Header />
+          <main className="pt-24 pb-16">
+            <div className="container mx-auto px-4">
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Se încarcă proiectele...</p>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      </>
+    )
+  }
 
   // Structured Data for Properties
   const propertiesStructuredData = {
@@ -276,8 +326,8 @@ const Projects = () => {
                     </span>
                   </h1>
                   
-                  <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
-                    Descoperă cele 3 ansambluri rezidențiale disponibile din vestul Bucureștiului, 
+                   <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4">
+                    Descoperă {projectsList.length} {projectsList.length === 1 ? 'ansamblul rezidențial disponibil' : 'ansambluri rezidențiale disponibile'} din vestul Bucureștiului, 
                     cu apartamente moderne și facilități de top.
                   </p>
                   
