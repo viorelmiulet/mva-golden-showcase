@@ -24,7 +24,7 @@ serve(async (req) => {
     if (type === 'text') {
       // Generate promotional text using Gemini Flash
       const textPrompt = propertyData 
-        ? `Creează un text promoțional captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
+        ? `Creează un text promoțional captivant și detaliat pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Proprietate: ${propertyData.title || 'Proprietate exclusivă'}
            Locație: ${propertyData.location || 'Locație excelentă'}
            Preț: ${propertyData.price ? `${propertyData.price} EUR` : 'Preț atractiv'}
@@ -32,25 +32,46 @@ serve(async (req) => {
            Suprafață: ${propertyData.surface ? `${propertyData.surface} mp` : '-'}
            
            Textul trebuie să fie:
-           - Profesional dar accesibil
-           - Să evidențieze punctele forte
-           - Să includă call-to-action
-           - Maxim 300 caractere pentru conținutul principal
+           - Profesional dar accesibil și prietenos
+           - Foarte detaliat și cuprinzător (600-800 caractere pentru conținutul principal)
+           - Să evidențieze toate punctele forte și avantajele proprietății
+           - Să descrie în detaliu caracteristicile și facilitățile
+           - Să prezinte zona și vecinătatea
+           - Să creeze o imagine vie și atractivă a proprietății
+           - Să includă multiple call-to-action
            - În limba română
            - NU folosi cuvintele "lux" sau "luxury"
+           
+           Structura textului:
+           1. O introducere captivantă despre proprietate
+           2. Descriere detaliată a caracteristicilor principale
+           3. Avantajele locației și zonei
+           4. Informații despre facilități și dotări
+           5. Call-to-action puternic
            
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
            📧 contact@mvaimobiliare.ro
            🌐 mvaimobiliare.ro`
-        : `Creează un text promoțional captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
+        : `Creează un text promoțional captivant și detaliat pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Textul trebuie să:
-           - Prezinte serviciile agenției
-           - Fie profesional și atractiv
-           - Includă un call-to-action
-           - Fie optimizat pentru Facebook (maxim 300 caractere pentru conținutul principal)
+           - Prezinte în detaliu serviciile și avantajele agenției
+           - Fie profesional, atractiv și cuprinzător
+           - Fie foarte detaliat (600-800 caractere pentru conținutul principal)
+           - Să descrie experiența și expertiza echipei
+           - Să prezinte portofoliul și realizările
+           - Să evidențieze ce ne diferențiază de competiție
+           - Să includă multiple call-to-action
+           - Fie optimizat pentru Facebook
            - Fie în limba română
            - NU folosi cuvintele "lux" sau "luxury"
+           
+           Structura textului:
+           1. Introducere despre MVA IMOBILIARE
+           2. Servicii oferite în detaliu
+           3. Avantajele de a colabora cu noi
+           4. Experiența și profesionalismul echipei
+           5. Call-to-action puternic
            
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
