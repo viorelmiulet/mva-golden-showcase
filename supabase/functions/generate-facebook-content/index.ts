@@ -99,6 +99,18 @@ serve(async (req) => {
            High quality, ultra realistic, professional photography.
            DO NOT include the words "luxury" or "lux" in any form.
            
+           CRITICAL - MVA LOGO PLACEMENT:
+           You MUST include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner of the image.
+           The logo design is:
+           - A golden hexagonal badge with a glowing golden "M" letter in the center
+           - Below the hexagon: "MVA" in large golden letters
+           - Below MVA: "IMOBILIARE" in smaller golden letters
+           - The logo has a premium, elegant golden color (#D4AF37 to #F4E4A6 gradient)
+           - The logo should have a subtle glow effect
+           - Size: approximately 15-20% of the image height
+           - Position: corner placement with some padding from edges
+           - The logo colors should adapt slightly to match the overall image color temperature (warmer or cooler tones)
+           
            CRITICAL - TEXT OVERLAY REQUIREMENTS (Romanian language):
            You MUST include an elegant overlay banner at the bottom of the image with EXACTLY this text in Romanian:
            
@@ -124,6 +136,18 @@ serve(async (req) => {
            Aspect ratio: 1200x630 (Facebook post format).
            High quality, ultra realistic, professional design with complete backgrounds.
            DO NOT include the words "luxury" or "lux" in any form.
+           
+           CRITICAL - MVA LOGO PLACEMENT:
+           You MUST include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner of the image.
+           The logo design is:
+           - A golden hexagonal badge with a glowing golden "M" letter in the center
+           - Below the hexagon: "MVA" in large golden letters
+           - Below MVA: "IMOBILIARE" in smaller golden letters
+           - The logo has a premium, elegant golden color (#D4AF37 to #F4E4A6 gradient)
+           - The logo should have a subtle glow effect
+           - Size: approximately 15-20% of the image height
+           - Position: corner placement with some padding from edges
+           - The logo colors should adapt slightly to match the overall image color temperature (warmer or cooler tones)
            
            CRITICAL - TEXT OVERLAY REQUIREMENTS (Romanian language):
            You MUST include an elegant overlay banner at the bottom of the image with EXACTLY this text in Romanian:
