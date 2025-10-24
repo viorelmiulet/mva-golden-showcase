@@ -247,28 +247,15 @@ const Projects = () => {
             </div>
             
             {/* CTA Button */}
-            {property.title === "RENEW RESIDENCE" ? (
-              <a href="https://renewresidence.ro/" target="_blank" rel="noopener noreferrer">
-                <Button 
-                  variant={property.highlight ? "luxury" : "luxuryOutline"} 
-                  className="w-full group h-10 sm:h-11 text-sm sm:text-base"
-                >
-                  Vezi Detalii Complete
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </a>
-            ) : (
+            <Link to={`/proiecte/${property.id}`} className="block">
               <Button 
                 variant={property.highlight ? "luxury" : "luxuryOutline"} 
                 className="w-full group h-10 sm:h-11 text-sm sm:text-base"
-                onClick={() => {
-                  window.open(`https://wa.me/40767941512?text=Bună! Sunt interesat de ${property.title}`, '_blank');
-                }}
               >
                 Vezi Detalii Complete
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-            )}
+            </Link>
           </CardContent>
         </Card>
       ))}

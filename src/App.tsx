@@ -13,6 +13,7 @@ const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const Projects = lazy(() => import("./pages/Projects"));
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const Admin = lazy(() => import("./pages/Admin"));
 const CarteVizita = lazy(() => import("./pages/CarteVizita"));
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/proprietati" element={<Properties />} />
               <Route path="/proprietati/:id" element={<PropertyDetail />} />
               <Route path="/proiecte" element={<Projects />} />
+              <Route path="/proiecte/:id" element={<ProjectDetail />} />
               <Route path="/adauga" element={<AddProperty />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
