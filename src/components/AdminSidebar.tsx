@@ -47,8 +47,8 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
       : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarContent>
+    <Sidebar className={`${collapsed ? "w-14" : "w-64"} bg-background/95 border-r border-gold/10`} collapsible="icon">
+      <SidebarContent className="bg-background/95">
         <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? "justify-center" : ""}>
             {!collapsed && "Administrare"}
