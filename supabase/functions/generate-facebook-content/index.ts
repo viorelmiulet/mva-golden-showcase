@@ -35,17 +35,27 @@ serve(async (req) => {
            - Profesional dar accesibil
            - Să evidențieze punctele forte
            - Să includă call-to-action
-           - Maxim 250 caractere pentru Facebook
+           - Maxim 300 caractere pentru conținutul principal
            - În limba română
-           - NU folosi cuvintele "lux" sau "luxury"`
+           - NU folosi cuvintele "lux" sau "luxury"
+           
+           La final adaugă OBLIGATORIU pe linii separate:
+           📞 0767.941.512
+           📧 contact@mvaimobiliare.ro
+           🌐 mvaimobiliare.ro`
         : `Creează un text promoțional captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Textul trebuie să:
            - Prezinte serviciile agenției
            - Fie profesional și atractiv
            - Includă un call-to-action
-           - Fie optimizat pentru Facebook (maxim 250 caractere)
+           - Fie optimizat pentru Facebook (maxim 300 caractere pentru conținutul principal)
            - Fie în limba română
-           - NU folosi cuvintele "lux" sau "luxury"`;
+           - NU folosi cuvintele "lux" sau "luxury"
+           
+           La final adaugă OBLIGATORIU pe linii separate:
+           📞 0767.941.512
+           📧 contact@mvaimobiliare.ro
+           🌐 mvaimobiliare.ro`;
 
       const textResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
