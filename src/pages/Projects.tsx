@@ -151,7 +151,7 @@ const Projects = () => {
   }
 
   const renderProjects = (projects: typeof projectsList) => (
-    <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2 xl:gap-12">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:gap-12 px-2 sm:px-0">
       {projects.map((property) => (
         <Card 
           key={property.id} 

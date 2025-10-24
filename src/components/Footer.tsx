@@ -48,16 +48,16 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-gradient-to-b from-background to-secondary/20 border-t border-gold/10">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         
         {/* Main Footer Content */}
-        <div className="py-12 sm:py-16">
+        <div className="py-8 sm:py-12 lg:py-16">
           <div className="max-w-6xl mx-auto">
-            <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
               
               {/* Logo & Description */}
               <div className="lg:col-span-2 text-center md:text-left">
-                <div className="flex items-center space-x-4 mb-6 group cursor-pointer" onClick={scrollToTop}>
+                <div className="flex items-center justify-center md:justify-start space-x-3 sm:space-x-4 mb-4 sm:mb-6 group cursor-pointer touch-manipulation" onClick={scrollToTop}>
                   <div className="relative">
                     {/* Matching Luxury Footer Logo */}
                     <svg width="42" height="42" viewBox="0 0 42 42" className="transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
@@ -99,25 +99,25 @@ const Footer = () => {
                   </div>
                   
                   <div>
-                    <div className="font-cinzel text-xl font-bold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
+                    <div className="font-cinzel text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
-                    <div className="font-playfair text-muted-foreground/90 text-xs font-medium tracking-[0.25em] uppercase -mt-0.5">Premium Real Estate</div>
+                    <div className="font-playfair text-muted-foreground/90 text-[10px] sm:text-xs font-medium tracking-[0.2em] sm:tracking-[0.25em] uppercase -mt-0.5">Premium Real Estate</div>
                     <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-yellow-400 to-yellow-600 mt-1 transition-all duration-700"></div>
                   </div>
                 </div>
                 
-                <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4 sm:mb-6 max-w-md mx-auto md:mx-0">
                   Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului. 
                   Transformăm visurile tale de locuință în realitate.
                 </p>
                 
-                <div className="flex space-x-3">
+                <div className="flex justify-center md:justify-start space-x-3">
                   <a 
                     href="https://www.facebook.com/profile.php?id=61575213335398" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40"
+                    className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
                     title="Pagina noastră Facebook"
                   >
                     <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@ const Footer = () => {
                     href="https://wa.me/40767941512" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40"
+                    className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
                     title="WhatsApp"
                   >
                     <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -140,12 +140,12 @@ const Footer = () => {
               </div>
 
               {/* Quick Links */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
+              <div className="text-center md:text-left">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center md:justify-start">
                   <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
                   Navigare
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-2 sm:space-y-3">
                   {quickLinks.map((link) => (
                     <li key={link.id}>
                       {link.type === 'link' ? (
@@ -169,12 +169,12 @@ const Footer = () => {
               </div>
 
               {/* Services */}
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center">
+              <div className="text-center md:text-left">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center md:justify-start">
                   <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
                   Servicii
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-2 sm:space-y-3">
                   {services.map((service, index) => (
                     <li key={index}>
                       <span className="text-muted-foreground text-sm block">

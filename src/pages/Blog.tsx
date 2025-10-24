@@ -73,52 +73,52 @@ const Blog = () => {
       <Header />
       
       <main className="min-h-screen pt-20">
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+        <section className="py-12 sm:py-16 bg-background">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                 📝 Blog Imobiliar MVA
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
                 Articole utile, ghiduri și sfaturi pentru navigarea pieței imobiliare. 
                 Învață din experiența noastră și ia cele mai bune decizii! 🎓
               </p>
             </div>
 
-            <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-2">
+            <div className="max-w-6xl mx-auto grid gap-4 sm:gap-6 md:grid-cols-2 px-2 sm:px-0">
               {blogPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
                   <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 hover:border-gold/50">
-                    <CardHeader className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="text-sm font-medium">
+                    <CardHeader className="space-y-2 sm:space-y-3 p-4 sm:p-6">
+                      <div className="flex items-center justify-between gap-2">
+                        <Badge variant="secondary" className="text-xs sm:text-sm font-medium">
                           {post.category}
                         </Badge>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground flex-shrink-0">
                           <Clock className="h-3 w-3" />
                           <span>{post.readTime}</span>
                         </div>
                       </div>
-                      <CardTitle className="text-2xl mb-2 group-hover:text-gold transition-colors leading-tight">
+                      <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2 group-hover:text-gold transition-colors leading-tight">
                         {post.title}
                       </CardTitle>
-                      <CardDescription className="text-base leading-relaxed">
+                      <CardDescription className="text-sm sm:text-base leading-relaxed">
                         {post.excerpt}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between pt-4 border-t border-border">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-4 border-t border-border">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground w-full sm:w-auto">
                           <div className="flex items-center gap-1.5">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span>{post.date}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <User className="h-4 w-4" />
+                            <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span>{post.author}</span>
                           </div>
                         </div>
-                        <ArrowRight className="h-5 w-5 text-gold group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-gold group-hover:translate-x-1 transition-transform self-end sm:self-auto" />
                       </div>
                     </CardContent>
                   </Card>

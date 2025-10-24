@@ -183,36 +183,36 @@ const WhyChooseUs = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="relative py-12 md:py-20 bg-gradient-to-br from-background to-muted">
-          <div className="container mx-auto px-4">
+        <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-gradient-to-br from-background to-muted">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="text-center max-w-4xl mx-auto">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 md:mb-6">
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm">
                 Agenția Ta de Încredere
               </Badge>
               
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 md:mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6 px-2">
                 <span className="block text-foreground">De ce să ne</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Alegi pe Noi?
                 </span>
               </h1>
               
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mb-6 md:mb-8 px-2">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6 md:mb-8 px-4 sm:px-2">
                 Partenerii tăi de încredere pentru investiții imobiliare inteligente în vestul Bucureștiului.
                 Experiență, transparență și rezultate garantate.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                  <Button variant="luxury" size="lg" className="w-full sm:w-auto px-6 md:px-8">
-                    <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                    Contactează-ne pe WhatsApp
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center px-2">
+                <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                  <Button variant="luxury" size="lg" className="w-full sm:w-auto px-4 sm:px-6 md:px-8 min-h-[44px]">
+                    <MessageCircle className="mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+                    <span className="truncate">Contactează-ne pe WhatsApp</span>
                   </Button>
                 </a>
-                <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-6 md:px-8" onClick={() => {
+                <Button variant="luxuryOutline" size="lg" className="w-full sm:w-auto px-4 sm:px-6 md:px-8 min-h-[44px]" onClick={() => {
                   document.getElementById('avantaje')?.scrollIntoView({ behavior: 'smooth' });
                 }}>
-                  <Eye className="mr-2 h-4 w-4 md:h-5 md:w-5" />
+                  <Eye className="mr-2 h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
                   Descoperă Avantajele
                 </Button>
               </div>
@@ -221,8 +221,8 @@ const WhyChooseUs = () => {
         </section>
 
         {/* Main Content Section */}
-        <section id="continut-principal" className="py-12 md:py-20">
-          <div className="container mx-auto px-4">
+        <section id="continut-principal" className="py-8 sm:py-12 md:py-16 lg:py-20">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             {/* Pentru vânzare */}
             <div className="mb-12 md:mb-20">
               <div className="text-center mb-8 md:mb-16">

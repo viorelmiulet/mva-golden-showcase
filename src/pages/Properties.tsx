@@ -342,28 +342,28 @@ const Properties = () => {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
       
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <div className="max-w-6xl mx-auto">
             
             {/* Header */}
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <div className="text-center mb-8 sm:mb-12 px-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Ofertele Noastre
                 </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Descoperă proprietățile noastre disponibile pentru vânzare
               </p>
             </div>
 
             {/* Filters */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                       {/* Transaction Type Filter */}
                       <div>
                         <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
@@ -436,8 +436,8 @@ const Properties = () => {
                     </div>
 
                     {/* Clear Filters */}
-                    <div className="mt-4 flex justify-between items-center">
-                      <div className="text-sm text-muted-foreground">
+                    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                      <div className="text-xs sm:text-sm text-muted-foreground">
                         {filteredProperties.length} proprietăți găsite
                       </div>
                       <Button 
@@ -449,7 +449,7 @@ const Properties = () => {
                           setLocationFilter("all")
                           setTransactionTypeFilter("all")
                         }}
-                        className="glass hover:glass-hover"
+                        className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
                       >
                         Resetează filtrele
                       </Button>

@@ -47,31 +47,31 @@ const Services = () => {
   ]
 
   return (
-    <section id="servicii" className="py-24 bg-background" itemScope itemType="https://schema.org/Service">
-      <div className="container mx-auto px-4">
+    <section id="servicii" className="py-12 sm:py-16 lg:py-24 bg-background" itemScope itemType="https://schema.org/Service">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <article className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <header className="text-center mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-6">
+          <header className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
               Servicii Premium
             </Badge>
             
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-8" itemProp="name">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8" itemProp="name">
               <span className="text-foreground">Servicii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                 Complete
               </span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed" itemProp="description">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0" itemProp="description">
               Oferim o gamă completă de servicii imobiliare premium, adaptate perfect 
               pentru complexele rezidențiale moderne din vestul capitalei.
             </p>
           </header>
 
           {/* Services Grid */}
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 px-2 sm:px-0">
             {services.map((service, index) => {
               const Icon = service.icon
               
@@ -92,10 +92,10 @@ const Services = () => {
                     </div>
                   )}
                   
-                  <CardContent className="p-6 sm:p-8">
-                    <div className="space-y-4 sm:space-y-6">
+                  <CardContent className="p-4 sm:p-6 lg:p-8">
+                    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                       {/* Icon */}
-                      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${
+                      <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl ${
                         service.highlight 
                           ? 'bg-gradient-to-br from-gold to-gold-dark' 
                           : 'bg-gradient-to-br from-gold/20 to-gold-dark/20'
@@ -106,14 +106,14 @@ const Services = () => {
                       </div>
                       
                       {/* Title */}
-                      <h2 className={`text-lg sm:text-xl font-bold leading-tight ${
+                      <h2 className={`text-base sm:text-lg lg:text-xl font-bold leading-tight ${
                         service.highlight ? 'text-gold' : 'text-foreground'
                       } group-hover:text-gold transition-colors`}>
                         {service.title}
                       </h2>
                       
                       {/* Description */}
-                      <p className="text-muted-foreground leading-relaxed text-sm">
+                      <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm lg:text-base">
                         {service.description}
                       </p>
                       
@@ -130,17 +130,17 @@ const Services = () => {
           </div>
 
           {/* CTA Section */}
-          <footer className="mt-20 text-center">
-            <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-2xl p-8 border border-gold/20">
-              <h2 className="text-2xl font-bold text-foreground mb-4">
+          <footer className="mt-12 sm:mt-16 lg:mt-20 text-center px-2 sm:px-0">
+            <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-gold/20">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
                 Pregătit să îți găsești apartamentul perfect?
               </h2>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-2xl mx-auto px-2">
                 Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem 
                 să te ajutăm să găsești proprietatea ideală.
               </p>
               <a href="tel:0767941512" aria-label="Sună la MVA Imobiliare">
-                <button className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gold text-primary-foreground rounded-lg text-sm sm:text-base font-medium hover:bg-gold-dark transition-colors">
+                <button className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gold text-primary-foreground rounded-lg text-sm sm:text-base font-medium hover:bg-gold-dark transition-colors touch-manipulation min-h-[44px]">
                   <Phone className="mr-2 w-4 h-4 flex-shrink-0" aria-hidden="true" />
                   <span>0767 941 512</span>
                 </button>

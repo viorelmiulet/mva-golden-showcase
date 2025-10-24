@@ -92,45 +92,45 @@ const FAQ = () => {
       <Header />
       
       <main className="min-h-screen pt-20">
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+        <section className="py-12 sm:py-16 bg-background">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                 Întrebări Frecvente
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2">
                 Răspunsuri la cele mai comune întrebări despre serviciile noastre
               </p>
             </div>
 
-            <div className="max-w-4xl mx-auto">
-              <Accordion type="single" collapsible className="space-y-4">
+            <div className="max-w-4xl mx-auto px-2 sm:px-0">
+              <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
                 {faqItems.map((item, index) => (
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="border rounded-lg px-6 bg-card"
+                    className="border rounded-lg px-3 sm:px-4 lg:px-6 bg-card"
                   >
-                    <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline">
+                    <AccordionTrigger className="text-left text-sm sm:text-base lg:text-lg font-semibold hover:no-underline py-4 touch-manipulation">
                       {item.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pt-2">
+                    <AccordionContent className="text-muted-foreground pt-2 text-sm sm:text-base">
                       {item.answer}
                     </AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>
 
-              <div className="mt-12 p-8 rounded-lg bg-gold/5 border border-gold/20 text-center">
-                <h2 className="text-2xl font-bold mb-4 text-foreground">
+              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-gold/5 border border-gold/20 text-center">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                   Nu ai găsit răspunsul pe care îl căutai?
                 </h2>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 px-4">
                   Echipa noastră este aici să te ajute! Contactează-ne și vom răspunde tuturor întrebărilor tale.
                 </p>
                 <a
                   href="tel:+40726555888"
-                  className="inline-block px-8 py-3 bg-gold text-white rounded-lg font-semibold hover:bg-gold/90 transition-colors"
+                  className="inline-block px-6 sm:px-8 py-3 bg-gold text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gold/90 transition-colors touch-manipulation min-h-[44px]"
                 >
                   Contactează-ne
                 </a>
