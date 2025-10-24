@@ -99,11 +99,23 @@ serve(async (req) => {
            High quality, ultra realistic, professional photography.
            DO NOT include the words "luxury" or "lux" in any form.
            
-           IMPORTANT: Include visible contact information overlay at the bottom of the image IN ROMANIAN ONLY:
-           Telefon: 0767.941.512
-           Email: contact@mvaimobiliare.ro
-           Website: mvaimobiliare.ro
-           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast against the photo background.`
+           CRITICAL - TEXT OVERLAY REQUIREMENTS (Romanian language):
+           You MUST include an elegant overlay banner at the bottom of the image with EXACTLY this text in Romanian:
+           
+           Line 1: "Telefon: 0767.941.512"
+           Line 2: "Email: contact@mvaimobiliare.ro"
+           Line 3: "Web: mvaimobiliare.ro"
+           
+           SPELLING RULES FOR ROMANIAN:
+           - "Telefon" (NOT "Telefono" or "Telephone")
+           - Use the EXACT email and phone number provided above
+           - The word "Web:" is correct (short for Website)
+           
+           Make the text overlay:
+           - Clear, professional typography
+           - Good contrast against the background (white text on semi-transparent dark overlay OR dark text on semi-transparent light overlay)
+           - Positioned at the bottom of the image
+           - All text MUST be perfectly legible and correctly spelled in Romanian`
         : `Create a professional real estate agency promotional image for MVA IMOBILIARE with a COMPLETE SCENE (NO WHITE BACKGROUND).
            Style: Modern, elegant, contemporary real estate branding with full visual environment.
            Include: Complete real estate scenes - modern buildings, cityscapes, beautiful interiors with golden accents.
@@ -113,11 +125,23 @@ serve(async (req) => {
            High quality, ultra realistic, professional design with complete backgrounds.
            DO NOT include the words "luxury" or "lux" in any form.
            
-           IMPORTANT: Include visible contact information overlay IN ROMANIAN ONLY:
-           Telefon: 0767.941.512
-           Email: contact@mvaimobiliare.ro
-           Website: mvaimobiliare.ro
-           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast against the photo background.`;
+           CRITICAL - TEXT OVERLAY REQUIREMENTS (Romanian language):
+           You MUST include an elegant overlay banner at the bottom of the image with EXACTLY this text in Romanian:
+           
+           Line 1: "Telefon: 0767.941.512"
+           Line 2: "Email: contact@mvaimobiliare.ro"
+           Line 3: "Web: mvaimobiliare.ro"
+           
+           SPELLING RULES FOR ROMANIAN:
+           - "Telefon" (NOT "Telefono" or "Telephone")
+           - Use the EXACT email and phone number provided above
+           - The word "Web:" is correct (short for Website)
+           
+           Make the text overlay:
+           - Clear, professional typography
+           - Good contrast against the background (white text on semi-transparent dark overlay OR dark text on semi-transparent light overlay)
+           - Positioned at the bottom of the image
+           - All text MUST be perfectly legible and correctly spelled in Romanian`;
 
       const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
