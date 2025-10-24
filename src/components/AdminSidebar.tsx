@@ -4,7 +4,6 @@ import {
   Building2,
   Upload,
   CreditCard,
-  BarChart3,
   Share2,
   Lock,
   ChevronLeft,
@@ -29,7 +28,6 @@ const menuItems = [
   { title: "Ansambluri", url: "/admin/proiecte", icon: Building2 },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Cărți de Vizită", url: "/admin/carti-vizita", icon: CreditCard },
-  { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
 ];
 

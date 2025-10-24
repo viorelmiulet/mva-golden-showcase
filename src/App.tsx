@@ -20,7 +20,6 @@ const PropertiesAdmin = lazy(() => import("./pages/admin/PropertiesAdmin"));
 const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
 const XmlImportPage = lazy(() => import("./pages/admin/XmlImportPage"));
 const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
-const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
 const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
 const CarteVizita = lazy(() => import("./pages/CarteVizita"));
 const ApiKeysAdmin = lazy(() => import("./pages/ApiKeysAdmin"));
@@ -54,7 +53,6 @@ const App = () => (
                 <Route path="proiecte" element={<ProjectsAdminPage />} />
                 <Route path="import" element={<XmlImportPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="facebook" element={<FacebookPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
