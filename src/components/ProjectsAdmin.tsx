@@ -51,6 +51,9 @@ const ProjectsAdmin = () => {
   const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false)
   const [newPropertyForm, setNewPropertyForm] = useState<any>({})
   const [isCreatingProperty, setIsCreatingProperty] = useState(false)
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false)
+  const [newProjectForm, setNewProjectForm] = useState<any>({})
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -332,6 +335,111 @@ const ProjectsAdmin = () => {
     }
   }
 
+  const openAddProjectModal = () => {
+    setNewProjectForm({
+      name: '',
+      location: '',
+      developer: '',
+      price_range: '',
+      surface_range: '',
+      rooms_range: '',
+      description: '',
+      features: '',
+      amenities: '',
+      location_advantages: '',
+      investment_details: '',
+      payment_plans: '',
+      completion_date: '',
+      status: 'available',
+      main_image: ''
+    })
+    setIsAddProjectOpen(true)
+  }
+
+  const closeAddProjectModal = () => {
+    setNewProjectForm({})
+    setIsAddProjectOpen(false)
+  }
+
+  const createProject = async () => {
+    setIsCreatingProject(true)
+    try {
+      const { error } = await supabase
+        .from('real_estate_projects')
+        .insert({
+          name: newProjectForm.name,
+          location: newProjectForm.location,
+          developer: newProjectForm.developer,
+          price_range: newProjectForm.price_range,
+          surface_range: newProjectForm.surface_range,
+          rooms_range: newProjectForm.rooms_range,
+          description: newProjectForm.description,
+          features: newProjectForm.features ? newProjectForm.features.split(',').map((f: string) => f.trim()).filter(Boolean) : [],
+          amenities: newProjectForm.amenities ? newProjectForm.amenities.split(',').map((a: string) => a.trim()).filter(Boolean) : [],
+          location_advantages: newProjectForm.location_advantages ? newProjectForm.location_advantages.split(',').map((l: string) => l.trim()).filter(Boolean) : [],
+          investment_details: newProjectForm.investment_details,
+          payment_plans: newProjectForm.payment_plans ? newProjectForm.payment_plans.split(',').map((p: string) => p.trim()).filter(Boolean) : [],
+          completion_date: newProjectForm.completion_date,
+          status: newProjectForm.status,
+          main_image: newProjectForm.main_image
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Ansamblul rezidențial a fost creat"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] })
+      closeAddProjectModal()
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut crea ansamblul",
+        variant: "destructive"
+      })
+    } finally {
+      setIsCreatingProject(false)
+    }
+  }
+
+  const deleteProject = async (projectId: string) => {
+    if (!confirm('Sigur doriți să ștergeți acest ansamblu rezidențial? Toate proprietățile asociate vor fi de asemenea șterse.')) return
+    
+    try {
+      // First delete all properties associated with this project
+      const { error: propertiesError } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .eq('project_id', projectId)
+
+      if (propertiesError) throw propertiesError
+
+      // Then delete the project
+      const { error } = await supabase
+        .from('real_estate_projects')
+        .delete()
+        .eq('id', projectId)
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Ansamblul rezidențial a fost șters"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] })
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] })
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut șterge ansamblul",
+        variant: "destructive"
+      })
+    }
+  }
+
   const handlePropertyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, propertyId: string) => {
     const files = e.target.files
     if (!files || files.length === 0) return
@@ -511,10 +619,19 @@ const ProjectsAdmin = () => {
     <div className="space-y-6">
       <Card className="glass border-gold/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-gold" />
-            Administrare Complexe Rezidențiale
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-gold" />
+              Administrare Complexe Rezidențiale
+            </CardTitle>
+            <Button
+              onClick={openAddProjectModal}
+              className="bg-gold hover:bg-gold/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Adaugă Ansamblu
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {projects?.map((project) => {
@@ -540,15 +657,25 @@ const ProjectsAdmin = () => {
                         </Badge>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openEditModal(project)}
-                      className="border-gold/30 hover:bg-gold/10"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editează
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEditModal(project)}
+                        className="border-gold/30 hover:bg-gold/10"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editează
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteProject(project.id)}
+                        className="border-destructive/30 hover:bg-destructive/10 text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   {projectProperties && Object.keys(projectProperties).length > 0 && (
@@ -923,6 +1050,154 @@ const ProjectsAdmin = () => {
               <Button onClick={updateProject} disabled={isUpdating}>
                 <Save className="w-4 h-4 mr-2" />
                 {isUpdating ? 'Se salvează...' : 'Salvează'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Project Dialog */}
+      <Dialog open={isAddProjectOpen} onOpenChange={setIsAddProjectOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Adaugă Ansamblu Rezidențial</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_project_name">Nume Proiect</Label>
+                <Input
+                  id="new_project_name"
+                  value={newProjectForm.name || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, name: e.target.value })}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="new_project_location">Locație</Label>
+                <Input
+                  id="new_project_location"
+                  value={newProjectForm.location || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, location: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="new_project_developer">Developer</Label>
+              <Input
+                id="new_project_developer"
+                value={newProjectForm.developer || ''}
+                onChange={(e) => setNewProjectForm({ ...newProjectForm, developer: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="new_project_price_range">Interval Prețuri</Label>
+                <Input
+                  id="new_project_price_range"
+                  value={newProjectForm.price_range || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, price_range: e.target.value })}
+                  placeholder="€40,000 - €90,000"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="new_project_surface_range">Interval Suprafețe</Label>
+                <Input
+                  id="new_project_surface_range"
+                  value={newProjectForm.surface_range || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, surface_range: e.target.value })}
+                  placeholder="30 - 75 mp"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="new_project_rooms_range">Camere</Label>
+                <Input
+                  id="new_project_rooms_range"
+                  value={newProjectForm.rooms_range || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, rooms_range: e.target.value })}
+                  placeholder="1-3 camere"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="new_project_description">Descriere</Label>
+              <Textarea
+                id="new_project_description"
+                value={newProjectForm.description || ''}
+                onChange={(e) => setNewProjectForm({ ...newProjectForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="new_project_features">Caracteristici (separate prin virgulă)</Label>
+              <Textarea
+                id="new_project_features"
+                value={newProjectForm.features || ''}
+                onChange={(e) => setNewProjectForm({ ...newProjectForm, features: e.target.value })}
+                placeholder="Finisaje Premium, Spații Verzi, Design Modern"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="new_project_amenities">Facilități (separate prin virgulă)</Label>
+              <Textarea
+                id="new_project_amenities"
+                value={newProjectForm.amenities || ''}
+                onChange={(e) => setNewProjectForm({ ...newProjectForm, amenities: e.target.value })}
+                placeholder="Parcare, Lift, Sistem Securitate"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="new_project_location_advantages">Avantaje Locație (separate prin virgulă)</Label>
+              <Textarea
+                id="new_project_location_advantages"
+                value={newProjectForm.location_advantages || ''}
+                onChange={(e) => setNewProjectForm({ ...newProjectForm, location_advantages: e.target.value })}
+                placeholder="Acces rapid la metrou, Zone comerciale"
+                rows={2}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="new_project_completion_date">Data Finalizare</Label>
+                <Input
+                  id="new_project_completion_date"
+                  value={newProjectForm.completion_date || ''}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, completion_date: e.target.value })}
+                  placeholder="Q4 2025"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="new_project_status">Status</Label>
+                <Input
+                  id="new_project_status"
+                  value={newProjectForm.status || 'available'}
+                  onChange={(e) => setNewProjectForm({ ...newProjectForm, status: e.target.value })}
+                  placeholder="available"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={closeAddProjectModal}>
+                <X className="w-4 h-4 mr-2" />
+                Anulează
+              </Button>
+              <Button onClick={createProject} disabled={isCreatingProject}>
+                <Plus className="w-4 h-4 mr-2" />
+                {isCreatingProject ? 'Se creează...' : 'Creează'}
               </Button>
             </div>
           </div>
