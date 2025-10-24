@@ -15,7 +15,13 @@ const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const Projects = lazy(() => import("./pages/Projects"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
-const Admin = lazy(() => import("./pages/Admin"));
+const AdminLayout = lazy(() => import("./pages/AdminLayout"));
+const PropertiesAdmin = lazy(() => import("./pages/admin/PropertiesAdmin"));
+const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
+const XmlImportPage = lazy(() => import("./pages/admin/XmlImportPage"));
+const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
+const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
+const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
 const CarteVizita = lazy(() => import("./pages/CarteVizita"));
 const ApiKeysAdmin = lazy(() => import("./pages/ApiKeysAdmin"));
 const Cariera = lazy(() => import("./pages/Cariera"));
@@ -43,7 +49,14 @@ const App = () => (
               <Route path="/proiecte" element={<Projects />} />
               <Route path="/proiecte/:id" element={<ProjectDetail />} />
               <Route path="/adauga" element={<AddProperty />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<PropertiesAdmin />} />
+                <Route path="proiecte" element={<ProjectsAdminPage />} />
+                <Route path="import" element={<XmlImportPage />} />
+                <Route path="carti-vizita" element={<BusinessCardsPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="facebook" element={<FacebookPage />} />
+              </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
               <Route path="/cariera" element={<Cariera />} />
