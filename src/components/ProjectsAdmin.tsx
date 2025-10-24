@@ -169,8 +169,17 @@ const ProjectsAdmin = () => {
         .from('project-images')
         .getPublicUrl(filePath)
 
+      // Actualizează imediat în baza de date folosind funcția Edge (service role)
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('update-project-image', {
+        body: { projectId: editingProject.id, main_image: publicUrl }
+      })
+      if (fnError) throw fnError
+
       setEditForm({ ...editForm, main_image: publicUrl })
-      toast({ title: "Succes!", description: "Imaginea a fost încărcată" })
+      toast({ title: "Succes!", description: "Imaginea a fost încărcată și salvată" })
+      // Reîmprospătăm listele pentru a vedea imediat imaginea
+      queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] })
+      queryClient.invalidateQueries({ queryKey: ['real_estate_projects_public'] })
     } catch (error: any) {
       toast({
         title: "Eroare",
