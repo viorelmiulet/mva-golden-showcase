@@ -89,10 +89,12 @@ serve(async (req) => {
     } else if (type === 'image') {
       // Generate promotional image using Gemini Image Preview
       const imagePrompt = propertyData
-        ? `Create a professional real estate promotional image for Facebook. 
+        ? `Create a professional real estate promotional image for Facebook with a COMPLETE SCENE (NO WHITE BACKGROUND). 
            Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'excellent location'}.
-           Style: Bright, modern, contemporary real estate photography.
-           Include: Beautiful interior or exterior view, professional composition.
+           Style: Bright, modern, contemporary real estate photography with full environment and context.
+           Include: Beautiful interior or exterior view with complete surroundings, professional composition.
+           The entire image should be filled with content - show the property in its environment (cityscape, neighborhood, full room interior, etc).
+           NO WHITE OR PLAIN BACKGROUNDS - fill the entire frame with realistic real estate photography.
            Aspect ratio: 1200x630 (Facebook post format).
            High quality, ultra realistic, professional photography.
            DO NOT include the words "luxury" or "lux" in any form.
@@ -101,19 +103,21 @@ serve(async (req) => {
            Telefon: 0767.941.512
            Email: contact@mvaimobiliare.ro
            Website: mvaimobiliare.ro
-           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast.`
-        : `Create a professional real estate agency promotional image for MVA IMOBILIARE.
-           Style: Modern, elegant, contemporary real estate branding.
-           Include: Abstract modern home concepts, golden accents, professional composition.
+           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast against the photo background.`
+        : `Create a professional real estate agency promotional image for MVA IMOBILIARE with a COMPLETE SCENE (NO WHITE BACKGROUND).
+           Style: Modern, elegant, contemporary real estate branding with full visual environment.
+           Include: Complete real estate scenes - modern buildings, cityscapes, beautiful interiors with golden accents.
+           The entire image should be filled with content - show a complete environment, not isolated elements.
+           NO WHITE OR PLAIN BACKGROUNDS - fill the entire 1200x630 frame with rich, professional real estate imagery.
            Aspect ratio: 1200x630 (Facebook post format).
-           High quality, ultra realistic, professional design.
+           High quality, ultra realistic, professional design with complete backgrounds.
            DO NOT include the words "luxury" or "lux" in any form.
            
            IMPORTANT: Include visible contact information overlay IN ROMANIAN ONLY:
            Telefon: 0767.941.512
            Email: contact@mvaimobiliare.ro
            Website: mvaimobiliare.ro
-           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast.`;
+           ALL TEXT ON THE IMAGE MUST BE IN ROMANIAN. Make the text clear, professional, and easy to read with good contrast against the photo background.`;
 
       const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
