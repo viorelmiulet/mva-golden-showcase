@@ -95,13 +95,25 @@ serve(async (req) => {
            Include: Beautiful interior or exterior view, professional composition.
            Aspect ratio: 1200x630 (Facebook post format).
            High quality, ultra realistic, professional photography.
-           DO NOT include the words "luxury" or "lux" in any form.`
+           DO NOT include the words "luxury" or "lux" in any form.
+           
+           IMPORTANT: Include visible contact information overlay at the bottom of the image:
+           Phone: 0767.941.512
+           Email: contact@mvaimobiliare.ro
+           Website: mvaimobiliare.ro
+           Make the text clear, professional, and easy to read with good contrast.`
         : `Create a professional real estate agency promotional image for MVA IMOBILIARE.
            Style: Modern, elegant, contemporary real estate branding.
            Include: Abstract modern home concepts, golden accents, professional composition.
            Aspect ratio: 1200x630 (Facebook post format).
            High quality, ultra realistic, professional design.
-           DO NOT include the words "luxury" or "lux" in any form.`;
+           DO NOT include the words "luxury" or "lux" in any form.
+           
+           IMPORTANT: Include visible contact information overlay:
+           Phone: 0767.941.512
+           Email: contact@mvaimobiliare.ro
+           Website: mvaimobiliare.ro
+           Make the text clear, professional, and easy to read with good contrast.`;
 
       const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
