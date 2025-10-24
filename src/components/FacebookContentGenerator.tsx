@@ -38,9 +38,10 @@ export const FacebookContentGenerator = () => {
   const generateText = async () => {
     setIsGeneratingText(true);
     try {
-      const propertyData = selectedProperty 
-        ? properties.find(p => p.id === selectedProperty)
-        : null;
+      const isGeneric = !selectedProperty || selectedProperty === 'generic';
+      const propertyData = isGeneric 
+        ? null
+        : properties.find(p => p.id === selectedProperty);
 
       const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
         body: { 
@@ -69,9 +70,10 @@ export const FacebookContentGenerator = () => {
   const generateImage = async () => {
     setIsGeneratingImage(true);
     try {
-      const propertyData = selectedProperty 
-        ? properties.find(p => p.id === selectedProperty)
-        : null;
+      const isGeneric = !selectedProperty || selectedProperty === 'generic';
+      const propertyData = isGeneric 
+        ? null
+        : properties.find(p => p.id === selectedProperty);
 
       const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
         body: { 
@@ -137,7 +139,7 @@ export const FacebookContentGenerator = () => {
                 <SelectValue placeholder="Proprietate generică sau selectează una..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Promovare generică MVA</SelectItem>
+                <SelectItem value="generic">Promovare generică MVA</SelectItem>
                 {properties.map((property) => (
                   <SelectItem key={property.id} value={property.id}>
                     {property.title} - {property.location}
