@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Property {
   id: string;
@@ -21,17 +22,29 @@ const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const initMap = async () => {
       if (!mapContainer.current) return;
 
       try {
+        console.log('Initializing map...');
+        
         // Get Mapbox token from edge function
         const { data, error } = await supabase.functions.invoke('mapbox-token');
         
-        if (error) throw error;
-        if (!data?.token) throw new Error('No token received');
+        console.log('Mapbox token response:', { data, error });
+        
+        if (error) {
+          console.error('Error fetching token:', error);
+          throw error;
+        }
+        if (!data?.token) {
+          console.error('No token in response');
+          throw new Error('No token received');
+        }
 
         mapboxgl.accessToken = data.token;
 
@@ -90,9 +103,18 @@ const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
         });
 
         setIsLoading(false);
+        console.log('Map initialized successfully');
       } catch (error) {
         console.error('Error initializing map:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea hărții';
+        setError(errorMessage);
         setIsLoading(false);
+        
+        toast({
+          title: "Eroare hartă",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     };
 
@@ -107,6 +129,18 @@ const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
     return (
       <div className="w-full h-[500px] rounded-lg bg-muted flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-[500px] rounded-lg bg-muted flex flex-col items-center justify-center gap-4 p-6">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <div className="text-center">
+          <p className="font-semibold text-lg mb-2">Eroare la încărcarea hărții</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
       </div>
     );
   }
