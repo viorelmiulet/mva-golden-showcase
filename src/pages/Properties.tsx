@@ -32,7 +32,6 @@ import Footer from "@/components/Footer"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
-import PropertiesMap from "@/components/PropertiesMap"
 
 interface ScrapedProperty {
   title: string
@@ -357,19 +356,6 @@ const Properties = () => {
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 Descoperă proprietățile noastre disponibile pentru vânzare
               </p>
-            </div>
-
-            {/* Map View */}
-            <div className="mb-6 sm:mb-8">
-              <Card className="glass border-[0.5px]">
-                <CardContent className="p-4 sm:p-6">
-                  <h2 className="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Hartă Proprietăți
-                  </h2>
-                  <PropertiesMap properties={filteredProperties} />
-                </CardContent>
-              </Card>
             </div>
 
             {/* Filters */}
