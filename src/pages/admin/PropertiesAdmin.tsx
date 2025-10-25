@@ -186,18 +186,28 @@ const PropertiesAdmin = () => {
   };
 
   const deleteAllProperties = async () => {
+    if (!properties || properties.length === 0) return;
+    
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from("catalog_offers")
-        .delete()
-        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all rows
+      // Delete all properties using admin-offers edge function
+      const deletePromises = properties.map((property) =>
+        supabase.functions.invoke("admin-offers", {
+          body: { action: "delete_offer", id: property.id },
+        })
+      );
 
-      if (error) throw error;
+      const results = await Promise.all(deletePromises);
+
+      // Check for errors
+      const errors = results.filter((r) => r.error || !r.data?.success);
+      if (errors.length > 0) {
+        throw new Error(`Nu am putut șterge ${errors.length} proprietăți`);
+      }
 
       toast({
         title: "Succes!",
-        description: "Toate proprietățile au fost șterse cu succes",
+        description: `Toate proprietățile (${properties.length}) au fost șterse cu succes`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
