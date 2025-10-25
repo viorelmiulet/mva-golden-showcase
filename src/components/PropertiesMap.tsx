@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -18,110 +17,34 @@ interface PropertiesMapProps {
   properties: Property[];
 }
 
+interface PropertyMarker extends Property {
+  position: { lat: number; lng: number };
+  index: number;
+}
+
 const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<PropertyMarker | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: apiKey || '',
+  });
+
   useEffect(() => {
-    // Prevent multiple initializations
-    if (map.current) return;
-    if (!mapContainer.current) return;
-
-    const initMap = async () => {
+    const fetchApiKey = async () => {
       try {
-        console.log('Fetching Mapbox token...');
+        const { data, error } = await supabase.functions.invoke('google-maps-token');
         
-        // Get Mapbox token from edge function
-        const { data, error } = await supabase.functions.invoke('mapbox-token');
-        
-        console.log('Token response:', { hasData: !!data, hasError: !!error });
-        
-        if (error) {
-          console.error('Error fetching token:', error);
-          throw new Error(`Token fetch failed: ${error.message}`);
-        }
-        
-        if (!data?.token) {
-          console.error('No token in response:', data);
-          throw new Error('No Mapbox token received from server');
-        }
+        if (error) throw error;
+        if (!data?.token) throw new Error('No Google Maps API key received');
 
-        console.log('Setting Mapbox token...');
-        mapboxgl.accessToken = data.token;
-
-        console.log('Creating map instance...');
-        // Initialize map centered on Bucharest
-        map.current = new mapboxgl.Map({
-          container: mapContainer.current!,
-          style: 'mapbox://styles/mapbox/streets-v12',
-          center: [26.1025, 44.4268], // Bucharest coordinates
-          zoom: 11,
-        });
-
-        // Wait for map to load before adding controls and markers
-        map.current.on('load', () => {
-          console.log('Map loaded successfully');
-          
-          // Add navigation controls
-          map.current!.addControl(
-            new mapboxgl.NavigationControl(),
-            'top-right'
-          );
-
-          // Add markers for properties
-          const bucharest = { lng: 26.1025, lat: 44.4268 };
-          
-          console.log(`Adding ${properties.length} markers...`);
-          properties.forEach((property) => {
-            const randomOffset = () => (Math.random() - 0.5) * 0.1;
-            const coordinates: [number, number] = [
-              bucharest.lng + randomOffset(),
-              bucharest.lat + randomOffset()
-            ];
-
-            const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-              <div class="p-2">
-                <h3 class="font-semibold text-sm mb-1">${property.title}</h3>
-                <p class="text-xs text-gray-600 mb-1">${property.location}</p>
-                <p class="text-xs font-semibold">${property.price_min.toLocaleString()} €</p>
-                <p class="text-xs text-gray-500">${property.rooms} camere</p>
-              </div>
-            `);
-
-            const el = document.createElement('div');
-            el.className = 'custom-marker';
-            el.style.width = '30px';
-            el.style.height = '30px';
-            el.style.borderRadius = '50%';
-            el.style.backgroundColor = '#D4AF37';
-            el.style.border = '3px solid white';
-            el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-            el.style.cursor = 'pointer';
-
-            new mapboxgl.Marker(el)
-              .setLngLat(coordinates)
-              .setPopup(popup)
-              .addTo(map.current!);
-          });
-
-          setIsLoading(false);
-          console.log('All markers added');
-        });
-
-        map.current.on('error', (e) => {
-          console.error('Mapbox error:', e);
-          throw new Error(`Mapbox error: ${e.error?.message || 'Unknown error'}`);
-        });
-
+        setApiKey(data.token);
       } catch (error) {
-        console.error('Error initializing map:', error);
+        console.error('Error fetching Google Maps token:', error);
         const errorMessage = error instanceof Error ? error.message : 'Eroare la încărcarea hărții';
         setError(errorMessage);
-        setIsLoading(false);
-        
         toast({
           title: "Eroare hartă",
           description: errorMessage,
@@ -130,23 +53,24 @@ const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
       }
     };
 
-    initMap();
+    fetchApiKey();
+  }, [toast]);
 
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-      }
-    };
-  }, []);
+  const mapCenter = { lat: 44.4268, lng: 26.1025 }; // Bucharest coordinates
 
-  if (isLoading) {
-    return (
-      <div className="w-full h-[500px] rounded-lg bg-muted flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const getPropertyMarkers = () => {
+    return properties.map((property, index) => {
+      const randomOffset = () => (Math.random() - 0.5) * 0.1;
+      const position = {
+        lat: mapCenter.lat + randomOffset(),
+        lng: mapCenter.lng + randomOffset(),
+      };
+
+      return { ...property, position, index };
+    });
+  };
+
+  const propertyMarkers = getPropertyMarkers();
 
   if (error) {
     return (
@@ -160,9 +84,69 @@ const PropertiesMap: React.FC<PropertiesMapProps> = ({ properties }) => {
     );
   }
 
+  if (!isLoaded || !apiKey) {
+    return (
+      <div className="w-full h-[500px] rounded-lg bg-muted flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="w-full h-[500px] rounded-lg bg-muted flex flex-col items-center justify-center gap-4 p-6">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <div className="text-center">
+          <p className="font-semibold text-lg mb-2">Eroare la încărcarea hărții</p>
+          <p className="text-sm text-muted-foreground">Google Maps nu a putut fi încărcat</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-[500px] rounded-lg overflow-hidden shadow-lg">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <GoogleMap
+        mapContainerStyle={{ width: '100%', height: '100%' }}
+        center={mapCenter}
+        zoom={11}
+        options={{
+          zoomControl: true,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: true,
+        }}
+      >
+        {propertyMarkers.map((marker) => (
+          <Marker
+            key={marker.id}
+            position={marker.position}
+            onClick={() => setSelectedProperty(marker)}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#D4AF37',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 3,
+            }}
+          />
+        ))}
+
+        {selectedProperty && (
+          <InfoWindow
+            position={selectedProperty.position}
+            onCloseClick={() => setSelectedProperty(null)}
+          >
+            <div className="p-2">
+              <h3 className="font-semibold text-sm mb-1">{selectedProperty.title}</h3>
+              <p className="text-xs text-gray-600 mb-1">{selectedProperty.location}</p>
+              <p className="text-xs font-semibold">{selectedProperty.price_min.toLocaleString()} €</p>
+              <p className="text-xs text-gray-500">{selectedProperty.rooms} camere</p>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
     </div>
   );
 };
