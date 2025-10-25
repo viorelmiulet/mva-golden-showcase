@@ -21,6 +21,7 @@ import {
   Edit,
   Save,
   CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -184,6 +185,33 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const deleteAllProperties = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("catalog_offers")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all rows
+
+      if (error) throw error;
+
+      toast({
+        title: "Succes!",
+        description: "Toate proprietățile au fost șterse cu succes",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error?.message || "Nu am putut șterge proprietățile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const openEditModal = (property: any) => {
     setEditingProperty(property);
     setEditForm({
@@ -326,6 +354,39 @@ const PropertiesAdmin = () => {
               <Home className="w-5 h-5 text-gold" />
               Proprietăți ({properties?.length || 0})
             </div>
+            {properties && properties.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-destructive/30 hover:bg-destructive/10 text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Șterge Toate
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmare ștergere masivă</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Ești sigur că vrei să ștergi TOATE proprietățile ({properties?.length} proprietăți)?
+                      <br />
+                      <span className="font-semibold text-destructive">Această acțiune nu poate fi anulată!</span>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteAllProperties}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      Șterge Toate
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>

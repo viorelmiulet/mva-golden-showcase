@@ -304,6 +304,33 @@ const Admin = () => {
     }
   }
 
+  const deleteAllProperties = async () => {
+    setIsLoading(true)
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all rows
+
+      if (error) throw error
+
+      toast({
+        title: "Succes!",
+        description: "Toate proprietățile au fost șterse cu succes"
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
+    } catch (error: any) {
+      toast({
+        title: 'Eroare',
+        description: error?.message || 'Nu am putut șterge proprietățile',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const openEditModal = (property: any) => {
     setEditingProperty(property)
     setEditForm({
@@ -717,9 +744,45 @@ const Admin = () => {
                     </div>
                     Toate Proprietățile
                   </CardTitle>
-                  <Badge variant="secondary" className="text-base px-4 py-2">
-                    {properties?.length || 0} proprietăți
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="secondary" className="text-base px-4 py-2">
+                      {properties?.length || 0} proprietăți
+                    </Badge>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-destructive/30 hover:bg-destructive/10 text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Șterge Toate
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="w-5 h-5 text-destructive" />
+                            Confirmare ștergere masivă
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Ești sigur că vrei să ștergi TOATE proprietățile ({properties?.length} proprietăți)?
+                            <br />
+                            <span className="font-semibold text-destructive">Această acțiune nu poate fi anulată!</span>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Anulează</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={deleteAllProperties}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            Șterge Toate Proprietățile
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-2xl mt-3">
                   Portofoliul complet al proprietăților MVA Imobiliare - apartamente și garsoniere premium în Militari Residence
