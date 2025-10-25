@@ -127,19 +127,29 @@ const Contact = () => {
   ]
 
   return (
-    <section id="contact" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 to-background">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+    <section id="contact" className="relative py-12 sm:py-16 lg:py-24 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-background to-gold/5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(218,165,32,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(218,165,32,0.05),transparent_50%)]"></div>
+      </div>
+
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
           
-          {/* Header */}
-          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
-              Hai să vorbim
-            </Badge>
+          {/* Header with Animation */}
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20 animate-fade-in">
+            <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
+              <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/30 px-4 py-1.5 text-xs sm:text-sm font-semibold">
+                Hai să vorbim
+              </Badge>
+              <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
+            </div>
             
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
               <span className="text-foreground">Contactează-ne </span>
-              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent animate-pulse">
                 Astăzi
               </span>
             </h2>
@@ -158,15 +168,19 @@ const Contact = () => {
                 {contactInfo.map((item, index) => {
                   const Icon = item.icon
                   const content = (
-                    <div className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 lg:p-6 rounded-lg sm:rounded-xl lg:rounded-2xl bg-card/50 backdrop-blur-sm border border-gold/10 hover:border-gold/20 transition-all duration-300 group touch-manipulation">
-                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-gold/20 to-gold-dark/20 rounded-lg lg:rounded-xl flex items-center justify-center group-hover:from-gold/30 group-hover:to-gold-dark/30 transition-all">
-                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gold" />
+                    <div className="relative overflow-hidden flex items-start space-x-3 sm:space-x-4 p-4 sm:p-5 lg:p-6 rounded-xl lg:rounded-2xl bg-card backdrop-blur-sm border border-gold/10 hover:border-gold/30 transition-all duration-500 group touch-manipulation hover:shadow-[0_8px_30px_rgb(218,165,32,0.12)] hover:-translate-y-1">
+                      {/* Hover Effect Background */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <div className="relative flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-gold/20 via-gold/10 to-gold-dark/20 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gold group-hover:text-gold-light transition-colors" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground mb-1 text-xs sm:text-sm lg:text-base">
+                      
+                      <div className="relative flex-1 min-w-0">
+                        <h3 className="font-bold text-foreground mb-1.5 text-sm sm:text-base lg:text-lg group-hover:text-gold transition-colors">
                           {item.title}
                         </h3>
-                        <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed break-words">
+                        <p className="text-muted-foreground text-xs sm:text-sm lg:text-base leading-relaxed break-words">
                           {item.info}
                         </p>
                       </div>
@@ -185,47 +199,65 @@ const Contact = () => {
                 })}
               </div>
 
-              {/* WhatsApp CTA */}
-              <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-lg sm:rounded-xl lg:rounded-2xl p-4 sm:p-6 border border-gold/20">
-                <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-gold flex-shrink-0" />
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground">
-                    Răspuns Imediat pe WhatsApp
-                  </h3>
+              {/* WhatsApp CTA - Enhanced */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-gold/15 via-gold/8 to-gold/15 rounded-xl lg:rounded-2xl p-5 sm:p-6 lg:p-8 border-2 border-gold/30 shadow-[0_8px_30px_rgb(218,165,32,0.15)] hover:shadow-[0_12px_40px_rgb(218,165,32,0.25)] transition-all duration-500 hover:-translate-y-1">
+                {/* Decorative Elements */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
+                
+                <div className="relative">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold/30 to-gold-dark/30 rounded-xl flex items-center justify-center animate-pulse">
+                      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-gold flex-shrink-0" />
+                    </div>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground">
+                      Răspuns Imediat pe WhatsApp
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4 sm:mb-5 text-xs sm:text-sm lg:text-base">
+                    Pentru răspunsuri rapide și consultanță personalizată
+                  </p>
+                  <a 
+                    href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="luxury" className="w-full h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-bold touch-manipulation shadow-lg hover:shadow-xl transition-all group">
+                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                      <span className="truncate">Contactează-ne pe WhatsApp</span>
+                    </Button>
+                  </a>
                 </div>
-                <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">
-                  Pentru răspunsuri rapide
-                </p>
-                <a 
-                  href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="luxury" className="w-full h-10 sm:h-11 lg:h-12 text-xs sm:text-sm lg:text-base font-semibold touch-manipulation">
-                    <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">Contactează-ne pe WhatsApp</span>
-                  </Button>
-                </a>
               </div>
             </div>
 
-            {/* Contact Form */}
+            {/* Contact Form - Enhanced */}
             <div className="lg:col-span-3">
-              <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-2xl">
-                <CardContent className="p-4 sm:p-6 lg:p-8">
-                  <div className="mb-4 sm:mb-6 lg:mb-8">
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
-                      Trimite-ne un mesaj
-                    </h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
+              <Card className="relative overflow-hidden border-0 bg-card backdrop-blur-sm shadow-2xl hover:shadow-[0_20px_60px_rgb(218,165,32,0.15)] transition-all duration-500">
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-gold/10 to-transparent rounded-full blur-3xl -z-10"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-gold/10 to-transparent rounded-full blur-3xl -z-10"></div>
+                
+                <CardContent className="p-5 sm:p-7 lg:p-10 relative">
+                  <div className="mb-6 sm:mb-8 lg:mb-10">
+                    <div className="flex items-center space-x-3 mb-3 sm:mb-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold/20 to-gold-dark/20 rounded-xl flex items-center justify-center">
+                        <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                      </div>
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
+                        Trimite-ne un mesaj
+                      </h3>
+                    </div>
+                    <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
                       Completează formularul și îți vom răspunde în cel mai scurt timp.
                     </p>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="space-y-2">
-                        <label className="text-xs sm:text-sm font-medium text-foreground">
+                  <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="space-y-2.5 group">
+                        <label className="text-sm sm:text-base font-semibold text-foreground group-focus-within:text-gold transition-colors flex items-center">
+                          <span className="w-1.5 h-1.5 bg-gold rounded-full mr-2"></span>
                           Nume *
                         </label>
                         <Input 
@@ -233,12 +265,13 @@ const Contact = () => {
                           value={formData.nume}
                           onChange={handleChange}
                           placeholder="Numele tău" 
-                          className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
+                          className="bg-background border-border/50 focus:border-gold focus:ring-2 focus:ring-gold/20 h-11 sm:h-12 lg:h-14 text-sm sm:text-base touch-manipulation transition-all duration-300 hover:border-gold/50" 
                           required
                         />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-xs sm:text-sm font-medium text-foreground">
+                      <div className="space-y-2.5 group">
+                        <label className="text-sm sm:text-base font-semibold text-foreground group-focus-within:text-gold transition-colors flex items-center">
+                          <span className="w-1.5 h-1.5 bg-gold rounded-full mr-2"></span>
                           Prenume *
                         </label>
                         <Input 
@@ -246,14 +279,15 @@ const Contact = () => {
                           value={formData.prenume}
                           onChange={handleChange}
                           placeholder="Prenumele tău" 
-                          className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
+                          className="bg-background border-border/50 focus:border-gold focus:ring-2 focus:ring-gold/20 h-11 sm:h-12 lg:h-14 text-sm sm:text-base touch-manipulation transition-all duration-300 hover:border-gold/50" 
                           required
                         />
                       </div>
                     </div>
                     
-                    <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-foreground">
+                    <div className="space-y-2.5 group">
+                      <label className="text-sm sm:text-base font-semibold text-foreground group-focus-within:text-gold transition-colors flex items-center">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full mr-2"></span>
                         Email *
                       </label>
                       <Input 
@@ -262,13 +296,14 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="email@exemplu.com" 
-                        className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
+                        className="bg-background border-border/50 focus:border-gold focus:ring-2 focus:ring-gold/20 h-11 sm:h-12 lg:h-14 text-sm sm:text-base touch-manipulation transition-all duration-300 hover:border-gold/50" 
                         required
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-foreground">
+                    <div className="space-y-2.5 group">
+                      <label className="text-sm sm:text-base font-semibold text-foreground group-focus-within:text-gold transition-colors flex items-center">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full mr-2"></span>
                         Telefon *
                       </label>
                       <Input 
@@ -276,13 +311,14 @@ const Contact = () => {
                         value={formData.telefon}
                         onChange={handleChange}
                         placeholder="+40767 941 512" 
-                        className="bg-background/50 border-border/50 focus:border-gold/50 h-10 sm:h-11 lg:h-12 text-sm touch-manipulation" 
+                        className="bg-background border-border/50 focus:border-gold focus:ring-2 focus:ring-gold/20 h-11 sm:h-12 lg:h-14 text-sm sm:text-base touch-manipulation transition-all duration-300 hover:border-gold/50" 
                         required
                       />
                     </div>
                     
-                    <div className="space-y-2">
-                      <label className="text-xs sm:text-sm font-medium text-foreground">
+                    <div className="space-y-2.5 group">
+                      <label className="text-sm sm:text-base font-semibold text-foreground group-focus-within:text-gold transition-colors flex items-center">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full mr-2"></span>
                         Mesaj *
                       </label>
                       <Textarea 
@@ -290,8 +326,8 @@ const Contact = () => {
                         value={formData.mesaj}
                         onChange={handleChange}
                         placeholder="Descrie-ne ce tip de apartament cauți, bugetul tău sau orice întrebări ai despre complexele noastre..."
-                        rows={4}
-                        className="bg-background/50 border-border/50 focus:border-gold/50 resize-none min-h-[100px] sm:min-h-[120px] text-sm touch-manipulation"
+                        rows={5}
+                        className="bg-background border-border/50 focus:border-gold focus:ring-2 focus:ring-gold/20 resize-none min-h-[120px] sm:min-h-[140px] lg:min-h-[160px] text-sm sm:text-base touch-manipulation transition-all duration-300 hover:border-gold/50"
                         required
                       />
                     </div>
@@ -300,15 +336,18 @@ const Contact = () => {
                       type="submit" 
                       variant="luxury" 
                       size="lg" 
-                      className="w-full group h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold touch-manipulation" 
+                      className="w-full group h-12 sm:h-14 lg:h-16 text-base sm:text-lg font-bold touch-manipulation shadow-lg hover:shadow-xl transition-all" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
-                        "Se trimite..."
+                        <span className="flex items-center">
+                          <span className="animate-spin mr-2">⏳</span>
+                          Se trimite...
+                        </span>
                       ) : (
                         <>
                           Trimite Mesajul
-                          <Send className="ml-2 w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                          <Send className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300 flex-shrink-0" />
                         </>
                       )}
                     </Button>
