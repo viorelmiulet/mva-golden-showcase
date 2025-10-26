@@ -8,6 +8,8 @@ import {
   Lock,
   ChevronLeft,
   ChevronRight,
+  Users,
+  UserCog,
 } from "lucide-react";
 
 import {
@@ -29,6 +31,8 @@ const menuItems = [
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Cărți de Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
+  { title: "Clienți CRM", url: "/admin/clienti", icon: Users },
+  { title: "Utilizatori", url: "/admin/utilizatori", icon: UserCog },
 ];
 
 interface AdminSidebarProps {
