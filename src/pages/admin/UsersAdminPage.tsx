@@ -30,6 +30,7 @@ import { useCRMUsers } from "@/hooks/useCRMUsers";
 import { Shield, Edit, Building2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ComplexImportManager from "@/components/ComplexImportManager";
 
 export default function UsersAdminPage() {
   const {
@@ -102,6 +103,9 @@ export default function UsersAdminPage() {
           Complex Nou
         </Button>
       </div>
+
+      {/* Import System */}
+      <ComplexImportManager />
 
       {/* Users Table */}
       <Card>
