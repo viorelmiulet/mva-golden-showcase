@@ -603,17 +603,17 @@ const Properties = () => {
 
                       {/* Actions */}
                       <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                           {/* Call Now Button */}
                           <Button 
                             variant="outline" 
                             size="sm" 
                             asChild
-                            className="flex-1 hover:bg-gold/10 hover:border-gold"
+                            className="hover:bg-gold/10 hover:border-gold text-xs h-8"
                           >
                             <a href="tel:0767941512">
-                              <Phone className="w-4 h-4 mr-2" />
-                              Sună acum
+                              <Phone className="w-3 h-3 mr-1" />
+                              Sună
                             </a>
                           </Button>
                           
@@ -622,31 +622,22 @@ const Properties = () => {
                             variant="outline" 
                             size="sm" 
                             asChild
-                            className="flex-1 hover:bg-green-50 hover:border-green-400"
+                            className="hover:bg-green-50 hover:border-green-400 text-xs h-8"
                           >
                             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              Contact WhatsApp
+                              <MessageCircle className="w-3 h-3 mr-1" />
+                              WhatsApp
                             </a>
                           </Button>
-                          
-                          {property.storia_link && (
-                            <Button variant="outline" size="sm" asChild>
-                              <a href={property.storia_link} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                Original
-                              </a>
-                            </Button>
-                          )}
                         </div>
                         <Button 
                           asChild
-                          className="w-full"
+                          className="w-full text-xs h-8"
                           size="sm"
                         >
                           <Link to={`/proprietati/${property.id}`}>
-                            <Info className="w-4 h-4 mr-2" />
-                            Vezi Detalii Complete
+                            <Info className="w-3 h-3 mr-1" />
+                            Vezi Detalii
                           </Link>
                         </Button>
                       </div>
