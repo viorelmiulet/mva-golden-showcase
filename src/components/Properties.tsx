@@ -72,7 +72,7 @@ const Properties = () => {
   }
 
   const renderOffers = (offers: any[]) => (
-    <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3 lg:gap-8 xl:gap-6">
+    <div className="grid gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8 xl:gap-6">
       {offers.map((property) => (
         <Link to={`/proprietati/${property.id}`} key={property.id}>
           <Card 

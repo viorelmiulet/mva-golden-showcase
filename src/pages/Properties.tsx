@@ -480,7 +480,7 @@ const Properties = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid lg:grid-cols-4 gap-6">
                 {filteredProperties.map((property) => (
                   <Card key={property.id} className="group glass hover:glass-hover border-[0.5px]">
                     <CardContent className="p-6">
