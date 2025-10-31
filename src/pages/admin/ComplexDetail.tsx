@@ -440,7 +440,7 @@ const ComplexDetail = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
                         <DropdownMenuItem
-                          onSelect={() => setAvailability(apt.id, 'available')}
+                          onClick={() => setAvailability(apt.id, 'available')}
                           disabled={isAvailable}
                           className="cursor-pointer"
                         >
@@ -448,7 +448,7 @@ const ComplexDetail = () => {
                           <span>Disponibil</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onSelect={() => setAvailability(apt.id, 'reserved')}
+                          onClick={() => setAvailability(apt.id, 'reserved')}
                           disabled={apt.availability_status === 'reserved'}
                           className="cursor-pointer"
                         >
@@ -456,7 +456,7 @@ const ComplexDetail = () => {
                           <span>Rezervat</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onSelect={() => setAvailability(apt.id, 'sold')}
+                          onClick={() => setAvailability(apt.id, 'sold')}
                           disabled={apt.availability_status === 'sold'}
                           className="cursor-pointer"
                         >
