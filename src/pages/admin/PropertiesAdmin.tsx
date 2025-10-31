@@ -148,6 +148,7 @@ const PropertiesAdmin = () => {
       const { data, error } = await supabase
         .from("catalog_offers")
         .select("*")
+        .is('project_id', null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

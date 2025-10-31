@@ -59,13 +59,14 @@ const Properties = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  // Fetch existing properties
+  // Fetch existing properties (exclude properties from residential complexes)
   const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
     queryKey: ['catalog_offers'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('*')
+        .is('project_id', null)
         .order('created_at', { ascending: false })
       
       if (error) throw error
