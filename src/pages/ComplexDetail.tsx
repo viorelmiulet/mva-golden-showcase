@@ -12,7 +12,8 @@ import {
   Home,
   CheckCircle2,
   XCircle,
-  Clock
+  Clock,
+  FileText
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -264,9 +265,9 @@ const ComplexDetail = () => {
                           <Button 
                             size="sm" 
                             className="w-full mt-2"
-                            onClick={() => window.scrollTo({ top: document.getElementById('contact')?.offsetTop || 0, behavior: 'smooth' })}
                           >
-                            Contactează-ne
+                            <FileText className="mr-2 h-4 w-4" />
+                            Vezi Schiță
                           </Button>
                         )}
                       </CardContent>
