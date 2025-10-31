@@ -16,7 +16,8 @@ import {
   Layers,
   Edit,
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from "lucide-react";
 import RenewResidenceImporter from "@/components/RenewResidenceImporter";
 import { toast } from "sonner";
@@ -337,6 +338,16 @@ const ComplexDetail = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* View Sketch Button */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full mt-2 border-primary/30 hover:bg-primary/10"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Vezi schița
+                    </Button>
                   </CardContent>
                 </Card>
               );
