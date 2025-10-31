@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   MapPin, 
   Home, 
@@ -344,39 +343,9 @@ const Projects = () => {
                   </div>
                 </header>
 
-                {/* Properties Tabs */}
+                {/* Projects Grid */}
                 <div className="mb-8 sm:mb-12">
-                  <Tabs defaultValue="toate" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 max-w-xs sm:max-w-md mx-auto mb-6 sm:mb-8 glass border border-gold/30 h-auto p-1">
-                      <TabsTrigger 
-                        value="toate" 
-                        className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2 sm:py-2.5 px-2 sm:px-3 touch-manipulation"
-                      >
-                        Toate
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="disponibile"
-                        className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2 sm:py-2.5 px-2 sm:px-3 touch-manipulation"
-                      >
-                        Disponibile
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="catalog"
-                        className="data-[state=active]:bg-gold data-[state=active]:text-primary-foreground text-xs sm:text-sm py-2 sm:py-2.5 px-2 sm:px-3 cursor-pointer touch-manipulation"
-                        onClick={() => window.open('https://wa.me/40767941512', '_blank')}
-                      >
-                        Catalog
-                      </TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="toate" className="mt-0">
-                      {renderProjects(allProjects)}
-                    </TabsContent>
-                    
-                    <TabsContent value="disponibile" className="mt-0">
-                      {renderProjects(availableProjects)}
-                    </TabsContent>
-                  </Tabs>
+                  {renderProjects(allProjects)}
                 </div>
 
                 {/* CTA Section */}
