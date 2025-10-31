@@ -11,7 +11,8 @@ import {
   Euro,
   Home,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Clock
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -198,11 +199,25 @@ const ComplexDetail = () => {
                             <span className="text-xl font-bold">Ap. {aptNumber}</span>
                           </div>
                           <Badge 
-                            variant={isAvailable ? "default" : "secondary"}
-                            className={isAvailable ? "bg-green-600" : "bg-red-600"}
+                            variant={
+                              isAvailable 
+                                ? "default" 
+                                : apt.availability_status === 'reserved' 
+                                  ? "secondary" 
+                                  : "destructive"
+                            }
+                            className={
+                              isAvailable 
+                                ? "bg-green-600" 
+                                : apt.availability_status === 'reserved'
+                                  ? "bg-orange-500 text-white"
+                                  : "bg-red-600"
+                            }
                           >
                             {isAvailable ? (
                               <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
+                            ) : apt.availability_status === 'reserved' ? (
+                              <><Clock className="h-3 w-3 mr-1" /> Rezervat</>
                             ) : (
                               <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
                             )}

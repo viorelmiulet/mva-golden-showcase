@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   ChevronDown,
   FileText,
-  ImagePlus
+  ImagePlus,
+  Clock
 } from "lucide-react";
 import RenewResidenceImporter from "@/components/RenewResidenceImporter";
 import ImageUploadDialog from "@/components/ImageUploadDialog";
@@ -70,7 +71,7 @@ const ComplexDetail = () => {
     }
   });
 
-  const setAvailability = async (propertyId: string, newStatus: 'available' | 'sold') => {
+  const setAvailability = async (propertyId: string, newStatus: 'available' | 'sold' | 'reserved') => {
     const queryKey = ['project-properties', id];
     const prev = queryClient.getQueryData<any[]>(queryKey);
 
@@ -91,7 +92,12 @@ const ComplexDetail = () => {
       return;
     }
 
-    toast.success(`Apartament marcat ca ${newStatus === 'available' ? 'disponibil' : 'vândut'}`);
+    const statusLabels = {
+      available: 'disponibil',
+      reserved: 'rezervat',
+      sold: 'vândut'
+    };
+    toast.success(`Apartament marcat ca ${statusLabels[newStatus]}`);
     // Ensure fresh data
     queryClient.invalidateQueries({ queryKey });
   };
@@ -388,58 +394,77 @@ const ComplexDetail = () => {
                           <span className="text-xl font-bold">Ap. {aptNumber}</span>
                         </div>
                         <Badge 
-                          variant={isAvailable ? "default" : "destructive"}
-                          className={isAvailable ? "bg-green-600 text-white" : ""}
+                          variant={
+                            isAvailable 
+                              ? "default" 
+                              : apt.availability_status === 'reserved' 
+                                ? "secondary" 
+                                : "destructive"
+                          }
+                          className={
+                            isAvailable 
+                              ? "bg-green-600 text-white" 
+                              : apt.availability_status === 'reserved'
+                                ? "bg-orange-500 text-white"
+                                : ""
+                          }
                         >
                           {isAvailable ? (
                             <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
+                          ) : apt.availability_status === 'reserved' ? (
+                            <><Clock className="h-3 w-3 mr-1" /> Rezervat</>
                           ) : (
                             <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
                           )}
                         </Badge>
                       </div>
 
-                    {/* Status controls */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() => isAvailable && setAvailability(apt.id, 'sold')}
-                        disabled={!isAvailable}
-                        variant={isAvailable ? "secondary" : "secondary"}
-                        className={`flex-1 justify-center ${isAvailable ? "bg-red-600 hover:bg-red-700 text-white" : "bg-red-600/70 text-white cursor-not-allowed"}`}
-                        title={isAvailable ? "Marchează Vândut" : "Deja vândut"}
-                      >
-                        {isAvailable ? (
-                          <><XCircle className="h-4 w-4 mr-2" /> Marchează Vândut</>
-                        ) : (
-                          <><XCircle className="h-4 w-4 mr-2" /> Vândut</>
-                        )}
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="icon" className="shrink-0">
-                            <ChevronDown className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="end" sideOffset={6}>
-                          <DropdownMenuItem
-                            onSelect={() => setAvailability(apt.id, 'available')}
-                            disabled={isAvailable}
-                            className="cursor-pointer"
-                          >
-                            <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
-                            <span>Marchează Disponibil</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onSelect={() => setAvailability(apt.id, 'sold')}
-                            disabled={!isAvailable}
-                            className="cursor-pointer"
-                          >
-                            <XCircle className="mr-2 h-4 w-4 text-red-600" />
-                            <span>Marchează Vândut</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                    {/* Status Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between"
+                        >
+                          <span className="flex items-center gap-2">
+                            {isAvailable ? (
+                              <><CheckCircle2 className="h-4 w-4 text-green-600" /> Disponibil</>
+                            ) : apt.availability_status === 'reserved' ? (
+                              <><Clock className="h-4 w-4 text-orange-500" /> Rezervat</>
+                            ) : (
+                              <><XCircle className="h-4 w-4 text-red-600" /> Vândut</>
+                            )}
+                          </span>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
+                        <DropdownMenuItem
+                          onSelect={() => setAvailability(apt.id, 'available')}
+                          disabled={isAvailable}
+                          className="cursor-pointer"
+                        >
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
+                          <span>Disponibil</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => setAvailability(apt.id, 'reserved')}
+                          disabled={apt.availability_status === 'reserved'}
+                          className="cursor-pointer"
+                        >
+                          <Clock className="mr-2 h-4 w-4 text-orange-500" />
+                          <span>Rezervat</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => setAvailability(apt.id, 'sold')}
+                          disabled={apt.availability_status === 'sold'}
+                          className="cursor-pointer"
+                        >
+                          <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                          <span>Vândut</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
                     {/* Apartment Type */}
                     <div className="py-2 px-3 bg-primary/10 rounded-md text-center">
