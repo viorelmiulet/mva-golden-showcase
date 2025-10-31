@@ -20,7 +20,8 @@ import {
   FileText,
   ImagePlus,
   Clock,
-  Trash2
+  Trash2,
+  Calculator
 } from "lucide-react";
 
 import ImageUploadDialog from "@/components/ImageUploadDialog";
@@ -34,6 +35,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,8 +46,11 @@ const ComplexDetail = () => {
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
   const [floorPlanDialogOpen, setFloorPlanDialogOpen] = useState(false);
   const [selectedPropertyForFloorPlan, setSelectedPropertyForFloorPlan] = useState<{id: string, title: string, floorPlan?: string} | null>(null);
-  const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | null, amount: number }>>({});
+  const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | 'manual', amount: number }>>({});
   const [duplicates, setDuplicates] = useState<string[]>([]);
+  const [manualCommissionOpen, setManualCommissionOpen] = useState(false);
+  const [selectedPropertyForCommission, setSelectedPropertyForCommission] = useState<string | null>(null);
+  const [manualCommissionAmount, setManualCommissionAmount] = useState<string>('');
   const queryClient = useQueryClient();
 
   // Fetch project details
@@ -230,11 +237,16 @@ const ComplexDetail = () => {
     }
   };
 
-  const handleCommissionChange = (propertyId: string, type: 'cash' | 'credit' | null, priceCash: number, priceCredit: number) => {
+  const handleCommissionChange = (propertyId: string, type: 'cash' | 'credit' | 'manual' | null, priceCash: number, priceCredit: number, manualAmount?: number) => {
     if (type === null) {
       const newCommissions = { ...commissions };
       delete newCommissions[propertyId];
       setCommissions(newCommissions);
+    } else if (type === 'manual' && manualAmount !== undefined) {
+      setCommissions({
+        ...commissions,
+        [propertyId]: { type, amount: manualAmount }
+      });
     } else {
       const price = type === 'cash' ? priceCash : priceCredit;
       const amount = price * 0.02; // 2%
@@ -243,6 +255,19 @@ const ComplexDetail = () => {
         [propertyId]: { type, amount }
       });
     }
+  };
+
+  const handleManualCommissionSubmit = (propertyId: string, priceCash: number, priceCredit: number) => {
+    const amount = parseFloat(manualCommissionAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Introduceți o sumă validă");
+      return;
+    }
+    handleCommissionChange(propertyId, 'manual', priceCash, priceCredit, amount);
+    setManualCommissionOpen(false);
+    setManualCommissionAmount('');
+    setSelectedPropertyForCommission(null);
+    toast.success(`Comision manual de ${amount.toLocaleString()} € setat`);
   };
 
   const totalCommission = Object.values(commissions).reduce((sum, comm) => sum + comm.amount, 0);
@@ -662,7 +687,13 @@ const ComplexDetail = () => {
                             <span className="flex items-center gap-2">
                               <Euro className="h-4 w-4" />
                               {commissions[apt.id] 
-                                ? `${commissions[apt.id].amount.toLocaleString()} € (${commissions[apt.id].type === 'cash' ? 'Cash' : 'Credit'})`
+                                ? `${commissions[apt.id].amount.toLocaleString()} € (${
+                                    commissions[apt.id].type === 'cash' 
+                                      ? 'Cash' 
+                                      : commissions[apt.id].type === 'credit' 
+                                        ? 'Credit' 
+                                        : 'Manual'
+                                  })`
                                 : 'Selectează Comision'
                               }
                             </span>
@@ -691,6 +722,16 @@ const ComplexDetail = () => {
                                 {(priceCredit * 0.02).toLocaleString()} € (din {priceCredit.toLocaleString()} €)
                               </span>
                             </div>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedPropertyForCommission(apt.id);
+                              setManualCommissionOpen(true);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Calculator className="mr-2 h-4 w-4" />
+                            <span className="font-semibold">Comision Manual</span>
                           </DropdownMenuItem>
                           {commissions[apt.id] && (
                             <DropdownMenuItem
@@ -763,6 +804,58 @@ const ComplexDetail = () => {
           onSuccess={refetch}
         />
       )}
+
+      {/* Manual Commission Dialog */}
+      <Dialog open={manualCommissionOpen} onOpenChange={setManualCommissionOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Setează Comision Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="commission-amount">Suma comisionului (EUR)</Label>
+              <Input
+                id="commission-amount"
+                type="number"
+                placeholder="Ex: 1500"
+                value={manualCommissionAmount}
+                onChange={(e) => setManualCommissionAmount(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setManualCommissionOpen(false);
+                setManualCommissionAmount('');
+                setSelectedPropertyForCommission(null);
+              }}
+            >
+              Anulează
+            </Button>
+            <Button 
+              onClick={() => {
+                if (selectedPropertyForCommission) {
+                  const property = properties?.find(p => p.id === selectedPropertyForCommission);
+                  if (property) {
+                    handleManualCommissionSubmit(
+                      selectedPropertyForCommission,
+                      property.price_min,
+                      property.price_max
+                    );
+                  }
+                }
+              }}
+            >
+              <Calculator className="mr-2 h-4 w-4" />
+              Setează
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
