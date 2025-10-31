@@ -800,8 +800,14 @@ const ComplexDetail = () => {
                   <ImagePlus className="mr-2 h-4 w-4" />
                   Adaugă Imagini
                 </Button>
-                <Button 
-                  onClick={() => setBulkFloorPlanDialogOpen(true)} 
+                <Button
+                  onClick={() => {
+                    if (selectedProperties.length === 0) {
+                      toast.error('Selectează cel puțin o proprietate');
+                    } else {
+                      setBulkFloorPlanDialogOpen(true);
+                    }
+                  }} 
                   size="sm"
                   variant="secondary"
                 >
