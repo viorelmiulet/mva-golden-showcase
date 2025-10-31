@@ -387,6 +387,16 @@ const ComplexDetail = () => {
                           <Home className="h-5 w-5 text-primary" />
                           <span className="text-xl font-bold">Ap. {aptNumber}</span>
                         </div>
+                        <Badge 
+                          variant={isAvailable ? "default" : "destructive"}
+                          className={isAvailable ? "bg-green-600 text-white" : ""}
+                        >
+                          {isAvailable ? (
+                            <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
+                          ) : (
+                            <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
+                          )}
+                        </Badge>
                       </div>
 
                     {/* Status controls */}
