@@ -17,10 +17,14 @@ import {
   Edit,
   CheckCircle2,
   ChevronDown,
-  FileText
+  FileText,
+  ImagePlus
 } from "lucide-react";
 import RenewResidenceImporter from "@/components/RenewResidenceImporter";
+import ImageUploadDialog from "@/components/ImageUploadDialog";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +34,9 @@ import {
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const [imageUploadOpen, setImageUploadOpen] = useState(false);
+  const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
 
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -75,6 +82,42 @@ const ComplexDetail = () => {
     }
 
     toast.success(`Apartament marcat ca ${newStatus === 'available' ? 'disponibil' : 'vândut'}`);
+    refetch();
+  };
+
+  const handleSelectProperty = (propertyId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedProperties([...selectedProperties, propertyId]);
+    } else {
+      setSelectedProperties(selectedProperties.filter(id => id !== propertyId));
+    }
+  };
+
+  const handleSelectAll = (floorProperties: typeof properties, checked: boolean) => {
+    const floorPropertyIds = floorProperties?.map(p => p.id) || [];
+    if (checked) {
+      setSelectedProperties([...new Set([...selectedProperties, ...floorPropertyIds])]);
+    } else {
+      setSelectedProperties(selectedProperties.filter(id => !floorPropertyIds.includes(id)));
+    }
+  };
+
+  const handleBulkImageUpload = () => {
+    if (selectedProperties.length === 0) {
+      toast.error("Selectează cel puțin o proprietate");
+      return;
+    }
+    setUploadPropertyIds(selectedProperties);
+    setImageUploadOpen(true);
+  };
+
+  const handleSingleImageUpload = (propertyId: string) => {
+    setUploadPropertyIds([propertyId]);
+    setImageUploadOpen(true);
+  };
+
+  const handleUploadSuccess = () => {
+    setSelectedProperties([]);
     refetch();
   };
 
@@ -227,45 +270,65 @@ const ComplexDetail = () => {
       )}
 
       {/* Apartments by Floor */}
-      {sortedFloors.map((floor) => (
-        <div key={floor}>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-3">
-              {floor === 'P' ? 'PARTER' : floor === 'Altele' ? 'ALTELE' : floor}
-              <Badge variant="secondary" className="text-sm">
-                {groupedByFloor?.[floor]?.length} {groupedByFloor?.[floor]?.length === 1 ? 'apartament' : 'apartamente'}
-              </Badge>
-            </h2>
-            <div className="text-sm text-muted-foreground">
-              Model: 1.612 EUR/mp
+      {sortedFloors.map((floor) => {
+        const floorProperties = groupedByFloor?.[floor] || [];
+        const allFloorSelected = floorProperties.length > 0 && 
+          floorProperties.every(p => selectedProperties.includes(p.id));
+        
+        return (
+          <div key={floor}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <Checkbox
+                  checked={allFloorSelected}
+                  onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
+                />
+                <h2 className="text-2xl font-bold flex items-center gap-3">
+                  {floor === 'P' ? 'PARTER' : floor === 'Altele' ? 'ALTELE' : floor}
+                  <Badge variant="secondary" className="text-sm">
+                    {floorProperties.length} {floorProperties.length === 1 ? 'apartament' : 'apartamente'}
+                  </Badge>
+                </h2>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Model: 1.612 EUR/mp
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {groupedByFloor?.[floor]?.map((apt) => {
-              const isAvailable = apt.availability_status === 'available';
-              const aptNumber = apt.title.match(/\d+/)?.[0] || '';
-              const surface = apt.surface_min;
-              const priceCredit = apt.price_max;
-              const priceCash = apt.price_min;
-              const rooms = apt.rooms;
-              const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {floorProperties.map((apt) => {
+                const isAvailable = apt.availability_status === 'available';
+                const aptNumber = apt.title.match(/\d+/)?.[0] || '';
+                const surface = apt.surface_min;
+                const priceCredit = apt.price_max;
+                const priceCash = apt.price_min;
+                const rooms = apt.rooms;
+                const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+                const isSelected = selectedProperties.includes(apt.id);
 
-              return (
-                <Card 
-                  key={apt.id}
-                  className={`relative overflow-hidden transition-all duration-300 border-2 ${
-                    isAvailable 
-                      ? 'border-green-500/50 hover:shadow-xl' 
-                      : 'border-red-500/50 opacity-80'
-                  }`}
-                >
-                  <CardContent className="p-4 space-y-3">
-                    {/* Header with apt number */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <Home className="h-5 w-5 text-primary" />
-                      <span className="text-xl font-bold">Ap. {aptNumber}</span>
-                    </div>
+                return (
+                  <Card 
+                    key={apt.id}
+                    className={`relative overflow-hidden transition-all duration-300 border-2 ${
+                      isSelected 
+                        ? 'border-primary shadow-lg' 
+                        : isAvailable 
+                          ? 'border-green-500/50 hover:shadow-xl' 
+                          : 'border-red-500/50 opacity-80'
+                    }`}
+                  >
+                    <CardContent className="p-4 space-y-3">
+                      {/* Checkbox and Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
+                          />
+                          <Home className="h-5 w-5 text-primary" />
+                          <span className="text-xl font-bold">Ap. {aptNumber}</span>
+                        </div>
+                      </div>
 
                     {/* Status Dropdown */}
                     <DropdownMenu>
@@ -339,22 +402,34 @@ const ComplexDetail = () => {
                       </div>
                     </div>
 
-                    {/* View Sketch Button */}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full mt-2 border-primary/30 hover:bg-primary/10"
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Vezi schița
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      {/* View Sketch and Add Image Buttons */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-primary/30 hover:bg-primary/10"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Vezi schița
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-primary/30 hover:bg-primary/10"
+                          onClick={() => handleSingleImageUpload(apt.id)}
+                        >
+                          <ImagePlus className="h-4 w-4 mr-1" />
+                          Imagine
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {properties?.length === 0 && (
         <div className="text-center py-16">
@@ -363,6 +438,39 @@ const ComplexDetail = () => {
           <p className="text-muted-foreground">Importă apartamente pentru a începe</p>
         </div>
       )}
+
+      {/* Bulk Actions Bar */}
+      {selectedProperties.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <Card className="shadow-2xl border-primary">
+            <CardContent className="p-4 flex items-center gap-4">
+              <span className="font-semibold">
+                {selectedProperties.length} {selectedProperties.length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}
+              </span>
+              <div className="flex gap-2">
+                <Button onClick={handleBulkImageUpload} size="sm">
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Adaugă Imagini
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedProperties([])}
+                >
+                  Anulează
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <ImageUploadDialog
+        open={imageUploadOpen}
+        onOpenChange={setImageUploadOpen}
+        propertyIds={uploadPropertyIds}
+        onSuccess={handleUploadSuccess}
+      />
     </div>
   );
 };
