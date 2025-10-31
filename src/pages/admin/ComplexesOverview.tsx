@@ -63,6 +63,8 @@ const ComplexesOverview = () => {
         };
       });
 
+      // Sort ascending by name with Romanian locale and numeric handling
+      stats.sort((a, b) => a.name.localeCompare(b.name, 'ro', { numeric: true, sensitivity: 'base' }));
       return stats;
     }
   });
