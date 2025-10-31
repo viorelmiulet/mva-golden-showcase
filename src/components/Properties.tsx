@@ -197,16 +197,6 @@ const Properties = () => {
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/proiecte">
-                <Button 
-                  variant="luxuryOutline" 
-                  size="lg" 
-                  className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto"
-                >
-                  Ansambluri rezidențiale
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
             </div>
           </header>
 
@@ -232,18 +222,12 @@ const Properties = () => {
                 Vrei să Explorezi Mai Mult?
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
-                Vezi toate proprietățile disponibile sau descoperă ansamblurile noastre rezidențiale premium.
+                Vezi toate proprietățile disponibile și descoperă oferta noastră premium.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/proprietati">
                   <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto">
                     Toate proprietățile
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-                <Link to="/proiecte">
-                  <Button variant="luxuryOutline" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto">
-                    Ansambluri rezidențiale
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>

@@ -12,7 +12,6 @@ import CookieConsent from "@/components/CookieConsent";
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
 const Properties = lazy(() => import("./pages/Properties"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
-const Projects = lazy(() => import("./pages/Projects"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
@@ -45,7 +44,6 @@ const App = () => (
               <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
               <Route path="/proprietati" element={<Properties />} />
               <Route path="/proprietati/:id" element={<PropertyDetail />} />
-              <Route path="/proiecte" element={<Projects />} />
               <Route path="/proiecte/:id" element={<ProjectDetail />} />
               <Route path="/adauga" element={<AddProperty />} />
               <Route path="/admin" element={<AdminLayout />}>
