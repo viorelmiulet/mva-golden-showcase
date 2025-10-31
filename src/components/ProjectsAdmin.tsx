@@ -25,6 +25,8 @@ import {
   Trash2
 } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { ExcelApartmentImporter } from "./ExcelApartmentImporter"
+import { ApartmentStatusManager } from "./ApartmentStatusManager"
 
 interface PropertyGroup {
   rooms: number
@@ -1053,6 +1055,23 @@ const ProjectsAdmin = () => {
                 </div>
               )}
             </div>
+
+            {/* Excel Import & Status Management */}
+            {editingProject && (
+              <div className="space-y-4 border-t pt-4">
+                <Label className="text-base font-semibold">Import & Management Apartamente</Label>
+                
+                <ExcelApartmentImporter 
+                  projectId={editingProject.id} 
+                  onImportComplete={() => {
+                    queryClient.invalidateQueries({ queryKey: ['catalog_offers_by_project'] });
+                    queryClient.invalidateQueries({ queryKey: ['project-apartments', editingProject.id] });
+                  }}
+                />
+                
+                <ApartmentStatusManager projectId={editingProject.id} />
+              </div>
+            )}
 
             <div className="flex gap-2 justify-end pt-4">
               <Button variant="outline" onClick={closeEditModal}>

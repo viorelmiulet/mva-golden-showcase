@@ -44,6 +44,8 @@ import ProjectsAdmin from "@/components/ProjectsAdmin"
 import { FacebookContentGenerator } from "@/components/FacebookContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
 import RenewApartmentsImporter from "@/components/RenewApartmentsImporter";
+import { ExcelApartmentImporter } from "@/components/ExcelApartmentImporter";
+import { ApartmentStatusManager } from "@/components/ApartmentStatusManager";
 
 
 const Admin = () => {
