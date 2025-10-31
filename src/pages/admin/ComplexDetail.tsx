@@ -504,7 +504,7 @@ const ComplexDetail = () => {
               <div className="my-8 border-t-2 border-border" />
             )}
             
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
               <Checkbox
                 checked={allFloorSelected}
                 onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
