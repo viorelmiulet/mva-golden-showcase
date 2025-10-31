@@ -279,9 +279,9 @@ const ProjectDetail = () => {
             </div>
           </section>
 
-          {/* Apartments List */}
+          {/* Apartments by Floor */}
           <section className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -300,78 +300,110 @@ const ProjectDetail = () => {
               </div>
 
               {apartments && apartments.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {apartments.map((apartment: any) => (
-                    <Card
-                      key={apartment.id}
-                      className="group glass glass-hover border-gold/20 overflow-hidden"
-                    >
-                      {/* Apartment Image */}
-                      {apartment.images?.[0] && (
-                        <div className="relative aspect-video overflow-hidden">
-                          <img
-                            src={apartment.images[0]}
-                            alt={apartment.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                            loading="lazy"
-                          />
-                        </div>
-                      )}
-
-                      <CardContent className="p-6 space-y-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
-                            {apartment.title}
+                <div className="space-y-8">
+                  {["Parter", "Etaj 1", "Etaj 2", "Etaj 3", "Etaj 4", "Etaj 5"].map((floor) => {
+                    const floorApartments = apartments.filter((apt: any) => 
+                      apt.features?.some((f: string) => f.toLowerCase() === floor.toLowerCase())
+                    );
+                    
+                    if (floorApartments.length === 0) return null;
+                    
+                    return (
+                      <div key={floor}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="bg-gradient-to-r from-gold/20 to-transparent h-px flex-1" />
+                          <h3 className="text-xl font-bold uppercase tracking-wider text-gold">
+                            {floor}
                           </h3>
-                          {apartment.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {apartment.description}
-                            </p>
-                          )}
+                          <div className="bg-gradient-to-l from-gold/20 to-transparent h-px flex-1" />
                         </div>
+                        
+                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                          {floorApartments.map((apartment: any) => (
+                            <Card
+                              key={apartment.id}
+                              className="relative overflow-hidden border-2 border-gold/30 bg-gradient-to-br from-background via-background to-gold/5"
+                            >
+                              <CardContent className="p-4 space-y-3">
+                                {/* Header */}
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Home className="w-5 h-5 text-gold" />
+                                    <span className="font-bold text-lg">
+                                      {apartment.title.split(' - ')[0]}
+                                    </span>
+                                  </div>
+                                  <Badge 
+                                    variant={apartment.availability_status === 'available' ? 'default' : 'secondary'}
+                                    className="text-xs"
+                                  >
+                                    {apartment.availability_status === 'available' ? 'Disponibil' : 'Vândut'}
+                                  </Badge>
+                                </div>
 
-                        {/* Stats */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="text-center p-2 rounded-lg bg-gold/5">
-                            <Euro className="w-4 h-4 text-gold mx-auto mb-1" />
-                            <div className="text-xs text-muted-foreground">
-                              Preț
-                            </div>
-                            <div className="text-xs font-semibold">
-                              {apartment.price_min
-                                ? `€${apartment.price_min.toLocaleString()}`
-                                : "La cerere"}
-                            </div>
-                          </div>
-                          <div className="text-center p-2 rounded-lg bg-gold/5">
-                            <Ruler className="w-4 h-4 text-gold mx-auto mb-1" />
-                            <div className="text-xs text-muted-foreground">
-                              Suprafață
-                            </div>
-                            <div className="text-xs font-semibold">
-                              {apartment.surface_min} mp
-                            </div>
-                          </div>
-                          <div className="text-center p-2 rounded-lg bg-gold/5">
-                            <Home className="w-4 h-4 text-gold mx-auto mb-1" />
-                            <div className="text-xs text-muted-foreground">
-                              Camere
-                            </div>
-                            <div className="text-xs font-semibold">
-                              {apartment.rooms}
-                            </div>
-                          </div>
+                                {/* Type */}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <div className="w-2 h-2 rounded-full bg-gold" />
+                                  {apartment.rooms === 1 ? 'Garsonieră' : `${apartment.rooms} camere`}
+                                </div>
+
+                                {/* Divider */}
+                                <div className="h-px bg-gold/20" />
+
+                                {/* Details */}
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Suprafață:</span>
+                                    <span className="font-semibold">{apartment.surface_min}.00 m²</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Credit:</span>
+                                    <span className="font-bold text-gold">
+                                      {apartment.price_max?.toLocaleString()} EUR
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Cash:</span>
+                                    <span className="font-bold text-blue-400">
+                                      {apartment.price_min?.toLocaleString()} EUR
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="h-px bg-gold/20" />
+
+                                {/* Actions */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <a 
+                                    href={`tel:0767941512`}
+                                    onClick={handlePhoneClick}
+                                  >
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="w-full text-xs h-8 border-gold/30"
+                                    >
+                                      Contact
+                                    </Button>
+                                  </a>
+                                  <Link to={`/proprietati/${apartment.id}`}>
+                                    <Button 
+                                      variant="default" 
+                                      size="sm" 
+                                      className="w-full text-xs h-8 bg-gold hover:bg-gold/90"
+                                    >
+                                      Detalii
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
                         </div>
-
-                        {/* CTA */}
-                        <Link to={`/proprietati/${apartment.id}`}>
-                          <Button variant="luxuryOutline" className="w-full" size="sm">
-                            Vezi detalii
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <Card className="glass border-gold/20">
