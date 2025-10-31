@@ -15,10 +15,17 @@ import {
   Euro,
   Layers,
   Edit,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown
 } from "lucide-react";
 import RenewResidenceImporter from "@/components/RenewResidenceImporter";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -259,40 +266,51 @@ const ComplexDetail = () => {
                         <Home className="h-5 w-5 text-primary" />
                         <span className="text-xl font-bold">Ap. {aptNumber}</span>
                       </div>
-                      <div className="flex gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                          onClick={() => toggleAvailability(apt.id, apt.availability_status)}
-                        >
-                          {isAvailable ? (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          ) : (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                          )}
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     </div>
 
-                    {/* Status Badge */}
-                    <Badge 
-                      variant={isAvailable ? "default" : "secondary"}
-                      className={`w-full justify-center ${isAvailable ? "bg-green-600" : "bg-red-600"}`}
-                    >
-                      {isAvailable ? (
-                        <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
-                      ) : (
-                        <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
-                      )}
-                    </Badge>
+                    {/* Status Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant={isAvailable ? "default" : "secondary"}
+                          className={`w-full justify-between ${isAvailable ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
+                        >
+                          <span className="flex items-center gap-2">
+                            {isAvailable ? (
+                              <><CheckCircle2 className="h-4 w-4" /> Disponibil</>
+                            ) : (
+                              <><XCircle className="h-4 w-4" /> Vândut</>
+                            )}
+                          </span>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
+                        <DropdownMenuItem
+                          onClick={() => toggleAvailability(apt.id, apt.availability_status)}
+                          disabled={isAvailable}
+                          className="cursor-pointer"
+                        >
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
+                          <span>Disponibil</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => toggleAvailability(apt.id, apt.availability_status)}
+                          disabled={!isAvailable}
+                          className="cursor-pointer"
+                        >
+                          <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                          <span>Vândut</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
                     {/* Apartment Type */}
                     <div className="py-2 px-3 bg-primary/10 rounded-md text-center">
