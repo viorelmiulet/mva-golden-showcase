@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import RenewResidenceImporter from "@/components/RenewResidenceImporter";
 
 interface ProjectStats {
   id: string;
@@ -150,6 +151,11 @@ const ComplexesOverview = () => {
             <div className="text-3xl font-bold text-red-500">{totals.sold}</div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Import Section */}
+      <div className="max-w-2xl mx-auto">
+        <RenewResidenceImporter />
       </div>
 
       {/* Projects Section */}
