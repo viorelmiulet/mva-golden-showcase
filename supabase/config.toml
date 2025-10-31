@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.generate-furnished-images]
 verify_jwt = true
+
+[functions.import-renew-apartments]
+verify_jwt = true

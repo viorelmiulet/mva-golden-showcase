@@ -43,6 +43,7 @@ import BusinessCardGenerator from "@/components/BusinessCardGenerator"
 import ProjectsAdmin from "@/components/ProjectsAdmin"
 import { FacebookContentGenerator } from "@/components/FacebookContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
+import RenewApartmentsImporter from "@/components/RenewApartmentsImporter";
 
 
 const Admin = () => {
@@ -707,6 +708,11 @@ const Admin = () => {
           {/* Projects Admin Section */}
           <div className="mt-6">
             <ProjectsAdmin />
+          </div>
+
+          {/* Renew Apartments Importer */}
+          <div className="mt-6">
+            <RenewApartmentsImporter />
           </div>
 
           {/* Furnished Image Generator */}
