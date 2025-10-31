@@ -265,22 +265,24 @@ const ComplexDetail = () => {
                           </div>
                         </div>
 
-                        {/* Action Button */}
-                        {isAvailable && (
+                        {/* Floor Plan Button */}
+                        {apt.floor_plan ? (
                           <Button 
                             size="sm" 
-                            className="w-full mt-2"
-                            disabled={!apt.floor_plan}
+                            className="w-full mt-2 bg-primary hover:bg-primary/90"
                             onClick={() => {
-                              if (apt.floor_plan) {
-                                setSelectedFloorPlan(apt.floor_plan);
-                                setFloorPlanOpen(true);
-                              }
+                              setSelectedFloorPlan(apt.floor_plan);
+                              setFloorPlanOpen(true);
                             }}
                           >
                             <FileText className="mr-2 h-4 w-4" />
-                            {apt.floor_plan ? 'Vezi Schiță' : 'Schiță Indisponibilă'}
+                            Vezi Schiță Apartament
                           </Button>
+                        ) : (
+                          <div className="text-center text-sm text-muted-foreground py-2">
+                            <FileText className="h-4 w-4 mx-auto mb-1 opacity-50" />
+                            Schiță nedisponibilă
+                          </div>
                         )}
                       </CardContent>
                     </Card>
