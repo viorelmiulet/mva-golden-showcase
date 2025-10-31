@@ -406,7 +406,7 @@ const ComplexDetail = () => {
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
+                      <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
                         <DropdownMenuItem
                           onClick={() => setAvailability(apt.id, 'available')}
                           disabled={isAvailable}
