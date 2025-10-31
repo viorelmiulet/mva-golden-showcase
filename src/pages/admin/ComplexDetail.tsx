@@ -329,36 +329,41 @@ const ComplexDetail = () => {
   });
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-3 md:p-6 space-y-4 md:space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to="/admin/complexe">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold">{project.name}</h1>
-          <p className="text-muted-foreground flex items-center gap-2 mt-1">
-            <MapPin className="h-4 w-4" />
-            {project.location}
-          </p>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        <div className="flex items-center gap-4 flex-1">
+          <Link to="/admin/complexe">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl md:text-3xl font-bold truncate">{project.name}</h1>
+            <p className="text-muted-foreground flex items-center gap-2 mt-1 text-sm md:text-base">
+              <MapPin className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{project.location}</span>
+            </p>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={findDuplicates} variant="outline">
-            <FileText className="mr-2 h-4 w-4" />
-            Găsește Dubluri
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={findDuplicates} variant="outline" size="sm" className="flex-1 md:flex-none">
+            <FileText className="mr-1 md:mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Găsește Dubluri</span>
+            <span className="sm:hidden">Dubluri</span>
           </Button>
           {duplicates.length > 0 && (
-            <Button onClick={deleteDuplicates} variant="destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Șterge {duplicates.length} {duplicates.length === 1 ? 'Dublură' : 'Dubluri'}
+            <Button onClick={deleteDuplicates} variant="destructive" size="sm" className="flex-1 md:flex-none">
+              <Trash2 className="mr-1 md:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Șterge {duplicates.length}</span>
+              <span className="sm:hidden">{duplicates.length}</span>
             </Button>
           )}
-          <Link to="/admin/projects">
-            <Button>
-              <Building2 className="mr-2 h-4 w-4" />
-              Editează Proiect
+          <Link to="/admin/projects" className="flex-1 md:flex-none">
+            <Button size="sm" className="w-full">
+              <Building2 className="mr-1 md:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Editează Proiect</span>
+              <span className="sm:hidden">Editează</span>
             </Button>
           </Link>
         </div>
@@ -376,78 +381,78 @@ const ComplexDetail = () => {
       )}
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Proprietăți
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Total
             </CardTitle>
-            <Home className="h-5 w-5 text-blue-500" />
+            <Home className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-500">{total}</div>
+            <div className="text-2xl md:text-3xl font-bold text-blue-500">{total}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Disponibile
             </CardTitle>
-            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-500">{available}</div>
+            <div className="text-2xl md:text-3xl font-bold text-green-500">{available}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Rezervate
             </CardTitle>
-            <Clock className="h-5 w-5 text-orange-500" />
+            <Clock className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-500">{reserved}</div>
+            <div className="text-2xl md:text-3xl font-bold text-orange-500">{reserved}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Vândute
             </CardTitle>
-            <XCircle className="h-5 w-5 text-red-500" />
+            <XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-500">{sold}</div>
+            <div className="text-2xl md:text-3xl font-bold text-red-500">{sold}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Procent Vândut
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Vândut %
             </CardTitle>
-            <Layers className="h-5 w-5 text-primary" />
+            <Layers className="h-4 w-4 md:h-5 md:w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">{soldPercentage}%</div>
+            <div className="text-2xl md:text-3xl font-bold text-primary">{soldPercentage}%</div>
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-primary/50 bg-primary/5">
+        <Card className="border-2 border-primary/50 bg-primary/5 col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Total Comisioane
             </CardTitle>
-            <Euro className="h-5 w-5 text-primary" />
+            <Euro className="h-4 w-4 md:h-5 md:w-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary">{totalCommission.toLocaleString()} €</div>
+            <div className="text-2xl md:text-3xl font-bold text-primary">{totalCommission.toLocaleString()} €</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {Object.keys(commissions).length} {Object.keys(commissions).length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}
+              {Object.keys(commissions).length} {Object.keys(commissions).length === 1 ? 'proprietate' : 'proprietăți'}
             </p>
           </CardContent>
         </Card>
@@ -471,23 +476,25 @@ const ComplexDetail = () => {
       {/* Bulk Actions */}
       {selectedProperties.length > 0 && (
         <Card className="border-primary/50 bg-primary/5">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
-                <div>
-                  <h3 className="font-semibold">{selectedProperties.length} {selectedProperties.length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}</h3>
-                  <p className="text-sm text-muted-foreground">Acțiuni disponibile pentru selecție</p>
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-center gap-3 md:gap-4">
+                <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm md:text-base">{selectedProperties.length} {selectedProperties.length === 1 ? 'selectată' : 'selectate'}</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Acțiuni disponibile</p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleBulkImageUpload} variant="outline">
-                  <ImagePlus className="mr-2 h-4 w-4" />
-                  Încarcă Imagini
+                <Button onClick={handleBulkImageUpload} variant="outline" size="sm" className="flex-1 md:flex-none">
+                  <ImagePlus className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Încarcă Imagini</span>
+                  <span className="sm:hidden">Imagini</span>
                 </Button>
-                <Button onClick={handleBulkDelete} variant="destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Șterge Selectate
+                <Button onClick={handleBulkDelete} variant="destructive" size="sm" className="flex-1 md:flex-none">
+                  <Trash2 className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Șterge</span>
+                  <span className="sm:hidden">Șterge</span>
                 </Button>
               </div>
             </div>
@@ -519,20 +526,20 @@ const ComplexDetail = () => {
               <div className="my-8 border-t-2 border-border" />
             )}
             
-            <div className="flex items-center gap-4 mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
+            <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
               <Checkbox
                 checked={allFloorSelected}
                 onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
               />
-              <h2 className="text-2xl font-bold flex items-center gap-3">
+              <h2 className="text-lg md:text-2xl font-bold flex flex-wrap items-center gap-2 md:gap-3">
                 {getFloorName(floor)}
-                <Badge variant="secondary" className="text-sm">
-                  {floorProperties.length} {floorProperties.length === 1 ? 'apartament' : 'apartamente'}
+                <Badge variant="secondary" className="text-xs md:text-sm">
+                  {floorProperties.length} {floorProperties.length === 1 ? 'apt' : 'apt'}
                 </Badge>
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               {floorProperties.map((apt) => {
                 const isAvailable = apt.availability_status === 'available';
                 const aptNumber = apt.title.match(/\d+/)?.[0] || '';
@@ -559,9 +566,9 @@ const ComplexDetail = () => {
                       <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
                     )}
                     
-                    <CardContent className="p-4 space-y-3 relative">
+                    <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3 relative">
                       {/* Badge - outside the overlay */}
-                      <div className="absolute top-2 right-2 z-20">
+                      <div className="absolute top-1 right-1 md:top-2 md:right-2 z-20">
                         <Badge 
                           variant={
                             isAvailable 
@@ -570,20 +577,20 @@ const ComplexDetail = () => {
                                 ? "secondary" 
                                 : "destructive"
                           }
-                          className={
+                          className={`text-xs md:text-sm ${
                             isAvailable 
                               ? "bg-green-600 text-white" 
                               : apt.availability_status === 'reserved'
                                 ? "bg-yellow-500 text-black hover:bg-yellow-600"
                                 : "bg-red-600 text-white"
-                          }
+                          }`}
                         >
                           {isAvailable ? (
-                            <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
+                            <><CheckCircle2 className="h-3 w-3 mr-1" /><span className="hidden md:inline">Disponibil</span><span className="md:hidden">Disp</span></>
                           ) : apt.availability_status === 'reserved' ? (
-                            <><Clock className="h-3 w-3 mr-1" /> Rezervat</>
+                            <><Clock className="h-3 w-3 mr-1" /><span className="hidden md:inline">Rezervat</span><span className="md:hidden">Rez</span></>
                           ) : (
-                            <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
+                            <><XCircle className="h-3 w-3 mr-1" /><span className="hidden md:inline">Vândut</span><span className="md:hidden">Vând</span></>
                           )}
                         </Badge>
                       </div>
@@ -594,9 +601,10 @@ const ComplexDetail = () => {
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
+                            className="touch-target"
                           />
-                          <Home className="h-5 w-5 text-primary" />
-                          <span className="text-xl font-bold">Ap. {aptNumber}</span>
+                          <Home className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                          <span className="text-lg md:text-xl font-bold">Ap. {aptNumber}</span>
                         </div>
                       </div>
 
@@ -605,18 +613,18 @@ const ComplexDetail = () => {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between"
+                          className="w-full justify-between text-sm md:text-base h-9 md:h-10"
                         >
-                          <span className="flex items-center gap-2">
+                          <span className="flex items-center gap-1 md:gap-2">
                             {isAvailable ? (
-                              <><CheckCircle2 className="h-4 w-4 text-green-600" /> Disponibil</>
+                              <><CheckCircle2 className="h-3 w-3 md:h-4 md:w-4 text-green-600" /> Disponibil</>
                             ) : apt.availability_status === 'reserved' ? (
-                              <><Clock className="h-4 w-4 text-yellow-600" /> Rezervat</>
+                              <><Clock className="h-3 w-3 md:h-4 md:w-4 text-yellow-600" /> Rezervat</>
                             ) : (
-                              <><XCircle className="h-4 w-4 text-red-600" /> Vândut</>
+                              <><XCircle className="h-3 w-3 md:h-4 md:w-4 text-red-600" /> Vândut</>
                             )}
                           </span>
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
@@ -648,34 +656,34 @@ const ComplexDetail = () => {
                     </DropdownMenu>
 
                     {/* Apartment Type */}
-                    <div className="py-2 px-3 bg-primary/10 rounded-md text-center">
-                      <span className="font-semibold text-sm">{tipApt}</span>
+                    <div className="py-1.5 md:py-2 px-2 md:px-3 bg-primary/10 rounded-md text-center">
+                      <span className="font-semibold text-xs md:text-sm">{tipApt}</span>
                     </div>
 
                     {/* Details */}
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Suprafață:</span>
                         <span className="font-semibold">{surface} mp</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Camere:</span>
-                        <span className="font-semibold">{rooms} {rooms === 1 ? 'cameră' : 'camere'}</span>
+                        <span className="font-semibold">{rooms} {rooms === 1 ? 'cam' : 'cam'}</span>
                       </div>
                     </div>
 
                     {/* Prices */}
-                    <div className="space-y-2 pt-2 border-t">
+                    <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Preț Cash:</span>
-                        <div className="flex items-center gap-1 font-bold text-green-600">
+                        <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
+                        <div className="flex items-center gap-0.5 md:gap-1 font-bold text-green-600 text-xs md:text-sm">
                           <Euro className="h-3 w-3" />
                           {priceCash?.toLocaleString()}
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Preț Credit:</span>
-                        <div className="flex items-center gap-1 font-bold text-blue-600">
+                        <span className="text-[10px] md:text-xs text-muted-foreground">Credit:</span>
+                        <div className="flex items-center gap-0.5 md:gap-1 font-bold text-blue-600 text-xs md:text-sm">
                           <Euro className="h-3 w-3" />
                           {priceCredit?.toLocaleString()}
                         </div>
@@ -686,7 +694,7 @@ const ComplexDetail = () => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full border-primary/30 hover:bg-primary/10"
+                        className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
                         onClick={() => {
                           setSelectedPropertyForFloorPlan({
                             id: apt.id,
@@ -696,8 +704,8 @@ const ComplexDetail = () => {
                           setFloorPlanDialogOpen(true);
                         }}
                       >
-                        <FileText className="h-4 w-4 mr-1" />
-                        {apt.floor_plan ? 'Editează schiță' : 'Adaugă schiță'}
+                        <FileText className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                        {apt.floor_plan ? 'Schiță' : '+ Schiță'}
                       </Button>
 
                       {/* Commission Dropdown */}
@@ -705,25 +713,21 @@ const ComplexDetail = () => {
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
-                            className={`w-full justify-between ${
+                            className={`w-full justify-between h-8 md:h-9 text-xs md:text-sm ${
                               commissions[apt.id] ? 'border-primary bg-primary/10' : ''
                             }`}
                             size="sm"
                           >
-                            <span className="flex items-center gap-2">
-                              <Euro className="h-4 w-4" />
-                              {commissions[apt.id] 
-                                ? `${commissions[apt.id].amount.toLocaleString()} € (${
-                                    commissions[apt.id].type === 'cash' 
-                                      ? 'Cash' 
-                                      : commissions[apt.id].type === 'credit' 
-                                        ? 'Credit' 
-                                        : 'Manual'
-                                  })`
-                                : 'Selectează Comision'
-                              }
+                            <span className="flex items-center gap-1 md:gap-2 truncate">
+                              <Euro className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
+                              <span className="truncate">
+                                {commissions[apt.id] 
+                                  ? `${commissions[apt.id].amount.toLocaleString()} €`
+                                  : 'Comision'
+                                }
+                              </span>
                             </span>
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
@@ -789,13 +793,13 @@ const ComplexDetail = () => {
 
       {/* Bulk Actions Bar */}
       {selectedProperties.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="fixed bottom-3 md:bottom-6 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 z-50 max-w-2xl">
           <Card className="shadow-2xl border-primary">
-            <CardContent className="p-4 flex items-center gap-4">
-              <span className="font-semibold">
-                {selectedProperties.length} {selectedProperties.length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}
+            <CardContent className="p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
+              <span className="font-semibold text-sm md:text-base text-center sm:text-left">
+                {selectedProperties.length} {selectedProperties.length === 1 ? 'selectată' : 'selectate'}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-1">
                 <Button
                   onClick={() => {
                     if (selectedProperties.length === 0) {
@@ -806,14 +810,17 @@ const ComplexDetail = () => {
                   }} 
                   size="sm"
                   variant="secondary"
+                  className="flex-1 sm:flex-none h-9 md:h-10"
                 >
-                  <FileText className="mr-2 h-4 w-4" />
-                  Adaugă Schiță
+                  <FileText className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Adaugă Schiță</span>
+                  <span className="sm:hidden">Schiță</span>
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSelectedProperties([])}
+                  className="flex-1 sm:flex-none h-9 md:h-10"
                 >
                   Anulează
                 </Button>
