@@ -505,7 +505,7 @@ const ComplexDetail = () => {
                   >
                     {/* Dark overlay for sold/reserved */}
                     {!isAvailable && (
-                      <div className="absolute inset-0 bg-black/70 z-10 pointer-events-none" />
+                      <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
                     )}
                     
                     <CardContent className="p-4 space-y-3 relative">
