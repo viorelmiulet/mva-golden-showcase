@@ -389,42 +389,47 @@ const ComplexDetail = () => {
                         </div>
                       </div>
 
-                    {/* Status Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant={isAvailable ? "default" : "secondary"}
-                          className={`w-full justify-between ${isAvailable ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
-                        >
-                          <span className="flex items-center gap-2">
-                            {isAvailable ? (
-                              <><CheckCircle2 className="h-4 w-4" /> Disponibil</>
-                            ) : (
-                              <><XCircle className="h-4 w-4" /> Vândut</>
-                            )}
-                          </span>
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
-                        <DropdownMenuItem
-                          onSelect={() => setAvailability(apt.id, 'available')}
-                          disabled={isAvailable}
-                          className="cursor-pointer"
-                        >
-                          <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
-                          <span>Disponibil</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => setAvailability(apt.id, 'sold')}
-                          disabled={!isAvailable}
-                          className="cursor-pointer"
-                        >
-                          <XCircle className="mr-2 h-4 w-4 text-red-600" />
-                          <span>Vândut</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Status controls */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => isAvailable && setAvailability(apt.id, 'sold')}
+                        disabled={!isAvailable}
+                        variant={isAvailable ? "secondary" : "secondary"}
+                        className={`flex-1 justify-center ${isAvailable ? "bg-red-600 hover:bg-red-700 text-white" : "bg-red-600/70 text-white cursor-not-allowed"}`}
+                        title={isAvailable ? "Marchează Vândut" : "Deja vândut"}
+                      >
+                        {isAvailable ? (
+                          <><XCircle className="h-4 w-4 mr-2" /> Marchează Vândut</>
+                        ) : (
+                          <><XCircle className="h-4 w-4 mr-2" /> Vândut</>
+                        )}
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="icon" className="shrink-0">
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="end" sideOffset={6}>
+                          <DropdownMenuItem
+                            onSelect={() => setAvailability(apt.id, 'available')}
+                            disabled={isAvailable}
+                            className="cursor-pointer"
+                          >
+                            <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
+                            <span>Marchează Disponibil</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => setAvailability(apt.id, 'sold')}
+                            disabled={!isAvailable}
+                            className="cursor-pointer"
+                          >
+                            <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                            <span>Marchează Vândut</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
 
                     {/* Apartment Type */}
                     <div className="py-2 px-3 bg-primary/10 rounded-md text-center">
