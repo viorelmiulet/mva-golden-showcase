@@ -308,16 +308,7 @@ const ComplexDetail = () => {
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Schiță Apartament</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setFloorPlanOpen(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTitle>
+            <DialogTitle>Schiță Apartament</DialogTitle>
           </DialogHeader>
           {selectedFloorPlan && (
             <div className="w-full">
