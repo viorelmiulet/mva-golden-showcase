@@ -26,7 +26,7 @@ const ProjectDetail = () => {
   const { trackContact } = useGoogleAnalytics();
 
   // Fetch project details
-  const { data: project, isLoading: projectLoading } = useQuery({
+  const { data: project, isLoading: projectLoading, error: projectError } = useQuery({
     queryKey: ["project", id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -35,10 +35,14 @@ const ProjectDetail = () => {
         .eq("id", id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching project:", error);
+        throw error;
+      }
       return data;
     },
     enabled: !!id,
+    retry: false, // Don't retry on storage quota errors
   });
 
   // Fetch apartments from this project
@@ -51,10 +55,15 @@ const ProjectDetail = () => {
         .eq("project_id", id)
         .order("price_min", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching apartments:", error);
+        // Return empty array instead of throwing to allow page to render
+        return [];
+      }
       return data || [];
     },
-    enabled: !!id,
+    enabled: !!id && !!project,
+    retry: false, // Don't retry on storage quota errors
   });
 
   const isLoading = projectLoading || apartmentsLoading;
@@ -85,7 +94,14 @@ const ProjectDetail = () => {
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
               <div className="text-center py-12">
-                <h1 className="text-2xl font-bold mb-4">Proiect negăsit</h1>
+                <h1 className="text-2xl font-bold mb-4">
+                  {projectError ? "Eroare la încărcarea proiectului" : "Proiect negăsit"}
+                </h1>
+                {projectError && (
+                  <p className="text-muted-foreground mb-6">
+                    Ne cerem scuze pentru inconvenient. Vă rugăm să reveniți mai târziu.
+                  </p>
+                )}
                 <Link to="/proiecte">
                   <Button variant="luxury">
                     <ArrowLeft className="mr-2 w-4 h-4" />
