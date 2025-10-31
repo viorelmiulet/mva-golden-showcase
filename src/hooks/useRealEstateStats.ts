@@ -12,7 +12,11 @@ export const useRealEstateStats = () => {
 
       if (propertiesError) {
         console.error("Error fetching properties count:", propertiesError);
-        throw propertiesError;
+        // Return default values instead of throwing to prevent UI breaks
+        return {
+          propertiesCount: 0,
+          projectsCount: 0,
+        };
       }
 
       // Count projects
@@ -22,7 +26,11 @@ export const useRealEstateStats = () => {
 
       if (projectsError) {
         console.error("Error fetching projects count:", projectsError);
-        throw projectsError;
+        // Return default values instead of throwing to prevent UI breaks
+        return {
+          propertiesCount: propertiesCount || 0,
+          projectsCount: 0,
+        };
       }
 
       return {
@@ -31,5 +39,6 @@ export const useRealEstateStats = () => {
       };
     },
     refetchInterval: 30000, // Refresh every 30 seconds for real-time feel
+    retry: false, // Don't retry on storage quota errors
   });
 };
