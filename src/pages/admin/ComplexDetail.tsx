@@ -347,6 +347,13 @@ const ComplexDetail = () => {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link to={`/admin/complexe/${id}/edit`} className="flex-1 md:flex-none">
+            <Button variant="outline" size="sm" className="w-full">
+              <Edit className="mr-1 md:mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Editează Complex</span>
+              <span className="sm:hidden">Editează</span>
+            </Button>
+          </Link>
           <Button onClick={findDuplicates} variant="outline" size="sm" className="flex-1 md:flex-none">
             <FileText className="mr-1 md:mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Găsește Dubluri</span>
@@ -359,13 +366,6 @@ const ComplexDetail = () => {
               <span className="sm:hidden">{duplicates.length}</span>
             </Button>
           )}
-          <Link to="/admin/projects" className="flex-1 md:flex-none">
-            <Button size="sm" className="w-full">
-              <Building2 className="mr-1 md:mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Editează Proiect</span>
-              <span className="sm:hidden">Editează</span>
-            </Button>
-          </Link>
         </div>
       </div>
 

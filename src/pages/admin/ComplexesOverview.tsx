@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ComplexExcelImporter from "@/components/ComplexExcelImporter";
 
 interface ProjectStats {
   id: string;
@@ -18,6 +21,8 @@ interface ProjectStats {
 }
 
 const ComplexesOverview = () => {
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  
   // Fetch all projects with their statistics
   const { data: projectsStats, isLoading } = useQuery({
     queryKey: ['projects-stats'],
@@ -156,17 +161,23 @@ const ComplexesOverview = () => {
 
       {/* Projects Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold">Complexe</h2>
             <p className="text-muted-foreground">{totals.complexes} complexe active</p>
           </div>
-          <Link to="/admin/projects">
-            <Button>
-              <Building2 className="mr-2 h-4 w-4" />
-              Gestionează Ansambluri
+          <div className="flex gap-2">
+            <Button onClick={() => setImportDialogOpen(true)} variant="outline">
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Import Excel
             </Button>
-          </Link>
+            <Link to="/admin/complexe/add">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Adaugă Complex
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -231,6 +242,16 @@ const ComplexesOverview = () => {
           ))}
         </div>
       </div>
+
+      {/* Import Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Import Complexe din Excel</DialogTitle>
+          </DialogHeader>
+          <ComplexExcelImporter />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

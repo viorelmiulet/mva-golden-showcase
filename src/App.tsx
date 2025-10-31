@@ -22,6 +22,8 @@ const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
 const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
 const ComplexesOverview = lazy(() => import("./pages/admin/ComplexesOverview"));
 const ComplexDetailAdmin = lazy(() => import("./pages/admin/ComplexDetail"));
+const AddComplex = lazy(() => import("./pages/admin/AddComplex"));
+const EditComplex = lazy(() => import("./pages/admin/EditComplex"));
 const Complexe = lazy(() => import("./pages/Complexe"));
 const ComplexDetailPublic = lazy(() => import("./pages/ComplexDetail"));
 const CarteVizita = lazy(() => import("./pages/CarteVizita"));
@@ -55,7 +57,9 @@ const App = () => (
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<PropertiesAdmin />} />
                 <Route path="complexe" element={<ComplexesOverview />} />
+                <Route path="complexe/add" element={<AddComplex />} />
                 <Route path="complexe/:id" element={<ComplexDetailAdmin />} />
+                <Route path="complexe/:id/edit" element={<EditComplex />} />
                 <Route path="import" element={<XmlImportPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
                 <Route path="facebook" element={<FacebookPage />} />
