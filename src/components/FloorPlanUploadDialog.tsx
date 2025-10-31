@@ -81,9 +81,10 @@ const FloorPlanUploadDialog = ({
       onOpenChange(false);
       setSelectedFile(null);
       setPreviewUrl(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading floor plan:', error);
-      toast.error("Eroare la încărcarea schiței");
+      const errorMessage = error?.message || "Eroare necunoscută";
+      toast.error(`Eroare la încărcarea schiței: ${errorMessage}`);
     } finally {
       setUploading(false);
     }

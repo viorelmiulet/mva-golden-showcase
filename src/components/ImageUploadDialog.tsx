@@ -85,9 +85,10 @@ const ImageUploadDialog = ({ open, onOpenChange, propertyIds, onSuccess }: Image
       onOpenChange(false);
       setSelectedFile(null);
       setPreviewUrl(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading:', error);
-      toast.error("Eroare la încărcarea imaginii");
+      const errorMessage = error?.message || "Eroare necunoscută";
+      toast.error(`Eroare la încărcarea imaginii: ${errorMessage}`);
     } finally {
       setUploading(false);
     }
