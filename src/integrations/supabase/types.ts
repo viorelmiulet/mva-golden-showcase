@@ -74,6 +74,7 @@ export type Database = {
           surface_max: number | null
           surface_min: number | null
           title: string
+          transaction_type: string | null
           updated_at: string
           whatsapp_catalog_id: string | null
         }
@@ -100,6 +101,7 @@ export type Database = {
           surface_max?: number | null
           surface_min?: number | null
           title: string
+          transaction_type?: string | null
           updated_at?: string
           whatsapp_catalog_id?: string | null
         }
@@ -126,6 +128,7 @@ export type Database = {
           surface_max?: number | null
           surface_min?: number | null
           title?: string
+          transaction_type?: string | null
           updated_at?: string
           whatsapp_catalog_id?: string | null
         }
