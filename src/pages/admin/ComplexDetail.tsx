@@ -796,10 +796,6 @@ const ComplexDetail = () => {
                 {selectedProperties.length} {selectedProperties.length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}
               </span>
               <div className="flex gap-2">
-                <Button onClick={handleBulkImageUpload} size="sm">
-                  <ImagePlus className="mr-2 h-4 w-4" />
-                  Adaugă Imagini
-                </Button>
                 <Button
                   onClick={() => {
                     if (selectedProperties.length === 0) {
