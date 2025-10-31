@@ -481,13 +481,29 @@ const ComplexDetail = () => {
       )}
 
       {/* Apartments by Floor */}
-      {sortedFloors.map((floor) => {
+      {sortedFloors.map((floor, index) => {
         const floorProperties = groupedByFloor?.[floor] || [];
         const allFloorSelected = floorProperties.length > 0 && 
           floorProperties.every(p => selectedProperties.includes(p.id));
         
+        // Transform floor name
+        const getFloorName = (floorCode: string) => {
+          if (floorCode === 'P') return 'PARTER';
+          if (floorCode === 'Altele') return 'ALTELE';
+          if (floorCode.startsWith('E')) {
+            const floorNumber = floorCode.substring(1);
+            return `ETAJ ${floorNumber}`;
+          }
+          return floorCode;
+        };
+        
         return (
           <div key={floor}>
+            {/* Separator between floors */}
+            {index > 0 && (
+              <div className="my-8 border-t-2 border-border" />
+            )}
+            
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <Checkbox
@@ -495,7 +511,7 @@ const ComplexDetail = () => {
                   onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
                 />
                 <h2 className="text-2xl font-bold flex items-center gap-3">
-                  {floor === 'P' ? 'PARTER' : floor === 'Altele' ? 'ALTELE' : floor}
+                  {getFloorName(floor)}
                   <Badge variant="secondary" className="text-sm">
                     {floorProperties.length} {floorProperties.length === 1 ? 'apartament' : 'apartamente'}
                   </Badge>
