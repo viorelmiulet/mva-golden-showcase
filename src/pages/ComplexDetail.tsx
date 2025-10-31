@@ -210,7 +210,7 @@ const ComplexDetail = () => {
                               isAvailable 
                                 ? "bg-green-600" 
                                 : apt.availability_status === 'reserved'
-                                  ? "bg-orange-500 text-white"
+                                  ? "bg-yellow-500 text-black hover:bg-yellow-600"
                                   : "bg-red-600"
                             }
                           >

@@ -408,7 +408,7 @@ const ComplexDetail = () => {
                             isAvailable 
                               ? "bg-green-600 text-white" 
                               : apt.availability_status === 'reserved'
-                                ? "bg-orange-500 text-white"
+                                ? "bg-yellow-500 text-black hover:bg-yellow-600"
                                 : ""
                           }
                         >
@@ -433,7 +433,7 @@ const ComplexDetail = () => {
                             {isAvailable ? (
                               <><CheckCircle2 className="h-4 w-4 text-green-600" /> Disponibil</>
                             ) : apt.availability_status === 'reserved' ? (
-                              <><Clock className="h-4 w-4 text-orange-500" /> Rezervat</>
+                              <><Clock className="h-4 w-4 text-yellow-600" /> Rezervat</>
                             ) : (
                               <><XCircle className="h-4 w-4 text-red-600" /> Vândut</>
                             )}
@@ -455,7 +455,7 @@ const ComplexDetail = () => {
                           disabled={apt.availability_status === 'reserved'}
                           className="cursor-pointer"
                         >
-                          <Clock className="mr-2 h-4 w-4 text-orange-500" />
+                          <Clock className="mr-2 h-4 w-4 text-yellow-600" />
                           <span>Rezervat</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
