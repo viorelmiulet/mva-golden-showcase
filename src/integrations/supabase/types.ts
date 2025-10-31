@@ -60,6 +60,7 @@ export type Database = {
           currency: string | null
           description: string | null
           features: string[] | null
+          floor_plan: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null
@@ -87,6 +88,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           features?: string[] | null
+          floor_plan?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
@@ -114,6 +116,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           features?: string[] | null
+          floor_plan?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null

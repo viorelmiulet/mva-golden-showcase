@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Building2, 
   ArrowLeft,
@@ -13,7 +15,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  FileText
+  FileText,
+  X
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -21,6 +24,8 @@ import { Helmet } from "react-helmet-async";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [floorPlanOpen, setFloorPlanOpen] = useState(false);
+  const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['public-project', id],
@@ -265,9 +270,16 @@ const ComplexDetail = () => {
                           <Button 
                             size="sm" 
                             className="w-full mt-2"
+                            disabled={!apt.floor_plan}
+                            onClick={() => {
+                              if (apt.floor_plan) {
+                                setSelectedFloorPlan(apt.floor_plan);
+                                setFloorPlanOpen(true);
+                              }
+                            }}
                           >
                             <FileText className="mr-2 h-4 w-4" />
-                            Vezi Schiță
+                            {apt.floor_plan ? 'Vezi Schiță' : 'Schiță Indisponibilă'}
                           </Button>
                         )}
                       </CardContent>
@@ -289,6 +301,33 @@ const ComplexDetail = () => {
 
         <Footer />
       </div>
+
+      {/* Floor Plan Dialog */}
+      <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Schiță Apartament</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setFloorPlanOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedFloorPlan && (
+            <div className="w-full">
+              <img
+                src={selectedFloorPlan}
+                alt="Schiță apartament"
+                className="w-full h-auto object-contain rounded-lg"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

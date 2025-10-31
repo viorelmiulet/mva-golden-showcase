@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 import ImageUploadDialog from "@/components/ImageUploadDialog";
+import FloorPlanUploadDialog from "@/components/FloorPlanUploadDialog";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,6 +40,8 @@ const ComplexDetail = () => {
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [imageUploadOpen, setImageUploadOpen] = useState(false);
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
+  const [floorPlanDialogOpen, setFloorPlanDialogOpen] = useState(false);
+  const [selectedPropertyForFloorPlan, setSelectedPropertyForFloorPlan] = useState<{id: string, title: string, floorPlan?: string} | null>(null);
   const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | null, amount: number }>>({});
   const [duplicates, setDuplicates] = useState<string[]>([]);
   const queryClient = useQueryClient();
@@ -630,9 +633,17 @@ const ComplexDetail = () => {
                           variant="outline" 
                           size="sm" 
                           className="border-primary/30 hover:bg-primary/10"
+                          onClick={() => {
+                            setSelectedPropertyForFloorPlan({
+                              id: apt.id,
+                              title: apt.title,
+                              floorPlan: apt.floor_plan
+                            });
+                            setFloorPlanDialogOpen(true);
+                          }}
                         >
                           <FileText className="h-4 w-4 mr-1" />
-                          Vezi schița
+                          {apt.floor_plan ? 'Editează schiță' : 'Adaugă schiță'}
                         </Button>
                         <Button 
                           variant="outline" 
@@ -748,6 +759,17 @@ const ComplexDetail = () => {
         propertyIds={uploadPropertyIds}
         onSuccess={handleUploadSuccess}
       />
+
+      {selectedPropertyForFloorPlan && (
+        <FloorPlanUploadDialog
+          open={floorPlanDialogOpen}
+          onOpenChange={setFloorPlanDialogOpen}
+          propertyId={selectedPropertyForFloorPlan.id}
+          propertyTitle={selectedPropertyForFloorPlan.title}
+          currentFloorPlan={selectedPropertyForFloorPlan.floorPlan}
+          onSuccess={refetch}
+        />
+      )}
     </div>
   );
 };
