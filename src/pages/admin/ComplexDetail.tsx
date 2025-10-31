@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ const ComplexDetail = () => {
   const [imageUploadOpen, setImageUploadOpen] = useState(false);
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
   const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | null, amount: number }>>({});
+  const queryClient = useQueryClient();
 
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -70,18 +71,29 @@ const ComplexDetail = () => {
   });
 
   const setAvailability = async (propertyId: string, newStatus: 'available' | 'sold') => {
+    const queryKey = ['project-properties', id];
+    const prev = queryClient.getQueryData<any[]>(queryKey);
+
+    // Optimistic update for instant UI feedback
+    queryClient.setQueryData<any[]>(queryKey, (old) =>
+      (old || []).map((p) => (p.id === propertyId ? { ...p, availability_status: newStatus } : p))
+    );
+
     const { error } = await supabase
       .from('catalog_offers')
       .update({ availability_status: newStatus })
       .eq('id', propertyId);
 
     if (error) {
+      // Rollback on error
+      queryClient.setQueryData(queryKey, prev);
       toast.error("Eroare la actualizarea statusului");
       return;
     }
 
     toast.success(`Apartament marcat ca ${newStatus === 'available' ? 'disponibil' : 'vândut'}`);
-    refetch();
+    // Ensure fresh data
+    queryClient.invalidateQueries({ queryKey });
   };
 
   const handleSelectProperty = (propertyId: string, checked: boolean) => {
