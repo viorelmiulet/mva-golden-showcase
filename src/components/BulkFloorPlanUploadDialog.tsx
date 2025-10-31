@@ -51,6 +51,7 @@ const BulkFloorPlanUploadDialog = ({
       return;
     }
 
+    console.log('Starting bulk floor plan upload for properties:', propertyIds);
     setUploading(true);
     try {
       // Upload to storage
@@ -58,16 +59,22 @@ const BulkFloorPlanUploadDialog = ({
       const fileName = `bulk-floor-plan-${Date.now()}.${fileExt}`;
       const filePath = `floor-plans/${fileName}`;
 
+      console.log('Uploading file to storage:', filePath);
       const { error: uploadError } = await supabase.storage
         .from('project-images')
         .upload(filePath, selectedFile);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('project-images')
         .getPublicUrl(filePath);
+
+      console.log('File uploaded, public URL:', publicUrl);
 
       // Update all selected properties with the same floor plan
       let successCount = 0;
@@ -75,6 +82,7 @@ const BulkFloorPlanUploadDialog = ({
 
       for (const propertyId of propertyIds) {
         try {
+          console.log('Updating property:', propertyId);
           const { data, error } = await supabase.functions.invoke('update-floor-plan', {
             body: {
               propertyId,
@@ -86,6 +94,7 @@ const BulkFloorPlanUploadDialog = ({
             console.error(`Failed to update property ${propertyId}:`, error || data?.error);
             failCount++;
           } else {
+            console.log(`Successfully updated property ${propertyId}`);
             successCount++;
           }
         } catch (err) {
@@ -93,6 +102,8 @@ const BulkFloorPlanUploadDialog = ({
           failCount++;
         }
       }
+
+      console.log(`Bulk upload complete: ${successCount} success, ${failCount} failed`);
 
       if (successCount > 0) {
         toast.success(`Schiță încărcată cu succes la ${successCount} ${successCount === 1 ? 'proprietate' : 'proprietăți'}`);
