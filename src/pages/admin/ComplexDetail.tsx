@@ -26,6 +26,7 @@ import {
 
 import ImageUploadDialog from "@/components/ImageUploadDialog";
 import FloorPlanUploadDialog from "@/components/FloorPlanUploadDialog";
+import BulkFloorPlanUploadDialog from "@/components/BulkFloorPlanUploadDialog";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,6 +46,7 @@ const ComplexDetail = () => {
   const [imageUploadOpen, setImageUploadOpen] = useState(false);
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
   const [floorPlanDialogOpen, setFloorPlanDialogOpen] = useState(false);
+  const [bulkFloorPlanDialogOpen, setBulkFloorPlanDialogOpen] = useState(false);
   const [selectedPropertyForFloorPlan, setSelectedPropertyForFloorPlan] = useState<{id: string, title: string, floorPlan?: string} | null>(null);
   const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | 'manual', amount: number }>>({});
   const [duplicates, setDuplicates] = useState<string[]>([]);
@@ -798,6 +800,14 @@ const ComplexDetail = () => {
                   <ImagePlus className="mr-2 h-4 w-4" />
                   Adaugă Imagini
                 </Button>
+                <Button 
+                  onClick={() => setBulkFloorPlanDialogOpen(true)} 
+                  size="sm"
+                  variant="secondary"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Adaugă Schiță
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -828,6 +838,16 @@ const ComplexDetail = () => {
           onSuccess={refetch}
         />
       )}
+
+      <BulkFloorPlanUploadDialog
+        open={bulkFloorPlanDialogOpen}
+        onOpenChange={setBulkFloorPlanDialogOpen}
+        propertyIds={selectedProperties}
+        onSuccess={() => {
+          refetch();
+          setSelectedProperties([]);
+        }}
+      />
 
       {/* Manual Commission Dialog */}
       <Dialog open={manualCommissionOpen} onOpenChange={setManualCommissionOpen}>
