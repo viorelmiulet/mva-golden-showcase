@@ -143,36 +143,19 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      let dataResp: any;
-      try {
-        const { data, error } = await supabase.functions.invoke('immoflux-integration', {
-          body: {
-            action: 'analyze_xml',
-            xml_url: xmlUrl
-          }
-        });
-        if (error) throw error;
-        dataResp = data;
-      } catch (primaryErr) {
-        console.warn('Primary analyze_xml invoke failed, trying direct fetch fallback...', primaryErr);
-        const res = await fetch('https://gfobqeycviqckzjyokxf.supabase.co/functions/v1/immoflux-integration', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
-          },
-          body: JSON.stringify({ action: 'analyze_xml', xml_url: xmlUrl }),
-        });
-        const text = await res.text();
-        if (!res.ok) throw new Error(text || `HTTP ${res.status}`);
-        dataResp = JSON.parse(text);
-      }
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: {
+          action: 'analyze_xml',
+          xml_url: xmlUrl
+        }
+      });
 
-      if (dataResp?.success) {
-        return dataResp;
+      if (error) throw error;
+
+      if (data?.success) {
+        return data;
       } else {
-        throw new Error(dataResp?.error || 'XML analysis failed');
+        throw new Error(data?.error || 'XML analysis failed');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'XML analysis failed';
@@ -189,40 +172,23 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      let dataResp: any;
-      try {
-        const { data, error } = await supabase.functions.invoke('immoflux-integration', {
-          body: {
-            action: 'import_xml_feed',
-            xml_url: xmlUrl
-          }
-        });
-        if (error) throw error;
-        dataResp = data;
-      } catch (primaryErr) {
-        console.warn('Primary import_xml_feed invoke failed, trying direct fetch fallback...', primaryErr);
-        const res = await fetch('https://gfobqeycviqckzjyokxf.supabase.co/functions/v1/immoflux-integration', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
-          },
-          body: JSON.stringify({ action: 'import_xml_feed', xml_url: xmlUrl }),
-        });
-        const text = await res.text();
-        if (!res.ok) throw new Error(text || `HTTP ${res.status}`);
-        dataResp = JSON.parse(text);
-      }
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: {
+          action: 'import_xml_feed',
+          xml_url: xmlUrl
+        }
+      });
 
-      if (dataResp?.success) {
+      if (error) throw error;
+
+      if (data?.success) {
         toast({
           title: "XML Import Successful",
-          description: dataResp.message,
+          description: data.message,
         });
-        return dataResp;
+        return data;
       } else {
-        throw new Error(dataResp?.error || 'XML import failed');
+        throw new Error(data?.error || 'XML import failed');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'XML import failed';
