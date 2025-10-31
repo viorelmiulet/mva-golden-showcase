@@ -176,6 +176,17 @@ const ComplexDetail = () => {
     return acc;
   }, {} as Record<string, typeof properties>);
 
+  // Sort properties within each floor by apartment number
+  if (groupedByFloor) {
+    Object.keys(groupedByFloor).forEach(floor => {
+      groupedByFloor[floor].sort((a, b) => {
+        const numA = parseInt(a.title.match(/\d+/)?.[0] || '0');
+        const numB = parseInt(b.title.match(/\d+/)?.[0] || '0');
+        return numA - numB;
+      });
+    });
+  }
+
   const floorOrder = ['P', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'Altele'];
   const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
     return floorOrder.indexOf(a) - floorOrder.indexOf(b);
