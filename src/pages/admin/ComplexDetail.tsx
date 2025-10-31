@@ -500,25 +500,17 @@ const ComplexDetail = () => {
                         ? 'border-primary shadow-lg' 
                         : isAvailable 
                           ? 'border-green-500/50 hover:shadow-xl' 
-                          : 'border-red-500/50 bg-red-50 dark:bg-red-950/30'
+                          : 'border-red-500/50'
                     }`}
                   >
-                    <CardContent className="p-4 space-y-3">
-                      {!isAvailable && (
-                        <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-md shadow">
-                          Vândut
-                        </div>
-                      )}
-                      {/* Checkbox and Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
-                          />
-                          <Home className="h-5 w-5 text-primary" />
-                          <span className="text-xl font-bold">Ap. {aptNumber}</span>
-                        </div>
+                    {/* Dark overlay for sold/reserved */}
+                    {!isAvailable && (
+                      <div className="absolute inset-0 bg-black/70 z-10 pointer-events-none" />
+                    )}
+                    
+                    <CardContent className="p-4 space-y-3 relative">
+                      {/* Badge - outside the overlay */}
+                      <div className="absolute top-2 right-2 z-20">
                         <Badge 
                           variant={
                             isAvailable 
@@ -532,7 +524,7 @@ const ComplexDetail = () => {
                               ? "bg-green-600 text-white" 
                               : apt.availability_status === 'reserved'
                                 ? "bg-yellow-500 text-black hover:bg-yellow-600"
-                                : ""
+                                : "bg-red-600 text-white"
                           }
                         >
                           {isAvailable ? (
@@ -543,6 +535,18 @@ const ComplexDetail = () => {
                             <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
                           )}
                         </Badge>
+                      </div>
+
+                      {/* Checkbox and Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
+                          />
+                          <Home className="h-5 w-5 text-primary" />
+                          <span className="text-xl font-bold">Ap. {aptNumber}</span>
+                        </div>
                       </div>
 
                     {/* Status Dropdown */}
