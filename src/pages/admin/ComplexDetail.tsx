@@ -40,6 +40,7 @@ const ComplexDetail = () => {
   const [imageUploadOpen, setImageUploadOpen] = useState(false);
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
   const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | null, amount: number }>>({});
+  const [duplicates, setDuplicates] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   // Fetch project details
@@ -169,6 +170,63 @@ const ComplexDetail = () => {
     }
   };
 
+  const findDuplicates = () => {
+    if (!properties) return;
+
+    const seen = new Map<string, string[]>();
+    
+    properties.forEach(prop => {
+      const key = prop.title;
+      if (!seen.has(key)) {
+        seen.set(key, []);
+      }
+      seen.get(key)?.push(prop.id);
+    });
+
+    const duplicateIds: string[] = [];
+    seen.forEach((ids) => {
+      if (ids.length > 1) {
+        // Keep the first one, mark the rest as duplicates
+        duplicateIds.push(...ids.slice(1));
+      }
+    });
+
+    setDuplicates(duplicateIds);
+    
+    if (duplicateIds.length > 0) {
+      toast.info(`Am găsit ${duplicateIds.length} ${duplicateIds.length === 1 ? 'dublură' : 'dubluri'}`);
+    } else {
+      toast.success("Nu există dubluri în acest complex");
+    }
+  };
+
+  const deleteDuplicates = async () => {
+    if (duplicates.length === 0) {
+      toast.error("Nu există dubluri de șters");
+      return;
+    }
+
+    if (!confirm(`Sigur vrei să ștergi ${duplicates.length} ${duplicates.length === 1 ? 'dublură' : 'dubluri'}?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .in('id', duplicates);
+
+      if (error) throw error;
+
+      toast.success(`${duplicates.length} ${duplicates.length === 1 ? 'dublură ștearsă' : 'dubluri șterse'} cu succes`);
+      setDuplicates([]);
+      refetch();
+    } catch (error) {
+      console.error('Error deleting duplicates:', error);
+      toast.error("Eroare la ștergerea dublurilor");
+    }
+  };
+
   const handleCommissionChange = (propertyId: string, type: 'cash' | 'credit' | null, priceCash: number, priceCredit: number) => {
     if (type === null) {
       const newCommissions = { ...commissions };
@@ -255,12 +313,24 @@ const ComplexDetail = () => {
             {project.location}
           </p>
         </div>
-        <Link to="/admin/projects">
-          <Button>
-            <Building2 className="mr-2 h-4 w-4" />
-            Editează Proiect
+        <div className="flex gap-2">
+          <Button onClick={findDuplicates} variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Găsește Dubluri
           </Button>
-        </Link>
+          {duplicates.length > 0 && (
+            <Button onClick={deleteDuplicates} variant="destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Șterge {duplicates.length} {duplicates.length === 1 ? 'Dublură' : 'Dubluri'}
+            </Button>
+          )}
+          <Link to="/admin/projects">
+            <Button>
+              <Building2 className="mr-2 h-4 w-4" />
+              Editează Proiect
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Project Image */}
