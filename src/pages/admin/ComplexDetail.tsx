@@ -298,6 +298,7 @@ const ComplexDetail = () => {
   // Calculate statistics
   const available = properties?.filter(p => p.availability_status === 'available').length || 0;
   const sold = properties?.filter(p => p.availability_status === 'sold').length || 0;
+  const reserved = properties?.filter(p => p.availability_status === 'reserved').length || 0;
   const total = properties?.length || 0;
   const soldPercentage = total > 0 ? Math.round((sold / total) * 100) : 0;
 
@@ -373,7 +374,7 @@ const ComplexDetail = () => {
       )}
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -395,6 +396,18 @@ const ComplexDetail = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-500">{available}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Rezervate
+            </CardTitle>
+            <Clock className="h-5 w-5 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-500">{reserved}</div>
           </CardContent>
         </Card>
 
