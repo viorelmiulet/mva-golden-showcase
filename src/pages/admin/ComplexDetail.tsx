@@ -80,12 +80,15 @@ const ComplexDetail = () => {
       (old || []).map((p) => (p.id === propertyId ? { ...p, availability_status: newStatus } : p))
     );
 
-    const { error } = await supabase
-      .from('catalog_offers')
-      .update({ availability_status: newStatus })
-      .eq('id', propertyId);
+    const { data, error } = await supabase.functions.invoke('admin-offers', {
+      body: {
+        action: 'update_status',
+        id: propertyId,
+        availability_status: newStatus,
+      },
+    });
 
-    if (error) {
+    if (error || (data && data.success === false)) {
       // Rollback on error
       queryClient.setQueryData(queryKey, prev);
       toast.error("Eroare la actualizarea statusului");

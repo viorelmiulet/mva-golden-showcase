@@ -76,35 +76,75 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (action !== 'delete_offer') {
+    if (action === 'delete_offer') {
+      const id = (body?.id || url.searchParams.get('id')) as string | null;
+      if (!id) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required field: id' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('[admin-offers] Deleting offer', { id });
+
+      const { error } = await supabase.from('catalog_offers').delete().eq('id', id);
+      if (error) {
+        console.error('[admin-offers] Delete error', error);
+        return new Response(
+          JSON.stringify({ success: false, error: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer" or "insert_offer".' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, message: 'Offer deleted successfully', id }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const id = (body?.id || url.searchParams.get('id')) as string | null;
-    if (!id) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing required field: id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    if (action === 'update_status') {
+      const id = (body?.id || url.searchParams.get('id')) as string | null;
+      const status = (body?.availability_status || url.searchParams.get('availability_status')) as string | null;
 
-    console.log('[admin-offers] Deleting offer', { id });
+      if (!id || !status) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required fields: id, availability_status' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
-    const { error } = await supabase.from('catalog_offers').delete().eq('id', id);
-    if (error) {
-      console.error('[admin-offers] Delete error', error);
+      const allowed = ['available', 'reserved', 'sold'];
+      if (!allowed.includes(status)) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid availability_status. Use available | reserved | sold.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('[admin-offers] Update status', { id, status });
+
+      const { error } = await supabase
+        .from('catalog_offers')
+        .update({ availability_status: status })
+        .eq('id', id);
+
+      if (error) {
+        console.error('[admin-offers] Update status error', error);
+        return new Response(
+          JSON.stringify({ success: false, error: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ success: false, error: error.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, message: 'Status updated successfully', id, availability_status: status }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Offer deleted successfully', id }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer" | "insert_offer" | "update_status".' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (e) {
     console.error('[admin-offers] Unexpected error', e);
