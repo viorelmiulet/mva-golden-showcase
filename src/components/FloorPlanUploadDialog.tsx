@@ -68,13 +68,17 @@ const FloorPlanUploadDialog = ({
         .from('project-images')
         .getPublicUrl(filePath);
 
-      // Update property with floor plan
-      const { error: updateError } = await supabase
-        .from('catalog_offers')
-        .update({ floor_plan: publicUrl })
-        .eq('id', propertyId);
+      // Update property with floor plan using edge function
+      const { data, error: updateError } = await supabase.functions.invoke('update-floor-plan', {
+        body: {
+          propertyId,
+          floor_plan: publicUrl
+        }
+      });
 
-      if (updateError) throw updateError;
+      if (updateError || !data?.success) {
+        throw new Error(updateError?.message || data?.error || 'Failed to update property');
+      }
 
       toast.success("Schiță încărcată cu succes");
       onSuccess();
