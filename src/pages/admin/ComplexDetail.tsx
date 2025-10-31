@@ -16,6 +16,7 @@ import {
   Layers
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import RenewResidenceImporter from "@/components/RenewResidenceImporter";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -164,6 +165,11 @@ const ComplexDetail = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Import Section - Show only for Renew Residence */}
+      {project.name === "RENEW RESIDENCE" && (
+        <RenewResidenceImporter />
+      )}
 
       {/* Sales Progress */}
       <Card>
