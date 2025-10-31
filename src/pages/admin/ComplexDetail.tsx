@@ -627,34 +627,23 @@ const ComplexDetail = () => {
                       </div>
                     </div>
 
-                      {/* View Sketch and Add Image Buttons */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="border-primary/30 hover:bg-primary/10"
-                          onClick={() => {
-                            setSelectedPropertyForFloorPlan({
-                              id: apt.id,
-                              title: apt.title,
-                              floorPlan: apt.floor_plan
-                            });
-                            setFloorPlanDialogOpen(true);
-                          }}
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          {apt.floor_plan ? 'Editează schiță' : 'Adaugă schiță'}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="border-primary/30 hover:bg-primary/10"
-                          onClick={() => handleSingleImageUpload(apt.id)}
-                        >
-                          <ImagePlus className="h-4 w-4 mr-1" />
-                          Imagine
-                        </Button>
-                      </div>
+                      {/* View Sketch Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full border-primary/30 hover:bg-primary/10"
+                        onClick={() => {
+                          setSelectedPropertyForFloorPlan({
+                            id: apt.id,
+                            title: apt.title,
+                            floorPlan: apt.floor_plan
+                          });
+                          setFloorPlanDialogOpen(true);
+                        }}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        {apt.floor_plan ? 'Editează schiță' : 'Adaugă schiță'}
+                      </Button>
 
                       {/* Commission Dropdown */}
                       <DropdownMenu>
