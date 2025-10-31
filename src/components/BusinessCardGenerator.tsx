@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera, Upload, CheckCircle, AlertTriangle, FileText } from "lucide-react";
+import { Download, Eye, ArrowLeft, Trash2, History, Smartphone, Camera } from "lucide-react";
 import { Link } from "react-router-dom";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,9 +64,7 @@ const BusinessCardGenerator = () => {
   const [backSvg, setBackSvg] = useState<string>("");
   const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [customLogo, setCustomLogo] = useState<string>("");
-  const [logoType, setLogoType] = useState<"default" | "custom" | "none">("default");
-  const [uploadedLogos, setUploadedLogos] = useState<Array<{ name: string; url: string; path: string }>>([]);
+  const [logoType, setLogoType] = useState<"default" | "none">("default");
   const [customColors, setCustomColors] = useState<CustomColors>({
     primary: "#D4AF37",
     secondary: "#FFD700",
@@ -77,10 +75,9 @@ const BusinessCardGenerator = () => {
   });
   const [useCustomColors, setUseCustomColors] = useState(false);
 
-  // Load saved cards and uploaded logos on component mount
+  // Load saved cards on component mount
   useEffect(() => {
     loadSavedCards();
-    loadUploadedLogos();
   }, []);
 
   const loadSavedCards = async () => {
@@ -184,112 +181,6 @@ const BusinessCardGenerator = () => {
     toast.success('Carte de vizită încărcată!');
   };
 
-  const loadUploadedLogos = async () => {
-    try {
-      const { data, error } = await supabase
-        .storage
-        .from('business-card-logos')
-        .list('', {
-          limit: 100,
-          offset: 0,
-          sortBy: { column: 'created_at', order: 'desc' }
-        });
-
-      if (error) {
-        console.error('Error loading logos:', error);
-        return;
-      }
-
-      const logosWithUrls = data.map(file => {
-        const { data: urlData } = supabase
-          .storage
-          .from('business-card-logos')
-          .getPublicUrl(file.name);
-        
-        return {
-          name: file.name,
-          url: urlData.publicUrl,
-          path: file.name
-        };
-      });
-
-      setUploadedLogos(logosWithUrls);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Vă rugăm să încărcați o imagine');
-      return;
-    }
-
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Imaginea trebuie să fie mai mică de 2MB');
-      return;
-    }
-
-    try {
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase
-        .storage
-        .from('business-card-logos')
-        .upload(fileName, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL
-      const { data: urlData } = supabase
-        .storage
-        .from('business-card-logos')
-        .getPublicUrl(fileName);
-
-      setCustomLogo(urlData.publicUrl);
-      toast.success('Logo încărcat și salvat cu succes!');
-      
-      // Reload uploaded logos
-      await loadUploadedLogos();
-      
-      // Reset file input
-      e.target.value = '';
-    } catch (error: any) {
-      console.error('Error uploading logo:', error);
-      toast.error('Eroare la încărcarea logo-ului: ' + error.message);
-    }
-  };
-
-  const deleteLogo = async (path: string) => {
-    try {
-      const { error } = await supabase
-        .storage
-        .from('business-card-logos')
-        .remove([path]);
-
-      if (error) throw error;
-
-      toast.success('Logo șters cu succes!');
-      await loadUploadedLogos();
-      
-      // If the deleted logo was being used, reset it
-      if (customLogo.includes(path)) {
-        setCustomLogo("");
-      }
-    } catch (error: any) {
-      console.error('Error deleting logo:', error);
-      toast.error('Eroare la ștergerea logo-ului');
-    }
-  };
 
   const generateQRCode = async (data: BusinessCardData) => {
     // Use custom qrLink if provided, otherwise generate WhatsApp link from phone
@@ -417,9 +308,7 @@ const BusinessCardGenerator = () => {
     
     let logoSection = "";
     
-    if (logoType === "custom" && customLogo) {
-      logoSection = `<image href="${customLogo}" x="0" y="0" width="120" height="120" preserveAspectRatio="xMidYMid meet"/>`;
-    } else if (logoType === "default") {
+    if (logoType === "default") {
       logoSection = `<g>
       <!-- Outer ring -->
       <circle 
@@ -628,9 +517,7 @@ const BusinessCardGenerator = () => {
     let companyNameSection = "";
     
     // Generează logo-ul în funcție de tipul selectat
-    if (logoType === "custom" && customLogo) {
-      backLogoSection = `<image href="${customLogo}" x="-75" y="-75" width="150" height="150" preserveAspectRatio="xMidYMid meet"/>`;
-    } else if (logoType === "default") {
+    if (logoType === "default") {
       backLogoSection = `<!-- Outer ring -->
     <circle 
       cx="0" 
@@ -912,14 +799,13 @@ const BusinessCardGenerator = () => {
 
               {/* Selectare Tip Logo */}
               <div className="space-y-3 border-t pt-4 bg-gold/5 -mx-6 px-6 py-4 rounded-lg">
-                <Label className="text-base font-semibold flex items-center gap-2">
-                  <Upload className="w-4 h-4 text-gold" />
+                <Label className="text-base font-semibold">
                   Tip Logo pe Carte de Vizită
                 </Label>
                 <p className="text-xs text-muted-foreground">
                   Alege ce logo va apărea pe cartea de vizită
                 </p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"
                     variant={logoType === "default" ? "default" : "outline"}
@@ -935,22 +821,6 @@ const BusinessCardGenerator = () => {
                   </Button>
                   <Button
                     type="button"
-                    variant={logoType === "custom" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      if (customLogo) {
-                        setLogoType("custom");
-                        toast.success("Logo personalizat selectat!");
-                      }
-                    }}
-                    disabled={!customLogo}
-                    className="h-auto py-4 flex flex-col gap-1.5"
-                  >
-                    <span className="text-sm font-semibold">Logo Personalizat</span>
-                    <span className="text-xs opacity-70">{customLogo ? "✓ Activ" : "Nu există"}</span>
-                  </Button>
-                  <Button
-                    type="button"
                     variant={logoType === "none" ? "default" : "outline"}
                     size="sm"
                     onClick={() => {
@@ -963,14 +833,6 @@ const BusinessCardGenerator = () => {
                     <span className="text-xs opacity-70">Minimalist</span>
                   </Button>
                 </div>
-                {logoType === "custom" && !customLogo && (
-                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-destructive">
-                      Pentru a folosi logo personalizat, mai întâi încarcă un logo în secțiunea "Logo-uri Personalizate" de mai jos și apasă butonul "Folosește".
-                    </p>
-                  </div>
-                )}
                 {logoType === "default" && (
                   <div className="bg-gold/10 border border-gold/30 rounded-lg p-3">
                     <p className="text-xs text-gold">
@@ -982,14 +844,6 @@ const BusinessCardGenerator = () => {
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
                     <p className="text-xs text-blue-600">
                       ✓ Cartea va fi generată fără logo (design minimalist)
-                    </p>
-                  </div>
-                )}
-                {logoType === "custom" && customLogo && (
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 flex items-center gap-3">
-                    <img src={customLogo} alt="Logo selectat" className="w-12 h-12 object-contain border border-gold/20 rounded bg-white p-1" />
-                    <p className="text-xs text-green-600">
-                      ✓ Acest logo va fi afișat pe carte
                     </p>
                   </div>
                 )}
@@ -1193,132 +1047,6 @@ const BusinessCardGenerator = () => {
           </Card>
         </div>
 
-        {/* Logo-uri Descărcabile */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Logo-uri Descărcabile</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Logo Personalizat */}
-            <Card className="border-2 border-gold/40 bg-gold/10 md:col-span-3">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Upload className="w-5 h-5 text-gold" />
-                  Logo-uri Personalizate
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Upload Section */}
-                <div className="border-2 border-dashed border-gold/30 rounded-lg p-6 bg-background/50 text-center hover:bg-gold/5 transition-colors">
-                  <Upload className="w-12 h-12 text-gold mx-auto mb-3" />
-                  <Label htmlFor="logo" className="text-base font-semibold block mb-2 cursor-pointer">
-                    Încarcă Logo Nou
-                  </Label>
-                  <Input
-                    id="logo"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="cursor-pointer max-w-md mx-auto"
-                  />
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Formatul: PNG, JPG, SVG (max 2MB)<br/>
-                    <span className="text-gold">Logo-urile se salvează automat și pot fi descărcate oricând</span>
-                  </p>
-                </div>
-
-                {/* Uploaded Logos Grid */}
-                {uploadedLogos.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-gold" />
-                      Logo-uri Încărcate ({uploadedLogos.length})
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {uploadedLogos.map((logo) => (
-                        <Card key={logo.path} className="overflow-hidden hover:shadow-lg transition-shadow border-gold/20">
-                          <div className="aspect-square bg-gradient-to-br from-white to-gray-50 p-6 flex items-center justify-center border-b-2 border-gold/10">
-                            <img 
-                              src={logo.url} 
-                              alt={logo.name}
-                              className="max-w-full max-h-full object-contain drop-shadow-sm"
-                            />
-                          </div>
-                          <CardContent className="p-4 space-y-3">
-                            <p className="text-xs text-muted-foreground truncate font-medium" title={logo.name}>
-                              {logo.name}
-                            </p>
-                            <div className="flex flex-col gap-2">
-                              <Button
-                                size="sm"
-                                variant="default"
-                                className="w-full"
-                                onClick={() => {
-                                  setCustomLogo(logo.url);
-                                  toast.success('Logo selectat pentru carte de vizită!');
-                                }}
-                              >
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Folosește
-                              </Button>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="flex-1"
-                                  onClick={() => {
-                                    const link = document.createElement('a');
-                                    link.href = logo.url;
-                                    link.download = logo.name;
-                                    link.click();
-                                    toast.success('Logo descărcat!');
-                                  }}
-                                >
-                                  <Download className="w-4 h-4 mr-1" />
-                                  Descarcă
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  className="flex-1"
-                                  onClick={() => deleteLogo(logo.path)}
-                                >
-                                  <Trash2 className="w-4 h-4 mr-1" />
-                                  Șterge
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {customLogo && (
-                  <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                    <p className="text-sm font-semibold text-green-600 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      Logo activ pentru cărțile de vizită
-                    </p>
-                    <div className="mt-2 flex items-center gap-3">
-                      <img src={customLogo} alt="Logo activ" className="w-16 h-16 object-contain border-2 border-gold/20 rounded-lg bg-white p-2" />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setCustomLogo("");
-                          toast.info("Logo resetat la implicit MVA");
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3 mr-2" />
-                        Resetează la logo MVA
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
 
         {/* Cărți Salvate */}
         {savedCards.length > 0 && (
