@@ -19,9 +19,10 @@ import {
   ChevronDown,
   FileText,
   ImagePlus,
-  Clock
+  Clock,
+  Trash2
 } from "lucide-react";
-import RenewResidenceImporter from "@/components/RenewResidenceImporter";
+
 import ImageUploadDialog from "@/components/ImageUploadDialog";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -139,6 +140,33 @@ const ComplexDetail = () => {
   const handleUploadSuccess = () => {
     setSelectedProperties([]);
     refetch();
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedProperties.length === 0) {
+      toast.error("Selectează cel puțin o proprietate");
+      return;
+    }
+
+    if (!confirm(`Sigur vrei să ștergi ${selectedProperties.length} ${selectedProperties.length === 1 ? 'proprietate' : 'proprietăți'}?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .in('id', selectedProperties);
+
+      if (error) throw error;
+
+      toast.success(`${selectedProperties.length} ${selectedProperties.length === 1 ? 'proprietate ștearsă' : 'proprietăți șterse'} cu succes`);
+      setSelectedProperties([]);
+      refetch();
+    } catch (error) {
+      console.error('Error deleting properties:', error);
+      toast.error("Eroare la ștergerea proprietăților");
+    }
   };
 
   const handleCommissionChange = (propertyId: string, type: 'cash' | 'credit' | null, priceCash: number, priceCredit: number) => {
@@ -327,9 +355,31 @@ const ComplexDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Import Section - Show only for Renew Residence */}
-      {project.name === "RENEW RESIDENCE" && (
-        <RenewResidenceImporter />
+      {/* Bulk Actions */}
+      {selectedProperties.length > 0 && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
+                <div>
+                  <h3 className="font-semibold">{selectedProperties.length} {selectedProperties.length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}</h3>
+                  <p className="text-sm text-muted-foreground">Acțiuni disponibile pentru selecție</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleBulkImageUpload} variant="outline">
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Încarcă Imagini
+                </Button>
+                <Button onClick={handleBulkDelete} variant="destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Șterge Selectate
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Apartments by Floor */}
