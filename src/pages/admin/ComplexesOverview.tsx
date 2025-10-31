@@ -224,7 +224,7 @@ const ComplexesOverview = () => {
                 </div>
 
                 {/* Action Button */}
-                <Link to={`/admin/projects`} className="block">
+                <Link to={`/admin/complexe/${project.id}`} className="block">
                   <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Vezi Detalii
