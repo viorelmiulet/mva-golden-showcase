@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Proprietăți", url: "/admin", icon: Home, exact: true },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
-  { title: "Ansambluri", url: "/admin/proiecte", icon: Building2 },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Cărți de Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },

@@ -56,7 +56,6 @@ const App = () => (
                 <Route index element={<PropertiesAdmin />} />
                 <Route path="complexe" element={<ComplexesOverview />} />
                 <Route path="complexe/:id" element={<ComplexDetailAdmin />} />
-                <Route path="proiecte" element={<ProjectsAdminPage />} />
                 <Route path="import" element={<XmlImportPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
                 <Route path="facebook" element={<FacebookPage />} />
