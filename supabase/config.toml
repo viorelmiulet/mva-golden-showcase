@@ -1,1 +1,4 @@
 project_id = "fdpandnzblzvamhsoukt"
+
+[functions.update-floor-plan]
+verify_jwt = false
