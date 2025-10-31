@@ -160,6 +160,7 @@ export const useWebsiteScraper = () => {
           headers: {
             'Content-Type': 'application/json',
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
           },
           body: JSON.stringify({ action: 'analyze_xml', xml_url: xmlUrl }),
         });
@@ -205,6 +206,7 @@ export const useWebsiteScraper = () => {
           headers: {
             'Content-Type': 'application/json',
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdmb2JxZXljdmlxY2t6anlva3hmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MDk1NjgsImV4cCI6MjA3MTk4NTU2OH0.FcSHvGjPEkUVKtPvjQqlwErNdizEPX2YeBFc20O4dnE',
           },
           body: JSON.stringify({ action: 'import_xml_feed', xml_url: xmlUrl }),
         });
