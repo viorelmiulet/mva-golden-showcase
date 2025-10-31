@@ -260,19 +260,10 @@ const ComplexDetail = () => {
                   }`}
                 >
                   <CardContent className="p-4 space-y-3">
-                    {/* Header with apt number and actions */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Home className="h-5 w-5 text-primary" />
-                        <span className="text-xl font-bold">Ap. {aptNumber}</span>
-                      </div>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                    {/* Header with apt number */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Home className="h-5 w-5 text-primary" />
+                      <span className="text-xl font-bold">Ap. {aptNumber}</span>
                     </div>
 
                     {/* Status Dropdown */}
