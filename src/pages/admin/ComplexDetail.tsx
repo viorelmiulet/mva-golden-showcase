@@ -504,22 +504,17 @@ const ComplexDetail = () => {
               <div className="my-8 border-t-2 border-border" />
             )}
             
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Checkbox
-                  checked={allFloorSelected}
-                  onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
-                />
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  {getFloorName(floor)}
-                  <Badge variant="secondary" className="text-sm">
-                    {floorProperties.length} {floorProperties.length === 1 ? 'apartament' : 'apartamente'}
-                  </Badge>
-                </h2>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Model: 1.612 EUR/mp
-              </div>
+            <div className="flex items-center gap-4 mb-6">
+              <Checkbox
+                checked={allFloorSelected}
+                onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
+              />
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                {getFloorName(floor)}
+                <Badge variant="secondary" className="text-sm">
+                  {floorProperties.length} {floorProperties.length === 1 ? 'apartament' : 'apartamente'}
+                </Badge>
+              </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
