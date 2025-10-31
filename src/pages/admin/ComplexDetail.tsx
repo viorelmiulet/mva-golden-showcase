@@ -69,9 +69,7 @@ const ComplexDetail = () => {
     }
   });
 
-  const toggleAvailability = async (propertyId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'available' ? 'sold' : 'available';
-    
+  const setAvailability = async (propertyId: string, newStatus: 'available' | 'sold') => {
     const { error } = await supabase
       .from('catalog_offers')
       .update({ availability_status: newStatus })
@@ -393,7 +391,7 @@ const ComplexDetail = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
                         <DropdownMenuItem
-                          onClick={() => toggleAvailability(apt.id, apt.availability_status)}
+                          onClick={() => setAvailability(apt.id, 'available')}
                           disabled={isAvailable}
                           className="cursor-pointer"
                         >
@@ -401,7 +399,7 @@ const ComplexDetail = () => {
                           <span>Disponibil</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => toggleAvailability(apt.id, apt.availability_status)}
+                          onClick={() => setAvailability(apt.id, 'sold')}
                           disabled={!isAvailable}
                           className="cursor-pointer"
                         >
