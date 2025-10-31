@@ -37,6 +37,7 @@ const ComplexDetail = () => {
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [imageUploadOpen, setImageUploadOpen] = useState(false);
   const [uploadPropertyIds, setUploadPropertyIds] = useState<string[]>([]);
+  const [commissions, setCommissions] = useState<Record<string, { type: 'cash' | 'credit' | null, amount: number }>>({});
 
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -121,6 +122,23 @@ const ComplexDetail = () => {
     refetch();
   };
 
+  const handleCommissionChange = (propertyId: string, type: 'cash' | 'credit' | null, priceCash: number, priceCredit: number) => {
+    if (type === null) {
+      const newCommissions = { ...commissions };
+      delete newCommissions[propertyId];
+      setCommissions(newCommissions);
+    } else {
+      const price = type === 'cash' ? priceCash : priceCredit;
+      const amount = price * 0.02; // 2%
+      setCommissions({
+        ...commissions,
+        [propertyId]: { type, amount }
+      });
+    }
+  };
+
+  const totalCommission = Object.values(commissions).reduce((sum, comm) => sum + comm.amount, 0);
+
   if (projectLoading || propertiesLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -199,7 +217,7 @@ const ComplexDetail = () => {
       )}
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -245,6 +263,21 @@ const ComplexDetail = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-primary">{soldPercentage}%</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-primary/50 bg-primary/5">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Comisioane
+            </CardTitle>
+            <Euro className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-primary">{totalCommission.toLocaleString()} €</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {Object.keys(commissions).length} {Object.keys(commissions).length === 1 ? 'proprietate selectată' : 'proprietăți selectate'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -422,6 +455,61 @@ const ComplexDetail = () => {
                           Imagine
                         </Button>
                       </div>
+
+                      {/* Commission Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={`w-full justify-between ${
+                              commissions[apt.id] ? 'border-primary bg-primary/10' : ''
+                            }`}
+                            size="sm"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Euro className="h-4 w-4" />
+                              {commissions[apt.id] 
+                                ? `${commissions[apt.id].amount.toLocaleString()} € (${commissions[apt.id].type === 'cash' ? 'Cash' : 'Credit'})`
+                                : 'Selectează Comision'
+                              }
+                            </span>
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
+                          <DropdownMenuItem
+                            onClick={() => handleCommissionChange(apt.id, 'cash', priceCash, priceCredit)}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex flex-col w-full">
+                              <span className="font-semibold">2% din Cash</span>
+                              <span className="text-sm text-green-600">
+                                {(priceCash * 0.02).toLocaleString()} € (din {priceCash.toLocaleString()} €)
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleCommissionChange(apt.id, 'credit', priceCash, priceCredit)}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex flex-col w-full">
+                              <span className="font-semibold">2% din Credit</span>
+                              <span className="text-sm text-blue-600">
+                                {(priceCredit * 0.02).toLocaleString()} € (din {priceCredit.toLocaleString()} €)
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                          {commissions[apt.id] && (
+                            <DropdownMenuItem
+                              onClick={() => handleCommissionChange(apt.id, null, priceCash, priceCredit)}
+                              className="cursor-pointer text-red-600"
+                            >
+                              <XCircle className="mr-2 h-4 w-4" />
+                              <span>Șterge Comision</span>
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </CardContent>
                   </Card>
                 );
