@@ -356,10 +356,15 @@ const ComplexDetail = () => {
                         ? 'border-primary shadow-lg' 
                         : isAvailable 
                           ? 'border-green-500/50 hover:shadow-xl' 
-                          : 'border-red-500/50 opacity-80'
+                          : 'border-red-500/50 bg-red-50 dark:bg-red-950/30'
                     }`}
                   >
                     <CardContent className="p-4 space-y-3">
+                      {!isAvailable && (
+                        <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-md shadow">
+                          Vândut
+                        </div>
+                      )}
                       {/* Checkbox and Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
