@@ -55,12 +55,14 @@ export type Database = {
           amenities: string[] | null
           availability_status: string | null
           available_units: number | null
+          contact_info: Json | null
           created_at: string
           currency: string | null
           description: string | null
           features: string[] | null
           id: string
           images: string[] | null
+          is_featured: boolean | null
           location: string | null
           price_max: number | null
           price_min: number | null
@@ -73,17 +75,20 @@ export type Database = {
           surface_min: number | null
           title: string
           updated_at: string
+          whatsapp_catalog_id: string | null
         }
         Insert: {
           amenities?: string[] | null
           availability_status?: string | null
           available_units?: number | null
+          contact_info?: Json | null
           created_at?: string
           currency?: string | null
           description?: string | null
           features?: string[] | null
           id?: string
           images?: string[] | null
+          is_featured?: boolean | null
           location?: string | null
           price_max?: number | null
           price_min?: number | null
@@ -96,17 +101,20 @@ export type Database = {
           surface_min?: number | null
           title: string
           updated_at?: string
+          whatsapp_catalog_id?: string | null
         }
         Update: {
           amenities?: string[] | null
           availability_status?: string | null
           available_units?: number | null
+          contact_info?: Json | null
           created_at?: string
           currency?: string | null
           description?: string | null
           features?: string[] | null
           id?: string
           images?: string[] | null
+          is_featured?: boolean | null
           location?: string | null
           price_max?: number | null
           price_min?: number | null
@@ -119,6 +127,7 @@ export type Database = {
           surface_min?: number | null
           title?: string
           updated_at?: string
+          whatsapp_catalog_id?: string | null
         }
         Relationships: [
           {
