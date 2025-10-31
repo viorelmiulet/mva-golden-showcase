@@ -196,7 +196,7 @@ const Admin = () => {
     console.log('[ADMIN DEBUG] Functia scrapeAllProperties a fost apelata!')
     console.log('[ADMIN DEBUG] Property IDs curente:', propertyIds)
     
-    const validIds = propertyIds.filter(id => id.trim() !== "")
+    const validIds = propertyIds.filter(id => id && typeof id === 'string' && id.trim() !== "")
     console.log('[ADMIN DEBUG] Valid IDs filtrate:', validIds)
     
     if (validIds.length === 0) {
@@ -216,12 +216,9 @@ const Admin = () => {
       console.log('[ADMIN DEBUG] Incepem procesarea proprietatilor')
       
       // Process all property IDs in parallel
-      const promises = propertyIds.map((propertyId, index) => {
-        if (propertyId.trim() !== "") {
-          console.log(`[ADMIN DEBUG] Adaug promisiune pentru ID ${propertyId} la index ${index}`)
-          return scrapeProperty(propertyId, index)
-        }
-        return Promise.resolve()
+      const promises = validIds.map((propertyId, index) => {
+        console.log(`[ADMIN DEBUG] Adaug promisiune pentru ID ${propertyId}`)
+        return scrapeProperty(propertyId, index)
       })
 
       console.log('[ADMIN DEBUG] Astept toate promisiunile sa se finalizeze')

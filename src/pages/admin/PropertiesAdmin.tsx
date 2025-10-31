@@ -103,7 +103,7 @@ const PropertiesAdmin = () => {
   };
 
   const scrapeAllProperties = async () => {
-    const validIds = propertyIds.filter((id) => id.trim() !== "");
+    const validIds = propertyIds.filter((id) => id && typeof id === 'string' && id.trim() !== "");
 
     if (validIds.length === 0) {
       toast({
@@ -117,11 +117,8 @@ const PropertiesAdmin = () => {
     setIsLoading(true);
 
     try {
-      const promises = propertyIds.map((propertyId, index) => {
-        if (propertyId.trim() !== "") {
-          return scrapeProperty(propertyId, index);
-        }
-        return Promise.resolve();
+      const promises = validIds.map((propertyId, index) => {
+        return scrapeProperty(propertyId, index);
       });
 
       await Promise.all(promises);
