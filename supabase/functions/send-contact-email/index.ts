@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -32,10 +30,11 @@ const handler = async (req: Request): Promise<Response> => {
     
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     console.log("Resend API Key exists:", !!resendApiKey);
-    
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY not configured");
     }
+    const resend = new Resend(resendApiKey);
+    
     
     const requestBody = await req.text();
     console.log("Request body:", requestBody);
