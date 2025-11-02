@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
@@ -13,6 +13,7 @@ import ComplexExcelImporter from "@/components/ComplexExcelImporter";
 interface ProjectStats {
   id: string;
   name: string;
+  location: string | null;
   main_image: string | null;
   total_properties: number;
   available: number;
@@ -60,6 +61,7 @@ const ComplexesOverview = () => {
         return {
           id: project.id,
           name: project.name,
+          location: project.location,
           main_image: project.main_image,
           total_properties: total,
           available,
@@ -204,9 +206,15 @@ const ComplexesOverview = () => {
               </div>
 
               <CardContent className="p-6 space-y-4">
-                {/* Project Name */}
+                {/* Project Name and Location */}
                 <div>
                   <h3 className="text-xl font-bold">{project.name}</h3>
+                  {project.location && (
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <MapPin className="h-3 w-3" />
+                      {project.location}
+                    </p>
+                  )}
                 </div>
 
                 {/* Progress Bar */}
@@ -230,13 +238,21 @@ const ComplexesOverview = () => {
                   </div>
                 </div>
 
-                {/* Action Button */}
-                <Link to={`/admin/complexe/${project.id}`} className="block">
-                  <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    Vezi Detalii
-                  </Button>
-                </Link>
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  <Link to={`/admin/complexe/${project.id}/edit`} className="flex-1">
+                    <Button variant="outline" className="w-full" size="sm">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editează
+                    </Button>
+                  </Link>
+                  <Link to={`/admin/complexe/${project.id}`} className="flex-1">
+                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" size="sm">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Detalii
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           ))}
