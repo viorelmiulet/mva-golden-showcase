@@ -6,20 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ComplexRow {
-  Nume?: string;
-  Locatie?: string;
-  Descriere?: string;
-  Dezvoltator?: string;
-  'Pret Min'?: number;
-  'Pret Max'?: number;
-  'Suprafata Min'?: number;
-  'Suprafata Max'?: number;
-  Camere?: string;
-  'Data Finalizare'?: string;
-  Status?: string;
-}
-
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -48,38 +34,85 @@ Deno.serve(async (req) => {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     
-    // Convert to JSON
-    const data: ComplexRow[] = XLSX.utils.sheet_to_json(worksheet);
+    // Convert to JSON - preserves exact column names from Excel
+    const data: any[] = XLSX.utils.sheet_to_json(worksheet, { 
+      raw: false, // Keep values as formatted strings
+      defval: '' // Default value for empty cells
+    });
 
     console.log(`Found ${data.length} rows in Excel`);
+    
+    // Get column headers from first row
+    if (data.length > 0) {
+      console.log('Excel columns detected:', Object.keys(data[0]));
+    }
 
     let imported = 0;
     const errors: string[] = [];
 
+    // Helper function to find column value by various possible names
+    const getColumnValue = (row: any, ...possibleNames: string[]): string | null => {
+      for (const name of possibleNames) {
+        // Try exact match first
+        if (row[name] !== undefined && row[name] !== null && row[name] !== '') {
+          return String(row[name]).trim();
+        }
+        // Try case-insensitive match
+        const keys = Object.keys(row);
+        const matchingKey = keys.find(k => k.toLowerCase() === name.toLowerCase());
+        if (matchingKey && row[matchingKey] !== undefined && row[matchingKey] !== null && row[matchingKey] !== '') {
+          return String(row[matchingKey]).trim();
+        }
+      }
+      return null;
+    };
+
     for (const row of data) {
       try {
+        // Extract values using flexible column matching
+        const name = getColumnValue(row, 'Nume', 'Name', 'Denumire', 'Complex');
+        const location = getColumnValue(row, 'Locatie', 'Location', 'Adresa', 'Address');
+        
         // Validate required fields
-        if (!row.Nume || !row.Locatie) {
-          errors.push(`Rând omis: lipsește Nume sau Locatie`);
+        if (!name || !location) {
+          errors.push(`Rând omis: lipsește Nume sau Locație`);
           continue;
         }
 
+        const description = getColumnValue(row, 'Descriere', 'Description', 'Detalii');
+        const developer = getColumnValue(row, 'Dezvoltator', 'Developer', 'Constructor');
+        const priceMin = getColumnValue(row, 'Pret Min', 'Price Min', 'Pret Minim');
+        const priceMax = getColumnValue(row, 'Pret Max', 'Price Max', 'Pret Maxim');
+        const surfaceMin = getColumnValue(row, 'Suprafata Min', 'Surface Min', 'Suprafata Minima');
+        const surfaceMax = getColumnValue(row, 'Suprafata Max', 'Surface Max', 'Suprafata Maxima');
+        const rooms = getColumnValue(row, 'Camere', 'Rooms', 'Nr Camere');
+        const completionDate = getColumnValue(row, 'Data Finalizare', 'Completion Date', 'Finalizare');
+        const statusValue = getColumnValue(row, 'Status', 'Stare', 'Disponibilitate');
+
         // Build price range
         let priceRange = null;
-        if (row['Pret Min'] && row['Pret Max']) {
-          priceRange = `${row['Pret Min'].toLocaleString()} - ${row['Pret Max'].toLocaleString()} EUR`;
+        if (priceMin && priceMax) {
+          const min = parseFloat(priceMin.replace(/[^\d.-]/g, ''));
+          const max = parseFloat(priceMax.replace(/[^\d.-]/g, ''));
+          if (!isNaN(min) && !isNaN(max)) {
+            priceRange = `${min.toLocaleString()} - ${max.toLocaleString()} EUR`;
+          }
         }
 
         // Build surface range
         let surfaceRange = null;
-        if (row['Suprafata Min'] && row['Suprafata Max']) {
-          surfaceRange = `${row['Suprafata Min']} - ${row['Suprafata Max']} mp`;
+        if (surfaceMin && surfaceMax) {
+          const min = parseFloat(surfaceMin.replace(/[^\d.-]/g, ''));
+          const max = parseFloat(surfaceMax.replace(/[^\d.-]/g, ''));
+          if (!isNaN(min) && !isNaN(max)) {
+            surfaceRange = `${min} - ${max} mp`;
+          }
         }
 
         // Normalize status
         let status = 'available';
-        if (row.Status) {
-          const statusLower = row.Status.toLowerCase();
+        if (statusValue) {
+          const statusLower = statusValue.toLowerCase();
           if (statusLower.includes('vand') || statusLower.includes('sold')) {
             status = 'sold_out';
           } else if (statusLower.includes('curand') || statusLower.includes('soon')) {
@@ -88,15 +121,15 @@ Deno.serve(async (req) => {
         }
 
         const complexData = {
-          name: row.Nume.trim(),
-          location: row.Locatie.trim(),
-          description: row.Descriere?.trim() || null,
-          developer: row.Dezvoltator?.trim() || null,
+          name,
+          location,
+          description,
+          developer,
           price_range: priceRange,
           surface_range: surfaceRange,
-          rooms_range: row.Camere?.trim() || null,
-          completion_date: row['Data Finalizare']?.toString().trim() || null,
-          status: status,
+          rooms_range: rooms,
+          completion_date: completionDate,
+          status,
         };
 
         const { error } = await supabaseClient
@@ -105,15 +138,16 @@ Deno.serve(async (req) => {
 
         if (error) {
           console.error('Error inserting complex:', error);
-          errors.push(`${row.Nume}: ${error.message}`);
+          errors.push(`${name}: ${error.message}`);
         } else {
           imported++;
-          console.log(`Imported: ${row.Nume}`);
+          console.log(`Imported: ${name}`);
         }
 
       } catch (rowError: any) {
         console.error('Error processing row:', rowError);
-        errors.push(`${row.Nume || 'Unknown'}: ${rowError.message}`);
+        const rowName = getColumnValue(row, 'Nume', 'Name', 'Denumire', 'Complex') || 'Unknown';
+        errors.push(`${rowName}: ${rowError.message}`);
       }
     }
 
