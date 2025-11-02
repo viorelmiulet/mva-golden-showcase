@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { FileSpreadsheet, Upload, Loader2 } from "lucide-react";
+import { FileSpreadsheet, Upload, Loader2, FileText } from "lucide-react";
 
 const ComplexExcelImporter = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,8 +12,8 @@ const ComplexExcelImporter = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      if (!selectedFile.name.match(/\.(xlsx|xls)$/)) {
-        toast.error("Vă rugăm să încărcați un fișier Excel (.xlsx sau .xls)");
+      if (!selectedFile.name.match(/\.(xlsx|xls|pdf)$/)) {
+        toast.error("Vă rugăm să încărcați un fișier Excel (.xlsx, .xls) sau PDF (.pdf)");
         return;
       }
       setFile(selectedFile);
@@ -40,8 +40,11 @@ const ComplexExcelImporter = () => {
           throw new Error("Eroare la citirea fișierului");
         }
 
-        // Call edge function to process Excel
-        const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
+        // Call edge function to process file (Excel or PDF)
+        const isPdf = file.name.match(/\.pdf$/);
+        const functionName = isPdf ? 'import-complexes-pdf' : 'import-complexes-excel';
+        
+        const { data, error } = await supabase.functions.invoke(functionName, {
           body: { fileData: base64, fileName: file.name }
         });
 
@@ -75,12 +78,12 @@ const ComplexExcelImporter = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSpreadsheet className="h-5 w-5" />
-          Import Excel Complexe
+          Import Complexe din Excel sau PDF
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-sm text-muted-foreground space-y-2">
-          <p>Fișierul Excel trebuie să conțină următoarele coloane:</p>
+          <p><strong>Format Excel:</strong> Fișierul trebuie să conțină următoarele coloane:</p>
           <ul className="list-disc list-inside ml-4 space-y-1">
             <li><strong>Nume</strong> - numele complexului (obligatoriu)</li>
             <li><strong>Locatie</strong> - adresa/zona (obligatoriu)</li>
@@ -94,21 +97,26 @@ const ComplexExcelImporter = () => {
             <li><strong>Data Finalizare</strong> - data estimată</li>
             <li><strong>Status</strong> - disponibil/vandut/in_curand</li>
           </ul>
+          <p className="mt-4"><strong>Format PDF:</strong> Fișierul poate conține un tabel structurat sau text cu informații despre complexe. AI-ul va extrage automat datele relevante.</p>
         </div>
 
         <div className="flex flex-col gap-4">
           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              {file?.name.match(/\.pdf$/) ? (
+                <FileText className="h-8 w-8 text-muted-foreground mb-2" />
+              ) : (
+                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              )}
               <p className="text-sm text-muted-foreground">
-                {file ? file.name : "Click pentru a selecta fișier Excel"}
+                {file ? file.name : "Click pentru a selecta fișier Excel sau PDF"}
               </p>
             </div>
             <input
               id="excel-file"
               type="file"
               className="hidden"
-              accept=".xlsx,.xls"
+              accept=".xlsx,.xls,.pdf"
               onChange={handleFileChange}
               disabled={isLoading}
             />

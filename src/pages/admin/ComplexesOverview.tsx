@@ -169,7 +169,7 @@ const ComplexesOverview = () => {
           <div className="flex gap-2">
             <Button onClick={() => setImportDialogOpen(true)} variant="outline">
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Import Excel
+              Import Excel/PDF
             </Button>
             <Link to="/admin/complexe/add">
               <Button>
@@ -247,7 +247,7 @@ const ComplexesOverview = () => {
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Import Complexe din Excel</DialogTitle>
+            <DialogTitle>Import Complexe din Excel sau PDF</DialogTitle>
           </DialogHeader>
           <ComplexExcelImporter />
         </DialogContent>
