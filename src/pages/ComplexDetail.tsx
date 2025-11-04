@@ -166,16 +166,13 @@ const ComplexDetail = () => {
           {/* Apartments by Floor */}
           {sortedFloors.map((floor) => (
             <div key={floor} className="mb-12">
-              <div className="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
+              <div className="flex items-center mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
                 <h2 className="text-2xl font-bold flex items-center gap-3">
                   {floor === 'P' ? 'PARTER' : floor === 'Altele' ? 'ALTELE' : floor}
                   <Badge variant="secondary" className="text-sm">
                     {groupedByFloor?.[floor]?.length} {groupedByFloor?.[floor]?.length === 1 ? 'apartament' : 'apartamente'}
                   </Badge>
                 </h2>
-                <div className="text-sm text-muted-foreground">
-                  {floor === 'P' ? 'Parter: 1.612 EUR/mp' : `Etajul ${floor.replace('E', '')}: 1.612 EUR/mp`}
-                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
