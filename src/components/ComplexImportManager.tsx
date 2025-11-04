@@ -47,62 +47,35 @@ const ComplexImportManager = () => {
     setIsImporting(true);
 
     try {
-      const fileContent = await file.text();
-      const lines = fileContent.split('\n').filter(line => line.trim());
-      
-      if (lines.length < 2) {
-        throw new Error("Fișierul trebuie să conțină cel puțin un rând cu date");
-      }
-
-      // Parse CSV (simple implementation)
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      const nameIndex = headers.findIndex(h => h.includes('nume') || h.includes('name'));
-      const locationIndex = headers.findIndex(h => h.includes('locatie') || h.includes('location') || h.includes('adresa'));
-      const descriptionIndex = headers.findIndex(h => h.includes('descriere') || h.includes('description'));
-
-      if (nameIndex === -1) {
-        throw new Error("Fișierul trebuie să conțină o coloană 'Nume' sau 'Name'");
-      }
-
-      let imported = 0;
-      const errors: string[] = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-        
-        const name = values[nameIndex];
-        if (!name) continue;
-
-        const complexData = {
-          name,
-          location: locationIndex !== -1 ? values[locationIndex] : null,
-          description: descriptionIndex !== -1 ? values[descriptionIndex] : null,
+      // Convert file to base64
+      const reader = new FileReader();
+      const fileBase64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]);
         };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-        const { error } = await supabase
-          .from('complexes')
-          .insert(complexData);
-
-        if (error) {
-          errors.push(`Linia ${i + 1}: ${error.message}`);
-        } else {
-          imported++;
+      const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
+        body: { 
+          file: fileBase64,
+          fileName: file.name
         }
-      }
+      });
+
+      if (error) throw error;
 
       await queryClient.invalidateQueries({ queryKey: ['crm-users'] });
+      await queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] });
 
       toast({
         title: "Import finalizat",
-        description: `${imported} ansambluri importate${errors.length > 0 ? `, ${errors.length} erori` : ''}`,
+        description: data?.message || "Ansambluri importate cu succes",
       });
 
-      if (errors.length > 0) {
-        console.error("Import errors:", errors);
-      }
-
       setFile(null);
-      // Reset file input
       const fileInput = document.getElementById('file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
       
