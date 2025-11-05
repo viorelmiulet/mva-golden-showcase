@@ -70,9 +70,10 @@ const ComplexImportManager = () => {
       await queryClient.invalidateQueries({ queryKey: ['crm-users'] });
       await queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] });
 
+      const dataType = data?.dataType === 'apartments' ? 'apartamente' : 'complexe';
       toast({
-        title: "Import finalizat",
-        description: `Importate ${data?.imported ?? 0} din ${data?.total ?? 0}${data?.errors?.length ? `, erori: ${data.errors.length}` : ''}`,
+        title: "Import finalizat cu succes",
+        description: `${data?.imported ?? 0} ${dataType} importate din ${data?.total ?? 0}${data?.errors?.length ? `. Erori: ${data.errors.length}` : ''}`,
       });
 
       setFile(null);
