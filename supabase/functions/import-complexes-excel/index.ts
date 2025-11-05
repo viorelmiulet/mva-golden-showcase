@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { fileData, fileName, file } = await req.json();
+    const { fileData, fileName, file, projectId, projectName, location: reqLocation } = await req.json();
 
     const base64Data = fileData || file;
     if (!base64Data) {
@@ -89,26 +89,33 @@ Deno.serve(async (req) => {
     if (isApartmentData) {
       console.log('Processing apartment data...');
       
-      // Create a complex for these apartments
-      const complexName = fileName?.replace(/\.(xlsx|xls|csv)$/i, '') || 'Complex Importat';
-      const { data: newComplex, error: complexError } = await supabaseClient
-        .from('real_estate_projects')
-        .insert({
-          name: complexName,
-          location: 'București',
-          description: `Complex importat din ${fileName}`,
-          status: 'available'
-        })
-        .select()
-        .single();
+      // Determine target complex
+      let complexName = fileName?.replace(/\.(xlsx|xls|csv)$/i, '') || 'Complex Importat';
+      if (projectId) {
+        complexId = projectId;
+        complexName = projectName || complexName;
+        console.log('Using existing complex ID from request:', complexId, 'name:', complexName);
+      } else {
+        // Create a complex for these apartments
+        const { data: newComplex, error: complexError } = await supabaseClient
+          .from('real_estate_projects')
+          .insert({
+            name: complexName,
+            location: reqLocation || 'București',
+            description: `Complex importat din ${fileName}`,
+            status: 'available'
+          })
+          .select()
+          .single();
 
-      if (complexError) {
-        console.error('Error creating complex:', complexError);
-        throw new Error(`Nu s-a putut crea complexul: ${complexError.message}`);
+        if (complexError) {
+          console.error('Error creating complex:', complexError);
+          throw new Error(`Nu s-a putut crea complexul: ${complexError.message}`);
+        }
+
+        complexId = newComplex.id;
+        console.log('Created complex:', complexName, 'with ID:', complexId);
       }
-
-      complexId = newComplex.id;
-      console.log('Created complex:', complexName, 'with ID:', complexId);
 
       // Process apartments
       for (const row of data) {

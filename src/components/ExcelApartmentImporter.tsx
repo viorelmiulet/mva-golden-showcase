@@ -68,32 +68,34 @@ export const ExcelApartmentImporter = ({ projectId, onImportComplete }: ExcelApa
 
     setIsImporting(true);
     try {
-      // Read file as text (assuming it's been saved as TSV)
-      const text = await file.text();
-      const apartments = parseExcelData(text);
-      
-      if (apartments.length === 0) {
-        toast.error("Nu s-au găsit apartamente în fișier");
-        setIsImporting(false);
-        return;
-      }
+      // Read file as base64 to support real Excel formats
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      const { data, error } = await supabase.functions.invoke("import-excel-apartments", {
-        body: { apartments, projectId }
+      const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
+        body: { fileData: base64, fileName: file.name, projectId }
       });
 
       if (error) throw error;
 
       if (data?.success) {
-        toast.success(`${data.imported} apartamente importate cu succes!`);
+        const dataType = data?.dataType === 'apartments' ? 'apartamente' : 'complexe';
+        toast.success(`Import reușit: ${data?.imported ?? 0} ${dataType} din ${data?.total ?? 0}`);
         setFile(null);
-        if (onImportComplete) onImportComplete();
+        onImportComplete?.();
       } else {
-        throw new Error(data?.error || "Eroare la import");
+        throw new Error(data?.error || 'Eroare la import');
       }
     } catch (error: any) {
-      console.error("Import error:", error);
-      toast.error("Eroare la import: " + error.message);
+      console.error('Import error:', error);
+      toast.error('Eroare la import: ' + (error?.message || 'necunoscută'));
     } finally {
       setIsImporting(false);
     }
