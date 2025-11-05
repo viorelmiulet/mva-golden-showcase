@@ -60,7 +60,7 @@ const ComplexImportManager = () => {
 
       const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
         body: { 
-          file: fileBase64,
+          fileData: fileBase64,
           fileName: file.name
         }
       });
@@ -72,7 +72,7 @@ const ComplexImportManager = () => {
 
       toast({
         title: "Import finalizat",
-        description: data?.message || "Ansambluri importate cu succes",
+        description: `Importate ${data?.imported ?? 0} din ${data?.total ?? 0}${data?.errors?.length ? `, erori: ${data.errors.length}` : ''}`,
       });
 
       setFile(null);

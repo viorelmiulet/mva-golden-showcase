@@ -18,16 +18,17 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { fileData, fileName } = await req.json();
+    const { fileData, fileName, file } = await req.json();
 
-    if (!fileData) {
+    const base64Data = fileData || file;
+    if (!base64Data) {
       throw new Error('No file data provided');
     }
 
     console.log('Processing Excel file:', fileName);
 
     // Decode base64 to buffer
-    const buffer = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
+    const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
     
     // Read Excel file
     const workbook = XLSX.read(buffer, { type: 'array' });
