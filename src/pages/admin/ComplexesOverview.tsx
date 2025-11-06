@@ -1,14 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ComplexExcelImporter from "@/components/ComplexExcelImporter";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProjectStats {
   id: string;
@@ -23,6 +26,10 @@ interface ProjectStats {
 
 const ComplexesOverview = () => {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   // Fetch all projects with their statistics
   const { data: projectsStats, isLoading } = useQuery({
@@ -86,6 +93,50 @@ const ComplexesOverview = () => {
     }),
     { complexes: 0, properties: 0, available: 0, sold: 0 }
   ) || { complexes: 0, properties: 0, available: 0, sold: 0 };
+
+  const handleDeleteClick = (projectId: string) => {
+    setProjectToDelete(projectId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!projectToDelete) return;
+
+    try {
+      // First delete all properties associated with this project
+      const { error: propertiesError } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .eq('project_id', projectToDelete);
+
+      if (propertiesError) throw propertiesError;
+
+      // Then delete the project
+      const { error: projectError } = await supabase
+        .from('real_estate_projects')
+        .delete()
+        .eq('id', projectToDelete);
+
+      if (projectError) throw projectError;
+
+      toast({
+        title: "Succes!",
+        description: "Ansamblul a fost șters cu succes"
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['projects-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['real_estate_projects'] });
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut șterge ansamblul",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -252,6 +303,14 @@ const ComplexesOverview = () => {
                       Detalii
                     </Button>
                   </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleDeleteClick(project.id)}
+                    className="border-destructive/30 hover:bg-destructive/10 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -268,6 +327,24 @@ const ComplexesOverview = () => {
           <ComplexExcelImporter />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sigur doriți să ștergeți acest ansamblu rezidențial? Toate proprietățile asociate vor fi de asemenea șterse. Această acțiune nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
