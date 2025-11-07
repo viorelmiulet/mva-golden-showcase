@@ -88,11 +88,19 @@ const ComplexDetail = () => {
 
   // Group properties by floor
   const groupedByFloor = properties?.reduce((acc, prop) => {
-    // Extract floor from features array
-    const floorFeature = prop.features?.find((f: string) => 
-      ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6'].includes(f)
-    );
-    const floor = floorFeature || 'Altele';
+    // Extract floor from features array by checking if feature starts with floor name
+    let floor = 'Altele';
+    const featureStr = prop.features?.[0] || '';
+    
+    if (featureStr.startsWith('Demisol')) floor = 'Demisol';
+    else if (featureStr.startsWith('Parter')) floor = 'Parter';
+    else if (featureStr.startsWith('Etaj 1')) floor = 'Etaj 1';
+    else if (featureStr.startsWith('Etaj 2')) floor = 'Etaj 2';
+    else if (featureStr.startsWith('Etaj 3')) floor = 'Etaj 3';
+    else if (featureStr.startsWith('Etaj 4')) floor = 'Etaj 4';
+    else if (featureStr.startsWith('Etaj 5')) floor = 'Etaj 5';
+    else if (featureStr.startsWith('Etaj 6')) floor = 'Etaj 6';
+    
     if (!acc[floor]) acc[floor] = [];
     acc[floor].push(prop);
     return acc;
@@ -187,10 +195,9 @@ const ComplexDetail = () => {
                   const priceCredit = apt.price_max;
                   const priceCash = apt.price_min;
                   const rooms = apt.rooms;
-                  // Extract apartment type from features (not floor)
-                  const tipApt = apt.features?.find((f: string) => 
-                    !['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6'].includes(f)
-                  ) || '';
+                  // Extract apartment type from feature string (remove floor prefix)
+                  const featureStr = apt.features?.[0] || '';
+                  const tipApt = featureStr.replace(/^(Demisol|Parter|Etaj \d+)\s+/, '');
 
                   return (
                     <Card 
