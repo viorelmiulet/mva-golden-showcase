@@ -88,13 +88,25 @@ const ComplexDetail = () => {
 
   // Group properties by floor
   const groupedByFloor = properties?.reduce((acc, prop) => {
-    const floor = prop.features?.find((f: string) => f.startsWith('Etaj:'))?.split(': ')[1] || 'Altele';
+    // Extract floor from features array (e.g., "Demisol GARSONIERA" -> "Demisol")
+    const featureStr = prop.features?.[0] || '';
+    let floor = 'Altele';
+    
+    if (featureStr.startsWith('Demisol')) {
+      floor = 'Demisol';
+    } else if (featureStr.startsWith('Parter')) {
+      floor = 'Parter';
+    } else if (featureStr.startsWith('Etaj')) {
+      const match = featureStr.match(/^(Etaj \d+)/);
+      if (match) floor = match[1];
+    }
+    
     if (!acc[floor]) acc[floor] = [];
     acc[floor].push(prop);
     return acc;
   }, {} as Record<string, typeof properties>);
 
-  const floorOrder = ['P', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'Altele'];
+  const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
   const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
     return floorOrder.indexOf(a) - floorOrder.indexOf(b);
   });
@@ -168,7 +180,7 @@ const ComplexDetail = () => {
             <div key={floor} className="mb-12">
               <div className="flex items-center mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
                 <h2 className="text-2xl font-bold flex items-center gap-3">
-                  {floor === 'P' ? 'PARTER' : floor === 'Altele' ? 'ALTELE' : floor}
+                  {floor.toUpperCase()}
                   <Badge variant="secondary" className="text-sm">
                     {groupedByFloor?.[floor]?.length} {groupedByFloor?.[floor]?.length === 1 ? 'apartament' : 'apartamente'}
                   </Badge>
@@ -183,7 +195,9 @@ const ComplexDetail = () => {
                   const priceCredit = apt.price_max;
                   const priceCash = apt.price_min;
                   const rooms = apt.rooms;
-                  const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+                  // Extract apartment type from features (e.g., "Demisol GARSONIERA" -> "GARSONIERA")
+                  const featureStr = apt.features?.[0] || '';
+                  const tipApt = featureStr.replace(/^(Demisol|Parter|Etaj \d+)\s+/, '');
 
                   return (
                     <Card 
