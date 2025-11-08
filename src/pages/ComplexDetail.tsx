@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,16 +16,35 @@ import {
   XCircle,
   Clock,
   FileText,
-  X
+  X,
+  Edit
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
+import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
+  const [editingApartment, setEditingApartment] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['public-project', id],
@@ -41,7 +60,7 @@ const ComplexDetail = () => {
     }
   });
 
-  const { data: properties, isLoading: propertiesLoading } = useQuery({
+  const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
     queryKey: ['public-project-properties', id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -276,25 +295,40 @@ const ComplexDetail = () => {
                           </div>
                         </div>
 
-                        {/* Floor Plan Button */}
-                        {apt.floor_plan ? (
-                          <Button 
-                            size="sm" 
-                            className="w-full mt-2 bg-primary hover:bg-primary/90"
-                            onClick={() => {
-                              setSelectedFloorPlan(apt.floor_plan);
-                              setFloorPlanOpen(true);
-                            }}
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            Vezi Schiță Apartament
-                          </Button>
-                        ) : (
-                          <div className="text-center text-sm text-muted-foreground py-2">
-                            <FileText className="h-4 w-4 mx-auto mb-1 opacity-50" />
-                            Schiță nedisponibilă
-                          </div>
-                        )}
+                        {/* Action Buttons */}
+                        <div className="space-y-2 mt-2">
+                          {apt.floor_plan ? (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                setSelectedFloorPlan(apt.floor_plan);
+                                setFloorPlanOpen(true);
+                              }}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Vezi Schiță
+                            </Button>
+                          ) : (
+                            <div className="text-center text-sm text-muted-foreground py-2">
+                              <FileText className="h-4 w-4 mx-auto mb-1 opacity-50" />
+                              Schiță nedisponibilă
+                            </div>
+                          )}
+                          
+                          {isAuthenticated && (
+                            <Button 
+                              size="sm" 
+                              variant="secondary"
+                              className="w-full"
+                              onClick={() => setEditingApartment(apt)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Editează Detalii
+                            </Button>
+                          )}
+                        </div>
                       </CardContent>
                     </Card>
                   );
@@ -332,6 +366,16 @@ const ComplexDetail = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Apartment Edit Dialog */}
+      {editingApartment && (
+        <ApartmentEditDialog
+          apartment={editingApartment}
+          open={!!editingApartment}
+          onOpenChange={(open) => !open && setEditingApartment(null)}
+          onSuccess={() => refetch()}
+        />
+      )}
     </>
   );
 };
