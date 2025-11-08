@@ -17,13 +17,14 @@ import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
 
 const Properties = () => {
-  // Fetch 12 random offers from catalog_offers
+  // Fetch 12 random offers from catalog_offers (exclude apartments from residential complexes)
   const { data: randomOffers = [], isLoading } = useQuery({
     queryKey: ['random_offers_home'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('*')
+        .is('project_id', null)
         .limit(100);
       
       if (error) throw error;
