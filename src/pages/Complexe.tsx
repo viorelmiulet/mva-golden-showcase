@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Complexe = () => {
   const { data: projects, isLoading } = useQuery({
@@ -18,6 +19,38 @@ const Complexe = () => {
 
       if (error) throw error;
       return data;
+    }
+  });
+
+  // Fetch apartments statistics for each project
+  const { data: apartmentsStats } = useQuery({
+    queryKey: ['apartments-stats', projects],
+    enabled: !!projects && projects.length > 0,
+    queryFn: async () => {
+      if (!projects) return [];
+      
+      const stats = await Promise.all(
+        projects.map(async (project) => {
+          const { data, error } = await supabase
+            .from('catalog_offers')
+            .select('id, availability_status')
+            .eq('project_id', project.id);
+
+          if (error) throw error;
+
+          const total = data?.length || 0;
+          const available = data?.filter(apt => apt.availability_status === 'available').length || 0;
+
+          return {
+            name: project.name.length > 20 ? project.name.substring(0, 20) + '...' : project.name,
+            total,
+            available,
+            sold: total - available
+          };
+        })
+      );
+
+      return stats.filter(stat => stat.total > 0);
     }
   });
 
@@ -56,6 +89,39 @@ const Complexe = () => {
               Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi
             </p>
           </div>
+
+          {/* Statistics Chart */}
+          {apartmentsStats && apartmentsStats.length > 0 && (
+            <Card className="mb-16 p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-2">Statistici Apartamente</h2>
+                <p className="text-muted-foreground">Vizualizare apartamente disponibile și vândute per complex</p>
+              </div>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={apartmentsStats}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="name" 
+                    className="text-xs"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
+                  <YAxis />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="available" fill="hsl(var(--primary))" name="Disponibile" />
+                  <Bar dataKey="sold" fill="hsl(var(--muted))" name="Vândute" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          )}
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
