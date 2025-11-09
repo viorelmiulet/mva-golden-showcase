@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Progress } from "@/components/ui/progress";
 
 const Complexe = () => {
   const { data: projects, isLoading } = useQuery({
@@ -22,37 +23,32 @@ const Complexe = () => {
     }
   });
 
-  // Fetch apartments statistics for each project
-  const { data: apartmentsStats } = useQuery({
-    queryKey: ['apartments-stats', projects],
+  // Fetch apartments for all projects
+  const { data: allApartments } = useQuery({
+    queryKey: ['all-project-apartments'],
     enabled: !!projects && projects.length > 0,
     queryFn: async () => {
-      if (!projects) return [];
-      
-      const stats = await Promise.all(
-        projects.map(async (project) => {
-          const { data, error } = await supabase
-            .from('catalog_offers')
-            .select('id, availability_status')
-            .eq('project_id', project.id);
+      const { data, error } = await supabase
+        .from('catalog_offers')
+        .select('id, project_id, availability_status')
+        .not('project_id', 'is', null);
 
-          if (error) throw error;
-
-          const total = data?.length || 0;
-          const available = data?.filter(apt => apt.availability_status === 'available').length || 0;
-
-          return {
-            name: project.name.length > 20 ? project.name.substring(0, 20) + '...' : project.name,
-            total,
-            available,
-            sold: total - available
-          };
-        })
-      );
-
-      return stats.filter(stat => stat.total > 0);
+      if (error) throw error;
+      return data || [];
     }
   });
+
+  const getProjectStats = (projectId: string) => {
+    if (!allApartments) return { total: 0, available: 0, sold: 0, percentage: 0 };
+    
+    const projectApartments = allApartments.filter(apt => apt.project_id === projectId);
+    const total = projectApartments.length;
+    const available = projectApartments.filter(apt => apt.availability_status === 'available').length;
+    const sold = total - available;
+    const percentage = total > 0 ? Math.round((available / total) * 100) : 0;
+    
+    return { total, available, sold, percentage };
+  };
 
   if (isLoading) {
     return (
@@ -90,127 +86,119 @@ const Complexe = () => {
             </p>
           </div>
 
-          {/* Statistics Chart */}
-          {apartmentsStats && apartmentsStats.length > 0 && (
-            <Card className="mb-16 p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">Statistici Apartamente</h2>
-                <p className="text-muted-foreground">Vizualizare apartamente disponibile și vândute per complex</p>
-              </div>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={apartmentsStats}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis 
-                    dataKey="name" 
-                    className="text-xs"
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--background))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="available" fill="hsl(var(--primary))" name="Disponibile" />
-                  <Bar dataKey="sold" fill="hsl(var(--muted))" name="Vândute" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
-
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects
               ?.slice()
               .sort((a, b) => a.name.localeCompare(b.name, 'ro', { numeric: true, sensitivity: 'base' }))
-              .map((project) => (
-              <Link 
-                key={project.id} 
-                to={`/complexe/${project.id}`}
-                className="group"
-              >
-                <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/50 h-full">
-                  {/* Project Image */}
-                  <div className="relative h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
-                    {project.main_image ? (
-                      <img
-                        src={project.main_image}
-                        alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="h-24 w-24 text-primary/20" />
+              .map((project) => {
+                const stats = getProjectStats(project.id);
+
+                return (
+                  <Link 
+                    key={project.id} 
+                    to={`/complexe/${project.id}`}
+                    className="group"
+                  >
+                    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/50 h-full">
+                      {/* Project Image */}
+                      <div className="relative h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
+                        {project.main_image ? (
+                          <img
+                            src={project.main_image}
+                            alt={project.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Building2 className="h-24 w-24 text-primary/20" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                        
+                        {/* Project Name Overlay */}
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <h2 className="text-2xl font-bold text-white drop-shadow-lg">
+                            {project.name}
+                          </h2>
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                    
-                    {/* Project Name Overlay */}
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <h2 className="text-2xl font-bold text-white drop-shadow-lg">
-                        {project.name}
-                      </h2>
-                    </div>
-                  </div>
 
-                  <CardContent className="p-6 space-y-4">
-                    {/* Location */}
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{project.location}</span>
-                    </div>
+                      <CardContent className="p-6 space-y-4">
+                        {/* Location */}
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MapPin className="h-4 w-4" />
+                          <span>{project.location}</span>
+                        </div>
 
-                    {/* Description */}
-                    {project.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {project.description}
-                      </p>
-                    )}
+                        {/* Description */}
+                        {project.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {project.description}
+                          </p>
+                        )}
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                      {project.price_range && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">Preț</p>
-                          <p className="font-semibold">{project.price_range}</p>
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                          {project.price_range && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Preț</p>
+                              <p className="font-semibold">{project.price_range}</p>
+                            </div>
+                          )}
+                          {project.surface_range && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Suprafață</p>
+                              <p className="font-semibold">{project.surface_range}</p>
+                            </div>
+                          )}
+                          {project.rooms_range && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Camere</p>
+                              <p className="font-semibold">{project.rooms_range}</p>
+                            </div>
+                          )}
+                          {project.completion_date && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Finalizare</p>
+                              <p className="font-semibold">{project.completion_date}</p>
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {project.surface_range && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">Suprafață</p>
-                          <p className="font-semibold">{project.surface_range}</p>
-                        </div>
-                      )}
-                      {project.rooms_range && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">Camere</p>
-                          <p className="font-semibold">{project.rooms_range}</p>
-                        </div>
-                      )}
-                      {project.completion_date && (
-                        <div>
-                          <p className="text-xs text-muted-foreground">Finalizare</p>
-                          <p className="font-semibold">{project.completion_date}</p>
-                        </div>
-                      )}
-                    </div>
 
-                    {/* Call to Action */}
-                    <div className="pt-4">
-                      <div className="flex items-center justify-between text-primary group-hover:text-primary/80 transition-colors">
-                        <span className="font-semibold">Vezi apartamente disponibile</span>
-                        <Home className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                        {/* Statistics Section */}
+                        {stats.total > 0 && (
+                          <div className="pt-4 border-t space-y-3">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="font-semibold">Disponibilitate</span>
+                              <span className="text-muted-foreground">{stats.available} din {stats.total}</span>
+                            </div>
+                            <Progress value={stats.percentage} className="h-2" />
+                            <div className="flex items-center justify-center gap-6 text-xs">
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-primary"></div>
+                                <span>{stats.available} disponibile</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-muted"></div>
+                                <span>{stats.sold} vândute</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Call to Action */}
+                        <div className="pt-4">
+                          <div className="flex items-center justify-between text-primary group-hover:text-primary/80 transition-colors">
+                            <span className="font-semibold">Vezi apartamente disponibile</span>
+                            <Home className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
           </div>
 
           {projects?.length === 0 && (
