@@ -173,14 +173,24 @@ const Complexe = () => {
                               <span className="font-semibold">Disponibilitate</span>
                               <span className="text-muted-foreground">{stats.available} din {stats.total}</span>
                             </div>
-                            <Progress value={stats.percentage} className="h-2" />
+                            {/* Dual bar chart */}
+                            <div className="flex gap-1 h-4 rounded-full overflow-hidden bg-muted/20">
+                              <div 
+                                className="bg-green-500 transition-all duration-300" 
+                                style={{ width: `${stats.percentage}%` }}
+                              />
+                              <div 
+                                className="bg-red-500 transition-all duration-300" 
+                                style={{ width: `${100 - stats.percentage}%` }}
+                              />
+                            </div>
                             <div className="flex items-center justify-center gap-6 text-xs">
                               <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-primary"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
                                 <span>{stats.available} disponibile</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 rounded-full bg-muted"></div>
+                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
                                 <span>{stats.sold} vândute</span>
                               </div>
                             </div>
