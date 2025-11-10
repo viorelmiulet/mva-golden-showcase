@@ -133,8 +133,91 @@ const ComplexDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{project.name} - MVA Imobiliare</title>
-        <meta name="description" content={project.description || `Descoperă apartamentele disponibile în ${project.name}`} />
+        <title>{project.name} - Apartamente Disponibile | MVA Imobiliare</title>
+        <meta name="description" content={project.description || `Explorează toate apartamentele disponibile în ${project.name}. Prețuri, planuri, detalii complete și fotografii pentru fiecare unitate.`} />
+        <meta name="keywords" content={`${project.name}, apartamente ${project.location}, ${project.rooms_range || 'apartamente'}, ${project.price_range || 'preț competitiv'}, complex rezidențial București`} />
+        <link rel="canonical" href={`https://mvaimobiliare.ro/complexe/${project.id}`} />
+        
+        {/* AI Crawler Optimization */}
+        <meta name="summary" content={`Complex rezidențial ${project.name} în ${project.location}. ${properties?.length || 0} apartamente totale, ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile. Preț: ${project.price_range || 'la cerere'}. Suprafață: ${project.surface_range || 'variată'}. Camere: ${project.rooms_range || 'diverse opțiuni'}. ${project.completion_date ? `Finalizare: ${project.completion_date}` : ''}. Developer: ${project.developer || 'verificat'}. Contact: 0767941512.`} />
+        <meta name="category" content="Real Estate Complex Detail" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://mvaimobiliare.ro/complexe/${project.id}`} />
+        <meta property="og:title" content={`${project.name} - Apartamente Disponibile`} />
+        <meta property="og:description" content={`${properties?.length || 0} apartamente în ${project.location}. ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile acum!`} />
+        <meta property="og:image" content={project.main_image || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
+        
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content={project.name} />
+        <meta property="twitter:description" content={project.description} />
+        {project.main_image && (
+          <meta property="twitter:image" content={project.main_image} />
+        )}
+        
+        {/* Structured Data - Residence */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Residence",
+            "name": project.name,
+            "description": project.description,
+            "image": project.main_image,
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": project.location,
+              "addressRegion": "București",
+              "addressCountry": "RO"
+            },
+            "numberOfRooms": project.rooms_range,
+            "floorSize": project.surface_range,
+            "amenityFeature": project.amenities?.map(amenity => ({
+              "@type": "LocationFeatureSpecification",
+              "name": amenity
+            })),
+            "offers": {
+              "@type": "AggregateOffer",
+              "availability": "https://schema.org/InStock",
+              "priceCurrency": "EUR",
+              "offerCount": properties?.filter(p => p.availability_status === 'available').length || 0,
+              "seller": {
+                "@type": "RealEstateAgent",
+                "name": "MVA Imobiliare",
+                "telephone": "+40767941512"
+              }
+            }
+          })}
+        </script>
+        
+        {/* Breadcrumb Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Acasă",
+                "item": "https://mvaimobiliare.ro/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Complexe Rezidențiale",
+                "item": "https://mvaimobiliare.ro/complexe"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": project.name,
+                "item": `https://mvaimobiliare.ro/complexe/${project.id}`
+              }
+            ]
+          })}
+        </script>
       </Helmet>
       
       <div className="min-h-screen bg-background">

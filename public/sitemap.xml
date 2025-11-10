@@ -55,6 +55,22 @@
     <priority>0.7</priority>
   </url>
   
+  <!-- Complexe Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/complexe</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Cariera Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/cariera</loc>
+    <lastmod>2025-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
   <!-- Blog Posts -->
   <url>
     <loc>https://mvaimobiliare.ro/blog/ghidul-complet-cumparare-proprietate-bucuresti</loc>
@@ -83,5 +99,13 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  
+  <!-- Dynamic Pages Note: 
+       Complex detail pages and property detail pages are dynamically generated
+       Example URLs:
+       - https://mvaimobiliare.ro/complexe/{complex-id}
+       - https://mvaimobiliare.ro/proprietati/{property-id}
+       These are crawlable through the main pages above
+  -->
   
 </urlset>
