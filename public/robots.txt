@@ -36,6 +36,10 @@ Disallow: /api-keys/
 Disallow: /private/
 
 # Sitemaps
+# Dynamic sitemap that includes all complexes and properties from database
+Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap
+
+# Static sitemap for backup
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
 
 # Crawl-delay for respectful crawling
