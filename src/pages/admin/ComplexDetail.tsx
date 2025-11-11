@@ -27,6 +27,8 @@ import {
 import ImageUploadDialog from "@/components/ImageUploadDialog";
 import FloorPlanUploadDialog from "@/components/FloorPlanUploadDialog";
 import BulkFloorPlanUploadDialog from "@/components/BulkFloorPlanUploadDialog";
+import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
+import { BulkApartmentEditDialog } from "@/components/BulkApartmentEditDialog";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -53,6 +55,9 @@ const ComplexDetail = () => {
   const [manualCommissionOpen, setManualCommissionOpen] = useState(false);
   const [selectedPropertyForCommission, setSelectedPropertyForCommission] = useState<string | null>(null);
   const [manualCommissionAmount, setManualCommissionAmount] = useState<string>('');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedPropertyForEdit, setSelectedPropertyForEdit] = useState<any>(null);
+  const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch project details
@@ -571,6 +576,16 @@ const ComplexDetail = () => {
                   <span className="hidden sm:inline">Marchează Vândut</span>
                   <span className="sm:hidden">Vândut</span>
                 </Button>
+                <Button 
+                  onClick={() => setBulkEditDialogOpen(true)} 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 md:flex-none border-primary text-primary hover:bg-primary/10"
+                >
+                  <Edit className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Editează Detalii</span>
+                  <span className="sm:hidden">Editează</span>
+                </Button>
                 <Button onClick={handleBulkImageUpload} variant="outline" size="sm" className="flex-1 md:flex-none">
                   <ImagePlus className="mr-1 md:mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Încarcă Imagini</span>
@@ -859,6 +874,31 @@ const ComplexDetail = () => {
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
+
+                      {/* Edit Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
+                        onClick={() => {
+                          setSelectedPropertyForEdit(apt);
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                        Editează Detalii
+                      </Button>
+
+                      {/* Add Image Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full border-blue-500/30 hover:bg-blue-500/10 h-8 md:h-9 text-xs md:text-sm"
+                        onClick={() => handleSingleImageUpload(apt.id)}
+                      >
+                        <ImagePlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                        {apt.images && apt.images.length > 0 ? `Imagini (${apt.images.length})` : '+ Imagini'}
+                      </Button>
                     </CardContent>
                   </Card>
                 );
@@ -994,6 +1034,30 @@ const ComplexDetail = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Apartment Dialog */}
+      {selectedPropertyForEdit && (
+        <ApartmentEditDialog
+          apartment={selectedPropertyForEdit}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={() => {
+            refetch();
+            setSelectedPropertyForEdit(null);
+          }}
+        />
+      )}
+
+      {/* Bulk Edit Dialog */}
+      <BulkApartmentEditDialog
+        apartmentIds={selectedProperties}
+        open={bulkEditDialogOpen}
+        onOpenChange={setBulkEditDialogOpen}
+        onSuccess={() => {
+          refetch();
+          setSelectedProperties([]);
+        }}
+      />
     </div>
   );
 };
