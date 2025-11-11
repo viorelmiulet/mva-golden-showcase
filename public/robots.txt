@@ -36,8 +36,13 @@ Disallow: /api-keys/
 Disallow: /private/
 
 # Sitemaps
-# Dynamic sitemap that includes all complexes and properties from database
-Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap
+# Dynamic sitemap index that splits sitemap into multiple files for better performance
+Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index
+
+# Individual sitemaps (accessible directly if needed)
+# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-static
+# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-complexes
+# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-properties
 
 # Static sitemap for backup
 Sitemap: https://mvaimobiliare.ro/sitemap.xml

@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   try {
     console.log('Notifying Google about sitemap update');
 
-    const sitemapUrl = 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap';
+    const sitemapUrl = 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index';
     const googlePingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
 
     // Notify Google Search Console about sitemap update
