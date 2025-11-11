@@ -155,6 +155,61 @@ const ComplexDetail = () => {
     refetch();
   };
 
+  const handleBulkStatusUpdate = async (newStatus: 'available' | 'sold' | 'reserved') => {
+    if (selectedProperties.length === 0) {
+      toast.error("Selectează cel puțin o proprietate");
+      return;
+    }
+
+    const statusLabels = {
+      available: 'disponibile',
+      reserved: 'rezervate',
+      sold: 'vândute'
+    };
+
+    try {
+      // Optimistic update
+      const queryKey = ['project-properties', id];
+      const prev = queryClient.getQueryData<any[]>(queryKey);
+      
+      queryClient.setQueryData<any[]>(queryKey, (old) =>
+        (old || []).map((p) => 
+          selectedProperties.includes(p.id) 
+            ? { ...p, availability_status: newStatus } 
+            : p
+        )
+      );
+
+      // Update each property
+      const updatePromises = selectedProperties.map(propertyId =>
+        supabase.functions.invoke('admin-offers', {
+          body: {
+            action: 'update_status',
+            id: propertyId,
+            availability_status: newStatus,
+          },
+        })
+      );
+
+      const results = await Promise.all(updatePromises);
+      const hasError = results.some(r => r.error || (r.data && r.data.success === false));
+
+      if (hasError) {
+        // Rollback on error
+        queryClient.setQueryData(queryKey, prev);
+        toast.error("Eroare la actualizarea statusului");
+        return;
+      }
+
+      toast.success(`${selectedProperties.length} ${selectedProperties.length === 1 ? 'apartament marcat' : 'apartamente marcate'} ca ${statusLabels[newStatus]}`);
+      setSelectedProperties([]);
+      queryClient.invalidateQueries({ queryKey });
+    } catch (error) {
+      console.error('Error updating bulk status:', error);
+      toast.error("Eroare la actualizarea statusului");
+    }
+  };
+
   const handleBulkDelete = async () => {
     if (selectedProperties.length === 0) {
       toast.error("Selectează cel puțin o proprietate");
@@ -485,7 +540,37 @@ const ComplexDetail = () => {
                   <p className="text-xs md:text-sm text-muted-foreground hidden md:block">Acțiuni disponibile</p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  onClick={() => handleBulkStatusUpdate('available')} 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 md:flex-none border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <CheckCircle className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Marchează Disponibil</span>
+                  <span className="sm:hidden">Disponibil</span>
+                </Button>
+                <Button 
+                  onClick={() => handleBulkStatusUpdate('reserved')} 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 md:flex-none border-orange-500 text-orange-600 hover:bg-orange-50"
+                >
+                  <Clock className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Marchează Rezervat</span>
+                  <span className="sm:hidden">Rezervat</span>
+                </Button>
+                <Button 
+                  onClick={() => handleBulkStatusUpdate('sold')} 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 md:flex-none border-red-500 text-red-600 hover:bg-red-50"
+                >
+                  <XCircle className="mr-1 md:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Marchează Vândut</span>
+                  <span className="sm:hidden">Vândut</span>
+                </Button>
                 <Button onClick={handleBulkImageUpload} variant="outline" size="sm" className="flex-1 md:flex-none">
                   <ImagePlus className="mr-1 md:mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Încarcă Imagini</span>
