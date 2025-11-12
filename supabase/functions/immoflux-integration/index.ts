@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0'
 import FirecrawlApp from 'https://esm.sh/@mendable/firecrawl-js@1.0.0'
+import { importXmlWithCustomMapping } from './custom-mapping.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -61,6 +62,9 @@ serve(async (req) => {
       
       case 'import_xml_feed':
         return await importXmlFeed(supabase, xml_url);
+      
+      case 'import_xml_with_mapping':
+        return await importXmlWithCustomMapping(supabase, xml_url, requestBody.field_mapping);
       
       case 'test_connection':
         return await testConnection(immofluxApiKey, immofluxApiUser);
@@ -585,11 +589,13 @@ async function analyzeXmlStructure(xmlUrl: string) {
     
     // Try to detect property blocks with common patterns
     const propertyPatterns = [
-      'item', 'property', 'offer', 'listing', 'oferta', 'anunt', 'imobil', 'unit', 'entry'
+      'item', 'property', 'offer', 'listing', 'oferta', 'anunt', 'imobil', 'unit', 'entry', 'ad'
     ];
     
     let detectedPattern = null;
     let blockCount = 0;
+    let samplePropertyFields: string[] = [];
+    let sampleProperty: any = {};
     
     for (const pattern of propertyPatterns) {
       const regex = new RegExp(`<${pattern}[^>]*>[\\s\\S]*?<\\/${pattern}>`, 'gi');
@@ -597,6 +603,26 @@ async function analyzeXmlStructure(xmlUrl: string) {
       if (matches && matches.length > 0) {
         detectedPattern = pattern;
         blockCount = matches.length;
+        
+        // Extract fields from first property
+        if (matches[0]) {
+          const firstBlock = matches[0];
+          const fieldMatches = firstBlock.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g) || [];
+          const fieldsInBlock = new Set<string>();
+          fieldMatches.forEach(tag => {
+            const fieldName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
+            if (fieldName && fieldName !== pattern) {
+              fieldsInBlock.add(fieldName);
+              // Extract sample value
+              const valueMatch = firstBlock.match(new RegExp(`<${fieldName}[^>]*>([\\s\\S]*?)<\\/${fieldName}>`, 'i'));
+              if (valueMatch && valueMatch[1]) {
+                sampleProperty[fieldName] = valueMatch[1].trim().substring(0, 100);
+              }
+            }
+          });
+          samplePropertyFields = Array.from(fieldsInBlock);
+        }
+        
         break;
       }
     }
@@ -609,24 +635,25 @@ async function analyzeXmlStructure(xmlUrl: string) {
       if (matches && matches.length > 1) {
         detectedPattern = candidateTag;
         blockCount = matches.length;
-      }
-    }
-    
-    // Sample property fields detection
-    const sampleFields: string[] = [];
-    if (detectedPattern) {
-      const regex = new RegExp(`<${detectedPattern}[^>]*>([\\s\\S]*?)<\\/${detectedPattern}>`, 'i');
-      const firstBlock = cleanXml.match(regex);
-      if (firstBlock) {
-        const fieldMatches = firstBlock[1].match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g) || [];
-        const fieldsInBlock = new Set<string>();
-        fieldMatches.forEach(tag => {
-          const fieldName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
-          if (fieldName) {
-            fieldsInBlock.add(fieldName);
-          }
-        });
-        sampleFields.push(...Array.from(fieldsInBlock).slice(0, 15));
+        
+        // Extract fields from first match
+        if (matches[0]) {
+          const firstBlock = matches[0];
+          const fieldMatches = firstBlock.match(/<([a-zA-Z][a-zA-Z0-9_-]*)[^>]*>/g) || [];
+          const fieldsInBlock = new Set<string>();
+          fieldMatches.forEach(tag => {
+            const fieldName = tag.match(/<([a-zA-Z][a-zA-Z0-9_-]*)/)?.[1];
+            if (fieldName && fieldName !== candidateTag) {
+              fieldsInBlock.add(fieldName);
+              // Extract sample value
+              const valueMatch = firstBlock.match(new RegExp(`<${fieldName}[^>]*>([\\s\\S]*?)<\\/${fieldName}>`, 'i'));
+              if (valueMatch && valueMatch[1]) {
+                sampleProperty[fieldName] = valueMatch[1].trim().substring(0, 100);
+              }
+            }
+          });
+          samplePropertyFields = Array.from(fieldsInBlock).slice(0, 20);
+        }
       }
     }
     
@@ -639,8 +666,9 @@ async function analyzeXmlStructure(xmlUrl: string) {
           rootElement: rootElement,
           detectedPropertyPattern: detectedPattern,
           estimatedPropertyCount: blockCount,
-          samplePropertyFields: sampleFields
+          samplePropertyFields: samplePropertyFields
         },
+        sampleProperty: sampleProperty,
         tagFrequency: frequentTags,
         potentialPropertyContainers: frequentTags.filter(([tag, count]) => 
           tag.toLowerCase().includes('item') || 

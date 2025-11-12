@@ -183,20 +183,61 @@ export const useWebsiteScraper = () => {
 
       if (data?.success) {
         toast({
-          title: "XML Import Successful",
+          title: "Import XML Reușit",
           description: data.message,
         });
         return data;
       } else {
-        throw new Error(data?.error || 'XML import failed');
+        throw new Error(data?.error || 'Import XML eșuat');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'XML import failed';
+      const errorMessage = err instanceof Error ? err.message : 'Import XML eșuat';
       console.error('Error importing XML:', err);
       setError(errorMessage);
       
       toast({
-        title: "XML Import Failed",
+        title: "Import XML Eșuat",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const importXmlWithMapping = async (xmlUrl: string, fieldMapping: Record<string, string>): Promise<ScrapeResult | null> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+        body: {
+          action: 'import_xml_with_mapping',
+          xml_url: xmlUrl,
+          field_mapping: fieldMapping
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "Import XML cu Mapare Reușit",
+          description: data.message,
+        });
+        return data;
+      } else {
+        throw new Error(data?.error || 'Import XML cu mapare eșuat');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Import XML cu mapare eșuat';
+      console.error('Error importing XML with mapping:', err);
+      setError(errorMessage);
+      
+      toast({
+        title: "Import XML Eșuat",
         description: errorMessage,
         variant: "destructive",
       });
@@ -212,6 +253,7 @@ export const useWebsiteScraper = () => {
     testImmofluxConnection,
     syncImmofluxProperties,
     importXmlFeed,
+    importXmlWithMapping,
     analyzeXmlStructure,
     isLoading,
     error,
