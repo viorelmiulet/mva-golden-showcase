@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.notify-google-sitemap]
 verify_jwt = false
+
+[functions.admin-offers]
+verify_jwt = false

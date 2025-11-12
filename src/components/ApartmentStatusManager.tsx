@@ -36,20 +36,21 @@ export const ApartmentStatusManager = ({ projectId }: ApartmentStatusManagerProp
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from("catalog_offers")
-        .update({ availability_status: status })
-        .eq("id", id);
+    mutationFn: async ({ id, status }: { id: string; status: 'available' | 'reserved' | 'sold' }) => {
+      const { data, error } = await supabase.functions.invoke('admin-offers', {
+        body: { action: 'update_status', id, availability_status: status },
+      });
 
-      if (error) throw error;
+      if (error || data?.success === false) {
+        throw new Error(data?.error || (error as any)?.message || 'Eroare la actualizarea statusului');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["project-apartments", projectId] });
       toast.success("Status actualizat cu succes");
     },
     onError: (error: any) => {
-      toast.error("Eroare la actualizare: " + error.message);
+      toast.error("Eroare la actualizare: " + (error?.message || 'necunoscută'));
     },
   });
 
@@ -116,7 +117,7 @@ export const ApartmentStatusManager = ({ projectId }: ApartmentStatusManagerProp
                     <Select
                       value={apt.availability_status}
                       onValueChange={(value) =>
-                        updateStatus.mutate({ id: apt.id, status: value })
+                        updateStatus.mutate({ id: apt.id, status: value as 'available' | 'reserved' | 'sold' })
                       }
                     >
                       <SelectTrigger className="w-[150px]">
