@@ -222,21 +222,41 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
 }
 
 function extractFieldValue(xmlBlock: string, fieldName: string): string | null {
+  if (!fieldName) return null;
+  
+  // Clean the field name from any XML artifacts
+  const cleanFieldName = fieldName.replace(/[<>]/g, '').trim();
+  if (!cleanFieldName) return null;
+  
+  // Try multiple patterns to extract the value
   const patterns = [
-    new RegExp(`<${fieldName}[^>]*>([\\s\\S]*?)<\\/${fieldName}>`, 'i'),
-    new RegExp(`<${fieldName}>([\\s\\S]*?)<\\/${fieldName}>`, 'i'),
+    // Standard XML tag with attributes
+    new RegExp(`<${cleanFieldName}[^>]*>([\\s\\S]*?)<\\/${cleanFieldName}>`, 'i'),
+    // Standard XML tag without attributes
+    new RegExp(`<${cleanFieldName}>([\\s\\S]*?)<\\/${cleanFieldName}>`, 'i'),
+    // Self-closing or attribute value
+    new RegExp(`<${cleanFieldName}[^>]*>`, 'i'),
   ];
   
   for (const pattern of patterns) {
     const match = xmlBlock.match(pattern);
-    if (match && match[1]) {
-      let value = match[1].trim();
-      // Clean HTML entities and tags
-      value = value.replace(/&[a-zA-Z0-9#]+;/g, ' ')
-                  .replace(/<[^>]+>/g, ' ')
-                  .replace(/\s+/g, ' ')
-                  .trim();
-      if (value) return value;
+    if (match) {
+      let value = match[1] || '';
+      
+      // Clean up the extracted value
+      value = value
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/<[^>]+>/g, ' ')  // Remove nested HTML/XML tags
+        .replace(/\s+/g, ' ')       // Normalize whitespace
+        .trim();
+      
+      if (value && value.length > 0 && !value.match(/^[<>_]+$/)) {
+        return value;
+      }
     }
   }
   
