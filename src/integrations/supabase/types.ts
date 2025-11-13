@@ -295,6 +295,27 @@ export type Database = {
         }
         Relationships: []
       }
+      sitemap_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       user_complexes: {
         Row: {
           complex_id: string
