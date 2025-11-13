@@ -232,6 +232,14 @@ async function syncProperties(supabase: any, apiKey: string, apiUser: string) {
 
     console.log(`Successfully synced ${transformedOffers.length} properties from Immoflux`);
 
+    // Trigger background sitemap processing
+    if (transformedOffers.length > 0) {
+      console.log('[immoflux-integration] Triggering sitemap queue processing');
+      supabase.functions.invoke('process-sitemap-queue', { body: {} }).catch((err: any) => {
+        console.warn('[immoflux-integration] Failed to trigger sitemap processing:', err);
+      });
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -372,6 +380,14 @@ async function scrapeWebsiteProperties(supabase: any, url: string) {
     }
 
     console.log(`Successfully scraped ${properties.length} properties from website`);
+
+    // Trigger background sitemap processing
+    if (properties.length > 0) {
+      console.log('[immoflux-integration] Triggering sitemap queue processing');
+      supabase.functions.invoke('process-sitemap-queue', { body: {} }).catch((err: any) => {
+        console.warn('[immoflux-integration] Failed to trigger sitemap processing:', err);
+      });
+    }
 
     return new Response(
       JSON.stringify({ 
@@ -793,6 +809,14 @@ async function importXmlFeed(supabase: any, xmlUrl: string) {
     }
 
     console.log(`Successfully imported ${properties.length} properties from XML`);
+
+    // Trigger background sitemap processing
+    if (properties.length > 0) {
+      console.log('[immoflux-integration] Triggering sitemap queue processing');
+      supabase.functions.invoke('process-sitemap-queue', { body: {} }).catch((err: any) => {
+        console.warn('[immoflux-integration] Failed to trigger sitemap processing:', err);
+      });
+    }
 
     return new Response(
       JSON.stringify({ 
