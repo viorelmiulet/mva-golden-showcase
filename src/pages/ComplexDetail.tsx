@@ -107,17 +107,26 @@ const ComplexDetail = () => {
 
   // Group properties by floor
   const groupedByFloor = properties?.reduce((acc, prop) => {
-    // Extract floor from features array (e.g., "Demisol GARSONIERA" -> "Demisol")
+    // Extract floor from features array (e.g., "Etaj: E2" or "Etaj: P")
     const featureStr = prop.features?.[0] || '';
     let floor = 'Altele';
     
-    if (featureStr.startsWith('Demisol')) {
+    if (featureStr.includes('Etaj:')) {
+      const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
+      if (floorCode === 'P') {
+        floor = 'Parter';
+      } else if (floorCode?.startsWith('E')) {
+        const floorNum = floorCode.substring(1);
+        floor = `Etaj ${floorNum}`;
+      }
+    } else if (featureStr.startsWith('Demisol')) {
       floor = 'Demisol';
     } else if (featureStr.startsWith('Parter')) {
       floor = 'Parter';
     } else if (featureStr.startsWith('Etaj')) {
-      const match = featureStr.match(/^(Etaj \d+)/);
-      if (match) floor = match[1];
+      // Old format fallback: "Etaj 1"
+      const match = featureStr.match(/Etaj\s+(\d+)/);
+      if (match) floor = `Etaj ${match[1]}`;
     }
     
     if (!acc[floor]) acc[floor] = [];
