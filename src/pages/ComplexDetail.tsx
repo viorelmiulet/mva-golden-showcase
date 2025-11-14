@@ -23,6 +23,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
+import { ComplexFloorMap } from "@/components/ComplexFloorMap";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -286,8 +288,30 @@ const ComplexDetail = () => {
             )}
           </div>
 
-          {/* Apartments by Floor */}
-          {sortedFloors.map((floor) => (
+          {/* View Toggle - Map or List */}
+          <Tabs defaultValue="map" className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+              <TabsTrigger value="map">Vizualizare Hartă</TabsTrigger>
+              <TabsTrigger value="list">Vizualizare Listă</TabsTrigger>
+            </TabsList>
+
+            {/* Map View */}
+            <TabsContent value="map">
+              <ComplexFloorMap 
+                properties={properties || []}
+                onApartmentClick={(apt) => {
+                  if (isAuthenticated) {
+                    setEditingApartment(apt);
+                  }
+                }}
+                isAuthenticated={isAuthenticated}
+              />
+            </TabsContent>
+
+            {/* List View */}
+            <TabsContent value="list">
+              {/* Apartments by Floor */}
+              {sortedFloors.map((floor) => (
             <div key={floor} className="mb-12">
               <div className="flex items-center mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
                 <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -427,15 +451,17 @@ const ComplexDetail = () => {
                 })}
               </div>
             </div>
-          ))}
+              ))}
 
-          {properties?.length === 0 && (
-            <div className="text-center py-16">
-              <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Nu există apartamente disponibile</h3>
-              <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
-            </div>
-          )}
+              {properties?.length === 0 && (
+                <div className="text-center py-16">
+                  <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Nu există apartamente disponibile</h3>
+                  <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </main>
 
         <Footer />
