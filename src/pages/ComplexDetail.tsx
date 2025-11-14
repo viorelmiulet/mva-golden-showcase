@@ -24,6 +24,7 @@ import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ComplexFloorMap } from "@/components/ComplexFloorMap";
+import { Complex3DView } from "@/components/Complex3DView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ComplexDetail = () => {
@@ -288,12 +289,26 @@ const ComplexDetail = () => {
             )}
           </div>
 
-          {/* View Toggle - Map or List */}
-          <Tabs defaultValue="map" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          {/* View Toggle - 3D, Map or List */}
+          <Tabs defaultValue="3d" className="w-full">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
+              <TabsTrigger value="3d">Vizualizare 3D</TabsTrigger>
               <TabsTrigger value="map">Vizualizare Hartă</TabsTrigger>
               <TabsTrigger value="list">Vizualizare Listă</TabsTrigger>
             </TabsList>
+
+            {/* 3D View */}
+            <TabsContent value="3d">
+              <Complex3DView 
+                properties={properties || []}
+                onApartmentClick={(apt) => {
+                  if (isAuthenticated) {
+                    setEditingApartment(apt);
+                  }
+                }}
+                isAuthenticated={isAuthenticated}
+              />
+            </TabsContent>
 
             {/* Map View */}
             <TabsContent value="map">
