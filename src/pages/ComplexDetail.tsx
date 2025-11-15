@@ -24,9 +24,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
-import { ComplexFloorMap } from "@/components/ComplexFloorMap";
-import { Complex3DView } from "@/components/Complex3DView";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApartmentComparison } from "@/components/ApartmentComparison";
 
@@ -319,44 +316,8 @@ const ComplexDetail = () => {
             )}
           </div>
 
-          {/* View Toggle - List, Map or 3D */}
-          <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
-              <TabsTrigger value="list">Vizualizare Listă</TabsTrigger>
-              <TabsTrigger value="map">Vizualizare Hartă 2D</TabsTrigger>
-              <TabsTrigger value="3d">Vizualizare 3D</TabsTrigger>
-            </TabsList>
-
-            {/* 3D View */}
-            <TabsContent value="3d">
-              <Complex3DView 
-                properties={properties || []}
-                onApartmentClick={(apt) => {
-                  if (isAuthenticated) {
-                    setEditingApartment(apt);
-                  }
-                }}
-                isAuthenticated={isAuthenticated}
-              />
-            </TabsContent>
-
-            {/* Map View */}
-            <TabsContent value="map">
-              <ComplexFloorMap 
-                properties={properties || []}
-                onApartmentClick={(apt) => {
-                  if (isAuthenticated) {
-                    setEditingApartment(apt);
-                  }
-                }}
-                isAuthenticated={isAuthenticated}
-              />
-            </TabsContent>
-
-            {/* List View */}
-            <TabsContent value="list">
-              {/* Apartments by Floor */}
-              {sortedFloors.map((floor) => (
+          {/* Apartments by Floor */}
+          {sortedFloors.map((floor) => (
             <div key={floor} className="mb-12">
               <div className="flex items-center mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
                 <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -514,8 +475,6 @@ const ComplexDetail = () => {
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
-            </TabsContent>
-          </Tabs>
         </main>
 
         <Footer />
