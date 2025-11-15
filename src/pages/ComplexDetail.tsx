@@ -289,12 +289,12 @@ const ComplexDetail = () => {
             )}
           </div>
 
-          {/* View Toggle - 3D, Map or List */}
-          <Tabs defaultValue="3d" className="w-full">
+          {/* View Toggle - List, Map or 3D */}
+          <Tabs defaultValue="list" className="w-full">
             <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
-              <TabsTrigger value="3d">Vizualizare 3D</TabsTrigger>
-              <TabsTrigger value="map">Vizualizare Hartă</TabsTrigger>
               <TabsTrigger value="list">Vizualizare Listă</TabsTrigger>
+              <TabsTrigger value="map">Vizualizare Hartă 2D</TabsTrigger>
+              <TabsTrigger value="3d">Vizualizare 3D</TabsTrigger>
             </TabsList>
 
             {/* 3D View */}
