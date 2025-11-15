@@ -17,7 +17,8 @@ import {
   Clock,
   FileText,
   X,
-  Edit
+  Edit,
+  GitCompare
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -26,6 +27,8 @@ import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ComplexFloorMap } from "@/components/ComplexFloorMap";
 import { Complex3DView } from "@/components/Complex3DView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ApartmentComparison } from "@/components/ApartmentComparison";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +36,8 @@ const ComplexDetail = () => {
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<Set<string>>(new Set());
+  const [comparisonOpen, setComparisonOpen] = useState(false);
 
   // Check authentication status
   useEffect(() => {
@@ -141,6 +146,31 @@ const ComplexDetail = () => {
   const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
     return floorOrder.indexOf(a) - floorOrder.indexOf(b);
   });
+
+  const toggleApartmentForComparison = (apartmentId: string) => {
+    setSelectedForComparison(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(apartmentId)) {
+        newSet.delete(apartmentId);
+      } else {
+        if (newSet.size >= 4) {
+          return prev;
+        }
+        newSet.add(apartmentId);
+      }
+      return newSet;
+    });
+  };
+
+  const removeFromComparison = (apartmentId: string) => {
+    setSelectedForComparison(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(apartmentId);
+      return newSet;
+    });
+  };
+
+  const selectedApartments = properties?.filter(p => selectedForComparison.has(p.id)) || [];
 
   return (
     <>
@@ -348,6 +378,7 @@ const ComplexDetail = () => {
                   // Extract apartment type from features (e.g., "Demisol GARSONIERA" -> "GARSONIERA")
                   const featureStr = apt.features?.[0] || '';
                   const tipApt = featureStr.replace(/^(Demisol|Parter|Etaj \d+)\s+/, '');
+                  const isSelected = selectedForComparison.has(apt.id);
 
                   return (
                     <Card 
@@ -356,9 +387,17 @@ const ComplexDetail = () => {
                         isAvailable 
                           ? 'hover:shadow-xl hover:border-primary/50 border-2' 
                           : 'opacity-60 border border-muted'
-                      }`}
+                      } ${isSelected ? 'ring-2 ring-primary' : ''}`}
                     >
-                      <CardContent className="p-4 space-y-3">
+                      <div className="absolute top-2 left-2 z-10">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleApartmentForComparison(apt.id)}
+                          disabled={!isSelected && selectedForComparison.size >= 4}
+                          className="bg-background shadow-md"
+                        />
+                      </div>
+                      <CardContent className="p-4 pt-8 space-y-3">
                         {/* Header with apt number and status */}
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-2">
@@ -509,6 +548,28 @@ const ComplexDetail = () => {
           onSuccess={() => refetch()}
         />
       )}
+
+      {/* Floating Comparison Button */}
+      {selectedForComparison.size > 0 && (
+        <div className="fixed bottom-8 right-8 z-50">
+          <Button
+            size="lg"
+            className="gap-2 shadow-xl"
+            onClick={() => setComparisonOpen(true)}
+          >
+            <GitCompare className="h-5 w-5" />
+            Compară ({selectedForComparison.size})
+          </Button>
+        </div>
+      )}
+
+      {/* Comparison Dialog */}
+      <ApartmentComparison
+        apartments={selectedApartments}
+        open={comparisonOpen}
+        onOpenChange={setComparisonOpen}
+        onRemoveApartment={removeFromComparison}
+      />
     </>
   );
 };
