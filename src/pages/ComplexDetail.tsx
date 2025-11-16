@@ -18,7 +18,8 @@ import {
   FileText,
   X,
   Edit,
-  GitCompare
+  GitCompare,
+  ArrowUpDown
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -26,6 +27,7 @@ import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApartmentComparison } from "@/components/ApartmentComparison";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,7 @@ const ComplexDetail = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedForComparison, setSelectedForComparison] = useState<Set<string>>(new Set());
   const [comparisonOpen, setComparisonOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("default");
 
   // Check authentication status
   useEffect(() => {
@@ -110,8 +113,32 @@ const ComplexDetail = () => {
     );
   }
 
+  // Sort properties based on selected criteria
+  const sortedProperties = properties ? [...properties].sort((a, b) => {
+    switch (sortBy) {
+      case "price-asc":
+        return (a.price_min || 0) - (b.price_min || 0);
+      case "price-desc":
+        return (b.price_min || 0) - (a.price_min || 0);
+      case "surface-asc":
+        return (a.surface_min || 0) - (b.surface_min || 0);
+      case "surface-desc":
+        return (b.surface_min || 0) - (a.surface_min || 0);
+      case "status-available":
+        if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
+        if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
+        return 0;
+      case "status-reserved":
+        if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
+        if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
+        return 0;
+      default:
+        return 0;
+    }
+  }) : [];
+
   // Group properties by floor
-  const groupedByFloor = properties?.reduce((acc, prop) => {
+  const groupedByFloor = sortedProperties?.reduce((acc, prop) => {
     // Extract floor from features array (e.g., "Etaj: E2" or "Etaj: P")
     const featureStr = prop.features?.[0] || '';
     let floor = 'Altele';
@@ -314,6 +341,28 @@ const ComplexDetail = () => {
                 {project.description}
               </p>
             )}
+          </div>
+
+          {/* Sorting Controls */}
+          <div className="mb-8 flex items-center justify-between bg-card p-4 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-medium">Sortare:</span>
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Selectează sortare" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Implicit (după titlu)</SelectItem>
+                <SelectItem value="price-asc">Preț: Crescător</SelectItem>
+                <SelectItem value="price-desc">Preț: Descrescător</SelectItem>
+                <SelectItem value="surface-asc">Suprafață: Crescător</SelectItem>
+                <SelectItem value="surface-desc">Suprafață: Descrescător</SelectItem>
+                <SelectItem value="status-available">Disponibile Întâi</SelectItem>
+                <SelectItem value="status-reserved">Rezervate Întâi</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Apartments by Floor */}
