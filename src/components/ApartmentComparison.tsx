@@ -3,8 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Euro, Home, MapPin, CheckCircle2, XCircle, Clock, FileText, X } from "lucide-react";
+import { Euro, Home, MapPin, CheckCircle2, XCircle, Clock, FileText, X, Download } from "lucide-react";
 import { useState } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Apartment {
   id: string;
@@ -51,6 +53,120 @@ export const ApartmentComparison = ({
 }: ApartmentComparisonProps) => {
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
 
+  const exportToPDF = () => {
+    const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text('Comparație Apartamente', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.text(`Data: ${new Date().toLocaleDateString('ro-RO')}`, 14, 28);
+    
+    // Prepare table data
+    const tableData = [
+      // Basic Info
+      ['Apartament', ...apartments.map(apt => apt.title)],
+      ['Preț', ...apartments.map(apt => formatPrice(apt.price_min, apt.price_max))],
+      ['Suprafață', ...apartments.map(apt => formatSurface(apt.surface_min, apt.surface_max))],
+      ['Camere', ...apartments.map(apt => apt.rooms ? `${apt.rooms} camere` : 'N/A')],
+      ['Etaj', ...apartments.map(apt => getFloorFromFeatures(apt.features))],
+      ['Status', ...apartments.map(apt => {
+        const status = getStatusInfo(apt.availability_status);
+        return status.label;
+      })],
+      ['Locație', ...apartments.map(apt => apt.location || 'N/A')],
+    ];
+    
+    // Add features comparison
+    const allFeatures = new Set<string>();
+    apartments.forEach(apt => {
+      apt.features?.forEach(f => allFeatures.add(f));
+    });
+    
+    allFeatures.forEach(feature => {
+      tableData.push([
+        feature,
+        ...apartments.map(apt => 
+          apt.features?.includes(feature) ? '✓' : '—'
+        )
+      ]);
+    });
+    
+    // Add amenities comparison
+    const allAmenities = new Set<string>();
+    apartments.forEach(apt => {
+      apt.amenities?.forEach(a => allAmenities.add(a));
+    });
+    
+    if (allAmenities.size > 0) {
+      tableData.push(['FACILITĂȚI', ...Array(apartments.length).fill('')]);
+      allAmenities.forEach(amenity => {
+        tableData.push([
+          amenity,
+          ...apartments.map(apt => 
+            apt.amenities?.includes(amenity) ? '✓' : '—'
+          )
+        ]);
+      });
+    }
+    
+    // Generate table
+    autoTable(doc, {
+      startY: 35,
+      head: [],
+      body: tableData,
+      theme: 'grid',
+      styles: { 
+        fontSize: 9,
+        cellPadding: 3,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.1
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold', fillColor: [245, 245, 245] }
+      },
+      alternateRowStyles: {
+        fillColor: [250, 250, 250]
+      }
+    });
+    
+    // Add descriptions on new page if available
+    const descriptions = apartments.filter(apt => apt.description);
+    if (descriptions.length > 0) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.text('Descrieri Detaliate', 14, 20);
+      
+      let yPos = 30;
+      descriptions.forEach((apt, index) => {
+        if (yPos > 180) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(apt.title, 14, yPos);
+        yPos += 7;
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        const splitDescription = doc.splitTextToSize(apt.description || '', 260);
+        doc.text(splitDescription, 14, yPos);
+        yPos += splitDescription.length * 5 + 10;
+      });
+    }
+    
+    // Save PDF
+    doc.save(`comparatie-apartamente-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   const formatPrice = (min?: number, max?: number) => {
     if (!min && !max) return 'La cerere';
     if (min === max || !max) return `${min?.toLocaleString('ro-RO')} €`;
@@ -79,7 +195,18 @@ export const ApartmentComparison = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-[95vw] h-[90vh]">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Comparare Apartamente ({apartments.length})</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-2xl">Comparare Apartamente ({apartments.length})</DialogTitle>
+              <Button 
+                onClick={exportToPDF}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export PDF
+              </Button>
+            </div>
           </DialogHeader>
           
           <ScrollArea className="h-full pr-4">
