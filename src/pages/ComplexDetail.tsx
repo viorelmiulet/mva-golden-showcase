@@ -484,23 +484,25 @@ const ComplexDetail = () => {
                           </div>
                         </div>
 
-                        {/* Prices */}
-                        <div className="space-y-2 pt-2 border-t">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Preț Cash:</span>
-                            <div className="flex items-center gap-1 font-bold text-green-600">
-                              <Euro className="h-3 w-3" />
-                              {priceCash?.toLocaleString()}
+                        {/* Prices - Hidden for RENEW RESIDENCE */}
+                        {project.name !== "RENEW RESIDENCE" && (
+                          <div className="space-y-2 pt-2 border-t">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Preț Cash:</span>
+                              <div className="flex items-center gap-1 font-bold text-green-600">
+                                <Euro className="h-3 w-3" />
+                                {priceCash?.toLocaleString()}
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Preț Credit:</span>
+                              <div className="flex items-center gap-1 font-bold text-blue-600">
+                                <Euro className="h-3 w-3" />
+                                {priceCredit?.toLocaleString()}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Preț Credit:</span>
-                            <div className="flex items-center gap-1 font-bold text-blue-600">
-                              <Euro className="h-3 w-3" />
-                              {priceCredit?.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
+                        )}
 
                         {/* Action Buttons */}
                         <div className="space-y-2 mt-2">
