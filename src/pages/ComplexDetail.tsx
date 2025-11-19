@@ -116,32 +116,8 @@ const ComplexDetail = () => {
     );
   }
 
-  // Sort properties based on selected criteria
-  const sortedProperties = properties ? [...properties].sort((a, b) => {
-    switch (sortBy) {
-      case "price-asc":
-        return (a.price_min || 0) - (b.price_min || 0);
-      case "price-desc":
-        return (b.price_min || 0) - (a.price_min || 0);
-      case "surface-asc":
-        return (a.surface_min || 0) - (b.surface_min || 0);
-      case "surface-desc":
-        return (b.surface_min || 0) - (a.surface_min || 0);
-      case "status-available":
-        if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
-        if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
-        return 0;
-      case "status-reserved":
-        if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
-        if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
-        return 0;
-      default:
-        return 0;
-    }
-  }) : [];
-
-  // Group properties by floor
-  const groupedByFloor = sortedProperties?.reduce((acc, prop) => {
+  // Group properties by floor first
+  const groupedByFloor = properties?.reduce((acc, prop) => {
     // Extract floor from features array (e.g., "Etaj: E2" or "Etaj: P")
     const featureStr = prop.features?.[0] || '';
     let floor = 'Altele';
@@ -167,7 +143,33 @@ const ComplexDetail = () => {
     if (!acc[floor]) acc[floor] = [];
     acc[floor].push(prop);
     return acc;
-  }, {} as Record<string, typeof properties>);
+  }, {} as Record<string, typeof properties>) || {};
+
+  // Sort properties within each floor group based on selected criteria
+  Object.keys(groupedByFloor).forEach(floor => {
+    groupedByFloor[floor].sort((a, b) => {
+      switch (sortBy) {
+        case "price-asc":
+          return (a.price_min || 0) - (b.price_min || 0);
+        case "price-desc":
+          return (b.price_min || 0) - (a.price_min || 0);
+        case "surface-asc":
+          return (a.surface_min || 0) - (b.surface_min || 0);
+        case "surface-desc":
+          return (b.surface_min || 0) - (a.surface_min || 0);
+        case "status-available":
+          if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
+          if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
+          return 0;
+        case "status-reserved":
+          if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
+          if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
+          return 0;
+        default:
+          return 0;
+      }
+    });
+  });
 
   const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
   const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
