@@ -32,7 +32,6 @@ const Cariera = lazy(() => import("./pages/Cariera"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const FAQ = lazy(() => import("./pages/FAQ"));
-const Favorites = lazy(() => import("./pages/Favorites"));
 
 const queryClient = new QueryClient();
 
@@ -71,7 +70,6 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/favorite" element={<Favorites />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>
