@@ -201,12 +201,6 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <Link to="/favorite">
-              <Button variant="ghost" size="sm" className="shadow-lg text-xs">
-                <Heart className="w-3 h-3 mr-2" />
-                Favorite
-              </Button>
-            </Link>
             <Link to="/proprietati">
               <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
                 <Building className="w-3 h-3 mr-2" />
@@ -266,12 +260,6 @@ const Header = () => {
                 
                 {/* Mobile CTA Buttons */}
                 <div className="space-y-6 pt-4">
-                  <Link to="/favorite">
-                    <Button variant="ghost" className="w-full h-12 text-base border border-border">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Apartamente Favorite
-                    </Button>
-                  </Link>
                   <Link to="/proprietati">
                     <Button variant="luxuryOutline" className="w-full h-12 text-base">
                       <Building className="w-4 h-4 mr-2" />

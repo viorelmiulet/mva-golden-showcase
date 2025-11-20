@@ -18,19 +18,16 @@ import {
   FileText,
   X,
   Edit,
-  ArrowUpDown,
-  Heart
+  ArrowUpDown
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useFavorites } from "@/hooks/useFavorites";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { isFavorite, toggleFavorite } = useFavorites();
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
@@ -373,30 +370,6 @@ const ComplexDetail = () => {
                           : 'opacity-60 border border-muted'
                       }`}
                     >
-                      <div className="absolute top-2 right-2 z-10">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className={`h-8 w-8 p-0 bg-background/80 backdrop-blur-sm shadow-md hover:scale-110 transition-transform ${
-                            isFavorite(apt.id) ? 'text-destructive' : 'text-muted-foreground'
-                          }`}
-                          onClick={() => toggleFavorite({
-                            id: apt.id,
-                            title: apt.title,
-                            price_min: apt.price_min,
-                            price_max: apt.price_max,
-                            surface_min: apt.surface_min,
-                            surface_max: apt.surface_max,
-                            rooms: apt.rooms,
-                            availability_status: apt.availability_status,
-                            project_name: project.name,
-                            project_id: project.id,
-                            images: apt.images,
-                          })}
-                        >
-                          <Heart className={`h-4 w-4 ${isFavorite(apt.id) ? 'fill-current' : ''}`} />
-                        </Button>
-                      </div>
                       <CardContent className="p-4 pt-8 space-y-3">
                         {/* Header with apt number and status */}
                         <div className="flex items-start justify-between">
