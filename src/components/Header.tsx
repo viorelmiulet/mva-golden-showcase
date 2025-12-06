@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, MessageCircle, Home, Building, Heart } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { Menu, MessageCircle, Building, Heart, User, LogOut } from "lucide-react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { supabase } from "@/integrations/supabase/client"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +26,25 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    toast.success("Deconectat cu succes")
+    navigate("/")
+  }
+
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -201,12 +231,44 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <Link to="/proprietati">
-              <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
-                <Building className="w-3 h-3 mr-2" />
-                Vezi toate ofertele
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link to="/favorite">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    <Heart className="w-4 h-4 mr-1" />
+                    Favorite
+                  </Button>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="luxuryOutline" size="sm" className="text-xs">
+                      <User className="w-3 h-3 mr-2" />
+                      {user.email?.split('@')[0]}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to="/favorite" className="flex items-center">
+                        <Heart className="w-4 h-4 mr-2" />
+                        Favoritele mele
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Deconectare
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
+                  <User className="w-3 h-3 mr-2" />
+                  Autentificare
+                </Button>
+              </Link>
+            )}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
                 <MessageCircle className="w-3 h-3 mr-2" />
@@ -259,13 +321,28 @@ const Header = () => {
                 ))}
                 
                 {/* Mobile CTA Buttons */}
-                <div className="space-y-6 pt-4">
-                  <Link to="/proprietati">
-                    <Button variant="luxuryOutline" className="w-full h-12 text-base">
-                      <Building className="w-4 h-4 mr-2" />
-                      Vezi toate ofertele
-                    </Button>
-                  </Link>
+                <div className="space-y-4 pt-4">
+                  {user ? (
+                    <>
+                      <Link to="/favorite">
+                        <Button variant="luxuryOutline" className="w-full h-12 text-base">
+                          <Heart className="w-4 h-4 mr-2" />
+                          Favoritele Mele
+                        </Button>
+                      </Link>
+                      <Button variant="ghost" onClick={handleLogout} className="w-full h-12 text-base text-destructive">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Deconectare
+                      </Button>
+                    </>
+                  ) : (
+                    <Link to="/auth">
+                      <Button variant="luxuryOutline" className="w-full h-12 text-base">
+                        <User className="w-4 h-4 mr-2" />
+                        Autentificare / Înregistrare
+                      </Button>
+                    </Link>
+                  )}
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                     <Button variant="luxury" className="w-full h-12 text-base">
                       <MessageCircle className="w-4 h-4 mr-2" />

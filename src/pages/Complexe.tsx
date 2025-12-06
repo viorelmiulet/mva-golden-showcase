@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Home, MapPin } from "lucide-react";
+import { Building2, Home, MapPin, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { useFavorites } from "@/hooks/useFavorites";
 
 const Complexe = () => {
+  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  
   const { data: projects, isLoading } = useQuery({
     queryKey: ['public-projects'],
     queryFn: async () => {
@@ -183,6 +185,26 @@ const Complexe = () => {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                        
+                        {/* Favorite Button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-3 right-3 bg-background/80 hover:bg-background backdrop-blur-sm z-10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleFavorite(project.id, 'complex');
+                          }}
+                        >
+                          <Heart 
+                            className={`h-5 w-5 transition-colors ${
+                              isFavorite(project.id, 'complex') 
+                                ? 'fill-red-500 text-red-500' 
+                                : 'text-muted-foreground'
+                            }`} 
+                          />
+                        </Button>
                         
                         {/* Project Name Overlay */}
                         <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-3 md:right-4">
