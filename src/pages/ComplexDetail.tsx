@@ -18,7 +18,8 @@ import {
   FileText,
   X,
   Edit,
-  ArrowUpDown
+  ArrowUpDown,
+  Download
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -498,15 +499,32 @@ const ComplexDetail = () => {
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Schiță Apartament</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              Schiță Apartament
+            </DialogTitle>
           </DialogHeader>
           {selectedFloorPlan && (
-            <div className="w-full">
+            <div className="w-full space-y-4">
               <img
                 src={selectedFloorPlan}
                 alt="Schiță apartament"
                 className="w-full h-auto object-contain rounded-lg"
               />
+              <Button 
+                className="w-full"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = selectedFloorPlan;
+                  link.download = `schita-apartament.${selectedFloorPlan.split('.').pop()?.split('?')[0] || 'png'}`;
+                  link.target = '_blank';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Descarcă Schița
+              </Button>
             </div>
           )}
         </DialogContent>
