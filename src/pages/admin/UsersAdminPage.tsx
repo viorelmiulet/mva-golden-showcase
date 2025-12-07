@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,11 +26,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCRMUsers } from "@/hooks/useCRMUsers";
-import { Shield, Edit, Building2, Plus } from "lucide-react";
+import { useCRMUsers, type CRMUser } from "@/hooks/useCRMUsers";
+import { useUserRoles, type AppRole } from "@/hooks/useUserRoles";
+import { Shield, Edit, Building2, Plus, Users, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ComplexImportManager from "@/components/ComplexImportManager";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const getRoleBadgeVariant = (role: AppRole | null) => {
+  switch (role) {
+    case "admin":
+      return "default";
+    case "agent":
+      return "secondary";
+    default:
+      return "outline";
+  }
+};
+
+const getRoleLabel = (role: AppRole | null) => {
+  switch (role) {
+    case "admin":
+      return "Administrator";
+    case "agent":
+      return "Agent";
+    case "visitor":
+      return "Vizitator";
+    default:
+      return "Fără rol";
+  }
+};
 
 export default function UsersAdminPage() {
   const {
@@ -44,16 +70,18 @@ export default function UsersAdminPage() {
     deleteComplex,
   } = useCRMUsers();
 
+  const { isAdmin } = useUserRoles();
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isComplexDialogOpen, setIsComplexDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedUser, setSelectedUser] = useState<CRMUser | null>(null);
+  const [selectedRole, setSelectedRole] = useState<AppRole>("visitor");
   const [selectedComplexes, setSelectedComplexes] = useState<string[]>([]);
   const [newComplexData, setNewComplexData] = useState({ name: "", location: "", description: "" });
 
-  const handleEditUser = async (user: any) => {
+  const handleEditUser = async (user: CRMUser) => {
     setSelectedUser(user);
-    setSelectedRole(user.role);
+    setSelectedRole(user.role || "visitor");
     const userComplexes = await getUserComplexes(user.user_id);
     setSelectedComplexes(userComplexes);
     setIsEditDialogOpen(true);
@@ -81,6 +109,16 @@ export default function UsersAdminPage() {
     setSelectedComplexes((prev) =>
       prev.includes(complexId) ? prev.filter((id) => id !== complexId) : [...prev, complexId]
     );
+  };
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   if (isLoading) {
@@ -111,7 +149,7 @@ export default function UsersAdminPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <Users className="h-5 w-5" />
             Utilizatori ({users.length})
           </CardTitle>
         </CardHeader>
@@ -119,8 +157,9 @@ export default function UsersAdminPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nume</TableHead>
+                <TableHead>Utilizator</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Telefon</TableHead>
                 <TableHead>Rol</TableHead>
                 <TableHead className="text-right">Acțiuni</TableHead>
               </TableRow>
@@ -128,20 +167,31 @@ export default function UsersAdminPage() {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
                     Niciun utilizator găsit
                   </TableCell>
                 </TableRow>
               ) : (
                 users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">
-                      {user.full_name || "Nume nespecificat"}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-                        {user.role === "admin" ? "Administrator" : "Agent"}
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                            {getInitials(user.full_name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">
+                          {user.full_name || "Nume nespecificat"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{user.email || "-"}</TableCell>
+                    <TableCell>{user.phone || "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {getRoleLabel(user.role)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -149,6 +199,7 @@ export default function UsersAdminPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEditUser(user)}
+                        title="Editează utilizator"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -198,13 +249,14 @@ export default function UsersAdminPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Rol</Label>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as AppRole)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Administrator</SelectItem>
                   <SelectItem value="agent">Agent</SelectItem>
+                  <SelectItem value="visitor">Vizitator</SelectItem>
                 </SelectContent>
               </Select>
             </div>
