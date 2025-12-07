@@ -1,13 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AppRole } from "./useUserRoles";
 
 export interface CRMUser {
   id: string;
   user_id: string;
-  email: string;
-  full_name?: string;
-  role: "admin" | "agent";
+  email: string | null;
+  full_name?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
+  role: AppRole | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,13 +28,38 @@ export const useCRMUsers = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["crm-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as CRMUser[];
+      if (profilesError) throw profilesError;
+
+      // Then get all roles
+      const { data: roles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("*");
+
+      if (rolesError) throw rolesError;
+
+      // Merge profiles with roles
+      const usersWithRoles: CRMUser[] = profiles.map((profile) => {
+        const userRole = roles.find((r) => r.user_id === profile.user_id);
+        return {
+          id: profile.id,
+          user_id: profile.user_id,
+          email: profile.email,
+          full_name: profile.full_name,
+          phone: profile.phone,
+          avatar_url: profile.avatar_url,
+          role: (userRole?.role as AppRole) || null,
+          created_at: profile.created_at,
+          updated_at: profile.updated_at,
+        };
+      });
+
+      return usersWithRoles;
     },
   });
 
@@ -49,22 +77,36 @@ export const useCRMUsers = () => {
   });
 
   const updateUserRole = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({ role })
+    mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
+      // Check if user already has a role
+      const { data: existingRole } = await supabase
+        .from("user_roles")
+        .select("*")
         .eq("user_id", userId)
-        .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (existingRole) {
+        // Update existing role
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ role })
+          .eq("user_id", userId);
+
+        if (error) throw error;
+      } else {
+        // Insert new role
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role });
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crm-users"] });
       toast.success("Rol actualizat cu succes");
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error("Eroare la actualizarea rolului: " + error.message);
     },
   });
@@ -87,7 +129,7 @@ export const useCRMUsers = () => {
       queryClient.invalidateQueries({ queryKey: ["user-complexes"] });
       toast.success("Complexe actualizate cu succes");
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error("Eroare la actualizarea complexelor: " + error.message);
     },
   });
@@ -117,7 +159,7 @@ export const useCRMUsers = () => {
       queryClient.invalidateQueries({ queryKey: ["crm-complexes"] });
       toast.success("Complex adăugat cu succes");
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error("Eroare la adăugarea complexului: " + error.message);
     },
   });
@@ -132,7 +174,7 @@ export const useCRMUsers = () => {
       queryClient.invalidateQueries({ queryKey: ["crm-complexes"] });
       toast.success("Complex șters cu succes");
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error("Eroare la ștergerea complexului: " + error.message);
     },
   });
