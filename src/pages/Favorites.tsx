@@ -92,31 +92,31 @@ const Favorites = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        <main className="container mx-auto px-4 py-24">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Favoritele Mele</h1>
-            <p className="text-muted-foreground">
+        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
+          <div className="mb-4 sm:mb-6 md:mb-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1.5 sm:mb-2">Favoritele Mele</h1>
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
               {favorites.length} {favorites.length === 1 ? 'element salvat' : 'elemente salvate'}
             </p>
           </div>
 
           {favorites.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Nu ai favorite încă</h2>
-              <p className="text-muted-foreground mb-6">
+            <Card className="p-6 sm:p-8 md:p-12 text-center">
+              <Heart className="h-10 w-10 sm:h-12 sm:w-12 md:h-16 md:w-16 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold mb-1.5 sm:mb-2">Nu ai favorite încă</h2>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-4 sm:mb-6 px-2">
                 Explorează proprietățile și complexele noastre și salvează-le pentru mai târziu.
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center">
                 <Link to="/proprietati">
-                  <Button>
-                    <Home className="mr-2 h-4 w-4" />
+                  <Button className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10">
+                    <Home className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Vezi Proprietăți
                   </Button>
                 </Link>
                 <Link to="/complexe">
-                  <Button variant="outline">
-                    <Building2 className="mr-2 h-4 w-4" />
+                  <Button variant="outline" className="w-full sm:w-auto text-xs sm:text-sm h-9 sm:h-10">
+                    <Building2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Vezi Complexe
                   </Button>
                 </Link>
@@ -124,14 +124,14 @@ const Favorites = () => {
             </Card>
           ) : (
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="mb-6">
-                <TabsTrigger value="all">
+              <TabsList className="mb-4 sm:mb-6 w-full sm:w-auto grid grid-cols-3 sm:flex h-auto">
+                <TabsTrigger value="all" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5">
                   Toate ({favorites.length})
                 </TabsTrigger>
-                <TabsTrigger value="properties">
+                <TabsTrigger value="properties" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5">
                   Apartamente ({propertyIds.length})
                 </TabsTrigger>
-                <TabsTrigger value="complexes">
+                <TabsTrigger value="complexes" className="text-[10px] sm:text-xs md:text-sm py-2 sm:py-2.5">
                   Complexe ({complexIds.length})
                 </TabsTrigger>
               </TabsList>

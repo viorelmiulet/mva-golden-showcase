@@ -344,33 +344,33 @@ const Properties = () => {
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
       
-      <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+      <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <div className="max-w-6xl mx-auto">
             
             {/* Header */}
-            <div className="text-center mb-8 sm:mb-12 px-2">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
+            <div className="text-center mb-6 sm:mb-8 md:mb-12 px-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4">
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
                   Ofertele Noastre
                 </span>
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
                 Descoperă proprietățile noastre disponibile pentru vânzare
               </p>
             </div>
 
             {/* Filters */}
-            <div className="mb-6 sm:mb-8">
+            <div className="mb-4 sm:mb-6 md:mb-8">
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                  <CardContent className="p-3 sm:p-4 md:p-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                       {/* Transaction Type Filter */}
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
+                      <div className="col-span-2 sm:col-span-1">
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Tip tranzacție</label>
                         <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
-                          <SelectTrigger className="glass">
+                          <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
                             <SelectValue placeholder="Selectează tipul" />
                           </SelectTrigger>
                           <SelectContent>
@@ -381,24 +381,24 @@ const Properties = () => {
                         </Select>
                       </div>
                       {/* Price Range Filter */}
-                      <div className="lg:col-span-2">
-                        <label className="text-sm font-medium mb-2 block">Preț (EUR)</label>
-                        <div className="flex gap-2 items-center">
+                      <div className="col-span-2 lg:col-span-2">
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Preț (EUR)</label>
+                        <div className="flex gap-1.5 sm:gap-2 items-center">
                           <Input
                             type="number"
                             placeholder="Min"
                             value={priceMin}
                             onChange={(e) => setPriceMin(e.target.value)}
-                            className="glass"
+                            className="glass h-9 sm:h-10 text-xs sm:text-sm"
                             min={0}
                           />
-                          <span className="text-muted-foreground">-</span>
+                          <span className="text-muted-foreground text-xs sm:text-sm">-</span>
                           <Input
                             type="number"
                             placeholder="Max"
                             value={priceMax}
                             onChange={(e) => setPriceMax(e.target.value)}
-                            className="glass"
+                            className="glass h-9 sm:h-10 text-xs sm:text-sm"
                             min={0}
                           />
                         </div>
@@ -406,10 +406,10 @@ const Properties = () => {
 
                       {/* Rooms Filter */}
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Camere</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Camere</label>
                         <Select value={roomsFilter} onValueChange={setRoomsFilter}>
-                          <SelectTrigger className="glass">
-                            <SelectValue placeholder="Numărul de camere" />
+                          <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                            <SelectValue placeholder="Camere" />
                           </SelectTrigger>
                            <SelectContent>
                             <SelectItem value="all">Toate</SelectItem>
@@ -426,10 +426,10 @@ const Properties = () => {
 
                       {/* Zone Filter */}
                       <div>
-                        <label className="text-sm font-medium mb-2 block">Zonă</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Zonă</label>
                         <Select value={locationFilter} onValueChange={setLocationFilter}>
-                          <SelectTrigger className="glass">
-                            <SelectValue placeholder="Selectează zona" />
+                          <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                            <SelectValue placeholder="Zonă" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">Toate zonele</SelectItem>
