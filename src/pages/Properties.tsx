@@ -25,13 +25,15 @@ import {
   MessageCircle,
   Phone,
   Filter,
-  Search
+  Search,
+  Heart
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
+import { useFavorites } from "@/hooks/useFavorites"
 
 interface ScrapedProperty {
   title: string
@@ -58,6 +60,7 @@ const Properties = () => {
   const [showFilters, setShowFilters] = useState(true)
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
 
   // Fetch existing properties (exclude properties from residential complexes)
   const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
@@ -483,8 +486,28 @@ const Properties = () => {
             ) : (
               <div className="grid lg:grid-cols-4 gap-6">
                 {filteredProperties.map((property) => (
-                  <Card key={property.id} className="group glass hover:glass-hover border-[0.5px]">
+                  <Card key={property.id} className="group glass hover:glass-hover border-[0.5px] relative">
                     <CardContent className="p-6">
+                      {/* Favorite Button */}
+                      {isAuthenticated && (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleFavorite(property.id, 'property')
+                          }}
+                          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+                        >
+                          <Heart 
+                            className={`w-5 h-5 transition-colors ${
+                              isFavorite(property.id, 'property') 
+                                ? 'fill-red-500 text-red-500' 
+                                : 'text-muted-foreground hover:text-red-500'
+                            }`} 
+                          />
+                        </button>
+                      )}
+                      
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
                         <div className="aspect-video mb-4 overflow-hidden rounded-lg">
