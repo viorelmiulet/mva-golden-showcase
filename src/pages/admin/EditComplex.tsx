@@ -376,7 +376,7 @@ const EditComplex = () => {
             </div>
 
             {/* Videos Section - Only for RENEW RESIDENCE */}
-            {formData.name === "RENEW RESIDENCE" && (
+            {formData.name?.toUpperCase() === "RENEW RESIDENCE" && (
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center gap-2">
                   <Video className="h-5 w-5 text-primary" />
