@@ -772,23 +772,25 @@ const ComplexDetail = () => {
                       </div>
                     </div>
 
-                    {/* Prices */}
-                    <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
-                        <div className="flex items-center gap-0.5 md:gap-1 font-bold text-green-600 text-xs md:text-sm">
-                          <Euro className="h-3 w-3" />
-                          {priceCash?.toLocaleString()}
+                    {/* Prices - Hidden for EUROCASA RESIDENCE */}
+                    {project.name !== "EUROCASA RESIDENCE" && (
+                      <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
+                          <div className="flex items-center gap-0.5 md:gap-1 font-bold text-green-600 text-xs md:text-sm">
+                            <Euro className="h-3 w-3" />
+                            {priceCash?.toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] md:text-xs text-muted-foreground">Credit:</span>
+                          <div className="flex items-center gap-0.5 md:gap-1 font-bold text-blue-600 text-xs md:text-sm">
+                            <Euro className="h-3 w-3" />
+                            {priceCredit?.toLocaleString()}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] md:text-xs text-muted-foreground">Credit:</span>
-                        <div className="flex items-center gap-0.5 md:gap-1 font-bold text-blue-600 text-xs md:text-sm">
-                          <Euro className="h-3 w-3" />
-                          {priceCredit?.toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
+                    )}
 
                       {/* View Sketch Button */}
                       <Button 
