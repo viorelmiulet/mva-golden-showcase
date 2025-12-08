@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ interface VideoItem {
 const EditComplex = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -215,6 +216,13 @@ const EditComplex = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // Invalidate all related queries to refresh the data
+      await queryClient.invalidateQueries({ queryKey: ['project-edit', id] });
+      await queryClient.invalidateQueries({ queryKey: ['project', id] });
+      await queryClient.invalidateQueries({ queryKey: ['public-project', id] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
+      await queryClient.invalidateQueries({ queryKey: ['public-projects'] });
 
       toast.success("Complexul a fost actualizat cu succes!");
       navigate(`/admin/complexe/${id}`);
