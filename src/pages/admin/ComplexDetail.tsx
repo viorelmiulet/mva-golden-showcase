@@ -58,6 +58,7 @@ const ComplexDetail = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedPropertyForEdit, setSelectedPropertyForEdit] = useState<any>(null);
   const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch project details
@@ -461,6 +462,10 @@ const ComplexDetail = () => {
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 
+  // Get the first building to display by default
+  const defaultBuilding = sortedBuildings[0] || null;
+  const activeBuilding = selectedBuilding || defaultBuilding;
+
   return (
     <div className="container mx-auto p-3 md:p-6 space-y-4 md:space-y-8">
       {/* Header */}
@@ -675,38 +680,44 @@ const ComplexDetail = () => {
         </Card>
       )}
 
+      {/* Building Tabs - only show if multiple buildings */}
+      {hasMultipleBuildings && (
+        <div className="flex flex-wrap gap-2">
+          {sortedBuildings.map((building) => {
+            const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+            const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
+            const isSelected = activeBuilding === building;
+            
+            return (
+              <button
+                key={building}
+                onClick={() => setSelectedBuilding(building)}
+                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex-1 sm:flex-none justify-center ${
+                  isSelected
+                    ? 'bg-primary/20 border-2 border-primary text-primary'
+                    : 'bg-card border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span>{building.toUpperCase()}</span>
+                <span className="text-xs sm:text-sm opacity-70">({totalInBuilding})</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Apartments by Building and Floor */}
-      {sortedBuildings.map((building, buildingIndex) => {
+      {sortedBuildings.filter(b => !hasMultipleBuildings || b === activeBuilding).map((building) => {
         const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
         const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
           const aIndex = floorOrder.indexOf(a);
           const bIndex = floorOrder.indexOf(b);
           return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
         });
-
-        const buildingApartmentCount = sortedFloorsInBuilding.reduce(
-          (sum, floor) => sum + (floorsInBuilding[floor]?.length || 0), 0
-        );
         
         return (
           <div key={building} className="space-y-6">
-            {/* Building Header - only show if multiple buildings */}
-            {hasMultipleBuildings && (
-              <>
-                {buildingIndex > 0 && (
-                  <div className="my-8 border-t-4 border-primary/30" />
-                )}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary rounded-lg">
-                  <Building2 className="h-6 w-6 text-primary" />
-                  <h2 className="text-xl md:text-2xl font-bold">
-                    {building.toUpperCase()}
-                    <Badge variant="secondary" className="ml-3 text-sm">
-                      {buildingApartmentCount} apartamente
-                    </Badge>
-                  </h2>
-                </div>
-              </>
-            )}
 
             {/* Floors within building */}
             {sortedFloorsInBuilding.map((floor, floorIndex) => {
