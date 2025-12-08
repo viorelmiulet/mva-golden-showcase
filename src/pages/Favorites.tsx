@@ -275,6 +275,7 @@ const ComplexCard = ({ complex, onRemove }: { complex: any; onRemove: () => void
         src={complex.main_image} 
         alt={complex.name}
         className="w-full h-40 object-cover"
+        loading="lazy"
       />
     )}
     <CardContent className="p-4 space-y-3">

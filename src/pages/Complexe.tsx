@@ -178,6 +178,7 @@ const Complexe = () => {
                             src={project.main_image}
                             alt={project.name}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
