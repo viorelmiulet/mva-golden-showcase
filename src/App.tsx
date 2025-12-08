@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollIndicator from "@/components/ScrollIndicator";
 
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
@@ -84,6 +85,7 @@ const App = () => (
         </BrowserRouter>
         <CookieConsent />
         <WhatsAppButton />
+        <ScrollIndicator />
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
