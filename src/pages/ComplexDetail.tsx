@@ -429,8 +429,8 @@ const ComplexDetail = () => {
                           </div>
                         </div>
 
-                        {/* Prices - Hidden for RENEW RESIDENCE */}
-                        {project.name !== "RENEW RESIDENCE" && (
+                        {/* Prices - Hidden for RENEW RESIDENCE and EUROCASA RESIDENCE */}
+                        {project.name !== "RENEW RESIDENCE" && project.name !== "EUROCASA RESIDENCE" && (
                           <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t">
                             <div className="flex items-center justify-between">
                               <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
