@@ -326,7 +326,7 @@ const ComplexDetail = () => {
             )}
 
             {/* Stadiu Lucrare - Videos Section (Only for RENEW RESIDENCE) */}
-            {project.name === "RENEW RESIDENCE" && (() => {
+            {project.name?.toUpperCase() === "RENEW RESIDENCE" && (() => {
               const projectVideos = (project as any).videos;
               const videos = projectVideos && Array.isArray(projectVideos) ? projectVideos : [];
               
