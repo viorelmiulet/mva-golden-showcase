@@ -132,43 +132,33 @@ const ComplexDetail = () => {
       building = buildingFeature;
     }
     
-    // Check for floor in features
-    const floorFeature = features.find(f => 
-      f?.startsWith('Parter') || 
-      f?.startsWith('Etaj') || 
-      f?.startsWith('Demisol')
-    );
-    
-    if (floorFeature) {
-      if (floorFeature.startsWith('Parter')) {
-        floor = 'Parter';
-      } else if (floorFeature.startsWith('Demisol')) {
+    // Check for floor in features - prioritize "Etaj:" format for RENEW Residence
+    for (const feature of features) {
+      if (!feature) continue;
+      
+      if (feature.startsWith('Demisol')) {
         floor = 'Demisol';
-      } else if (floorFeature.startsWith('Etaj')) {
-        // Extract "Etaj X" format
-        const match = floorFeature.match(/Etaj\s*(\d+)/);
-        if (match) {
-          floor = `Etaj ${match[1]}`;
-        }
-      }
-    } else {
-      // Fallback: check the first feature for old format
-      const featureStr = features[0] || '';
-      if (featureStr.includes('Etaj:')) {
-        const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
+        break;
+      } else if (feature.startsWith('Parter')) {
+        floor = 'Parter';
+        break;
+      } else if (feature.includes('Etaj:')) {
+        // RENEW format: "Etaj: E2 Suprafață: ..." or "Etaj: P ..."
+        const floorCode = feature.split('Etaj:')[1]?.trim().split(' ')[0];
         if (floorCode === 'P') {
           floor = 'Parter';
         } else if (floorCode?.startsWith('E')) {
           const floorNum = floorCode.substring(1);
           floor = `Etaj ${floorNum}`;
         }
-      } else if (featureStr.startsWith('Demisol')) {
-        floor = 'Demisol';
-      } else if (featureStr.startsWith('Parter')) {
-        floor = 'Parter';
-      } else if (featureStr.startsWith('Etaj')) {
-        const match = featureStr.match(/Etaj\s+(\d+)/);
-        if (match) floor = `Etaj ${match[1]}`;
+        break;
+      } else if (feature.startsWith('Etaj')) {
+        // Standard format: "Etaj 2" or "Etaj2"
+        const match = feature.match(/Etaj\s*(\d+)/);
+        if (match) {
+          floor = `Etaj ${match[1]}`;
+        }
+        break;
       }
     }
     
