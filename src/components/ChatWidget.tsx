@@ -65,14 +65,27 @@ const ChatWidget: React.FC = () => {
 
   if (!isOpen) {
     return (
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
-        <Button
+      <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50">
+        <button
           onClick={handleToggleChat}
-          className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-primary to-gold-light shadow-lg hover:shadow-xl transition-all duration-300 group touch-manipulation"
+          className="group relative h-14 w-14 rounded-full bg-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 touch-manipulation flex items-center justify-center"
           aria-label="Deschide chat-ul AI"
         >
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-black group-hover:scale-110 transition-transform" />
-        </Button>
+          {/* Chat bubble icon */}
+          <svg 
+            viewBox="0 0 24 24" 
+            className="h-7 w-7 fill-black transition-transform duration-300 group-hover:scale-110"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+          </svg>
+          
+          {/* Pulse animation */}
+          <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20"></span>
+          
+          {/* Hover glow ring */}
+          <span className="absolute inset-[-4px] rounded-full border-2 border-primary opacity-0 group-hover:opacity-60 group-hover:animate-[ping_1.5s_ease-out_infinite] transition-opacity duration-300"></span>
+        </button>
       </div>
     );
   }
