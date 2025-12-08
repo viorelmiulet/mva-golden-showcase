@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2 } from "lucide-react";
+import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 
 interface VideoItem {
   url: string;
@@ -102,6 +102,20 @@ const EditComplex = () => {
   const removeVideo = (index: number) => {
     setVideos(videos.filter((_, i) => i !== index));
     toast.success("Video eliminat");
+  };
+
+  const moveVideoUp = (index: number) => {
+    if (index === 0) return;
+    const newVideos = [...videos];
+    [newVideos[index - 1], newVideos[index]] = [newVideos[index], newVideos[index - 1]];
+    setVideos(newVideos);
+  };
+
+  const moveVideoDown = (index: number) => {
+    if (index === videos.length - 1) return;
+    const newVideos = [...videos];
+    [newVideos[index], newVideos[index + 1]] = [newVideos[index + 1], newVideos[index]];
+    setVideos(newVideos);
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -391,6 +405,29 @@ const EditComplex = () => {
                       const videoId = extractYouTubeId(video.url);
                       return (
                         <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                          {/* Reorder buttons */}
+                          <div className="flex flex-col gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => moveVideoUp(index)}
+                              disabled={index === 0}
+                            >
+                              <ChevronUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => moveVideoDown(index)}
+                              disabled={index === videos.length - 1}
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </div>
                           {videoId && (
                             <img 
                               src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
