@@ -37,6 +37,7 @@ const ComplexDetail = () => {
   const [editingApartment, setEditingApartment] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sortBy, setSortBy] = useState<string>("default");
+  const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
 
   // Check authentication status
   useEffect(() => {
@@ -227,6 +228,13 @@ const ComplexDetail = () => {
     const bIndex = buildingOrder.indexOf(b);
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
+
+  // Set default selected building when data loads
+  useEffect(() => {
+    if (sortedBuildings.length > 0 && !selectedBuilding) {
+      setSelectedBuilding(sortedBuildings[0]);
+    }
+  }, [sortedBuildings, selectedBuilding]);
 
   return (
     <>
@@ -453,8 +461,35 @@ const ComplexDetail = () => {
             </Select>
           </div>
 
+          {/* Building Tabs - only show if multiple buildings */}
+          {hasMultipleBuildings && (
+            <div className="mb-6 sm:mb-8 flex flex-wrap gap-2">
+              {sortedBuildings.map((building) => {
+                const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+                const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
+                const isSelected = selectedBuilding === building;
+                
+                return (
+                  <button
+                    key={building}
+                    onClick={() => setSelectedBuilding(building)}
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex-1 sm:flex-none justify-center ${
+                      isSelected
+                        ? 'bg-primary/20 border-2 border-primary text-primary'
+                        : 'bg-card border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span>{building.toUpperCase()}</span>
+                    <span className="text-xs sm:text-sm opacity-70">({totalInBuilding})</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Apartments by Building and Floor */}
-          {sortedBuildings.map((building) => {
+          {sortedBuildings.filter(b => !hasMultipleBuildings || b === selectedBuilding).map((building) => {
             const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
             const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
               const aIndex = floorOrder.indexOf(a);
@@ -462,28 +497,13 @@ const ComplexDetail = () => {
               return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
             });
             
-            // Count total apartments in this building
-            const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
-            
             return (
               <div key={building} className="mb-8 sm:mb-10 md:mb-14">
-                {/* Building Header - only show if multiple buildings */}
-                {hasMultipleBuildings && (
-                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 md:p-5 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-primary rounded-lg">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
-                      <Building2 className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
-                      {building.toUpperCase()}
-                      <Badge variant="outline" className="text-xs sm:text-sm md:text-base font-normal">
-                        {totalInBuilding} apartamente
-                      </Badge>
-                    </h2>
-                  </div>
-                )}
                 
                 {/* Floors within this building */}
                 {sortedFloorsInBuilding.map((floor) => (
                   <div key={`${building}-${floor}`} className="mb-6 sm:mb-8 md:mb-10">
-                    <div className={`flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary/60 rounded-lg ${hasMultipleBuildings ? 'ml-2 sm:ml-4' : ''}`}>
+                    <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary/60 rounded-lg">
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
                         {floor.toUpperCase()}
                         <Badge variant="secondary" className="text-[10px] sm:text-xs md:text-sm">
@@ -492,7 +512,7 @@ const ComplexDetail = () => {
                       </h3>
                     </div>
 
-                    <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 ${hasMultipleBuildings ? 'ml-2 sm:ml-4' : ''}`}>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                       {floorsInBuilding[floor]?.map((apt) => {
                         const isAvailable = apt.availability_status === 'available';
                         const aptNumber = apt.title.match(/\d+/)?.[0] || '';
