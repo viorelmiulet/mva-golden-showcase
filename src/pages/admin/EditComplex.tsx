@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2, ChevronUp, ChevronDown, Pencil, Check } from "lucide-react";
 
 interface VideoItem {
   url: string;
@@ -24,6 +24,8 @@ const EditComplex = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [newVideoTitle, setNewVideoTitle] = useState("");
+  const [editingVideoIndex, setEditingVideoIndex] = useState<number | null>(null);
+  const [editingVideoTitle, setEditingVideoTitle] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -116,6 +118,26 @@ const EditComplex = () => {
     const newVideos = [...videos];
     [newVideos[index], newVideos[index + 1]] = [newVideos[index + 1], newVideos[index]];
     setVideos(newVideos);
+  };
+
+  const startEditingVideo = (index: number) => {
+    setEditingVideoIndex(index);
+    setEditingVideoTitle(videos[index].title);
+  };
+
+  const saveVideoTitle = () => {
+    if (editingVideoIndex === null) return;
+    const newVideos = [...videos];
+    newVideos[editingVideoIndex] = { ...newVideos[editingVideoIndex], title: editingVideoTitle.trim() || `Video ${editingVideoIndex + 1}` };
+    setVideos(newVideos);
+    setEditingVideoIndex(null);
+    setEditingVideoTitle("");
+    toast.success("Titlu actualizat");
+  };
+
+  const cancelEditingVideo = () => {
+    setEditingVideoIndex(null);
+    setEditingVideoTitle("");
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -436,9 +458,54 @@ const EditComplex = () => {
                             />
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{video.title}</p>
-                            <p className="text-xs text-muted-foreground truncate">{video.url}</p>
+                            {editingVideoIndex === index ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={editingVideoTitle}
+                                  onChange={(e) => setEditingVideoTitle(e.target.value)}
+                                  className="h-8"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') saveVideoTitle();
+                                    if (e.key === 'Escape') cancelEditingVideo();
+                                  }}
+                                  autoFocus
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-green-600"
+                                  onClick={saveVideoTitle}
+                                >
+                                  <Check className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={cancelEditingVideo}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <p className="font-medium truncate">{video.title}</p>
+                                <p className="text-xs text-muted-foreground truncate">{video.url}</p>
+                              </>
+                            )}
                           </div>
+                          {editingVideoIndex !== index && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => startEditingVideo(index)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             type="button"
                             variant="ghost"
