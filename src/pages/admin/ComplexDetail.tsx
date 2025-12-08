@@ -72,7 +72,9 @@ const ComplexDetail = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Fetch properties for this project
