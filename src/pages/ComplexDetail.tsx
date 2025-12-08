@@ -315,6 +315,7 @@ const ComplexDetail = () => {
                   src={project.main_image}
                   alt={project.name}
                   className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover"
+                  loading="lazy"
                 />
               </div>
             )}
