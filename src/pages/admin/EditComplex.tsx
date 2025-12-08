@@ -8,7 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Building2, ArrowLeft, Upload, X, Loader2 } from "lucide-react";
+import { Building2, ArrowLeft, Upload, X, Loader2, Plus, Video, Trash2 } from "lucide-react";
+
+interface VideoItem {
+  url: string;
+  title: string;
+}
 
 const EditComplex = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +21,9 @@ const EditComplex = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const [newVideoTitle, setNewVideoTitle] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -58,8 +66,42 @@ const EditComplex = () => {
         main_image: project.main_image || "",
       });
       setImagePreview(project.main_image);
+      // Load videos from database
+      const projectVideos = (project as any).videos;
+      if (projectVideos && Array.isArray(projectVideos)) {
+        setVideos(projectVideos);
+      }
     }
   }, [project]);
+
+  const extractYouTubeId = (url: string): string | null => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const addVideo = () => {
+    if (!newVideoUrl.trim()) {
+      toast.error("Introduceți URL-ul videoclipului");
+      return;
+    }
+    
+    const videoId = extractYouTubeId(newVideoUrl);
+    if (!videoId) {
+      toast.error("URL-ul nu este un link YouTube valid");
+      return;
+    }
+
+    setVideos([...videos, { url: newVideoUrl.trim(), title: newVideoTitle.trim() || `Video ${videos.length + 1}` }]);
+    setNewVideoUrl("");
+    setNewVideoTitle("");
+    toast.success("Video adăugat");
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+    toast.success("Video eliminat");
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,7 +173,8 @@ const EditComplex = () => {
           completion_date: formData.completion_date.trim() || null,
           status: formData.status,
           main_image: imageUrl,
-        })
+          videos: videos,
+        } as any)
         .eq('id', id);
 
       if (error) throw error;
@@ -331,6 +374,82 @@ const EditComplex = () => {
                 rows={5}
               />
             </div>
+
+            {/* Videos Section - Only for RENEW RESIDENCE */}
+            {formData.name === "RENEW RESIDENCE" && (
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <Video className="h-5 w-5 text-primary" />
+                  <Label className="text-lg font-semibold">Stadiu Lucrare - Videoclipuri</Label>
+                </div>
+                
+                {/* Existing Videos */}
+                {videos.length > 0 && (
+                  <div className="space-y-3">
+                    {videos.map((video, index) => {
+                      const videoId = extractYouTubeId(video.url);
+                      return (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                          {videoId && (
+                            <img 
+                              src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                              alt={video.title}
+                              className="w-24 h-16 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{video.title}</p>
+                            <p className="text-xs text-muted-foreground truncate">{video.url}</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => removeVideo(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Add New Video */}
+                <div className="space-y-3 p-4 border border-dashed rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="videoUrl">URL YouTube</Label>
+                      <Input
+                        id="videoUrl"
+                        value={newVideoUrl}
+                        onChange={(e) => setNewVideoUrl(e.target.value)}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="videoTitle">Titlu Video</Label>
+                      <Input
+                        id="videoTitle"
+                        value={newVideoTitle}
+                        onChange={(e) => setNewVideoTitle(e.target.value)}
+                        placeholder="Ex: Stadiu lucrare Decembrie 2024"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addVideo}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adaugă Video
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">

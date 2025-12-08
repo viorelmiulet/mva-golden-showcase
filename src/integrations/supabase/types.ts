@@ -280,6 +280,7 @@ export type Database = {
           status: string | null
           surface_range: string | null
           updated_at: string
+          videos: Json | null
         }
         Insert: {
           amenities?: string[] | null
@@ -301,6 +302,7 @@ export type Database = {
           status?: string | null
           surface_range?: string | null
           updated_at?: string
+          videos?: Json | null
         }
         Update: {
           amenities?: string[] | null
@@ -322,6 +324,7 @@ export type Database = {
           status?: string | null
           surface_range?: string | null
           updated_at?: string
+          videos?: Json | null
         }
         Relationships: []
       }

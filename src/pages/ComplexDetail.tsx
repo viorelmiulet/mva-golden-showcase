@@ -19,7 +19,9 @@ import {
   X,
   Edit,
   ArrowUpDown,
-  Download
+  Download,
+  Video,
+  Play
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -322,6 +324,60 @@ const ComplexDetail = () => {
                 {project.description}
               </p>
             )}
+
+            {/* Stadiu Lucrare - Videos Section (Only for RENEW RESIDENCE) */}
+            {project.name === "RENEW RESIDENCE" && (() => {
+              const projectVideos = (project as any).videos;
+              const videos = projectVideos && Array.isArray(projectVideos) ? projectVideos : [];
+              
+              if (videos.length === 0) return null;
+
+              const extractYouTubeId = (url: string): string | null => {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return match && match[2].length === 11 ? match[2] : null;
+              };
+
+              return (
+                <div className="mt-8 sm:mt-10 md:mt-12">
+                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Video className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    </div>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Stadiu Lucrare</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {videos.map((video: { url: string; title: string }, index: number) => {
+                      const videoId = extractYouTubeId(video.url);
+                      if (!videoId) return null;
+                      
+                      return (
+                        <Card key={index} className="overflow-hidden">
+                          <div className="relative aspect-video">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${videoId}`}
+                              title={video.title}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full h-full"
+                            />
+                          </div>
+                          {video.title && (
+                            <CardContent className="p-3 sm:p-4">
+                              <p className="font-medium text-sm sm:text-base flex items-center gap-2">
+                                <Play className="h-4 w-4 text-primary" />
+                                {video.title}
+                              </p>
+                            </CardContent>
+                          )}
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Sorting Controls */}
