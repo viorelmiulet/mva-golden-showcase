@@ -396,20 +396,21 @@ const ComplexDetail = () => {
       } else if (feature.startsWith('Parter')) {
         floor = 'Parter';
         break;
-      } else if (feature.startsWith('Etaj')) {
-        const match = feature.match(/Etaj\s*(\d+)/);
-        if (match) {
-          floor = `Etaj ${match[1]}`;
-        }
-        break;
       } else if (feature.includes('Etaj:')) {
-        // Old format: "Etaj: P" or "Etaj: E1"
+        // RENEW format: "Etaj: E2 Suprafață: ..." or "Etaj: P ..."
         const floorCode = feature.split('Etaj:')[1]?.trim().split(' ')[0];
         if (floorCode === 'P') {
           floor = 'Parter';
         } else if (floorCode?.startsWith('E')) {
           const floorNum = floorCode.substring(1);
           floor = `Etaj ${floorNum}`;
+        }
+        break;
+      } else if (feature.startsWith('Etaj')) {
+        // Standard format: "Etaj 2" or "Etaj2"
+        const match = feature.match(/Etaj\s*(\d+)/);
+        if (match) {
+          floor = `Etaj ${match[1]}`;
         }
         break;
       }
