@@ -375,7 +375,7 @@ const ComplexDetail = () => {
 
   // Extract building/staircase and floor from features
   const extractBuildingAndFloor = (features: string[] | null) => {
-    let building = 'Altele';
+    let building = 'Principal';
     let floor = 'Altele';
     
     if (!features || features.length === 0) return { building, floor };
@@ -386,42 +386,32 @@ const ComplexDetail = () => {
       building = buildingFeature;
     }
     
-    // Check for floor in features
-    const floorFeature = features.find(f => 
-      f?.startsWith('Parter') || 
-      f?.startsWith('Etaj') || 
-      f?.startsWith('Demisol')
-    );
-    
-    if (floorFeature) {
-      if (floorFeature.startsWith('Parter')) {
-        floor = 'Parter';
-      } else if (floorFeature.startsWith('Demisol')) {
+    // Check for floor in features - can be standalone or at the start of a combined string
+    for (const feature of features) {
+      if (!feature) continue;
+      
+      if (feature.startsWith('Demisol')) {
         floor = 'Demisol';
-      } else if (floorFeature.startsWith('Etaj')) {
-        const match = floorFeature.match(/Etaj\s*(\d+)/);
+        break;
+      } else if (feature.startsWith('Parter')) {
+        floor = 'Parter';
+        break;
+      } else if (feature.startsWith('Etaj')) {
+        const match = feature.match(/Etaj\s*(\d+)/);
         if (match) {
           floor = `Etaj ${match[1]}`;
         }
-      }
-    } else {
-      // Fallback: check the first feature for old format
-      const featureStr = features[0] || '';
-      if (featureStr.includes('Etaj:')) {
-        const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
+        break;
+      } else if (feature.includes('Etaj:')) {
+        // Old format: "Etaj: P" or "Etaj: E1"
+        const floorCode = feature.split('Etaj:')[1]?.trim().split(' ')[0];
         if (floorCode === 'P') {
           floor = 'Parter';
         } else if (floorCode?.startsWith('E')) {
           const floorNum = floorCode.substring(1);
           floor = `Etaj ${floorNum}`;
         }
-      } else if (featureStr.startsWith('Demisol')) {
-        floor = 'Demisol';
-      } else if (featureStr.startsWith('Parter')) {
-        floor = 'Parter';
-      } else if (featureStr.startsWith('Etaj')) {
-        const match = featureStr.match(/Etaj\s+(\d+)/);
-        if (match) floor = `Etaj ${match[1]}`;
+        break;
       }
     }
     
