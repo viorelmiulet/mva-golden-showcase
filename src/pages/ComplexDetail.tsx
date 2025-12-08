@@ -112,71 +112,120 @@ const ComplexDetail = () => {
     );
   }
 
-  // Group properties by floor first
-  const groupedByFloor = properties?.reduce((acc, prop) => {
-    // Extract floor from features array (e.g., "Etaj: E2" or "Etaj: P")
-    const featureStr = prop.features?.[0] || '';
-    let floor = 'Altele';
-    
-    if (featureStr.includes('Etaj:')) {
-      const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
-      if (floorCode === 'P') {
-        floor = 'Parter';
-      } else if (floorCode?.startsWith('E')) {
-        const floorNum = floorCode.substring(1);
-        floor = `Etaj ${floorNum}`;
-      }
-    } else if (featureStr.startsWith('Demisol')) {
-      floor = 'Demisol';
-    } else if (featureStr.startsWith('Parter')) {
-      floor = 'Parter';
-    } else if (featureStr.startsWith('Etaj')) {
-      // Old format fallback: "Etaj 1"
-      const match = featureStr.match(/Etaj\s+(\d+)/);
-      if (match) floor = `Etaj ${match[1]}`;
-    }
-    
-    if (!acc[floor]) acc[floor] = [];
-    acc[floor].push(prop);
-    return acc;
-  }, {} as Record<string, typeof properties>) || {};
-
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
     const match = title.match(/\d+/);
     return match ? parseInt(match[0], 10) : 0;
   };
 
-  // Sort properties within each floor group based on selected criteria
-  Object.keys(groupedByFloor).forEach(floor => {
-    groupedByFloor[floor].sort((a, b) => {
-      switch (sortBy) {
-        case "price-asc":
-          return (a.price_min || 0) - (b.price_min || 0);
-        case "price-desc":
-          return (b.price_min || 0) - (a.price_min || 0);
-        case "surface-asc":
-          return (a.surface_min || 0) - (b.surface_min || 0);
-        case "surface-desc":
-          return (b.surface_min || 0) - (a.surface_min || 0);
-        case "status-available":
-          if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
-          if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
-          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
-        case "status-reserved":
-          if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
-          if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
-          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
-        default:
-          // Default: sort by apartment number numerically
-          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
+  // Extract building/staircase and floor from features
+  const extractBuildingAndFloor = (features: string[] | null) => {
+    let building = 'Altele';
+    let floor = 'Altele';
+    
+    if (!features || features.length === 0) return { building, floor };
+    
+    // Check for "Scara X" in features
+    const scaraFeature = features.find(f => f?.startsWith('Scara'));
+    if (scaraFeature) {
+      building = scaraFeature;
+    }
+    
+    // Check for floor in features
+    const floorFeature = features.find(f => 
+      f?.startsWith('Parter') || 
+      f?.startsWith('Etaj') || 
+      f?.startsWith('Demisol')
+    );
+    
+    if (floorFeature) {
+      if (floorFeature.startsWith('Parter')) {
+        floor = 'Parter';
+      } else if (floorFeature.startsWith('Demisol')) {
+        floor = 'Demisol';
+      } else if (floorFeature.startsWith('Etaj')) {
+        // Extract "Etaj X" format
+        const match = floorFeature.match(/Etaj\s*(\d+)/);
+        if (match) {
+          floor = `Etaj ${match[1]}`;
+        }
       }
+    } else {
+      // Fallback: check the first feature for old format
+      const featureStr = features[0] || '';
+      if (featureStr.includes('Etaj:')) {
+        const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
+        if (floorCode === 'P') {
+          floor = 'Parter';
+        } else if (floorCode?.startsWith('E')) {
+          const floorNum = floorCode.substring(1);
+          floor = `Etaj ${floorNum}`;
+        }
+      } else if (featureStr.startsWith('Demisol')) {
+        floor = 'Demisol';
+      } else if (featureStr.startsWith('Parter')) {
+        floor = 'Parter';
+      } else if (featureStr.startsWith('Etaj')) {
+        const match = featureStr.match(/Etaj\s+(\d+)/);
+        if (match) floor = `Etaj ${match[1]}`;
+      }
+    }
+    
+    return { building, floor };
+  };
+
+  // Check if this complex has multiple buildings (Scara)
+  const hasMultipleBuildings = properties?.some(p => 
+    p.features?.some(f => f?.startsWith('Scara'))
+  ) || false;
+
+  // Group properties by building first, then by floor
+  const groupedByBuildingAndFloor = properties?.reduce((acc, prop) => {
+    const { building, floor } = extractBuildingAndFloor(prop.features);
+    
+    if (!acc[building]) acc[building] = {};
+    if (!acc[building][floor]) acc[building][floor] = [];
+    acc[building][floor].push(prop);
+    
+    return acc;
+  }, {} as Record<string, Record<string, typeof properties>>) || {};
+
+  // Sort properties within each group based on selected criteria
+  Object.keys(groupedByBuildingAndFloor).forEach(building => {
+    Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
+      groupedByBuildingAndFloor[building][floor].sort((a, b) => {
+        switch (sortBy) {
+          case "price-asc":
+            return (a.price_min || 0) - (b.price_min || 0);
+          case "price-desc":
+            return (b.price_min || 0) - (a.price_min || 0);
+          case "surface-asc":
+            return (a.surface_min || 0) - (b.surface_min || 0);
+          case "surface-desc":
+            return (b.surface_min || 0) - (a.surface_min || 0);
+          case "status-available":
+            if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
+            if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
+            return getApartmentNumber(a.title) - getApartmentNumber(b.title);
+          case "status-reserved":
+            if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
+            if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
+            return getApartmentNumber(a.title) - getApartmentNumber(b.title);
+          default:
+            // Default: sort by apartment number numerically
+            return getApartmentNumber(a.title) - getApartmentNumber(b.title);
+        }
+      });
     });
   });
 
   const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
-  const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
-    return floorOrder.indexOf(a) - floorOrder.indexOf(b);
+  const buildingOrder = ['Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
+  
+  const sortedBuildings = Object.keys(groupedByBuildingAndFloor || {}).sort((a, b) => {
+    const aIndex = buildingOrder.indexOf(a);
+    const bIndex = buildingOrder.indexOf(b);
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 
   return (
@@ -404,151 +453,187 @@ const ComplexDetail = () => {
             </Select>
           </div>
 
-          {/* Apartments by Floor */}
-          {sortedFloors.map((floor) => (
-            <div key={floor} className="mb-6 sm:mb-8 md:mb-12">
-              <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
-                  {floor.toUpperCase()}
-                  <Badge variant="secondary" className="text-[10px] sm:text-xs md:text-sm">
-                    {groupedByFloor?.[floor]?.length} {groupedByFloor?.[floor]?.length === 1 ? 'apartament' : 'apartamente'}
-                  </Badge>
-                </h2>
-              </div>
+          {/* Apartments by Building and Floor */}
+          {sortedBuildings.map((building) => {
+            const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+            const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
+              const aIndex = floorOrder.indexOf(a);
+              const bIndex = floorOrder.indexOf(b);
+              return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+            });
+            
+            // Count total apartments in this building
+            const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
+            
+            return (
+              <div key={building} className="mb-8 sm:mb-10 md:mb-14">
+                {/* Building Header - only show if multiple buildings */}
+                {hasMultipleBuildings && (
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 md:p-5 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-primary rounded-lg">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
+                      <Building2 className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
+                      {building.toUpperCase()}
+                      <Badge variant="outline" className="text-xs sm:text-sm md:text-base font-normal">
+                        {totalInBuilding} apartamente
+                      </Badge>
+                    </h2>
+                  </div>
+                )}
+                
+                {/* Floors within this building */}
+                {sortedFloorsInBuilding.map((floor) => (
+                  <div key={`${building}-${floor}`} className="mb-6 sm:mb-8 md:mb-10">
+                    <div className={`flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary/60 rounded-lg ${hasMultipleBuildings ? 'ml-2 sm:ml-4' : ''}`}>
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
+                        {floor.toUpperCase()}
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs md:text-sm">
+                          {floorsInBuilding[floor]?.length} {floorsInBuilding[floor]?.length === 1 ? 'apartament' : 'apartamente'}
+                        </Badge>
+                      </h3>
+                    </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                {groupedByFloor?.[floor]?.map((apt) => {
-                  const isAvailable = apt.availability_status === 'available';
-                  const aptNumber = apt.title.match(/\d+/)?.[0] || '';
-                  const surface = apt.surface_min;
-                  const priceCredit = apt.price_max;
-                  const priceCash = apt.price_min;
-                  const rooms = apt.rooms;
-                  // Extract apartment type from features (e.g., "Demisol GARSONIERA" -> "GARSONIERA")
-                  const featureStr = apt.features?.[0] || '';
-                  const tipApt = featureStr.replace(/^(Demisol|Parter|Etaj \d+)\s+/, '');
+                    <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 ${hasMultipleBuildings ? 'ml-2 sm:ml-4' : ''}`}>
+                      {floorsInBuilding[floor]?.map((apt) => {
+                        const isAvailable = apt.availability_status === 'available';
+                        const aptNumber = apt.title.match(/\d+/)?.[0] || '';
+                        const surface = apt.surface_min;
+                        const priceCredit = apt.price_max;
+                        const priceCash = apt.price_min;
+                        const rooms = apt.rooms;
+                        // Extract apartment type from features (look for type like GARSONIERA, STUDIO, AP 2 CAMERE)
+                        const typeFeature = apt.features?.find(f => 
+                          f?.includes('GARSONIERA') || 
+                          f?.includes('STUDIO') || 
+                          f?.includes('CAMERE') ||
+                          f?.includes('Garsoniera') ||
+                          f?.includes('Studio')
+                        );
+                        const tipApt = typeFeature || apt.features?.[2] || '';
 
-                  return (
-                    <Card 
-                      key={apt.id}
-                      className={`relative overflow-hidden transition-all duration-300 ${
-                        isAvailable 
-                          ? 'hover:shadow-xl hover:border-primary/50 border-2' 
-                          : 'opacity-60 border border-muted'
-                      }`}
-                    >
-                      <CardContent className="p-2.5 sm:p-3 md:p-4 pt-6 sm:pt-7 md:pt-8 space-y-2 sm:space-y-3">
-                        {/* Header with apt number and status */}
-                        <div className="flex items-start justify-between gap-1">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                            <span className="text-sm sm:text-base md:text-xl font-bold">Ap. {aptNumber}</span>
-                          </div>
-                          <Badge 
-                            variant={
+                        return (
+                          <Card 
+                            key={apt.id}
+                            className={`relative overflow-hidden transition-all duration-300 ${
                               isAvailable 
-                                ? "default" 
-                                : apt.availability_status === 'reserved' 
-                                  ? "secondary" 
-                                  : "destructive"
-                            }
-                            className={`text-[8px] sm:text-[10px] md:text-xs px-1 sm:px-1.5 md:px-2 py-0.5 ${
-                              isAvailable 
-                                ? "bg-green-600" 
-                                : apt.availability_status === 'reserved'
-                                  ? "bg-yellow-500 text-black hover:bg-yellow-600"
-                                  : "bg-red-600"
+                                ? 'hover:shadow-xl hover:border-primary/50 border-2' 
+                                : 'opacity-60 border border-muted'
                             }`}
                           >
-                            {isAvailable ? (
-                              <><CheckCircle2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Disponibil</span><span className="sm:hidden">Disp.</span></>
-                            ) : apt.availability_status === 'reserved' ? (
-                              <><Clock className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Rezervat</span><span className="sm:hidden">Rez.</span></>
-                            ) : (
-                              <><XCircle className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Vândut</span><span className="sm:hidden">Vând.</span></>
-                            )}
-                          </Badge>
-                        </div>
-
-                        {/* Apartment Type */}
-                        <div className="py-1.5 sm:py-2 px-2 sm:px-3 bg-primary/10 rounded-md text-center">
-                          <span className="font-semibold text-[10px] sm:text-xs md:text-sm">{tipApt}</span>
-                        </div>
-
-                        {/* Details */}
-                        <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs md:text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Suprafață:</span>
-                            <span className="font-semibold">{surface} mp</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Camere:</span>
-                            <span className="font-semibold">{rooms} {rooms === 1 ? 'cam.' : 'cam.'}</span>
-                          </div>
-                        </div>
-
-                        {/* Prices - Hidden for RENEW RESIDENCE and Eurocasa Residence */}
-                        {project.name?.toUpperCase() !== "RENEW RESIDENCE" && project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && (
-                          <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
-                              <div className="flex items-center gap-0.5 font-bold text-green-600 text-[10px] sm:text-xs md:text-sm">
-                                <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                                {priceCash?.toLocaleString()}
+                            <CardContent className="p-2.5 sm:p-3 md:p-4 pt-6 sm:pt-7 md:pt-8 space-y-2 sm:space-y-3">
+                              {/* Header with apt number and status */}
+                              <div className="flex items-start justify-between gap-1">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+                                  <span className="text-sm sm:text-base md:text-xl font-bold">Ap. {aptNumber}</span>
+                                </div>
+                                <Badge 
+                                  variant={
+                                    isAvailable 
+                                      ? "default" 
+                                      : apt.availability_status === 'reserved' 
+                                        ? "secondary" 
+                                        : "destructive"
+                                  }
+                                  className={`text-[8px] sm:text-[10px] md:text-xs px-1 sm:px-1.5 md:px-2 py-0.5 ${
+                                    isAvailable 
+                                      ? "bg-green-600" 
+                                      : apt.availability_status === 'reserved'
+                                        ? "bg-yellow-500 text-black hover:bg-yellow-600"
+                                        : "bg-red-600"
+                                  }`}
+                                >
+                                  {isAvailable ? (
+                                    <><CheckCircle2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Disponibil</span><span className="sm:hidden">Disp.</span></>
+                                  ) : apt.availability_status === 'reserved' ? (
+                                    <><Clock className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Rezervat</span><span className="sm:hidden">Rez.</span></>
+                                  ) : (
+                                    <><XCircle className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Vândut</span><span className="sm:hidden">Vând.</span></>
+                                  )}
+                                </Badge>
                               </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Credit:</span>
-                              <div className="flex items-center gap-0.5 font-bold text-blue-600 text-[10px] sm:text-xs md:text-sm">
-                                <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                                {priceCredit?.toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        )}
 
-                        {/* Action Buttons */}
-                        <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
-                          {apt.floor_plan ? (
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
-                              onClick={() => {
-                                setSelectedFloorPlan(apt.floor_plan);
-                                setFloorPlanOpen(true);
-                              }}
-                            >
-                              <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                              Schiță
-                            </Button>
-                          ) : (
-                            <div className="text-center text-[9px] sm:text-[10px] md:text-sm text-muted-foreground py-1 sm:py-2">
-                              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mx-auto mb-0.5 opacity-50" />
-                              <span className="hidden sm:inline">Schiță nedisponibilă</span>
-                              <span className="sm:hidden">N/A</span>
-                            </div>
-                          )}
-                          
-                          {isAuthenticated && (
-                            <Button 
-                              size="sm" 
-                              variant="secondary"
-                              className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
-                              onClick={() => setEditingApartment(apt)}
-                            >
-                              <Edit className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                              Editează
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                              {/* Apartment Type */}
+                              <div className="py-1.5 sm:py-2 px-2 sm:px-3 bg-primary/10 rounded-md text-center">
+                                <span className="font-semibold text-[10px] sm:text-xs md:text-sm">{tipApt}</span>
+                              </div>
+
+                              {/* Details */}
+                              <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs md:text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Suprafață:</span>
+                                  <span className="font-semibold">{surface} mp</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Camere:</span>
+                                  <span className="font-semibold">{rooms} {rooms === 1 ? 'cam.' : 'cam.'}</span>
+                                </div>
+                              </div>
+
+                              {/* Prices - Hidden for RENEW RESIDENCE and Eurocasa Residence */}
+                              {project.name?.toUpperCase() !== "RENEW RESIDENCE" && !project.name?.toUpperCase().includes("EUROCASA") && (
+                                <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
+                                    <div className="flex items-center gap-0.5 font-bold text-green-600 text-[10px] sm:text-xs md:text-sm">
+                                      <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                      {priceCash?.toLocaleString()}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Credit:</span>
+                                    <div className="flex items-center gap-0.5 font-bold text-blue-600 text-[10px] sm:text-xs md:text-sm">
+                                      <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                      {priceCredit?.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Action Buttons */}
+                              <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
+                                {apt.floor_plan ? (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
+                                    onClick={() => {
+                                      setSelectedFloorPlan(apt.floor_plan);
+                                      setFloorPlanOpen(true);
+                                    }}
+                                  >
+                                    <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                                    Schiță
+                                  </Button>
+                                ) : (
+                                  <div className="text-center text-[9px] sm:text-[10px] md:text-sm text-muted-foreground py-1 sm:py-2">
+                                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 mx-auto mb-0.5 opacity-50" />
+                                    <span className="hidden sm:inline">Schiță nedisponibilă</span>
+                                    <span className="sm:hidden">N/A</span>
+                                  </div>
+                                )}
+                                
+                                {isAuthenticated && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="secondary"
+                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
+                                    onClick={() => setEditingApartment(apt)}
+                                  >
+                                    <Edit className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                                    Editează
+                                  </Button>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-              ))}
+            );
+          })}
 
               {properties?.length === 0 && (
                 <div className="text-center py-16">
