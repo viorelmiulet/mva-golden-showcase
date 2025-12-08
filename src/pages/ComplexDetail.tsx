@@ -139,6 +139,12 @@ const ComplexDetail = () => {
     return acc;
   }, {} as Record<string, typeof properties>) || {};
 
+  // Helper function to extract apartment number numerically
+  const getApartmentNumber = (title: string): number => {
+    const match = title.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
+
   // Sort properties within each floor group based on selected criteria
   Object.keys(groupedByFloor).forEach(floor => {
     groupedByFloor[floor].sort((a, b) => {
@@ -154,13 +160,14 @@ const ComplexDetail = () => {
         case "status-available":
           if (a.availability_status === 'available' && b.availability_status !== 'available') return -1;
           if (a.availability_status !== 'available' && b.availability_status === 'available') return 1;
-          return 0;
+          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
         case "status-reserved":
           if (a.availability_status === 'reserved' && b.availability_status !== 'reserved') return -1;
           if (a.availability_status !== 'reserved' && b.availability_status === 'reserved') return 1;
-          return 0;
+          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
         default:
-          return 0;
+          // Default: sort by apartment number numerically
+          return getApartmentNumber(a.title) - getApartmentNumber(b.title);
       }
     });
   });
