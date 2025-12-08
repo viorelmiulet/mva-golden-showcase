@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import CookieConsent from "@/components/CookieConsent";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
@@ -82,6 +83,7 @@ const App = () => (
           </Suspense>
         </BrowserRouter>
         <CookieConsent />
+        <WhatsAppButton />
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
