@@ -133,20 +133,20 @@ const Auth = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-24">
+      <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
         <div className="max-w-md mx-auto">
           <Card className="border-2">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Bine ai venit!</CardTitle>
-              <CardDescription>
+            <CardHeader className="text-center px-4 sm:px-6 pt-4 sm:pt-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold">Bine ai venit!</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 Autentifică-te pentru a salva proprietățile favorite
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="login">Autentificare</TabsTrigger>
-                  <TabsTrigger value="signup">Înregistrare</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6 h-9 sm:h-10">
+                  <TabsTrigger value="login" className="text-xs sm:text-sm">Autentificare</TabsTrigger>
+                  <TabsTrigger value="signup" className="text-xs sm:text-sm">Înregistrare</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="login">

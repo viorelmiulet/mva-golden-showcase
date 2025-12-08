@@ -262,39 +262,39 @@ const ComplexDetail = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        <main className="container mx-auto px-4 py-24">
+        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
           {/* Back Button */}
-          <Link to="/complexe" className="inline-block mb-8">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+          <Link to="/complexe" className="inline-block mb-4 sm:mb-6 md:mb-8">
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8 sm:h-9">
+              <ArrowLeft className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Înapoi la complexe
             </Button>
           </Link>
 
           {/* Project Header */}
-          <div className="mb-12 space-y-6">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+          <div className="mb-6 sm:mb-8 md:mb-12 space-y-4 sm:space-y-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 sm:gap-6">
+              <div className="space-y-2 sm:space-y-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                   {project.name}
                 </h1>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-5 w-5" />
-                  <span className="text-lg">{project.location}</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="text-sm sm:text-base md:text-lg">{project.location}</span>
                 </div>
               </div>
               
               {/* Quick Stats */}
-              <div className="flex gap-4">
-                <Card className="p-4 text-center">
-                  <div className="text-2xl font-bold text-primary">{properties?.length || 0}</div>
-                  <div className="text-sm text-muted-foreground">Apartamente</div>
+              <div className="flex gap-2 sm:gap-4">
+                <Card className="p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">{properties?.length || 0}</div>
+                  <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Apartamente</div>
                 </Card>
-                <Card className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-500">
+                <Card className="p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-500">
                     {properties?.filter(p => p.availability_status === 'available').length || 0}
                   </div>
-                  <div className="text-sm text-muted-foreground">Disponibile</div>
+                  <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Disponibile</div>
                 </Card>
               </div>
             </div>
@@ -304,26 +304,26 @@ const ComplexDetail = () => {
                 <img
                   src={project.main_image}
                   alt={project.name}
-                  className="w-full h-[400px] object-cover"
+                  className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover"
                 />
               </div>
             )}
 
             {project.description && (
-              <p className="text-lg text-muted-foreground max-w-3xl">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl">
                 {project.description}
               </p>
             )}
           </div>
 
           {/* Sorting Controls */}
-          <div className="mb-8 flex items-center justify-between bg-card p-4 rounded-lg border">
-            <div className="flex items-center gap-3">
-              <ArrowUpDown className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm font-medium">Sortare:</span>
+          <div className="mb-4 sm:mb-6 md:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 bg-card p-3 sm:p-4 rounded-lg border">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ArrowUpDown className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+              <span className="text-xs sm:text-sm font-medium">Sortare:</span>
             </div>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[250px]">
+              <SelectTrigger className="w-full sm:w-[250px] h-9 sm:h-10 text-xs sm:text-sm">
                 <SelectValue placeholder="Selectează sortare" />
               </SelectTrigger>
               <SelectContent>
@@ -340,17 +340,17 @@ const ComplexDetail = () => {
 
           {/* Apartments by Floor */}
           {sortedFloors.map((floor) => (
-            <div key={floor} className="mb-12">
-              <div className="flex items-center mb-6 p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
+            <div key={floor} className="mb-6 sm:mb-8 md:mb-12">
+              <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
                   {floor.toUpperCase()}
-                  <Badge variant="secondary" className="text-sm">
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs md:text-sm">
                     {groupedByFloor?.[floor]?.length} {groupedByFloor?.[floor]?.length === 1 ? 'apartament' : 'apartamente'}
                   </Badge>
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                 {groupedByFloor?.[floor]?.map((apt) => {
                   const isAvailable = apt.availability_status === 'available';
                   const aptNumber = apt.title.match(/\d+/)?.[0] || '';
@@ -371,12 +371,12 @@ const ComplexDetail = () => {
                           : 'opacity-60 border border-muted'
                       }`}
                     >
-                      <CardContent className="p-4 pt-8 space-y-3">
+                      <CardContent className="p-2.5 sm:p-3 md:p-4 pt-6 sm:pt-7 md:pt-8 space-y-2 sm:space-y-3">
                         {/* Header with apt number and status */}
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            <Home className="h-5 w-5 text-primary" />
-                            <span className="text-xl font-bold">Ap. {aptNumber}</span>
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
+                            <span className="text-sm sm:text-base md:text-xl font-bold">Ap. {aptNumber}</span>
                           </div>
                           <Badge 
                             variant={
@@ -386,55 +386,55 @@ const ComplexDetail = () => {
                                   ? "secondary" 
                                   : "destructive"
                             }
-                            className={
+                            className={`text-[8px] sm:text-[10px] md:text-xs px-1 sm:px-1.5 md:px-2 py-0.5 ${
                               isAvailable 
                                 ? "bg-green-600" 
                                 : apt.availability_status === 'reserved'
                                   ? "bg-yellow-500 text-black hover:bg-yellow-600"
                                   : "bg-red-600"
-                            }
+                            }`}
                           >
                             {isAvailable ? (
-                              <><CheckCircle2 className="h-3 w-3 mr-1" /> Disponibil</>
+                              <><CheckCircle2 className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Disponibil</span><span className="sm:hidden">Disp.</span></>
                             ) : apt.availability_status === 'reserved' ? (
-                              <><Clock className="h-3 w-3 mr-1" /> Rezervat</>
+                              <><Clock className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Rezervat</span><span className="sm:hidden">Rez.</span></>
                             ) : (
-                              <><XCircle className="h-3 w-3 mr-1" /> Vândut</>
+                              <><XCircle className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 mr-0.5" /> <span className="hidden sm:inline">Vândut</span><span className="sm:hidden">Vând.</span></>
                             )}
                           </Badge>
                         </div>
 
                         {/* Apartment Type */}
-                        <div className="py-2 px-3 bg-primary/10 rounded-md text-center">
-                          <span className="font-semibold text-sm">{tipApt}</span>
+                        <div className="py-1.5 sm:py-2 px-2 sm:px-3 bg-primary/10 rounded-md text-center">
+                          <span className="font-semibold text-[10px] sm:text-xs md:text-sm">{tipApt}</span>
                         </div>
 
                         {/* Details */}
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs md:text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Suprafață:</span>
                             <span className="font-semibold">{surface} mp</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Camere:</span>
-                            <span className="font-semibold">{rooms} {rooms === 1 ? 'cameră' : 'camere'}</span>
+                            <span className="font-semibold">{rooms} {rooms === 1 ? 'cam.' : 'cam.'}</span>
                           </div>
                         </div>
 
                         {/* Prices - Hidden for RENEW RESIDENCE */}
                         {project.name !== "RENEW RESIDENCE" && (
-                          <div className="space-y-2 pt-2 border-t">
+                          <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Preț Cash:</span>
-                              <div className="flex items-center gap-1 font-bold text-green-600">
-                                <Euro className="h-3 w-3" />
+                              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
+                              <div className="flex items-center gap-0.5 font-bold text-green-600 text-[10px] sm:text-xs md:text-sm">
+                                <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                 {priceCash?.toLocaleString()}
                               </div>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Preț Credit:</span>
-                              <div className="flex items-center gap-1 font-bold text-blue-600">
-                                <Euro className="h-3 w-3" />
+                              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Credit:</span>
+                              <div className="flex items-center gap-0.5 font-bold text-blue-600 text-[10px] sm:text-xs md:text-sm">
+                                <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                 {priceCredit?.toLocaleString()}
                               </div>
                             </div>
@@ -442,24 +442,25 @@ const ComplexDetail = () => {
                         )}
 
                         {/* Action Buttons */}
-                        <div className="space-y-2 mt-2">
+                        <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
                           {apt.floor_plan ? (
                             <Button 
                               size="sm" 
                               variant="outline"
-                              className="w-full"
+                              className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
                               onClick={() => {
                                 setSelectedFloorPlan(apt.floor_plan);
                                 setFloorPlanOpen(true);
                               }}
                             >
-                              <FileText className="mr-2 h-4 w-4" />
-                              Vezi Schiță
+                              <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                              Schiță
                             </Button>
                           ) : (
-                            <div className="text-center text-sm text-muted-foreground py-2">
-                              <FileText className="h-4 w-4 mx-auto mb-1 opacity-50" />
-                              Schiță nedisponibilă
+                            <div className="text-center text-[9px] sm:text-[10px] md:text-sm text-muted-foreground py-1 sm:py-2">
+                              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mx-auto mb-0.5 opacity-50" />
+                              <span className="hidden sm:inline">Schiță nedisponibilă</span>
+                              <span className="sm:hidden">N/A</span>
                             </div>
                           )}
                           
@@ -467,11 +468,11 @@ const ComplexDetail = () => {
                             <Button 
                               size="sm" 
                               variant="secondary"
-                              className="w-full"
+                              className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
                               onClick={() => setEditingApartment(apt)}
                             >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Editează Detalii
+                              <Edit className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                              Editează
                             </Button>
                           )}
                         </div>
