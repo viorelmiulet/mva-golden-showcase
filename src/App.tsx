@@ -84,12 +84,12 @@ const App = () => (
               <Route path="*" element={<Index />} />
             </Routes>
           </Suspense>
+          <WhatsAppButton />
+          <PhoneButton />
+          <CookieConsent />
+          <ScrollIndicator />
+          <BackToTop />
         </BrowserRouter>
-        <CookieConsent />
-        <WhatsAppButton />
-        <PhoneButton />
-        <ScrollIndicator />
-        <BackToTop />
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
