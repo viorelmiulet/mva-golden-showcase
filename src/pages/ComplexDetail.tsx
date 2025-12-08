@@ -229,12 +229,9 @@ const ComplexDetail = () => {
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 
-  // Set default selected building when data loads
-  useEffect(() => {
-    if (sortedBuildings.length > 0 && !selectedBuilding) {
-      setSelectedBuilding(sortedBuildings[0]);
-    }
-  }, [sortedBuildings, selectedBuilding]);
+  // Get the first building to display by default
+  const defaultBuilding = sortedBuildings[0] || null;
+  const activeBuilding = selectedBuilding || defaultBuilding;
 
   return (
     <>
@@ -467,7 +464,7 @@ const ComplexDetail = () => {
               {sortedBuildings.map((building) => {
                 const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
                 const totalInBuilding = Object.values(floorsInBuilding).reduce((sum, apts) => sum + (apts?.length || 0), 0);
-                const isSelected = selectedBuilding === building;
+                const isSelected = activeBuilding === building;
                 
                 return (
                   <button
@@ -489,7 +486,7 @@ const ComplexDetail = () => {
           )}
 
           {/* Apartments by Building and Floor */}
-          {sortedBuildings.filter(b => !hasMultipleBuildings || b === selectedBuilding).map((building) => {
+          {sortedBuildings.filter(b => !hasMultipleBuildings || b === activeBuilding).map((building) => {
             const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
             const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
               const aIndex = floorOrder.indexOf(a);
