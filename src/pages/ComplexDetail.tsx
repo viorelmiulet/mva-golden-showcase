@@ -498,21 +498,23 @@ const ComplexDetail = () => {
 
       {/* Floor Plan Dialog */}
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-3 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
+            <DialogTitle className="flex items-center justify-between text-sm sm:text-base">
               Schiță Apartament
             </DialogTitle>
           </DialogHeader>
           {selectedFloorPlan && (
-            <div className="w-full space-y-4">
-              <img
-                src={selectedFloorPlan}
-                alt="Schiță apartament"
-                className="w-full h-auto object-contain rounded-lg"
-              />
+            <div className="w-full space-y-3 sm:space-y-4 overflow-hidden">
+              <div className="w-full max-h-[60vh] sm:max-h-[70vh] overflow-auto flex items-center justify-center bg-muted/30 rounded-lg">
+                <img
+                  src={selectedFloorPlan}
+                  alt="Schiță apartament"
+                  className="w-full h-auto object-contain max-h-[60vh] sm:max-h-[70vh]"
+                />
+              </div>
               <Button 
-                className="w-full"
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
                 onClick={() => {
                   const link = document.createElement('a');
                   link.href = selectedFloorPlan;
@@ -523,7 +525,7 @@ const ComplexDetail = () => {
                   document.body.removeChild(link);
                 }}
               >
-                <Download className="mr-2 h-4 w-4" />
+                <Download className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Descarcă Schița
               </Button>
             </div>
