@@ -26,6 +26,7 @@ import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -506,13 +507,10 @@ const ComplexDetail = () => {
           </DialogHeader>
           {selectedFloorPlan && (
             <div className="w-full space-y-3 sm:space-y-4 overflow-hidden">
-              <div className="w-full max-h-[60vh] sm:max-h-[70vh] overflow-auto flex items-center justify-center bg-muted/30 rounded-lg">
-                <img
-                  src={selectedFloorPlan}
-                  alt="Schiță apartament"
-                  className="w-full h-auto object-contain max-h-[60vh] sm:max-h-[70vh]"
-                />
-              </div>
+              <ZoomableFloorPlan 
+                src={selectedFloorPlan} 
+                alt="Schiță apartament" 
+              />
               <Button 
                 className="w-full h-9 sm:h-10 text-xs sm:text-sm"
                 onClick={() => {
