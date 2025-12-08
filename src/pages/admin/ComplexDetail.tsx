@@ -773,7 +773,7 @@ const ComplexDetail = () => {
                     </div>
 
                     {/* Prices - Hidden for EUROCASA RESIDENCE */}
-                    {project.name !== "EUROCASA RESIDENCE" && (
+                    {project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && (
                       <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
                         <div className="flex items-center justify-between">
                           <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
