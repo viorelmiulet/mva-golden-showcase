@@ -191,14 +191,21 @@ const EditComplex = () => {
       return;
     }
 
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Trebuie să fii autentificat pentru a edita complexul");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       // Upload new image if selected
       const imageUrl = await uploadImage();
 
-      // Update the complex
-      const { error } = await supabase
+      // Update the complex and return the updated row
+      const { data: updatedData, error } = await supabase
         .from('real_estate_projects')
         .update({
           name: formData.name.trim(),
@@ -213,9 +220,16 @@ const EditComplex = () => {
           main_image: imageUrl,
           videos: videos,
         } as any)
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
       if (error) throw error;
+
+      // Check if any rows were actually updated
+      if (!updatedData || updatedData.length === 0) {
+        toast.error("Nu s-a putut actualiza complexul. Verifică permisiunile.");
+        return;
+      }
 
       // Invalidate all related queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['project-edit', id] });
