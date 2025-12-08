@@ -125,10 +125,10 @@ const ComplexDetail = () => {
     
     if (!features || features.length === 0) return { building, floor };
     
-    // Check for "Scara X" in features
-    const scaraFeature = features.find(f => f?.startsWith('Scara'));
-    if (scaraFeature) {
-      building = scaraFeature;
+    // Check for "Scara X" or "Corpul X" in features
+    const buildingFeature = features.find(f => f?.startsWith('Scara') || f?.startsWith('Corpul'));
+    if (buildingFeature) {
+      building = buildingFeature;
     }
     
     // Check for floor in features
@@ -174,9 +174,9 @@ const ComplexDetail = () => {
     return { building, floor };
   };
 
-  // Check if this complex has multiple buildings (Scara)
+  // Check if this complex has multiple buildings (Scara/Corpul)
   const hasMultipleBuildings = properties?.some(p => 
-    p.features?.some(f => f?.startsWith('Scara'))
+    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul'))
   ) || false;
 
   // Group properties by building first, then by floor
@@ -220,7 +220,7 @@ const ComplexDetail = () => {
   });
 
   const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
-  const buildingOrder = ['Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
+  const buildingOrder = ['Corpul 1', 'Corpul 2', 'Corpul 3', 'Corpul 4', 'Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
   
   const sortedBuildings = Object.keys(groupedByBuildingAndFloor || {}).sort((a, b) => {
     const aIndex = buildingOrder.indexOf(a);
