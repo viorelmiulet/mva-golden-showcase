@@ -366,28 +366,99 @@ const ComplexDetail = () => {
   const total = properties?.length || 0;
   const soldPercentage = total > 0 ? Math.round((sold / total) * 100) : 0;
 
-  // Group properties by floor
-  const groupedByFloor = properties?.reduce((acc, prop) => {
-    const floor = prop.features?.find((f: string) => f.startsWith('Etaj:'))?.split(': ')[1] || 'Altele';
-    if (!acc[floor]) acc[floor] = [];
-    acc[floor].push(prop);
-    return acc;
-  }, {} as Record<string, typeof properties>);
+  // Helper function to extract apartment number numerically
+  const getApartmentNumber = (title: string): number => {
+    const match = title.match(/AP\s*(\d+)/i);
+    return match ? parseInt(match[1], 10) : 0;
+  };
 
-  // Sort properties within each floor by apartment number
-  if (groupedByFloor) {
-    Object.keys(groupedByFloor).forEach(floor => {
-      groupedByFloor[floor].sort((a, b) => {
-        const numA = parseInt(a.title.match(/\d+/)?.[0] || '0');
-        const numB = parseInt(b.title.match(/\d+/)?.[0] || '0');
-        return numA - numB;
+  // Extract building/staircase and floor from features
+  const extractBuildingAndFloor = (features: string[] | null) => {
+    let building = 'Altele';
+    let floor = 'Altele';
+    
+    if (!features || features.length === 0) return { building, floor };
+    
+    // Check for "Scara X" or "Corpul X" in features
+    const buildingFeature = features.find(f => f?.startsWith('Scara') || f?.startsWith('Corpul'));
+    if (buildingFeature) {
+      building = buildingFeature;
+    }
+    
+    // Check for floor in features
+    const floorFeature = features.find(f => 
+      f?.startsWith('Parter') || 
+      f?.startsWith('Etaj') || 
+      f?.startsWith('Demisol')
+    );
+    
+    if (floorFeature) {
+      if (floorFeature.startsWith('Parter')) {
+        floor = 'Parter';
+      } else if (floorFeature.startsWith('Demisol')) {
+        floor = 'Demisol';
+      } else if (floorFeature.startsWith('Etaj')) {
+        const match = floorFeature.match(/Etaj\s*(\d+)/);
+        if (match) {
+          floor = `Etaj ${match[1]}`;
+        }
+      }
+    } else {
+      // Fallback: check the first feature for old format
+      const featureStr = features[0] || '';
+      if (featureStr.includes('Etaj:')) {
+        const floorCode = featureStr.split('Etaj:')[1]?.trim().split(' ')[0];
+        if (floorCode === 'P') {
+          floor = 'Parter';
+        } else if (floorCode?.startsWith('E')) {
+          const floorNum = floorCode.substring(1);
+          floor = `Etaj ${floorNum}`;
+        }
+      } else if (featureStr.startsWith('Demisol')) {
+        floor = 'Demisol';
+      } else if (featureStr.startsWith('Parter')) {
+        floor = 'Parter';
+      } else if (featureStr.startsWith('Etaj')) {
+        const match = featureStr.match(/Etaj\s+(\d+)/);
+        if (match) floor = `Etaj ${match[1]}`;
+      }
+    }
+    
+    return { building, floor };
+  };
+
+  // Check if this complex has multiple buildings (Scara/Corpul)
+  const hasMultipleBuildings = properties?.some(p => 
+    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul'))
+  ) || false;
+
+  // Group properties by building first, then by floor
+  const groupedByBuildingAndFloor = properties?.reduce((acc, prop) => {
+    const { building, floor } = extractBuildingAndFloor(prop.features);
+    
+    if (!acc[building]) acc[building] = {};
+    if (!acc[building][floor]) acc[building][floor] = [];
+    acc[building][floor].push(prop);
+    
+    return acc;
+  }, {} as Record<string, Record<string, typeof properties>>) || {};
+
+  // Sort properties within each group by apartment number
+  Object.keys(groupedByBuildingAndFloor).forEach(building => {
+    Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
+      groupedByBuildingAndFloor[building][floor].sort((a, b) => {
+        return getApartmentNumber(a.title) - getApartmentNumber(b.title);
       });
     });
-  }
+  });
 
-  const floorOrder = ['P', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'Altele'];
-  const sortedFloors = Object.keys(groupedByFloor || {}).sort((a, b) => {
-    return floorOrder.indexOf(a) - floorOrder.indexOf(b);
+  const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
+  const buildingOrder = ['Corpul 1', 'Corpul 2', 'Corpul 3', 'Corpul 4', 'Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
+  
+  const sortedBuildings = Object.keys(groupedByBuildingAndFloor || {}).sort((a, b) => {
+    const aIndex = buildingOrder.indexOf(a);
+    const bIndex = buildingOrder.indexOf(b);
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 
   return (
@@ -604,310 +675,325 @@ const ComplexDetail = () => {
         </Card>
       )}
 
-      {/* Apartments by Floor */}
-      {sortedFloors.map((floor, index) => {
-        const floorProperties = groupedByFloor?.[floor] || [];
-        const allFloorSelected = floorProperties.length > 0 && 
-          floorProperties.every(p => selectedProperties.includes(p.id));
-        
-        // Transform floor name
-        const getFloorName = (floorCode: string) => {
-          if (floorCode === 'P') return 'PARTER';
-          if (floorCode === 'Altele') return 'ALTELE';
-          if (floorCode.startsWith('E')) {
-            const floorNumber = floorCode.substring(1);
-            return `ETAJ ${floorNumber}`;
-          }
-          return floorCode;
-        };
+      {/* Apartments by Building and Floor */}
+      {sortedBuildings.map((building, buildingIndex) => {
+        const floorsInBuilding = groupedByBuildingAndFloor[building] || {};
+        const sortedFloorsInBuilding = Object.keys(floorsInBuilding).sort((a, b) => {
+          const aIndex = floorOrder.indexOf(a);
+          const bIndex = floorOrder.indexOf(b);
+          return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+        });
+
+        const buildingApartmentCount = sortedFloorsInBuilding.reduce(
+          (sum, floor) => sum + (floorsInBuilding[floor]?.length || 0), 0
+        );
         
         return (
-          <div key={floor}>
-            {/* Separator between floors */}
-            {index > 0 && (
-              <div className="my-8 border-t-2 border-border" />
+          <div key={building} className="space-y-6">
+            {/* Building Header - only show if multiple buildings */}
+            {hasMultipleBuildings && (
+              <>
+                {buildingIndex > 0 && (
+                  <div className="my-8 border-t-4 border-primary/30" />
+                )}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/20 to-primary/5 border-l-4 border-primary rounded-lg">
+                  <Building2 className="h-6 w-6 text-primary" />
+                  <h2 className="text-xl md:text-2xl font-bold">
+                    {building.toUpperCase()}
+                    <Badge variant="secondary" className="ml-3 text-sm">
+                      {buildingApartmentCount} apartamente
+                    </Badge>
+                  </h2>
+                </div>
+              </>
             )}
-            
-            <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
-              <Checkbox
-                checked={allFloorSelected}
-                onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
-              />
-              <h2 className="text-lg md:text-2xl font-bold flex flex-wrap items-center gap-2 md:gap-3">
-                {getFloorName(floor)}
-                <Badge variant="secondary" className="text-xs md:text-sm">
-                  {floorProperties.length} {floorProperties.length === 1 ? 'apt' : 'apt'}
-                </Badge>
-              </h2>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              {floorProperties.map((apt) => {
-                const isAvailable = apt.availability_status === 'available';
-                const aptNumber = apt.title.match(/\d+/)?.[0] || '';
-                const surface = apt.surface_min;
-                const priceCredit = apt.price_max;
-                const priceCash = apt.price_min;
-                const rooms = apt.rooms;
-                const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
-                const isSelected = selectedProperties.includes(apt.id);
+            {/* Floors within building */}
+            {sortedFloorsInBuilding.map((floor, floorIndex) => {
+              const floorProperties = floorsInBuilding[floor] || [];
+              const allFloorSelected = floorProperties.length > 0 && 
+                floorProperties.every(p => selectedProperties.includes(p.id));
+              
+              return (
+                <div key={`${building}-${floor}`}>
+                  {/* Separator between floors */}
+                  {floorIndex > 0 && (
+                    <div className="my-6 border-t border-border" />
+                  )}
+                  
+                  <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary rounded-lg">
+                    <Checkbox
+                      checked={allFloorSelected}
+                      onCheckedChange={(checked) => handleSelectAll(floorProperties, checked as boolean)}
+                    />
+                    <h3 className="text-lg md:text-xl font-bold flex flex-wrap items-center gap-2 md:gap-3">
+                      {floor.toUpperCase()}
+                      <Badge variant="secondary" className="text-xs md:text-sm">
+                        {floorProperties.length} apt
+                      </Badge>
+                    </h3>
+                  </div>
 
-                return (
-                  <Card 
-                    key={apt.id}
-                    className={`relative overflow-hidden transition-all duration-300 border-2 ${
-                      isSelected 
-                        ? 'border-primary shadow-lg' 
-                        : isAvailable 
-                          ? 'border-green-500/50 hover:shadow-xl' 
-                          : 'border-red-500/50'
-                    }`}
-                  >
-                    {/* Dark overlay for sold/reserved */}
-                    {!isAvailable && (
-                      <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
-                    )}
-                    
-                    <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3 relative">
-                      {/* Badge - outside the overlay */}
-                      <div className="absolute top-1 right-1 md:top-2 md:right-2 z-20">
-                        <Badge 
-                          variant={
-                            isAvailable 
-                              ? "default" 
-                              : apt.availability_status === 'reserved' 
-                                ? "secondary" 
-                                : "destructive"
-                          }
-                          className={`text-xs md:text-sm ${
-                            isAvailable 
-                              ? "bg-green-600 text-white" 
-                              : apt.availability_status === 'reserved'
-                                ? "bg-yellow-500 text-black hover:bg-yellow-600"
-                                : "bg-red-600 text-white"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                    {floorProperties.map((apt) => {
+                      const isAvailable = apt.availability_status === 'available';
+                      const aptNumberMatch = apt.title.match(/AP\s*(\d+)/i);
+                      const aptNumber = aptNumberMatch ? aptNumberMatch[1] : '';
+                      const surface = apt.surface_min;
+                      const priceCredit = apt.price_max;
+                      const priceCash = apt.price_min;
+                      const rooms = apt.rooms;
+                      const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+                      const isSelected = selectedProperties.includes(apt.id);
+
+                      return (
+                        <Card 
+                          key={apt.id}
+                          className={`relative overflow-hidden transition-all duration-300 border-2 ${
+                            isSelected 
+                              ? 'border-primary shadow-lg' 
+                              : isAvailable 
+                                ? 'border-green-500/50 hover:shadow-xl' 
+                                : 'border-red-500/50'
                           }`}
                         >
-                          {isAvailable ? (
-                            <><CheckCircle2 className="h-3 w-3 mr-1" /><span className="hidden md:inline">Disponibil</span><span className="md:hidden">Disp</span></>
-                          ) : apt.availability_status === 'reserved' ? (
-                            <><Clock className="h-3 w-3 mr-1" /><span className="hidden md:inline">Rezervat</span><span className="md:hidden">Rez</span></>
-                          ) : (
-                            <><XCircle className="h-3 w-3 mr-1" /><span className="hidden md:inline">Vândut</span><span className="md:hidden">Vând</span></>
+                          {/* Dark overlay for sold/reserved */}
+                          {!isAvailable && (
+                            <div className="absolute inset-0 bg-black/50 z-10 pointer-events-none" />
                           )}
-                        </Badge>
-                      </div>
-
-                      {/* Checkbox and Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
-                            className="touch-target"
-                          />
-                          <Home className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                          <span className="text-lg md:text-xl font-bold">Ap. {aptNumber}</span>
-                        </div>
-                      </div>
-
-                    {/* Status Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-between text-sm md:text-base h-9 md:h-10"
-                        >
-                          <span className="flex items-center gap-1 md:gap-2">
-                            {isAvailable ? (
-                              <><CheckCircle2 className="h-3 w-3 md:h-4 md:w-4 text-green-600" /> Disponibil</>
-                            ) : apt.availability_status === 'reserved' ? (
-                              <><Clock className="h-3 w-3 md:h-4 md:w-4 text-yellow-600" /> Rezervat</>
-                            ) : (
-                              <><XCircle className="h-3 w-3 md:h-4 md:w-4 text-red-600" /> Vândut</>
-                            )}
-                          </span>
-                          <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
-                        <DropdownMenuItem
-                          onClick={() => setAvailability(apt.id, 'available')}
-                          disabled={isAvailable}
-                          className="cursor-pointer"
-                        >
-                          <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
-                          <span>Disponibil</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setAvailability(apt.id, 'reserved')}
-                          disabled={apt.availability_status === 'reserved'}
-                          className="cursor-pointer"
-                        >
-                          <Clock className="mr-2 h-4 w-4 text-yellow-600" />
-                          <span>Rezervat</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setAvailability(apt.id, 'sold')}
-                          disabled={apt.availability_status === 'sold'}
-                          className="cursor-pointer"
-                        >
-                          <XCircle className="mr-2 h-4 w-4 text-red-600" />
-                          <span>Vândut</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Apartment Type */}
-                    <div className="py-1.5 md:py-2 px-2 md:px-3 bg-primary/10 rounded-md text-center">
-                      <span className="font-semibold text-xs md:text-sm">{tipApt}</span>
-                    </div>
-
-                    {/* Details */}
-                    <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Suprafață:</span>
-                        <span className="font-semibold">{surface} mp</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Camere:</span>
-                        <span className="font-semibold">{rooms} {rooms === 1 ? 'cam' : 'cam'}</span>
-                      </div>
-                    </div>
-
-                    {/* Prices - Hidden for EUROCASA RESIDENCE */}
-                    {project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && (
-                      <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
-                          <div className="flex items-center gap-0.5 md:gap-1 font-bold text-green-600 text-xs md:text-sm">
-                            <Euro className="h-3 w-3" />
-                            {priceCash?.toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] md:text-xs text-muted-foreground">Credit:</span>
-                          <div className="flex items-center gap-0.5 md:gap-1 font-bold text-blue-600 text-xs md:text-sm">
-                            <Euro className="h-3 w-3" />
-                            {priceCredit?.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                      {/* View Sketch Button */}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
-                        onClick={() => {
-                          setSelectedPropertyForFloorPlan({
-                            id: apt.id,
-                            title: apt.title,
-                            floorPlan: apt.floor_plan
-                          });
-                          setFloorPlanDialogOpen(true);
-                        }}
-                      >
-                        <FileText className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                        {apt.floor_plan ? 'Schiță' : '+ Schiță'}
-                      </Button>
-
-                      {/* Commission Dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={`w-full justify-between h-8 md:h-9 text-xs md:text-sm ${
-                              commissions[apt.id] ? 'border-primary bg-primary/10' : ''
-                            }`}
-                            size="sm"
-                          >
-                            <span className="flex items-center gap-1 md:gap-2 truncate">
-                              <Euro className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                              <span className="truncate">
-                                {commissions[apt.id] 
-                                  ? `${commissions[apt.id].amount.toLocaleString()} €`
-                                  : 'Comision'
+                          
+                          <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3 relative">
+                            {/* Badge - outside the overlay */}
+                            <div className="absolute top-1 right-1 md:top-2 md:right-2 z-20">
+                              <Badge 
+                                variant={
+                                  isAvailable 
+                                    ? "default" 
+                                    : apt.availability_status === 'reserved' 
+                                      ? "secondary" 
+                                      : "destructive"
                                 }
-                              </span>
-                            </span>
-                            <ChevronDown className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56 bg-background border-2 z-50" align="center">
-                          <DropdownMenuItem
-                            onClick={() => handleCommissionChange(apt.id, 'cash', priceCash, priceCredit)}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex flex-col w-full">
-                              <span className="font-semibold">2% din Cash</span>
-                              <span className="text-sm text-green-600">
-                                {(priceCash * 0.02).toLocaleString()} € (din {priceCash.toLocaleString()} €)
-                              </span>
+                                className={`text-xs md:text-sm ${
+                                  isAvailable 
+                                    ? "bg-green-600 text-white" 
+                                    : apt.availability_status === 'reserved'
+                                      ? "bg-yellow-500 text-black hover:bg-yellow-600"
+                                      : "bg-red-600 text-white"
+                                }`}
+                              >
+                                {isAvailable ? (
+                                  <><CheckCircle2 className="h-3 w-3 mr-1" /><span className="hidden md:inline">Disponibil</span><span className="md:hidden">Disp</span></>
+                                ) : apt.availability_status === 'reserved' ? (
+                                  <><Clock className="h-3 w-3 mr-1" /><span className="hidden md:inline">Rezervat</span><span className="md:hidden">Rez</span></>
+                                ) : (
+                                  <><XCircle className="h-3 w-3 mr-1" /><span className="hidden md:inline">Vândut</span><span className="md:hidden">Vând</span></>
+                                )}
+                              </Badge>
                             </div>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleCommissionChange(apt.id, 'credit', priceCash, priceCredit)}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex flex-col w-full">
-                              <span className="font-semibold">2% din Credit</span>
-                              <span className="text-sm text-blue-600">
-                                {(priceCredit * 0.02).toLocaleString()} € (din {priceCredit.toLocaleString()} €)
-                              </span>
+
+                            {/* Checkbox and Header */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={(checked) => handleSelectProperty(apt.id, checked as boolean)}
+                                  className="touch-target"
+                                />
+                                <Home className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                                <span className="text-lg md:text-xl font-bold">Ap. {aptNumber}</span>
+                              </div>
                             </div>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setSelectedPropertyForCommission(apt.id);
-                              setManualCommissionOpen(true);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Calculator className="mr-2 h-4 w-4" />
-                            <span className="font-semibold">Comision Manual</span>
-                          </DropdownMenuItem>
-                          {commissions[apt.id] && (
-                            <DropdownMenuItem
-                              onClick={() => handleCommissionChange(apt.id, null, priceCash, priceCredit)}
-                              className="cursor-pointer text-red-600"
+
+                            {/* Status Dropdown */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-between text-sm md:text-base h-9 md:h-10"
+                                >
+                                  <span className="flex items-center gap-1 md:gap-2">
+                                    {isAvailable ? (
+                                      <><CheckCircle2 className="h-3 w-3 md:h-4 md:w-4 text-green-600" /> Disponibil</>
+                                    ) : apt.availability_status === 'reserved' ? (
+                                      <><Clock className="h-3 w-3 md:h-4 md:w-4 text-yellow-600" /> Rezervat</>
+                                    ) : (
+                                      <><XCircle className="h-3 w-3 md:h-4 md:w-4 text-red-600" /> Vândut</>
+                                    )}
+                                  </span>
+                                  <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-56 z-[1000] bg-popover border shadow-lg" align="center" sideOffset={6}>
+                                <DropdownMenuItem
+                                  onClick={() => setAvailability(apt.id, 'available')}
+                                  disabled={isAvailable}
+                                  className="cursor-pointer"
+                                >
+                                  <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
+                                  <span>Disponibil</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => setAvailability(apt.id, 'reserved')}
+                                  disabled={apt.availability_status === 'reserved'}
+                                  className="cursor-pointer"
+                                >
+                                  <Clock className="mr-2 h-4 w-4 text-yellow-600" />
+                                  <span>Rezervat</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => setAvailability(apt.id, 'sold')}
+                                  disabled={apt.availability_status === 'sold'}
+                                  className="cursor-pointer"
+                                >
+                                  <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                                  <span>Vândut</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {/* Apartment Type */}
+                            <div className="py-1.5 md:py-2 px-2 md:px-3 bg-primary/10 rounded-md text-center">
+                              <span className="font-semibold text-xs md:text-sm">{tipApt}</span>
+                            </div>
+
+                            {/* Details */}
+                            <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Suprafață:</span>
+                                <span className="font-semibold">{surface} mp</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Camere:</span>
+                                <span className="font-semibold">{rooms} cam</span>
+                              </div>
+                            </div>
+
+                            {/* Prices - Hidden for EUROCASA RESIDENCE */}
+                            {project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && (
+                              <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
+                                  <div className="flex items-center gap-0.5 md:gap-1 font-bold text-green-600 text-xs md:text-sm">
+                                    <Euro className="h-3 w-3" />
+                                    {priceCash?.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] md:text-xs text-muted-foreground">Credit:</span>
+                                  <div className="flex items-center gap-0.5 md:gap-1 font-bold text-blue-600 text-xs md:text-sm">
+                                    <Euro className="h-3 w-3" />
+                                    {priceCredit?.toLocaleString()}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* View Sketch Button */}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
+                              onClick={() => {
+                                setSelectedPropertyForFloorPlan({
+                                  id: apt.id,
+                                  title: apt.title,
+                                  floorPlan: apt.floor_plan || undefined
+                                });
+                                setFloorPlanDialogOpen(true);
+                              }}
                             >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              <span>Șterge Comision</span>
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <FileText className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                              {apt.floor_plan ? 'Vezi/Schimbă Schiță' : '+ Schiță Etaj'}
+                            </Button>
 
-                      {/* Edit Button */}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
-                        onClick={() => {
-                          setSelectedPropertyForEdit(apt);
-                          setEditDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                        Editează Detalii
-                      </Button>
+                            {/* Commission Selection */}
+                            <div className="pt-2 border-t space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
+                                  <Calculator className="h-3 w-3" />
+                                  Comision (2%):
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1">
+                                <Button
+                                  variant={commissions[apt.id]?.type === 'cash' ? 'default' : 'outline'}
+                                  size="sm"
+                                  className="h-7 text-[10px] md:text-xs px-1"
+                                  onClick={() => {
+                                    if (commissions[apt.id]?.type === 'cash') {
+                                      handleCommissionChange(apt.id, null, priceCash, priceCredit);
+                                    } else {
+                                      handleCommissionChange(apt.id, 'cash', priceCash, priceCredit);
+                                    }
+                                  }}
+                                >
+                                  Cash
+                                </Button>
+                                <Button
+                                  variant={commissions[apt.id]?.type === 'credit' ? 'default' : 'outline'}
+                                  size="sm"
+                                  className="h-7 text-[10px] md:text-xs px-1"
+                                  onClick={() => {
+                                    if (commissions[apt.id]?.type === 'credit') {
+                                      handleCommissionChange(apt.id, null, priceCash, priceCredit);
+                                    } else {
+                                      handleCommissionChange(apt.id, 'credit', priceCash, priceCredit);
+                                    }
+                                  }}
+                                >
+                                  Credit
+                                </Button>
+                                <Button
+                                  variant={commissions[apt.id]?.type === 'manual' ? 'default' : 'outline'}
+                                  size="sm"
+                                  className="h-7 text-[10px] md:text-xs px-1"
+                                  onClick={() => {
+                                    setSelectedPropertyForCommission(apt.id);
+                                    setManualCommissionOpen(true);
+                                  }}
+                                >
+                                  Manual
+                                </Button>
+                              </div>
+                              {commissions[apt.id] && (
+                                <div className="text-center text-xs font-semibold text-primary">
+                                  {commissions[apt.id].amount.toLocaleString()} €
+                                </div>
+                              )}
+                            </div>
 
-                      {/* Add Image Button */}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full border-blue-500/30 hover:bg-blue-500/10 h-8 md:h-9 text-xs md:text-sm"
-                        onClick={() => handleSingleImageUpload(apt.id)}
-                      >
-                        <ImagePlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
-                        {apt.images && apt.images.length > 0 ? `Imagini (${apt.images.length})` : '+ Imagini'}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                            {/* Edit Button */}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full border-primary/30 hover:bg-primary/10 h-8 md:h-9 text-xs md:text-sm"
+                              onClick={() => {
+                                setSelectedPropertyForEdit(apt);
+                                setEditDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                              Editează Detalii
+                            </Button>
+
+                            {/* Add Image Button */}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full border-blue-500/30 hover:bg-blue-500/10 h-8 md:h-9 text-xs md:text-sm"
+                              onClick={() => handleSingleImageUpload(apt.id)}
+                            >
+                              <ImagePlus className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                              {apt.images && apt.images.length > 0 ? `Imagini (${apt.images.length})` : '+ Imagini'}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         );
       })}
