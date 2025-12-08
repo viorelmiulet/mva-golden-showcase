@@ -115,8 +115,8 @@ const ComplexDetail = () => {
 
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
-    const match = title.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 0;
+    const match = title.match(/AP\s*(\d+)/i);
+    return match ? parseInt(match[1], 10) : 0;
   };
 
   // Extract building/staircase and floor from features
@@ -512,7 +512,8 @@ const ComplexDetail = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                       {floorsInBuilding[floor]?.map((apt) => {
                         const isAvailable = apt.availability_status === 'available';
-                        const aptNumber = apt.title.match(/\d+/)?.[0] || '';
+                        const aptNumberMatch = apt.title.match(/AP\s*(\d+)/i);
+                        const aptNumber = aptNumberMatch ? aptNumberMatch[1] : '';
                         const surface = apt.surface_min;
                         const priceCredit = apt.price_max;
                         const priceCash = apt.price_min;
