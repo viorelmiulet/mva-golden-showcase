@@ -1,4 +1,13 @@
+import { useLocation } from 'react-router-dom';
+
 const WhatsAppButton = () => {
+  const location = useLocation();
+  
+  // Hide on admin routes
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <a
       href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamentele%20din%20portofoliul%20vostru.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F"
