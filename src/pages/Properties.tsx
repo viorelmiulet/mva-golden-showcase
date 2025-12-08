@@ -52,7 +52,8 @@ const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
-  const [priceFilter, setPriceFilter] = useState("all")
+  const [priceMin, setPriceMin] = useState<string>("")
+  const [priceMax, setPriceMax] = useState<string>("")
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
   const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
@@ -98,15 +99,12 @@ const Properties = () => {
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
-      // Price filter
-      if (priceFilter && priceFilter !== "all") {
-        const [minPrice, maxPrice] = priceFilter.split('-').map(p => parseInt(p))
-        if (maxPrice) {
-          if (property.price_min < minPrice || property.price_min > maxPrice) return false
-        } else {
-          if (property.price_min < minPrice) return false
-        }
-      }
+      // Price range filter
+      const minPriceValue = priceMin ? parseInt(priceMin) : null
+      const maxPriceValue = priceMax ? parseInt(priceMax) : null
+      
+      if (minPriceValue !== null && property.price_min < minPriceValue) return false
+      if (maxPriceValue !== null && property.price_min > maxPriceValue) return false
 
       // Rooms filter
       if (roomsFilter && roomsFilter !== "all") {
@@ -136,7 +134,7 @@ const Properties = () => {
 
       return true
     })
-  }, [properties, priceFilter, roomsFilter, locationFilter, transactionTypeFilter])
+  }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter])
 
   // Extract zone from title or description
   function extractZone(property: any): string | null {
@@ -367,7 +365,7 @@ const Properties = () => {
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-4 sm:p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                       {/* Transaction Type Filter */}
                       <div>
                         <label className="text-sm font-medium mb-2 block">Tip tranzacție</label>
@@ -382,22 +380,28 @@ const Properties = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      {/* Price Filter */}
-                      <div>
+                      {/* Price Range Filter */}
+                      <div className="lg:col-span-2">
                         <label className="text-sm font-medium mb-2 block">Preț (EUR)</label>
-                        <Select value={priceFilter} onValueChange={setPriceFilter}>
-                          <SelectTrigger className="glass">
-                            <SelectValue placeholder="Selectează prețul" />
-                          </SelectTrigger>
-                           <SelectContent>
-                            <SelectItem value="all">Toate prețurile</SelectItem>
-                            <SelectItem value="0-50000">Sub 50.000 EUR</SelectItem>
-                            <SelectItem value="50000-100000">50.000 - 100.000 EUR</SelectItem>
-                            <SelectItem value="100000-200000">100.000 - 200.000 EUR</SelectItem>
-                            <SelectItem value="200000-300000">200.000 - 300.000 EUR</SelectItem>
-                            <SelectItem value="300000">Peste 300.000 EUR</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            type="number"
+                            placeholder="Min"
+                            value={priceMin}
+                            onChange={(e) => setPriceMin(e.target.value)}
+                            className="glass"
+                            min={0}
+                          />
+                          <span className="text-muted-foreground">-</span>
+                          <Input
+                            type="number"
+                            placeholder="Max"
+                            value={priceMax}
+                            onChange={(e) => setPriceMax(e.target.value)}
+                            className="glass"
+                            min={0}
+                          />
+                        </div>
                       </div>
 
                       {/* Rooms Filter */}
@@ -448,7 +452,8 @@ const Properties = () => {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          setPriceFilter("all")
+                          setPriceMin("")
+                          setPriceMax("")
                           setRoomsFilter("all")
                           setLocationFilter("all")
                           setTransactionTypeFilter("all")
