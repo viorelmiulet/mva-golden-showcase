@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import PhoneButton from "@/components/PhoneButton";
 import ScrollIndicator from "@/components/ScrollIndicator";
 import BackToTop from "@/components/BackToTop";
 
@@ -86,6 +87,7 @@ const App = () => (
         </BrowserRouter>
         <CookieConsent />
         <WhatsAppButton />
+        <PhoneButton />
         <ScrollIndicator />
         <BackToTop />
       </TooltipProvider>
