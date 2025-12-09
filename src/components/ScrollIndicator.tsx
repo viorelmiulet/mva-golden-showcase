@@ -46,14 +46,11 @@ const ScrollIndicator = () => {
   return (
     <button
       onClick={scrollDown}
-      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 lg:hidden flex flex-col items-center gap-1 text-muted-foreground animate-fade-in touch-manipulation"
+      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 lg:hidden animate-fade-in touch-manipulation"
       aria-label="Scroll pentru mai mult conținut"
     >
-      <span className="text-[10px] font-medium bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full border border-border/50 shadow-sm">
-        Scroll pentru mai mult
-      </span>
       <div className="animate-bounce">
-        <ChevronDown className="w-5 h-5 text-gold" />
+        <ChevronDown className="w-6 h-6 text-gold/70" />
       </div>
     </button>
   );
