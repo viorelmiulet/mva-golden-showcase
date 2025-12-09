@@ -11,9 +11,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Calendar, Clock, User, Phone, Mail } from "lucide-react";
+import { Calendar, Clock, User, Phone, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const scheduleSchema = z.object({
   name: z.string().trim().min(2, "Numele trebuie să aibă cel puțin 2 caractere").max(100, "Numele este prea lung"),
@@ -75,8 +76,31 @@ export const ScheduleViewingDialog = ({
 
     setIsSubmitting(true);
 
-    // Build WhatsApp message
-    const message = `Bună ziua! Doresc să programez o vizionare pentru: ${propertyTitle}
+    try {
+      // Save to database
+      const { error } = await supabase
+        .from('viewing_appointments')
+        .insert({
+          property_id: propertyId,
+          property_title: propertyTitle,
+          customer_name: formData.name.trim(),
+          customer_phone: formData.phone.trim(),
+          customer_email: formData.email?.trim() || null,
+          preferred_date: formData.preferredDate,
+          preferred_time: formData.preferredTime,
+          message: formData.message?.trim() || null,
+          status: 'pending'
+        });
+
+      if (error) {
+        console.error('Error saving appointment:', error);
+        toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Success - also open WhatsApp for immediate contact
+      const message = `Bună ziua! Doresc să programez o vizionare pentru: ${propertyTitle}
 
 📅 Data preferată: ${formData.preferredDate}
 ⏰ Ora preferată: ${formData.preferredTime}
@@ -84,27 +108,29 @@ export const ScheduleViewingDialog = ({
 👤 Nume: ${formData.name}
 📱 Telefon: ${formData.phone}
 ${formData.email ? `📧 Email: ${formData.email}` : ""}
-${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
+${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}`;
 
-🔗 Link: ${window.location.origin}/proprietati/${propertyId}`;
+      window.open(
+        `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
 
-    // Open WhatsApp with pre-filled message
-    window.open(
-      `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
-
-    setIsSubmitting(false);
-    setOpen(false);
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      preferredDate: "",
-      preferredTime: "",
-      message: "",
-    });
-    toast.success("Veți fi redirecționat către WhatsApp pentru a finaliza programarea!");
+      toast.success("Cererea de vizionare a fost trimisă cu succes!");
+      setOpen(false);
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        preferredDate: "",
+        preferredTime: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Get minimum date (today)
@@ -145,6 +171,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? "border-destructive" : ""}
+              disabled={isSubmitting}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
           </div>
@@ -163,6 +190,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
               value={formData.phone}
               onChange={handleChange}
               className={errors.phone ? "border-destructive" : ""}
+              disabled={isSubmitting}
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
           </div>
@@ -181,6 +209,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
               value={formData.email}
               onChange={handleChange}
               className={errors.email ? "border-destructive" : ""}
+              disabled={isSubmitting}
             />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
@@ -200,6 +229,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
                 value={formData.preferredDate}
                 onChange={handleChange}
                 className={errors.preferredDate ? "border-destructive" : ""}
+                disabled={isSubmitting}
               />
               {errors.preferredDate && <p className="text-xs text-destructive">{errors.preferredDate}</p>}
             </div>
@@ -216,6 +246,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
                 value={formData.preferredTime}
                 onChange={handleChange}
                 className={errors.preferredTime ? "border-destructive" : ""}
+                disabled={isSubmitting}
               />
               {errors.preferredTime && <p className="text-xs text-destructive">{errors.preferredTime}</p>}
             </div>
@@ -232,6 +263,7 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
               onChange={handleChange}
               rows={3}
               className={errors.message ? "border-destructive" : ""}
+              disabled={isSubmitting}
             />
             {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
           </div>
@@ -241,11 +273,18 @@ ${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}
             className="w-full bg-primary hover:bg-primary/90"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Se trimite..." : "Trimite cererea pe WhatsApp"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Se trimite...
+              </>
+            ) : (
+              "Trimite cererea"
+            )}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Veți fi redirecționat către WhatsApp pentru a finaliza programarea
+            Veți fi contactat în cel mai scurt timp pentru confirmarea vizionării
           </p>
         </form>
       </DialogContent>
