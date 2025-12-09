@@ -46,11 +46,6 @@ const Hero = () => {
           {/* Left Column - Main Content */}
           <header className="space-y-4 sm:space-y-6 lg:space-y-8 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
             <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                Premium Real Estate
-              </Badge>
-              
               <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight" itemProp="headline">
                 <span className="block text-foreground mb-1 sm:mb-2">Soluții Imobiliare</span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
