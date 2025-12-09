@@ -140,8 +140,8 @@ const Footer = () => {
               </div>
 
               {/* Quick Links */}
-              <div className="text-center md:text-left">
-                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center md:justify-start">
+              <div className="text-center">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center">
                   <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
                   Navigare
                 </h3>
@@ -151,14 +151,14 @@ const Footer = () => {
                       {link.type === 'link' ? (
                         <Link
                           to={link.id}
-                          className="text-muted-foreground hover:text-gold transition-colors text-sm hover:translate-x-1 transform duration-200 block"
+                          className="text-muted-foreground hover:text-gold transition-colors text-sm duration-200 inline-block"
                         >
                           {link.name}
                         </Link>
                       ) : (
                         <button 
                           onClick={() => handleNavigation(link)} 
-                          className="text-muted-foreground hover:text-gold transition-colors text-sm hover:translate-x-1 transform duration-200 block"
+                          className="text-muted-foreground hover:text-gold transition-colors text-sm duration-200 inline-block"
                         >
                           {link.name}
                         </button>
