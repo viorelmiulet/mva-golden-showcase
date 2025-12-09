@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, MessageCircle, Building, Heart, User, LogOut } from "lucide-react"
+import { Menu, MessageCircle, Building, Heart, User, LogOut, Settings } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import {
@@ -12,12 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { useUserRoles } from "@/hooks/useUserRoles"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAdmin } = useUserRoles()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -253,6 +255,17 @@ const Header = () => {
                         Favoritele mele
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="flex items-center text-gold">
+                            <Settings className="w-4 h-4 mr-2" />
+                            Panou Admin
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -329,6 +342,14 @@ const Header = () => {
                           Favoritele Mele
                         </Button>
                       </Link>
+                      {isAdmin && (
+                        <Link to="/admin">
+                          <Button variant="luxury" className="w-full h-12 text-base">
+                            <Settings className="w-4 h-4 mr-2" />
+                            Panou Admin
+                          </Button>
+                        </Link>
+                      )}
                       <Button variant="ghost" onClick={handleLogout} className="w-full h-12 text-base text-destructive">
                         <LogOut className="w-4 h-4 mr-2" />
                         Deconectare
