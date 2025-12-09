@@ -292,7 +292,6 @@ const Header = () => {
                     <div className="font-cinzel text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
-                    <div className="text-xs text-muted-foreground tracking-widest uppercase">Premium Real Estate</div>
                   </div>
                 </div>
 
