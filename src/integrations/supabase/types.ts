@@ -403,6 +403,62 @@ export type Database = {
         }
         Relationships: []
       }
+      viewing_appointments: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          id: string
+          message: string | null
+          notes: string | null
+          preferred_date: string
+          preferred_time: string
+          property_id: string | null
+          property_title: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          id?: string
+          message?: string | null
+          notes?: string | null
+          preferred_date: string
+          preferred_time: string
+          property_id?: string | null
+          property_title: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          message?: string | null
+          notes?: string | null
+          preferred_date?: string
+          preferred_time?: string
+          property_id?: string | null
+          property_title?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewing_appointments_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

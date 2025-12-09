@@ -1,0 +1,459 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Calendar,
+  Clock,
+  User,
+  Phone,
+  Mail,
+  Home,
+  Trash2,
+  Edit,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Search,
+  RefreshCw,
+} from "lucide-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { ro } from "date-fns/locale";
+
+interface ViewingAppointment {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  property_id: string | null;
+  property_title: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  preferred_date: string;
+  preferred_time: string;
+  message: string | null;
+  status: string;
+  notes: string | null;
+}
+
+const statusConfig = {
+  pending: { label: "În așteptare", color: "bg-yellow-500", icon: AlertCircle },
+  confirmed: { label: "Confirmat", color: "bg-green-500", icon: CheckCircle },
+  completed: { label: "Finalizat", color: "bg-blue-500", icon: CheckCircle },
+  cancelled: { label: "Anulat", color: "bg-red-500", icon: XCircle },
+};
+
+const ViewingAppointmentsPage = () => {
+  const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editingAppointment, setEditingAppointment] = useState<ViewingAppointment | null>(null);
+  const [editNotes, setEditNotes] = useState("");
+  const [editStatus, setEditStatus] = useState("");
+
+  const { data: appointments, isLoading, refetch } = useQuery({
+    queryKey: ['viewing-appointments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('viewing_appointments')
+        .select('*')
+        .order('preferred_date', { ascending: true })
+        .order('preferred_time', { ascending: true });
+      
+      if (error) throw error;
+      return data as ViewingAppointment[];
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, status, notes }: { id: string; status: string; notes: string }) => {
+      const { error } = await supabase
+        .from('viewing_appointments')
+        .update({ status, notes })
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['viewing-appointments'] });
+      toast.success("Programarea a fost actualizată");
+      setEditingAppointment(null);
+    },
+    onError: (error) => {
+      console.error('Error updating appointment:', error);
+      toast.error("Eroare la actualizarea programării");
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('viewing_appointments')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['viewing-appointments'] });
+      toast.success("Programarea a fost ștearsă");
+    },
+    onError: (error) => {
+      console.error('Error deleting appointment:', error);
+      toast.error("Eroare la ștergerea programării");
+    }
+  });
+
+  const filteredAppointments = appointments?.filter(apt => {
+    const matchesSearch = 
+      apt.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      apt.customer_phone.includes(searchTerm) ||
+      apt.property_title.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === "all" || apt.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleEdit = (appointment: ViewingAppointment) => {
+    setEditingAppointment(appointment);
+    setEditNotes(appointment.notes || "");
+    setEditStatus(appointment.status);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingAppointment) return;
+    updateMutation.mutate({
+      id: editingAppointment.id,
+      status: editStatus,
+      notes: editNotes
+    });
+  };
+
+  const handleWhatsApp = (appointment: ViewingAppointment) => {
+    const message = `Bună ziua, ${appointment.customer_name}! Vă contactăm referitor la vizionarea programată pentru ${appointment.property_title} în data de ${format(new Date(appointment.preferred_date), 'dd MMMM yyyy', { locale: ro })} la ora ${appointment.preferred_time}.`;
+    window.open(`https://wa.me/${appointment.customer_phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleCall = (phone: string) => {
+    window.location.href = `tel:${phone}`;
+  };
+
+  const pendingCount = appointments?.filter(a => a.status === 'pending').length || 0;
+  const confirmedCount = appointments?.filter(a => a.status === 'confirmed').length || 0;
+  const todayCount = appointments?.filter(a => a.preferred_date === new Date().toISOString().split('T')[0]).length || 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Programări Vizionări</h1>
+          <p className="text-muted-foreground mt-1">Gestionează cererile de vizionare</p>
+        </div>
+        <Button onClick={() => refetch()} variant="outline" size="sm">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Actualizează
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+              <AlertCircle className="w-6 h-6 text-yellow-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">În așteptare</p>
+              <p className="text-2xl font-bold">{pendingCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Confirmate</p>
+              <p className="text-2xl font-bold">{confirmedCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <Calendar className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Azi</p>
+              <p className="text-2xl font-bold">{todayCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Caută după nume, telefon sau proprietate..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toate</SelectItem>
+                <SelectItem value="pending">În așteptare</SelectItem>
+                <SelectItem value="confirmed">Confirmate</SelectItem>
+                <SelectItem value="completed">Finalizate</SelectItem>
+                <SelectItem value="cancelled">Anulate</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Appointments Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista programărilor ({filteredAppointments?.length || 0})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredAppointments && filteredAppointments.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Proprietate</TableHead>
+                    <TableHead>Data & Ora</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Acțiuni</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAppointments.map((apt) => {
+                    const config = statusConfig[apt.status as keyof typeof statusConfig] || statusConfig.pending;
+                    const StatusIcon = config.icon;
+                    const isToday = apt.preferred_date === new Date().toISOString().split('T')[0];
+                    
+                    return (
+                      <TableRow key={apt.id} className={isToday ? "bg-primary/5" : ""}>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 font-medium">
+                              <User className="w-4 h-4 text-muted-foreground" />
+                              {apt.customer_name}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Phone className="w-3 h-3" />
+                              {apt.customer_phone}
+                            </div>
+                            {apt.customer_email && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Mail className="w-3 h-3" />
+                                {apt.customer_email}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Home className="w-4 h-4 text-primary" />
+                            <span className="max-w-[200px] truncate">{apt.property_title}</span>
+                          </div>
+                          {apt.message && (
+                            <div className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate">
+                              💬 {apt.message}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-muted-foreground" />
+                              {format(new Date(apt.preferred_date), 'dd MMM yyyy', { locale: ro })}
+                              {isToday && <Badge variant="secondary" className="text-xs">Azi</Badge>}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {apt.preferred_time}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={`${config.color} text-white gap-1`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {config.label}
+                          </Badge>
+                          {apt.notes && (
+                            <div className="mt-1 text-xs text-muted-foreground max-w-[150px] truncate">
+                              📝 {apt.notes}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleWhatsApp(apt)}
+                              title="WhatsApp"
+                            >
+                              <MessageSquare className="w-4 h-4 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleCall(apt.customer_phone)}
+                              title="Apelează"
+                            >
+                              <Phone className="w-4 h-4 text-blue-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(apt)}
+                              title="Editează"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                if (confirm("Sigur doriți să ștergeți această programare?")) {
+                                  deleteMutation.mutate(apt.id);
+                                }
+                              }}
+                              title="Șterge"
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Nu există programări</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && setEditingAppointment(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editează Programarea</DialogTitle>
+          </DialogHeader>
+          {editingAppointment && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <p className="font-medium">{editingAppointment.customer_name}</p>
+                <p className="text-sm text-muted-foreground">{editingAppointment.property_title}</p>
+                <p className="text-sm">
+                  {format(new Date(editingAppointment.preferred_date), 'dd MMMM yyyy', { locale: ro })} la {editingAppointment.preferred_time}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <Select value={editStatus} onValueChange={setEditStatus}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">În așteptare</SelectItem>
+                    <SelectItem value="confirmed">Confirmat</SelectItem>
+                    <SelectItem value="completed">Finalizat</SelectItem>
+                    <SelectItem value="cancelled">Anulat</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Note interne</label>
+                <Textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  placeholder="Adaugă note despre această programare..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setEditingAppointment(null)}
+                >
+                  Anulează
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleSaveEdit}
+                  disabled={updateMutation.isPending}
+                >
+                  Salvează
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default ViewingAppointmentsPage;
