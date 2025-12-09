@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 
 const ScrollIndicator = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const [hasScrolledPast, setHasScrolledPast] = useState(false);
+  const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,12 +11,15 @@ const ScrollIndicator = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       
-      // Hide if scrolled past 20% of the page or near the bottom
-      if (scrollTop > windowHeight * 0.2) {
-        setHasScrolledPast(true);
+      // Calculate opacity based on scroll position (fade out over first 15% of viewport)
+      const fadeThreshold = windowHeight * 0.15;
+      const newOpacity = Math.max(0, 1 - (scrollTop / fadeThreshold));
+      setOpacity(newOpacity);
+      
+      // Hide completely after threshold
+      if (scrollTop > fadeThreshold) {
         setIsVisible(false);
       } else {
-        setHasScrolledPast(false);
         // Only show if page is longer than viewport
         setIsVisible(documentHeight > windowHeight * 1.5);
       }
@@ -41,12 +44,13 @@ const ScrollIndicator = () => {
     });
   };
 
-  if (!isVisible || hasScrolledPast) return null;
+  if (!isVisible) return null;
 
   return (
     <button
       onClick={scrollDown}
-      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 lg:hidden animate-fade-in touch-manipulation"
+      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 lg:hidden animate-fade-in touch-manipulation transition-opacity duration-150"
+      style={{ opacity }}
       aria-label="Scroll pentru mai mult conținut"
     >
       <div className="animate-bounce">
