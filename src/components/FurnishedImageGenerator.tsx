@@ -1,85 +1,58 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload, Wand2, Download, Loader2 } from "lucide-react";
+import { Wand2, Download, Loader2, Image } from "lucide-react";
+
+const ROOM_TYPES = [
+  { value: "living", label: "Living modern" },
+  { value: "bedroom", label: "Dormitor" },
+  { value: "kitchen", label: "Bucătărie" },
+  { value: "bathroom", label: "Baie" },
+  { value: "office", label: "Birou" },
+  { value: "dining", label: "Sufragerie" },
+  { value: "balcony", label: "Balcon/Terasă" },
+  { value: "hallway", label: "Hol" },
+];
+
+const STYLES = [
+  { value: "modern", label: "Modern" },
+  { value: "minimalist", label: "Minimalist" },
+  { value: "classic", label: "Clasic" },
+  { value: "scandinavian", label: "Scandinav" },
+  { value: "industrial", label: "Industrial" },
+  { value: "luxury", label: "Luxos" },
+];
 
 export const FurnishedImageGenerator = () => {
-  const [planFile, setPlanFile] = useState<File | null>(null);
-  const [planPreview, setPlanPreview] = useState<string>("");
-  const [apartmentDetails, setApartmentDetails] = useState("");
+  const [description, setDescription] = useState("");
+  const [roomType, setRoomType] = useState("living");
+  const [style, setStyle] = useState("modern");
+  const [numberOfImages, setNumberOfImages] = useState("4");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        toast.error("Vă rugăm să încărcați o imagine");
-        return;
-      }
-      setPlanFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPlanPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const uploadPlanToStorage = async (): Promise<string | null> => {
-    if (!planFile) return null;
-
-    const fileExt = planFile.name.split('.').pop();
-    const fileName = `plan-${Date.now()}.${fileExt}`;
-    const filePath = `plans/${fileName}`;
-
-    const { data, error } = await supabase.storage
-      .from('project-images')
-      .upload(filePath, planFile);
-
-    if (error) {
-      console.error('Error uploading plan:', error);
-      toast.error("Eroare la încărcarea planului");
-      return null;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('project-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
+  const [generatedImages, setGeneratedImages] = useState<{ index: number; imageUrl: string; roomType: string }[]>([]);
 
   const generateImages = async () => {
-    if (!planFile) {
-      toast.error("Vă rugăm să încărcați un plan");
+    if (!description.trim()) {
+      toast.error("Vă rugăm să adăugați o descriere");
       return;
     }
 
     setIsGenerating(true);
     setGeneratedImages([]);
-    setUploadProgress(0);
 
     try {
-      toast.info("Încarc planul...");
-      const planUrl = await uploadPlanToStorage();
-      
-      if (!planUrl) {
-        throw new Error("Failed to upload plan");
-      }
-
-      setUploadProgress(20);
-      toast.info("Generez imaginile mobilate... (poate dura câteva minute)");
+      toast.info("Generez imaginile... (poate dura câteva minute)");
 
       const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
         body: {
-          planImageUrl: planUrl,
-          apartmentDetails: apartmentDetails
+          description,
+          roomType,
+          style,
+          numberOfImages: parseInt(numberOfImages)
         }
       });
 
@@ -97,7 +70,6 @@ export const FurnishedImageGenerator = () => {
       toast.error("Eroare la generarea imaginilor");
     } finally {
       setIsGenerating(false);
-      setUploadProgress(0);
     }
   };
 
@@ -108,7 +80,7 @@ export const FurnishedImageGenerator = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mobilat-${index}.png`;
+      a.download = `apartament-${index}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -130,75 +102,98 @@ export const FurnishedImageGenerator = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Wand2 className="w-5 h-5" />
-          Generator Imagini Mobilate
+          <Image className="w-5 h-5" />
+          Generator Imagini Apartamente
         </CardTitle>
         <CardDescription>
-          Încarcă un plan și generează automat 10 imagini de prezentare a apartamentului mobilat
+          Generează imagini sugestive pentru anunțuri imobiliare bazate pe descriere
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Upload Section */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Plan Apartament</label>
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={isGenerating}
-              />
-              <Button variant="outline" disabled={!planFile || isGenerating}>
-                <Upload className="w-4 h-4" />
-              </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Tip Cameră</label>
+              <Select value={roomType} onValueChange={setRoomType} disabled={isGenerating}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROOM_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Stil Design</label>
+              <Select value={style} onValueChange={setStyle} disabled={isGenerating}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STYLES.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Număr Imagini</label>
+              <Select value={numberOfImages} onValueChange={setNumberOfImages} disabled={isGenerating}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 imagine</SelectItem>
+                  <SelectItem value="2">2 imagini</SelectItem>
+                  <SelectItem value="4">4 imagini</SelectItem>
+                  <SelectItem value="6">6 imagini</SelectItem>
+                  <SelectItem value="8">8 imagini</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {planPreview && (
-            <div className="border rounded-lg p-4">
-              <img 
-                src={planPreview} 
-                alt="Plan preview" 
-                className="max-w-full h-auto max-h-64 mx-auto"
-              />
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium mb-2">
-              Detalii Apartament (opțional)
+              Descriere Apartament
             </label>
             <Textarea
-              placeholder="Ex: apartament 3 camere, stil modern, 80mp, etaj 2..."
-              value={apartmentDetails}
-              onChange={(e) => setApartmentDetails(e.target.value)}
+              placeholder="Ex: apartament 3 camere, living spațios cu ferestre mari, bucătărie open-space, 80mp, vedere la parc..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               disabled={isGenerating}
-              rows={3}
+              rows={4}
             />
           </div>
 
           <Button 
             onClick={generateImages}
-            disabled={!planFile || isGenerating}
+            disabled={!description.trim() || isGenerating}
             className="w-full"
             size="lg"
           >
             {isGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generez imagini... {uploadProgress > 0 && `${uploadProgress}%`}
+                Generez imagini...
               </>
             ) : (
               <>
                 <Wand2 className="w-4 h-4 mr-2" />
-                Generează 10 Imagini Mobilate
+                Generează Imagini
               </>
             )}
           </Button>
         </div>
 
-        {/* Results Section */}
         {generatedImages.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -215,13 +210,13 @@ export const FurnishedImageGenerator = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {generatedImages.map((img) => (
                 <div key={img.index} className="relative group">
                   <img
                     src={img.imageUrl}
-                    alt={`Mobilat ${img.index}`}
-                    className="w-full h-32 object-cover rounded-lg"
+                    alt={`Apartament ${img.index}`}
+                    className="w-full h-40 object-cover rounded-lg"
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                     <Button
@@ -232,7 +227,7 @@ export const FurnishedImageGenerator = () => {
                       <Download className="w-4 h-4" />
                     </Button>
                   </div>
-                  <p className="text-xs mt-1 text-center truncate">{img.roomType}</p>
+                  <p className="text-xs mt-1 text-center truncate text-muted-foreground">{img.roomType}</p>
                 </div>
               ))}
             </div>
