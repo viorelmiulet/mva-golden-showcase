@@ -102,7 +102,7 @@ const Footer = () => {
                     <div className="font-cinzel text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
-                    <div className="font-playfair text-muted-foreground/90 text-[10px] sm:text-xs font-medium tracking-[0.2em] sm:tracking-[0.25em] uppercase -mt-0.5">Premium Real Estate</div>
+                    
                     <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-yellow-400 to-yellow-600 mt-1 transition-all duration-700"></div>
                   </div>
                 </div>
@@ -199,9 +199,6 @@ const Footer = () => {
                 <p className="text-muted-foreground text-xs sm:text-sm">
                   © 2025 MVA IMOBILIARE. Toate drepturile rezervate.
                 </p>
-                <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs mx-auto sm:mx-0 w-fit">
-                  Premium Real Estate
-                </Badge>
               </div>
               
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
