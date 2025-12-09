@@ -59,6 +59,9 @@ const ComplexDetail = () => {
   const [selectedPropertyForEdit, setSelectedPropertyForEdit] = useState<any>(null);
   const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const [filterRooms, setFilterRooms] = useState<string>("all");
+  const [filterSurfaceMin, setFilterSurfaceMin] = useState<string>("");
+  const [filterSurfaceMax, setFilterSurfaceMax] = useState<string>("");
   const queryClient = useQueryClient();
 
   // Fetch project details
@@ -425,8 +428,28 @@ const ComplexDetail = () => {
     p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul'))
   ) || false;
 
-  // Group properties by building first, then by floor
-  const groupedByBuildingAndFloor = properties?.reduce((acc, prop) => {
+  // Get unique room counts for filter options
+  const uniqueRooms = [...new Set(properties?.map(p => p.rooms).filter(r => r != null))].sort((a, b) => (a || 0) - (b || 0));
+
+  // Filter properties based on selected filters
+  const filteredProperties = properties?.filter(prop => {
+    // Filter by rooms
+    if (filterRooms !== "all" && prop.rooms !== parseInt(filterRooms)) {
+      return false;
+    }
+    // Filter by surface min
+    if (filterSurfaceMin && (prop.surface_min || 0) < parseInt(filterSurfaceMin)) {
+      return false;
+    }
+    // Filter by surface max
+    if (filterSurfaceMax && (prop.surface_min || 0) > parseInt(filterSurfaceMax)) {
+      return false;
+    }
+    return true;
+  }) || [];
+
+  // Group filtered properties by building first, then by floor
+  const groupedByBuildingAndFloor = filteredProperties.reduce((acc, prop) => {
     const { building, floor } = extractBuildingAndFloor(prop.features);
     
     if (!acc[building]) acc[building] = {};
@@ -671,6 +694,72 @@ const ComplexDetail = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Filters */}
+      <Card className="border-border/50">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Home className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filtre:</span>
+            </div>
+            
+            {/* Rooms Filter */}
+            <select
+              value={filterRooms}
+              onChange={(e) => setFilterRooms(e.target.value)}
+              className="h-9 px-3 text-sm border rounded-md bg-background"
+            >
+              <option value="all">Toate camerele</option>
+              {uniqueRooms.map(room => (
+                <option key={room} value={String(room)}>
+                  {room} {room === 1 ? 'cameră' : 'camere'}
+                </option>
+              ))}
+            </select>
+
+            {/* Surface Filter */}
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="Min mp"
+                value={filterSurfaceMin}
+                onChange={(e) => setFilterSurfaceMin(e.target.value)}
+                className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
+              />
+              <span className="text-muted-foreground">-</span>
+              <input
+                type="number"
+                placeholder="Max mp"
+                value={filterSurfaceMax}
+                onChange={(e) => setFilterSurfaceMax(e.target.value)}
+                className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
+              />
+            </div>
+
+            {/* Clear Filters */}
+            {(filterRooms !== "all" || filterSurfaceMin || filterSurfaceMax) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterRooms("all");
+                  setFilterSurfaceMin("");
+                  setFilterSurfaceMax("");
+                }}
+                className="h-9 text-sm text-muted-foreground hover:text-foreground"
+              >
+                Resetează
+              </Button>
+            )}
+
+            {/* Results count */}
+            <Badge variant="secondary" className="ml-auto">
+              {filteredProperties.length} / {properties?.length || 0} apartamente
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Building Tabs - only show if multiple buildings */}
       {hasMultipleBuildings && (

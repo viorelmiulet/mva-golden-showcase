@@ -40,6 +40,9 @@ const ComplexDetail = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sortBy, setSortBy] = useState<string>("default");
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
+  const [filterRooms, setFilterRooms] = useState<string>("all");
+  const [filterSurfaceMin, setFilterSurfaceMin] = useState<string>("");
+  const [filterSurfaceMax, setFilterSurfaceMax] = useState<string>("");
 
   // Check authentication status
   useEffect(() => {
@@ -173,8 +176,28 @@ const ComplexDetail = () => {
     p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul'))
   ) || false;
 
-  // Group properties by building first, then by floor
-  const groupedByBuildingAndFloor = properties?.reduce((acc, prop) => {
+  // Get unique room counts for filter options
+  const uniqueRooms = [...new Set(properties?.map(p => p.rooms).filter(r => r != null))].sort((a, b) => (a || 0) - (b || 0));
+
+  // Filter properties based on selected filters
+  const filteredProperties = properties?.filter(prop => {
+    // Filter by rooms
+    if (filterRooms !== "all" && prop.rooms !== parseInt(filterRooms)) {
+      return false;
+    }
+    // Filter by surface min
+    if (filterSurfaceMin && (prop.surface_min || 0) < parseInt(filterSurfaceMin)) {
+      return false;
+    }
+    // Filter by surface max
+    if (filterSurfaceMax && (prop.surface_min || 0) > parseInt(filterSurfaceMax)) {
+      return false;
+    }
+    return true;
+  }) || [];
+
+  // Group filtered properties by building first, then by floor
+  const groupedByBuildingAndFloor = filteredProperties.reduce((acc, prop) => {
     const { building, floor } = extractBuildingAndFloor(prop.features);
     
     if (!acc[building]) acc[building] = {};
@@ -429,26 +452,93 @@ const ComplexDetail = () => {
             })()}
           </div>
 
-          {/* Sorting Controls */}
-          <div className="mb-4 sm:mb-6 md:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 bg-card p-3 sm:p-4 rounded-lg border">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <ArrowUpDown className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-              <span className="text-xs sm:text-sm font-medium">Sortare:</span>
+          {/* Filters and Sorting Controls */}
+          <div className="mb-4 sm:mb-6 md:mb-8 bg-card p-3 sm:p-4 rounded-lg border space-y-3 sm:space-y-4">
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2">
+                <Home className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs sm:text-sm font-medium">Filtre:</span>
+              </div>
+              
+              {/* Rooms Filter */}
+              <Select value={filterRooms} onValueChange={setFilterRooms}>
+                <SelectTrigger className="w-[130px] sm:w-[150px] h-8 sm:h-9 text-xs sm:text-sm">
+                  <SelectValue placeholder="Camere" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toate camerele</SelectItem>
+                  {uniqueRooms.map(room => (
+                    <SelectItem key={room} value={String(room)}>
+                      {room} {room === 1 ? 'cameră' : 'camere'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Surface Filter */}
+              <div className="flex items-center gap-1 sm:gap-2">
+                <input
+                  type="number"
+                  placeholder="Min mp"
+                  value={filterSurfaceMin}
+                  onChange={(e) => setFilterSurfaceMin(e.target.value)}
+                  className="w-[70px] sm:w-[80px] h-8 sm:h-9 px-2 text-xs sm:text-sm border rounded-md bg-background"
+                />
+                <span className="text-muted-foreground text-xs">-</span>
+                <input
+                  type="number"
+                  placeholder="Max mp"
+                  value={filterSurfaceMax}
+                  onChange={(e) => setFilterSurfaceMax(e.target.value)}
+                  className="w-[70px] sm:w-[80px] h-8 sm:h-9 px-2 text-xs sm:text-sm border rounded-md bg-background"
+                />
+              </div>
+
+              {/* Clear Filters */}
+              {(filterRooms !== "all" || filterSurfaceMin || filterSurfaceMax) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setFilterRooms("all");
+                    setFilterSurfaceMin("");
+                    setFilterSurfaceMax("");
+                  }}
+                  className="h-8 sm:h-9 text-xs sm:text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Resetează
+                </Button>
+              )}
+
+              {/* Results count */}
+              <Badge variant="secondary" className="ml-auto text-xs">
+                {filteredProperties.length} / {properties?.length || 0} apartamente
+              </Badge>
             </div>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[250px] h-9 sm:h-10 text-xs sm:text-sm">
-                <SelectValue placeholder="Selectează sortare" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Implicit (după titlu)</SelectItem>
-                <SelectItem value="price-asc">Preț: Crescător</SelectItem>
-                <SelectItem value="price-desc">Preț: Descrescător</SelectItem>
-                <SelectItem value="surface-asc">Suprafață: Crescător</SelectItem>
-                <SelectItem value="surface-desc">Suprafață: Descrescător</SelectItem>
-                <SelectItem value="status-available">Disponibile Întâi</SelectItem>
-                <SelectItem value="status-reserved">Rezervate Întâi</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {/* Sorting Row */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-2 border-t">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <ArrowUpDown className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <span className="text-xs sm:text-sm font-medium">Sortare:</span>
+              </div>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full sm:w-[250px] h-9 sm:h-10 text-xs sm:text-sm">
+                  <SelectValue placeholder="Selectează sortare" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Implicit (după titlu)</SelectItem>
+                  <SelectItem value="price-asc">Preț: Crescător</SelectItem>
+                  <SelectItem value="price-desc">Preț: Descrescător</SelectItem>
+                  <SelectItem value="surface-asc">Suprafață: Crescător</SelectItem>
+                  <SelectItem value="surface-desc">Suprafață: Descrescător</SelectItem>
+                  <SelectItem value="status-available">Disponibile Întâi</SelectItem>
+                  <SelectItem value="status-reserved">Rezervate Întâi</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Building Tabs - only show if multiple buildings */}
