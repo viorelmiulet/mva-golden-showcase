@@ -53,10 +53,6 @@ const Services = () => {
           
           {/* Header */}
           <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
-              Servicii Premium
-            </Badge>
-            
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8" itemProp="name">
               <span className="text-foreground">Servicii </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
