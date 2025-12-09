@@ -21,12 +21,14 @@ import {
   ArrowUpDown,
   Download,
   Video,
-  Play
+  Play,
+  Calendar
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 
@@ -599,6 +601,24 @@ const ComplexDetail = () => {
 
                               {/* Action Buttons */}
                               <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
+                                {/* Schedule Viewing Button */}
+                                {isAvailable && (
+                                  <ScheduleViewingDialog
+                                    propertyTitle={`${project.name} - Ap. ${aptNumber}`}
+                                    propertyId={apt.id}
+                                    trigger={
+                                      <Button 
+                                        size="sm" 
+                                        variant="default"
+                                        className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm bg-primary hover:bg-primary/90"
+                                      >
+                                        <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                                        Vizionare
+                                      </Button>
+                                    }
+                                  />
+                                )}
+
                                 {apt.floor_plan ? (
                                   <Button 
                                     size="sm" 

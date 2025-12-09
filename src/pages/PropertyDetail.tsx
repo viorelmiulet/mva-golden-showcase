@@ -21,9 +21,11 @@ import {
   MessageCircle,
   Copy,
   CheckCircle,
+  Calendar,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 
 interface Property {
   id: string;
@@ -441,11 +443,22 @@ const PropertyDetail = () => {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
+                  <ScheduleViewingDialog
+                    propertyTitle={property.title}
+                    propertyId={property.id}
+                    trigger={
+                      <Button className="w-full" size="lg" variant="luxury">
+                        <Calendar className="w-5 h-5 mr-2" />
+                        Programează Vizionare
+                      </Button>
+                    }
+                  />
+
                   <Button
                     onClick={contactWhatsApp}
                     className="w-full"
                     size="lg"
-                    variant="luxury"
+                    variant="luxuryOutline"
                   >
                     <MessageCircle className="w-5 h-5 mr-2" />
                     Contactează pe WhatsApp
