@@ -10,7 +10,7 @@ import { Helmet } from "react-helmet-async"
 const Properties = lazy(() => import("@/components/Properties"))
 const Contact = lazy(() => import("@/components/Contact"))
 const Footer = lazy(() => import("@/components/Footer"))
-const ChatWidget = lazy(() => import("@/components/ChatWidget"))
+
 
 const Index = () => {
   // Track page view pentru pagina principală
@@ -133,9 +133,6 @@ const Index = () => {
         </main>
         <Suspense fallback={<div />}>
           <Footer />
-        </Suspense>
-        <Suspense fallback={<div />}>
-          <ChatWidget />
         </Suspense>
       </div>
     </>
