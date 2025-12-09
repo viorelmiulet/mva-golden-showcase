@@ -78,7 +78,7 @@ export const ScheduleViewingDialog = ({
 
     try {
       // Save to database
-      const { error } = await supabase
+      const { error: dbError } = await supabase
         .from('viewing_appointments')
         .insert({
           property_id: propertyId,
@@ -92,30 +92,32 @@ export const ScheduleViewingDialog = ({
           status: 'pending'
         });
 
-      if (error) {
-        console.error('Error saving appointment:', error);
+      if (dbError) {
+        console.error('Error saving appointment:', dbError);
         toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
         setIsSubmitting(false);
         return;
       }
 
-      // Success - also open WhatsApp for immediate contact
-      const message = `Bună ziua! Doresc să programez o vizionare pentru: ${propertyTitle}
+      // Send email notification
+      const { error: emailError } = await supabase.functions.invoke('send-viewing-notification', {
+        body: {
+          propertyTitle,
+          customerName: formData.name.trim(),
+          customerPhone: formData.phone.trim(),
+          customerEmail: formData.email?.trim() || undefined,
+          preferredDate: formData.preferredDate,
+          preferredTime: formData.preferredTime,
+          message: formData.message?.trim() || undefined,
+        }
+      });
 
-📅 Data preferată: ${formData.preferredDate}
-⏰ Ora preferată: ${formData.preferredTime}
+      if (emailError) {
+        console.error('Error sending email notification:', emailError);
+        // Don't fail the whole operation if email fails, appointment is already saved
+      }
 
-👤 Nume: ${formData.name}
-📱 Telefon: ${formData.phone}
-${formData.email ? `📧 Email: ${formData.email}` : ""}
-${formData.message ? `\n💬 Mesaj: ${formData.message}` : ""}`;
-
-      window.open(
-        `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-
-      toast.success("Cererea de vizionare a fost trimisă cu succes!");
+      toast.success("Cererea de vizionare a fost trimisă cu succes! Veți fi contactat în curând.");
       setOpen(false);
       setFormData({
         name: "",
