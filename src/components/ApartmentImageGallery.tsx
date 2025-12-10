@@ -169,87 +169,178 @@ export const ApartmentImageGallery = ({
 
   return (
     <>
-      {/* Gallery Preview */}
-      <div className={cn("relative group", className)}>
-        {/* Main Image */}
-        <div 
-          className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative bg-muted"
-          onClick={() => setIsLightboxOpen(true)}
-        >
-          {/* Blurred placeholder */}
-          {!imageLoaded[0] && (
-            <div className="absolute inset-0 bg-muted animate-pulse" />
-          )}
-          <img
-            src={optimizedImages.main[0]}
-            srcSet={`
-              ${getOptimizedImageUrl(validImages[0], 400)} 400w,
-              ${getOptimizedImageUrl(validImages[0], 600)} 600w,
-              ${getOptimizedImageUrl(validImages[0], 800)} 800w
-            `}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
-            alt={title}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
-              !imageLoaded[0] && "opacity-0"
+      {/* Gallery Preview - Desktop Optimized */}
+      <div className={cn("relative", className)}>
+        {/* Desktop Layout: Main + Side Thumbnails */}
+        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-3">
+          {/* Main Image - Takes 3 columns */}
+          <div 
+            className="col-span-3 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
+            onClick={() => setIsLightboxOpen(true)}
+          >
+            {!imageLoaded[0] && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
             )}
-            loading="eager"
-            onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
-          />
-          
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <Maximize2 className="w-8 h-8 text-white" />
+            <img
+              src={optimizedImages.main[0]}
+              srcSet={`
+                ${getOptimizedImageUrl(validImages[0], 600)} 600w,
+                ${getOptimizedImageUrl(validImages[0], 900)} 900w,
+                ${getOptimizedImageUrl(validImages[0], 1200)} 1200w
+              `}
+              sizes="(min-width: 1024px) 75vw, 100vw"
+              alt={title}
+              className={cn(
+                "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+                !imageLoaded[0] && "opacity-0"
+              )}
+              loading="eager"
+              onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
+            />
+            
+            {/* Overlay on hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Maximize2 className="w-10 h-10 text-white drop-shadow-lg" />
+              </div>
             </div>
           </div>
 
-          {/* Image count badge */}
-          {validImages.length > 1 && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-              <ImageIcon className="w-3 h-3" />
-              {validImages.length}
-            </div>
-          )}
-        </div>
-
-        {/* Thumbnail strip (if more than 1 image) */}
-        {validImages.length > 1 && (
-          <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-            {optimizedImages.thumbnails.slice(0, 5).map((img, idx) => (
+          {/* Side Thumbnails Column */}
+          <div className="col-span-1 flex flex-col gap-3">
+            {validImages.slice(1, 4).map((img, idx) => (
               <button
-                key={idx}
+                key={idx + 1}
                 onClick={() => {
-                  setCurrentIndex(idx);
+                  setCurrentIndex(idx + 1);
                   setIsLightboxOpen(true);
                 }}
-                className={cn(
-                  "flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 transition-all duration-200",
-                  "hover:border-primary hover:scale-105",
-                  "border-transparent"
-                )}
+                className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
                 <img
-                  src={img}
-                  alt={`${title} - ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  src={getOptimizedImageUrl(img, 300)}
+                  alt={`${title} - ${idx + 2}`}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   loading="lazy"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
               </button>
             ))}
-            {validImages.length > 5 && (
+            
+            {/* Show More Button */}
+            {validImages.length > 4 && (
               <button
                 onClick={() => {
                   setIsGridView(true);
                   setIsLightboxOpen(true);
                 }}
-                className="flex-shrink-0 w-12 h-12 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors"
+                className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
-                <span className="text-xs font-medium">+{validImages.length - 5}</span>
+                <img
+                  src={getOptimizedImageUrl(validImages[4], 300)}
+                  alt={`${title} - mai multe`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center group-hover:bg-black/70 transition-colors">
+                  <span className="text-white font-semibold text-lg">+{validImages.length - 4}</span>
+                </div>
+              </button>
+            )}
+            
+            {/* Fill empty slots with smaller images if needed */}
+            {validImages.length === 2 && (
+              <button
+                onClick={() => setIsLightboxOpen(true)}
+                className="flex-1 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+              >
+                <ImageIcon className="w-6 h-6" />
               </button>
             )}
           </div>
-        )}
+        </div>
+
+        {/* Mobile/Tablet Layout */}
+        <div className="lg:hidden">
+          {/* Main Image */}
+          <div 
+            className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative bg-muted group"
+            onClick={() => setIsLightboxOpen(true)}
+          >
+            {!imageLoaded[0] && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
+            )}
+            <img
+              src={optimizedImages.main[0]}
+              srcSet={`
+                ${getOptimizedImageUrl(validImages[0], 400)} 400w,
+                ${getOptimizedImageUrl(validImages[0], 600)} 600w,
+                ${getOptimizedImageUrl(validImages[0], 800)} 800w
+              `}
+              sizes="100vw"
+              alt={title}
+              className={cn(
+                "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+                !imageLoaded[0] && "opacity-0"
+              )}
+              loading="eager"
+              onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
+            />
+            
+            {/* Overlay on hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Maximize2 className="w-8 h-8 text-white" />
+              </div>
+            </div>
+
+            {/* Image count badge */}
+            {validImages.length > 1 && (
+              <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                <ImageIcon className="w-3 h-3" />
+                {validImages.length}
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail strip */}
+          {validImages.length > 1 && (
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+              {optimizedImages.thumbnails.slice(0, 5).map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setCurrentIndex(idx);
+                    setIsLightboxOpen(true);
+                  }}
+                  className={cn(
+                    "flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-md overflow-hidden border-2 transition-all duration-200",
+                    "hover:border-primary hover:scale-105",
+                    "border-transparent"
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`${title} - ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+              {validImages.length > 5 && (
+                <button
+                  onClick={() => {
+                    setIsGridView(true);
+                    setIsLightboxOpen(true);
+                  }}
+                  className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors"
+                >
+                  <span className="text-sm font-medium">+{validImages.length - 5}</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Lightbox */}
