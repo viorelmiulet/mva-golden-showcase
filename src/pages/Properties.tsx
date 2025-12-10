@@ -34,6 +34,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import { useFavorites } from "@/hooks/useFavorites"
+import { RecentlyViewed } from "@/components/RecentlyViewed"
 
 interface ScrapedProperty {
   title: string
@@ -466,6 +467,9 @@ const Properties = () => {
                   </CardContent>
                 </Card>
             </div>
+
+            {/* Recently Viewed Section */}
+            <RecentlyViewed className="mb-8" maxItems={6} />
 
             {/* Properties List */}
             {isLoadingProperties ? (

@@ -27,6 +27,8 @@ import { Helmet } from "react-helmet-async";
 import { ApartmentImageGallery } from "@/components/ApartmentImageGallery";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { TiltCard } from "@/components/TiltCard";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 interface Property {
   id: string;
@@ -54,6 +56,7 @@ const PropertyDetail = () => {
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const { addToRecentlyViewed } = useRecentlyViewed();
 
   useEffect(() => {
     if (!id) {
@@ -66,6 +69,16 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (property) {
       fetchSimilarProperties();
+      // Track property view
+      addToRecentlyViewed({
+        id: property.id,
+        title: property.title,
+        images: property.images,
+        price_min: property.price_min,
+        location: property.location,
+        rooms: property.rooms,
+        surface_min: property.surface_min,
+      });
     }
   }, [property]);
 
@@ -569,6 +582,13 @@ const PropertyDetail = () => {
                 </div>
               </section>
             )}
+
+            {/* Recently Viewed Section */}
+            <RecentlyViewed 
+              excludePropertyId={property.id} 
+              className="mt-12 border-t border-border pt-8"
+              maxItems={6}
+            />
 
           </div>
         </main>
