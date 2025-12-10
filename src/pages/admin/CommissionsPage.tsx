@@ -549,8 +549,8 @@ const CommissionsPage = () => {
                     })()}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
+                    innerRadius={55}
+                    outerRadius={95}
                     paddingAngle={3}
                     dataKey="value"
                     label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
