@@ -608,8 +608,8 @@ const CommissionsPage = () => {
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
-                    <Cell fill="#22c55e" />
                     <Cell fill="#ef4444" />
+                    <Cell fill="#22c55e" />
                   </Pie>
                   <Tooltip 
                     formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
@@ -784,15 +784,15 @@ const CommissionsPage = () => {
                             });
                           }}
                         >
-                          <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-green-600 text-white border-0' : 'bg-red-500 text-white border-0'}`}>
+                          <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-red-500 text-white border-0' : 'bg-green-600 text-white border-0'}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="da">
-                              <span className="text-green-600 font-medium">Da</span>
+                              <span className="text-red-500 font-medium">Da</span>
                             </SelectItem>
                             <SelectItem value="nu">
-                              <span className="text-red-500 font-medium">Nu</span>
+                              <span className="text-green-600 font-medium">Nu</span>
                             </SelectItem>
                           </SelectContent>
                         </Select>
