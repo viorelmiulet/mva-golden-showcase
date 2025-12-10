@@ -265,77 +265,77 @@ const PropertyDetail = () => {
               </Link>
             </nav>
 
-            <article className="grid lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+            <article className="space-y-6 sm:space-y-8">
               
-              {/* Images Section */}
-              <section aria-label="Imagini proprietate">
+              {/* Title & Location - FIRST */}
+              <header>
+                {property.availability_status === "available" && (
+                  <Badge className="bg-green-600 text-white mb-2 sm:mb-3 text-[10px] sm:text-xs">
+                    <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                    Disponibil
+                  </Badge>
+                )}
+                
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3">
+                  {property.title}
+                </h1>
+                
+                {property.project_name && (
+                  <p className="text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2">
+                    {property.project_name}
+                  </p>
+                )}
+                
+                <div className="flex items-center text-muted-foreground">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
+                  <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
+                </div>
+              </header>
+
+              {/* Images Gallery - SECOND */}
+              <section aria-label="Imagini proprietate" className="w-full">
                 <ApartmentImageGallery 
                   images={property.images || []} 
                   title={property.title}
                 />
               </section>
 
-              {/* Details Section */}
+              {/* Price & Details - THIRD */}
               <section className="space-y-4 sm:space-y-5 md:space-y-6" aria-label="Detalii proprietate">
                 
-                {/* Title & Location */}
-                <header>
-                  {property.availability_status === "available" && (
-                    <Badge className="bg-green-600 text-white mb-2 sm:mb-3 text-[10px] sm:text-xs">
-                      <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                      Disponibil
-                    </Badge>
-                  )}
-                  
-                  <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
-                    {property.title}
-                  </h1>
-                  
-                  {property.project_name && (
-                    <p className="text-sm sm:text-base md:text-lg text-gold font-semibold mb-1.5 sm:mb-2">
-                      {property.project_name}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center text-muted-foreground">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
-                    <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
-                  </div>
-                </header>
-
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
                   <Card className="border-gold/20">
-                    <CardContent className="p-2 sm:p-3 md:p-4 text-center">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
-                        <Euro className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                        <Euro className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
                       </div>
-                      <div className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground mb-0.5 sm:mb-1">Preț</div>
-                      <div className="text-[10px] sm:text-xs md:text-sm font-bold text-foreground">
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Preț</div>
+                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
                         {formatPrice(property.price_min, property.price_max)}
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="border-gold/20">
-                    <CardContent className="p-2 sm:p-3 md:p-4 text-center">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
-                        <Ruler className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                        <Ruler className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
                       </div>
-                      <div className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground mb-0.5 sm:mb-1">Suprafață</div>
-                      <div className="text-[10px] sm:text-xs md:text-sm font-bold text-foreground">
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Suprafață</div>
+                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
                         {formatSurface(property.surface_min, property.surface_max)}
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card className="border-gold/20">
-                    <CardContent className="p-2 sm:p-3 md:p-4 text-center">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
-                        <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gold" />
+                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                        <Home className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
                       </div>
-                      <div className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground mb-0.5 sm:mb-1">Camere</div>
-                      <div className="text-[10px] sm:text-xs md:text-sm font-bold text-foreground">
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Camere</div>
+                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
                         {property.rooms}
                       </div>
                     </CardContent>
@@ -344,48 +344,51 @@ const PropertyDetail = () => {
 
                 {/* Description */}
                 <Card className="border-gold/20">
-                  <CardContent className="p-3 sm:p-4 md:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Descriere</h2>
-                    <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
+                  <CardContent className="p-4 sm:p-5 md:p-6">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Descriere</h2>
+                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
                       {property.description}
                     </p>
                   </CardContent>
                 </Card>
 
-                {/* Features */}
-                {property.features && property.features.length > 0 && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-6">
-                      <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Caracteristici</h2>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {property.features.map((feature, idx) => (
-                          <Badge key={idx} variant="secondary" className="bg-gold/10 text-gold text-[10px] sm:text-xs">
-                            {feature}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                {/* Features & Amenities in Grid */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Features */}
+                  {property.features && property.features.length > 0 && (
+                    <Card className="border-gold/20">
+                      <CardContent className="p-4 sm:p-5 md:p-6">
+                        <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Caracteristici</h2>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {property.features.map((feature, idx) => (
+                            <Badge key={idx} variant="secondary" className="bg-gold/10 text-gold text-[10px] sm:text-xs">
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
-                {/* Amenities */}
-                {property.amenities && property.amenities.length > 0 && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-6">
-                      <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Facilități</h2>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {property.amenities.map((amenity, idx) => (
-                          <Badge key={idx} variant="outline" className="border-gold/30 text-[10px] sm:text-xs">
-                            {amenity}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                  {/* Amenities */}
+                  {property.amenities && property.amenities.length > 0 && (
+                    <Card className="border-gold/20">
+                      <CardContent className="p-4 sm:p-5 md:p-6">
+                        <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Facilități</h2>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {property.amenities.map((amenity, idx) => (
+                            <Badge key={idx} variant="outline" className="border-gold/30 text-[10px] sm:text-xs">
+                              {amenity}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-3">
+                <div className="grid sm:grid-cols-2 gap-3">
                   <ScheduleViewingDialog
                     propertyTitle={property.title}
                     propertyId={property.id}
@@ -407,25 +410,23 @@ const PropertyDetail = () => {
                     Contactează pe WhatsApp
                   </Button>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      onClick={shareProperty}
-                      variant="luxuryOutline"
-                      className="w-full"
-                    >
-                      {copied ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Copiat!
-                        </>
-                      ) : (
-                        <>
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Distribuie
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={shareProperty}
+                    variant="luxuryOutline"
+                    className="w-full"
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Copiat!
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Distribuie
+                      </>
+                    )}
+                  </Button>
 
                   {property.storia_link && (
                     <Button
