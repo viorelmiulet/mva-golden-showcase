@@ -694,9 +694,29 @@ const CommissionsPage = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getTransactionBadgeColor(commission.transaction_type)} text-white text-[10px] sm:text-xs`}>
-                          {commission.transaction_type}
-                        </Badge>
+                        <Select
+                          value={commission.transaction_type}
+                          onValueChange={(value) => {
+                            updateMutation.mutate({
+                              id: commission.id,
+                              data: { transaction_type: value }
+                            });
+                          }}
+                        >
+                          <SelectTrigger className={`w-[140px] h-8 ${getTransactionBadgeColor(commission.transaction_type)} text-white border-0 text-[10px] sm:text-xs font-medium`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TRANSACTION_TYPES.map(type => (
+                              <SelectItem key={type} value={type}>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${getTransactionBadgeColor(type)}`} />
+                                  {type}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
                         {commission.invoice_number ? (
