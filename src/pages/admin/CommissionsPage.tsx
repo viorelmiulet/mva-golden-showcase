@@ -741,7 +741,7 @@ const CommissionsPage = () => {
           groupedByMonth[monthKey].push(commission);
         });
 
-        const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => b.localeCompare(a));
+        const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => a.localeCompare(b));
 
         if (filteredCommissions.length === 0) {
           return (
