@@ -524,7 +524,7 @@ const CommissionsPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[380px]">
+            <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
@@ -548,13 +548,34 @@ const CommissionsPage = () => {
                       return Object.entries(typeData).map(([name, value]) => ({ name, value }));
                     })()}
                     cx="50%"
-                    cy="45%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={70}
+                    paddingAngle={3}
                     dataKey="value"
-                    label={({ name, percent, value }) => `${name} ${(percent * 100).toFixed(0)}% (€${value.toLocaleString()})`}
-                    labelLine={true}
+                    label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius = outerRadius + 35;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="hsl(var(--foreground))"
+                          textAnchor={x > cx ? 'start' : 'end'}
+                          dominantBaseline="central"
+                          fontSize={11}
+                          fontWeight={500}
+                        >
+                          {`${name} ${(percent * 100).toFixed(0)}%`}
+                          <tspan x={x} dy={14} fontSize={10} fill="hsl(var(--muted-foreground))">
+                            €{value.toLocaleString()}
+                          </tspan>
+                        </text>
+                      );
+                    }}
+                    labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
                   >
                     {[
                       { name: 'Vânzări', color: '#22c55e' },
