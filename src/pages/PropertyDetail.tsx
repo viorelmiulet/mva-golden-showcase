@@ -22,13 +22,10 @@ import {
   Copy,
   CheckCircle,
   Calendar,
-  FileText,
-  Loader2,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
-import { usePropertyBrochure } from "@/hooks/usePropertyBrochure";
 
 interface Property {
   id: string;
@@ -57,8 +54,6 @@ const PropertyDetail = () => {
   const [copied, setCopied] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const { generateBrochure } = usePropertyBrochure();
 
   useEffect(() => {
     if (!id) {
@@ -484,29 +479,6 @@ const PropertyDetail = () => {
                         <>
                           <Share2 className="w-4 h-4 mr-2" />
                           Distribuie
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      onClick={async () => {
-                        setIsGeneratingPdf(true);
-                        await generateBrochure(property);
-                        setIsGeneratingPdf(false);
-                      }}
-                      variant="luxuryOutline"
-                      className="w-full"
-                      disabled={isGeneratingPdf}
-                    >
-                      {isGeneratingPdf ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Se generează...
-                        </>
-                      ) : (
-                        <>
-                          <FileText className="w-4 h-4 mr-2" />
-                          Descarcă PDF
                         </>
                       )}
                     </Button>

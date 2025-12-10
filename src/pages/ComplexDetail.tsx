@@ -32,7 +32,6 @@ import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
-import { usePropertyBrochure } from "@/hooks/usePropertyBrochure";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,8 +44,6 @@ const ComplexDetail = () => {
   const [filterRooms, setFilterRooms] = useState<string>("all");
   const [filterSurfaceMin, setFilterSurfaceMin] = useState<string>("");
   const [filterSurfaceMax, setFilterSurfaceMax] = useState<string>("");
-  const [generatingPdfFor, setGeneratingPdfFor] = useState<string | null>(null);
-  const { generateBrochure } = usePropertyBrochure();
 
   // Check authentication status
   useEffect(() => {
@@ -735,41 +732,6 @@ const ComplexDetail = () => {
                                     <span className="sm:hidden">N/A</span>
                                   </div>
                                 )}
-
-                                {/* Download PDF Button */}
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
-                                  disabled={generatingPdfFor === apt.id}
-                                  onClick={async () => {
-                                    setGeneratingPdfFor(apt.id);
-                                    await generateBrochure({
-                                      ...apt,
-                                      title: `${project.name} - Ap. ${aptNumber}`,
-                                      project_name: project.name,
-                                      images: apt.images || [],
-                                      features: apt.features || [],
-                                      amenities: apt.amenities || []
-                                    });
-                                    setGeneratingPdfFor(null);
-                                  }}
-                                >
-                                  {generatingPdfFor === apt.id ? (
-                                    <>
-                                      <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 animate-spin" />
-                                      <span className="hidden sm:inline">Se generează...</span>
-                                      <span className="sm:hidden">...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Download className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                                      <span className="hidden sm:inline">Descarcă PDF</span>
-                                      <span className="sm:hidden">PDF</span>
-                                    </>
-                                  )}
-                                </Button>
-                                
                                 {isAuthenticated && (
                                   <Button 
                                     size="sm" 
