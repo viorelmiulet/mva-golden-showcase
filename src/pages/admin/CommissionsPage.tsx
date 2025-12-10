@@ -553,7 +553,7 @@ const CommissionsPage = () => {
                     outerRadius={100}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent, value }) => `${name} ${(percent * 100).toFixed(0)}% (€${value.toLocaleString()})`}
                     labelLine={false}
                   >
                     {[
