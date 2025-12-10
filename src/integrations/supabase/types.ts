@@ -175,6 +175,42 @@ export type Database = {
         }
         Relationships: []
       }
+      commissions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          date: string
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          date: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          transaction_type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          date?: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       complexes: {
         Row: {
           created_at: string
