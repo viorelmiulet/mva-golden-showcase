@@ -524,7 +524,7 @@ const CommissionsPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[380px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
@@ -548,13 +548,13 @@ const CommissionsPage = () => {
                       return Object.entries(typeData).map(([name, value]) => ({ name, value }));
                     })()}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
+                    cy="45%"
+                    innerRadius={50}
+                    outerRadius={80}
                     paddingAngle={2}
                     dataKey="value"
                     label={({ name, percent, value }) => `${name} ${(percent * 100).toFixed(0)}% (€${value.toLocaleString()})`}
-                    labelLine={false}
+                    labelLine={true}
                   >
                     {[
                       { name: 'Vânzări', color: '#22c55e' },
