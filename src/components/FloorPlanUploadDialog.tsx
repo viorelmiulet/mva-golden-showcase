@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Upload, Loader2, X, FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { compressImageToFile } from "@/lib/imageOptimization";
 
 interface FloorPlanUploadDialogProps {
   open: boolean;
@@ -52,14 +53,24 @@ const FloorPlanUploadDialog = ({
 
     setUploading(true);
     try {
+      // Compress the image before upload (higher quality for floor plans)
+      const compressedFile = await compressImageToFile(selectedFile, {
+        maxWidth: 2048,
+        maxHeight: 2048,
+        quality: 0.9,
+        format: 'jpeg'
+      });
+
       // Upload to storage
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `floor-plan-${propertyId}-${Date.now()}.${fileExt}`;
+      const fileName = `floor-plan-${propertyId}-${Date.now()}.jpg`;
       const filePath = `floor-plans/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('project-images')
-        .upload(filePath, selectedFile);
+        .upload(filePath, compressedFile, {
+          cacheControl: '31536000',
+          contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 

@@ -13,20 +13,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Helper to generate optimized image URL with size parameters
-const getOptimizedImageUrl = (url: string, width: number, quality: number = 80): string => {
-  if (!url) return '';
-  
-  // Check if it's a Supabase storage URL
-  if (url.includes('supabase.co/storage')) {
-    // Add transform parameters for Supabase storage
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}width=${width}&quality=${quality}`;
-  }
-  
-  // For other URLs, return as-is (could add other CDN support here)
-  return url;
-};
+import { 
+  getOptimizedImageUrl, 
+  generateSrcSet 
+} from "@/lib/imageOptimization";
 
 // Custom hook for responsive image sizing
 const useResponsiveImageSize = () => {

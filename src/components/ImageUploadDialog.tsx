@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Upload, Loader2, X, ImageIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { compressImageToFile } from "@/lib/imageOptimization";
 
 interface ImageUploadDialogProps {
   open: boolean;
@@ -43,14 +44,24 @@ const ImageUploadDialog = ({ open, onOpenChange, propertyIds, onSuccess }: Image
 
     setUploading(true);
     try {
+      // Compress the image before upload
+      const compressedFile = await compressImageToFile(selectedFile, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'jpeg'
+      });
+
       // Upload to storage
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
       const filePath = `properties/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('project-images')
-        .upload(filePath, selectedFile);
+        .upload(filePath, compressedFile, {
+          cacheControl: '31536000',
+          contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 
