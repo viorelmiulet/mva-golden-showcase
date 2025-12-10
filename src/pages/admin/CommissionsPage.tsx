@@ -727,110 +727,148 @@ const CommissionsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Commissions Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Lista Comisioane ({filteredCommissions.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0 sm:p-6">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Sumă</TableHead>
-                  <TableHead>Tip</TableHead>
-                  <TableHead className="hidden sm:table-cell">Factură</TableHead>
-                  <TableHead className="text-right">Acțiuni</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCommissions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      Nu există comisioane pentru filtrele selectate
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredCommissions.map((commission) => (
-                    <TableRow key={commission.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground hidden sm:block" />
-                          {format(parseISO(commission.date), "dd MMM yyyy", { locale: ro })}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 font-bold text-primary">
-                          <Euro className="h-3 w-3" />
-                          {commission.amount.toLocaleString()}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={commission.transaction_type}
-                          onValueChange={(value) => {
-                            updateMutation.mutate({
-                              id: commission.id,
-                              data: { transaction_type: value }
-                            });
-                          }}
-                        >
-                          <SelectTrigger className={`w-[140px] h-8 ${getTransactionBadgeColor(commission.transaction_type)} text-white border-0 text-[10px] sm:text-xs font-medium`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {TRANSACTION_TYPES.map(type => (
-                              <SelectItem key={type} value={type}>
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${getTransactionBadgeColor(type)}`} />
-                                  {type}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Select
-                          value={commission.invoice_number ? "da" : "nu"}
-                          onValueChange={(value) => {
-                            updateMutation.mutate({
-                              id: commission.id,
-                              data: { invoice_number: value === "da" ? "Da" : null }
-                            });
-                          }}
-                        >
-                          <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-red-500 text-white border-0' : 'bg-green-600 text-white border-0'}`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="da">
-                              <span className="text-red-500 font-medium">Da</span>
-                            </SelectItem>
-                            <SelectItem value="nu">
-                              <span className="text-green-600 font-medium">Nu</span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(commission)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Commissions Table - Grouped by Month */}
+      {(() => {
+        // Group commissions by month
+        const groupedByMonth: Record<string, typeof filteredCommissions> = {};
+        filteredCommissions.forEach(commission => {
+          const date = parseISO(commission.date);
+          const monthKey = format(date, 'yyyy-MM');
+          const monthLabel = format(date, 'MMMM yyyy', { locale: ro });
+          if (!groupedByMonth[monthKey]) {
+            groupedByMonth[monthKey] = [];
+          }
+          groupedByMonth[monthKey].push(commission);
+        });
+
+        const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => b.localeCompare(a));
+
+        if (filteredCommissions.length === 0) {
+          return (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Lista Comisioane (0)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center py-8 text-muted-foreground">
+                  Nu există comisioane pentru filtrele selectate
+                </p>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        return sortedMonths.map(monthKey => {
+          const monthCommissions = groupedByMonth[monthKey];
+          const monthDate = parseISO(monthKey + '-01');
+          const monthLabel = format(monthDate, 'MMMM yyyy', { locale: ro });
+          const monthTotal = monthCommissions.reduce((sum, c) => sum + c.amount, 0);
+
+          return (
+            <Card key={monthKey}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg capitalize">{monthLabel}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{monthCommissions.length} tranzacții</span>
+                    <span className="font-bold text-primary">€{monthTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Sumă</TableHead>
+                        <TableHead>Tip</TableHead>
+                        <TableHead className="hidden sm:table-cell">Factură</TableHead>
+                        <TableHead className="text-right">Acțiuni</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {monthCommissions.map((commission) => (
+                        <TableRow key={commission.id}>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-muted-foreground hidden sm:block" />
+                              {format(parseISO(commission.date), "dd MMM", { locale: ro })}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 font-bold text-primary">
+                              <Euro className="h-3 w-3" />
+                              {commission.amount.toLocaleString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={commission.transaction_type}
+                              onValueChange={(value) => {
+                                updateMutation.mutate({
+                                  id: commission.id,
+                                  data: { transaction_type: value }
+                                });
+                              }}
+                            >
+                              <SelectTrigger className={`w-[140px] h-8 ${getTransactionBadgeColor(commission.transaction_type)} text-white border-0 text-[10px] sm:text-xs font-medium`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {TRANSACTION_TYPES.map(type => (
+                                  <SelectItem key={type} value={type}>
+                                    <div className="flex items-center gap-2">
+                                      <div className={`w-2 h-2 rounded-full ${getTransactionBadgeColor(type)}`} />
+                                      {type}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Select
+                              value={commission.invoice_number ? "da" : "nu"}
+                              onValueChange={(value) => {
+                                updateMutation.mutate({
+                                  id: commission.id,
+                                  data: { invoice_number: value === "da" ? "Da" : null }
+                                });
+                              }}
+                            >
+                              <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-red-500 text-white border-0' : 'bg-green-600 text-white border-0'}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="da">
+                                  <span className="text-red-500 font-medium">Da</span>
+                                </SelectItem>
+                                <SelectItem value="nu">
+                                  <span className="text-green-600 font-medium">Nu</span>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditDialog(commission)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        });
+      })()}
     </div>
   );
 };
