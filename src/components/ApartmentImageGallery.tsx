@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,6 +12,56 @@ import {
   Grid3X3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Helper to generate optimized image URL with size parameters
+const getOptimizedImageUrl = (url: string, width: number, quality: number = 80): string => {
+  if (!url) return '';
+  
+  // Check if it's a Supabase storage URL
+  if (url.includes('supabase.co/storage')) {
+    // Add transform parameters for Supabase storage
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}width=${width}&quality=${quality}`;
+  }
+  
+  // For other URLs, return as-is (could add other CDN support here)
+  return url;
+};
+
+// Custom hook for responsive image sizing
+const useResponsiveImageSize = () => {
+  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  
+  useEffect(() => {
+    const updateSize = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setScreenSize('mobile');
+      } else if (width < 1024) {
+        setScreenSize('tablet');
+      } else {
+        setScreenSize('desktop');
+      }
+    };
+    
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  
+  const imageSizes = useMemo(() => {
+    switch (screenSize) {
+      case 'mobile':
+        return { main: 400, thumbnail: 100, lightbox: 800 };
+      case 'tablet':
+        return { main: 600, thumbnail: 150, lightbox: 1200 };
+      default:
+        return { main: 800, thumbnail: 200, lightbox: 1920 };
+    }
+  }, [screenSize]);
+  
+  return { screenSize, imageSizes };
+};
 
 interface ApartmentImageGalleryProps {
   images: string[];
@@ -30,12 +80,22 @@ export const ApartmentImageGallery = ({
   const [zoomLevel, setZoomLevel] = useState(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const imageRef = useRef<HTMLDivElement>(null);
+  const { imageSizes } = useResponsiveImageSize();
 
   // Minimum swipe distance
   const minSwipeDistance = 50;
 
   const validImages = images?.filter(img => img && img.trim() !== '') || [];
+  
+  // Memoize optimized image URLs
+  const optimizedImages = useMemo(() => ({
+    main: validImages.map(img => getOptimizedImageUrl(img, imageSizes.main)),
+    thumbnails: validImages.map(img => getOptimizedImageUrl(img, imageSizes.thumbnail, 60)),
+    lightbox: validImages.map(img => getOptimizedImageUrl(img, imageSizes.lightbox, 90)),
+    grid: validImages.map(img => getOptimizedImageUrl(img, 300, 70))
+  }), [validImages, imageSizes]);
 
   useEffect(() => {
     if (!isLightboxOpen) {
@@ -123,14 +183,28 @@ export const ApartmentImageGallery = ({
       <div className={cn("relative group", className)}>
         {/* Main Image */}
         <div 
-          className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative"
+          className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative bg-muted"
           onClick={() => setIsLightboxOpen(true)}
         >
+          {/* Blurred placeholder */}
+          {!imageLoaded[0] && (
+            <div className="absolute inset-0 bg-muted animate-pulse" />
+          )}
           <img
-            src={validImages[0]}
+            src={optimizedImages.main[0]}
+            srcSet={`
+              ${getOptimizedImageUrl(validImages[0], 400)} 400w,
+              ${getOptimizedImageUrl(validImages[0], 600)} 600w,
+              ${getOptimizedImageUrl(validImages[0], 800)} 800w
+            `}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
+            className={cn(
+              "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+              !imageLoaded[0] && "opacity-0"
+            )}
+            loading="eager"
+            onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
           />
           
           {/* Overlay on hover */}
@@ -152,7 +226,7 @@ export const ApartmentImageGallery = ({
         {/* Thumbnail strip (if more than 1 image) */}
         {validImages.length > 1 && (
           <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-            {validImages.slice(0, 5).map((img, idx) => (
+            {optimizedImages.thumbnails.slice(0, 5).map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => {
@@ -255,7 +329,7 @@ export const ApartmentImageGallery = ({
               /* Grid View */
               <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                  {validImages.map((img, idx) => (
+                {optimizedImages.grid.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => {
@@ -288,7 +362,13 @@ export const ApartmentImageGallery = ({
                 onTouchEnd={onTouchEnd}
               >
                 <img
-                  src={validImages[currentIndex]}
+                  src={optimizedImages.lightbox[currentIndex]}
+                  srcSet={`
+                    ${getOptimizedImageUrl(validImages[currentIndex], 800)} 800w,
+                    ${getOptimizedImageUrl(validImages[currentIndex], 1200)} 1200w,
+                    ${getOptimizedImageUrl(validImages[currentIndex], 1920)} 1920w
+                  `}
+                  sizes="100vw"
                   alt={`${title} - Imagine ${currentIndex + 1}`}
                   className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
                   style={{ transform: `scale(${zoomLevel})` }}
@@ -323,7 +403,7 @@ export const ApartmentImageGallery = ({
             {!isGridView && validImages.length > 1 && (
               <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/80 to-transparent py-4 px-4">
                 <div className="flex gap-2 justify-center overflow-x-auto max-w-full pb-2">
-                  {validImages.map((img, idx) => (
+                  {optimizedImages.thumbnails.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => {
