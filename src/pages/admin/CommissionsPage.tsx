@@ -766,16 +766,17 @@ const CommissionsPage = () => {
 
           return (
             <Card key={monthKey}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+              <CardHeader className="pb-0">
+                <div className="flex items-center justify-between pb-3">
                   <CardTitle className="text-lg capitalize">{monthLabel}</CardTitle>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{monthCommissions.length} tranzacții</span>
                     <span className="font-bold text-primary">€{monthTotal.toLocaleString()}</span>
                   </div>
                 </div>
+                <div className="h-[2px] bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full" />
               </CardHeader>
-              <CardContent className="p-0 sm:p-6 pt-0 sm:pt-0">
+              <CardContent className="p-0 sm:p-6 pt-3 sm:pt-3">
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
