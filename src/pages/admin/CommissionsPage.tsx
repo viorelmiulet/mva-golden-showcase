@@ -723,14 +723,13 @@ const CommissionsPage = () => {
                   <TableHead>Sumă</TableHead>
                   <TableHead>Tip</TableHead>
                   <TableHead className="hidden sm:table-cell">Factură</TableHead>
-                  <TableHead className="hidden md:table-cell">Note</TableHead>
                   <TableHead className="text-right">Acțiuni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredCommissions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                       Nu există comisioane pentru filtrele selectate
                     </TableCell>
                   </TableRow>
@@ -797,43 +796,14 @@ const CommissionsPage = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell max-w-[200px] truncate">
-                        {commission.notes || <span className="text-muted-foreground">-</span>}
-                      </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditDialog(commission)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Șterge Comision</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Ești sigur că vrei să ștergi acest comision de €{commission.amount.toLocaleString()}? Această acțiune nu poate fi anulată.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Anulează</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteMutation.mutate(commission.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Șterge
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(commission)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
