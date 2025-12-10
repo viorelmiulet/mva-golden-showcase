@@ -10,7 +10,6 @@ import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import PhoneButton from "@/components/PhoneButton";
 import ScrollIndicator from "@/components/ScrollIndicator";
-import BackToTop from "@/components/BackToTop";
 
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
@@ -92,7 +91,6 @@ const App = () => (
           <PhoneButton />
           <CookieConsent />
           <ScrollIndicator />
-          <BackToTop />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
