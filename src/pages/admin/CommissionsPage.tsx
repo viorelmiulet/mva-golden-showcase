@@ -86,8 +86,6 @@ interface Commission {
 const TRANSACTION_TYPES = [
   "vânzare",
   "chirie",
-  "vânzare parcare",
-  "vânzare boxă",
   "colaborare vânzare"
 ];
 
