@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,8 @@ import {
   BarChart3,
   PieChart,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Download
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, parseISO, getMonth, getYear } from "date-fns";
@@ -278,6 +280,28 @@ const CommissionsPage = () => {
     return "bg-green-600";
   };
 
+  const handleExportExcel = () => {
+    const dataToExport = filteredCommissions.map(c => ({
+      "Data": format(parseISO(c.date), "dd.MM.yyyy", { locale: ro }),
+      "Sumă": c.amount,
+      "Monedă": c.currency,
+      "Tip Tranzacție": c.transaction_type,
+      "Factură": c.invoice_number || "Nu",
+      "Notițe": c.notes || ""
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataToExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Comisioane");
+    
+    const fileName = filterYear !== "all" 
+      ? `Comisioane_${filterYear}.xlsx` 
+      : `Comisioane_Export.xlsx`;
+    
+    XLSX.writeFile(wb, fileName);
+    toast.success("Export Excel realizat cu succes!");
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -294,21 +318,26 @@ const CommissionsPage = () => {
           <h1 className="text-2xl sm:text-3xl font-bold">Comisioane</h1>
           <p className="text-muted-foreground">Gestionează comisioanele din tranzacții</p>
         </div>
-        
-        <Dialog open={isAddDialogOpen || !!editingCommission} onOpenChange={(open) => {
-          if (!open) {
-            setIsAddDialogOpen(false);
-            setEditingCommission(null);
-            resetForm();
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adaugă Comision
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Excel
+          </Button>
+          
+          <Dialog open={isAddDialogOpen || !!editingCommission} onOpenChange={(open) => {
+            if (!open) {
+              setIsAddDialogOpen(false);
+              setEditingCommission(null);
+              resetForm();
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Adaugă Comision
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
                 {editingCommission ? "Editează Comision" : "Adaugă Comision Nou"}
@@ -406,8 +435,9 @@ const CommissionsPage = () => {
                 ) : editingCommission ? "Actualizează" : "Adaugă"}
               </Button>
             </form>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}
