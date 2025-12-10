@@ -571,6 +571,64 @@ const CommissionsPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Invoice Status Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <FileText className="h-5 w-5" />
+              Facturi Emise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    data={(() => {
+                      const yearFilteredCommissions = commissions?.filter(c => {
+                        const date = parseISO(c.date);
+                        return filterYear === "all" || getYear(date) === parseInt(filterYear);
+                      }) || [];
+                      
+                      const withInvoice = yearFilteredCommissions.filter(c => c.invoice_number).reduce((sum, c) => sum + c.amount, 0);
+                      const withoutInvoice = yearFilteredCommissions.filter(c => !c.invoice_number).reduce((sum, c) => sum + c.amount, 0);
+                      
+                      return [
+                        { name: 'Cu Factură', value: withInvoice },
+                        { name: 'Fără Factură', value: withoutInvoice }
+                      ];
+                    })()}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    <Cell fill="#22c55e" />
+                    <Cell fill="#ef4444" />
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Monthly Summary Cards */}
@@ -717,14 +775,27 @@ const CommissionsPage = () => {
                         </Select>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        {commission.invoice_number ? (
-                          <div className="flex items-center gap-1 text-sm">
-                            <FileText className="h-3 w-3" />
-                            {commission.invoice_number}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
+                        <Select
+                          value={commission.invoice_number ? "da" : "nu"}
+                          onValueChange={(value) => {
+                            updateMutation.mutate({
+                              id: commission.id,
+                              data: { invoice_number: value === "da" ? "Da" : null }
+                            });
+                          }}
+                        >
+                          <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-green-600 text-white border-0' : 'bg-red-500 text-white border-0'}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="da">
+                              <span className="text-green-600 font-medium">Da</span>
+                            </SelectItem>
+                            <SelectItem value="nu">
+                              <span className="text-red-500 font-medium">Nu</span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="hidden md:table-cell max-w-[200px] truncate">
                         {commission.notes || <span className="text-muted-foreground">-</span>}
