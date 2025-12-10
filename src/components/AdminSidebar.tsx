@@ -11,6 +11,7 @@ import {
   Layers,
   Users,
   CalendarCheck,
+  Euro,
 } from "lucide-react";
 
 import {
@@ -29,6 +30,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Proprietăți", url: "/admin", icon: Home, exact: true },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
+  { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
   { title: "Utilizatori", url: "/admin/utilizatori", icon: Users },
   { title: "Import XML", url: "/admin/import", icon: Upload },
