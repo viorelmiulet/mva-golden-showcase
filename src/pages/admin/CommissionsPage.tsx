@@ -774,7 +774,7 @@ const CommissionsPage = () => {
                     <span className="font-bold text-primary">€{monthTotal.toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="h-[2px] bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full" />
+                <div className="h-[2px] bg-gradient-to-r from-gold/50 via-gold to-gold/50 rounded-full" />
               </CardHeader>
               <CardContent className="p-0 sm:p-6 pt-3 sm:pt-3">
                 <div className="overflow-x-auto">
