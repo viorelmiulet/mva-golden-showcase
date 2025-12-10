@@ -50,6 +50,7 @@ const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
+  const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -60,6 +61,12 @@ const PropertyDetail = () => {
     }
     fetchProperty();
   }, [id]);
+
+  useEffect(() => {
+    if (property) {
+      fetchSimilarProperties();
+    }
+  }, [property]);
 
   const fetchProperty = async () => {
     try {
@@ -84,6 +91,28 @@ const PropertyDetail = () => {
       navigate("/proprietati");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchSimilarProperties = async () => {
+    if (!property) return;
+    
+    try {
+      // Fetch properties with similar characteristics (same rooms or similar price range)
+      const { data, error } = await supabase
+        .from("catalog_offers")
+        .select("*")
+        .neq("id", property.id)
+        .is("project_id", null) // Only individual properties, not complex apartments
+        .eq("availability_status", "available")
+        .or(`rooms.eq.${property.rooms},location.ilike.%${property.location?.split(',')[0] || ''}%`)
+        .limit(4);
+
+      if (error) throw error;
+
+      setSimilarProperties((data as Property[]) || []);
+    } catch (error) {
+      console.error("Error fetching similar properties:", error);
     }
   };
 
@@ -478,6 +507,65 @@ const PropertyDetail = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Similar Properties Section */}
+            {similarProperties.length > 0 && (
+              <section className="mt-12" aria-label="Proprietăți similare">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+                  Proprietăți Similare
+                </h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {similarProperties.map((prop) => (
+                    <Link 
+                      key={prop.id} 
+                      to={`/proprietati/${prop.id}`}
+                      className="group"
+                    >
+                      <Card className="border-gold/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gold/40 hover:-translate-y-1">
+                        <div className="aspect-[4/3] relative overflow-hidden">
+                          {prop.images?.[0] ? (
+                            <img
+                              src={prop.images[0]}
+                              alt={prop.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <Home className="w-12 h-12 text-muted-foreground" />
+                            </div>
+                          )}
+                          {prop.availability_status === "available" && (
+                            <Badge className="absolute top-2 left-2 bg-green-600 text-white text-[10px]">
+                              Disponibil
+                            </Badge>
+                          )}
+                        </div>
+                        <CardContent className="p-3 sm:p-4">
+                          <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-gold transition-colors">
+                            {prop.title}
+                          </h3>
+                          <div className="flex items-center text-muted-foreground text-xs sm:text-sm mb-2">
+                            <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                            <span className="truncate">{prop.location}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs sm:text-sm">
+                            <span className="font-bold text-gold">
+                              €{prop.price_min?.toLocaleString("de-DE")}
+                            </span>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <span>{prop.surface_min} mp</span>
+                              <span>•</span>
+                              <span>{prop.rooms} cam</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
 
           </div>
         </main>
