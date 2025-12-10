@@ -101,6 +101,7 @@ const CommissionsPage = () => {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterYear, setFilterYear] = useState<string>(new Date().getFullYear().toString());
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterInvoice, setFilterInvoice] = useState<string>("all");
 
   const [formData, setFormData] = useState({
     date: "",
@@ -229,7 +230,10 @@ const CommissionsPage = () => {
     const monthMatch = filterMonth === "all" || getMonth(date) === parseInt(filterMonth);
     const yearMatch = filterYear === "all" || getYear(date) === parseInt(filterYear);
     const typeMatch = filterType === "all" || c.transaction_type.toLowerCase() === filterType.toLowerCase();
-    return monthMatch && yearMatch && typeMatch;
+    const invoiceMatch = filterInvoice === "all" || 
+      (filterInvoice === "da" && c.invoice_number) || 
+      (filterInvoice === "nu" && !c.invoice_number);
+    return monthMatch && yearMatch && typeMatch && invoiceMatch;
   }) || [];
 
   // Calculate statistics
@@ -660,7 +664,7 @@ const CommissionsPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>An</Label>
               <Select value={filterYear} onValueChange={setFilterYear}>
@@ -702,6 +706,20 @@ const CommissionsPage = () => {
                   {TRANSACTION_TYPES.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Factură</Label>
+              <Select value={filterInvoice} onValueChange={setFilterInvoice}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toate</SelectItem>
+                  <SelectItem value="da">Cu Factură</SelectItem>
+                  <SelectItem value="nu">Fără Factură</SelectItem>
                 </SelectContent>
               </Select>
             </div>
