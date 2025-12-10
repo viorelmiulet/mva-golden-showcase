@@ -822,7 +822,7 @@ const CommissionsPage = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {monthCommissions.map((commission) => (
+                          {[...monthCommissions].sort((a, b) => a.date.localeCompare(b.date)).map((commission) => (
                             <TableRow key={commission.id}>
                               <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
