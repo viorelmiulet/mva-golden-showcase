@@ -26,6 +26,7 @@ import {
 import { Helmet } from "react-helmet-async";
 import { ApartmentImageGallery } from "@/components/ApartmentImageGallery";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
+import { TiltCard } from "@/components/TiltCard";
 
 interface Property {
   id: string;
@@ -519,48 +520,50 @@ const PropertyDetail = () => {
                     <Link 
                       key={prop.id} 
                       to={`/proprietati/${prop.id}`}
-                      className="group"
+                      className="block"
                     >
-                      <Card className="border-gold/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gold/40 hover:-translate-y-1">
-                        <div className="aspect-[4/3] relative overflow-hidden">
-                          {prop.images?.[0] ? (
-                            <img
-                              src={prop.images[0]}
-                              alt={prop.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <Home className="w-12 h-12 text-muted-foreground" />
-                            </div>
-                          )}
-                          {prop.availability_status === "available" && (
-                            <Badge className="absolute top-2 left-2 bg-green-600 text-white text-[10px]">
-                              Disponibil
-                            </Badge>
-                          )}
-                        </div>
-                        <CardContent className="p-3 sm:p-4">
-                          <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-gold transition-colors">
-                            {prop.title}
-                          </h3>
-                          <div className="flex items-center text-muted-foreground text-xs sm:text-sm mb-2">
-                            <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                            <span className="truncate">{prop.location}</span>
+                      <TiltCard tiltIntensity={12} glareEnabled={true}>
+                        <Card className="border-gold/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gold/40 group">
+                          <div className="aspect-[4/3] relative overflow-hidden">
+                            {prop.images?.[0] ? (
+                              <img
+                                src={prop.images[0]}
+                                alt={prop.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted flex items-center justify-center">
+                                <Home className="w-12 h-12 text-muted-foreground" />
+                              </div>
+                            )}
+                            {prop.availability_status === "available" && (
+                              <Badge className="absolute top-2 left-2 bg-green-600 text-white text-[10px]">
+                                Disponibil
+                              </Badge>
+                            )}
                           </div>
-                          <div className="flex items-center justify-between text-xs sm:text-sm">
-                            <span className="font-bold text-gold">
-                              €{prop.price_min?.toLocaleString("de-DE")}
-                            </span>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <span>{prop.surface_min} mp</span>
-                              <span>•</span>
-                              <span>{prop.rooms} cam</span>
+                          <CardContent className="p-3 sm:p-4">
+                            <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-gold transition-colors">
+                              {prop.title}
+                            </h3>
+                            <div className="flex items-center text-muted-foreground text-xs sm:text-sm mb-2">
+                              <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                              <span className="truncate">{prop.location}</span>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                            <div className="flex items-center justify-between text-xs sm:text-sm">
+                              <span className="font-bold text-gold">
+                                €{prop.price_min?.toLocaleString("de-DE")}
+                              </span>
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <span>{prop.surface_min} mp</span>
+                                <span>•</span>
+                                <span>{prop.rooms} cam</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </TiltCard>
                     </Link>
                   ))}
                 </div>
