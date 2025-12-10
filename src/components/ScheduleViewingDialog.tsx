@@ -100,9 +100,11 @@ export const ScheduleViewingDialog = ({
       }
 
       // Send email notification
+      const propertyLink = `${window.location.origin}/proprietati/${propertyId}`;
       const { error: emailError } = await supabase.functions.invoke('send-viewing-notification', {
         body: {
           propertyTitle,
+          propertyLink,
           customerName: formData.name.trim(),
           customerPhone: formData.phone.trim(),
           customerEmail: formData.email?.trim() || undefined,

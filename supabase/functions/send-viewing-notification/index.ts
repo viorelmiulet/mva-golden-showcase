@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface ViewingNotificationData {
   propertyTitle: string;
+  propertyLink?: string;
   customerName: string;
   customerPhone: string;
   customerEmail?: string;
@@ -64,6 +65,9 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
               <h2 style="color: #fff; margin: 0; font-size: 18px;">📍 Proprietate</h2>
               <p style="color: #fff; margin: 10px 0 0 0; font-size: 20px; font-weight: bold;">${data.propertyTitle}</p>
+              ${data.propertyLink ? `
+              <a href="${data.propertyLink}" style="display: inline-block; margin-top: 12px; padding: 8px 16px; background-color: rgba(255,255,255,0.2); color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px;">🔗 Vezi anunțul</a>
+              ` : ''}
             </div>
             
             <!-- Date & Time -->
