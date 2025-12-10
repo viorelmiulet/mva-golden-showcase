@@ -71,8 +71,10 @@ export const ApartmentImageGallery = ({
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
-  const { imageSizes } = useResponsiveImageSize();
+  const mainImageRef = useRef<HTMLDivElement>(null);
+  const { imageSizes, screenSize } = useResponsiveImageSize();
 
   // Minimum swipe distance
   const minSwipeDistance = 50;
@@ -93,6 +95,46 @@ export const ApartmentImageGallery = ({
       setIsGridView(false);
     }
   }, [isLightboxOpen]);
+
+  // Parallax effect for desktop
+  useEffect(() => {
+    if (screenSize !== 'desktop') return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!mainImageRef.current) return;
+      
+      const rect = mainImageRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Calculate distance from center (-1 to 1)
+      const x = (e.clientX - centerX) / (rect.width / 2);
+      const y = (e.clientY - centerY) / (rect.height / 2);
+      
+      // Apply subtle parallax (max 15px movement)
+      setParallax({
+        x: x * 15,
+        y: y * 10
+      });
+    };
+
+    const handleMouseLeave = () => {
+      setParallax({ x: 0, y: 0 });
+    };
+
+    const element = mainImageRef.current;
+    if (element) {
+      element.addEventListener('mousemove', handleMouseMove);
+      element.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      if (element) {
+        element.removeEventListener('mousemove', handleMouseMove);
+        element.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, [screenSize]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -173,8 +215,9 @@ export const ApartmentImageGallery = ({
       <div className={cn("relative", className)}>
         {/* Desktop Layout: Main + Side Thumbnails */}
         <div className="hidden lg:grid lg:grid-cols-4 lg:gap-3">
-          {/* Main Image - Takes 3 columns */}
+          {/* Main Image - Takes 3 columns with Parallax */}
           <div 
+            ref={mainImageRef}
             className="col-span-3 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
@@ -191,15 +234,18 @@ export const ApartmentImageGallery = ({
               sizes="(min-width: 1024px) 75vw, 100vw"
               alt={title}
               className={cn(
-                "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
+                "w-full h-full object-cover transition-transform duration-300 ease-out",
                 !imageLoaded[0] && "opacity-0"
               )}
+              style={{
+                transform: `translate(${parallax.x}px, ${parallax.y}px) scale(1.1)`,
+              }}
               loading="eager"
               onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
             />
             
             {/* Overlay on hover */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center pointer-events-none">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Maximize2 className="w-10 h-10 text-white drop-shadow-lg" />
               </div>
