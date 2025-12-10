@@ -50,11 +50,26 @@ import {
   Home,
   Key,
   Loader2,
-  Filter
+  Filter,
+  BarChart3,
+  PieChart
 } from "lucide-react";
 import { toast } from "sonner";
-import { format, parseISO, startOfMonth, endOfMonth, getMonth, getYear } from "date-fns";
+import { format, parseISO, getMonth, getYear } from "date-fns";
 import { ro } from "date-fns/locale";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  Legend
+} from "recharts";
 
 interface Commission {
   id: string;
@@ -444,7 +459,123 @@ const CommissionsPage = () => {
         </Card>
       </div>
 
-      {/* Monthly Summary */}
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BarChart3 className="h-5 w-5" />
+              Evoluție Lunară {filterYear !== "all" ? filterYear : ""}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyTotals} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => value.substring(0, 3)}
+                    className="text-muted-foreground"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
+                    className="text-muted-foreground"
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
+                    labelFormatter={(label) => label}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="total" 
+                    fill="hsl(var(--primary))" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Transaction Types Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <PieChart className="h-5 w-5" />
+              Distribuție pe Tipuri
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie
+                    data={(() => {
+                      const typeData: Record<string, number> = {};
+                      const yearFilteredCommissions = commissions?.filter(c => {
+                        const date = parseISO(c.date);
+                        return filterYear === "all" || getYear(date) === parseInt(filterYear);
+                      }) || [];
+                      
+                      yearFilteredCommissions.forEach(c => {
+                        const type = c.transaction_type.toLowerCase();
+                        let category = 'Vânzări';
+                        if (type.includes('chirie')) category = 'Chirii';
+                        else if (type.includes('colaborare')) category = 'Colaborări';
+                        else if (type.includes('parcare') || type.includes('boxă') || type.includes('boxa')) category = 'Parcare/Boxă';
+                        
+                        typeData[category] = (typeData[category] || 0) + c.amount;
+                      });
+                      
+                      return Object.entries(typeData).map(([name, value]) => ({ name, value }));
+                    })()}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {[
+                      { name: 'Vânzări', color: '#22c55e' },
+                      { name: 'Chirii', color: '#3b82f6' },
+                      { name: 'Colaborări', color: '#a855f7' },
+                      { name: 'Parcare/Boxă', color: '#f97316' }
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Monthly Summary Cards */}
       {monthlyTotals.length > 0 && (
         <Card>
           <CardHeader>
