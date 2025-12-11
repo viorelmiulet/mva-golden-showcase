@@ -40,6 +40,7 @@ const BlogPost = lazy(() => import("./pages/BlogPost"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Favorites = lazy(() => import("./pages/Favorites"));
+const CalculatorIpotecar = lazy(() => import("./pages/CalculatorIpotecar"));
 
 const queryClient = new QueryClient();
 
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
+              <Route path="/calculator-ipotecar" element={<CalculatorIpotecar />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>
