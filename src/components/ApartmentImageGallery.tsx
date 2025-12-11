@@ -391,7 +391,7 @@ export const ApartmentImageGallery = ({
 
       {/* Lightbox */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="max-w-[98vw] w-full h-[98vh] p-0 bg-black/98 border-none">
+        <DialogContent className="max-w-5xl w-full max-h-[85vh] p-0 bg-black/98 border-none">
           <div className="relative w-full h-full flex flex-col">
             {/* Header Controls */}
             <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-3 sm:p-4 bg-gradient-to-b from-black/80 to-transparent">
