@@ -9,7 +9,8 @@ import {
   ZoomOut, 
   Maximize2,
   Image as ImageIcon,
-  Grid3X3
+  Grid3X3,
+  Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -457,6 +458,27 @@ export const ApartmentImageGallery = ({
                       <ZoomIn className="w-5 h-5" />
                     </Button>
                   </>
+                )}
+
+                {/* Download Button */}
+                {!isGridView && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = validImages[currentIndex];
+                      link.download = `${title}-${currentIndex + 1}.jpg`;
+                      link.target = '_blank';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="text-white hover:bg-white/10 h-10 w-10"
+                    title="Descarcă imaginea"
+                  >
+                    <Download className="w-5 h-5" />
+                  </Button>
                 )}
                 
                 {/* Close Button */}
