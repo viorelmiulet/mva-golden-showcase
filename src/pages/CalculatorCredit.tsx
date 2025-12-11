@@ -50,7 +50,7 @@ const CalculatorIpotecar = () => {
               {/* Info Section */}
               <div className="space-y-6">
                 <div className="bg-card border border-border rounded-xl p-6">
-                  <h2 className="text-xl font-semibold mb-4">De ce să alegi MVA Perfect?</h2>
+                  <h2 className="text-xl font-semibold mb-4">De ce să alegi MVA Imobiliare?</h2>
                   <ul className="space-y-3">
                     {benefits.map((benefit, index) => (
                       <li key={index} className="flex items-start gap-3">
