@@ -547,7 +547,7 @@ export const ApartmentImageGallery = ({
 
                 {/* Bottom Thumbnail Strip */}
                 {validImages.length > 1 && (
-                  <div className="flex-shrink-0 py-4 px-4">
+                  <div className="flex-shrink-0 py-6 pb-8 px-4">
                     <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
                       {optimizedImages.thumbnails.map((img, idx) => (
                         <button
