@@ -29,6 +29,7 @@ import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { TiltCard } from "@/components/TiltCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import MortgageCalculator from "@/components/MortgageCalculator";
 
 interface Property {
   id: string;
@@ -485,6 +486,14 @@ const PropertyDetail = () => {
 
               </section>
             </article>
+
+            {/* Mortgage Calculator Section */}
+            <section className="mt-12" aria-label="Calculator ipotecar">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+                Estimează Rata Lunară
+              </h2>
+              <MortgageCalculator defaultPrice={property.price_min} />
+            </section>
 
             {/* Contact Section */}
             <Card className="mt-12 border-gold/20">
