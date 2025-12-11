@@ -396,8 +396,9 @@ export const ApartmentImageGallery = ({
           aria-describedby={undefined}
         >
           {/* Blurred Background */}
+          {/* Blurred Background */}
           <div 
-            className="absolute inset-0 bg-cover bg-center scale-110"
+            className="absolute inset-0 bg-cover bg-center scale-110 transition-all duration-500 ease-out"
             style={{ 
               backgroundImage: `url(${validImages[currentIndex]})`,
               filter: 'blur(15px) brightness(0.6)'
@@ -509,6 +510,7 @@ export const ApartmentImageGallery = ({
                   onTouchEnd={onTouchEnd}
                 >
                   <img
+                    key={currentIndex}
                     src={optimizedImages.lightbox[currentIndex]}
                     srcSet={`
                       ${getOptimizedImageUrl(validImages[currentIndex], 800)} 800w,
@@ -517,8 +519,11 @@ export const ApartmentImageGallery = ({
                     `}
                     sizes="100vw"
                     alt={`${title} - Imagine ${currentIndex + 1}`}
-                    className="max-w-[90vw] max-h-[75vh] object-contain transition-transform duration-300 select-none"
-                    style={{ transform: `scale(${zoomLevel})` }}
+                    className="max-w-[90vw] max-h-[75vh] object-contain select-none animate-fade-in"
+                    style={{ 
+                      transform: `scale(${zoomLevel})`,
+                      transition: 'transform 0.3s ease-out'
+                    }}
                     draggable={false}
                   />
 
