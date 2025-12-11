@@ -38,11 +38,7 @@ const menuItems = [
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
 ];
 
-interface AdminSidebarProps {
-  onLogout: () => void;
-}
-
-export function AdminSidebar({ onLogout }: AdminSidebarProps) {
+export function AdminSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -102,20 +98,6 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Logout button at bottom */}
-        <div className="mt-auto p-4">
-          <Button
-            variant="outline"
-            size={collapsed ? "icon" : "sm"}
-            onClick={onLogout}
-            className="w-full border-gold/30 hover:bg-gold/10 hover:border-gold/50"
-            title="Deconectare"
-          >
-            <Lock className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">Deconectare</span>}
-          </Button>
-        </div>
       </SidebarContent>
     </Sidebar>
   );
