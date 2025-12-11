@@ -126,7 +126,7 @@ const MortgageCalculator = ({ defaultPrice = 100000, className = '' }: MortgageC
             value={[loanTermYears]}
             onValueChange={(value) => setLoanTermYears(value[0])}
             min={5}
-            max={35}
+            max={30}
             step={1}
             className="mt-2"
           />
