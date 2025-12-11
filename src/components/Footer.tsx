@@ -35,7 +35,6 @@ const Footer = () => {
     { name: 'Servicii', id: 'servicii', type: 'scroll' as const },
     { name: 'Proiecte', id: 'proprietati', type: 'scroll' as const },
     { name: 'Calculator Ipotecar', id: '/calculator-ipotecar', type: 'link' as const },
-    { name: 'Carieră', id: '/cariera', type: 'link' as const },
     { name: 'Contact', id: 'contact', type: 'scroll' as const }
   ];
 
