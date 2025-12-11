@@ -17,13 +17,13 @@ const CalculatorIpotecar = () => {
   return (
     <>
       <Helmet>
-        <title>Calculator Ipotecar | MVA - Estimează Rata Lunară</title>
+        <title>Calculator Credit | MVA - Estimează Rata Lunară</title>
         <meta
           name="description"
           content="Calculează rata lunară pentru creditul tău imobiliar. Estimare rapidă pe baza prețului, avansului și perioadei de creditare."
         />
-        <meta name="keywords" content="calculator ipotecar, credit imobiliar, rata lunara, avans, dobanda" />
-        <link rel="canonical" href="https://mvaperfect.ro/calculator-ipotecar" />
+        <meta name="keywords" content="calculator credit, credit imobiliar, rata lunara, avans, dobanda" />
+        <link rel="canonical" href="https://mvaperfect.ro/calculator-credit" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
@@ -36,7 +36,7 @@ const CalculatorIpotecar = () => {
               <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-4">
                 <Calculator className="h-8 w-8 text-primary" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Calculator Ipotecar</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">Calculator Credit</h1>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Estimează rapid rata lunară pentru creditul tău imobiliar. Ajustează parametrii
                 pentru a vedea cum influențează avansul și perioada de creditare rata lunară.

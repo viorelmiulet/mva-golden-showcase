@@ -60,7 +60,7 @@ const MortgageCalculator = ({ defaultPrice = 100000, className = '' }: MortgageC
             <Calculator className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-lg">Calculator Ipotecar</CardTitle>
+            <CardTitle className="text-lg">Calculator Credit</CardTitle>
             <CardDescription>Estimează rata lunară pentru creditul tău</CardDescription>
           </div>
         </div>
