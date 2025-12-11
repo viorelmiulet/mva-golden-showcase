@@ -18,11 +18,11 @@ import {
   ExternalLink,
   Phone,
   Mail,
-  MessageCircle,
   Copy,
   CheckCircle,
   Calendar,
 } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { Helmet } from "react-helmet-async";
 import { ApartmentImageGallery } from "@/components/ApartmentImageGallery";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
@@ -450,7 +450,7 @@ const PropertyDetail = () => {
                     size="lg"
                     variant="luxuryOutline"
                   >
-                    <MessageCircle className="w-5 h-5 mr-2" />
+                    <WhatsAppIcon className="w-5 h-5 mr-2" />
                     Contactează pe WhatsApp
                   </Button>
 
@@ -508,7 +508,7 @@ const PropertyDetail = () => {
                     size="lg"
                     onClick={contactWhatsApp}
                   >
-                    <MessageCircle className="w-5 h-5 mr-2" />
+                    <WhatsAppIcon className="w-5 h-5 mr-2" />
                     WhatsApp
                   </Button>
                   <Button

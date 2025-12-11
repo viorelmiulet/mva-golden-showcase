@@ -11,9 +11,9 @@ import {
   Mail, 
   MapPin, 
   Clock, 
-  Send,
-  MessageCircle 
+  Send
 } from "lucide-react"
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -208,7 +208,7 @@ const Contact = () => {
                 <div className="relative">
                   <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gold/30 to-gold-dark/30 rounded-xl flex items-center justify-center animate-pulse">
-                      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-gold flex-shrink-0" />
+                      <WhatsAppIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gold flex-shrink-0" />
                     </div>
                     <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground">
                       Răspuns Imediat pe WhatsApp
@@ -223,7 +223,7 @@ const Contact = () => {
                     rel="noopener noreferrer"
                   >
                     <Button variant="luxury" className="w-full h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-bold touch-manipulation shadow-lg hover:shadow-xl transition-all group">
-                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                      <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 group-hover:scale-110 transition-transform" />
                       <span className="truncate">Contactează-ne pe WhatsApp</span>
                     </Button>
                   </a>
