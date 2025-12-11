@@ -392,10 +392,19 @@ export const ApartmentImageGallery = ({
       {/* Lightbox - Fullscreen */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent 
-          className="!fixed !inset-0 !max-w-none !w-screen !h-screen !p-0 !m-0 !translate-x-0 !translate-y-0 !left-0 !top-0 bg-black border-none rounded-none [&>button]:hidden data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0" 
+          className="!fixed !inset-0 !max-w-none !w-screen !h-screen !p-0 !m-0 !translate-x-0 !translate-y-0 !left-0 !top-0 bg-transparent border-none rounded-none [&>button]:hidden data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0 overflow-hidden" 
           aria-describedby={undefined}
         >
-          <div className="w-full h-full flex flex-col relative">
+          {/* Blurred Background */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center scale-110"
+            style={{ 
+              backgroundImage: `url(${validImages[currentIndex]})`,
+              filter: 'blur(30px) brightness(0.4)'
+            }}
+          />
+          
+          <div className="w-full h-full flex flex-col relative z-10">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 z-10">
               {/* Title & Counter - Left */}
