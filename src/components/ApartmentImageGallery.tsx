@@ -490,7 +490,7 @@ export const ApartmentImageGallery = ({
               /* Single Image View */
               <div 
                 ref={imageRef}
-                className="flex-1 flex items-center justify-center px-16"
+                className="absolute inset-0 flex items-center justify-center pt-16 pb-28 px-16"
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
@@ -504,7 +504,7 @@ export const ApartmentImageGallery = ({
                   `}
                   sizes="100vw"
                   alt={`${title} - Imagine ${currentIndex + 1}`}
-                  className="max-w-full max-h-[calc(100vh-180px)] object-contain transition-transform duration-300 select-none"
+                  className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
                   style={{ transform: `scale(${zoomLevel})` }}
                   draggable={false}
                 />
