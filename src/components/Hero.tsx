@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, Sparkles, MapPin, Phone, MessageCircle, UserPlus } from "lucide-react"
+import { ArrowDown, Sparkles, MapPin, Phone, UserPlus } from "lucide-react"
 import heroProperty from "@/assets/hero-property.jpg"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { CollaborationForm } from "@/components/CollaborationForm"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
@@ -82,7 +83,7 @@ const Hero = () => {
                   size="lg"
                   className="w-full xs:w-auto px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold"
                 >
-                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <WhatsAppIcon className="mr-2 h-4 w-4" />
                   <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
                 </Button>
               </a>

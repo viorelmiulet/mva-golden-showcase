@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, MessageCircle, Building, Heart, User, LogOut, Settings } from "lucide-react"
+import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import {
@@ -277,7 +278,7 @@ const Header = () => {
             ) : null}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
-                <MessageCircle className="w-3 h-3 mr-2" />
+                <WhatsAppIcon className="w-3 h-3 mr-2" />
                 Contact WhatsApp
               </Button>
             </a>
@@ -351,7 +352,7 @@ const Header = () => {
                   ) : null}
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                     <Button variant="luxury" className="w-full h-12 text-base">
-                      <MessageCircle className="w-4 h-4 mr-2" />
+                      <WhatsAppIcon className="w-4 h-4 mr-2" />
                       Contactează-ne pe WhatsApp
                     </Button>
                   </a>

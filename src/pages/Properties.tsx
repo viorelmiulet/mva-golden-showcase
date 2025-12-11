@@ -22,12 +22,12 @@ import {
   Info,
   Calendar,
   Building,
-  MessageCircle,
   Phone,
   Filter,
   Search,
   Heart
 } from "lucide-react"
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -659,7 +659,7 @@ const Properties = () => {
                             className="hover:bg-green-50 hover:border-green-400 text-xs h-8"
                           >
                             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                              <MessageCircle className="w-3 h-3 mr-1" />
+                              <WhatsAppIcon className="w-3 h-3 mr-1" />
                               WhatsApp
                             </a>
                           </Button>
@@ -989,7 +989,7 @@ const Properties = () => {
                 
                 <Button asChild className="flex-1">
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <WhatsAppIcon className="w-4 h-4 mr-2" />
                     Contactează-ne pe WhatsApp
                   </a>
                 </Button>

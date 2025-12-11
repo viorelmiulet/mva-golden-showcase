@@ -2,8 +2,9 @@ import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MortgageCalculator from '@/components/MortgageCalculator';
-import { Calculator, CheckCircle, Phone, MessageCircle } from 'lucide-react';
+import { Calculator, CheckCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
 
 const CalculatorIpotecar = () => {
   const benefits = [
@@ -79,7 +80,7 @@ const CalculatorIpotecar = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <MessageCircle className="h-4 w-4 mr-2" />
+                        <WhatsAppIcon className="h-4 w-4 mr-2" />
                         WhatsApp
                       </a>
                     </Button>

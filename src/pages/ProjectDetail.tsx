@@ -14,12 +14,12 @@ import {
   Euro,
   ArrowLeft,
   Phone,
-  MessageCircle,
   Building2,
   Sparkles,
   CheckCircle,
 } from "lucide-react";
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -236,7 +236,7 @@ const ProjectDetail = () => {
                       className="flex-1"
                       onClick={handleWhatsAppClick}
                     >
-                      <MessageCircle className="mr-2 w-4 h-4" />
+                      <WhatsAppIcon className="mr-2 w-4 h-4" />
                       WhatsApp
                     </Button>
                     <a
@@ -433,7 +433,7 @@ const ProjectDetail = () => {
                       disponibile în acest proiect.
                     </p>
                     <Button variant="luxury" onClick={handleWhatsAppClick}>
-                      <MessageCircle className="mr-2 w-4 h-4" />
+                      <WhatsAppIcon className="mr-2 w-4 h-4" />
                       Contactează-ne
                     </Button>
                   </CardContent>
