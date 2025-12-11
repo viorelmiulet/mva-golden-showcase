@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Calculator, Euro, Percent, Calendar, TrendingUp } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface MortgageCalculatorProps {
   defaultPrice?: number;
@@ -158,6 +159,44 @@ const MortgageCalculator = ({ defaultPrice = 100000, className = '' }: MortgageC
             <p className="text-3xl font-bold text-primary">
               {formatCurrency(calculations.monthlyPayment)}
             </p>
+          </div>
+
+          {/* Pie Chart - Principal vs Interest */}
+          <div className="bg-muted/30 rounded-xl p-4">
+            <p className="text-sm font-medium text-center mb-3">Distribuția plăților</p>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Principal', value: calculations.loanAmount, color: 'hsl(var(--primary))' },
+                    { name: 'Dobândă', value: calculations.totalInterest, color: 'hsl(var(--muted-foreground))' }
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="value"
+                  labelLine={false}
+                >
+                  <Cell fill="hsl(var(--primary))" />
+                  <Cell fill="hsl(var(--muted-foreground) / 0.5)" />
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value) => <span className="text-xs text-foreground">{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
