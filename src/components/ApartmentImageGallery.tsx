@@ -389,30 +389,37 @@ export const ApartmentImageGallery = ({
         </div>
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox - Fullscreen */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="max-w-5xl w-full max-h-[85vh] p-0 bg-black/98 border-none [&>button]:hidden" aria-describedby={undefined}>
-          <div className="relative w-full h-full flex flex-col pt-2">
-            {/* Header Controls */}
-            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-3 sm:p-4 bg-gradient-to-b from-black/80 to-transparent">
+        <DialogContent className="fixed inset-0 max-w-none w-screen h-screen p-0 bg-black border-none rounded-none [&>button]:hidden" aria-describedby={undefined}>
+          <div className="relative w-full h-full flex flex-col">
+            {/* Header */}
+            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
+              {/* Title & Counter - Left */}
               <div className="text-white">
-                <h3 className="font-semibold text-sm sm:text-base truncate max-w-[200px] sm:max-w-none">
+                <h3 className="font-semibold text-base sm:text-lg">
                   {title}
                 </h3>
-                <p className="text-xs text-white/70">
+                <p className="text-sm text-white/70">
                   {currentIndex + 1} / {validImages.length}
                 </p>
               </div>
               
-              <div className="flex items-center gap-1 sm:gap-2">
+              {/* Controls - Right */}
+              <div className="flex items-center gap-1">
                 {/* Grid View Toggle */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsGridView(!isGridView)}
-                  className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10"
+                  className={cn(
+                    "text-white h-10 w-10 rounded-md border transition-colors",
+                    isGridView 
+                      ? "border-gold bg-gold/10 text-gold" 
+                      : "border-white/30 hover:bg-white/10"
+                  )}
                 >
-                  <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Grid3X3 className="w-5 h-5" />
                 </Button>
                 
                 {/* Zoom Controls */}
@@ -423,18 +430,18 @@ export const ApartmentImageGallery = ({
                       size="icon"
                       onClick={handleZoomOut}
                       disabled={zoomLevel <= 1}
-                      className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10 disabled:opacity-30"
+                      className="text-white hover:bg-white/10 h-10 w-10 disabled:opacity-30"
                     >
-                      <ZoomOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ZoomOut className="w-5 h-5" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={handleZoomIn}
                       disabled={zoomLevel >= 3}
-                      className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10 disabled:opacity-30"
+                      className="text-white hover:bg-white/10 h-10 w-10 disabled:opacity-30"
                     >
-                      <ZoomIn className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ZoomIn className="w-5 h-5" />
                     </Button>
                   </>
                 )}
@@ -444,9 +451,9 @@ export const ApartmentImageGallery = ({
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsLightboxOpen(false)}
-                  className="text-white hover:bg-white/20 h-8 w-8 sm:h-10 sm:w-10"
+                  className="text-white hover:bg-white/10 h-10 w-10"
                 >
-                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <X className="w-6 h-6" />
                 </Button>
               </div>
             </div>
@@ -455,8 +462,8 @@ export const ApartmentImageGallery = ({
             {isGridView ? (
               /* Grid View */
               <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-                {optimizedImages.grid.map((img, idx) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {optimizedImages.grid.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => {
@@ -465,8 +472,8 @@ export const ApartmentImageGallery = ({
                       }}
                       className={cn(
                         "aspect-square rounded-lg overflow-hidden transition-all duration-200",
-                        "hover:ring-2 hover:ring-primary hover:scale-[1.02]",
-                        currentIndex === idx && "ring-2 ring-primary"
+                        "hover:ring-2 hover:ring-gold hover:scale-[1.02]",
+                        currentIndex === idx && "ring-2 ring-gold"
                       )}
                     >
                       <img
@@ -483,7 +490,7 @@ export const ApartmentImageGallery = ({
               /* Single Image View */
               <div 
                 ref={imageRef}
-                className="flex-1 flex items-center justify-center pt-16 pb-24 px-4 overflow-hidden"
+                className="flex-1 flex items-center justify-center px-16"
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
@@ -497,7 +504,7 @@ export const ApartmentImageGallery = ({
                   `}
                   sizes="100vw"
                   alt={`${title} - Imagine ${currentIndex + 1}`}
-                  className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
+                  className="max-w-full max-h-[calc(100vh-180px)] object-contain transition-transform duration-300 select-none"
                   style={{ transform: `scale(${zoomLevel})` }}
                   draggable={false}
                 />
@@ -509,17 +516,17 @@ export const ApartmentImageGallery = ({
                       variant="ghost"
                       size="icon"
                       onClick={goToPrevious}
-                      className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
                     >
-                      <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+                      <ChevronLeft className="w-8 h-8" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={goToNext}
-                      className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
                     >
-                      <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                      <ChevronRight className="w-8 h-8" />
                     </Button>
                   </>
                 )}
@@ -528,8 +535,8 @@ export const ApartmentImageGallery = ({
 
             {/* Bottom Thumbnail Strip */}
             {!isGridView && validImages.length > 1 && (
-              <div className="absolute bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-black/80 to-transparent py-4 px-4">
-                <div className="flex gap-2 justify-center overflow-x-auto max-w-full pb-2">
+              <div className="absolute bottom-0 left-0 right-0 z-50 py-4 px-4">
+                <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
                   {optimizedImages.thumbnails.map((img, idx) => (
                     <button
                       key={idx}
@@ -538,10 +545,10 @@ export const ApartmentImageGallery = ({
                         setZoomLevel(1);
                       }}
                       className={cn(
-                        "flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-200",
+                        "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
                         currentIndex === idx
-                          ? "border-primary scale-110 shadow-lg shadow-primary/30"
-                          : "border-white/30 opacity-60 hover:opacity-100 hover:border-white/60"
+                          ? "border-gold scale-105"
+                          : "border-transparent opacity-70 hover:opacity-100"
                       )}
                     >
                       <img
