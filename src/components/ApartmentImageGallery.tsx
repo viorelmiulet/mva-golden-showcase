@@ -400,7 +400,7 @@ export const ApartmentImageGallery = ({
             className="absolute inset-0 bg-cover bg-center scale-110"
             style={{ 
               backgroundImage: `url(${validImages[currentIndex]})`,
-              filter: 'blur(20px) brightness(0.5)'
+              filter: 'blur(15px) brightness(0.6)'
             }}
           />
           
