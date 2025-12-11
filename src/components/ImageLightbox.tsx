@@ -47,7 +47,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full max-h-[85vh] p-0 bg-black/95 border-none">
-        <div className="relative w-full h-full flex items-center justify-center">
+        <div className="relative w-full h-full flex items-start justify-center pt-4">
           {/* Close Button */}
           <Button
             variant="ghost"
