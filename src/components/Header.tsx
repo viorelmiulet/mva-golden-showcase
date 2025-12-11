@@ -90,6 +90,7 @@ const Header = () => {
     { name: 'Servicii', id: 'servicii', type: 'scroll' },
     { name: 'Proprietăți', id: '/proprietati', type: 'link' },
     { name: 'Complexe Rezidențiale', id: '/complexe', type: 'link' },
+    { name: 'Calculator Ipotecar', id: '/calculator-ipotecar', type: 'link' },
     { name: 'De ce noi?', id: '/de-ce-sa-ne-alegi', type: 'link' },
     { name: 'Blog', id: '/blog', type: 'link' },
     { name: 'FAQ', id: '/faq', type: 'link' },
