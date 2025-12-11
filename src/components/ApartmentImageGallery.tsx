@@ -391,10 +391,13 @@ export const ApartmentImageGallery = ({
 
       {/* Lightbox - Fullscreen */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="fixed inset-0 max-w-none w-screen h-screen p-0 bg-black border-none rounded-none [&>button]:hidden" aria-describedby={undefined}>
-          <div className="relative w-full h-full flex flex-col">
+        <DialogContent 
+          className="!fixed !inset-0 !max-w-none !w-screen !h-screen !p-0 !m-0 !translate-x-0 !translate-y-0 !left-0 !top-0 bg-black border-none rounded-none [&>button]:hidden data-[state=open]:!slide-in-from-bottom-0 data-[state=open]:!slide-in-from-left-0" 
+          aria-describedby={undefined}
+        >
+          <div className="w-full h-full flex flex-col relative">
             {/* Header */}
-            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 z-10">
               {/* Title & Counter - Left */}
               <div className="text-white">
                 <h3 className="font-semibold text-base sm:text-lg">
@@ -461,7 +464,7 @@ export const ApartmentImageGallery = ({
             {/* Main Content */}
             {isGridView ? (
               /* Grid View */
-              <div className="flex-1 overflow-y-auto pt-20 pb-4 px-4">
+              <div className="flex-1 overflow-y-auto px-4 pb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {optimizedImages.grid.map((img, idx) => (
                     <button
@@ -488,79 +491,81 @@ export const ApartmentImageGallery = ({
               </div>
             ) : (
               /* Single Image View */
-              <div 
-                ref={imageRef}
-                className="absolute inset-0 flex items-center justify-center pt-16 pb-28 px-16"
-                onTouchStart={onTouchStart}
-                onTouchMove={onTouchMove}
-                onTouchEnd={onTouchEnd}
-              >
-                <img
-                  src={optimizedImages.lightbox[currentIndex]}
-                  srcSet={`
-                    ${getOptimizedImageUrl(validImages[currentIndex], 800)} 800w,
-                    ${getOptimizedImageUrl(validImages[currentIndex], 1200)} 1200w,
-                    ${getOptimizedImageUrl(validImages[currentIndex], 1920)} 1920w
-                  `}
-                  sizes="100vw"
-                  alt={`${title} - Imagine ${currentIndex + 1}`}
-                  className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
-                  style={{ transform: `scale(${zoomLevel})` }}
-                  draggable={false}
-                />
+              <>
+                <div 
+                  ref={imageRef}
+                  className="flex-1 flex items-center justify-center px-16 relative"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
+                  <img
+                    src={optimizedImages.lightbox[currentIndex]}
+                    srcSet={`
+                      ${getOptimizedImageUrl(validImages[currentIndex], 800)} 800w,
+                      ${getOptimizedImageUrl(validImages[currentIndex], 1200)} 1200w,
+                      ${getOptimizedImageUrl(validImages[currentIndex], 1920)} 1920w
+                    `}
+                    sizes="100vw"
+                    alt={`${title} - Imagine ${currentIndex + 1}`}
+                    className="max-w-full max-h-full object-contain transition-transform duration-300 select-none"
+                    style={{ transform: `scale(${zoomLevel})` }}
+                    draggable={false}
+                  />
 
-                {/* Navigation Arrows */}
-                {validImages.length > 1 && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={goToPrevious}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
-                    >
-                      <ChevronLeft className="w-8 h-8" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={goToNext}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
-                    >
-                      <ChevronRight className="w-8 h-8" />
-                    </Button>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Bottom Thumbnail Strip */}
-            {!isGridView && validImages.length > 1 && (
-              <div className="absolute bottom-0 left-0 right-0 z-50 py-4 px-4">
-                <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
-                  {optimizedImages.thumbnails.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setCurrentIndex(idx);
-                        setZoomLevel(1);
-                      }}
-                      className={cn(
-                        "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
-                        currentIndex === idx
-                          ? "border-gold scale-105"
-                          : "border-transparent opacity-70 hover:opacity-100"
-                      )}
-                    >
-                      <img
-                        src={img}
-                        alt={`Thumbnail ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </button>
-                  ))}
+                  {/* Navigation Arrows */}
+                  {validImages.length > 1 && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={goToPrevious}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
+                      >
+                        <ChevronLeft className="w-8 h-8" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={goToNext}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
+                      >
+                        <ChevronRight className="w-8 h-8" />
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </div>
+
+                {/* Bottom Thumbnail Strip */}
+                {validImages.length > 1 && (
+                  <div className="flex-shrink-0 py-4 px-4">
+                    <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
+                      {optimizedImages.thumbnails.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setCurrentIndex(idx);
+                            setZoomLevel(1);
+                          }}
+                          className={cn(
+                            "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
+                            currentIndex === idx
+                              ? "border-gold scale-105"
+                              : "border-transparent opacity-70 hover:opacity-100"
+                          )}
+                        >
+                          <img
+                            src={img}
+                            alt={`Thumbnail ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </DialogContent>
