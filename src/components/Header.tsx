@@ -274,14 +274,7 @@ const Header = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            ) : (
-              <Link to="/auth">
-                <Button variant="luxuryOutline" size="sm" className="shadow-lg shadow-gold/10 text-xs">
-                  <User className="w-3 h-3 mr-2" />
-                  Autentificare
-                </Button>
-              </Link>
-            )}
+            ) : null}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
                 <MessageCircle className="w-3 h-3 mr-2" />
@@ -355,14 +348,7 @@ const Header = () => {
                         Deconectare
                       </Button>
                     </>
-                  ) : (
-                    <Link to="/auth">
-                      <Button variant="luxuryOutline" className="w-full h-12 text-base">
-                        <User className="w-4 h-4 mr-2" />
-                        Autentificare / Înregistrare
-                      </Button>
-                    </Link>
-                  )}
+                  ) : null}
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                     <Button variant="luxury" className="w-full h-12 text-base">
                       <MessageCircle className="w-4 h-4 mr-2" />
