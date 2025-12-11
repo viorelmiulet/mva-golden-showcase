@@ -84,7 +84,7 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
-              <Route path="/calculator-ipotecar" element={<CalculatorIpotecar />} />
+              <Route path="/calculator-credit" element={<CalculatorIpotecar />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>

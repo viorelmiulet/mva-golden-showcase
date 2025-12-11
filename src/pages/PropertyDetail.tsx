@@ -488,7 +488,7 @@ const PropertyDetail = () => {
             </article>
 
             {/* Mortgage Calculator Section */}
-            <section className="mt-12" aria-label="Calculator ipotecar">
+            <section className="mt-12" aria-label="Calculator credit">
               <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
                 Estimează Rata Lunară
               </h2>
