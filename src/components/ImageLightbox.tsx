@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface ImageLightboxProps {
@@ -47,21 +47,12 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-transparent border-none [&>button]:hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" aria-describedby={undefined}>
+      <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-transparent border-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 [&>button]:text-white [&>button]:hover:bg-white/20 [&>button]:top-2 [&>button]:right-2" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Galerie imagini</DialogTitle>
         </VisuallyHidden>
         
-        <div className="relative flex flex-col items-center">
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="absolute -top-12 right-0 z-50 text-white hover:bg-white/20 h-10 w-10 rounded-full"
-          >
-            <X className="w-6 h-6" />
-          </Button>
+        <div className="relative flex flex-col items-center pt-10">
 
           {/* Navigation Buttons */}
           {images.length > 1 && (
