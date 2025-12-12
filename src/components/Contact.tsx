@@ -361,7 +361,7 @@ const Contact = () => {
           <div className="mt-12 sm:mt-16 lg:mt-20">
             <div className="relative overflow-hidden rounded-xl lg:rounded-2xl border border-gold/20 shadow-lg">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2849.123!2d25.966!3d44.453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1ff4b0b0b0b0b%3A0x0!2sChiajna%2C%20Ilfov!5e0!3m2!1sro!2sro!4v1234567890"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2849.5!2d25.9628!3d44.4431!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1fef8f8f8f8f8%3A0x1234567890abcdef!2sStrada%20Tineretului%2017%2C%20Chiajna%2C%20Ilfov!5e0!3m2!1sro!2sro!4v1702400000000"
                 width="100%"
                 height="400"
                 style={{ border: 0 }}
