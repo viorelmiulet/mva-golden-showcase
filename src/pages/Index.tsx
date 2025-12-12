@@ -10,6 +10,7 @@ import { Helmet } from "react-helmet-async"
 const Properties = lazy(() => import("@/components/Properties"))
 const Contact = lazy(() => import("@/components/Contact"))
 const Footer = lazy(() => import("@/components/Footer"))
+const PWAInstallBanner = lazy(() => import("@/components/PWAInstallBanner"))
 
 
 const Index = () => {
@@ -133,6 +134,9 @@ const Index = () => {
         </main>
         <Suspense fallback={<div />}>
           <Footer />
+        </Suspense>
+        <Suspense fallback={null}>
+          <PWAInstallBanner />
         </Suspense>
       </div>
     </>
