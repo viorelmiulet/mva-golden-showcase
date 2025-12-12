@@ -363,27 +363,28 @@ const Contact = () => {
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2849.5!2d25.9628!3d44.4431!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1fef8f8f8f8f8%3A0x1234567890abcdef!2sStrada%20Tineretului%2017%2C%20Chiajna%2C%20Ilfov!5e0!3m2!1sro!2sro!4v1702400000000"
                 width="100%"
-                height="400"
+                height="300"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="grayscale hover:grayscale-0 transition-all duration-500"
+                className="grayscale hover:grayscale-0 transition-all duration-500 sm:h-[350px] lg:h-[400px]"
                 title="Locația MVA Imobiliare - Chiajna, Ilfov"
               />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-4">
-                <div className="bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gold/20">
-                  <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-gold" />
-                    Chiajna, str. Tineretului nr. 17
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+                <div className="bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2 sm:px-4 border border-gold/20">
+                  <p className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-2">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gold flex-shrink-0" />
+                    <span className="truncate">Chiajna, str. Tineretului nr. 17</span>
                   </p>
                 </div>
                 <a
                   href="https://www.google.com/maps/dir/?api=1&destination=Strada+Tineretului+17,+Chiajna,+Ilfov,+Romania"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex-shrink-0"
                 >
-                  <Button variant="luxury" size="sm" className="shadow-lg">
+                  <Button variant="luxury" size="sm" className="shadow-lg w-full sm:w-auto h-10 sm:h-9 touch-manipulation">
                     <MapPin className="w-4 h-4 mr-2" />
                     Navigare GPS
                   </Button>
