@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUp, Building, Home } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import GoogleReviews from "./GoogleReviews"
 
 const Footer = () => {
   const location = useLocation()
@@ -187,6 +188,9 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* Google Reviews Section */}
+        <GoogleReviews />
 
         <Separator className="bg-gold/20" />
 
