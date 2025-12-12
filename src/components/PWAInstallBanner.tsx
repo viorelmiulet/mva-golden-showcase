@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Smartphone } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -14,7 +13,7 @@ const PWAInstallBanner = () => {
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    // Check if already installed or dismissed
+    // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       return;
     }
@@ -28,20 +27,14 @@ const PWAInstallBanner = () => {
       }
     }
 
-    // Show banner after 3 seconds on mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) {
-      const timer = setTimeout(() => {
-        setShowBanner(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-
-    // Listen for install prompt
+    // Listen for install prompt - only show banner when we have the prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowBanner(true);
+      // Show banner after 3 seconds
+      setTimeout(() => {
+        setShowBanner(true);
+      }, 3000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -68,7 +61,8 @@ const PWAInstallBanner = () => {
     localStorage.setItem('pwa-banner-dismissed', Date.now().toString());
   };
 
-  if (!showBanner || isDismissed) return null;
+  // Only show if we have the deferred prompt (native install available)
+  if (!showBanner || isDismissed || !deferredPrompt) return null;
 
   return (
     <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-40 animate-fade-in">
@@ -95,28 +89,15 @@ const PWAInstallBanner = () => {
             </p>
 
             <div className="flex gap-2">
-              {deferredPrompt ? (
-                <Button
-                  variant="luxury"
-                  size="sm"
-                  onClick={handleInstall}
-                  className="h-9 text-xs flex-1"
-                >
-                  <Download className="w-3.5 h-3.5 mr-1.5" />
-                  Instalează
-                </Button>
-              ) : (
-                <Link to="/instaleaza" className="flex-1">
-                  <Button
-                    variant="luxury"
-                    size="sm"
-                    className="h-9 text-xs w-full"
-                  >
-                    <Download className="w-3.5 h-3.5 mr-1.5" />
-                    Vezi cum
-                  </Button>
-                </Link>
-              )}
+              <Button
+                variant="luxury"
+                size="sm"
+                onClick={handleInstall}
+                className="h-9 text-xs flex-1"
+              >
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+                Instalează acum
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
