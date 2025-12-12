@@ -265,10 +265,26 @@ const CommissionsPage = () => {
       const date = parseISO(c.date);
       return getMonth(date) === index && (filterYear === "all" || getYear(date) === parseInt(filterYear));
     }) || [];
+    
+    // Count by transaction type
+    const salesCount = monthCommissions.filter(c => 
+      c.transaction_type.toLowerCase().includes('vânzare') || 
+      c.transaction_type.toLowerCase().includes('vanzare')
+    ).length;
+    const rentCount = monthCommissions.filter(c => 
+      c.transaction_type.toLowerCase().includes('chirie')
+    ).length;
+    const collaborationCount = monthCommissions.filter(c => 
+      c.transaction_type.toLowerCase().includes('colaborare')
+    ).length;
+    
     return {
       month,
       total: monthCommissions.reduce((sum, c) => sum + c.amount, 0),
-      count: monthCommissions.length
+      count: monthCommissions.length,
+      salesCount,
+      rentCount,
+      collaborationCount
     };
   }).filter(m => m.count > 0);
 
@@ -701,12 +717,35 @@ const CommissionsPage = () => {
             <CardTitle className="text-lg">Sumar Lunar {filterYear !== "all" ? filterYear : ""}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {monthlyTotals.map(({ month, total, count }) => (
-                <div key={month} className="p-3 bg-muted/50 rounded-lg text-center">
-                  <p className="text-xs font-medium text-muted-foreground">{month}</p>
-                  <p className="text-sm sm:text-base font-bold text-primary">€{total.toLocaleString()}</p>
-                  <p className="text-[10px] text-muted-foreground">{count} tranzacții</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+              {monthlyTotals.map(({ month, total, count, salesCount, rentCount, collaborationCount }) => (
+                <div key={month} className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-xs font-medium text-muted-foreground text-center mb-2">{month}</p>
+                  <p className="text-sm sm:text-base font-bold text-primary text-center">€{total.toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground text-center mb-2">{count} tranzacții</p>
+                  <div className="space-y-1 border-t border-border/50 pt-2 mt-2">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-green-500 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                        Vânzări
+                      </span>
+                      <span className="font-medium text-foreground">{salesCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-blue-500 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        Chirii
+                      </span>
+                      <span className="font-medium text-foreground">{rentCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-purple-500 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                        Colaborări
+                      </span>
+                      <span className="font-medium text-foreground">{collaborationCount}</span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
