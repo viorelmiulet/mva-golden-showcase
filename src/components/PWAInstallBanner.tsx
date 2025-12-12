@@ -23,23 +23,11 @@ const PWAInstallBanner = () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     setIsDesktop(!isMobile);
 
-    const dismissed = localStorage.getItem('pwa-banner-dismissed');
-    if (dismissed) {
-      const dismissedTime = parseInt(dismissed, 10);
-      // Show again after 7 days
-      if (Date.now() - dismissedTime < 7 * 24 * 60 * 60 * 1000) {
-        return;
-      }
-    }
-
-    // Listen for install prompt - show banner when we have the prompt
+    // Listen for install prompt - show banner immediately when available
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show banner after 3 seconds
-      setTimeout(() => {
-        setShowBanner(true);
-      }, 3000);
+      setShowBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -63,7 +51,6 @@ const PWAInstallBanner = () => {
   const handleDismiss = () => {
     setShowBanner(false);
     setIsDismissed(true);
-    localStorage.setItem('pwa-banner-dismissed', Date.now().toString());
   };
 
   // Only show if we have the deferred prompt (native install available)
