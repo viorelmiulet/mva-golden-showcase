@@ -356,6 +356,29 @@ const Contact = () => {
               </Card>
             </div>
           </div>
+
+          {/* Google Maps */}
+          <div className="mt-12 sm:mt-16 lg:mt-20">
+            <div className="relative overflow-hidden rounded-xl lg:rounded-2xl border border-gold/20 shadow-lg">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2849.123!2d25.966!3d44.453!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1ff4b0b0b0b0b%3A0x0!2sChiajna%2C%20Ilfov!5e0!3m2!1sro!2sro!4v1234567890"
+                width="100%"
+                height="400"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="grayscale hover:grayscale-0 transition-all duration-500"
+                title="Locația MVA Imobiliare - Chiajna, Ilfov"
+              />
+              <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gold/20">
+                <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gold" />
+                  Chiajna, str. Tineretului nr. 17
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
