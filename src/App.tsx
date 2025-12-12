@@ -41,7 +41,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
-const Install = lazy(() => import("./pages/Install"));
+
 
 const queryClient = new QueryClient();
 
@@ -86,7 +86,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
-              <Route path="/instaleaza" element={<Install />} />
+              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>
