@@ -368,7 +368,7 @@ const Contact = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="grayscale hover:grayscale-0 transition-all duration-500 sm:h-[350px] lg:h-[400px]"
+                className="sm:h-[350px] lg:h-[400px]"
                 title="Locația MVA Imobiliare - Chiajna, Ilfov"
               />
               <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
