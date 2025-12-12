@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Download, Smartphone } from 'lucide-react';
+import { X, Download, Monitor, Smartphone } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,12 +11,17 @@ const PWAInstallBanner = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       return;
     }
+
+    // Check if desktop
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsDesktop(!isMobile);
 
     const dismissed = localStorage.getItem('pwa-banner-dismissed');
     if (dismissed) {
@@ -27,7 +32,7 @@ const PWAInstallBanner = () => {
       }
     }
 
-    // Listen for install prompt - only show banner when we have the prompt
+    // Listen for install prompt - show banner when we have the prompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -64,8 +69,14 @@ const PWAInstallBanner = () => {
   // Only show if we have the deferred prompt (native install available)
   if (!showBanner || isDismissed || !deferredPrompt) return null;
 
+  const DeviceIcon = isDesktop ? Monitor : Smartphone;
+
   return (
-    <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-40 animate-fade-in">
+    <div className={`fixed z-40 animate-fade-in ${
+      isDesktop 
+        ? 'bottom-6 right-6 max-w-sm' 
+        : 'bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm'
+    }`}>
       <div className="bg-card/95 backdrop-blur-md border border-gold/30 rounded-2xl p-4 shadow-2xl shadow-gold/10">
         <button
           onClick={handleDismiss}
@@ -77,7 +88,7 @@ const PWAInstallBanner = () => {
 
         <div className="flex items-start gap-3 pr-6">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dark/20 flex items-center justify-center flex-shrink-0">
-            <Smartphone className="w-6 h-6 text-gold" />
+            <DeviceIcon className="w-6 h-6 text-gold" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -85,7 +96,10 @@ const PWAInstallBanner = () => {
               Instalează aplicația
             </h3>
             <p className="text-xs text-muted-foreground mb-3">
-              Acces rapid la apartamente direct de pe telefonul tău
+              {isDesktop 
+                ? 'Acces rapid la apartamente direct de pe desktop' 
+                : 'Acces rapid la apartamente direct de pe telefonul tău'
+              }
             </p>
 
             <div className="flex gap-2">
