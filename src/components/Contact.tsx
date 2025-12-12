@@ -371,11 +371,23 @@ const Contact = () => {
                 className="grayscale hover:grayscale-0 transition-all duration-500"
                 title="Locația MVA Imobiliare - Chiajna, Ilfov"
               />
-              <div className="absolute bottom-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gold/20">
-                <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-gold" />
-                  Chiajna, str. Tineretului nr. 17
-                </p>
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-4">
+                <div className="bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 border border-gold/20">
+                  <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-gold" />
+                    Chiajna, str. Tineretului nr. 17
+                  </p>
+                </div>
+                <a
+                  href="https://www.google.com/maps/dir/?api=1&destination=Strada+Tineretului+17,+Chiajna,+Ilfov,+Romania"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="luxury" size="sm" className="shadow-lg">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Navigare GPS
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
