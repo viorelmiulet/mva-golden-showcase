@@ -2,17 +2,36 @@ import { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, BarChart3, Lock, LogOut } from "lucide-react";
+import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
-const ADMIN_PASSWORD = "123456";
+const DEFAULT_PASSWORD = "123456";
+
+const getStoredPassword = () => {
+  return localStorage.getItem("admin_password") || DEFAULT_PASSWORD;
+};
 
 const AdminLayout = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_auth");
@@ -23,7 +42,7 @@ const AdminLayout = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (password === getStoredPassword()) {
       sessionStorage.setItem("admin_auth", "true");
       setIsAuthenticated(true);
       setError("");
@@ -36,6 +55,32 @@ const AdminLayout = () => {
     sessionStorage.removeItem("admin_auth");
     setIsAuthenticated(false);
     setPassword("");
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (currentPassword !== getStoredPassword()) {
+      toast.error("Parola curentă este incorectă");
+      return;
+    }
+    
+    if (newPassword.length < 4) {
+      toast.error("Parola nouă trebuie să aibă cel puțin 4 caractere");
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      toast.error("Parolele noi nu coincid");
+      return;
+    }
+    
+    localStorage.setItem("admin_password", newPassword);
+    toast.success("Parola a fost schimbată cu succes!");
+    setIsSettingsOpen(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   if (!isAuthenticated) {
@@ -101,6 +146,90 @@ const AdminLayout = () => {
               </h1>
             </div>
             <div className="ml-auto flex items-center gap-2">
+              <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden sm:inline">Setări</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Schimbă Parola</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">Parola curentă</Label>
+                      <div className="relative">
+                        <Input
+                          id="currentPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          placeholder="Introduceți parola curentă"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        >
+                          {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Parola nouă</Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Introduceți parola nouă"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirmă parola nouă</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirmați parola nouă"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => setIsSettingsOpen(false)}
+                      >
+                        Anulează
+                      </Button>
+                      <Button type="submit" className="flex-1 bg-gold hover:bg-gold/90 text-black">
+                        Salvează
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -108,12 +237,12 @@ const AdminLayout = () => {
                 className="gap-2 text-muted-foreground hover:text-foreground"
               >
                 <LogOut className="w-4 h-4" />
-                Deconectare
+                <span className="hidden sm:inline">Deconectare</span>
               </Button>
               <Link to="/">
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="w-4 h-4" />
-                  Înapoi la site
+                  <span className="hidden sm:inline">Înapoi la site</span>
                 </Button>
               </Link>
             </div>
