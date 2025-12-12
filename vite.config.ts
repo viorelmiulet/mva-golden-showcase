@@ -23,9 +23,11 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#DAA520',
         background_color: '#0A0A0A',
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'any',
         scope: '/',
         start_url: '/',
+        display_override: ['window-controls-overlay', 'standalone'],
+        categories: ['business', 'lifestyle'],
         icons: [
           {
             src: '/favicon-mva.png',
@@ -42,6 +44,22 @@ export default defineConfig(({ mode }) => ({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: '/favicon-mva.png',
+            sizes: '512x512',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'MVA Imobiliare Desktop'
+          },
+          {
+            src: '/favicon-mva.png',
+            sizes: '512x512',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'MVA Imobiliare Mobile'
           }
         ]
       },
