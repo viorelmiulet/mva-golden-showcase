@@ -4,7 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
@@ -47,7 +48,11 @@ const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  // Preload critical routes after initial render
+  usePreloadCriticalRoutes();
+
+  return (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -101,6 +106,7 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
-);
+  );
+};
 
 export default App;
