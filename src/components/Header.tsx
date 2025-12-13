@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { useUserRoles } from "@/hooks/useUserRoles"
+import { usePrefetch } from "@/hooks/usePrefetch"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -21,6 +22,19 @@ const Header = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { isAdmin } = useUserRoles()
+  const { prefetchOnHover } = usePrefetch()
+
+  // Map route paths to prefetch keys
+  const getPrefetchKey = (path: string) => {
+    const map: Record<string, 'properties' | 'complexe' | 'calculatorCredit' | 'whyChooseUs' | 'faq'> = {
+      '/proprietati': 'properties',
+      '/complexe': 'complexe',
+      '/calculator-credit': 'calculatorCredit',
+      '/de-ce-sa-ne-alegi': 'whyChooseUs',
+      '/faq': 'faq',
+    }
+    return map[path]
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -207,8 +221,11 @@ const Header = () => {
           
           {/* Desktop Navigation - Hidden on mobile/tablet */}
           <nav className="hidden xl:flex items-center space-x-1">
-            {navItems.map((item) => (
-              item.type === 'link' ? (
+            {navItems.map((item) => {
+              const prefetchKey = item.type === 'link' ? getPrefetchKey(item.id) : undefined
+              const prefetchProps = prefetchKey ? prefetchOnHover(prefetchKey) : {}
+              
+              return item.type === 'link' ? (
                 <Link 
                   key={item.id}
                   to={item.id}
@@ -217,6 +234,7 @@ const Header = () => {
                       ? 'text-gold bg-gold/10' 
                       : 'text-foreground hover:text-gold'
                   }`}
+                  {...prefetchProps}
                 >
                   {item.name}
                 </Link>
@@ -229,7 +247,7 @@ const Header = () => {
                   {item.name}
                 </button>
               )
-            ))}
+            })}
           </nav>
 
           {/* CTA Buttons - Desktop only */}
