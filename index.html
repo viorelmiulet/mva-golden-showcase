@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Preload critical assets for LCP -->
+    <link rel="preload" href="/src/assets/hero-property.jpg" as="image" fetchpriority="high" />
+    <link rel="preload" href="/mva-logo-luxury-horizontal.svg" as="image" />
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://fdpandnzblzvamhsoukt.supabase.co" />
+    
     <!-- Favicon -->
     <link rel="icon" href="/favicon-mva.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.png" type="image/png">
@@ -35,9 +44,18 @@
     <!-- Google Fonts with optimized loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;900&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    </noscript>
+    
+    <!-- Critical CSS for preventing CLS -->
     <style>
-      /* Optimize font loading */
+      /* Prevent layout shift - reserve space for header */
+      body { margin: 0; }
+      #root { min-height: 100vh; }
+      
+      /* Font display optimization */
       @font-face {
         font-family: 'Inter';
         font-display: swap;
@@ -47,43 +65,53 @@
         font-display: swap;
       }
       @font-face {
-        font-family: 'Cormorant Garamond';
-        font-display: swap;
-      }
-      @font-face {
         font-family: 'Cinzel';
         font-display: swap;
       }
+      
+      /* Critical above-the-fold styles */
+      .hero-skeleton {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      }
     </style>
 
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics - load async for better performance -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLZFTKHC80"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', 'G-HLZFTKHC80');
+      gtag('config', 'G-HLZFTKHC80', { 'send_page_view': false });
+      
+      // Defer page view until after critical content loads
+      if (document.readyState === 'complete') {
+        gtag('event', 'page_view');
+      } else {
+        window.addEventListener('load', function() {
+          gtag('event', 'page_view');
+        });
+      }
     </script>
 
-    <!-- Plausible Analytics -->
+    <!-- Plausible Analytics - already deferred -->
     <script defer data-domain="mvaimobiliare.ro" src="https://plausible.io/js/script.js"></script>
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mvaimobiliare.ro/" />
     <meta property="og:site_name" content="MVA Imobiliare" />
-    
-    
+    <meta property="og:title" content="MVA Imobiliare - Apartamente Militari">
+    <meta property="og:description" content="MVA Imobiliare - agenție imobiliară specializată în vanzare apartamente din Chiajna și vestul Bucureștiului. Consultanță profesională și proprietăți exclusive.">
     <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
     <meta property="og:locale" content="ro_RO" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
-    <meta property="twitter:title" content="MVA Imobiliare - Apartamente Premium Chiajna | Proprietăți de Lux București" />
-    <meta property="twitter:description" content="MVA Imobiliare - agenție imobiliară premium specializată în apartamente de lux din Chiajna și vestul Bucureștiului. Consultanță profesională și proprietăți exclusive." />
-    <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://mvaimobiliare.ro/" />
+    <meta name="twitter:title" content="MVA Imobiliare - Apartamente Premium Chiajna | Proprietăți de Lux București" />
+    <meta name="twitter:description" content="MVA Imobiliare - agenție imobiliară premium specializată în apartamente de lux din Chiajna și vestul Bucureștiului. Consultanță profesională și proprietăți exclusive." />
+    <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
     <!-- Structured Data - Organization -->
     <script type="application/ld+json">
@@ -106,14 +134,8 @@
         "addressCountry": "RO"
       },
       "areaServed": [
-        {
-          "@type": "City",
-          "name": "București"
-        },
-        {
-          "@type": "City", 
-          "name": "Chiajna"
-        }
+        { "@type": "City", "name": "București" },
+        { "@type": "City", "name": "Chiajna" }
       ],
       "makesOffer": {
         "@type": "Offer",
@@ -125,16 +147,10 @@
       }
     }
     </script>
-  <meta property="og:title" content="MVA Imobiliare - Apartamente Militari">
-  <meta name="twitter:title" content="MVA Imobiliare - Apartamente Militari">
-  <meta property="og:description" content="MVA Imobiliare - agenție imobiliară specializată în vanzare apartamente din Chiajna și vestul Bucureștiului. Consultanță profesională și proprietăți exclusive.">
-  <meta name="twitter:description" content="MVA Imobiliare - agenție imobiliară specializată în vanzare apartamente din Chiajna și vestul Bucureștiului. Consultanță profesională și proprietăți exclusive.">
-  <meta name="twitter:card" content="summary_large_image">
-</head>
+  </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    
   </body>
 </html>

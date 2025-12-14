@@ -26,7 +26,7 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden" itemScope itemType="https://schema.org/WebPageElement">
-      {/* Liquid Glass Background */}
+      {/* Liquid Glass Background - Optimized for LCP */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 z-10" style={{ background: 'var(--gradient-hero-glass)' }}></div>
         <img 
@@ -34,7 +34,11 @@ const Hero = () => {
           alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului cu finisaje de lux și facilități complete" 
           className="w-full h-full object-cover scale-110 animate-fade-in"
           loading="eager"
+          fetchPriority="high"
+          decoding="async"
           itemProp="image"
+          width={1920}
+          height={1080}
         />
         <div className="absolute inset-0 backdrop-blur-[2px] z-5"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent z-10"></div>

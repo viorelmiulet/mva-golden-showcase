@@ -157,16 +157,31 @@ All colors MUST be HSL.
     }
   }
 
-  /* Performance optimizations */
-  img {
+  /* Performance optimizations - CLS prevention */
+  img, video, iframe {
     @apply max-w-full h-auto;
-    /* Lazy loading optimization */
-    loading: lazy;
+    /* Reserve space to prevent layout shift */
+    aspect-ratio: attr(width) / attr(height);
   }
 
-  /* Smooth animations for better UX */
+  /* Optimize animations for better INP - reduce jank */
   * {
     transition: var(--transition-luxury);
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Content visibility optimization for below-fold content */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
   }
 
   /* Focus states for accessibility */
