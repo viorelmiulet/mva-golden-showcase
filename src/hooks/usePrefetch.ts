@@ -34,7 +34,7 @@ export const usePrefetch = () => {
   return { prefetch, prefetchOnHover };
 };
 
-// Preload critical routes after initial render
+// Preload critical routes after initial render - optimized for INP
 export const usePreloadCriticalRoutes = () => {
   useEffect(() => {
     // Wait for idle time to preload critical routes
@@ -43,21 +43,21 @@ export const usePreloadCriticalRoutes = () => {
       const criticalRoutes: PreloadKey[] = ['properties', 'complexe', 'calculatorCredit'];
       
       criticalRoutes.forEach((route, index) => {
-        // Stagger preloading to avoid blocking
+        // Stagger preloading to avoid blocking main thread
         setTimeout(() => {
           if (!preloadedModules.has(route)) {
             preloadedModules.add(route);
             preloadMap[route]();
           }
-        }, 1000 + (index * 500));
+        }, 2000 + (index * 1000)); // Increased delay for better INP
       });
     };
 
     // Use requestIdleCallback if available, otherwise setTimeout
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(preloadCritical, { timeout: 3000 });
+      (window as Window).requestIdleCallback(preloadCritical, { timeout: 5000 });
     } else {
-      setTimeout(preloadCritical, 2000);
+      setTimeout(preloadCritical, 3000);
     }
   }, []);
 };
@@ -77,11 +77,26 @@ export const usePrefetchOnVisible = (key: PreloadKey, ref: React.RefObject<HTMLE
           }
         });
       },
-      { rootMargin: '100px' }
+      { rootMargin: '200px' } // Increased margin for earlier preload
     );
 
     observer.observe(ref.current);
 
     return () => observer.disconnect();
   }, [key, ref]);
+};
+
+// Preload image for better LCP
+export const preloadImage = (src: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
+// Preload multiple images in parallel
+export const preloadImages = (srcs: string[]): Promise<void[]> => {
+  return Promise.all(srcs.map(preloadImage));
 };
