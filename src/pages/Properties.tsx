@@ -35,6 +35,7 @@ import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import { useFavorites } from "@/hooks/useFavorites"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
+import { PropertyGridSkeleton } from "@/components/skeletons"
 
 interface ScrapedProperty {
   title: string
@@ -473,9 +474,7 @@ const Properties = () => {
 
             {/* Properties List */}
             {isLoadingProperties ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-gold" />
-              </div>
+              <PropertyGridSkeleton count={8} />
             ) : filteredProperties.length === 0 && properties.length > 0 ? (
               <Card className="max-w-2xl mx-auto glass border-[0.5px]">
                 <CardContent className="py-12 text-center">

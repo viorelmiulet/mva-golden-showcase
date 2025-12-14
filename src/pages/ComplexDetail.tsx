@@ -32,6 +32,7 @@ import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
+import { ComplexDetailSkeleton } from "@/components/skeletons";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -92,12 +93,7 @@ const ComplexDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center min-h-[80vh]">
-          <div className="text-center space-y-4">
-            <Building2 className="h-12 w-12 mx-auto animate-pulse text-primary" />
-            <p className="text-muted-foreground">Se încarcă...</p>
-          </div>
-        </div>
+        <ComplexDetailSkeleton />
         <Footer />
       </div>
     );

@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
+import { ComplexGridSkeleton } from "@/components/skeletons";
 
 const Complexe = () => {
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
@@ -51,21 +52,6 @@ const Complexe = () => {
     
     return { total, available, sold, percentage };
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center min-h-[80vh]">
-          <div className="text-center space-y-4">
-            <Building2 className="h-12 w-12 mx-auto animate-pulse text-primary" />
-            <p className="text-muted-foreground">Se încarcă complexele...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <>
@@ -157,6 +143,9 @@ const Complexe = () => {
           </div>
 
           {/* Projects Grid */}
+          {isLoading ? (
+            <ComplexGridSkeleton count={6} />
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {projects
               ?.slice()
@@ -301,6 +290,7 @@ const Complexe = () => {
                 );
               })}
           </div>
+          )}
 
           {projects?.length === 0 && (
             <div className="text-center py-16">
