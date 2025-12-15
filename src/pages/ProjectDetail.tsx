@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { ProjectDetailSkeleton } from "@/components/skeletons";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -70,19 +71,13 @@ const ProjectDetail = () => {
 
   if (isLoading) {
     return (
-      <>
-        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-          <Header />
-          <main className="pt-24 pb-16">
-            <div className="container mx-auto px-4">
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Se încarcă...</p>
-              </div>
-            </div>
-          </main>
-          <Footer />
-        </div>
-      </>
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+        <Header />
+        <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
+          <ProjectDetailSkeleton />
+        </main>
+        <Footer />
+      </div>
     );
   }
 

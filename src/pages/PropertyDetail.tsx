@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -30,6 +29,7 @@ import { TiltCard } from "@/components/TiltCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import MortgageCalculator from "@/components/MortgageCalculator";
+import { PropertyDetailSkeleton } from "@/components/skeletons";
 
 interface Property {
   id: string;
@@ -168,11 +168,9 @@ const PropertyDetail = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
-        <main className="pt-24 pb-16 px-4">
+        <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
           <div className="container mx-auto max-w-6xl">
-            <Skeleton className="h-8 w-48 mb-8" />
-            <Skeleton className="h-96 w-full mb-8" />
-            <Skeleton className="h-64 w-full" />
+            <PropertyDetailSkeleton />
           </div>
         </main>
         <Footer />
