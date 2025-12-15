@@ -454,14 +454,6 @@ const DashboardPage = () => {
           loading={loadingComplexes}
         />
         <StatCard
-          title="Vizionări Luna Aceasta"
-          value={viewingsData?.thisMonthCount || 0}
-          subtitle={`${viewingsData?.pending || 0} în așteptare`}
-          icon={CalendarCheck}
-          trend={viewingsData?.monthlyGrowth !== undefined ? { value: viewingsData.monthlyGrowth, positive: viewingsData.monthlyGrowth >= 0 } : undefined}
-          loading={loadingViewings}
-        />
-        <StatCard
           title="Comisioane Luna Curentă"
           value={`${(commissionsData?.currentMonthEUR || 0).toLocaleString()} €`}
           subtitle={commissionsData?.currentMonthRON ? `+ ${commissionsData.currentMonthRON.toLocaleString()} RON` : undefined}
@@ -749,27 +741,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Bottom Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Viewing Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Status Vizionări</CardTitle>
-            <CardDescription>Distribuție pe statusuri</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loadingViewings ? (
-              <Skeleton className="h-32 w-full" />
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <MiniStatCard label="În așteptare" value={viewingsData?.pending || 0} icon={Clock} color="bg-yellow-500" />
-                <MiniStatCard label="Confirmate" value={viewingsData?.confirmed || 0} icon={CalendarCheck} color="bg-blue-500" />
-                <MiniStatCard label="Finalizate" value={viewingsData?.completed || 0} icon={CheckCircle} color="bg-green-500" />
-                <MiniStatCard label="Anulate" value={viewingsData?.cancelled || 0} icon={XCircle} color="bg-red-500" />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Properties Stats */}
         <Card>
           <CardHeader>
