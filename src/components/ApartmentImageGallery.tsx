@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { 
@@ -18,6 +18,69 @@ import {
   getOptimizedImageUrl, 
   generateSrcSet 
 } from "@/lib/imageOptimization";
+
+// Lazy loading image component with Intersection Observer
+interface LazyImageProps {
+  src: string;
+  srcSet?: string;
+  sizes?: string;
+  alt: string;
+  className?: string;
+  style?: React.CSSProperties;
+  onLoad?: () => void;
+  priority?: boolean;
+}
+
+const LazyImage = ({ src, srcSet, sizes, alt, className, style, onLoad, priority = false }: LazyImageProps) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(priority);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (priority) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px', threshold: 0.01 }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [priority]);
+
+  const handleLoad = useCallback(() => {
+    setIsLoaded(true);
+    onLoad?.();
+  }, [onLoad]);
+
+  return (
+    <>
+      {!isLoaded && (
+        <div className="absolute inset-0 bg-muted animate-pulse" />
+      )}
+      <img
+        ref={imgRef}
+        src={isInView ? src : undefined}
+        srcSet={isInView ? srcSet : undefined}
+        sizes={sizes}
+        alt={alt}
+        className={cn(className, !isLoaded && "opacity-0")}
+        style={style}
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        onLoad={handleLoad}
+      />
+    </>
+  );
+};
 
 // Custom hook for responsive image sizing
 const useResponsiveImageSize = () => {
@@ -222,10 +285,7 @@ export const ApartmentImageGallery = ({
             className="col-span-3 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
-            {!imageLoaded[0] && (
-              <div className="absolute inset-0 bg-muted animate-pulse" />
-            )}
-            <img
+            <LazyImage
               src={optimizedImages.main[0]}
               srcSet={`
                 ${getOptimizedImageUrl(validImages[0], 600)} 600w,
@@ -234,14 +294,11 @@ export const ApartmentImageGallery = ({
               `}
               sizes="(min-width: 1024px) 75vw, 100vw"
               alt={title}
-              className={cn(
-                "w-full h-full object-cover transition-transform duration-300 ease-out",
-                !imageLoaded[0] && "opacity-0"
-              )}
+              className="w-full h-full object-cover transition-transform duration-300 ease-out"
               style={{
                 transform: `translate(${parallax.x}px, ${parallax.y}px) scale(1.1)`,
               }}
-              loading="eager"
+              priority={true}
               onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
             />
             
@@ -264,11 +321,10 @@ export const ApartmentImageGallery = ({
                 }}
                 className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
-                <img
+                <LazyImage
                   src={getOptimizedImageUrl(img, 300)}
                   alt={`${title} - ${idx + 2}`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
               </button>
@@ -283,11 +339,10 @@ export const ApartmentImageGallery = ({
                 }}
                 className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
-                <img
+                <LazyImage
                   src={getOptimizedImageUrl(validImages[4], 300)}
                   alt={`${title} - mai multe`}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center group-hover:bg-black/70 transition-colors">
                   <span className="text-white font-semibold text-lg">+{validImages.length - 4}</span>
@@ -314,10 +369,7 @@ export const ApartmentImageGallery = ({
             className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
-            {!imageLoaded[0] && (
-              <div className="absolute inset-0 bg-muted animate-pulse" />
-            )}
-            <img
+            <LazyImage
               src={optimizedImages.main[0]}
               srcSet={`
                 ${getOptimizedImageUrl(validImages[0], 400)} 400w,
@@ -326,11 +378,8 @@ export const ApartmentImageGallery = ({
               `}
               sizes="100vw"
               alt={title}
-              className={cn(
-                "w-full h-full object-cover transition-all duration-500 group-hover:scale-105",
-                !imageLoaded[0] && "opacity-0"
-              )}
-              loading="eager"
+              className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+              priority={true}
               onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
             />
             
@@ -366,11 +415,10 @@ export const ApartmentImageGallery = ({
                     "border-transparent"
                   )}
                 >
-                  <img
+                  <LazyImage
                     src={img}
                     alt={`${title} - ${idx + 1}`}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                 </button>
               ))}
