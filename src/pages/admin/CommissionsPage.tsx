@@ -737,8 +737,11 @@ const CommissionsPage = () => {
       {/* Monthly Summary Cards */}
       {monthlyTotals.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Sumar Lunar {filterYear !== "all" ? filterYear : ""}</CardTitle>
+            <div className="text-sm text-muted-foreground">
+              Total: <span className="font-bold text-primary">{monthlyTotals.reduce((sum, m) => sum + m.count, 0)} tranzacții</span>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
