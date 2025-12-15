@@ -22,8 +22,13 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Percent,
-  Layers
+  Layers,
+  Plus,
+  FileSpreadsheet,
+  Coins,
+  ArrowRight
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { 
   AreaChart, 
   Area, 
@@ -435,6 +440,61 @@ const DashboardPage = () => {
           </Badge>
         </div>
       </div>
+
+      {/* Quick Actions Card */}
+      <Card className="border-gold/20 bg-gradient-to-br from-gold/5 to-transparent">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-5 w-5 text-gold" />
+            Acțiuni Rapide
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Link 
+              to="/admin/proprietati" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
+            >
+              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                <Plus className="h-5 w-5 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium group-hover:text-gold transition-colors">Adaugă Proprietate</p>
+                <p className="text-xs text-muted-foreground">Proprietate nouă</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+            </Link>
+
+            <Link 
+              to="/admin/import-xml" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
+            >
+              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                <FileSpreadsheet className="h-5 w-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium group-hover:text-gold transition-colors">Import XML</p>
+                <p className="text-xs text-muted-foreground">Import proprietăți</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+            </Link>
+
+            <Link 
+              to="/admin/comisioane" 
+              className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
+            >
+              <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+                <Coins className="h-5 w-5 text-yellow-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium group-hover:text-gold transition-colors">Vezi Comisioane</p>
+                <p className="text-xs text-muted-foreground">Gestionare comisioane</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Main Stats Grid - Row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
