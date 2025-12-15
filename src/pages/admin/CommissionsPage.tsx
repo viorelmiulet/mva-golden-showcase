@@ -769,13 +769,6 @@ const CommissionsPage = () => {
                       </span>
                       <span className="font-medium text-foreground">{rentCount}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-purple-500 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                        Colaborări
-                      </span>
-                      <span className="font-medium text-foreground">{collaborationCount}</span>
-                    </div>
                   </div>
                 </div>
               ))}
