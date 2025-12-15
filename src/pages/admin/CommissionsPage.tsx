@@ -743,7 +743,7 @@ const CommissionsPage = () => {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
               {monthlyTotals.map(({ month, total, count, salesCount, rentCount, collaborationCount }) => (
-                <div key={month} className="p-3 bg-muted/50 rounded-lg">
+                <div key={month} className="p-3 bg-muted/50 rounded-lg border border-border/50">
                   <p className="text-xs font-medium text-muted-foreground text-center mb-2">{month}</p>
                   <p className="text-sm sm:text-base font-bold text-primary text-center">€{total.toLocaleString()}</p>
                   <p className="text-[10px] text-muted-foreground text-center mb-2">{count} tranzacții</p>
