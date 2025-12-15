@@ -992,13 +992,44 @@ const CommissionsPage = () => {
                                 </Select>
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => openEditDialog(commission)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
+                                <div className="flex items-center justify-end gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openEditDialog(commission)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Șterge comisionul</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Ești sigur că vrei să ștergi acest comision de {commission.amount.toLocaleString()} {commission.currency} din {format(parseISO(commission.date), "dd MMMM yyyy", { locale: ro })}?
+                                          Această acțiune nu poate fi anulată.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Anulează</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => deleteMutation.mutate(commission.id)}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          Șterge
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))}
