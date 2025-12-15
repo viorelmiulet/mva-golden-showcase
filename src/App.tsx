@@ -23,6 +23,7 @@ const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
 const PropertiesAdmin = lazy(() => import("./pages/admin/PropertiesAdmin"));
+const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
 const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
 const XmlImportPage = lazy(() => import("./pages/admin/XmlImportPage"));
 const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
@@ -76,7 +77,8 @@ const App = () => {
               <Route path="/complexe/:id" element={<ComplexDetailPublic />} />
               <Route path="/adauga" element={<AddProperty />} />
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<PropertiesAdmin />} />
+                <Route index element={<DashboardPage />} />
+                <Route path="proprietati" element={<PropertiesAdmin />} />
                 <Route path="complexe" element={<ComplexesOverview />} />
                 <Route path="complexe/add" element={<AddComplex />} />
                 <Route path="complexe/:id" element={<ComplexDetailAdmin />} />

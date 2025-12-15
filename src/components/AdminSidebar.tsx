@@ -5,13 +5,13 @@ import {
   Upload,
   CreditCard,
   Share2,
-  Lock,
   ChevronLeft,
   ChevronRight,
   Layers,
   Users,
   CalendarCheck,
   Euro,
+  LayoutDashboard,
 } from "lucide-react";
 
 import {
@@ -28,7 +28,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Proprietăți", url: "/admin", icon: Home, exact: true },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+  { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
