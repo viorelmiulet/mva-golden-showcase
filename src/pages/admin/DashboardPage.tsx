@@ -129,7 +129,7 @@ const DashboardPage = () => {
         const reserved = projectApts.filter(a => a.availability_status === 'reserved').length;
         const total = projectApts.length;
         return {
-          name: project.name.length > 20 ? project.name.substring(0, 20) + '...' : project.name,
+          name: project.name,
           fullName: project.name,
           total,
           available,
@@ -675,7 +675,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Complex Breakdown */}
         <Card>
           <CardHeader>
@@ -693,7 +693,7 @@ const DashboardPage = () => {
                 <BarChart data={complexesData.complexBreakdown} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis type="number" className="text-xs" />
-                  <YAxis dataKey="name" type="category" width={100} className="text-xs" tick={{ fontSize: 10 }} />
+                  <YAxis dataKey="name" type="category" width={200} className="text-xs" tick={{ fontSize: 11 }} />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))', 
