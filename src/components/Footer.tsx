@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Separator } from "@/components/ui/separator"
 import { ArrowUp, Download } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
+import { useSiteSettings } from "@/hooks/useSiteSettings"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -11,8 +12,14 @@ interface BeforeInstallPromptEvent extends Event {
 
 const Footer = () => {
   const location = useLocation()
+  const { data: settings } = useSiteSettings()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstalled, setIsInstalled] = useState(false)
+
+  const phoneNumber = settings?.phone?.replace(/\s/g, '') || "0767941512"
+  const companyName = settings?.companyName || "MVA IMOBILIARE"
+  const companyDescription = settings?.companyDescription || "Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului. Transformăm visurile tale de locuință în realitate."
+  const facebookUrl = settings?.facebook || "https://www.facebook.com/profile.php?id=61575213335398"
 
   useEffect(() => {
     // Check if already installed
@@ -135,7 +142,7 @@ const Footer = () => {
                   
                   <div>
                     <div className="font-cinzel text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent">
-                      MVA IMOBILIARE
+                      {companyName}
                     </div>
                     
                     <div className="w-0 group-hover:w-full h-[1.5px] bg-gradient-to-r from-yellow-400 to-yellow-600 mt-1 transition-all duration-700"></div>
@@ -143,25 +150,26 @@ const Footer = () => {
                 </div>
                 
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-4 sm:mb-6 max-w-md mx-auto md:mx-0">
-                  Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului. 
-                  Transformăm visurile tale de locuință în realitate.
+                  {companyDescription}
                 </p>
                 
                 <div className="flex justify-center md:justify-start space-x-3">
-                  <a 
-                    href="https://www.facebook.com/profile.php?id=61575213335398" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
-                    title="Pagina noastră Facebook"
-                  >
-                    <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </a>
+                  {facebookUrl && (
+                    <a 
+                      href={facebookUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
+                      title="Pagina noastră Facebook"
+                    >
+                      <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </a>
+                  )}
                   
                   <a 
-                    href="https://wa.me/40767941512" 
+                    href={`https://wa.me/${phoneNumber.replace(/^0/, '40')}`}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
@@ -244,7 +252,7 @@ const Footer = () => {
               
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
                 <p className="text-muted-foreground text-xs sm:text-sm">
-                  © 2025 MVA IMOBILIARE. Toate drepturile rezervate.
+                  © 2025 {companyName}. Toate drepturile rezervate.
                 </p>
               </div>
               
