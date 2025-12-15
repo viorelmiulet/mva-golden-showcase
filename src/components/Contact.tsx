@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { 
   Phone, 
   Mail, 
@@ -16,6 +17,7 @@ import {
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 
 const Contact = () => {
+  const { data: settings } = useSiteSettings();
   const [formData, setFormData] = useState({
     nume: '',
     prenume: '',
@@ -99,23 +101,28 @@ const Contact = () => {
     });
   };
 
+  const phoneNumber = settings?.phone?.replace(/\s/g, '') || "0767941512";
+  const phoneDisplay = settings?.phone || "0767 941 512";
+  const emailAddress = settings?.email || "mvaperfectbusiness@gmail.com";
+  const address = settings?.address || "jud. IF com. Chiajna str. Tineretului nr. 17 bl. 2 parter ap 24";
+
   const contactInfo = [
     {
       icon: Phone,
       title: "Telefon",
-      info: "0767 941 512",
-      action: "tel:0767941512"
+      info: phoneDisplay,
+      action: `tel:${phoneNumber}`
     },
     {
       icon: Mail,
       title: "Email",
-      info: "mvaperfectbusiness@gmail.com",
-      action: "mailto:mvaperfectbusiness@gmail.com"
+      info: emailAddress,
+      action: `mailto:${emailAddress}`
     },
     {
       icon: MapPin,
       title: "Adresă",
-      info: "jud. IF com. Chiajna str. Tineretului nr. 17 bl. 2 parter ap 24",
+      info: address,
       action: null
     },
     {
@@ -218,7 +225,7 @@ const Contact = () => {
                     Pentru răspunsuri rapide și consultanță personalizată
                   </p>
                   <a 
-                    href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
+                    href={`https://wa.me/${phoneNumber.replace(/^0/, '40')}?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F`}
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
