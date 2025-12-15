@@ -464,23 +464,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Stats Row 2 - KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Rată Conversie</p>
-                <p className="text-2xl font-bold">{viewingsData?.conversionRate || 0}%</p>
-              </div>
-              <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/20">
-                <Target className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-            <Progress value={viewingsData?.conversionRate || 0} className="mt-3 h-2" />
-            <p className="text-xs text-muted-foreground mt-2">Vizionări finalizate din total</p>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -509,39 +493,6 @@ const DashboardPage = () => {
             </div>
             <p className="text-xs text-muted-foreground mt-3">
               + {(commissionsData?.ytdRON || 0).toLocaleString()} RON
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Disponibilitate</p>
-                <p className="text-2xl font-bold">{propertiesData?.availabilityRate || 0}%</p>
-              </div>
-              <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/20">
-                <Percent className="h-5 w-5 text-purple-600" />
-              </div>
-            </div>
-            <Progress value={propertiesData?.availabilityRate || 0} className="mt-3 h-2" />
-            <p className="text-xs text-muted-foreground mt-2">Proprietăți disponibile</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Clienți</p>
-                <p className="text-2xl font-bold">{clientsData?.total || 0}</p>
-              </div>
-              <div className="p-3 rounded-full bg-pink-100 dark:bg-pink-900/20">
-                <Users className="h-5 w-5 text-pink-600" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              +{clientsData?.newThisMonth || 0} luna aceasta
             </p>
           </CardContent>
         </Card>
