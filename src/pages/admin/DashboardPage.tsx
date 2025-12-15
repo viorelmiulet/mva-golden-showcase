@@ -271,9 +271,13 @@ const DashboardPage = () => {
       const ytdEUR = ytdData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
       const ytdRON = ytdData.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
       
-      // Average commission
+      // Average commission per transaction
       const avgCommissionEUR = data?.filter(c => c.currency === 'EUR').length || 0;
       const avgEUR = avgCommissionEUR > 0 ? Math.round(totalEUR / avgCommissionEUR) : 0;
+      
+      // Daily average commission (YTD)
+      const daysSinceYearStart = differenceInDays(now, yearStart) + 1;
+      const dailyAvgEUR = daysSinceYearStart > 0 ? Math.round(ytdEUR / daysSinceYearStart) : 0;
       
       // Monthly trend (last 12 months)
       const monthlyTrend = [];
@@ -323,6 +327,7 @@ const DashboardPage = () => {
         ytdEUR,
         ytdRON,
         avgEUR,
+        dailyAvgEUR,
         monthlyTrend,
         typeDistribution,
         count: data?.length || 0,
@@ -520,6 +525,13 @@ const DashboardPage = () => {
           subtitle={commissionsData?.currentMonthRON ? `+ ${commissionsData.currentMonthRON.toLocaleString()} RON` : undefined}
           icon={Euro}
           trend={commissionsData?.monthlyGrowth !== undefined ? { value: commissionsData.monthlyGrowth, positive: commissionsData.monthlyGrowth >= 0 } : undefined}
+          loading={loadingCommissions}
+        />
+        <StatCard
+          title="Medie Zilnică Comisioane"
+          value={`${(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €`}
+          subtitle="Media zilnică YTD (EUR)"
+          icon={Target}
           loading={loadingCommissions}
         />
       </div>
