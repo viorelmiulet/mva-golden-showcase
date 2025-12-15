@@ -24,6 +24,8 @@ const AddProperty = lazy(() => import("./pages/AddProperty"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
 const PropertiesAdmin = lazy(() => import("./pages/admin/PropertiesAdmin"));
 const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
+const ReportsPage = lazy(() => import("./pages/admin/ReportsPage"));
+const SettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
 const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
 const XmlImportPage = lazy(() => import("./pages/admin/XmlImportPage"));
 const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
@@ -87,6 +89,8 @@ const App = () => {
                 <Route path="utilizatori" element={<UsersAdminPage />} />
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
+                <Route path="rapoarte" element={<ReportsPage />} />
+                <Route path="setari" element={<SettingsPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
                 <Route path="facebook" element={<FacebookPage />} />
               </Route>
