@@ -122,19 +122,20 @@ const DashboardPage = () => {
       const availableApartments = apartments?.filter(a => a.availability_status === 'available').length || 0;
       const soldApartments = apartments?.filter(a => a.availability_status === 'sold').length || 0;
       
-      // Per-complex breakdown
       const complexBreakdown = projects?.map(project => {
         const projectApts = apartments?.filter(a => a.project_id === project.id) || [];
         const available = projectApts.filter(a => a.availability_status === 'available').length;
         const sold = projectApts.filter(a => a.availability_status === 'sold').length;
+        const reserved = projectApts.filter(a => a.availability_status === 'reserved').length;
+        const total = projectApts.length;
         return {
           name: project.name.length > 20 ? project.name.substring(0, 20) + '...' : project.name,
           fullName: project.name,
-          total: projectApts.length,
+          total,
           available,
           sold,
-          reserved: projectApts.length - available - sold,
-          salesRate: projectApts.length > 0 ? Math.round((sold / projectApts.length) * 100) : 0
+          reserved,
+          salesRate: total > 0 ? Math.round((sold / total) * 100) : 0
         };
       }).sort((a, b) => b.total - a.total).slice(0, 6) || [];
       
@@ -699,7 +700,17 @@ const DashboardPage = () => {
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}
-                    formatter={(value: number, name: string) => [value, name === 'available' ? 'Disponibile' : name === 'sold' ? 'Vândute' : 'Rezervate']}
+                    formatter={(value: number, key: string) => {
+                      const labelMap: Record<string, string> = {
+                        available: 'Disponibile',
+                        sold: 'Vândute',
+                        reserved: 'Rezervate',
+                        Disponibile: 'Disponibile',
+                        'Vândute': 'Vândute',
+                        Rezervate: 'Rezervate',
+                      };
+                      return [value, labelMap[key] ?? key];
+                    }}
                   />
                   <Legend />
                   <Bar dataKey="available" stackId="a" fill="#10b981" name="Disponibile" />
