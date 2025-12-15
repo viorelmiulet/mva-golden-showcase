@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Download, FileText, Settings, History, Trash2, Star, Clock } from 'lucide-react';
+import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { XmlFieldMappingDialog } from './XmlFieldMappingDialog';
@@ -30,6 +30,8 @@ const WebsiteScrapingManager = () => {
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
   const [xmlAnalysis, setXmlAnalysis] = useState<any>(null);
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
+  const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
   const { 
     importXmlFeed,
     analyzeXmlStructure,
@@ -105,6 +107,46 @@ const WebsiteScrapingManager = () => {
       });
     }
   });
+
+  // Rename XML source
+  const renameSourceMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase
+        .from('xml_import_sources')
+        .update({ name: name.trim() })
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['xml_import_sources'] });
+      setEditingSourceId(null);
+      setEditingName('');
+      toast({
+        title: "Sursă redenumită",
+        description: "Numele sursei a fost actualizat",
+      });
+    }
+  });
+
+  const handleStartRename = (e: React.MouseEvent, source: XmlSource) => {
+    e.stopPropagation();
+    setEditingSourceId(source.id);
+    setEditingName(source.name || new URL(source.url).hostname);
+  };
+
+  const handleConfirmRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (editingSourceId && editingName.trim()) {
+      renameSourceMutation.mutate({ id: editingSourceId, name: editingName });
+    }
+  };
+
+  const handleCancelRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingSourceId(null);
+    setEditingName('');
+  };
 
   const handleSelectSource = (source: XmlSource) => {
     setXmlUrl(source.url);
@@ -210,17 +252,50 @@ const WebsiteScrapingManager = () => {
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50 hover:bg-muted/50"
                     )}
-                    onClick={() => handleSelectSource(source)}
+                    onClick={() => editingSourceId !== source.id && handleSelectSource(source)}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm truncate">
-                          {source.name || new URL(source.url).hostname}
-                        </p>
-                        {source.last_mapping && (
-                          <Badge variant="secondary" className="text-xs">
-                            Mapare salvată
-                          </Badge>
+                        {editingSourceId === source.id ? (
+                          <div className="flex items-center gap-1 flex-1" onClick={(e) => e.stopPropagation()}>
+                            <Input
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              className="h-7 text-sm"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleConfirmRename(e as any);
+                                if (e.key === 'Escape') handleCancelRename(e as any);
+                              }}
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-100"
+                              onClick={handleConfirmRename}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                              onClick={handleCancelRename}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-medium text-sm truncate">
+                              {source.name || new URL(source.url).hostname}
+                            </p>
+                            {source.last_mapping && (
+                              <Badge variant="secondary" className="text-xs">
+                                Mapare salvată
+                              </Badge>
+                            )}
+                          </>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">
@@ -237,17 +312,31 @@ const WebsiteScrapingManager = () => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteSourceMutation.mutate(source.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {editingSourceId !== source.id && (
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                          onClick={(e) => handleStartRename(e, source)}
+                          title="Redenumește"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteSourceMutation.mutate(source.id);
+                          }}
+                          title="Șterge"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
