@@ -47,7 +47,7 @@ import {
   Line,
   ComposedChart
 } from "recharts";
-import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear, subYears } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear, subYears, subDays } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -293,6 +293,19 @@ const DashboardPage = () => {
       // Daily average growth YoY
       const dailyAvgGrowth = lastYearDailyAvgEUR > 0 ? Math.round(((dailyAvgEUR - lastYearDailyAvgEUR) / lastYearDailyAvgEUR) * 100) : 0;
       
+      // Daily trend for last 30 days (for sparkline)
+      const dailyTrend30 = [];
+      for (let i = 29; i >= 0; i--) {
+        const day = subDays(now, i);
+        const dayStr = format(day, 'yyyy-MM-dd');
+        const dayData = data?.filter(c => c.date === dayStr && c.currency === 'EUR') || [];
+        const dayTotal = dayData.reduce((sum, c) => sum + Number(c.amount), 0);
+        dailyTrend30.push({
+          day: format(day, 'dd/MM'),
+          value: dayTotal
+        });
+      }
+      
       // Monthly trend (last 12 months)
       const monthlyTrend = [];
       for (let i = 11; i >= 0; i--) {
@@ -344,6 +357,7 @@ const DashboardPage = () => {
         dailyAvgEUR,
         dailyAvgGrowth,
         lastYearDailyAvgEUR,
+        dailyTrend30,
         monthlyTrend,
         typeDistribution,
         count: data?.length || 0,
@@ -543,14 +557,70 @@ const DashboardPage = () => {
           trend={commissionsData?.monthlyGrowth !== undefined ? { value: commissionsData.monthlyGrowth, positive: commissionsData.monthlyGrowth >= 0 } : undefined}
           loading={loadingCommissions}
         />
-        <StatCard
-          title="Medie Zilnică Comisioane"
-          value={`${(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €`}
-          subtitle={commissionsData?.lastYearDailyAvgEUR ? `Anul trecut: ${commissionsData.lastYearDailyAvgEUR.toLocaleString()} €/zi` : "Media zilnică YTD (EUR)"}
-          icon={Target}
-          trend={commissionsData?.dailyAvgGrowth !== undefined && commissionsData?.lastYearDailyAvgEUR > 0 ? { value: commissionsData.dailyAvgGrowth, positive: commissionsData.dailyAvgGrowth >= 0 } : undefined}
-          loading={loadingCommissions}
-        />
+        <Card className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Medie Zilnică Comisioane</CardTitle>
+            <div className="p-2 rounded-lg bg-gold/10">
+              <Target className="h-4 w-4 text-gold" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingCommissions ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {commissionsData?.lastYearDailyAvgEUR ? `Anul trecut: ${commissionsData.lastYearDailyAvgEUR.toLocaleString()} €/zi` : "Media zilnică YTD (EUR)"}
+                </p>
+                {commissionsData?.dailyAvgGrowth !== undefined && commissionsData?.lastYearDailyAvgEUR > 0 && (
+                  <div className={`text-xs mt-2 flex items-center gap-1 ${commissionsData.dailyAvgGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {commissionsData.dailyAvgGrowth >= 0 ? (
+                      <ArrowUpRight className="h-3 w-3" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3" />
+                    )}
+                    {Math.abs(commissionsData.dailyAvgGrowth)}% față de anul trecut
+                  </div>
+                )}
+                {/* Sparkline */}
+                {commissionsData?.dailyTrend30 && commissionsData.dailyTrend30.length > 0 && (
+                  <div className="mt-3 h-[40px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={commissionsData.dailyTrend30}>
+                        <defs>
+                          <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#DAA520" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#DAA520" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            padding: '4px 8px'
+                          }}
+                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                          labelFormatter={(label) => label}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="#DAA520" 
+                          strokeWidth={1.5}
+                          fill="url(#sparklineGradient)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Stats Row 2 - KPIs */}
