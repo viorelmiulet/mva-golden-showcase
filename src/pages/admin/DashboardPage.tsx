@@ -265,6 +265,20 @@ const DashboardPage = () => {
       
       const monthlyGrowth = lastMonthEUR > 0 ? Math.round(((currentMonthEUR - lastMonthEUR) / lastMonthEUR) * 100) : 0;
       
+      // Daily trend for current month (for sparkline)
+      const daysInCurrentMonth = differenceInDays(now, monthStart) + 1;
+      const currentMonthDailyTrend = [];
+      for (let i = 0; i < daysInCurrentMonth; i++) {
+        const day = subDays(now, daysInCurrentMonth - 1 - i);
+        const dayStr = format(day, 'yyyy-MM-dd');
+        const dayData = data?.filter(c => c.date === dayStr && c.currency === 'EUR') || [];
+        const dayTotal = dayData.reduce((sum, c) => sum + Number(c.amount), 0);
+        currentMonthDailyTrend.push({
+          day: format(day, 'dd'),
+          value: dayTotal
+        });
+      }
+      
       // YTD
       const yearStart = startOfYear(now);
       const ytdData = data?.filter(c => parseISO(c.date) >= yearStart) || [];
@@ -358,6 +372,7 @@ const DashboardPage = () => {
         dailyAvgGrowth,
         lastYearDailyAvgEUR,
         dailyTrend30,
+        currentMonthDailyTrend,
         monthlyTrend,
         typeDistribution,
         count: data?.length || 0,
@@ -549,14 +564,70 @@ const DashboardPage = () => {
           trend={complexesData?.overallSalesRate ? { value: complexesData.overallSalesRate, positive: true } : undefined}
           loading={loadingComplexes}
         />
-        <StatCard
-          title="Comisioane Luna Curentă"
-          value={`${(commissionsData?.currentMonthEUR || 0).toLocaleString()} €`}
-          subtitle={commissionsData?.currentMonthRON ? `+ ${commissionsData.currentMonthRON.toLocaleString()} RON` : undefined}
-          icon={Euro}
-          trend={commissionsData?.monthlyGrowth !== undefined ? { value: commissionsData.monthlyGrowth, positive: commissionsData.monthlyGrowth >= 0 } : undefined}
-          loading={loadingCommissions}
-        />
+        <Card className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Comisioane Luna Curentă</CardTitle>
+            <div className="p-2 rounded-lg bg-gold/10">
+              <Euro className="h-4 w-4 text-gold" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingCommissions ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
+                {commissionsData?.currentMonthRON ? (
+                  <p className="text-xs text-muted-foreground mt-1">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
+                ) : null}
+                {commissionsData?.monthlyGrowth !== undefined && (
+                  <div className={`text-xs mt-2 flex items-center gap-1 ${commissionsData.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {commissionsData.monthlyGrowth >= 0 ? (
+                      <ArrowUpRight className="h-3 w-3" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3" />
+                    )}
+                    {Math.abs(commissionsData.monthlyGrowth)}% față de luna trecută
+                  </div>
+                )}
+                {/* Sparkline */}
+                {commissionsData?.currentMonthDailyTrend && commissionsData.currentMonthDailyTrend.length > 0 && (
+                  <div className="mt-3 h-[40px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={commissionsData.currentMonthDailyTrend}>
+                        <defs>
+                          <linearGradient id="sparklineGradientMonth" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '6px',
+                            fontSize: '11px',
+                            padding: '4px 8px'
+                          }}
+                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                          labelFormatter={(label) => `Ziua ${label}`}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="#10b981" 
+                          strokeWidth={1.5}
+                          fill="url(#sparklineGradientMonth)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
         <Card className="relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <CardHeader className="flex flex-row items-center justify-between pb-2">
