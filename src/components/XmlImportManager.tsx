@@ -1,19 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Download, FileText, Settings } from 'lucide-react';
+import { Loader2, Download, FileText, Settings, History, Trash2, Star, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { XmlFieldMappingDialog } from './XmlFieldMappingDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ro } from 'date-fns/locale';
+
+interface XmlSource {
+  id: string;
+  url: string;
+  name: string | null;
+  last_used_at: string;
+  created_at: string;
+  import_count: number;
+  last_mapping: Record<string, string> | null;
+}
 
 const WebsiteScrapingManager = () => {
-  const [xmlUrl, setXmlUrl] = useState('https://web.immoflux.ro/api/bridges/oferte360/68d0ec5a4a1e5.xml');
+  const [xmlUrl, setXmlUrl] = useState('');
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
   const [xmlAnalysis, setXmlAnalysis] = useState<any>(null);
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const { 
     importXmlFeed,
     analyzeXmlStructure,
@@ -23,6 +39,78 @@ const WebsiteScrapingManager = () => {
   } = useWebsiteScraper();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch XML sources history
+  const { data: xmlSources = [], isLoading: isLoadingSources } = useQuery({
+    queryKey: ['xml_import_sources'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('xml_import_sources')
+        .select('*')
+        .order('last_used_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as XmlSource[];
+    }
+  });
+
+  // Save or update XML source
+  const saveSourceMutation = useMutation({
+    mutationFn: async ({ url, mapping }: { url: string; mapping?: Record<string, string> }) => {
+      const existingSource = xmlSources.find(s => s.url === url);
+      
+      if (existingSource) {
+        const { error } = await supabase
+          .from('xml_import_sources')
+          .update({ 
+            last_used_at: new Date().toISOString(),
+            import_count: existingSource.import_count + 1,
+            ...(mapping && { last_mapping: mapping })
+          })
+          .eq('id', existingSource.id);
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('xml_import_sources')
+          .insert({ 
+            url,
+            name: new URL(url).hostname,
+            ...(mapping && { last_mapping: mapping })
+          });
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['xml_import_sources'] });
+    }
+  });
+
+  // Delete XML source
+  const deleteSourceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('xml_import_sources')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['xml_import_sources'] });
+      toast({
+        title: "Sursă ștearsă",
+        description: "Sursa XML a fost eliminată din istoric",
+      });
+    }
+  });
+
+  const handleSelectSource = (source: XmlSource) => {
+    setXmlUrl(source.url);
+    setSelectedSourceId(source.id);
+    setXmlAnalysis(null);
+  };
 
   const handleAnalyzeXml = async () => {
     if (!xmlUrl.trim()) {
@@ -72,6 +160,7 @@ const WebsiteScrapingManager = () => {
     if (res?.success) {
       setMappingDialogOpen(false);
       setXmlAnalysis(null);
+      saveSourceMutation.mutate({ url: xmlUrl, mapping });
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
     }
   };
@@ -87,12 +176,86 @@ const WebsiteScrapingManager = () => {
     }
     const res = await importXmlFeed(xmlUrl);
     if (res?.success) {
+      saveSourceMutation.mutate({ url: xmlUrl });
       queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
     }
   };
 
+  // Get saved mapping for current URL
+  const currentSourceMapping = xmlSources.find(s => s.url === xmlUrl)?.last_mapping;
+
   return (
     <div className="space-y-6">
+      {/* XML Sources History */}
+      {xmlSources.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <History className="h-4 w-4" />
+              Surse XML Recente
+            </CardTitle>
+            <CardDescription>
+              Selectează o sursă din istoric pentru a importa rapid
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[180px]">
+              <div className="space-y-2">
+                {xmlSources.map((source) => (
+                  <div
+                    key={source.id}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer group",
+                      selectedSourceId === source.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                    )}
+                    onClick={() => handleSelectSource(source)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm truncate">
+                          {source.name || new URL(source.url).hostname}
+                        </p>
+                        {source.last_mapping && (
+                          <Badge variant="secondary" className="text-xs">
+                            Mapare salvată
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                        {source.url}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {format(new Date(source.last_used_at), 'd MMM yyyy, HH:mm', { locale: ro })}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Download className="h-3 w-3" />
+                          {source.import_count} importuri
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteSourceMutation.mutate(source.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -100,17 +263,12 @@ const WebsiteScrapingManager = () => {
             XML Feed Import
           </CardTitle>
           <CardDescription>
-            Import properties from XML feeds into your catalog
+            Importă proprietăți din feed-uri XML în catalogul tău
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* XML Import Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">XML Feed Import</h3>
-              <Badge variant="outline">XML</Badge>
-            </div>
-            
             <div className="space-y-3">
               <div>
                 <Label htmlFor="xml-url">XML Feed URL</Label>
@@ -118,7 +276,10 @@ const WebsiteScrapingManager = () => {
                   id="xml-url"
                   type="url"
                   value={xmlUrl}
-                  onChange={(e) => setXmlUrl(e.target.value)}
+                  onChange={(e) => {
+                    setXmlUrl(e.target.value);
+                    setSelectedSourceId(null);
+                  }}
                   placeholder="https://example.com/properties.xml"
                   className="mt-1"
                 />
@@ -177,6 +338,12 @@ const WebsiteScrapingManager = () => {
                   )}
                 </Button>
               </div>
+
+              {currentSourceMapping && (
+                <p className="text-sm text-muted-foreground">
+                  ✓ Mapare salvată disponibilă pentru această sursă
+                </p>
+              )}
             </div>
           </div>
 
@@ -197,7 +364,7 @@ const WebsiteScrapingManager = () => {
             <p><strong>Import cu Mapare:</strong> Analizează structura XML, apoi definește manual maparea câmpurilor pentru control complet. Ideal pentru feed-uri recurente.</p>
             <p><strong>Import Rapid:</strong> Folosește auto-detecția pentru mapare automată. Cel mai rapid, dar poate necesita ajustări ulterior.</p>
             <p><strong>Formate Suportate:</strong> OFERTE360, feed-uri XML generice imobiliare, și majoritatea formatelor standard XML.</p>
-            <p><strong>Mapări Salvate:</strong> Salvează configurațiile de mapare pentru a le refolosi la importurile viitoare din același feed.</p>
+            <p><strong>Istoric Surse:</strong> URL-urile XML utilizate sunt salvate automat pentru acces rapid la importuri viitoare.</p>
           </div>
         </CardContent>
       </Card>
@@ -211,6 +378,7 @@ const WebsiteScrapingManager = () => {
           sampleData={xmlAnalysis.data?.sampleProperty || {}}
           onConfirmMapping={handleConfirmMapping}
           isImporting={isLoading}
+          savedMapping={currentSourceMapping || undefined}
         />
       )}
     </div>

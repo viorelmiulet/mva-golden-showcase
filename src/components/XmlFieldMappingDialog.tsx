@@ -16,6 +16,7 @@ interface XmlFieldMappingDialogProps {
   sampleData: any;
   onConfirmMapping: (mapping: Record<string, string>) => void;
   isImporting?: boolean;
+  savedMapping?: Record<string, string>;
 }
 
 const TARGET_FIELDS = [
@@ -39,12 +40,20 @@ export const XmlFieldMappingDialog = ({
   sampleData,
   onConfirmMapping,
   isImporting = false,
+  savedMapping,
 }: XmlFieldMappingDialogProps) => {
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [savedMappings, setSavedMappings] = useState<Record<string, Record<string, string>>>({});
 
-  // Auto-detect mappings based on common field names
+  // Auto-detect mappings based on common field names or use saved mapping
   useEffect(() => {
+    // Use saved mapping from database if available
+    if (savedMapping && Object.keys(savedMapping).length > 0) {
+      setMapping(savedMapping);
+      toast.success("Mapare salvată încărcată automat");
+      return;
+    }
+    
     if (detectedFields.length > 0 && Object.keys(mapping).length === 0) {
       const autoMapping: Record<string, string> = {};
       
@@ -82,7 +91,7 @@ export const XmlFieldMappingDialog = ({
         toast.success(`Auto-detectate ${Object.keys(autoMapping).length} mapări`);
       }
     }
-  }, [detectedFields]);
+  }, [detectedFields, savedMapping]);
 
   // Load saved mappings from localStorage
   useEffect(() => {

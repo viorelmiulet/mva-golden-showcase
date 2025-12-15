@@ -495,6 +495,36 @@ export type Database = {
           },
         ]
       }
+      xml_import_sources: {
+        Row: {
+          created_at: string
+          id: string
+          import_count: number
+          last_mapping: Json | null
+          last_used_at: string
+          name: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          import_count?: number
+          last_mapping?: Json | null
+          last_used_at?: string
+          name?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          import_count?: number
+          last_mapping?: Json | null
+          last_used_at?: string
+          name?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
