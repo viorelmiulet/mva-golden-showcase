@@ -156,7 +156,16 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
                   <Line 
                     type="monotone" 
                     dataKey="visitors" 
@@ -179,7 +188,16 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
                   <Bar dataKey="pageviews" fill="#f59e0b" />
                 </BarChart>
               </ResponsiveContainer>
@@ -229,7 +247,16 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -245,7 +272,16 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" width={80} />
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
                   <Bar dataKey="value" fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
