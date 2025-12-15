@@ -308,9 +308,9 @@ const DashboardPage = () => {
         { name: 'Colaborare', count: collabCommissions.length, value: collabCommissions.reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
       ].filter(t => t.count > 0);
       
-      // Invoice status - case insensitive check
-      const withInvoice = data?.filter(c => c.invoice_number?.toLowerCase() === 'da').length || 0;
-      const withoutInvoice = data?.filter(c => !c.invoice_number || c.invoice_number.toLowerCase() === 'nu').length || 0;
+      // Invoice status - derive "fără factură" din total pentru consistență
+      const withInvoice = data?.filter(c => (c.invoice_number || '').trim().toLowerCase() === 'da').length || 0;
+      const withoutInvoice = (data?.length || 0) - withInvoice;
       
       return { 
         totalEUR, 
