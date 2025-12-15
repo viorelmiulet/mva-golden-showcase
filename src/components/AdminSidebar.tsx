@@ -1,7 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
-  Building2,
   Upload,
   CreditCard,
   Share2,
@@ -12,6 +11,8 @@ import {
   CalendarCheck,
   Euro,
   LayoutDashboard,
+  FileText,
+  Settings,
 } from "lucide-react";
 
 import {
@@ -35,8 +36,10 @@ const menuItems = [
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
   { title: "Utilizatori", url: "/admin/utilizatori", icon: Users },
   { title: "Import XML", url: "/admin/import", icon: Upload },
+  { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți de Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
+  { title: "Setări", url: "/admin/setari", icon: Settings },
 ];
 
 export function AdminSidebar() {
