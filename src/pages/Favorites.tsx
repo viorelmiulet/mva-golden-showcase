@@ -19,6 +19,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import { FavoritesPageSkeleton } from "@/components/skeletons";
 
 const Favorites = () => {
   const navigate = useNavigate();
@@ -71,12 +72,13 @@ const Favorites = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center min-h-[80vh]">
-          <div className="text-center space-y-4">
-            <Heart className="h-12 w-12 mx-auto animate-pulse text-primary" />
-            <p className="text-muted-foreground">Se încarcă...</p>
+        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
+          <div className="mb-4 sm:mb-6 md:mb-8">
+            <div className="h-8 w-48 bg-muted animate-pulse rounded mb-2" />
+            <div className="h-4 w-32 bg-muted animate-pulse rounded" />
           </div>
-        </div>
+          <FavoritesPageSkeleton />
+        </main>
         <Footer />
       </div>
     );
