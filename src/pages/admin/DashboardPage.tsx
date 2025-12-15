@@ -47,7 +47,7 @@ import {
   Line,
   ComposedChart
 } from "recharts";
-import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear, subYears } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -279,6 +279,20 @@ const DashboardPage = () => {
       const daysSinceYearStart = differenceInDays(now, yearStart) + 1;
       const dailyAvgEUR = daysSinceYearStart > 0 ? Math.round(ytdEUR / daysSinceYearStart) : 0;
       
+      // Last year same period for comparison
+      const lastYearStart = startOfYear(subYears(now, 1));
+      const lastYearSameDay = subYears(now, 1);
+      const lastYearYtdData = data?.filter(c => {
+        const date = parseISO(c.date);
+        return date >= lastYearStart && date <= lastYearSameDay;
+      }) || [];
+      const lastYearYtdEUR = lastYearYtdData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
+      const lastYearDays = differenceInDays(lastYearSameDay, lastYearStart) + 1;
+      const lastYearDailyAvgEUR = lastYearDays > 0 ? Math.round(lastYearYtdEUR / lastYearDays) : 0;
+      
+      // Daily average growth YoY
+      const dailyAvgGrowth = lastYearDailyAvgEUR > 0 ? Math.round(((dailyAvgEUR - lastYearDailyAvgEUR) / lastYearDailyAvgEUR) * 100) : 0;
+      
       // Monthly trend (last 12 months)
       const monthlyTrend = [];
       for (let i = 11; i >= 0; i--) {
@@ -328,6 +342,8 @@ const DashboardPage = () => {
         ytdRON,
         avgEUR,
         dailyAvgEUR,
+        dailyAvgGrowth,
+        lastYearDailyAvgEUR,
         monthlyTrend,
         typeDistribution,
         count: data?.length || 0,
@@ -530,8 +546,9 @@ const DashboardPage = () => {
         <StatCard
           title="Medie Zilnică Comisioane"
           value={`${(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €`}
-          subtitle="Media zilnică YTD (EUR)"
+          subtitle={commissionsData?.lastYearDailyAvgEUR ? `Anul trecut: ${commissionsData.lastYearDailyAvgEUR.toLocaleString()} €/zi` : "Media zilnică YTD (EUR)"}
           icon={Target}
+          trend={commissionsData?.dailyAvgGrowth !== undefined && commissionsData?.lastYearDailyAvgEUR > 0 ? { value: commissionsData.dailyAvgGrowth, positive: commissionsData.dailyAvgGrowth >= 0 } : undefined}
           loading={loadingCommissions}
         />
       </div>
