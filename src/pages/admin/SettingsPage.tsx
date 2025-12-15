@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface SiteSettings {
@@ -19,8 +22,6 @@ interface SiteSettings {
   aboutText: string;
   footerText: string;
 }
-
-const STORAGE_KEY = "mva-site-settings";
 
 const defaultSettings: SiteSettings = {
   companyName: "MVA Imobiliare",
@@ -37,22 +38,75 @@ const defaultSettings: SiteSettings = {
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
-  const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Load settings from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSettings({ ...defaultSettings, ...parsed });
-      } catch (e) {
-        console.error("Error loading settings:", e);
-      }
+  // Fetch settings from database
+  const { data: dbSettings, isLoading } = useQuery({
+    queryKey: ['site_settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('key, value');
+      
+      if (error) throw error;
+      
+      // Convert array to object
+      const settingsObj: Record<string, string> = {};
+      data?.forEach(item => {
+        settingsObj[item.key] = item.value || '';
+      });
+      
+      return settingsObj as unknown as SiteSettings;
     }
-  }, []);
+  });
+
+  // Update settings when data is loaded
+  useEffect(() => {
+    if (dbSettings) {
+      setSettings({ ...defaultSettings, ...dbSettings });
+    }
+  }, [dbSettings]);
+
+  // Save settings mutation
+  const saveMutation = useMutation({
+    mutationFn: async (newSettings: SiteSettings) => {
+      const updates = Object.entries(newSettings).map(([key, value]) => ({
+        key,
+        value,
+        updated_at: new Date().toISOString()
+      }));
+
+      // Upsert each setting
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('site_settings')
+          .upsert(
+            { key: update.key, value: update.value, updated_at: update.updated_at },
+            { onConflict: 'key' }
+          );
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['site_settings'] });
+      setHasChanges(false);
+      toast({
+        title: "Setări salvate",
+        description: "Configurările au fost actualizate cu succes",
+      });
+    },
+    onError: (error) => {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Eroare",
+        description: "Nu s-au putut salva setările",
+        variant: "destructive",
+      });
+    }
+  });
 
   const handleChange = (field: keyof SiteSettings, value: string) => {
     setSettings(prev => ({ ...prev, [field]: value }));
@@ -60,24 +114,46 @@ const SettingsPage = () => {
   };
 
   const handleSave = () => {
-    setIsSaving(true);
-    
-    // Simulate save delay
-    setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-      setIsSaving(false);
-      setHasChanges(false);
-      toast({
-        title: "Setări salvate",
-        description: "Configurările au fost actualizate cu succes",
-      });
-    }, 500);
+    saveMutation.mutate(settings);
   };
 
   const handleReset = () => {
-    setSettings(defaultSettings);
-    setHasChanges(true);
+    if (dbSettings) {
+      setSettings({ ...defaultSettings, ...dbSettings });
+    } else {
+      setSettings(defaultSettings);
+    }
+    setHasChanges(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Setări Generale</h1>
+          <p className="text-muted-foreground">Configurări pentru site și informații de contact</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-60" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {[1, 2, 3].map(j => (
+                  <div key={j} className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -87,11 +163,12 @@ const SettingsPage = () => {
           <p className="text-muted-foreground">Configurări pentru site și informații de contact</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleReset}>
+          <Button variant="outline" onClick={handleReset} disabled={!hasChanges}>
+            <RefreshCw className="mr-2 h-4 w-4" />
             Resetare
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !hasChanges}>
-            {isSaving ? (
+          <Button onClick={handleSave} disabled={saveMutation.isPending || !hasChanges}>
+            {saveMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Se salvează...
