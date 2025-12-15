@@ -94,8 +94,7 @@ interface Commission {
 
 const TRANSACTION_TYPES = [
   "vânzare",
-  "chirie",
-  "colaborare vânzare"
+  "chirie"
 ];
 
 const MONTHS = [
@@ -274,24 +273,19 @@ const CommissionsPage = () => {
     const rentCount = monthCommissions.filter(c => 
       c.transaction_type.toLowerCase().includes('chirie')
     ).length;
-    const collaborationCount = monthCommissions.filter(c => 
-      c.transaction_type.toLowerCase().includes('colaborare')
-    ).length;
     
     return {
       month,
       total: monthCommissions.reduce((sum, c) => sum + c.amount, 0),
       count: monthCommissions.length,
       salesCount,
-      rentCount,
-      collaborationCount
+      rentCount
     };
   }).filter(m => m.count > 0);
 
   const getTransactionBadgeColor = (type: string) => {
     const lowerType = type.toLowerCase();
     if (lowerType.includes('chirie')) return "bg-blue-500";
-    if (lowerType.includes('colaborare')) return "bg-purple-500";
     if (lowerType.includes('parcare') || lowerType.includes('boxă') || lowerType.includes('boxa')) return "bg-orange-500";
     return "bg-green-600";
   };
@@ -585,7 +579,6 @@ const CommissionsPage = () => {
                         const type = c.transaction_type.toLowerCase();
                         let category = 'Vânzări';
                         if (type.includes('chirie')) category = 'Chirii';
-                        else if (type.includes('colaborare')) category = 'Colaborări';
                         else if (type.includes('parcare') || type.includes('boxă') || type.includes('boxa')) category = 'Parcare/Boxă';
                         
                         typeData[category] = (typeData[category] || 0) + c.amount;
@@ -626,7 +619,6 @@ const CommissionsPage = () => {
                     {[
                       { name: 'Vânzări', color: '#22c55e' },
                       { name: 'Chirii', color: '#3b82f6' },
-                      { name: 'Colaborări', color: '#a855f7' },
                       { name: 'Parcare/Boxă', color: '#f97316' }
                     ].map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -745,7 +737,7 @@ const CommissionsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-              {monthlyTotals.map(({ month, total, count, salesCount, rentCount, collaborationCount }) => (
+              {monthlyTotals.map(({ month, total, count, salesCount, rentCount }) => (
                 <div key={month} className="p-3 bg-muted/50 rounded-lg border border-border/50">
                   <p className="text-xs font-medium text-muted-foreground text-center mb-2">{month}</p>
                   <p className="text-sm sm:text-base font-bold text-primary text-center mb-2">€{total.toLocaleString()}</p>
