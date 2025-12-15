@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Building2, 
   CalendarCheck, 
@@ -53,6 +56,24 @@ import { ro } from "date-fns/locale";
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 const DashboardPage = () => {
+  const [selectedDayDetails, setSelectedDayDetails] = useState<{
+    date: string;
+    totalEUR: number;
+    totalRON: number;
+    transactions: { amount: number; currency: string; type: string }[];
+  } | null>(null);
+  
+  const handleSparklineClick = (data: any) => {
+    if (data?.activePayload?.[0]?.payload) {
+      const payload = data.activePayload[0].payload;
+      setSelectedDayDetails({
+        date: payload.fullDate,
+        totalEUR: payload.value || 0,
+        totalRON: payload.valueRON || 0,
+        transactions: payload.transactions || []
+      });
+    }
+  };
   // Fetch properties count with more details
   const { data: propertiesData, isLoading: loadingProperties } = useQuery({
     queryKey: ['dashboard-properties-detailed'],
@@ -271,11 +292,19 @@ const DashboardPage = () => {
       for (let i = 0; i < daysInCurrentMonth; i++) {
         const day = subDays(now, daysInCurrentMonth - 1 - i);
         const dayStr = format(day, 'yyyy-MM-dd');
-        const dayData = data?.filter(c => c.date === dayStr && c.currency === 'EUR') || [];
-        const dayTotal = dayData.reduce((sum, c) => sum + Number(c.amount), 0);
+        const dayData = data?.filter(c => c.date === dayStr) || [];
+        const dayTotalEUR = dayData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
+        const dayTotalRON = dayData.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
         currentMonthDailyTrend.push({
           day: format(day, 'dd'),
-          value: dayTotal
+          fullDate: dayStr,
+          value: dayTotalEUR,
+          valueRON: dayTotalRON,
+          transactions: dayData.map(c => ({
+            amount: Number(c.amount),
+            currency: c.currency,
+            type: c.transaction_type
+          }))
         });
       }
       
@@ -312,11 +341,19 @@ const DashboardPage = () => {
       for (let i = 29; i >= 0; i--) {
         const day = subDays(now, i);
         const dayStr = format(day, 'yyyy-MM-dd');
-        const dayData = data?.filter(c => c.date === dayStr && c.currency === 'EUR') || [];
-        const dayTotal = dayData.reduce((sum, c) => sum + Number(c.amount), 0);
+        const dayData = data?.filter(c => c.date === dayStr) || [];
+        const dayTotalEUR = dayData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
+        const dayTotalRON = dayData.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
         dailyTrend30.push({
           day: format(day, 'dd/MM'),
-          value: dayTotal
+          fullDate: dayStr,
+          value: dayTotalEUR,
+          valueRON: dayTotalRON,
+          transactions: dayData.map(c => ({
+            amount: Number(c.amount),
+            currency: c.currency,
+            type: c.transaction_type
+          }))
         });
       }
       
@@ -591,11 +628,11 @@ const DashboardPage = () => {
                     {Math.abs(commissionsData.monthlyGrowth)}% față de luna trecută
                   </div>
                 )}
-                {/* Sparkline */}
+                {/* Sparkline - clickable */}
                 {commissionsData?.currentMonthDailyTrend && commissionsData.currentMonthDailyTrend.length > 0 && (
-                  <div className="mt-3 h-[40px]">
+                  <div className="mt-3 h-[40px] cursor-pointer" title="Click pentru detalii">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={commissionsData.currentMonthDailyTrend}>
+                      <AreaChart data={commissionsData.currentMonthDailyTrend} onClick={handleSparklineClick}>
                         <defs>
                           <linearGradient id="sparklineGradientMonth" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
@@ -610,7 +647,7 @@ const DashboardPage = () => {
                             fontSize: '11px',
                             padding: '4px 8px'
                           }}
-                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                          formatter={(value: number) => [`${value.toLocaleString()} € (click)`, '']}
                           labelFormatter={(label) => `Ziua ${label}`}
                         />
                         <Area 
@@ -619,6 +656,7 @@ const DashboardPage = () => {
                           stroke="#10b981" 
                           strokeWidth={1.5}
                           fill="url(#sparklineGradientMonth)"
+                          style={{ cursor: 'pointer' }}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -655,11 +693,11 @@ const DashboardPage = () => {
                     {Math.abs(commissionsData.dailyAvgGrowth)}% față de anul trecut
                   </div>
                 )}
-                {/* Sparkline */}
+                {/* Sparkline - clickable */}
                 {commissionsData?.dailyTrend30 && commissionsData.dailyTrend30.length > 0 && (
-                  <div className="mt-3 h-[40px]">
+                  <div className="mt-3 h-[40px] cursor-pointer" title="Click pentru detalii">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={commissionsData.dailyTrend30}>
+                      <AreaChart data={commissionsData.dailyTrend30} onClick={handleSparklineClick}>
                         <defs>
                           <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#DAA520" stopOpacity={0.4}/>
@@ -674,7 +712,7 @@ const DashboardPage = () => {
                             fontSize: '11px',
                             padding: '4px 8px'
                           }}
-                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                          formatter={(value: number) => [`${value.toLocaleString()} € (click)`, '']}
                           labelFormatter={(label) => label}
                         />
                         <Area 
@@ -683,6 +721,7 @@ const DashboardPage = () => {
                           stroke="#DAA520" 
                           strokeWidth={1.5}
                           fill="url(#sparklineGradient)"
+                          style={{ cursor: 'pointer' }}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
@@ -979,6 +1018,65 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Day Details Dialog */}
+      <Dialog open={!!selectedDayDetails} onOpenChange={() => setSelectedDayDetails(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarCheck className="h-5 w-5 text-gold" />
+              Detalii Comisioane - {selectedDayDetails?.date ? format(parseISO(selectedDayDetails.date), 'dd MMMM yyyy', { locale: ro }) : ''}
+            </DialogTitle>
+            <DialogDescription>
+              Comisioanele înregistrate în această zi
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedDayDetails && (
+            <div className="space-y-4">
+              {/* Totals */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg bg-gold/10 text-center">
+                  <p className="text-2xl font-bold text-gold">{selectedDayDetails.totalEUR.toLocaleString()} €</p>
+                  <p className="text-xs text-muted-foreground">Total EUR</p>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-500/10 text-center">
+                  <p className="text-2xl font-bold text-blue-500">{selectedDayDetails.totalRON.toLocaleString()} RON</p>
+                  <p className="text-xs text-muted-foreground">Total RON</p>
+                </div>
+              </div>
+
+              {/* Transactions Table */}
+              {selectedDayDetails.transactions.length > 0 ? (
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tip</TableHead>
+                        <TableHead className="text-right">Sumă</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedDayDetails.transactions.map((tx, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="capitalize">{tx.type || 'N/A'}</TableCell>
+                          <TableCell className="text-right font-medium">
+                            {tx.amount.toLocaleString()} {tx.currency}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  Nu există comisioane în această zi
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
