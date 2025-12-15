@@ -675,41 +675,6 @@ const DashboardPage = () => {
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Viewings Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarCheck className="h-5 w-5 text-blue-500" />
-              Trend Vizionări (6 luni)
-            </CardTitle>
-            <CardDescription>Evoluția programărilor de vizionare</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[280px]">
-            {loadingViewings ? (
-              <Skeleton className="h-full w-full" />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={viewingsData?.monthlyTrend || []}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="total" fill="#3b82f6" name="Total" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="completed" fill="#10b981" name="Finalizate" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cancelled" fill="#ef4444" name="Anulate" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Complex Breakdown */}
         <Card>
           <CardHeader>
