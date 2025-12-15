@@ -751,6 +751,10 @@ const CommissionsPage = () => {
                   <p className="text-sm sm:text-base font-bold text-primary text-center">€{total.toLocaleString()}</p>
                   <p className="text-[10px] text-muted-foreground text-center mb-2">{count} tranzacții</p>
                   <div className="space-y-1 border-t border-border/50 pt-2 mt-2">
+                    <div className="flex items-center justify-between text-[10px] pb-1 border-b border-border/30 mb-1">
+                      <span className="text-foreground font-semibold">Total</span>
+                      <span className="font-bold text-foreground">{count}</span>
+                    </div>
                     <div className="flex items-center justify-between text-[10px]">
                       <span className="text-green-500 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
