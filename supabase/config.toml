@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.google-reviews]
 verify_jwt = false
+
+[functions.plausible-analytics]
+verify_jwt = false
