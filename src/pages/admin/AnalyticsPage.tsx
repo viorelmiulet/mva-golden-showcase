@@ -47,7 +47,7 @@ interface AnalyticsData {
   bounceRate: number;
   dailyData: { date: string; visitors: number; pageviews: number }[];
   topPages: { page: string; visitors: number; pageviews: number }[];
-  topSources: { source: string; visitors: number }[];
+  sources: { source: string; visitors: number }[];
   devices: { device: string; visitors: number }[];
   countries: { country: string; visitors: number }[];
 }
@@ -56,16 +56,10 @@ const AnalyticsPage = () => {
   const [days, setDays] = useState("7");
   
   const { data, isLoading, error, refetch, isFetching } = useQuery<AnalyticsData>({
-    queryKey: ['analytics', days],
+    queryKey: ['google-analytics', days],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('plausible-analytics', {
-        body: null,
-        headers: {},
-      });
-      
-      // Pass days as query param by calling the function URL directly
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/plausible-analytics?days=${days}`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-analytics?days=${days}`,
         {
           headers: {
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
@@ -74,7 +68,8 @@ const AnalyticsPage = () => {
       );
       
       if (!response.ok) {
-        throw new Error('Failed to fetch analytics');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to fetch analytics');
       }
       
       return response.json();
@@ -106,7 +101,7 @@ const AnalyticsPage = () => {
           <CardHeader>
             <CardTitle className="text-destructive">Eroare la încărcarea datelor</CardTitle>
             <CardDescription>
-              Nu am putut încărca datele de analytics. Verifică dacă cheia API Plausible este configurată corect.
+              Nu am putut încărca datele de analytics. Verifică dacă cheile GA4 sunt configurate corect.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -126,7 +121,7 @@ const AnalyticsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Analytics Trafic</h1>
-          <p className="text-muted-foreground">Monitorizează traficul site-ului în timp real</p>
+          <p className="text-muted-foreground">Date din Google Analytics 4</p>
         </div>
         <div className="flex items-center gap-3">
           <Select value={days} onValueChange={setDays}>
@@ -150,12 +145,12 @@ const AnalyticsPage = () => {
           </Button>
           <Button variant="outline" asChild>
             <a 
-              href="https://plausible.io/mvaimobiliare.ro" 
+              href="https://analytics.google.com" 
               target="_blank" 
               rel="noopener noreferrer"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Plausible
+              Google Analytics
             </a>
           </Button>
         </div>
@@ -328,8 +323,8 @@ const AnalyticsPage = () => {
                   <Skeleton className="h-[200px] w-full" />
                 ) : (
                   <div className="space-y-3">
-                    {data?.topSources?.slice(0, 5).map((source, index) => {
-                      const total = data.topSources.reduce((acc, s) => acc + s.visitors, 0);
+                    {data?.sources?.slice(0, 5).map((source, index) => {
+                      const total = data.sources.reduce((acc, s) => acc + s.visitors, 0);
                       const percentage = total > 0 ? ((source.visitors / total) * 100).toFixed(1) : 0;
                       return (
                         <div key={source.source} className="flex items-center justify-between">
@@ -388,7 +383,7 @@ const AnalyticsPage = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={data?.topSources?.slice(0, 6) || []}
+                      data={data?.sources?.slice(0, 6) || []}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -398,7 +393,7 @@ const AnalyticsPage = () => {
                       dataKey="visitors"
                       nameKey="source"
                     >
-                      {data?.topSources?.slice(0, 6).map((entry, index) => (
+                      {data?.sources?.slice(0, 6).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
