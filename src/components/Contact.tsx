@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
+import { usePlausible } from "@/hooks/usePlausible"
 import { 
   Phone, 
   Mail, 
@@ -18,6 +19,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 
 const Contact = () => {
   const { data: settings } = useSiteSettings();
+  const { trackContact } = usePlausible();
   const [formData, setFormData] = useState({
     nume: '',
     prenume: '',
@@ -67,6 +69,9 @@ const Contact = () => {
       }
 
       console.log('Email sent successfully:', data);
+
+      // Track form submission
+      trackContact('form', 'contact_page');
 
       toast({
         title: "Mesaj trimis cu succes!",

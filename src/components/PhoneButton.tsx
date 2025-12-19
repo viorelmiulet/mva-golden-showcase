@@ -1,19 +1,26 @@
 import { useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { usePlausible } from '@/hooks/usePlausible';
 
 const PhoneButton = () => {
   const location = useLocation();
+  const { trackContact } = usePlausible();
   
   // Hide on admin routes
   if (location.pathname.startsWith('/admin')) {
     return null;
   }
 
+  const handleClick = () => {
+    trackContact('phone', 'floating_button');
+  };
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <a
           href="tel:+40767941512"
+          onClick={handleClick}
           className="group fixed bottom-20 right-4 z-50 flex items-center justify-center w-14 h-14 bg-primary text-black rounded-full shadow-lg transition-all duration-300 active:scale-95 touch-manipulation hover:scale-110 hover:shadow-[0_0_25px_hsl(var(--primary)/0.6)] hover:rotate-[15deg]"
           aria-label="Sună-ne acum"
         >

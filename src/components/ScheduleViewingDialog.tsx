@@ -15,6 +15,7 @@ import { Calendar, Clock, User, Phone, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { usePlausible } from "@/hooks/usePlausible";
 
 const scheduleSchema = z.object({
   name: z.string().trim().min(2, "Numele trebuie să aibă cel puțin 2 caractere").max(100, "Numele este prea lung"),
@@ -47,6 +48,7 @@ export const ScheduleViewingDialog = ({
     message: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { trackViewingScheduled } = usePlausible();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -118,6 +120,9 @@ export const ScheduleViewingDialog = ({
         console.error('Error sending email notification:', emailError);
         // Don't fail the whole operation if email fails, appointment is already saved
       }
+
+      // Track successful viewing scheduled
+      trackViewingScheduled(propertyId, propertyTitle);
 
       toast.success("Cererea de vizionare a fost trimisă cu succes! Veți fi contactat în curând.");
       setOpen(false);

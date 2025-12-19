@@ -30,6 +30,7 @@ import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import MortgageCalculator from "@/components/MortgageCalculator";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
+import { usePlausible } from "@/hooks/usePlausible";
 
 interface Property {
   id: string;
@@ -58,6 +59,7 @@ const PropertyDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
+  const { trackProperty, trackContact } = usePlausible();
 
   useEffect(() => {
     if (!id) {
@@ -70,7 +72,9 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (property) {
       fetchSimilarProperties();
-      // Track property view
+      // Track property view in Plausible
+      trackProperty('view', property.id, property.title);
+      // Track property view in recently viewed
       addToRecentlyViewed({
         id: property.id,
         title: property.title,
@@ -134,6 +138,9 @@ const PropertyDetail = () => {
   const shareProperty = async () => {
     const url = window.location.href;
     
+    // Track share event
+    trackProperty('share', property?.id || '', property?.title);
+    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -157,6 +164,9 @@ const PropertyDetail = () => {
   };
 
   const contactWhatsApp = () => {
+    // Track WhatsApp contact
+    trackContact('whatsapp', 'property_detail', property?.id);
+    
     const message = `Bună ziua! Sunt interesat de proprietatea: ${property?.title} - ${window.location.href}`;
     window.open(
       `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,

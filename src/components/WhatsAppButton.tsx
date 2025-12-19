@@ -1,13 +1,19 @@
 import { useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { usePlausible } from '@/hooks/usePlausible';
 
 const WhatsAppButton = () => {
   const location = useLocation();
+  const { trackContact } = usePlausible();
   
   // Hide on admin routes
   if (location.pathname.startsWith('/admin')) {
     return null;
   }
+
+  const handleClick = () => {
+    trackContact('whatsapp', 'floating_button');
+  };
 
   return (
     <Tooltip>
@@ -16,6 +22,7 @@ const WhatsAppButton = () => {
           href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamentele%20din%20portofoliul%20vostru.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleClick}
           className="group fixed bottom-4 right-4 z-50 flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg transition-all duration-300 active:scale-95 touch-manipulation hover:scale-110 hover:shadow-[0_0_25px_rgba(37,211,102,0.6)] hover:rotate-[15deg]"
           aria-label="Contactează-ne pe WhatsApp"
         >
