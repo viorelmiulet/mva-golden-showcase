@@ -38,6 +38,3 @@ verify_jwt = false
 
 [functions.plausible-analytics]
 verify_jwt = false
-
-[functions.google-analytics]
-verify_jwt = false
