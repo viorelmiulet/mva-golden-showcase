@@ -14,6 +14,17 @@ interface GACredentials {
 }
 
 async function getAccessToken(credentials: GACredentials): Promise<string> {
+  console.log('Getting access token for:', credentials.client_email);
+  
+  if (!credentials.client_email || !credentials.private_key) {
+    console.error('Invalid credentials:', {
+      hasClientEmail: !!credentials.client_email,
+      hasPrivateKey: !!credentials.private_key,
+      credentialsKeys: Object.keys(credentials || {})
+    });
+    throw new Error('Invalid service account credentials: missing client_email or private_key');
+  }
+
   const header = {
     alg: 'RS256',
     typ: 'JWT',
@@ -222,11 +233,25 @@ serve(async (req) => {
     const propertyId = Deno.env.get('GA4_PROPERTY_ID');
     const serviceAccountKey = Deno.env.get('GA4_SERVICE_ACCOUNT_KEY');
     
+    console.log('Property ID:', propertyId);
+    console.log('Service Account Key exists:', !!serviceAccountKey);
+    console.log('Service Account Key length:', serviceAccountKey?.length);
+    
     if (!propertyId || !serviceAccountKey) {
       throw new Error('GA4_PROPERTY_ID or GA4_SERVICE_ACCOUNT_KEY not configured');
     }
 
-    const credentials: GACredentials = JSON.parse(serviceAccountKey);
+    let credentials: GACredentials;
+    try {
+      credentials = JSON.parse(serviceAccountKey);
+      console.log('Parsed credentials - client_email:', credentials.client_email);
+      console.log('Parsed credentials - has private_key:', !!credentials.private_key);
+    } catch (parseError) {
+      console.error('Failed to parse service account key as JSON:', parseError);
+      console.error('Service account key first 50 chars:', serviceAccountKey.substring(0, 50));
+      throw new Error('Invalid GA4_SERVICE_ACCOUNT_KEY: not valid JSON. Please paste the entire content of the JSON key file.');
+    }
+    
     const accessToken = await getAccessToken(credentials);
 
     const endDate = 'today';
