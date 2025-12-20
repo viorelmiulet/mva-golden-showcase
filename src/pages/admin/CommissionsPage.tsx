@@ -1215,6 +1215,23 @@ const CommissionsPage = () => {
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex items-center justify-end gap-1">
+                                  {commission.invoice_file_url && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      asChild
+                                      className="text-primary hover:text-primary hover:bg-primary/10"
+                                    >
+                                      <a
+                                        href={commission.invoice_file_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="Descarcă factura PDF"
+                                      >
+                                        <FileText className="h-4 w-4" />
+                                      </a>
+                                    </Button>
+                                  )}
                                   <Button
                                     variant="ghost"
                                     size="icon"
