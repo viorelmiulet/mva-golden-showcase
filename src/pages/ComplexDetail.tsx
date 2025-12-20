@@ -33,8 +33,10 @@ import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 import { ComplexDetailSkeleton } from "@/components/skeletons";
+import { usePlausible } from "@/hooks/usePlausible";
 
 const ComplexDetail = () => {
+  const { trackComplex } = usePlausible();
   const { id } = useParams<{ id: string }>();
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
@@ -60,6 +62,13 @@ const ComplexDetail = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Track complex view
+  useEffect(() => {
+    if (id) {
+      trackComplex('view', id);
+    }
+  }, [id, trackComplex]);
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['public-project', id],
@@ -459,7 +468,12 @@ const ComplexDetail = () => {
               </div>
               
               {/* Rooms Filter */}
-              <Select value={filterRooms} onValueChange={setFilterRooms}>
+              <Select value={filterRooms} onValueChange={(value) => {
+                setFilterRooms(value);
+                if (value !== "all" && id) {
+                  trackComplex('filter', id, project?.name);
+                }
+              }}>
                 <SelectTrigger className="w-[130px] sm:w-[150px] h-8 sm:h-9 text-xs sm:text-sm">
                   <SelectValue placeholder="Camere" />
                 </SelectTrigger>
