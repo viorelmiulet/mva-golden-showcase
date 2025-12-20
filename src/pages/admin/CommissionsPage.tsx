@@ -116,6 +116,7 @@ const CommissionsPage = () => {
     date: "",
     amount: "",
     currency: "EUR",
+    has_invoice: "nu",
     invoice_number: "",
     transaction_type: "vânzare",
     notes: ""
@@ -196,6 +197,7 @@ const CommissionsPage = () => {
       date: "",
       amount: "",
       currency: "EUR",
+      has_invoice: "nu",
       invoice_number: "",
       transaction_type: "vânzare",
       notes: ""
@@ -227,6 +229,7 @@ const CommissionsPage = () => {
       date: commission.date,
       amount: commission.amount.toString(),
       currency: commission.currency,
+      has_invoice: commission.invoice_number ? "da" : "nu",
       invoice_number: commission.invoice_number || "",
       transaction_type: commission.transaction_type,
       notes: commission.notes || ""
@@ -413,14 +416,36 @@ const CommissionsPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="invoice_number">Număr Factură (opțional)</Label>
-                <Input
-                  id="invoice_number"
-                  placeholder="MVA-2025-001"
-                  value={formData.invoice_number}
-                  onChange={(e) => setFormData(prev => ({ ...prev, invoice_number: e.target.value }))}
-                />
+                <Label>Factură</Label>
+                <Select 
+                  value={formData.has_invoice} 
+                  onValueChange={(value) => setFormData(prev => ({ 
+                    ...prev, 
+                    has_invoice: value,
+                    invoice_number: value === "nu" ? "" : prev.invoice_number
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="da">Cu Factură</SelectItem>
+                    <SelectItem value="nu">Fără Factură</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {formData.has_invoice === "da" && (
+                <div className="space-y-2">
+                  <Label htmlFor="invoice_number">Număr Factură</Label>
+                  <Input
+                    id="invoice_number"
+                    placeholder="MVA-2025-001"
+                    value={formData.invoice_number}
+                    onChange={(e) => setFormData(prev => ({ ...prev, invoice_number: e.target.value }))}
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Note (opțional)</Label>
