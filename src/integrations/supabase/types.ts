@@ -182,6 +182,7 @@ export type Database = {
           currency: string
           date: string
           id: string
+          invoice_file_url: string | null
           invoice_number: string | null
           notes: string | null
           transaction_type: string
@@ -193,6 +194,7 @@ export type Database = {
           currency?: string
           date: string
           id?: string
+          invoice_file_url?: string | null
           invoice_number?: string | null
           notes?: string | null
           transaction_type: string
@@ -204,6 +206,7 @@ export type Database = {
           currency?: string
           date?: string
           id?: string
+          invoice_file_url?: string | null
           invoice_number?: string | null
           notes?: string | null
           transaction_type?: string

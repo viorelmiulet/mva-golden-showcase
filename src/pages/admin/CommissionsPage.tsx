@@ -61,7 +61,10 @@ import {
   PieChart,
   ChevronDown,
   ChevronUp,
-  Download
+  Download,
+  Upload,
+  File,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, parseISO, getMonth, getYear } from "date-fns";
@@ -86,6 +89,7 @@ interface Commission {
   amount: number;
   currency: string;
   invoice_number: string | null;
+  invoice_file_url: string | null;
   transaction_type: string;
   notes: string | null;
   created_at: string;
@@ -121,6 +125,9 @@ const CommissionsPage = () => {
     transaction_type: "vânzare",
     notes: ""
   });
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
+  const [existingInvoiceUrl, setExistingInvoiceUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: commissions, isLoading } = useQuery({
     queryKey: ['commissions'],
@@ -202,25 +209,100 @@ const CommissionsPage = () => {
       transaction_type: "vânzare",
       notes: ""
     });
+    setInvoiceFile(null);
+    setExistingInvoiceUrl(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const data = {
-      date: formData.date,
-      amount: parseFloat(formData.amount),
-      currency: formData.currency,
-      invoice_number: formData.invoice_number || null,
-      transaction_type: formData.transaction_type,
-      notes: formData.notes || null
-    };
+  const uploadInvoiceFile = async (file: File, commissionId: string): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${commissionId}-${Date.now()}.${fileExt}`;
+    const filePath = `invoices/${fileName}`;
 
-    if (editingCommission) {
-      updateMutation.mutate({ id: editingCommission.id, data });
-    } else {
-      addMutation.mutate(data);
+    const { error: uploadError } = await supabase.storage
+      .from('invoice-files')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError);
+      throw uploadError;
     }
+
+    const { data } = supabase.storage
+      .from('invoice-files')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUploading(true);
+    
+    try {
+      const data: any = {
+        date: formData.date,
+        amount: parseFloat(formData.amount),
+        currency: formData.currency,
+        invoice_number: formData.invoice_number || null,
+        transaction_type: formData.transaction_type,
+        notes: formData.notes || null
+      };
+
+      if (editingCommission) {
+        // Handle file upload for existing commission
+        if (invoiceFile) {
+          const fileUrl = await uploadInvoiceFile(invoiceFile, editingCommission.id);
+          data.invoice_file_url = fileUrl;
+        }
+        updateMutation.mutate({ id: editingCommission.id, data });
+      } else {
+        // For new commission, first insert then upload file
+        const { data: newCommission, error } = await supabase
+          .from('commissions')
+          .insert(data)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        if (invoiceFile && newCommission) {
+          const fileUrl = await uploadInvoiceFile(invoiceFile, newCommission.id);
+          await supabase
+            .from('commissions')
+            .update({ invoice_file_url: fileUrl })
+            .eq('id', newCommission.id);
+        }
+
+        queryClient.invalidateQueries({ queryKey: ['commissions'] });
+        toast.success("Comision adăugat cu succes!");
+        setIsAddDialogOpen(false);
+        resetForm();
+      }
+    } catch (error) {
+      console.error('Error saving commission:', error);
+      toast.error("Eroare la salvarea comisionului");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast.error("Doar fișiere PDF sunt acceptate");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast.error("Fișierul trebuie să fie mai mic de 10MB");
+        return;
+      }
+      setInvoiceFile(file);
+    }
+  };
+
+  const removeInvoiceFile = () => {
+    setInvoiceFile(null);
   };
 
   const openEditDialog = (commission: Commission) => {
@@ -234,6 +316,8 @@ const CommissionsPage = () => {
       transaction_type: commission.transaction_type,
       notes: commission.notes || ""
     });
+    setExistingInvoiceUrl(commission.invoice_file_url);
+    setInvoiceFile(null);
   };
 
   // Filter commissions
@@ -436,15 +520,73 @@ const CommissionsPage = () => {
               </div>
 
               {formData.has_invoice === "da" && (
-                <div className="space-y-2">
-                  <Label htmlFor="invoice_number">Număr Factură</Label>
-                  <Input
-                    id="invoice_number"
-                    placeholder="MVA-2025-001"
-                    value={formData.invoice_number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, invoice_number: e.target.value }))}
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="invoice_number">Număr Factură</Label>
+                    <Input
+                      id="invoice_number"
+                      placeholder="MVA-2025-001"
+                      value={formData.invoice_number}
+                      onChange={(e) => setFormData(prev => ({ ...prev, invoice_number: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Fișier Factură (PDF)</Label>
+                    {existingInvoiceUrl && !invoiceFile && (
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                        <File className="h-4 w-4 text-primary" />
+                        <a 
+                          href={existingInvoiceUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline truncate flex-1"
+                        >
+                          Factură existentă
+                        </a>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExistingInvoiceUrl(null)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    {invoiceFile ? (
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                        <File className="h-4 w-4 text-primary" />
+                        <span className="text-sm truncate flex-1">{invoiceFile.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeInvoiceFile}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleFileChange}
+                          className="hidden"
+                          id="invoice-file-input"
+                        />
+                        <Label
+                          htmlFor="invoice-file-input"
+                          className="flex items-center justify-center gap-2 p-3 border-2 border-dashed rounded-md cursor-pointer hover:border-primary hover:bg-muted/50 transition-colors"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span className="text-sm">Încarcă PDF factură</span>
+                        </Label>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
 
               <div className="space-y-2">
@@ -460,12 +602,12 @@ const CommissionsPage = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={addMutation.isPending || updateMutation.isPending}
+                disabled={addMutation.isPending || updateMutation.isPending || isUploading}
               >
-                {(addMutation.isPending || updateMutation.isPending) ? (
+                {(addMutation.isPending || updateMutation.isPending || isUploading) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Se salvează...
+                    {isUploading ? "Se încarcă..." : "Se salvează..."}
                   </>
                 ) : editingCommission ? "Actualizează" : "Adaugă"}
               </Button>
