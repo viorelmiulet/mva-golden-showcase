@@ -9,8 +9,10 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ComplexGridSkeleton } from "@/components/skeletons";
+import { usePlausible } from "@/hooks/usePlausible";
 
 const Complexe = () => {
+  const { trackComplex } = usePlausible();
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
   
   const { data: projects, isLoading } = useQuery({
@@ -158,6 +160,7 @@ const Complexe = () => {
                     key={project.id} 
                     to={`/complexe/${project.id}`}
                     className="group"
+                    onClick={() => trackComplex('click_details', project.id, project.name)}
                   >
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/50 h-full">
                       {/* Project Image */}
@@ -185,6 +188,7 @@ const Complexe = () => {
                             e.preventDefault();
                             e.stopPropagation();
                             toggleFavorite(project.id, 'complex');
+                            trackComplex('favorite', project.id, project.name);
                           }}
                         >
                           <Heart 
