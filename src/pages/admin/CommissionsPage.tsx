@@ -1159,6 +1159,11 @@ const CommissionsPage = () => {
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-4 w-4 text-muted-foreground hidden sm:block" />
                                   {format(parseISO(commission.date), "dd MMM", { locale: ro })}
+                                  {commission.invoice_file_url && (
+                                    <div className="flex items-center" title="Factură PDF atașată">
+                                      <FileText className="h-4 w-4 text-green-500" />
+                                    </div>
+                                  )}
                                 </div>
                               </TableCell>
                               <TableCell>
