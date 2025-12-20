@@ -64,7 +64,8 @@ import {
   Download,
   Upload,
   File,
-  X
+  X,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, parseISO, getMonth, getYear } from "date-fns";
@@ -128,6 +129,7 @@ const CommissionsPage = () => {
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [existingInvoiceUrl, setExistingInvoiceUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
 
   const { data: commissions, isLoading } = useQuery({
     queryKey: ['commissions'],
@@ -1219,16 +1221,27 @@ const CommissionsPage = () => {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      asChild
+                                      onClick={() => setPreviewPdfUrl(commission.invoice_file_url)}
                                       className="text-primary hover:text-primary hover:bg-primary/10"
+                                      title="Previzualizare factură"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                  {commission.invoice_file_url && (
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      asChild
+                                      className="text-muted-foreground hover:text-foreground"
+                                      title="Descarcă factura PDF"
                                     >
                                       <a
                                         href={commission.invoice_file_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        title="Descarcă factura PDF"
                                       >
-                                        <FileText className="h-4 w-4" />
+                                        <Download className="h-4 w-4" />
                                       </a>
                                     </Button>
                                   )}
@@ -1282,6 +1295,26 @@ const CommissionsPage = () => {
           );
         });
       })()}
+      {/* PDF Preview Modal */}
+      <Dialog open={!!previewPdfUrl} onOpenChange={(open) => !open && setPreviewPdfUrl(null)}>
+        <DialogContent className="max-w-4xl h-[85vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Previzualizare Factură
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 h-full min-h-0">
+            {previewPdfUrl && (
+              <iframe
+                src={previewPdfUrl}
+                className="w-full h-[calc(85vh-100px)] rounded-lg border"
+                title="Previzualizare PDF"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
