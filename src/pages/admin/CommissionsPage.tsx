@@ -305,6 +305,40 @@ const CommissionsPage = () => {
     setInvoiceFile(null);
   };
 
+  const deleteExistingInvoiceFile = async (commissionId: string, fileUrl: string) => {
+    try {
+      // Extract file path from URL
+      const urlParts = fileUrl.split('/invoice-files/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        
+        // Delete from storage
+        const { error: deleteStorageError } = await supabase.storage
+          .from('invoice-files')
+          .remove([filePath]);
+        
+        if (deleteStorageError) {
+          console.error('Error deleting file from storage:', deleteStorageError);
+        }
+      }
+
+      // Update commission record to remove file URL
+      const { error: updateError } = await supabase
+        .from('commissions')
+        .update({ invoice_file_url: null })
+        .eq('id', commissionId);
+
+      if (updateError) throw updateError;
+
+      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+      setExistingInvoiceUrl(null);
+      toast.success("Fișierul facturii a fost șters");
+    } catch (error) {
+      console.error('Error deleting invoice file:', error);
+      toast.error("Eroare la ștergerea fișierului");
+    }
+  };
+
   const openEditDialog = (commission: Commission) => {
     setEditingCommission(commission);
     setFormData({
@@ -533,7 +567,7 @@ const CommissionsPage = () => {
 
                   <div className="space-y-2">
                     <Label>Fișier Factură (PDF)</Label>
-                    {existingInvoiceUrl && !invoiceFile && (
+                    {existingInvoiceUrl && !invoiceFile && editingCommission && (
                       <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
                         <File className="h-4 w-4 text-primary" />
                         <a 
@@ -544,14 +578,35 @@ const CommissionsPage = () => {
                         >
                           Factură existentă
                         </a>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setExistingInvoiceUrl(null)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Șterge fișierul facturii?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Această acțiune va șterge permanent fișierul PDF al facturii. Acțiunea nu poate fi anulată.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Anulează</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteExistingInvoiceFile(editingCommission.id, existingInvoiceUrl)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Șterge
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     )}
                     {invoiceFile ? (
