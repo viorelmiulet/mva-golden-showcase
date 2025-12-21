@@ -253,10 +253,12 @@ export type Database = {
           contract_date: string
           contract_type: string
           created_at: string
+          docx_url: string | null
           duration_months: number | null
           id: string
           notes: string | null
           pdf_generated: boolean | null
+          pdf_url: string | null
           property_address: string
           property_currency: string | null
           property_price: number | null
@@ -273,10 +275,12 @@ export type Database = {
           contract_date: string
           contract_type: string
           created_at?: string
+          docx_url?: string | null
           duration_months?: number | null
           id?: string
           notes?: string | null
           pdf_generated?: boolean | null
+          pdf_url?: string | null
           property_address: string
           property_currency?: string | null
           property_price?: number | null
@@ -293,10 +297,12 @@ export type Database = {
           contract_date?: string
           contract_type?: string
           created_at?: string
+          docx_url?: string | null
           duration_months?: number | null
           id?: string
           notes?: string | null
           pdf_generated?: boolean | null
+          pdf_url?: string | null
           property_address?: string
           property_currency?: string | null
           property_price?: number | null
