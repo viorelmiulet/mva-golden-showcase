@@ -55,6 +55,7 @@ interface ContractData {
   moneda: "EUR" | "RON";
   numar_camere: string;
   data_contract: string;
+  data_incepere: string;
   durata_inchiriere: string;
 }
 
@@ -101,6 +102,7 @@ const ContractGeneratorPage = () => {
     moneda: "EUR",
     numar_camere: "1",
     data_contract: new Date().toISOString().split('T')[0],
+    data_incepere: new Date().toISOString().split('T')[0],
     durata_inchiriere: "12",
   });
   
@@ -355,7 +357,7 @@ const ContractGeneratorPage = () => {
 
       // III. DURATA
       addSection("III. DURATA");
-      addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
+      addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_incepere || contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
       y += 5;
 
       // IV. CHIRIA SI MODALITATI DE PLATA
@@ -493,6 +495,7 @@ const ContractGeneratorPage = () => {
       moneda: "EUR",
       numar_camere: "1",
       data_contract: new Date().toISOString().split('T')[0],
+      data_incepere: new Date().toISOString().split('T')[0],
       durata_inchiriere: "12",
     });
     if (fileInputProprietarRef.current) fileInputProprietarRef.current.value = "";
@@ -777,14 +780,25 @@ const ContractGeneratorPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Data Contract</Label>
-              <Input
-                type="date"
-                value={contractData.data_contract}
-                onChange={(e) => setContractData(prev => ({ ...prev, data_contract: e.target.value }))}
-                className="h-9"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Data Semnării</Label>
+                <Input
+                  type="date"
+                  value={contractData.data_contract}
+                  onChange={(e) => setContractData(prev => ({ ...prev, data_contract: e.target.value }))}
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Data Începerii</Label>
+                <Input
+                  type="date"
+                  value={contractData.data_incepere}
+                  onChange={(e) => setContractData(prev => ({ ...prev, data_incepere: e.target.value }))}
+                  className="h-9"
+                />
+              </div>
             </div>
 
             <div className="space-y-1">
