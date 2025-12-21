@@ -934,12 +934,48 @@ const ContractGeneratorPage = () => {
       y += 3;
 
       addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
+      y += 10;
 
-      // Signature dimensions - declared here for use in both contract and Anexa 1
+      // Signature dimensions
       const signatureHeight = 25;
       const signatureWidth = 50;
 
-      // INVENTAR - Add inventory section if items exist
+      // SEMNATURI CONTRACT (doar pe contract, înainte de anexă)
+      if (y > 200) {
+        doc.addPage();
+        y = 30;
+      }
+      doc.setFont("times", "bold");
+      doc.text("PROPRIETAR", margin, y);
+      doc.text("CHIRIAS", pageWidth - margin - 30, y);
+      y += 8;
+      doc.setFont("times", "normal");
+      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+      y += 8;
+      
+      // Add signatures
+      if (proprietarSignature) {
+        try {
+          doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
+        } catch (e) {
+          console.error('Error adding proprietar signature:', e);
+        }
+      } else {
+        doc.text("(nesemnat)", margin, y + 10);
+      }
+      
+      if (chiriasSignature) {
+        try {
+          doc.addImage(chiriasSignature, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
+        } catch (e) {
+          console.error('Error adding chirias signature:', e);
+        }
+      } else {
+        doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
+      }
+
+      // INVENTAR - Add inventory section if items exist (pe pagină separată, fără semnături)
       if (contractInventory.length > 0) {
         doc.addPage();
         y = 25;
@@ -1077,78 +1113,6 @@ const ContractGeneratorPage = () => {
             y += imageHeight + 10;
           }
         }
-        
-        // SEMNATURI ANEXA 1
-        if (y > 200) {
-          doc.addPage();
-          y = 30;
-        }
-        doc.setFont("times", "bold");
-        doc.text("PROPRIETAR", margin, y);
-        doc.text("CHIRIAS", pageWidth - margin - 30, y);
-        y += 8;
-        doc.setFont("times", "normal");
-        doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-        doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
-        y += 8;
-        
-        // Add both signatures on Anexa 1
-        if (proprietarSignature) {
-          try {
-            doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
-          } catch (e) {
-            console.error('Error adding proprietar signature to Anexa 1:', e);
-          }
-        } else {
-          doc.text("(nesemnat)", margin, y + 10);
-        }
-        
-        if (chiriasSignature) {
-          try {
-            doc.addImage(chiriasSignature, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
-          } catch (e) {
-            console.error('Error adding chirias signature to Anexa 1:', e);
-          }
-        } else {
-          doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
-        }
-        
-        y += signatureHeight + 10;
-      }
-
-      // SEMNATURI
-      if (y > 200) {
-        doc.addPage();
-        y = 30;
-      }
-      doc.setFont("times", "bold");
-      doc.text("PROPRIETAR", margin, y);
-      doc.text("CHIRIAS", pageWidth - margin - 30, y);
-      y += 8;
-      doc.setFont("times", "normal");
-      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
-      y += 8;
-      
-      // Add both signatures
-      if (proprietarSignature) {
-        try {
-          doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
-        } catch (e) {
-          console.error('Error adding proprietar signature:', e);
-        }
-      } else {
-        doc.text("(nesemnat)", margin, y + 10);
-      }
-      
-      if (chiriasSignature) {
-        try {
-          doc.addImage(chiriasSignature, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
-        } catch (e) {
-          console.error('Error adding chirias signature:', e);
-        }
-      } else {
-        doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
       }
 
       // Generate and upload new PDF
