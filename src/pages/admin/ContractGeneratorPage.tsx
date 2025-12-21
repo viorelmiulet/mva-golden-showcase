@@ -70,6 +70,8 @@ interface SavedContract {
   property_price: number | null;
   contract_type: string;
   contract_date: string;
+  pdf_url: string | null;
+  docx_url: string | null;
 }
 
 const emptyPerson: PersonData = {
@@ -121,7 +123,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date')
+        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date, pdf_url, docx_url')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -238,7 +240,7 @@ const ContractGeneratorPage = () => {
     }
   };
 
-  const saveContractToDatabase = async () => {
+  const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
     try {
       const { error } = await supabase.from('contracts').insert({
         client_name: contractData.chirias.nume,
@@ -255,6 +257,8 @@ const ContractGeneratorPage = () => {
         contract_date: contractData.data_contract,
         duration_months: contractData.durata_inchiriere ? parseInt(contractData.durata_inchiriere) : null,
         pdf_generated: true,
+        pdf_url: pdfUrl || null,
+        docx_url: docxUrl || null,
       });
 
       if (error) throw error;
@@ -262,6 +266,55 @@ const ContractGeneratorPage = () => {
     } catch (error: any) {
       console.error('Error saving contract:', error);
       throw error;
+    }
+  };
+
+  const uploadContractFile = async (blob: Blob, fileName: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('contracts')
+        .upload(fileName, blob, {
+          contentType: blob.type,
+          upsert: true,
+        });
+
+      if (error) {
+        console.error('Error uploading contract:', error);
+        return null;
+      }
+
+      return data.path;
+    } catch (error) {
+      console.error('Error uploading contract:', error);
+      return null;
+    }
+  };
+
+  const downloadContract = async (contract: SavedContract, type: 'pdf' | 'docx') => {
+    const filePath = type === 'pdf' ? contract.pdf_url : contract.docx_url;
+    if (!filePath) {
+      toast.error(`Fișierul ${type.toUpperCase()} nu este disponibil`);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.storage
+        .from('contracts')
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filePath.split('/').pop() || `contract.${type}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error('Error downloading contract:', error);
+      toast.error('Eroare la descărcarea contractului');
     }
   };
 
@@ -492,6 +545,11 @@ const ContractGeneratorPage = () => {
 
         const blob = await Packer.toBlob(doc);
         const fileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${Date.now()}.docx`;
+        
+        // Upload to storage
+        const docxPath = await uploadContractFile(blob, fileName);
+        
+        // Download locally
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -500,6 +558,12 @@ const ContractGeneratorPage = () => {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+        
+        // Save to database with file path
+        await saveContractToDatabase(undefined, docxPath || undefined);
+        
+        toast.success("Contract generat si salvat cu succes!");
+        return;
       } else {
         // Generate PDF document
         const doc = new jsPDF();
@@ -677,10 +741,17 @@ const ContractGeneratorPage = () => {
         doc.text("_____________________", pageWidth - margin - 50, y);
 
         const fileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${Date.now()}.pdf`;
+        
+        // Get PDF as blob for storage upload
+        const pdfBlob = doc.output('blob');
+        const pdfPath = await uploadContractFile(pdfBlob, fileName);
+        
+        // Download locally
         doc.save(fileName);
+        
+        // Save to database with file path
+        await saveContractToDatabase(pdfPath || undefined, undefined);
       }
-      
-      await saveContractToDatabase();
       
       toast.success("Contract generat si salvat cu succes!");
     } catch (error: any) {
@@ -1129,6 +1200,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Proprietate</TableHead>
                     <TableHead>Chirie</TableHead>
                     <TableHead>Tip</TableHead>
+                    <TableHead>Descarcă</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1149,6 +1221,35 @@ const ContractGeneratorPage = () => {
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Închiriere</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {contract.pdf_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => downloadContract(contract, 'pdf')}
+                              title="Descarcă PDF"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contract.docx_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => downloadContract(contract, 'docx')}
+                              title="Descarcă Word"
+                            >
+                              <FileType className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {!contract.pdf_url && !contract.docx_url && (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button
