@@ -83,6 +83,8 @@ import {
   Cell,
   Legend
 } from "recharts";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 interface Commission {
   id: string;
@@ -109,6 +111,7 @@ const MONTHS = [
 
 const CommissionsPage = () => {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingCommission, setEditingCommission] = useState<Commission | null>(null);
   const [filterMonth, setFilterMonth] = useState<string>("all");
@@ -1140,159 +1143,247 @@ const CommissionsPage = () => {
                   </CardHeader>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <CardContent className="p-0 sm:p-6 pt-3 sm:pt-3">
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Data</TableHead>
-                            <TableHead>Sumă</TableHead>
-                            <TableHead>Tip</TableHead>
-                            <TableHead className="hidden sm:table-cell">Factură</TableHead>
-                            <TableHead className="text-right">Acțiuni</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {[...monthCommissions].sort((a, b) => a.date.localeCompare(b.date)).map((commission) => (
-                            <TableRow key={commission.id}>
-                              <TableCell className="font-medium">
+                  <CardContent className="p-3 sm:p-6 pt-3 sm:pt-3">
+                    {isMobile ? (
+                      /* Mobile Card View */
+                      <div className="space-y-3">
+                        {[...monthCommissions].sort((a, b) => a.date.localeCompare(b.date)).map((commission) => (
+                          <MobileTableCard key={commission.id}>
+                            <MobileCardHeader
+                              title={
                                 <div className="flex items-center gap-2">
-                                  <Calendar className="h-4 w-4 text-muted-foreground hidden sm:block" />
-                                  {format(parseISO(commission.date), "dd MMM", { locale: ro })}
-                                  {commission.invoice_file_url && (
-                                    <div className="flex items-center" title="Factură PDF atașată">
-                                      <FileText className="h-4 w-4 text-green-500" />
-                                    </div>
-                                  )}
+                                  <span className="font-bold text-primary">€{commission.amount.toLocaleString()}</span>
+                                  {commission.invoice_file_url && <FileText className="h-4 w-4 text-green-500" />}
                                 </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1 font-bold text-primary">
-                                  <Euro className="h-3 w-3" />
-                                  {commission.amount.toLocaleString()}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Select
-                                  value={commission.transaction_type}
-                                  onValueChange={(value) => {
-                                    updateMutation.mutate({
-                                      id: commission.id,
-                                      data: { transaction_type: value }
-                                    });
-                                  }}
-                                >
-                                  <SelectTrigger className={`w-[140px] h-8 ${getTransactionBadgeColor(commission.transaction_type)} text-white border-0 text-[10px] sm:text-xs font-medium`}>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {TRANSACTION_TYPES.map(type => (
-                                      <SelectItem key={type} value={type}>
-                                        <div className="flex items-center gap-2">
-                                          <div className={`w-2 h-2 rounded-full ${getTransactionBadgeColor(type)}`} />
-                                          {type}
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </TableCell>
-                              <TableCell className="hidden sm:table-cell">
-                                <Select
-                                  value={commission.invoice_number ? "da" : "nu"}
-                                  onValueChange={(value) => {
-                                    updateMutation.mutate({
-                                      id: commission.id,
-                                      data: { invoice_number: value === "da" ? "Da" : null }
-                                    });
-                                  }}
-                                >
-                                  <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-red-500 text-white border-0' : 'bg-green-600 text-white border-0'}`}>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="da">
-                                      <span className="text-red-500 font-medium">Da</span>
-                                    </SelectItem>
-                                    <SelectItem value="nu">
-                                      <span className="text-green-600 font-medium">Nu</span>
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  {commission.invoice_file_url && (
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => setPreviewPdfUrl(commission.invoice_file_url)}
-                                      className="text-primary hover:text-primary hover:bg-primary/10"
-                                      title="Previzualizare factură"
-                                    >
-                                      <Eye className="h-4 w-4" />
-                                    </Button>
-                                  )}
-                                  {commission.invoice_file_url && (
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      asChild
-                                      className="text-muted-foreground hover:text-foreground"
-                                      title="Descarcă factura PDF"
-                                    >
-                                      <a
-                                        href={commission.invoice_file_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                      >
-                                        <Download className="h-4 w-4" />
-                                      </a>
-                                    </Button>
-                                  )}
+                              }
+                              subtitle={format(parseISO(commission.date), "dd MMMM yyyy", { locale: ro })}
+                              badge={
+                                <Badge className={`${getTransactionBadgeColor(commission.transaction_type)} text-white text-xs`}>
+                                  {commission.transaction_type}
+                                </Badge>
+                              }
+                            />
+                            <MobileCardRow label="Factură" icon={<FileText className="h-3 w-3" />}>
+                              <Badge variant={commission.invoice_number ? "destructive" : "default"} className={`text-xs ${!commission.invoice_number ? 'bg-green-600' : ''}`}>
+                                {commission.invoice_number ? "Da" : "Nu"}
+                              </Badge>
+                            </MobileCardRow>
+                            {commission.notes && (
+                              <MobileCardRow label="Notițe" icon={<FileText className="h-3 w-3" />}>
+                                <span className="text-sm truncate max-w-[150px]">{commission.notes}</span>
+                              </MobileCardRow>
+                            )}
+                            <MobileCardActions>
+                              {commission.invoice_file_url && (
+                                <>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => openEditDialog(commission)}
+                                    onClick={() => setPreviewPdfUrl(commission.invoice_file_url)}
                                   >
-                                    <Edit className="h-4 w-4" />
+                                    <Eye className="h-4 w-4 text-primary" />
                                   </Button>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    asChild
+                                  >
+                                    <a href={commission.invoice_file_url} target="_blank" rel="noopener noreferrer">
+                                      <Download className="h-4 w-4" />
+                                    </a>
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openEditDialog(commission)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Șterge comisionul</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Ești sigur că vrei să ștergi acest comision de {commission.amount.toLocaleString()} {commission.currency}?
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => deleteMutation.mutate(commission.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Șterge
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </MobileCardActions>
+                          </MobileTableCard>
+                        ))}
+                      </div>
+                    ) : (
+                      /* Desktop Table View */
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Data</TableHead>
+                              <TableHead>Sumă</TableHead>
+                              <TableHead>Tip</TableHead>
+                              <TableHead className="hidden sm:table-cell">Factură</TableHead>
+                              <TableHead className="text-right">Acțiuni</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {[...monthCommissions].sort((a, b) => a.date.localeCompare(b.date)).map((commission) => (
+                              <TableRow key={commission.id}>
+                                <TableCell className="font-medium">
+                                  <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-muted-foreground hidden sm:block" />
+                                    {format(parseISO(commission.date), "dd MMM", { locale: ro })}
+                                    {commission.invoice_file_url && (
+                                      <div className="flex items-center" title="Factură PDF atașată">
+                                        <FileText className="h-4 w-4 text-green-500" />
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1 font-bold text-primary">
+                                    <Euro className="h-3 w-3" />
+                                    {commission.amount.toLocaleString()}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Select
+                                    value={commission.transaction_type}
+                                    onValueChange={(value) => {
+                                      updateMutation.mutate({
+                                        id: commission.id,
+                                        data: { transaction_type: value }
+                                      });
+                                    }}
+                                  >
+                                    <SelectTrigger className={`w-[140px] h-8 ${getTransactionBadgeColor(commission.transaction_type)} text-white border-0 text-[10px] sm:text-xs font-medium`}>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {TRANSACTION_TYPES.map(type => (
+                                        <SelectItem key={type} value={type}>
+                                          <div className="flex items-center gap-2">
+                                            <div className={`w-2 h-2 rounded-full ${getTransactionBadgeColor(type)}`} />
+                                            {type}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                                <TableCell className="hidden sm:table-cell">
+                                  <Select
+                                    value={commission.invoice_number ? "da" : "nu"}
+                                    onValueChange={(value) => {
+                                      updateMutation.mutate({
+                                        id: commission.id,
+                                        data: { invoice_number: value === "da" ? "Da" : null }
+                                      });
+                                    }}
+                                  >
+                                    <SelectTrigger className={`w-[80px] h-8 text-xs font-medium ${commission.invoice_number ? 'bg-red-500 text-white border-0' : 'bg-green-600 text-white border-0'}`}>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="da">
+                                        <span className="text-red-500 font-medium">Da</span>
+                                      </SelectItem>
+                                      <SelectItem value="nu">
+                                        <span className="text-green-600 font-medium">Nu</span>
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    {commission.invoice_file_url && (
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        onClick={() => setPreviewPdfUrl(commission.invoice_file_url)}
+                                        className="text-primary hover:text-primary hover:bg-primary/10"
+                                        title="Previzualizare factură"
                                       >
-                                        <Trash2 className="h-4 w-4" />
+                                        <Eye className="h-4 w-4" />
                                       </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>Șterge comisionul</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Ești sigur că vrei să ștergi acest comision de {commission.amount.toLocaleString()} {commission.currency} din {format(parseISO(commission.date), "dd MMMM yyyy", { locale: ro })}?
-                                          Această acțiune nu poate fi anulată.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Anulează</AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() => deleteMutation.mutate(commission.id)}
-                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    )}
+                                    {commission.invoice_file_url && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        asChild
+                                        className="text-muted-foreground hover:text-foreground"
+                                        title="Descarcă factura PDF"
+                                      >
+                                        <a
+                                          href={commission.invoice_file_url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
                                         >
-                                          Șterge
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
+                                          <Download className="h-4 w-4" />
+                                        </a>
+                                      </Button>
+                                    )}
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => openEditDialog(commission)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Șterge comisionul</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Ești sigur că vrei să ștergi acest comision de {commission.amount.toLocaleString()} {commission.currency} din {format(parseISO(commission.date), "dd MMMM yyyy", { locale: ro })}?
+                                            Această acțiune nu poate fi anulată.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Anulează</AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={() => deleteMutation.mutate(commission.id)}
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          >
+                                            Șterge
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </CardContent>
                 </CollapsibleContent>
               </Card>

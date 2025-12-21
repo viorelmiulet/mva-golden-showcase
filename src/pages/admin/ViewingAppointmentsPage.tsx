@@ -46,6 +46,8 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 interface ViewingAppointment {
   id: string;
@@ -72,6 +74,7 @@ const statusConfig = {
 
 const ViewingAppointmentsPage = () => {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editingAppointment, setEditingAppointment] = useState<ViewingAppointment | null>(null);
@@ -257,131 +260,209 @@ const ViewingAppointmentsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Appointments Table */}
+      {/* Appointments */}
       <Card>
         <CardHeader>
           <CardTitle>Lista programărilor ({filteredAppointments?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {filteredAppointments && filteredAppointments.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Proprietate</TableHead>
-                    <TableHead>Data & Ora</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Acțiuni</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAppointments.map((apt) => {
-                    const config = statusConfig[apt.status as keyof typeof statusConfig] || statusConfig.pending;
-                    const StatusIcon = config.icon;
-                    const isToday = apt.preferred_date === new Date().toISOString().split('T')[0];
-                    
-                    return (
-                      <TableRow key={apt.id} className={isToday ? "bg-primary/5" : ""}>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 font-medium">
-                              <User className="w-4 h-4 text-muted-foreground" />
-                              {apt.customer_name}
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Phone className="w-3 h-3" />
-                              {apt.customer_phone}
-                            </div>
-                            {apt.customer_email && (
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Mail className="w-3 h-3" />
-                                {apt.customer_email}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Home className="w-4 h-4 text-primary" />
-                            <span className="max-w-[200px] truncate">{apt.property_title}</span>
-                          </div>
-                          {apt.message && (
-                            <div className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate">
-                              💬 {apt.message}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-muted-foreground" />
-                              {format(new Date(apt.preferred_date), 'dd MMM yyyy', { locale: ro })}
-                              {isToday && <Badge variant="secondary" className="text-xs">Azi</Badge>}
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {apt.preferred_time}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`${config.color} text-white gap-1`}>
+            isMobile ? (
+              /* Mobile Card View */
+              <div className="space-y-3">
+                {filteredAppointments.map((apt) => {
+                  const config = statusConfig[apt.status as keyof typeof statusConfig] || statusConfig.pending;
+                  const StatusIcon = config.icon;
+                  const isToday = apt.preferred_date === new Date().toISOString().split('T')[0];
+                  
+                  return (
+                    <MobileTableCard key={apt.id} highlight={isToday}>
+                      <MobileCardHeader
+                        title={apt.customer_name}
+                        subtitle={apt.property_title}
+                        badge={
+                          <Badge className={`${config.color} text-white gap-1 text-xs`}>
                             <StatusIcon className="w-3 h-3" />
                             {config.label}
                           </Badge>
-                          {apt.notes && (
-                            <div className="mt-1 text-xs text-muted-foreground max-w-[150px] truncate">
-                              📝 {apt.notes}
+                        }
+                      />
+                      <MobileCardRow label="Telefon" icon={<Phone className="h-3 w-3" />}>
+                        <span className="text-sm">{apt.customer_phone}</span>
+                      </MobileCardRow>
+                      <MobileCardRow label="Data" icon={<Calendar className="h-3 w-3" />}>
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm">{format(new Date(apt.preferred_date), 'dd MMM', { locale: ro })}</span>
+                          {isToday && <Badge variant="secondary" className="text-[10px] px-1">Azi</Badge>}
+                        </div>
+                      </MobileCardRow>
+                      <MobileCardRow label="Ora" icon={<Clock className="h-3 w-3" />}>
+                        <span className="text-sm">{apt.preferred_time}</span>
+                      </MobileCardRow>
+                      {apt.message && (
+                        <MobileCardRow label="Mesaj" icon={<MessageSquare className="h-3 w-3" />}>
+                          <span className="text-sm truncate max-w-[150px]">{apt.message}</span>
+                        </MobileCardRow>
+                      )}
+                      <MobileCardActions>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleWhatsApp(apt)}
+                        >
+                          <MessageSquare className="w-4 h-4 text-green-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleCall(apt.customer_phone)}
+                        >
+                          <Phone className="w-4 h-4 text-blue-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(apt)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm("Sigur doriți să ștergeți această programare?")) {
+                              deleteMutation.mutate(apt.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </MobileCardActions>
+                    </MobileTableCard>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Desktop Table View */
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Proprietate</TableHead>
+                      <TableHead>Data & Ora</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Acțiuni</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAppointments.map((apt) => {
+                      const config = statusConfig[apt.status as keyof typeof statusConfig] || statusConfig.pending;
+                      const StatusIcon = config.icon;
+                      const isToday = apt.preferred_date === new Date().toISOString().split('T')[0];
+                      
+                      return (
+                        <TableRow key={apt.id} className={isToday ? "bg-primary/5" : ""}>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 font-medium">
+                                <User className="w-4 h-4 text-muted-foreground" />
+                                {apt.customer_name}
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="w-3 h-3" />
+                                {apt.customer_phone}
+                              </div>
+                              {apt.customer_email && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Mail className="w-3 h-3" />
+                                  {apt.customer_email}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleWhatsApp(apt)}
-                              title="WhatsApp"
-                            >
-                              <MessageSquare className="w-4 h-4 text-green-600" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCall(apt.customer_phone)}
-                              title="Apelează"
-                            >
-                              <Phone className="w-4 h-4 text-blue-600" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(apt)}
-                              title="Editează"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                if (confirm("Sigur doriți să ștergeți această programare?")) {
-                                  deleteMutation.mutate(apt.id);
-                                }
-                              }}
-                              title="Șterge"
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Home className="w-4 h-4 text-primary" />
+                              <span className="max-w-[200px] truncate">{apt.property_title}</span>
+                            </div>
+                            {apt.message && (
+                              <div className="mt-1 text-xs text-muted-foreground max-w-[200px] truncate">
+                                💬 {apt.message}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-muted-foreground" />
+                                {format(new Date(apt.preferred_date), 'dd MMM yyyy', { locale: ro })}
+                                {isToday && <Badge variant="secondary" className="text-xs">Azi</Badge>}
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                {apt.preferred_time}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`${config.color} text-white gap-1`}>
+                              <StatusIcon className="w-3 h-3" />
+                              {config.label}
+                            </Badge>
+                            {apt.notes && (
+                              <div className="mt-1 text-xs text-muted-foreground max-w-[150px] truncate">
+                                📝 {apt.notes}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleWhatsApp(apt)}
+                                title="WhatsApp"
+                              >
+                                <MessageSquare className="w-4 h-4 text-green-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCall(apt.customer_phone)}
+                                title="Apelează"
+                              >
+                                <Phone className="w-4 h-4 text-blue-600" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(apt)}
+                                title="Editează"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  if (confirm("Sigur doriți să ștergeți această programare?")) {
+                                    deleteMutation.mutate(apt.id);
+                                  }
+                                }}
+                                title="Șterge"
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )
           ) : (
             <div className="text-center py-12">
               <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -390,6 +471,7 @@ const ViewingAppointmentsPage = () => {
           )}
         </CardContent>
       </Card>
+
 
       {/* Edit Dialog */}
       <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && setEditingAppointment(null)}>

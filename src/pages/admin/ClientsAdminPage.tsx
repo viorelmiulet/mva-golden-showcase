@@ -37,10 +37,12 @@ import {
 } from "@/components/ui/select";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
-import { UserPlus, Edit, Trash2, Search, Sparkles, Home, MapPin, Euro, Maximize2, Loader2 } from "lucide-react";
+import { UserPlus, Edit, Trash2, Search, Sparkles, Home, MapPin, Euro, Maximize2, Loader2, Phone, Mail, FileText } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 interface ClientPreferences {
   min_price?: number;
@@ -80,6 +82,7 @@ const clientSchema = z.object({
 
 export default function ClientsAdminPage() {
   const { clients, isLoading, addClient, updateClient, deleteClient } = useClients();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<any>(null);
@@ -267,77 +270,144 @@ export default function ClientsAdminPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nume</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Preferințe</TableHead>
-                <TableHead>Notițe</TableHead>
-                <TableHead className="text-right">Acțiuni</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          {/* Mobile Card View */}
+          {isMobile ? (
+            <div className="space-y-3">
               {filteredClients.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    Niciun client găsit
-                  </TableCell>
-                </TableRow>
+                <p className="text-center text-muted-foreground py-8">Niciun client găsit</p>
               ) : (
                 filteredClients.map((client) => {
                   const prefs = (client as any).preferences as ClientPreferences | null;
                   const hasPreferences = prefs && Object.keys(prefs).length > 0;
                   
                   return (
-                    <TableRow key={client.id}>
-                      <TableCell className="font-medium">{client.name}</TableCell>
-                      <TableCell>{client.phone}</TableCell>
-                      <TableCell>{client.email || "-"}</TableCell>
-                      <TableCell>
-                        {hasPreferences ? (
-                          <Badge variant="secondary" className="gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            Setate
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate">{client.notes || "-"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleOpenPreferences(client)}
-                            title="Preferințe & Recomandări AI"
-                          >
-                            <Sparkles className="h-4 w-4 text-primary" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(client)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(client.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <MobileTableCard key={client.id}>
+                      <MobileCardHeader
+                        title={client.name}
+                        subtitle={client.phone}
+                        badge={
+                          hasPreferences ? (
+                            <Badge variant="secondary" className="gap-1 text-xs">
+                              <Sparkles className="h-3 w-3" />
+                              AI
+                            </Badge>
+                          ) : null
+                        }
+                      />
+                      {client.email && (
+                        <MobileCardRow label="Email" icon={<Mail className="h-3 w-3" />}>
+                          <span className="text-sm truncate max-w-[180px]">{client.email}</span>
+                        </MobileCardRow>
+                      )}
+                      {client.notes && (
+                        <MobileCardRow label="Notițe" icon={<FileText className="h-3 w-3" />}>
+                          <span className="text-sm truncate max-w-[180px]">{client.notes}</span>
+                        </MobileCardRow>
+                      )}
+                      <MobileCardActions>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenPreferences(client)}
+                          className="gap-1"
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          AI
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDialog(client)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(client.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </MobileCardActions>
+                    </MobileTableCard>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            /* Desktop Table View */
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nume</TableHead>
+                  <TableHead>Telefon</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Preferințe</TableHead>
+                  <TableHead>Notițe</TableHead>
+                  <TableHead className="text-right">Acțiuni</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                      Niciun client găsit
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredClients.map((client) => {
+                    const prefs = (client as any).preferences as ClientPreferences | null;
+                    const hasPreferences = prefs && Object.keys(prefs).length > 0;
+                    
+                    return (
+                      <TableRow key={client.id}>
+                        <TableCell className="font-medium">{client.name}</TableCell>
+                        <TableCell>{client.phone}</TableCell>
+                        <TableCell>{client.email || "-"}</TableCell>
+                        <TableCell>
+                          {hasPreferences ? (
+                            <Badge variant="secondary" className="gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Setate
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-xs truncate">{client.notes || "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleOpenPreferences(client)}
+                              title="Preferințe & Recomandări AI"
+                            >
+                              <Sparkles className="h-4 w-4 text-primary" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(client)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(client.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
