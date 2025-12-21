@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.virtual-staging]
 verify_jwt = false
+
+[functions.extract-id-data]
+verify_jwt = false
