@@ -818,6 +818,20 @@ const ContractGeneratorPage = () => {
       const garantieVal = contract.property_price?.toString() || '';
       const durataLuni = contract.duration_months?.toString() || '12';
 
+      // LOGO - Add company logo to header
+      try {
+        const logoUrl = '/mva-logo-golden.png';
+        const logoBase64 = await imageUrlToBase64(logoUrl);
+        if (logoBase64) {
+          const logoWidth = 25;
+          const logoHeight = 25;
+          doc.addImage(logoBase64, 'PNG', pageWidth / 2 - logoWidth / 2, y, logoWidth, logoHeight);
+          y += logoHeight + 3;
+        }
+      } catch (logoError) {
+        console.warn('Could not add logo to PDF:', logoError);
+      }
+
       // TITLU
       doc.setFontSize(12);
       doc.setFont("times", "bold");
