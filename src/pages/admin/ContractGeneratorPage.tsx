@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
+import { SwipeableContractCard } from "@/components/admin/SwipeableContractCard";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -2409,201 +2410,223 @@ const ContractGeneratorPage = () => {
               <p>Nu există contracte generate încă</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Chiriaș</TableHead>
-                    <TableHead>Proprietate</TableHead>
-                    <TableHead>Chirie</TableHead>
-                    <TableHead>Semnături</TableHead>
-                    <TableHead>Linkuri Semnare</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Acțiuni</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {contracts.map((contract) => (
-                    <TableRow key={contract.id}>
-                      <TableCell className="whitespace-nowrap">
-                        {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
-                      </TableCell>
-                      <TableCell>
-                        {contract.client_prenume} {contract.client_name}
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {contract.property_address}
-                      </TableCell>
-                      <TableCell>
-                        {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Badge 
-                            className={contract.proprietar_signed 
-                              ? "bg-green-500/20 text-green-400 border-green-500/30" 
-                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                            }
-                          >
-                            P: {contract.proprietar_signed ? '✓' : '○'}
-                          </Badge>
-                          <Badge 
-                            className={contract.chirias_signed 
-                              ? "bg-green-500/20 text-green-400 border-green-500/30" 
-                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                            }
-                          >
-                            C: {contract.chirias_signed ? '✓' : '○'}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() => copySignatureLink(contract.id, 'proprietar')}
-                            title="Copiază link semnare proprietar"
-                          >
-                            <PenTool className="h-3 w-3 mr-1" />
-                            Prop.
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs text-green-600 hover:text-green-700"
-                            onClick={() => sendSignatureLinkWhatsApp(contract.id, 'proprietar', contract)}
-                            title="Trimite link semnare proprietar pe WhatsApp"
-                          >
-                            <MessageCircle className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() => copySignatureLink(contract.id, 'chirias')}
-                            title="Copiază link semnare chiriaș"
-                          >
-                            <PenTool className="h-3 w-3 mr-1" />
-                            Chir.
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs text-green-600 hover:text-green-700"
-                            onClick={() => sendSignatureLinkWhatsApp(contract.id, 'chirias', contract)}
-                            title="Trimite link semnare chiriaș pe WhatsApp"
-                          >
-                            <MessageCircle className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-7 w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
-                            onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
-                            title={contract.proprietar_signed ? "Proprietar a semnat" : "Trimite/retrimite email proprietar"}
-                            disabled={contract.proprietar_signed}
-                          >
-                            {contract.proprietar_signed ? (
-                              <span className="text-xs">✓P</span>
-                            ) : (
-                              <Mail className="h-3 w-3" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
-                            onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
-                            title={contract.chirias_signed ? "Chiriaș a semnat" : "Trimite/retrimite email chiriaș"}
-                            disabled={contract.chirias_signed}
-                          >
-                            {contract.chirias_signed ? (
-                              <span className="text-xs">✓C</span>
-                            ) : (
-                              <Mail className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {contract.pdf_url && (
+            <>
+              {/* Mobile view - Swipeable cards */}
+              <div className="md:hidden">
+                {contracts.map((contract) => (
+                  <SwipeableContractCard
+                    key={contract.id}
+                    contract={contract}
+                    onPreview={() => openPreviewDialog(contract)}
+                    onDownloadPdf={() => downloadContract(contract, 'pdf')}
+                    onDownloadDocx={() => downloadContract(contract, 'docx')}
+                    onRegenerate={() => regeneratePdfWithSignatures(contract)}
+                    onCopySignatureLink={(partyType) => copySignatureLink(contract.id, partyType)}
+                    onSendWhatsApp={(partyType) => sendSignatureLinkWhatsApp(contract.id, partyType, contract)}
+                    onSendEmail={(partyType) => openEmailDialog(contract.id, partyType, contract.property_address)}
+                    onDelete={() => handleDeleteContract(contract.id)}
+                    isRegenerating={regeneratingContractId === contract.id}
+                  />
+                ))}
+              </div>
+
+              {/* Desktop view - Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Chiriaș</TableHead>
+                      <TableHead>Proprietate</TableHead>
+                      <TableHead>Chirie</TableHead>
+                      <TableHead>Semnături</TableHead>
+                      <TableHead>Linkuri Semnare</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Acțiuni</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {contracts.map((contract) => (
+                      <TableRow key={contract.id}>
+                        <TableCell className="whitespace-nowrap">
+                          {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
+                        </TableCell>
+                        <TableCell>
+                          {contract.client_prenume} {contract.client_name}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {contract.property_address}
+                        </TableCell>
+                        <TableCell>
+                          {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Badge 
+                              className={contract.proprietar_signed 
+                                ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                                : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                              }
+                            >
+                              P: {contract.proprietar_signed ? '✓' : '○'}
+                            </Badge>
+                            <Badge 
+                              className={contract.chirias_signed 
+                                ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                                : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                              }
+                            >
+                              C: {contract.chirias_signed ? '✓' : '○'}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
                             <Button
                               variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700"
-                              onClick={() => openPreviewDialog(contract)}
-                              title="Previzualizare PDF"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => copySignatureLink(contract.id, 'proprietar')}
+                              title="Copiază link semnare proprietar"
                             >
-                              <Eye className="h-4 w-4" />
+                              <PenTool className="h-3 w-3 mr-1" />
+                              Prop.
                             </Button>
-                          )}
-                          {(contract.proprietar_signed || contract.chirias_signed) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-green-600 hover:text-green-700"
+                              onClick={() => sendSignatureLinkWhatsApp(contract.id, 'proprietar', contract)}
+                              title="Trimite link semnare proprietar pe WhatsApp"
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => copySignatureLink(contract.id, 'chirias')}
+                              title="Copiază link semnare chiriaș"
+                            >
+                              <PenTool className="h-3 w-3 mr-1" />
+                              Chir.
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-green-600 hover:text-green-700"
+                              onClick={() => sendSignatureLinkWhatsApp(contract.id, 'chirias', contract)}
+                              title="Trimite link semnare chiriaș pe WhatsApp"
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-green-600 hover:text-green-700"
-                              onClick={() => regeneratePdfWithSignatures(contract)}
-                              disabled={regeneratingContractId === contract.id}
-                              title="Regenerează PDF cu semnături"
+                              className={`h-7 w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
+                              title={contract.proprietar_signed ? "Proprietar a semnat" : "Trimite/retrimite email proprietar"}
+                              disabled={contract.proprietar_signed}
                             >
-                              {regeneratingContractId === contract.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                              {contract.proprietar_signed ? (
+                                <span className="text-xs">✓P</span>
                               ) : (
-                                <FilePlus2 className="h-4 w-4" />
+                                <Mail className="h-3 w-3" />
                               )}
                             </Button>
-                          )}
-                          {contract.pdf_url && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8"
-                              onClick={() => downloadContract(contract, 'pdf')}
-                              title="Descarcă PDF"
+                              className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
+                              title={contract.chirias_signed ? "Chiriaș a semnat" : "Trimite/retrimite email chiriaș"}
+                              disabled={contract.chirias_signed}
                             >
-                              <Download className="h-4 w-4" />
+                              {contract.chirias_signed ? (
+                                <span className="text-xs">✓C</span>
+                              ) : (
+                                <Mail className="h-3 w-3" />
+                              )}
                             </Button>
-                          )}
-                          {contract.docx_url && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => downloadContract(contract, 'docx')}
-                              title="Descarcă Word"
-                            >
-                              <FileType className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {!contract.pdf_url && !contract.docx_url && !(contract.proprietar_signed || contract.chirias_signed) && (
-                            <span className="text-muted-foreground text-xs">-</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteContract(contract.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {contract.pdf_url && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-blue-600 hover:text-blue-700"
+                                onClick={() => openPreviewDialog(contract)}
+                                title="Previzualizare PDF"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {(contract.proprietar_signed || contract.chirias_signed) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-green-600 hover:text-green-700"
+                                onClick={() => regeneratePdfWithSignatures(contract)}
+                                disabled={regeneratingContractId === contract.id}
+                                title="Regenerează PDF cu semnături"
+                              >
+                                {regeneratingContractId === contract.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <FilePlus2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            )}
+                            {contract.pdf_url && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => downloadContract(contract, 'pdf')}
+                                title="Descarcă PDF"
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {contract.docx_url && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => downloadContract(contract, 'docx')}
+                                title="Descarcă Word"
+                              >
+                                <FileType className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {!contract.pdf_url && !contract.docx_url && !(contract.proprietar_signed || contract.chirias_signed) && (
+                              <span className="text-muted-foreground text-xs">-</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteContract(contract.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
