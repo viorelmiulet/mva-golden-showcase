@@ -1094,6 +1094,15 @@ const ContractGeneratorPage = () => {
         }
       }
 
+      // Add page numbers to all pages
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont("times", "normal");
+        doc.text(`Pagina ${i} din ${totalPages}`, pageWidth / 2, 290, { align: "center" });
+      }
+
       // Generate and upload new PDF
       const fileName = `contract_semnat_${contract.client_name}_${Date.now()}.pdf`;
       const pdfBlob = doc.output('blob');
