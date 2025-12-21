@@ -14,6 +14,8 @@ import {
   FileText,
   Settings,
   BarChart3,
+  Sparkles,
+  UserCheck,
 } from "lucide-react";
 
 import {
@@ -36,7 +38,9 @@ const menuItems = [
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
+  { title: "Clienți CRM", url: "/admin/clienti", icon: UserCheck },
   { title: "Utilizatori", url: "/admin/utilizatori", icon: Users },
+  { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți de Vizită", url: "/admin/carti-vizita", icon: CreditCard },

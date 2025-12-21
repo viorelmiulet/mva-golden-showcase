@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.ai-property-recommendations]
 verify_jwt = false
+
+[functions.virtual-staging]
+verify_jwt = false
