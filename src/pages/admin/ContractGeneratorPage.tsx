@@ -392,12 +392,29 @@ const ContractGeneratorPage = () => {
 
   const copySignatureLink = async (contractId: string, partyType: 'proprietar' | 'chirias') => {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('contract_signatures')
         .select('signature_token')
         .eq('contract_id', contractId)
         .eq('party_type', partyType)
-        .single();
+        .maybeSingle();
+
+      // If no signature exists, create it
+      if (!data) {
+        console.log(`Creating signature link for ${partyType}...`);
+        const { data: newSig, error: insertError } = await supabase
+          .from('contract_signatures')
+          .insert({ contract_id: contractId, party_type: partyType })
+          .select('signature_token')
+          .single();
+        
+        if (insertError) {
+          console.error('Error creating signature:', insertError);
+          toast.error('Eroare la crearea linkului de semnătură');
+          return;
+        }
+        data = newSig;
+      }
 
       if (error || !data) {
         toast.error('Link-ul nu a fost găsit');
