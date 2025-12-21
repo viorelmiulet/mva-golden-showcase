@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon } from "lucide-react";
+import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -156,6 +157,7 @@ const ContractGeneratorPage = () => {
     condition: string;
     location: string;
     notes: string;
+    images: string[];
   }
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [newInventoryItem, setNewInventoryItem] = useState<Omit<InventoryItem, 'id'>>({
@@ -163,11 +165,12 @@ const ContractGeneratorPage = () => {
     quantity: 1,
     condition: 'buna',
     location: '',
-    notes: ''
+    notes: '',
+    images: []
   });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   
-  const updateInventoryItem = (id: string, field: keyof InventoryItem, value: string | number) => {
+  const updateInventoryItem = (id: string, field: keyof InventoryItem, value: string | number | string[]) => {
     setInventoryItems(prev => prev.map(item => 
       item.id === id ? { ...item, [field]: value } : item
     ));
@@ -414,7 +417,8 @@ const ContractGeneratorPage = () => {
       quantity: 1,
       condition: 'buna',
       location: '',
-      notes: ''
+      notes: '',
+      images: []
     });
     toast.success('Articol adăugat în inventar');
   };
@@ -447,7 +451,8 @@ const ContractGeneratorPage = () => {
       quantity: item.quantity || 1,
       condition: item.condition || 'buna',
       location: item.location || '',
-      notes: item.notes || ''
+      notes: item.notes || '',
+      images: []
     }));
     
     setInventoryItems(prev => [...prev, ...newItems]);
@@ -1367,6 +1372,71 @@ const ContractGeneratorPage = () => {
           
           addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
           y += 15;
+          
+          // Add inventory images section if any item has images
+          const itemsWithImages = inventoryItems.filter(item => item.images && item.images.length > 0);
+          
+          if (itemsWithImages.length > 0) {
+            doc.addPage();
+            y = 25;
+            
+            doc.setFontSize(12);
+            doc.setFont("times", "bold");
+            doc.text("FOTOGRAFII INVENTAR", pageWidth / 2, y, { align: "center" });
+            y += 12;
+            
+            doc.setFontSize(10);
+            doc.setFont("times", "normal");
+            
+            for (const item of itemsWithImages) {
+              if (y > 250) {
+                doc.addPage();
+                y = 20;
+              }
+              
+              doc.setFont("times", "bold");
+              doc.text(`${item.item_name}${item.location ? ` - ${item.location}` : ''}`, margin, y);
+              y += 6;
+              doc.setFont("times", "normal");
+              
+              let imageX = margin;
+              const imageWidth = 50;
+              const imageHeight = 40;
+              const imagesPerRow = 3;
+              
+              for (let i = 0; i < item.images.length; i++) {
+                try {
+                  // Check if we need a new row
+                  if (i > 0 && i % imagesPerRow === 0) {
+                    y += imageHeight + 5;
+                    imageX = margin;
+                  }
+                  
+                  // Check page break
+                  if (y + imageHeight > 280) {
+                    doc.addPage();
+                    y = 20;
+                    imageX = margin;
+                  }
+                  
+                  // Try to add image
+                  doc.addImage(item.images[i], 'JPEG', imageX, y, imageWidth, imageHeight);
+                  imageX += imageWidth + 5;
+                } catch (imgError) {
+                  console.warn('Could not add image to PDF:', imgError);
+                  // Add placeholder text if image fails
+                  doc.setFillColor(240, 240, 240);
+                  doc.rect(imageX, y, imageWidth, imageHeight, 'F');
+                  doc.setFontSize(8);
+                  doc.text('[Imagine]', imageX + 15, y + imageHeight / 2);
+                  doc.setFontSize(10);
+                  imageX += imageWidth + 5;
+                }
+              }
+              
+              y += imageHeight + 10;
+            }
+          }
         }
 
         // SEMNATURI
@@ -1954,6 +2024,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Stare</TableHead>
                     <TableHead>Locație</TableHead>
                     <TableHead>Notițe</TableHead>
+                    <TableHead>Fotografii</TableHead>
                     <TableHead className="w-[100px]">Acțiuni</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -2034,6 +2105,13 @@ const ContractGeneratorPage = () => {
                         ) : (
                           <span className="text-muted-foreground text-sm">{item.notes || '-'}</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <InventoryImageUpload
+                          images={item.images}
+                          onImagesChange={(images) => updateInventoryItem(item.id, 'images', images)}
+                          itemName={item.item_name}
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
