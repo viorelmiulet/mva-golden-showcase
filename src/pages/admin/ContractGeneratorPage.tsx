@@ -366,7 +366,7 @@ const ContractGeneratorPage = () => {
       addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
       
       const garantieVal = contractData.garantie || contractData.proprietate_pret;
-      addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
+      addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati la data semnarii contractului de inchiriere.`);
       addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
       addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
       y += 5;
