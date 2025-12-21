@@ -526,7 +526,7 @@ const ContractGeneratorPage = () => {
         return;
       }
 
-      const signatureUrl = `${window.location.origin}/sign/${data.signature_token}`;
+      const signatureUrl = `https://mvaimobiliare.ro/sign/${data.signature_token}`;
       await navigator.clipboard.writeText(signatureUrl);
       toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
     } catch (error: any) {
