@@ -1884,22 +1884,6 @@ const ContractGeneratorPage = () => {
         y += 35;
       }
 
-      // SEMNATURI CONTRACT
-      if (y > 200) {
-        doc.addPage();
-        y = 30;
-      }
-      doc.setFont("times", "bold");
-      doc.text("PROPRIETAR", margin, y);
-      doc.text("CHIRIAS", pageWidth - margin - 30, y);
-      y += 8;
-      doc.setFont("times", "normal");
-      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
-      y += 8;
-      
-      doc.text("_______________", margin, y + 10);
-      doc.text("_______________", pageWidth - margin - 40, y + 10);
 
       // Convert to data URL for preview
       const pdfDataUrl = doc.output('datauristring');
