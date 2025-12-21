@@ -125,6 +125,23 @@ const emptyPerson: PersonData = {
   cetatenie: "romana",
 };
 
+// Helper function to format dates as DD.MM.YYYY
+const formatDateRomanian = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
+  try {
+    // Handle both ISO format (YYYY-MM-DD) and already formatted dates
+    if (dateString.includes('.')) return dateString; // Already formatted
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  } catch {
+    return dateString;
+  }
+};
+
 const ContractGeneratorPage = () => {
   const [isExtractingProprietar, setIsExtractingProprietar] = useState(false);
   const [isExtractingChirias, setIsExtractingChirias] = useState(false);
@@ -786,7 +803,7 @@ const ContractGeneratorPage = () => {
       y += 12;
 
       doc.setFont("times", "normal");
-      doc.text(removeDiacritics(`Incheiat astazi, ${contract.contract_date} intre:`), margin, y);
+      doc.text(removeDiacritics(`Incheiat astazi, ${formatDateRomanian(contract.contract_date)} intre:`), margin, y);
       y += 10;
 
       // PARTI CONTRACTANTE
@@ -1121,7 +1138,7 @@ const ContractGeneratorPage = () => {
                 spacing: { after: 400 },
               }),
               new Paragraph({
-                text: `Incheiat astazi, ${contractData.data_contract} intre:`,
+                text: `Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`,
                 spacing: { after: 200 },
               }),
               new Paragraph({
@@ -1130,7 +1147,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${contractData.proprietar.ci_data_emiterii}` : ''}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
+                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${formatDateRomanian(contractData.proprietar.ci_data_emiterii)}` : ''}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
                 spacing: { after: 200 },
               }),
               new Paragraph({
@@ -1139,7 +1156,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${contractData.chirias.ci_data_emiterii}` : ''}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
+                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${formatDateRomanian(contractData.chirias.ci_data_emiterii)}` : ''}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
                 spacing: { after: 400 },
               }),
               
@@ -1172,7 +1189,7 @@ const ContractGeneratorPage = () => {
                 spacing: { before: 200, after: 100 },
               }),
               new Paragraph({
-                text: `Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_incepere || contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`,
+                text: `Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`,
                 spacing: { after: 200 },
               }),
               
@@ -1424,7 +1441,7 @@ const ContractGeneratorPage = () => {
 
         doc.setFontSize(10);
         doc.setFont("times", "normal");
-        doc.text(`Incheiat astazi, ${contractData.data_contract} intre:`, margin, y);
+        doc.text(`Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`, margin, y);
         y += 10;
 
         // PARTI CONTRACTANTE
@@ -1433,7 +1450,7 @@ const ContractGeneratorPage = () => {
         y += 6;
         doc.setFont("times", "normal");
         const proprietarCiDetails = contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii 
-          ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${contractData.proprietar.ci_data_emiterii}` 
+          ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${formatDateRomanian(contractData.proprietar.ci_data_emiterii)}` 
           : '';
         const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${proprietarCiDetails}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
         const propLines = doc.splitTextToSize(proprietarText, textWidth);
@@ -1448,7 +1465,7 @@ const ContractGeneratorPage = () => {
         y += 6;
         doc.setFont("times", "normal");
         const chiriasCiDetails = contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii 
-          ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${contractData.chirias.ci_data_emiterii}` 
+          ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${formatDateRomanian(contractData.chirias.ci_data_emiterii)}` 
           : '';
         const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${chiriasCiDetails}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
         const chirLines = doc.splitTextToSize(chiriasText, textWidth);
@@ -1470,7 +1487,7 @@ const ContractGeneratorPage = () => {
 
         // III. DURATA
         addSectionTitle("III. DURATA");
-        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_incepere || contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
+        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
         y += 3;
 
         // IV. CHIRIA SI MODALITATI DE PLATA
