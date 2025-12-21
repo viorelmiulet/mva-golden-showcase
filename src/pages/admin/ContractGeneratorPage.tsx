@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2 } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -110,6 +111,16 @@ const ContractGeneratorPage = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [regeneratingContractId, setRegeneratingContractId] = useState<string | null>(null);
+  
+  // Email dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailDialogData, setEmailDialogData] = useState<{
+    contractId: string;
+    partyType: 'proprietar' | 'chirias';
+    propertyAddress: string;
+  } | null>(null);
+  const [emailRecipient, setEmailRecipient] = useState({ name: '', email: '' });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   
   const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
@@ -626,6 +637,47 @@ const ContractGeneratorPage = () => {
       toast.error("Eroare la regenerarea PDF-ului");
     } finally {
       setRegeneratingContractId(null);
+    }
+  };
+
+  const openEmailDialog = (contractId: string, partyType: 'proprietar' | 'chirias', propertyAddress: string) => {
+    setEmailDialogData({ contractId, partyType, propertyAddress });
+    setEmailRecipient({ name: '', email: '' });
+    setEmailDialogOpen(true);
+  };
+
+  const sendSignatureLinkEmail = async () => {
+    if (!emailDialogData || !emailRecipient.email) {
+      toast.error('Vă rugăm introduceți adresa de email');
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-signature-link', {
+        body: {
+          contractId: emailDialogData.contractId,
+          partyType: emailDialogData.partyType,
+          recipientEmail: emailRecipient.email,
+          recipientName: emailRecipient.name,
+          propertyAddress: emailDialogData.propertyAddress,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      toast.success(`Email trimis cu succes către ${emailRecipient.email}`);
+      setEmailDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      toast.error('Eroare la trimiterea emailului');
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -1554,6 +1606,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Chirie</TableHead>
                     <TableHead>Semnături</TableHead>
                     <TableHead>Linkuri Semnare</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Descarcă</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -1619,6 +1672,35 @@ const ContractGeneratorPage = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          {!contract.proprietar_signed && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-blue-500 hover:text-blue-600"
+                              onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
+                              title="Trimite email proprietar"
+                            >
+                              <Mail className="h-3 w-3" />
+                            </Button>
+                          )}
+                          {!contract.chirias_signed && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-blue-500 hover:text-blue-600"
+                              onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
+                              title="Trimite email chiriaș"
+                            >
+                              <Mail className="h-3 w-3" />
+                            </Button>
+                          )}
+                          {contract.proprietar_signed && contract.chirias_signed && (
+                            <span className="text-green-500 text-xs">✓</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
                           {(contract.proprietar_signed || contract.chirias_signed) && (
                             <Button
                               variant="ghost"
@@ -1680,6 +1762,67 @@ const ContractGeneratorPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Email Dialog */}
+      <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Trimite Link Semnătură
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Tip Parte</Label>
+              <div className="text-sm text-muted-foreground">
+                {emailDialogData?.partyType === 'proprietar' ? 'Proprietar' : 'Chiriaș'}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="recipient-name">Nume destinatar</Label>
+              <Input
+                id="recipient-name"
+                placeholder="Ex: Ion Popescu"
+                value={emailRecipient.name}
+                onChange={(e) => setEmailRecipient(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="recipient-email">Adresă email *</Label>
+              <Input
+                id="recipient-email"
+                type="email"
+                placeholder="Ex: ion.popescu@email.com"
+                value={emailRecipient.email}
+                onChange={(e) => setEmailRecipient(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDialogOpen(false)}>
+              Anulează
+            </Button>
+            <Button 
+              onClick={sendSignatureLinkEmail} 
+              disabled={isSendingEmail || !emailRecipient.email}
+            >
+              {isSendingEmail ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Se trimite...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Trimite Email
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
