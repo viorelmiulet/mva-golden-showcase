@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff } from "lucide-react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu } from "lucide-react";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,11 +15,157 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DEFAULT_PASSWORD = "123456";
 
 const getStoredPassword = () => {
   return localStorage.getItem("admin_password") || DEFAULT_PASSWORD;
+};
+
+const AdminHeader = ({ 
+  onLogout, 
+  isSettingsOpen, 
+  setIsSettingsOpen,
+  currentPassword,
+  setCurrentPassword,
+  newPassword,
+  setNewPassword,
+  confirmPassword,
+  setConfirmPassword,
+  showCurrentPassword,
+  setShowCurrentPassword,
+  showNewPassword,
+  setShowNewPassword,
+  handleChangePassword
+}: any) => {
+  const { setOpenMobile } = useSidebar();
+  const isMobile = useIsMobile();
+
+  return (
+    <header className="h-14 md:h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-3 md:px-4 gap-2 md:gap-4">
+      {isMobile && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setOpenMobile(true)}
+          className="hover:bg-gold/10 hover:text-gold"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+      <div className="flex items-center gap-2">
+        <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-gold" />
+        <h1 className="text-base md:text-lg font-semibold">
+          <span className="text-foreground hidden sm:inline">Panou </span>
+          <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+            Admin
+          </span>
+        </h1>
+      </div>
+      <div className="ml-auto flex items-center gap-1 md:gap-2">
+        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 md:h-9 md:w-auto md:px-3 text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden md:inline ml-2">Setări</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-[95vw] sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Schimbă Parola</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Parola curentă</Label>
+                <div className="relative">
+                  <Input
+                    id="currentPassword"
+                    type={showCurrentPassword ? "text" : "password"}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Introduceți parola curentă"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Parola nouă</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Introduceți parola nouă"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmă parola nouă</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirmați parola nouă"
+                />
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsSettingsOpen(false)}
+                >
+                  Anulează
+                </Button>
+                <Button type="submit" className="flex-1 bg-gold hover:bg-gold/90 text-black">
+                  Salvează
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={onLogout}
+          className="h-8 w-8 md:h-9 md:w-auto md:px-3 text-muted-foreground hover:text-foreground"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden md:inline ml-2">Ieșire</span>
+        </Button>
+        <Link to="/">
+          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden md:inline ml-2">Site</span>
+          </Button>
+        </Link>
+      </div>
+    </header>
+  );
 };
 
 const AdminLayout = () => {
@@ -132,124 +278,26 @@ const AdminLayout = () => {
       <div className="min-h-screen flex w-full bg-gradient-to-b from-background via-background to-secondary/10">
         <AdminSidebar />
 
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-4 gap-4">
-            <SidebarTrigger className="hover:bg-gold/10 hover:text-gold transition-colors" />
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-gold" />
-              <h1 className="text-lg font-semibold">
-                <span className="text-foreground">Panou </span>
-                <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Administrare
-                </span>
-              </h1>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-                <DialogTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="gap-2 text-muted-foreground hover:text-foreground"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Setări</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Schimbă Parola</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleChangePassword} className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Parola curentă</Label>
-                      <div className="relative">
-                        <Input
-                          id="currentPassword"
-                          type={showCurrentPassword ? "text" : "password"}
-                          value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
-                          placeholder="Introduceți parola curentă"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        >
-                          {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">Parola nouă</Label>
-                      <div className="relative">
-                        <Input
-                          id="newPassword"
-                          type={showNewPassword ? "text" : "password"}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          placeholder="Introduceți parola nouă"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                        >
-                          {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirmă parola nouă</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirmați parola nouă"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-4">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="flex-1"
-                        onClick={() => setIsSettingsOpen(false)}
-                      >
-                        Anulează
-                      </Button>
-                      <Button type="submit" className="flex-1 bg-gold hover:bg-gold/90 text-black">
-                        Salvează
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleLogout}
-                className="gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Deconectare</span>
-              </Button>
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Înapoi la site</span>
-                </Button>
-              </Link>
-            </div>
-          </header>
+        <div className="flex-1 flex flex-col min-w-0">
+          <AdminHeader
+            onLogout={handleLogout}
+            isSettingsOpen={isSettingsOpen}
+            setIsSettingsOpen={setIsSettingsOpen}
+            currentPassword={currentPassword}
+            setCurrentPassword={setCurrentPassword}
+            newPassword={newPassword}
+            setNewPassword={setNewPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            showCurrentPassword={showCurrentPassword}
+            setShowCurrentPassword={setShowCurrentPassword}
+            showNewPassword={showNewPassword}
+            setShowNewPassword={setShowNewPassword}
+            handleChangePassword={handleChangePassword}
+          />
 
           {/* Main Content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">
             <div className="max-w-7xl mx-auto">
               <Outlet />
             </div>
