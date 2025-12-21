@@ -17,6 +17,7 @@ import {
   Sparkles,
   UserCheck,
   ScrollText,
+  Package,
 } from "lucide-react";
 
 import {
@@ -42,6 +43,7 @@ const menuItems = [
   { title: "Clienți CRM", url: "/admin/clienti", icon: UserCheck },
   { title: "Utilizatori", url: "/admin/utilizatori", icon: Users },
   { title: "Generator Contracte", url: "/admin/contracte", icon: ScrollText },
+  { title: "Inventar Presetat", url: "/admin/inventar-presetat", icon: Package },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
