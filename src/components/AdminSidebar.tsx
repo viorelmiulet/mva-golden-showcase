@@ -125,7 +125,7 @@ export function AdminSidebar() {
             )}
           </div>
 
-          <SidebarGroup className="flex-1 overflow-y-auto">
+          <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
             <SidebarGroupLabel className={collapsed && !isMobile ? "justify-center" : ""}>
               {(!collapsed || isMobile) && "Administrare"}
             </SidebarGroupLabel>
