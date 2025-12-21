@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users } from "lucide-react";
@@ -51,6 +52,7 @@ interface ContractData {
   proprietate_adresa: string;
   proprietate_pret: string;
   garantie: string;
+  moneda: "EUR" | "RON";
   numar_camere: string;
   data_contract: string;
   durata_inchiriere: string;
@@ -96,6 +98,7 @@ const ContractGeneratorPage = () => {
     proprietate_adresa: "",
     proprietate_pret: "",
     garantie: "",
+    moneda: "EUR",
     numar_camere: "1",
     data_contract: new Date().toISOString().split('T')[0],
     durata_inchiriere: "12",
@@ -357,10 +360,11 @@ const ContractGeneratorPage = () => {
 
       // IV. CHIRIA SI MODALITATI DE PLATA
       addSection("IV. CHIRIA SI MODALITATI DE PLATA");
-      addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} EUR/luna. Suma va fi achitata in numerar sau transfer bancar.`);
+      const moneda = contractData.moneda;
+      addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
       
       const garantieVal = contractData.garantie || contractData.proprietate_pret;
-      addParagraph(`Garantia in valoare de ${garantieVal} EUR se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
+      addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
       addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
       addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
       y += 5;
@@ -486,6 +490,7 @@ const ContractGeneratorPage = () => {
       proprietate_adresa: "",
       proprietate_pret: "",
       garantie: "",
+      moneda: "EUR",
       numar_camere: "1",
       data_contract: new Date().toISOString().split('T')[0],
       durata_inchiriere: "12",
@@ -713,7 +718,7 @@ const ContractGeneratorPage = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Nr. camere</Label>
                 <Input
@@ -726,7 +731,22 @@ const ContractGeneratorPage = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Chirie (EUR)</Label>
+                <Label className="text-xs">Monedă</Label>
+                <Select
+                  value={contractData.moneda}
+                  onValueChange={(value: "EUR" | "RON") => setContractData(prev => ({ ...prev, moneda: value }))}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="RON">RON</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Chirie</Label>
                 <Input
                   type="number"
                   value={contractData.proprietate_pret}
@@ -736,7 +756,7 @@ const ContractGeneratorPage = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Garanție (EUR)</Label>
+                <Label className="text-xs">Garanție</Label>
                 <Input
                   type="number"
                   value={contractData.garantie}
