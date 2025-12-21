@@ -50,7 +50,7 @@ interface ContractData {
   chirias: PersonData;
   proprietate_adresa: string;
   proprietate_pret: string;
-  proprietate_suprafata: string;
+  garantie: string;
   data_contract: string;
   durata_inchiriere: string;
 }
@@ -94,7 +94,7 @@ const ContractGeneratorPage = () => {
     chirias: { ...emptyPerson },
     proprietate_adresa: "",
     proprietate_pret: "",
-    proprietate_suprafata: "",
+    garantie: "",
     data_contract: new Date().toISOString().split('T')[0],
     durata_inchiriere: "12",
   });
@@ -238,7 +238,7 @@ const ContractGeneratorPage = () => {
         client_adresa: contractData.chirias.adresa || null,
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
-        property_surface: contractData.proprietate_suprafata ? parseFloat(contractData.proprietate_suprafata) : null,
+        property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
         property_currency: 'EUR',
         contract_type: 'inchiriere',
         contract_date: contractData.data_contract,
@@ -318,8 +318,7 @@ const ContractGeneratorPage = () => {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       
-      const objectText = `Proprietarul închiriază, iar chiriașul ia în chirie imobilul situat în ${contractData.proprietate_adresa}, ` +
-        `cu o suprafață de ${contractData.proprietate_suprafata} mp.`;
+      const objectText = `Proprietarul închiriază, iar chiriașul ia în chirie imobilul situat în ${contractData.proprietate_adresa}.`;
       
       const objectLines = doc.splitTextToSize(objectText, pageWidth - 2 * margin);
       doc.text(objectLines, margin, y);
@@ -334,7 +333,8 @@ const ContractGeneratorPage = () => {
       doc.setFont("helvetica", "normal");
       
       const priceText = `Chiria lunară este de ${contractData.proprietate_pret} EUR, plătibilă până în data de 5 a fiecărei luni. ` +
-        `Durata contractului este de ${contractData.durata_inchiriere || "12"} luni.`;
+        `Durata contractului este de ${contractData.durata_inchiriere || "12"} luni. ` +
+        `Garanția este de ${contractData.garantie || "0"} EUR, restituibilă la încetarea contractului.`;
       
       const priceLines = doc.splitTextToSize(priceText, pageWidth - 2 * margin);
       doc.text(priceLines, margin, y);
@@ -410,7 +410,7 @@ const ContractGeneratorPage = () => {
       chirias: { ...emptyPerson },
       proprietate_adresa: "",
       proprietate_pret: "",
-      proprietate_suprafata: "",
+      garantie: "",
       data_contract: new Date().toISOString().split('T')[0],
       durata_inchiriere: "12",
     });
@@ -649,12 +649,12 @@ const ContractGeneratorPage = () => {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Suprafață (mp)</Label>
+                <Label className="text-xs">Garanție (EUR)</Label>
                 <Input
                   type="number"
-                  value={contractData.proprietate_suprafata}
-                  onChange={(e) => setContractData(prev => ({ ...prev, proprietate_suprafata: e.target.value }))}
-                  placeholder="75"
+                  value={contractData.garantie}
+                  onChange={(e) => setContractData(prev => ({ ...prev, garantie: e.target.value }))}
+                  placeholder="500"
                   className="h-9"
                 />
               </div>
