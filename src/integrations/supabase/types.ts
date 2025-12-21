@@ -348,6 +348,14 @@ export type Database = {
           property_currency: string | null
           property_price: number | null
           property_surface: number | null
+          proprietar_adresa: string | null
+          proprietar_ci_data_emiterii: string | null
+          proprietar_ci_emitent: string | null
+          proprietar_cnp: string | null
+          proprietar_name: string | null
+          proprietar_numar_ci: string | null
+          proprietar_prenume: string | null
+          proprietar_seria_ci: string | null
           proprietar_signed: boolean | null
         }
         Insert: {
@@ -374,6 +382,14 @@ export type Database = {
           property_currency?: string | null
           property_price?: number | null
           property_surface?: number | null
+          proprietar_adresa?: string | null
+          proprietar_ci_data_emiterii?: string | null
+          proprietar_ci_emitent?: string | null
+          proprietar_cnp?: string | null
+          proprietar_name?: string | null
+          proprietar_numar_ci?: string | null
+          proprietar_prenume?: string | null
+          proprietar_seria_ci?: string | null
           proprietar_signed?: boolean | null
         }
         Update: {
@@ -400,6 +416,14 @@ export type Database = {
           property_currency?: string | null
           property_price?: number | null
           property_surface?: number | null
+          proprietar_adresa?: string | null
+          proprietar_ci_data_emiterii?: string | null
+          proprietar_ci_emitent?: string | null
+          proprietar_cnp?: string | null
+          proprietar_name?: string | null
+          proprietar_numar_ci?: string | null
+          proprietar_prenume?: string | null
+          proprietar_seria_ci?: string | null
           proprietar_signed?: boolean | null
         }
         Relationships: []
