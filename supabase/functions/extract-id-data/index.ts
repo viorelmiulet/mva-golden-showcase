@@ -43,6 +43,8 @@ Analizează imaginea și extrage următoarele informații:
 - Nume complet (nume și prenume)
 - CNP (cod numeric personal - 13 cifre)
 - Seria și numărul CI
+- Emitentul CI (ex: SPCLEP Sector 1, SPCLEP Cluj-Napoca, etc.)
+- Data emiterii CI
 - Adresa completă (strada, număr, bloc, scară, etaj, apartament, localitate, județ)
 - Data nașterii
 - Locul nașterii
@@ -58,6 +60,8 @@ Format:
   "cnp": "string",
   "seria": "string",
   "numar": "string",
+  "emitent": "string sau null",
+  "data_emiterii": "string (DD.MM.YYYY) sau null",
   "adresa": {
     "strada": "string",
     "numar": "string",

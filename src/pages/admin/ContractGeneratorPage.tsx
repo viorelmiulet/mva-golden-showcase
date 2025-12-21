@@ -23,6 +23,8 @@ interface ExtractedData {
   cnp: string;
   seria: string;
   numar: string;
+  emitent: string | null;
+  data_emiterii: string | null;
   adresa: {
     strada: string;
     numar: string;
@@ -241,14 +243,23 @@ const ContractGeneratorPage = () => {
       const extracted = data.data as ExtractedData;
       const fullAddress = formatAddress(extracted.adresa);
 
+      // Convert data_emiterii from DD.MM.YYYY to YYYY-MM-DD for input type="date"
+      let formattedDataEmiterii = "";
+      if (extracted.data_emiterii) {
+        const parts = extracted.data_emiterii.split('.');
+        if (parts.length === 3) {
+          formattedDataEmiterii = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+      }
+
       const personData: PersonData = {
         nume: extracted.nume || "",
         prenume: extracted.prenume || "",
         cnp: extracted.cnp || "",
         seria_ci: extracted.seria || "",
         numar_ci: extracted.numar || "",
-        ci_emitent: "",
-        ci_data_emiterii: "",
+        ci_emitent: extracted.emitent || "",
+        ci_data_emiterii: formattedDataEmiterii,
         adresa: fullAddress,
         cetatenie: extracted.cetatenie || "romana",
       };
