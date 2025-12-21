@@ -116,7 +116,8 @@ export function SwipeableContractCard({
     setIsSwipingRight(false);
   };
 
-  const isSigned = contract.chirias_signed;
+  const bothSigned = contract.proprietar_signed && contract.chirias_signed;
+  const anySigned = contract.proprietar_signed || contract.chirias_signed;
 
   return (
     <div className="relative overflow-hidden rounded-lg mb-3">
@@ -128,7 +129,7 @@ export function SwipeableContractCard({
         )}
         style={{ width: MAX_SWIPE }}
       >
-        {(contract.pdf_url || isSigned) && (
+        {(contract.pdf_url || anySigned) && (
           <Button
             variant="ghost"
             size="icon"
@@ -153,7 +154,7 @@ export function SwipeableContractCard({
             <Download className="h-5 w-5" />
           </Button>
         )}
-        {isSigned && (
+        {anySigned && (
           <Button
             variant="ghost"
             size="icon"
@@ -182,8 +183,8 @@ export function SwipeableContractCard({
           variant="ghost"
           size="icon"
           className="h-10 w-10 text-white hover:bg-white/20"
-          onClick={() => { onCopySignatureLink('chirias'); resetSwipe(); }}
-          title="Link semnare"
+          onClick={() => { onCopySignatureLink('proprietar'); resetSwipe(); }}
+          title="Link semnare proprietar"
         >
           <PenTool className="h-4 w-4" />
         </Button>
@@ -192,7 +193,7 @@ export function SwipeableContractCard({
           size="icon"
           className="h-10 w-10 text-white hover:bg-white/20"
           onClick={() => { onSendWhatsApp('chirias'); resetSwipe(); }}
-          title="WhatsApp"
+          title="WhatsApp chiriaș"
         >
           <MessageCircle className="h-4 w-4" />
         </Button>
@@ -233,17 +234,30 @@ export function SwipeableContractCard({
                 {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
               </p>
             </div>
-            <Badge 
-              variant="outline"
-              className={cn(
-                "text-xs px-1.5 shrink-0",
-                contract.chirias_signed 
-                  ? "bg-green-500/20 text-green-600 border-green-500/30" 
-                  : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
-              )}
-            >
-              {contract.chirias_signed ? 'Semnat ✓' : 'Nesemnat'}
-            </Badge>
+            <div className="flex gap-1 shrink-0">
+              <Badge 
+                variant="outline"
+                className={cn(
+                  "text-xs px-1.5",
+                  contract.proprietar_signed 
+                    ? "bg-green-500/20 text-green-600 border-green-500/30" 
+                    : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
+                )}
+              >
+                P {contract.proprietar_signed ? '✓' : '○'}
+              </Badge>
+              <Badge 
+                variant="outline"
+                className={cn(
+                  "text-xs px-1.5",
+                  contract.chirias_signed 
+                    ? "bg-green-500/20 text-green-600 border-green-500/30" 
+                    : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
+                )}
+              >
+                C {contract.chirias_signed ? '✓' : '○'}
+              </Badge>
+            </div>
           </div>
 
           {/* Property address */}
@@ -276,7 +290,7 @@ export function SwipeableContractCard({
 
           {/* Quick action buttons (always visible) */}
           <div className="flex items-center justify-center gap-2 mt-3">
-            {(contract.pdf_url || isSigned) && (
+            {(contract.pdf_url || anySigned) && (
               <Button
                 variant="outline"
                 size="sm"
@@ -292,6 +306,17 @@ export function SwipeableContractCard({
                 Previzualizare
               </Button>
             )}
+            {!contract.proprietar_signed && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => onSendEmail('proprietar')}
+              >
+                <Mail className="h-4 w-4 mr-1" />
+                Email P
+              </Button>
+            )}
             {!contract.chirias_signed && (
               <Button
                 variant="outline"
@@ -300,7 +325,7 @@ export function SwipeableContractCard({
                 onClick={() => onSendEmail('chirias')}
               >
                 <Mail className="h-4 w-4 mr-1" />
-                Email
+                Email C
               </Button>
             )}
           </div>

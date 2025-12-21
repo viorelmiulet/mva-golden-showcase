@@ -588,10 +588,10 @@ const ContractGeneratorPage = () => {
 
   const createSignatureLinks = async (contractId: string) => {
     try {
-      // Create only one signature link for chirias (the main signing party)
       const { error } = await supabase
         .from('contract_signatures')
         .insert([
+          { contract_id: contractId, party_type: 'proprietar' },
           { contract_id: contractId, party_type: 'chirias' }
         ]);
 
@@ -721,10 +721,11 @@ const ContractGeneratorPage = () => {
 
       const contractInventory = savedInventory || [];
 
+      const proprietarSignature = signatures?.find(s => s.party_type === 'proprietar')?.signature_data;
       const chiriasSignature = signatures?.find(s => s.party_type === 'chirias')?.signature_data;
 
-      if (!chiriasSignature) {
-        toast.error('Nu există semnătură pentru acest contract');
+      if (!proprietarSignature && !chiriasSignature) {
+        toast.error('Nu există semnături pentru acest contract');
         return;
       }
 
@@ -1091,8 +1092,16 @@ const ContractGeneratorPage = () => {
         doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
         y += 8;
         
-        // Add signatures on Anexa 1 (only chirias signature on the right)
-        doc.text("(semnat digital)", margin, y + 10);
+        // Add both signatures on Anexa 1
+        if (proprietarSignature) {
+          try {
+            doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
+          } catch (e) {
+            console.error('Error adding proprietar signature to Anexa 1:', e);
+          }
+        } else {
+          doc.text("(nesemnat)", margin, y + 10);
+        }
         
         if (chiriasSignature) {
           try {
@@ -1121,8 +1130,16 @@ const ContractGeneratorPage = () => {
       doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
       y += 8;
       
-      // Add signatures (only chirias signature on the right, proprietar signed digitally text)
-      doc.text("(semnat digital)", margin, y + 10);
+      // Add both signatures
+      if (proprietarSignature) {
+        try {
+          doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
+        } catch (e) {
+          console.error('Error adding proprietar signature:', e);
+        }
+      } else {
+        doc.text("(nesemnat)", margin, y + 10);
+      }
       
       if (chiriasSignature) {
         try {
@@ -3011,57 +3028,102 @@ const ContractGeneratorPage = () => {
                           {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            className={contract.chirias_signed 
-                              ? "bg-green-500/20 text-green-400 border-green-500/30" 
-                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                            }
-                          >
-                            {contract.chirias_signed ? 'Semnat ✓' : 'Nesemnat ○'}
-                          </Badge>
+                          <div className="flex gap-1">
+                            <Badge 
+                              className={contract.proprietar_signed 
+                                ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                                : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                              }
+                            >
+                              P: {contract.proprietar_signed ? '✓' : '○'}
+                            </Badge>
+                            <Badge 
+                              className={contract.chirias_signed 
+                                ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                                : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                              }
+                            >
+                              C: {contract.chirias_signed ? '✓' : '○'}
+                            </Badge>
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex gap-1">
+                          <div className="flex flex-wrap gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => copySignatureLink(contract.id, 'proprietar')}
+                              title="Copiază link semnare proprietar"
+                            >
+                              <PenTool className="h-3 w-3 mr-1" />
+                              Prop.
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-green-600 hover:text-green-700"
+                              onClick={() => sendSignatureLinkWhatsApp(contract.id, 'proprietar', contract)}
+                              title="Trimite link semnare proprietar pe WhatsApp"
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-7 text-xs"
                               onClick={() => copySignatureLink(contract.id, 'chirias')}
-                              title="Copiază link semnare"
+                              title="Copiază link semnare chiriaș"
                             >
                               <PenTool className="h-3 w-3 mr-1" />
-                              Link
+                              Chir.
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-7 text-xs text-green-600 hover:text-green-700"
                               onClick={() => sendSignatureLinkWhatsApp(contract.id, 'chirias', contract)}
-                              title="Trimite link semnare pe WhatsApp"
+                              title="Trimite link semnare chiriaș pe WhatsApp"
                             >
                               <MessageCircle className="h-3 w-3" />
                             </Button>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
-                            onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
-                            title={contract.chirias_signed ? "Semnat" : "Trimite email pentru semnare"}
-                            disabled={contract.chirias_signed}
-                          >
-                            {contract.chirias_signed ? (
-                              <span className="text-xs">✓</span>
-                            ) : (
-                              <Mail className="h-3 w-3" />
-                            )}
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-7 w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
+                              title={contract.proprietar_signed ? "Proprietar a semnat" : "Trimite email proprietar"}
+                              disabled={contract.proprietar_signed}
+                            >
+                              {contract.proprietar_signed ? (
+                                <span className="text-xs">✓P</span>
+                              ) : (
+                                <Mail className="h-3 w-3" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
+                              title={contract.chirias_signed ? "Chiriaș a semnat" : "Trimite email chiriaș"}
+                              disabled={contract.chirias_signed}
+                            >
+                              {contract.chirias_signed ? (
+                                <span className="text-xs">✓C</span>
+                              ) : (
+                                <Mail className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            {(contract.pdf_url || contract.chirias_signed) && (
+                            {(contract.pdf_url || contract.proprietar_signed || contract.chirias_signed) && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -3077,7 +3139,7 @@ const ContractGeneratorPage = () => {
                                 )}
                               </Button>
                             )}
-                            {contract.chirias_signed && (
+                            {(contract.proprietar_signed || contract.chirias_signed) && (
                               <Button
                                 variant="ghost"
                                 size="icon"
