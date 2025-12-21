@@ -153,6 +153,23 @@ const SignContract = () => {
         .update(updateField)
         .eq('id', signatureInfo.contract_id);
 
+      // Trigger auto-generation of signed PDF if both parties have signed
+      try {
+        const { data: autoGenResult, error: autoGenError } = await supabase.functions.invoke(
+          'auto-generate-signed-contract',
+          { body: { contractId: signatureInfo.contract_id } }
+        );
+        
+        if (autoGenError) {
+          console.error('Error triggering auto-generate:', autoGenError);
+        } else if (autoGenResult?.bothSigned) {
+          console.log('Both parties signed, PDF ready for generation');
+          toast.success("Ambele părți au semnat! Contractul final este gata.");
+        }
+      } catch (autoGenErr) {
+        console.error('Error calling auto-generate function:', autoGenErr);
+      }
+
       toast.success("Contractul a fost semnat cu succes!");
       
       // Refresh to show signed state
