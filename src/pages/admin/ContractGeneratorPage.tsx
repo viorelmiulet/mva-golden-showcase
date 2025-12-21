@@ -1800,8 +1800,26 @@ const ContractGeneratorPage = () => {
       y += 3;
 
       addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
+      y += 10;
 
-      // INVENTAR
+      // SEMNATURI CONTRACT (pe pagina contractului, înainte de anexă)
+      if (y > 200) {
+        doc.addPage();
+        y = 30;
+      }
+      doc.setFont("times", "bold");
+      doc.text("PROPRIETAR", margin, y);
+      doc.text("CHIRIAS", pageWidth - margin - 30, y);
+      y += 8;
+      doc.setFont("times", "normal");
+      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+      y += 8;
+      
+      doc.text("_______________", margin, y + 10);
+      doc.text("_______________", pageWidth - margin - 40, y + 10);
+
+      // INVENTAR (pe pagină separată, fără semnături)
       if (contractInventory.length > 0) {
         doc.addPage();
         y = 25;
@@ -1862,25 +1880,7 @@ const ContractGeneratorPage = () => {
         y += 10;
         
         addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
-        y += 5;
       }
-
-      // SEMNATURI CONTRACT (doar pe contract, nu pe anexa)
-      if (y > 200) {
-        doc.addPage();
-        y = 30;
-      }
-      doc.setFont("times", "bold");
-      doc.text("PROPRIETAR", margin, y);
-      doc.text("CHIRIAS", pageWidth - margin - 30, y);
-      y += 8;
-      doc.setFont("times", "normal");
-      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
-      y += 8;
-      
-      doc.text("_______________", margin, y + 10);
-      doc.text("_______________", pageWidth - margin - 40, y + 10);
 
       // Convert to data URL for preview
       const pdfDataUrl = doc.output('datauristring');
