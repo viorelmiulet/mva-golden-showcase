@@ -48,6 +48,7 @@ interface SwipeableContractCardProps {
   onSendEmail: (partyType: 'proprietar' | 'chirias') => void;
   onDelete: () => void;
   isRegenerating?: boolean;
+  isPreviewing?: boolean;
 }
 
 export function SwipeableContractCard({
@@ -60,7 +61,8 @@ export function SwipeableContractCard({
   onSendWhatsApp,
   onSendEmail,
   onDelete,
-  isRegenerating
+  isRegenerating,
+  isPreviewing
 }: SwipeableContractCardProps) {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipingLeft, setIsSwipingLeft] = useState(false);
@@ -127,14 +129,19 @@ export function SwipeableContractCard({
         )}
         style={{ width: MAX_SWIPE }}
       >
-        {contract.pdf_url && (
+        {(contract.pdf_url || anySigned) && (
           <Button
             variant="ghost"
             size="icon"
             className="h-10 w-10 text-white hover:bg-white/20"
             onClick={() => { onPreview(); resetSwipe(); }}
+            disabled={isPreviewing}
           >
-            <Eye className="h-5 w-5" />
+            {isPreviewing ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
           </Button>
         )}
         {contract.pdf_url && (
@@ -283,14 +290,19 @@ export function SwipeableContractCard({
 
           {/* Quick action buttons (always visible) */}
           <div className="flex items-center justify-center gap-2 mt-3">
-            {contract.pdf_url && (
+            {(contract.pdf_url || anySigned) && (
               <Button
                 variant="outline"
                 size="sm"
                 className="flex-1"
                 onClick={onPreview}
+                disabled={isPreviewing}
               >
-                <Eye className="h-4 w-4 mr-1" />
+                {isPreviewing ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Eye className="h-4 w-4 mr-1" />
+                )}
                 Previzualizare
               </Button>
             )}

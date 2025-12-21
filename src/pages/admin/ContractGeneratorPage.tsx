@@ -2861,6 +2861,7 @@ const ContractGeneratorPage = () => {
                     onSendEmail={(partyType) => openEmailDialog(contract.id, partyType, contract.property_address)}
                     onDelete={() => handleDeleteContract(contract.id)}
                     isRegenerating={regeneratingContractId === contract.id}
+                    isPreviewing={previewingContractId === contract.id}
                   />
                 ))}
               </div>
