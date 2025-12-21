@@ -52,7 +52,7 @@ const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
 const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
 const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
 const ContractGeneratorPage = lazy(() => import("./pages/admin/ContractGeneratorPage"));
-
+const SignContract = lazy(() => import("./pages/SignContract"));
 
 const queryClient = new QueryClient();
 
@@ -111,6 +111,7 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
+              <Route path="/sign/:token" element={<SignContract />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />

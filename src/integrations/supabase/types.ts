@@ -241,9 +241,51 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_signatures: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          party_type: string
+          signature_data: string | null
+          signature_token: string
+          signed_at: string | null
+          signer_name: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          party_type: string
+          signature_data?: string | null
+          signature_token?: string
+          signed_at?: string | null
+          signer_name?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          party_type?: string
+          signature_data?: string | null
+          signature_token?: string
+          signed_at?: string | null
+          signer_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signatures_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contracts: {
         Row: {
           advance_percent: string | null
+          chirias_signed: boolean | null
           client_adresa: string | null
           client_cnp: string | null
           client_name: string
@@ -263,9 +305,11 @@ export type Database = {
           property_currency: string | null
           property_price: number | null
           property_surface: number | null
+          proprietar_signed: boolean | null
         }
         Insert: {
           advance_percent?: string | null
+          chirias_signed?: boolean | null
           client_adresa?: string | null
           client_cnp?: string | null
           client_name: string
@@ -285,9 +329,11 @@ export type Database = {
           property_currency?: string | null
           property_price?: number | null
           property_surface?: number | null
+          proprietar_signed?: boolean | null
         }
         Update: {
           advance_percent?: string | null
+          chirias_signed?: boolean | null
           client_adresa?: string | null
           client_cnp?: string | null
           client_name?: string
@@ -307,6 +353,7 @@ export type Database = {
           property_currency?: string | null
           property_price?: number | null
           property_surface?: number | null
+          proprietar_signed?: boolean | null
         }
         Relationships: []
       }
