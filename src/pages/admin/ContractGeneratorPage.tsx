@@ -45,6 +45,7 @@ interface PersonData {
   seria_ci: string;
   numar_ci: string;
   adresa: string;
+  cetatenie: string;
 }
 
 interface ContractData {
@@ -78,6 +79,7 @@ const emptyPerson: PersonData = {
   seria_ci: "",
   numar_ci: "",
   adresa: "",
+  cetatenie: "romana",
 };
 
 const ContractGeneratorPage = () => {
@@ -206,6 +208,7 @@ const ContractGeneratorPage = () => {
         seria_ci: extracted.seria || "",
         numar_ci: extracted.numar || "",
         adresa: fullAddress,
+        cetatenie: extracted.cetatenie || "romana",
       };
 
       if (type === 'proprietar') {
@@ -303,7 +306,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
+                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
                 spacing: { after: 200 },
               }),
               new Paragraph({
@@ -312,7 +315,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
+                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
                 spacing: { after: 400 },
               }),
               
@@ -553,7 +556,7 @@ const ContractGeneratorPage = () => {
         doc.text("1. PROPRIETAR:", margin, y);
         y += 6;
         doc.setFont("helvetica", "normal");
-        const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
+        const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
         const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
         doc.text(propLines, margin, y);
         y += propLines.length * 5 + 6;
@@ -562,7 +565,7 @@ const ContractGeneratorPage = () => {
         doc.text("2. CHIRIAS:", margin, y);
         y += 6;
         doc.setFont("helvetica", "normal");
-        const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
+        const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
         const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
         doc.text(chirLines, margin, y);
         y += chirLines.length * 5 + 10;
@@ -868,15 +871,26 @@ const ContractGeneratorPage = () => {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs">Adresa</Label>
-            <Textarea
-              value={data.adresa}
-              onChange={(e) => updateData('adresa', e.target.value)}
-              placeholder="Adresa completă"
-              rows={2}
-              className="text-sm"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Adresa</Label>
+              <Textarea
+                value={data.adresa}
+                onChange={(e) => updateData('adresa', e.target.value)}
+                placeholder="Adresa completă"
+                rows={2}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Cetățenie</Label>
+              <Input
+                value={data.cetatenie}
+                onChange={(e) => updateData('cetatenie', e.target.value)}
+                placeholder="romana"
+                className="h-9"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
