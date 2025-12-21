@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +35,29 @@ const SignContract = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const signatureRef = useRef<SignatureCanvas>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 400, height: 200 });
+
+  // Resize canvas to fit container
+  const updateCanvasSize = useCallback(() => {
+    if (containerRef.current) {
+      const width = containerRef.current.offsetWidth - 4; // account for border
+      setCanvasSize({ width: Math.max(300, width), height: 200 });
+    }
+  }, []);
+
+  useEffect(() => {
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
+    // Also update on orientation change for mobile
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateCanvasSize, 100);
+    });
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+      window.removeEventListener('orientationchange', updateCanvasSize);
+    };
+  }, [updateCanvasSize]);
 
   useEffect(() => {
     if (token) {
@@ -55,6 +78,7 @@ const SignContract = () => {
         .single();
 
       if (sigError || !sigData) {
+        console.error('Signature fetch error:', sigError);
         setError("Link-ul de semnătură nu este valid sau a expirat.");
         return;
       }
@@ -69,6 +93,7 @@ const SignContract = () => {
         .single();
 
       if (contractError || !contractData) {
+        console.error('Contract fetch error:', contractError);
         setError("Contractul nu a fost găsit.");
         return;
       }
@@ -160,6 +185,9 @@ const SignContract = () => {
               <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Link Invalid</h2>
               <p className="text-muted-foreground">{error}</p>
+              <p className="text-xs text-muted-foreground mt-4">
+                Token: {token?.substring(0, 8)}...
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -220,7 +248,7 @@ const SignContract = () => {
             <CardTitle className="text-lg">Detalii Contract</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground">Chiriaș</p>
                 <p className="font-medium">
@@ -231,7 +259,7 @@ const SignContract = () => {
                 <p className="text-muted-foreground">Data Contract</p>
                 <p className="font-medium">{contractInfo?.contract_date}</p>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <p className="text-muted-foreground">Adresa Proprietății</p>
                 <p className="font-medium">{contractInfo?.property_address}</p>
               </div>
@@ -250,19 +278,31 @@ const SignContract = () => {
           <CardHeader>
             <CardTitle className="text-lg">Semnătura Dvs.</CardTitle>
             <CardDescription>
-              Desenați semnătura în câmpul de mai jos folosind mouse-ul sau degetul
+              Desenați semnătura în câmpul de mai jos folosind degetul sau stylus-ul
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="border-2 border-dashed rounded-lg bg-white">
+            <div 
+              ref={containerRef}
+              className="border-2 border-dashed rounded-lg bg-white overflow-hidden touch-none"
+            >
               <SignatureCanvas
                 ref={signatureRef}
                 canvasProps={{
-                  className: "w-full rounded-lg",
-                  style: { width: "100%", height: "150px" }
+                  width: canvasSize.width,
+                  height: canvasSize.height,
+                  className: "touch-none",
+                  style: { 
+                    touchAction: 'none',
+                    width: '100%', 
+                    height: '200px',
+                    display: 'block'
+                  }
                 }}
                 backgroundColor="white"
                 penColor="black"
+                minWidth={1.5}
+                maxWidth={3}
                 onEnd={handleEnd}
               />
             </div>
@@ -271,6 +311,7 @@ const SignContract = () => {
                 variant="outline" 
                 onClick={handleClear}
                 className="flex-1"
+                type="button"
               >
                 <Eraser className="h-4 w-4 mr-2" />
                 Șterge
@@ -279,6 +320,7 @@ const SignContract = () => {
                 onClick={handleSign}
                 disabled={isEmpty || isSigning}
                 className="flex-1"
+                type="button"
               >
                 {isSigning ? (
                   <>
