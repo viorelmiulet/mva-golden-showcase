@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
@@ -140,6 +140,11 @@ const ContractGeneratorPage = () => {
   } | null>(null);
   const [emailRecipient, setEmailRecipient] = useState({ name: '', email: '' });
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  
+  // Preview dialog state
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [previewContractName, setPreviewContractName] = useState<string>('');
   
   const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
@@ -1018,6 +1023,34 @@ const ContractGeneratorPage = () => {
     setEmailDialogData({ contractId, partyType, propertyAddress });
     setEmailRecipient({ name: '', email: '' });
     setEmailDialogOpen(true);
+  };
+
+  const openPreviewDialog = async (contract: SavedContract) => {
+    if (!contract.pdf_url) {
+      toast.error('Nu există PDF pentru acest contract');
+      return;
+    }
+    
+    setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
+    setPreviewPdfUrl(null);
+    setPreviewDialogOpen(true);
+    
+    try {
+      const { data } = await supabase.storage
+        .from('contracts')
+        .createSignedUrl(contract.pdf_url, 3600); // 1 hour expiry
+      
+      if (data?.signedUrl) {
+        setPreviewPdfUrl(data.signedUrl);
+      } else {
+        toast.error('Nu s-a putut genera URL-ul de previzualizare');
+        setPreviewDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Error generating preview URL:', error);
+      toast.error('Eroare la generarea previzualizării');
+      setPreviewDialogOpen(false);
+    }
   };
 
   const sendSignatureLinkEmail = async () => {
@@ -2387,7 +2420,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Semnături</TableHead>
                     <TableHead>Linkuri Semnare</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Descarcă</TableHead>
+                    <TableHead>Acțiuni</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -2502,6 +2535,17 @@ const ContractGeneratorPage = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          {contract.pdf_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700"
+                              onClick={() => openPreviewDialog(contract)}
+                              title="Previzualizare PDF"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          )}
                           {(contract.proprietar_signed || contract.chirias_signed) && (
                             <Button
                               variant="ghost"
@@ -2526,7 +2570,7 @@ const ContractGeneratorPage = () => {
                               onClick={() => downloadContract(contract, 'pdf')}
                               title="Descarcă PDF"
                             >
-                              <FileText className="h-4 w-4" />
+                              <Download className="h-4 w-4" />
                             </Button>
                           )}
                           {contract.docx_url && (
@@ -2621,6 +2665,42 @@ const ContractGeneratorPage = () => {
                 </>
               )}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Previzualizare Contract - {previewContractName}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0">
+            {previewPdfUrl ? (
+              <iframe 
+                src={previewPdfUrl}
+                className="w-full h-full rounded-lg border"
+                title="Contract Preview"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
+              Închide
+            </Button>
+            {previewPdfUrl && (
+              <Button onClick={() => window.open(previewPdfUrl, '_blank')}>
+                <Download className="h-4 w-4 mr-2" />
+                Descarcă
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
