@@ -747,8 +747,8 @@ const ContractGeneratorPage = () => {
       doc.text("CHIRIAS", pageWidth - margin - 30, y);
       y += 8;
       doc.setFont("helvetica", "normal");
-      doc.text("", margin, y);
-      doc.text(`${contract.client_prenume || ''} ${contract.client_name}`, pageWidth - margin - 50, y);
+      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
       y += 8;
       
       // Add electronic signatures
