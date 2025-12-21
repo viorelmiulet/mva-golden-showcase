@@ -907,6 +907,10 @@ const ContractGeneratorPage = () => {
 
       addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
 
+      // Signature dimensions - declared here for use in both contract and Anexa 1
+      const signatureHeight = 25;
+      const signatureWidth = 50;
+
       // INVENTAR - Add inventory section if items exist
       if (contractInventory.length > 0) {
         doc.addPage();
@@ -971,6 +975,43 @@ const ContractGeneratorPage = () => {
         
         addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
         y += 15;
+        
+        // SEMNATURI ANEXA 1
+        if (y > 200) {
+          doc.addPage();
+          y = 30;
+        }
+        doc.setFont("times", "bold");
+        doc.text("PROPRIETAR", margin, y);
+        doc.text("CHIRIAS", pageWidth - margin - 30, y);
+        y += 8;
+        doc.setFont("times", "normal");
+        doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+        doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+        y += 8;
+        
+        // Add electronic signatures on Anexa 1
+        if (proprietarSignature) {
+          try {
+            doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
+          } catch (e) {
+            console.error('Error adding proprietar signature to Anexa 1:', e);
+          }
+        } else {
+          doc.text("(nesemnat)", margin, y + 10);
+        }
+        
+        if (chiriasSignature) {
+          try {
+            doc.addImage(chiriasSignature, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
+          } catch (e) {
+            console.error('Error adding chirias signature to Anexa 1:', e);
+          }
+        } else {
+          doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
+        }
+        
+        y += signatureHeight + 10;
       }
 
       // SEMNATURI
@@ -988,8 +1029,6 @@ const ContractGeneratorPage = () => {
       y += 8;
       
       // Add electronic signatures
-      const signatureHeight = 25;
-      const signatureWidth = 50;
       
       if (proprietarSignature) {
         try {
