@@ -1108,13 +1108,22 @@ const ContractGeneratorPage = () => {
         }
       }
 
-      // Add page numbers to all pages
+      // Add page numbers and footer with contact info to all pages
       const totalPages = doc.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
+        doc.setFontSize(7);
         doc.setFont("times", "normal");
+        doc.setTextColor(100, 100, 100);
+        
+        // Contact info line
+        doc.text("MVA Imobiliare | Tel: +40 757 117 442 | Email: contact@mvaimobiliare.ro | www.mvaimobiliare.ro", pageWidth / 2, 285, { align: "center" });
+        
+        // Page number
         doc.text(`Pagina ${i} din ${totalPages}`, pageWidth / 2, 290, { align: "center" });
+        
+        // Reset text color
+        doc.setTextColor(0, 0, 0);
       }
 
       // Generate and upload new PDF
