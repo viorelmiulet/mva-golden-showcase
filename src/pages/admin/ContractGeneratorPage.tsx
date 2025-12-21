@@ -210,6 +210,13 @@ const ContractGeneratorPage = () => {
     images: []
   });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [inventoryImageSize, setInventoryImageSize] = useState<'small' | 'medium' | 'large'>('medium');
+  
+  const imageSizeConfig = {
+    small: { width: 35, height: 28, perRow: 4 },
+    medium: { width: 50, height: 40, perRow: 3 },
+    large: { width: 70, height: 56, perRow: 2 }
+  };
   
   const updateInventoryItem = (id: string, field: keyof InventoryItem, value: string | number | string[]) => {
     setInventoryItems(prev => prev.map(item => 
@@ -1022,9 +1029,7 @@ const ContractGeneratorPage = () => {
             doc.setFont("times", "normal");
             
             let imageX = margin;
-            const imageWidth = 50;
-            const imageHeight = 40;
-            const imagesPerRow = 3;
+            const { width: imageWidth, height: imageHeight, perRow: imagesPerRow } = imageSizeConfig[inventoryImageSize];
             
             for (let i = 0; i < item.images.length; i++) {
               try {
@@ -2156,9 +2161,7 @@ const ContractGeneratorPage = () => {
               doc.setFont("times", "normal");
               
               let imageX = margin;
-              const imageWidth = 50;
-              const imageHeight = 40;
-              const imagesPerRow = 3;
+              const { width: imageWidth, height: imageHeight, perRow: imagesPerRow } = imageSizeConfig[inventoryImageSize];
               
               for (let i = 0; i < item.images.length; i++) {
                 try {
@@ -2779,6 +2782,27 @@ const ContractGeneratorPage = () => {
               </Button>
             </div>
           </div>
+
+          {/* Image size selector */}
+          {inventoryItems.some(item => item.images && item.images.length > 0) && (
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Dimensiune imagini în PDF:</span>
+              <Select
+                value={inventoryImageSize}
+                onValueChange={(value: 'small' | 'medium' | 'large') => setInventoryImageSize(value)}
+              >
+                <SelectTrigger className="w-[140px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Mici (4/rând)</SelectItem>
+                  <SelectItem value="medium">Medii (3/rând)</SelectItem>
+                  <SelectItem value="large">Mari (2/rând)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Inventory list */}
           {inventoryItems.length > 0 ? (
