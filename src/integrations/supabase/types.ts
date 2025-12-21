@@ -247,6 +247,7 @@ export type Database = {
           contract_id: string | null
           created_at: string
           id: string
+          images: string[] | null
           item_name: string
           location: string | null
           notes: string | null
@@ -257,6 +258,7 @@ export type Database = {
           contract_id?: string | null
           created_at?: string
           id?: string
+          images?: string[] | null
           item_name: string
           location?: string | null
           notes?: string | null
@@ -267,6 +269,7 @@ export type Database = {
           contract_id?: string | null
           created_at?: string
           id?: string
+          images?: string[] | null
           item_name?: string
           location?: string | null
           notes?: string | null
