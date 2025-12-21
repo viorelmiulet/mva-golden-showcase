@@ -887,7 +887,7 @@ const ContractGeneratorPage = () => {
 
       // IV. CHIRIA SI MODALITATI DE PLATA
       addSection("IV. CHIRIA SI MODALITATI DE PLATA");
-      addParagraph(`Chiria lunara convenita de comun acord este de ${contract.property_price || 'N/A'} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar. Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
+      addParagraph(`Chiria lunara convenita de comun acord este de ${contract.property_price || 'N/A'} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar. Garantia in valoare de ${garantieVal} ${moneda} s-a achitat astazi, la data semnarii contractului de inchiriere.`);
       addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului. Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul sa rezilieze contractul fara nici o alta formalitate.");
 
       // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
