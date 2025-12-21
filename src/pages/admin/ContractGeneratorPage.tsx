@@ -962,132 +962,170 @@ const ContractGeneratorPage = () => {
         toast.success("Contract generat si salvat cu succes!");
         return;
       } else {
-        // Generate PDF document
+        // Generate PDF document with Times font (similar to Century)
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const margin = 20;
+        const textWidth = pageWidth - 2 * margin;
         let y = 25;
 
-        const addSection = (title: string) => {
+        // Helper function to add section title with underline (bold italic like in image)
+        const addSectionTitle = (title: string) => {
           if (y > 260) {
             doc.addPage();
             y = 20;
           }
           doc.setFontSize(11);
-          doc.setFont("helvetica", "bold");
+          doc.setFont("times", "bolditalic");
           doc.text(title, margin, y);
+          // Add underline
+          const titleWidth = doc.getTextWidth(title);
+          doc.setLineWidth(0.3);
+          doc.line(margin, y + 1, margin + titleWidth, y + 1);
           y += 8;
           doc.setFontSize(10);
-          doc.setFont("helvetica", "normal");
+          doc.setFont("times", "normal");
         };
 
+        // Helper function to add subsection title (bold, numbered)
+        const addSubsectionTitle = (title: string) => {
+          if (y > 260) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.setFontSize(10);
+          doc.setFont("times", "bold");
+          doc.text(title, margin, y);
+          y += 6;
+          doc.setFont("times", "normal");
+        };
+
+        // Helper function to add justified paragraph
         const addParagraph = (text: string) => {
           if (y > 270) {
             doc.addPage();
             y = 20;
           }
-          const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
-          doc.text(lines, margin, y);
-          y += lines.length * 5 + 3;
+          doc.setFont("times", "normal");
+          const lines = doc.splitTextToSize(text, textWidth);
+          // Use justify alignment for all lines except the last
+          for (let i = 0; i < lines.length; i++) {
+            if (i < lines.length - 1) {
+              doc.text(lines[i], margin, y, { align: "justify", maxWidth: textWidth });
+            } else {
+              doc.text(lines[i], margin, y);
+            }
+            y += 5;
+          }
+          y += 2;
         };
 
+        // Helper function to add bullet point with dash
         const addBullet = (text: string) => {
           if (y > 270) {
             doc.addPage();
             y = 20;
           }
-          const lines = doc.splitTextToSize("- " + text, pageWidth - 2 * margin - 5);
-          doc.text(lines, margin + 3, y);
-          y += lines.length * 5 + 2;
+          doc.setFont("times", "normal");
+          const bulletIndent = 8;
+          const bulletTextWidth = textWidth - bulletIndent;
+          doc.text("-", margin + 3, y);
+          const lines = doc.splitTextToSize(text, bulletTextWidth);
+          for (let i = 0; i < lines.length; i++) {
+            if (i < lines.length - 1) {
+              doc.text(lines[i], margin + bulletIndent, y, { align: "justify", maxWidth: bulletTextWidth });
+            } else {
+              doc.text(lines[i], margin + bulletIndent, y);
+            }
+            y += 5;
+          }
+          y += 1;
         };
 
         // TITLU
         doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
+        doc.setFont("times", "bold");
         doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
         y += 12;
 
         doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
+        doc.setFont("times", "normal");
         doc.text(`Incheiat astazi, ${contractData.data_contract} intre:`, margin, y);
         y += 10;
 
         // PARTI CONTRACTANTE
-        doc.setFont("helvetica", "bold");
+        doc.setFont("times", "bold");
         doc.text("1. PROPRIETAR:", margin, y);
         y += 6;
-        doc.setFont("helvetica", "normal");
+        doc.setFont("times", "normal");
         const proprietarCiDetails = contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii 
           ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${contractData.proprietar.ci_data_emiterii}` 
           : '';
         const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${proprietarCiDetails}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
-        const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
-        doc.text(propLines, margin, y);
-        y += propLines.length * 5 + 6;
+        const propLines = doc.splitTextToSize(proprietarText, textWidth);
+        for (let i = 0; i < propLines.length; i++) {
+          doc.text(propLines[i], margin, y, i < propLines.length - 1 ? { align: "justify", maxWidth: textWidth } : undefined);
+          y += 5;
+        }
+        y += 4;
 
-        doc.setFont("helvetica", "bold");
+        doc.setFont("times", "bold");
         doc.text("2. CHIRIAS:", margin, y);
         y += 6;
-        doc.setFont("helvetica", "normal");
+        doc.setFont("times", "normal");
         const chiriasCiDetails = contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii 
           ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${contractData.chirias.ci_data_emiterii}` 
           : '';
         const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${chiriasCiDetails}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
-        const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
-        doc.text(chirLines, margin, y);
-        y += chirLines.length * 5 + 10;
+        const chirLines = doc.splitTextToSize(chiriasText, textWidth);
+        for (let i = 0; i < chirLines.length; i++) {
+          doc.text(chirLines[i], margin, y, i < chirLines.length - 1 ? { align: "justify", maxWidth: textWidth } : undefined);
+          y += 5;
+        }
+        y += 8;
 
         // I. OBIECTUL CONTRACTULUI
-        addSection("I. OBIECTUL CONTRACTULUI");
+        addSectionTitle("I. OBIECTUL CONTRACTULUI");
         addParagraph(`Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`);
-        y += 5;
-
-        // II. DESTINATIA
-        addSection("II. DESTINATIA");
-        addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA. Destinatia spatiului inchiriat nu poate fi schimbata.");
-        y += 5;
-
-        // III. DURATA
-        addSection("III. DURATA");
-        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_incepere || contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
-        y += 5;
-
-        // IV. CHIRIA SI MODALITATI DE PLATA
-        addSection("IV. CHIRIA SI MODALITATI DE PLATA");
-        addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
-        
-        addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati la data semnarii contractului de inchiriere.`);
-        addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
-        addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
-        y += 5;
-
-        // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
-        addSection("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
-        doc.setFont("helvetica", "bold");
-        doc.text("1. OBLIGATIILE PROPRIETARULUI:", margin, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
-        addBullet("proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului;");
-        addBullet("pune la dispozitia chiriasului imobilul in stare buna, pentru a fi folosit conform destinatiei avute in vedere;");
-        addBullet("achita toate taxele legale ale imobilului (impozit pe cladiri, venituri);");
-        addBullet("sa suporte cheltuielile de reparatii pentru partile comune ale imobilului.");
         y += 3;
 
-        doc.setFont("helvetica", "bold");
-        doc.text("2. DREPTURILE PROPRIETARULUI:", margin, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
+        // II. DESTINATIA
+        addSectionTitle("II. DESTINATIA");
+        addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA. Destinatia spatiului inchiriat nu poate fi schimbata.");
+        y += 3;
+
+        // III. DURATA
+        addSectionTitle("III. DURATA");
+        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${contractData.data_incepere || contractData.data_contract}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
+        y += 3;
+
+        // IV. CHIRIA SI MODALITATI DE PLATA
+        addSectionTitle("IV. CHIRIA SI MODALITATI DE PLATA");
+        addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
+        
+        addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
+        addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
+        addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
+        y += 3;
+
+        // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
+        addSectionTitle("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
+        addSubsectionTitle("1. OBLIGATIILE PROPRIETARULUI:");
+        addBullet("proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului;");
+        addBullet("pune la dispozitia chiriasului imobilul in stare buna, pentru a fi folosit conform destinatiei avute in vedere in prezentul contract, impreuna cu un inventar (realizat de catre proprietar inainte de intrarea chiriasului in imobil) detaliat, intocmit in 2 (doua) exemplare semnate de ambele parti;");
+        addBullet("achita toate taxele legale ale imobilului (impozit pe cladiri, venituri);");
+        addBullet("sa suporte cheltuielile de reparatii pentru partile comune ale imobilului.");
+        y += 2;
+
+        addSubsectionTitle("2. DREPTURILE PROPRIETARULUI:");
         addBullet("sa viziteze imobilul cand doreste, cu anuntarea in prealabil a chiriasului si in prezenta acestuia;");
-        addBullet("sa accepte sau sa respinga propunerile avansate de chirias de modificare a imobilului;");
+        addBullet("sa accepte sau sa respinga propunerile avansate de chirias de modificare a imobilului inchiriat in prezentul contract, in prealabil, sau ori de cate ori este necesar. Atat propunerile chiriasului cat si raspunsurile proprietarului se vor face in scris;");
         addBullet("sa verifice achitarea obligatiilor de plata curente ale chiriasului.");
-        y += 5;
+        y += 3;
 
         // VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI
-        addSection("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
-        doc.setFont("helvetica", "bold");
-        doc.text("1. OBLIGATIILE CHIRIASULUI:", margin, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
+        addSectionTitle("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
+        addSubsectionTitle("1. OBLIGATIILE CHIRIASULUI:");
         addBullet("sa asigure exploatarea imobilului doar in conformitate cu destinatia avuta in vedere;");
         addBullet("sa nu subinchirieze imobilul, decat cu acordul scris al proprietarului;");
         addBullet("sa achite in termen legal platile curente: electricitate, gaze, gunoi, apa, intretinere;");
@@ -1095,34 +1133,31 @@ const ContractGeneratorPage = () => {
         addBullet("sa respecte normele de convietuire in conformitate cu regulamentul asociatiei de locatari;");
         addBullet("sa permita accesul proprietarului in imobilul inchiriat cel putin o data pe luna;");
         addBullet("sa predea spatiul in starea in care era la inceperea contractului.");
-        y += 3;
+        y += 2;
 
-        doc.setFont("helvetica", "bold");
-        doc.text("2. DREPTURILE CHIRIASULUI:", margin, y);
-        y += 6;
-        doc.setFont("helvetica", "normal");
+        addSubsectionTitle("2. DREPTURILE CHIRIASULUI:");
         addBullet("sa utilizeze imobilul in exclusivitate pe perioada derularii contractului;");
         addBullet("sa faca imbunatatirile necesare fara sa modifice structura de rezistenta si doar cu acordul proprietarului.");
-        y += 5;
+        y += 3;
 
         // VII. PREDAREA IMOBILULUI
-        addSection("VII. PREDAREA IMOBILULUI");
+        addSectionTitle("VII. PREDAREA IMOBILULUI");
         addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului sau unui reprezentant autorizat al proprietarului, in starea in care l-a primit.");
-        y += 5;
+        y += 3;
 
         // VIII. FORTA MAJORA
-        addSection("VIII. FORTA MAJORA");
+        addSectionTitle("VIII. FORTA MAJORA");
         addParagraph("Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
         addParagraph("Partea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.");
-        y += 5;
+        y += 3;
 
         // IX. CONDITIILE DE INCETARE A CONTRACTULUI
-        addSection("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+        addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
         addParagraph("1. la expirarea duratei pentru care a fost incheiat;");
         addParagraph("2. in situatia nerespectarii clauzelor contractuale de catre una din parti;");
         addParagraph("3. clauza fortei majore;");
         addParagraph("4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.");
-        y += 5;
+        y += 3;
 
         addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
         y += 15;
@@ -1132,11 +1167,11 @@ const ContractGeneratorPage = () => {
           doc.addPage();
           y = 30;
         }
-        doc.setFont("helvetica", "bold");
+        doc.setFont("times", "bold");
         doc.text("PROPRIETAR", margin, y);
         doc.text("CHIRIAS", pageWidth - margin - 30, y);
         y += 8;
-        doc.setFont("helvetica", "normal");
+        doc.setFont("times", "normal");
         doc.text(`${contractData.proprietar.prenume} ${contractData.proprietar.nume}`, margin, y);
         doc.text(`${contractData.chirias.prenume} ${contractData.chirias.nume}`, pageWidth - margin - 50, y);
         y += 8;
