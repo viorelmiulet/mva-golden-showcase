@@ -79,33 +79,34 @@ serve(async (req) => {
       );
     }
 
-    // Check if both parties have signed
-    if (!contract.proprietar_signed || !contract.chirias_signed) {
-      console.log('Not all parties have signed yet');
+    // Check if chirias has signed (only one signature needed)
+    if (!contract.chirias_signed) {
+      console.log('Chirias has not signed yet');
       return new Response(
-        JSON.stringify({ message: 'Not all parties have signed yet', bothSigned: false }),
+        JSON.stringify({ message: 'Chirias has not signed yet', bothSigned: false }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Fetch signatures
+    // Fetch signature
     const { data: signatures, error: sigError } = await supabase
       .from('contract_signatures')
       .select('party_type, signature_data, signer_name')
-      .eq('contract_id', contractId);
+      .eq('contract_id', contractId)
+      .eq('party_type', 'chirias')
+      .single();
 
     if (sigError) {
-      console.error('Error fetching signatures:', sigError);
+      console.error('Error fetching signature:', sigError);
       return new Response(
-        JSON.stringify({ error: 'Error fetching signatures' }),
+        JSON.stringify({ error: 'Error fetching signature' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const proprietarSignature = signatures?.find((s: SignatureData) => s.party_type === 'proprietar')?.signature_data;
-    const chiriasSignature = signatures?.find((s: SignatureData) => s.party_type === 'chirias')?.signature_data;
+    const chiriasSignature = signatures?.signature_data;
 
-    if (!proprietarSignature || !chiriasSignature) {
+    if (!chiriasSignature) {
       console.log('Missing signature data');
       return new Response(
         JSON.stringify({ message: 'Missing signature data', bothSigned: false }),
@@ -125,8 +126,7 @@ serve(async (req) => {
 
     const inventory = inventoryItems || [];
 
-    console.log('Both parties signed, generating PDF with:', {
-      hasProprietarSig: !!proprietarSignature,
+    console.log('Chirias signed, generating PDF with:', {
       hasChiriasSig: !!chiriasSignature,
       inventoryCount: inventory.length
     });
@@ -148,13 +148,13 @@ serve(async (req) => {
       console.error('Error updating contract:', updateError);
     }
 
-    console.log('Contract marked as fully signed, PDF ready for generation');
+    console.log('Contract marked as signed, PDF ready for generation');
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         bothSigned: true,
-        message: 'Both parties have signed. PDF is ready to be generated.',
+        message: 'Contract signed. PDF is ready to be generated.',
         contractId,
         hasInventory: inventory.length > 0
       }),
