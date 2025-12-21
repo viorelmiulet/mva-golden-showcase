@@ -1473,10 +1473,9 @@ const ContractGeneratorPage = () => {
           doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
         }
 
-        // Convert to blob URL for preview
-        const pdfBlob = doc.output('blob');
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        setPreviewPdfUrl(blobUrl);
+        // Convert to data URL for preview (avoids Chrome blocking blob URLs in iframes)
+        const pdfDataUrl = doc.output('datauristring');
+        setPreviewPdfUrl(pdfDataUrl);
       } catch (error) {
         console.error('Error generating preview:', error);
         toast.error('Eroare la generarea previzualizării');
