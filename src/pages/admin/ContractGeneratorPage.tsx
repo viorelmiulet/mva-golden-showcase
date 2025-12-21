@@ -608,12 +608,24 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
       };
 
+      // Functie pentru eliminarea diacriticelor romanesti
+      const removeDiacritics = (text: string): string => {
+        return text
+          .replace(/ă/g, 'a').replace(/Ă/g, 'A')
+          .replace(/â/g, 'a').replace(/Â/g, 'A')
+          .replace(/î/g, 'i').replace(/Î/g, 'I')
+          .replace(/ș/g, 's').replace(/Ș/g, 'S')
+          .replace(/ț/g, 't').replace(/Ț/g, 'T')
+          .replace(/ş/g, 's').replace(/Ş/g, 'S')
+          .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
+      };
+
       const addParagraph = (text: string) => {
         if (y > 270) {
           doc.addPage();
           y = 20;
         }
-        const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+        const lines = doc.splitTextToSize(removeDiacritics(text), pageWidth - 2 * margin);
         doc.text(lines, margin, y);
         y += lines.length * 5 + 3;
       };
@@ -623,7 +635,7 @@ const ContractGeneratorPage = () => {
           doc.addPage();
           y = 20;
         }
-        const lines = doc.splitTextToSize("- " + text, pageWidth - 2 * margin - 5);
+        const lines = doc.splitTextToSize("- " + removeDiacritics(text), pageWidth - 2 * margin - 5);
         doc.text(lines, margin + 3, y);
         y += lines.length * 5 + 2;
       };
@@ -651,7 +663,7 @@ const ContractGeneratorPage = () => {
       doc.text("1. PROPRIETAR:", margin, y);
       y += 6;
       doc.setFont("helvetica", "normal");
-      const proprietarText = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}${contract.proprietar_cnp ? `, CNP ${contract.proprietar_cnp}` : ''}${contract.proprietar_seria_ci ? `, C.I seria ${contract.proprietar_seria_ci}` : ''}${contract.proprietar_numar_ci ? ` nr. ${contract.proprietar_numar_ci}` : ''}${contract.proprietar_adresa ? `, cu domiciliul in ${contract.proprietar_adresa}` : ''}, in calitate de proprietar al imobilului situat in ${contract.property_address}.`;
+      const proprietarText = removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}${contract.proprietar_cnp ? `, CNP ${contract.proprietar_cnp}` : ''}${contract.proprietar_seria_ci ? `, C.I seria ${contract.proprietar_seria_ci}` : ''}${contract.proprietar_numar_ci ? ` nr. ${contract.proprietar_numar_ci}` : ''}${contract.proprietar_adresa ? `, cu domiciliul in ${contract.proprietar_adresa}` : ''}, in calitate de proprietar al imobilului situat in ${contract.property_address}.`);
       const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
       doc.text(propLines, margin, y);
       y += propLines.length * 5 + 10;
@@ -660,7 +672,7 @@ const ContractGeneratorPage = () => {
       doc.text("2. CHIRIAS:", margin, y);
       y += 6;
       doc.setFont("helvetica", "normal");
-      const chiriasText = `${contract.client_prenume || ''} ${contract.client_name}${contract.client_cnp ? `, CNP ${contract.client_cnp}` : ''}${contract.client_seria_ci ? `, C.I seria ${contract.client_seria_ci}` : ''}${contract.client_numar_ci ? ` nr. ${contract.client_numar_ci}` : ''}${contract.client_adresa ? `, cu domiciliul in ${contract.client_adresa}` : ''}, in calitate de chirias al imobilului situat in ${contract.property_address}.`;
+      const chiriasText = removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}${contract.client_cnp ? `, CNP ${contract.client_cnp}` : ''}${contract.client_seria_ci ? `, C.I seria ${contract.client_seria_ci}` : ''}${contract.client_numar_ci ? ` nr. ${contract.client_numar_ci}` : ''}${contract.client_adresa ? `, cu domiciliul in ${contract.client_adresa}` : ''}, in calitate de chirias al imobilului situat in ${contract.property_address}.`);
       const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
       doc.text(chirLines, margin, y);
       y += chirLines.length * 5 + 10;
