@@ -416,23 +416,31 @@ const ContractGeneratorPage = () => {
     setInventoryItems(prev => prev.filter(item => item.id !== id));
   };
   
-  const addPresetInventoryItems = () => {
-    const presetItems: Omit<InventoryItem, 'id'>[] = [
-      { item_name: 'Frigider', quantity: 1, condition: 'buna', location: 'Bucătărie', notes: '' },
-      { item_name: 'Aragaz', quantity: 1, condition: 'buna', location: 'Bucătărie', notes: '' },
-      { item_name: 'Mașină de spălat', quantity: 1, condition: 'buna', location: 'Baie', notes: '' },
-      { item_name: 'Canapea', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
-      { item_name: 'Pat matrimonial', quantity: 1, condition: 'buna', location: 'Dormitor', notes: '' },
-      { item_name: 'Dulap haine', quantity: 1, condition: 'buna', location: 'Dormitor', notes: '' },
-      { item_name: 'Masă dining', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
-      { item_name: 'Scaune', quantity: 4, condition: 'buna', location: 'Living', notes: '' },
-      { item_name: 'TV', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
-      { item_name: 'Aer condiționat', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
-    ];
+  const addPresetInventoryItems = async () => {
+    // Fetch preset items from database
+    const { data: presetItems, error } = await supabase
+      .from('preset_inventory_items')
+      .select('item_name, quantity, condition, location, notes')
+      .order('sort_order', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching preset items:', error);
+      toast.error('Eroare la încărcarea articolelor presetate');
+      return;
+    }
+    
+    if (!presetItems || presetItems.length === 0) {
+      toast.info('Nu există articole presetate. Configurați-le din meniul Inventar Presetat.');
+      return;
+    }
     
     const newItems = presetItems.map(item => ({
       id: crypto.randomUUID(),
-      ...item
+      item_name: item.item_name,
+      quantity: item.quantity || 1,
+      condition: item.condition || 'buna',
+      location: item.location || '',
+      notes: item.notes || ''
     }));
     
     setInventoryItems(prev => [...prev, ...newItems]);

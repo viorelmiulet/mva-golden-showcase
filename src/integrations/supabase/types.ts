@@ -452,6 +452,42 @@ export type Database = {
         }
         Relationships: []
       }
+      preset_inventory_items: {
+        Row: {
+          condition: string | null
+          created_at: string
+          id: string
+          item_name: string
+          location: string | null
+          notes: string | null
+          quantity: number
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          condition?: string | null
+          created_at?: string
+          id?: string
+          item_name: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          condition?: string | null
+          created_at?: string
+          id?: string
+          item_name?: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
