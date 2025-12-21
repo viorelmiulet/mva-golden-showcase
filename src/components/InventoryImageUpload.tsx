@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Camera, Loader2, X, ImageIcon } from "lucide-react";
+import { Camera, Loader2, X, ImagePlus } from "lucide-react";
 import { compressImageToFile } from "@/lib/imageOptimization";
 import {
   Dialog,
@@ -23,9 +23,9 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const processFiles = async (files: FileList) => {
     if (!files || files.length === 0) return;
 
     setUploading(true);
@@ -68,15 +68,20 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
       }
 
       onImagesChange([...images, ...newImages]);
-      toast.success(`${newImages.length} imagine${newImages.length > 1 ? 'i' : ''} adăugată${newImages.length > 1 ? '' : ''}`);
+      toast.success(`${newImages.length} imagine${newImages.length > 1 ? 'i' : ''} adăugată`);
     } catch (error: any) {
       console.error('Error uploading:', error);
       toast.error(`Eroare la încărcare: ${error?.message || 'Eroare necunoscută'}`);
     } finally {
       setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      await processFiles(e.target.files);
     }
   };
 
@@ -118,6 +123,25 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
           </div>
         ))}
         
+        {/* Camera button - captures directly from camera on mobile */}
+        <label className="w-16 h-16 border-2 border-dashed border-primary/40 rounded-md flex items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            disabled={uploading}
+            className="hidden"
+          />
+          {uploading ? (
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          ) : (
+            <Camera className="h-5 w-5 text-primary" />
+          )}
+        </label>
+        
+        {/* Gallery button - opens file picker / gallery */}
         <label className="w-16 h-16 border-2 border-dashed border-muted-foreground/30 rounded-md flex items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors">
           <input
             ref={fileInputRef}
@@ -131,7 +155,7 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
           {uploading ? (
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           ) : (
-            <Camera className="h-5 w-5 text-muted-foreground" />
+            <ImagePlus className="h-5 w-5 text-muted-foreground" />
           )}
         </label>
       </div>
