@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -135,6 +135,24 @@ const ContractGeneratorPage = () => {
   
   const [contracts, setContracts] = useState<SavedContract[]>([]);
   const [isLoadingContracts, setIsLoadingContracts] = useState(true);
+  
+  // Inventory state
+  interface InventoryItem {
+    id: string;
+    item_name: string;
+    quantity: number;
+    condition: string;
+    location: string;
+    notes: string;
+  }
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [newInventoryItem, setNewInventoryItem] = useState<Omit<InventoryItem, 'id'>>({
+    item_name: '',
+    quantity: 1,
+    condition: 'buna',
+    location: '',
+    notes: ''
+  });
   
   const [contractData, setContractData] = useState<ContractData>({
     proprietar: { ...emptyPerson },
@@ -317,6 +335,26 @@ const ContractGeneratorPage = () => {
       // Create signature links for the new contract
       if (insertedContract) {
         await createSignatureLinks(insertedContract.id);
+        
+        // Save inventory items for the contract
+        if (inventoryItems.length > 0) {
+          const inventoryToSave = inventoryItems.map(item => ({
+            contract_id: insertedContract.id,
+            item_name: item.item_name,
+            quantity: item.quantity,
+            condition: item.condition,
+            location: item.location || null,
+            notes: item.notes || null
+          }));
+          
+          const { error: invError } = await supabase
+            .from('contract_inventory')
+            .insert(inventoryToSave);
+          
+          if (invError) {
+            console.error('Error saving inventory:', invError);
+          }
+        }
       }
 
       await fetchContracts();
@@ -324,6 +362,56 @@ const ContractGeneratorPage = () => {
       console.error('Error saving contract:', error);
       throw error;
     }
+  };
+  
+  // Inventory management functions
+  const addInventoryItem = () => {
+    if (!newInventoryItem.item_name.trim()) {
+      toast.error('Introduceți denumirea articolului');
+      return;
+    }
+    
+    const newItem: InventoryItem = {
+      id: crypto.randomUUID(),
+      ...newInventoryItem
+    };
+    
+    setInventoryItems(prev => [...prev, newItem]);
+    setNewInventoryItem({
+      item_name: '',
+      quantity: 1,
+      condition: 'buna',
+      location: '',
+      notes: ''
+    });
+    toast.success('Articol adăugat în inventar');
+  };
+  
+  const removeInventoryItem = (id: string) => {
+    setInventoryItems(prev => prev.filter(item => item.id !== id));
+  };
+  
+  const addPresetInventoryItems = () => {
+    const presetItems: Omit<InventoryItem, 'id'>[] = [
+      { item_name: 'Frigider', quantity: 1, condition: 'buna', location: 'Bucătărie', notes: '' },
+      { item_name: 'Aragaz', quantity: 1, condition: 'buna', location: 'Bucătărie', notes: '' },
+      { item_name: 'Mașină de spălat', quantity: 1, condition: 'buna', location: 'Baie', notes: '' },
+      { item_name: 'Canapea', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
+      { item_name: 'Pat matrimonial', quantity: 1, condition: 'buna', location: 'Dormitor', notes: '' },
+      { item_name: 'Dulap haine', quantity: 1, condition: 'buna', location: 'Dormitor', notes: '' },
+      { item_name: 'Masă dining', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
+      { item_name: 'Scaune', quantity: 4, condition: 'buna', location: 'Living', notes: '' },
+      { item_name: 'TV', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
+      { item_name: 'Aer condiționat', quantity: 1, condition: 'buna', location: 'Living', notes: '' },
+    ];
+    
+    const newItems = presetItems.map(item => ({
+      id: crypto.randomUUID(),
+      ...item
+    }));
+    
+    setInventoryItems(prev => [...prev, ...newItems]);
+    toast.success('Articole standard adăugate');
   };
 
   const uploadContractFile = async (blob: Blob, fileName: string): Promise<string | null> => {
@@ -1160,7 +1248,71 @@ const ContractGeneratorPage = () => {
         y += 3;
 
         addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
-        y += 15;
+        
+        // INVENTAR - Add inventory section if items exist
+        if (inventoryItems.length > 0) {
+          doc.addPage();
+          y = 25;
+          
+          doc.setFontSize(14);
+          doc.setFont("times", "bold");
+          doc.text("ANEXA 1 - INVENTAR IMOBIL", pageWidth / 2, y, { align: "center" });
+          y += 12;
+          
+          doc.setFontSize(10);
+          doc.setFont("times", "normal");
+          addParagraph(`Inventar al bunurilor aflate in imobilul situat in ${contractData.proprietate_adresa}, predate de proprietar chiriasului la data inceperii contractului de inchiriere.`);
+          y += 5;
+          
+          // Table header
+          const colWidths = [80, 20, 40, 30];
+          const startX = margin;
+          
+          doc.setFont("times", "bold");
+          doc.setFillColor(240, 240, 240);
+          doc.rect(startX, y - 4, textWidth, 8, 'F');
+          doc.text("Denumire", startX + 2, y);
+          doc.text("Cant.", startX + colWidths[0] + 2, y);
+          doc.text("Stare", startX + colWidths[0] + colWidths[1] + 2, y);
+          doc.text("Locatie", startX + colWidths[0] + colWidths[1] + colWidths[2] + 2, y);
+          y += 8;
+          
+          doc.setFont("times", "normal");
+          
+          const conditionLabels: Record<string, string> = {
+            'noua': 'Noua',
+            'foarte_buna': 'Foarte buna',
+            'buna': 'Buna',
+            'satisfacatoare': 'Satisfacatoare',
+            'uzata': 'Uzata'
+          };
+          
+          inventoryItems.forEach((item, index) => {
+            if (y > 270) {
+              doc.addPage();
+              y = 20;
+            }
+            
+            // Alternate row background
+            if (index % 2 === 0) {
+              doc.setFillColor(250, 250, 250);
+              doc.rect(startX, y - 4, textWidth, 6, 'F');
+            }
+            
+            doc.text(item.item_name.substring(0, 35), startX + 2, y);
+            doc.text(item.quantity.toString(), startX + colWidths[0] + 2, y);
+            doc.text(conditionLabels[item.condition] || item.condition, startX + colWidths[0] + colWidths[1] + 2, y);
+            doc.text((item.location || '-').substring(0, 15), startX + colWidths[0] + colWidths[1] + colWidths[2] + 2, y);
+            y += 6;
+          });
+          
+          y += 10;
+          addParagraph(`Total articole inventariate: ${inventoryItems.length}`);
+          y += 10;
+          
+          addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
+          y += 15;
+        }
 
         // SEMNATURI
         if (y > 250) {
@@ -1261,6 +1413,7 @@ const ContractGeneratorPage = () => {
     });
     if (fileInputProprietarRef.current) fileInputProprietarRef.current.value = "";
     if (fileInputChiriasRef.current) fileInputChiriasRef.current.value = "";
+    setInventoryItems([]);
   };
 
   const renderUploadCard = (
@@ -1667,7 +1820,127 @@ const ContractGeneratorPage = () => {
         </div>
       </div>
 
-      {/* Contract History */}
+      {/* Inventory Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Inventar Imobil
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={addPresetInventoryItems}>
+              <Plus className="h-4 w-4 mr-2" />
+              Adaugă articole standard
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add new item form */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-2 p-3 bg-muted/50 rounded-lg">
+            <div className="md:col-span-2">
+              <Input
+                placeholder="Denumire articol *"
+                value={newInventoryItem.item_name}
+                onChange={(e) => setNewInventoryItem(prev => ({ ...prev, item_name: e.target.value }))}
+                className="h-9"
+              />
+            </div>
+            <div>
+              <Input
+                type="number"
+                placeholder="Cant."
+                min={1}
+                value={newInventoryItem.quantity}
+                onChange={(e) => setNewInventoryItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                className="h-9"
+              />
+            </div>
+            <div>
+              <Select
+                value={newInventoryItem.condition}
+                onValueChange={(value) => setNewInventoryItem(prev => ({ ...prev, condition: value }))}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="noua">Nouă</SelectItem>
+                  <SelectItem value="foarte_buna">Foarte bună</SelectItem>
+                  <SelectItem value="buna">Bună</SelectItem>
+                  <SelectItem value="satisfacatoare">Satisfăcătoare</SelectItem>
+                  <SelectItem value="uzata">Uzată</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Input
+                placeholder="Locație"
+                value={newInventoryItem.location}
+                onChange={(e) => setNewInventoryItem(prev => ({ ...prev, location: e.target.value }))}
+                className="h-9"
+              />
+            </div>
+            <div>
+              <Button onClick={addInventoryItem} className="w-full h-9">
+                <Plus className="h-4 w-4 mr-1" />
+                Adaugă
+              </Button>
+            </div>
+          </div>
+
+          {/* Inventory list */}
+          {inventoryItems.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Denumire</TableHead>
+                    <TableHead className="w-[80px]">Cant.</TableHead>
+                    <TableHead>Stare</TableHead>
+                    <TableHead>Locație</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {inventoryItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.item_name}</TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {item.condition === 'noua' && 'Nouă'}
+                          {item.condition === 'foarte_buna' && 'Foarte bună'}
+                          {item.condition === 'buna' && 'Bună'}
+                          {item.condition === 'satisfacatoare' && 'Satisfăcătoare'}
+                          {item.condition === 'uzata' && 'Uzată'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{item.location || '-'}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeInventoryItem(item.id)}
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              <Package className="h-10 w-10 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Nu există articole în inventar</p>
+              <p className="text-xs">Adăugați articole manual sau folosiți butonul "Adaugă articole standard"</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

@@ -241,6 +241,47 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_inventory: {
+        Row: {
+          condition: string | null
+          contract_id: string | null
+          created_at: string
+          id: string
+          item_name: string
+          location: string | null
+          notes: string | null
+          quantity: number | null
+        }
+        Insert: {
+          condition?: string | null
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          item_name: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number | null
+        }
+        Update: {
+          condition?: string | null
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          item_name?: string
+          location?: string | null
+          notes?: string | null
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_inventory_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_signatures: {
         Row: {
           contract_id: string
