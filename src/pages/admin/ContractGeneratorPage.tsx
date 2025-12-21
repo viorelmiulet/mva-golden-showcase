@@ -1319,25 +1319,25 @@ const ContractGeneratorPage = () => {
           y += 5;
           
           // Table header
-          const colWidths = [80, 20, 40, 30];
           const startX = margin;
           
           doc.setFont("times", "bold");
           doc.setFillColor(240, 240, 240);
           doc.rect(startX, y - 4, textWidth, 8, 'F');
           doc.text("Denumire", startX + 2, y);
-          doc.text("Cant.", startX + colWidths[0] + 2, y);
-          doc.text("Stare", startX + colWidths[0] + colWidths[1] + 2, y);
-          doc.text("Locatie", startX + colWidths[0] + colWidths[1] + colWidths[2] + 2, y);
+          doc.text("Cant.", startX + 55, y);
+          doc.text("Stare", startX + 70, y);
+          doc.text("Locatie", startX + 105, y);
+          doc.text("Observatii", startX + 130, y);
           y += 8;
           
           doc.setFont("times", "normal");
           
           const conditionLabels: Record<string, string> = {
             'noua': 'Noua',
-            'foarte_buna': 'Foarte buna',
+            'foarte_buna': 'F. buna',
             'buna': 'Buna',
-            'satisfacatoare': 'Satisfacatoare',
+            'satisfacatoare': 'Satisf.',
             'uzata': 'Uzata'
           };
           
@@ -1353,10 +1353,11 @@ const ContractGeneratorPage = () => {
               doc.rect(startX, y - 4, textWidth, 6, 'F');
             }
             
-            doc.text(item.item_name.substring(0, 35), startX + 2, y);
-            doc.text(item.quantity.toString(), startX + colWidths[0] + 2, y);
-            doc.text(conditionLabels[item.condition] || item.condition, startX + colWidths[0] + colWidths[1] + 2, y);
-            doc.text((item.location || '-').substring(0, 15), startX + colWidths[0] + colWidths[1] + colWidths[2] + 2, y);
+            doc.text(item.item_name.substring(0, 25), startX + 2, y);
+            doc.text(item.quantity.toString(), startX + 55, y);
+            doc.text(conditionLabels[item.condition] || item.condition, startX + 70, y);
+            doc.text((item.location || '-').substring(0, 12), startX + 105, y);
+            doc.text((item.notes || '-').substring(0, 20), startX + 130, y);
             y += 6;
           });
           
@@ -1949,9 +1950,10 @@ const ContractGeneratorPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Denumire</TableHead>
-                    <TableHead className="w-[80px]">Cant.</TableHead>
+                    <TableHead className="w-[70px]">Cant.</TableHead>
                     <TableHead>Stare</TableHead>
                     <TableHead>Locație</TableHead>
+                    <TableHead>Notițe</TableHead>
                     <TableHead className="w-[100px]">Acțiuni</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -2019,6 +2021,18 @@ const ContractGeneratorPage = () => {
                           />
                         ) : (
                           item.location || '-'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingItemId === item.id ? (
+                          <Input
+                            value={item.notes}
+                            onChange={(e) => updateInventoryItem(item.id, 'notes', e.target.value)}
+                            className="h-8"
+                            placeholder="Observații"
+                          />
+                        ) : (
+                          <span className="text-muted-foreground text-sm">{item.notes || '-'}</span>
                         )}
                       </TableCell>
                       <TableCell>
