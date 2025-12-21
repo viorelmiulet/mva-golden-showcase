@@ -46,6 +46,8 @@ interface PersonData {
   cnp: string;
   seria_ci: string;
   numar_ci: string;
+  ci_emitent: string;
+  ci_data_emiterii: string;
   adresa: string;
   cetatenie: string;
 }
@@ -101,6 +103,8 @@ const emptyPerson: PersonData = {
   cnp: "",
   seria_ci: "",
   numar_ci: "",
+  ci_emitent: "",
+  ci_data_emiterii: "",
   adresa: "",
   cetatenie: "romana",
 };
@@ -243,6 +247,8 @@ const ContractGeneratorPage = () => {
         cnp: extracted.cnp || "",
         seria_ci: extracted.seria || "",
         numar_ci: extracted.numar || "",
+        ci_emitent: "",
+        ci_data_emiterii: "",
         adresa: fullAddress,
         cetatenie: extracted.cetatenie || "romana",
       };
@@ -739,7 +745,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
+                text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${contractData.proprietar.ci_data_emiterii}` : ''}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
                 spacing: { after: 200 },
               }),
               new Paragraph({
@@ -748,7 +754,7 @@ const ContractGeneratorPage = () => {
                 ],
               }),
               new Paragraph({
-                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
+                text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${contractData.chirias.ci_data_emiterii}` : ''}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
                 spacing: { after: 400 },
               }),
               
@@ -1000,7 +1006,10 @@ const ContractGeneratorPage = () => {
         doc.text("1. PROPRIETAR:", margin, y);
         y += 6;
         doc.setFont("helvetica", "normal");
-        const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
+        const proprietarCiDetails = contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii 
+          ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${contractData.proprietar.ci_data_emiterii}` 
+          : '';
+        const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${proprietarCiDetails}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
         const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
         doc.text(propLines, margin, y);
         y += propLines.length * 5 + 6;
@@ -1009,7 +1018,10 @@ const ContractGeneratorPage = () => {
         doc.text("2. CHIRIAS:", margin, y);
         y += 6;
         doc.setFont("helvetica", "normal");
-        const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
+        const chiriasCiDetails = contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii 
+          ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${contractData.chirias.ci_data_emiterii}` 
+          : '';
+        const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${chiriasCiDetails}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
         const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
         doc.text(chirLines, margin, y);
         y += chirLines.length * 5 + 10;
@@ -1345,6 +1357,27 @@ const ContractGeneratorPage = () => {
                 value={data.numar_ci}
                 onChange={(e) => updateData('numar_ci', e.target.value)}
                 placeholder="123456"
+                className="h-9"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Emitent CI</Label>
+              <Input
+                value={data.ci_emitent}
+                onChange={(e) => updateData('ci_emitent', e.target.value)}
+                placeholder="SPCLEP Sector 1"
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Data emiterii CI</Label>
+              <Input
+                type="date"
+                value={data.ci_data_emiterii}
+                onChange={(e) => updateData('ci_data_emiterii', e.target.value)}
                 className="h-9"
               />
             </div>

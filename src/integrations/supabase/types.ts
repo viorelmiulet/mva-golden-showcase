@@ -287,6 +287,8 @@ export type Database = {
           advance_percent: string | null
           chirias_signed: boolean | null
           client_adresa: string | null
+          client_ci_data_emiterii: string | null
+          client_ci_emitent: string | null
           client_cnp: string | null
           client_name: string
           client_numar_ci: string | null
@@ -311,6 +313,8 @@ export type Database = {
           advance_percent?: string | null
           chirias_signed?: boolean | null
           client_adresa?: string | null
+          client_ci_data_emiterii?: string | null
+          client_ci_emitent?: string | null
           client_cnp?: string | null
           client_name: string
           client_numar_ci?: string | null
@@ -335,6 +339,8 @@ export type Database = {
           advance_percent?: string | null
           chirias_signed?: boolean | null
           client_adresa?: string | null
+          client_ci_data_emiterii?: string | null
+          client_ci_emitent?: string | null
           client_cnp?: string | null
           client_name?: string
           client_numar_ci?: string | null
