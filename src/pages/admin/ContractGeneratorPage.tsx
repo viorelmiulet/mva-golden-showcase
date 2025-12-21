@@ -701,6 +701,21 @@ const ContractGeneratorPage = () => {
     setRegeneratingContractId(contract.id);
     
     try {
+      // Fetch site settings for footer
+      const { data: siteSettingsData } = await supabase
+        .from('site_settings')
+        .select('key, value');
+      
+      const siteSettings: Record<string, string> = {};
+      siteSettingsData?.forEach(item => {
+        siteSettings[item.key] = item.value || '';
+      });
+      
+      const companyName = siteSettings.companyName || 'MVA Imobiliare';
+      const companyPhone = siteSettings.phone || '+40 757 117 442';
+      const companyEmail = siteSettings.email || 'contact@mvaimobiliare.ro';
+      const companyWebsite = siteSettings.websiteUrl || 'www.mvaimobiliare.ro';
+
       // Fetch signatures from database
       const { data: signatures, error: sigError } = await supabase
         .from('contract_signatures')
@@ -1116,8 +1131,8 @@ const ContractGeneratorPage = () => {
         doc.setFont("times", "normal");
         doc.setTextColor(100, 100, 100);
         
-        // Contact info line
-        doc.text("MVA Imobiliare | Tel: +40 757 117 442 | Email: contact@mvaimobiliare.ro | www.mvaimobiliare.ro", pageWidth / 2, 285, { align: "center" });
+        // Contact info line - using settings from database
+        doc.text(`${companyName} | Tel: ${companyPhone} | Email: ${companyEmail} | ${companyWebsite.replace('https://', '')}`, pageWidth / 2, 285, { align: "center" });
         
         // Page number
         doc.text(`Pagina ${i} din ${totalPages}`, pageWidth / 2, 290, { align: "center" });
