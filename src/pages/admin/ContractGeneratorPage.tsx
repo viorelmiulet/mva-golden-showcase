@@ -78,6 +78,18 @@ interface SavedContract {
   client_seria_ci: string | null;
   client_numar_ci: string | null;
   client_adresa: string | null;
+  client_ci_emitent: string | null;
+  client_ci_data_emiterii: string | null;
+  // Proprietar data
+  proprietar_name: string | null;
+  proprietar_prenume: string | null;
+  proprietar_cnp: string | null;
+  proprietar_seria_ci: string | null;
+  proprietar_numar_ci: string | null;
+  proprietar_adresa: string | null;
+  proprietar_ci_emitent: string | null;
+  proprietar_ci_data_emiterii: string | null;
+  // Property data
   property_address: string;
   property_price: number | null;
   property_currency: string | null;
@@ -181,7 +193,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, property_address, property_price, property_currency, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
+        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, client_ci_emitent, client_ci_data_emiterii, proprietar_name, proprietar_prenume, proprietar_cnp, proprietar_seria_ci, proprietar_numar_ci, proprietar_adresa, proprietar_ci_emitent, proprietar_ci_data_emiterii, property_address, property_price, property_currency, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -312,16 +324,29 @@ const ContractGeneratorPage = () => {
   const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
     try {
       const { data: insertedContract, error } = await supabase.from('contracts').insert({
+        // Chiriaș data
         client_name: contractData.chirias.nume,
         client_prenume: contractData.chirias.prenume || null,
         client_cnp: contractData.chirias.cnp || null,
         client_seria_ci: contractData.chirias.seria_ci || null,
         client_numar_ci: contractData.chirias.numar_ci || null,
         client_adresa: contractData.chirias.adresa || null,
+        client_ci_emitent: contractData.chirias.ci_emitent || null,
+        client_ci_data_emiterii: contractData.chirias.ci_data_emiterii || null,
+        // Proprietar data
+        proprietar_name: contractData.proprietar.nume || null,
+        proprietar_prenume: contractData.proprietar.prenume || null,
+        proprietar_cnp: contractData.proprietar.cnp || null,
+        proprietar_seria_ci: contractData.proprietar.seria_ci || null,
+        proprietar_numar_ci: contractData.proprietar.numar_ci || null,
+        proprietar_adresa: contractData.proprietar.adresa || null,
+        proprietar_ci_emitent: contractData.proprietar.ci_emitent || null,
+        proprietar_ci_data_emiterii: contractData.proprietar.ci_data_emiterii || null,
+        // Property data
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
         property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
-        property_currency: 'EUR',
+        property_currency: contractData.moneda || 'EUR',
         contract_type: 'inchiriere',
         contract_date: contractData.data_contract,
         duration_months: contractData.durata_inchiriere ? parseInt(contractData.durata_inchiriere) : null,
@@ -626,8 +651,10 @@ const ContractGeneratorPage = () => {
       doc.text("1. PROPRIETAR:", margin, y);
       y += 6;
       doc.setFont("helvetica", "normal");
-      doc.text(`In calitate de proprietar al imobilului situat in ${contract.property_address}`, margin, y);
-      y += 10;
+      const proprietarText = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}${contract.proprietar_cnp ? `, CNP ${contract.proprietar_cnp}` : ''}${contract.proprietar_seria_ci ? `, C.I seria ${contract.proprietar_seria_ci}` : ''}${contract.proprietar_numar_ci ? ` nr. ${contract.proprietar_numar_ci}` : ''}, in calitate de proprietar al imobilului situat in ${contract.property_address}.`;
+      const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
+      doc.text(propLines, margin, y);
+      y += propLines.length * 5 + 10;
 
       doc.setFont("helvetica", "bold");
       doc.text("2. CHIRIAS:", margin, y);
