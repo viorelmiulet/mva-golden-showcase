@@ -241,6 +241,69 @@ export type Database = {
         }
         Relationships: []
       }
+      contracts: {
+        Row: {
+          advance_percent: string | null
+          client_adresa: string | null
+          client_cnp: string | null
+          client_name: string
+          client_numar_ci: string | null
+          client_prenume: string | null
+          client_seria_ci: string | null
+          contract_date: string
+          contract_type: string
+          created_at: string
+          duration_months: number | null
+          id: string
+          notes: string | null
+          pdf_generated: boolean | null
+          property_address: string
+          property_currency: string | null
+          property_price: number | null
+          property_surface: number | null
+        }
+        Insert: {
+          advance_percent?: string | null
+          client_adresa?: string | null
+          client_cnp?: string | null
+          client_name: string
+          client_numar_ci?: string | null
+          client_prenume?: string | null
+          client_seria_ci?: string | null
+          contract_date: string
+          contract_type: string
+          created_at?: string
+          duration_months?: number | null
+          id?: string
+          notes?: string | null
+          pdf_generated?: boolean | null
+          property_address: string
+          property_currency?: string | null
+          property_price?: number | null
+          property_surface?: number | null
+        }
+        Update: {
+          advance_percent?: string | null
+          client_adresa?: string | null
+          client_cnp?: string | null
+          client_name?: string
+          client_numar_ci?: string | null
+          client_prenume?: string | null
+          client_seria_ci?: string | null
+          contract_date?: string
+          contract_type?: string
+          created_at?: string
+          duration_months?: number | null
+          id?: string
+          notes?: string | null
+          pdf_generated?: boolean | null
+          property_address?: string
+          property_currency?: string | null
+          property_price?: number | null
+          property_surface?: number | null
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string

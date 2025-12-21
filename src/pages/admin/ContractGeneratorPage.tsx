@@ -1,14 +1,18 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, CreditCard } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
+import { format } from "date-fns";
+import { ro } from "date-fns/locale";
 
 interface ExtractedData {
   nume: string;
@@ -34,31 +38,40 @@ interface ExtractedData {
 }
 
 interface ContractData {
-  // Date client
   nume: string;
   prenume: string;
   cnp: string;
   seria_ci: string;
   numar_ci: string;
   adresa: string;
-  
-  // Date proprietate
   proprietate_adresa: string;
   proprietate_pret: string;
   proprietate_suprafata: string;
-  
-  // Date contract
   tip_contract: "vanzare-cumparare" | "inchiriere" | "precontract";
   data_contract: string;
   durata_inchiriere?: string;
   avans?: string;
 }
 
+interface SavedContract {
+  id: string;
+  created_at: string;
+  client_name: string;
+  client_prenume: string | null;
+  property_address: string;
+  property_price: number | null;
+  contract_type: string;
+  contract_date: string;
+}
+
 const ContractGeneratorPage = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
+  const [contracts, setContracts] = useState<SavedContract[]>([]);
+  const [isLoadingContracts, setIsLoadingContracts] = useState(true);
   const [contractData, setContractData] = useState<ContractData>({
     nume: "",
     prenume: "",
@@ -74,6 +87,30 @@ const ContractGeneratorPage = () => {
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch contracts on mount
+  useEffect(() => {
+    fetchContracts();
+  }, []);
+
+  const fetchContracts = async () => {
+    setIsLoadingContracts(true);
+    try {
+      const { data, error } = await supabase
+        .from('contracts')
+        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setContracts(data || []);
+    } catch (error: any) {
+      console.error('Error fetching contracts:', error);
+      toast.error("Eroare la încărcarea istoricului");
+    } finally {
+      setIsLoadingContracts(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,7 +152,6 @@ const ContractGeneratorPage = () => {
       const extracted = data.data as ExtractedData;
       setExtractedData(extracted);
       
-      // Populate contract data
       const fullAddress = [
         extracted.adresa?.strada ? `Str. ${extracted.adresa.strada}` : '',
         extracted.adresa?.numar ? `Nr. ${extracted.adresa.numar}` : '',
@@ -146,8 +182,39 @@ const ContractGeneratorPage = () => {
     }
   };
 
-  const generateContract = () => {
+  const saveContractToDatabase = async () => {
+    try {
+      const { error } = await supabase.from('contracts').insert({
+        client_name: contractData.nume,
+        client_prenume: contractData.prenume || null,
+        client_cnp: contractData.cnp || null,
+        client_seria_ci: contractData.seria_ci || null,
+        client_numar_ci: contractData.numar_ci || null,
+        client_adresa: contractData.adresa || null,
+        property_address: contractData.proprietate_adresa,
+        property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
+        property_surface: contractData.proprietate_suprafata ? parseFloat(contractData.proprietate_suprafata) : null,
+        property_currency: 'EUR',
+        contract_type: contractData.tip_contract,
+        contract_date: contractData.data_contract,
+        duration_months: contractData.durata_inchiriere ? parseInt(contractData.durata_inchiriere) : null,
+        advance_percent: contractData.avans || null,
+        pdf_generated: true,
+      });
+
+      if (error) throw error;
+      
+      // Refresh contracts list
+      await fetchContracts();
+    } catch (error: any) {
+      console.error('Error saving contract:', error);
+      throw error;
+    }
+  };
+
+  const generateContract = async () => {
     setIsGenerating(true);
+    setIsSaving(true);
     
     try {
       const doc = new jsPDF();
@@ -155,7 +222,6 @@ const ContractGeneratorPage = () => {
       const margin = 20;
       let y = 20;
 
-      // Title
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
       
@@ -175,13 +241,11 @@ const ContractGeneratorPage = () => {
       doc.text(title, pageWidth / 2, y, { align: "center" });
       y += 15;
 
-      // Contract number and date
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.text(`Nr. _______ din ${contractData.data_contract}`, pageWidth / 2, y, { align: "center" });
       y += 20;
 
-      // Parties section
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("I. PĂRȚILE CONTRACTANTE", margin, y);
@@ -203,7 +267,6 @@ const ContractGeneratorPage = () => {
         (contractData.tip_contract === "inchiriere" ? "PROPRIETAR" : "VÂNZĂTOR"), margin, y);
       y += 15;
 
-      // Object section
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("II. OBIECTUL CONTRACTULUI", margin, y);
@@ -225,7 +288,6 @@ const ContractGeneratorPage = () => {
       doc.text(objectLines, margin, y);
       y += objectLines.length * 5 + 15;
 
-      // Price section
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("III. PREȚUL ȘI MODALITATEA DE PLATĂ", margin, y);
@@ -250,7 +312,6 @@ const ContractGeneratorPage = () => {
       doc.text(priceLines, margin, y);
       y += priceLines.length * 5 + 15;
 
-      // Obligations section
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("IV. OBLIGAȚIILE PĂRȚILOR", margin, y);
@@ -270,7 +331,6 @@ const ContractGeneratorPage = () => {
       }
       y += 20;
 
-      // Final provisions
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("V. DISPOZIȚII FINALE", margin, y);
@@ -281,23 +341,38 @@ const ContractGeneratorPage = () => {
       doc.text("Prezentul contract s-a încheiat în 2 (două) exemplare, câte unul pentru fiecare parte.", margin, y);
       y += 30;
 
-      // Signatures
       doc.text("VÂNZĂTOR/PROPRIETAR", margin, y);
       doc.text("CUMPĂRĂTOR/CHIRIAȘ", pageWidth - margin - 50, y);
       y += 15;
       doc.text("_____________________", margin, y);
       doc.text("_____________________", pageWidth - margin - 50, y);
 
-      // Save PDF
       const fileName = `contract_${contractData.tip_contract}_${contractData.nume}_${contractData.prenume}_${Date.now()}.pdf`;
       doc.save(fileName);
       
-      toast.success("Contract generat cu succes!");
+      // Save to database
+      await saveContractToDatabase();
+      
+      toast.success("Contract generat și salvat cu succes!");
     } catch (error: any) {
       console.error('Error generating contract:', error);
       toast.error("Eroare la generarea contractului");
     } finally {
       setIsGenerating(false);
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteContract = async (id: string) => {
+    try {
+      const { error } = await supabase.from('contracts').delete().eq('id', id);
+      if (error) throw error;
+      
+      setContracts(prev => prev.filter(c => c.id !== id));
+      toast.success("Contract șters din istoric");
+    } catch (error: any) {
+      console.error('Error deleting contract:', error);
+      toast.error("Eroare la ștergerea contractului");
     }
   };
 
@@ -319,6 +394,19 @@ const ContractGeneratorPage = () => {
     });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const getContractTypeBadge = (type: string) => {
+    switch (type) {
+      case "vanzare-cumparare":
+        return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Vânzare</Badge>;
+      case "inchiriere":
+        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Închiriere</Badge>;
+      case "precontract":
+        return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Precontract</Badge>;
+      default:
+        return <Badge variant="outline">{type}</Badge>;
     }
   };
 
@@ -586,18 +674,92 @@ const ContractGeneratorPage = () => {
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Se generează...
+                  {isSaving ? "Se salvează..." : "Se generează..."}
                 </>
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Generează Contract PDF
+                  Generează și Salvează Contract
                 </>
               )}
             </Button>
           </CardContent>
         </Card>
       </div>
+
+      {/* Contract History */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Istoric Contracte
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={fetchContracts} disabled={isLoadingContracts}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingContracts ? 'animate-spin' : ''}`} />
+              Reîmprospătează
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoadingContracts ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : contracts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>Nu există contracte generate încă</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Proprietate</TableHead>
+                    <TableHead>Preț</TableHead>
+                    <TableHead>Tip</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {contracts.map((contract) => (
+                    <TableRow key={contract.id}>
+                      <TableCell className="whitespace-nowrap">
+                        {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
+                      </TableCell>
+                      <TableCell>
+                        {contract.client_prenume} {contract.client_name}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {contract.property_address}
+                      </TableCell>
+                      <TableCell>
+                        {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {getContractTypeBadge(contract.contract_type)}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteContract(contract.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
