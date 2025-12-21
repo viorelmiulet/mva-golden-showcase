@@ -2671,18 +2671,18 @@ const ContractGeneratorPage = () => {
 
       {/* PDF Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Previzualizare Contract - {previewContractName}
+        <DialogContent className="w-[95vw] max-w-4xl h-[85vh] sm:h-[90vh] flex flex-col p-3 sm:p-6">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="truncate">Previzualizare - {previewContractName}</span>
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 -mx-3 sm:mx-0">
             {previewPdfUrl ? (
               <iframe 
                 src={previewPdfUrl}
-                className="w-full h-full rounded-lg border"
+                className="w-full h-full sm:rounded-lg border-y sm:border"
                 title="Contract Preview"
               />
             ) : (
@@ -2691,12 +2691,12 @@ const ContractGeneratorPage = () => {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
+          <DialogFooter className="flex-row gap-2 pt-2">
+            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)} className="flex-1 sm:flex-none">
               Închide
             </Button>
             {previewPdfUrl && (
-              <Button onClick={() => window.open(previewPdfUrl, '_blank')}>
+              <Button onClick={() => window.open(previewPdfUrl, '_blank')} className="flex-1 sm:flex-none">
                 <Download className="h-4 w-4 mr-2" />
                 Descarcă
               </Button>
