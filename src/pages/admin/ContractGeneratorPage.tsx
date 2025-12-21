@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import SignaturePad from "@/components/SignaturePad";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -59,6 +60,8 @@ interface ContractData {
   data_contract: string;
   data_incepere: string;
   durata_inchiriere: string;
+  semnatura_proprietar: string;
+  semnatura_chirias: string;
 }
 
 interface SavedContract {
@@ -109,6 +112,8 @@ const ContractGeneratorPage = () => {
     data_contract: new Date().toISOString().split('T')[0],
     data_incepere: new Date().toISOString().split('T')[0],
     durata_inchiriere: "12",
+    semnatura_proprietar: "",
+    semnatura_chirias: "",
   });
   
   const fileInputProprietarRef = useRef<HTMLInputElement>(null);
@@ -736,9 +741,35 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
         doc.text(`${contractData.proprietar.prenume} ${contractData.proprietar.nume}`, margin, y);
         doc.text(`${contractData.chirias.prenume} ${contractData.chirias.nume}`, pageWidth - margin - 50, y);
-        y += 15;
-        doc.text("_____________________", margin, y);
-        doc.text("_____________________", pageWidth - margin - 50, y);
+        y += 8;
+        
+        // Add electronic signatures if available
+        if (contractData.semnatura_proprietar || contractData.semnatura_chirias) {
+          y += 5;
+          const signatureHeight = 25;
+          const signatureWidth = 50;
+          
+          if (contractData.semnatura_proprietar) {
+            try {
+              doc.addImage(contractData.semnatura_proprietar, 'PNG', margin, y, signatureWidth, signatureHeight);
+            } catch (e) {
+              console.error('Error adding proprietar signature:', e);
+            }
+          }
+          
+          if (contractData.semnatura_chirias) {
+            try {
+              doc.addImage(contractData.semnatura_chirias, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
+            } catch (e) {
+              console.error('Error adding chirias signature:', e);
+            }
+          }
+          y += signatureHeight + 5;
+        } else {
+          y += 15;
+          doc.text("_____________________", margin, y);
+          doc.text("_____________________", pageWidth - margin - 50, y);
+        }
 
         const fileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${Date.now()}.pdf`;
         
@@ -792,6 +823,8 @@ const ContractGeneratorPage = () => {
       data_contract: new Date().toISOString().split('T')[0],
       data_incepere: new Date().toISOString().split('T')[0],
       durata_inchiriere: "12",
+      semnatura_proprietar: "",
+      semnatura_chirias: "",
     });
     if (fileInputProprietarRef.current) fileInputProprietarRef.current.value = "";
     if (fileInputChiriasRef.current) fileInputChiriasRef.current.value = "";
@@ -1164,6 +1197,20 @@ const ContractGeneratorPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Electronic Signatures */}
+        <div className="grid grid-cols-2 gap-4">
+          <SignaturePad
+            title="Semnătură Proprietar"
+            savedSignature={contractData.semnatura_proprietar}
+            onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_proprietar: sig }))}
+          />
+          <SignaturePad
+            title="Semnătură Chiriaș"
+            savedSignature={contractData.semnatura_chirias}
+            onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_chirias: sig }))}
+          />
+        </div>
       </div>
 
       {/* Contract History */}
