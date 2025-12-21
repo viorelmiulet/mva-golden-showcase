@@ -51,6 +51,7 @@ interface ContractData {
   proprietate_adresa: string;
   proprietate_pret: string;
   garantie: string;
+  numar_camere: string;
   data_contract: string;
   durata_inchiriere: string;
 }
@@ -95,6 +96,7 @@ const ContractGeneratorPage = () => {
     proprietate_adresa: "",
     proprietate_pret: "",
     garantie: "",
+    numar_camere: "1",
     data_contract: new Date().toISOString().split('T')[0],
     durata_inchiriere: "12",
   });
@@ -339,7 +341,8 @@ const ContractGeneratorPage = () => {
 
       // I. OBIECTUL CONTRACTULUI
       addSection("I. OBIECTUL CONTRACTULUI");
-      addParagraph(`Proprietarul inchiriaza chiriasului imobilul situat in ${contractData.proprietate_adresa}`);
+      const camereText = contractData.numar_camere === "1" ? "1 camera" : `${contractData.numar_camere} camere`;
+      addParagraph(`Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`);
       y += 5;
 
       // II. DESTINATIA
@@ -483,6 +486,7 @@ const ContractGeneratorPage = () => {
       proprietate_adresa: "",
       proprietate_pret: "",
       garantie: "",
+      numar_camere: "1",
       data_contract: new Date().toISOString().split('T')[0],
       durata_inchiriere: "12",
     });
@@ -709,9 +713,20 @@ const ContractGeneratorPage = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Chirie lunară (EUR)</Label>
+                <Label className="text-xs">Nr. camere</Label>
+                <Input
+                  type="number"
+                  value={contractData.numar_camere}
+                  onChange={(e) => setContractData(prev => ({ ...prev, numar_camere: e.target.value }))}
+                  placeholder="1"
+                  className="h-9"
+                  min="1"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Chirie (EUR)</Label>
                 <Input
                   type="number"
                   value={contractData.proprietate_pret}
