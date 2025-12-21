@@ -129,21 +129,19 @@ export function SwipeableContractCard({
         )}
         style={{ width: MAX_SWIPE }}
       >
-        {(contract.pdf_url || anySigned) && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 text-white hover:bg-white/20"
-            onClick={() => { onPreview(); resetSwipe(); }}
-            disabled={isPreviewing}
-          >
-            {isPreviewing ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Eye className="h-5 w-5" />
-            )}
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 text-white hover:bg-white/20"
+          onClick={() => { onPreview(); resetSwipe(); }}
+          disabled={isPreviewing}
+        >
+          {isPreviewing ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Eye className="h-5 w-5" />
+          )}
+        </Button>
         {contract.pdf_url && (
           <Button
             variant="ghost"
