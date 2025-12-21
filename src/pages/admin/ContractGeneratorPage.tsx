@@ -2041,31 +2041,34 @@ const ContractGeneratorPage = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          {!contract.proprietar_signed && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-blue-500 hover:text-blue-600"
-                              onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
-                              title="Trimite email proprietar"
-                            >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-7 w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                            onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
+                            title={contract.proprietar_signed ? "Proprietar a semnat" : "Trimite/retrimite email proprietar"}
+                            disabled={contract.proprietar_signed}
+                          >
+                            {contract.proprietar_signed ? (
+                              <span className="text-xs">✓P</span>
+                            ) : (
                               <Mail className="h-3 w-3" />
-                            </Button>
-                          )}
-                          {!contract.chirias_signed && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-blue-500 hover:text-blue-600"
-                              onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
-                              title="Trimite email chiriaș"
-                            >
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                            onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
+                            title={contract.chirias_signed ? "Chiriaș a semnat" : "Trimite/retrimite email chiriaș"}
+                            disabled={contract.chirias_signed}
+                          >
+                            {contract.chirias_signed ? (
+                              <span className="text-xs">✓C</span>
+                            ) : (
                               <Mail className="h-3 w-3" />
-                            </Button>
-                          )}
-                          {contract.proprietar_signed && contract.chirias_signed && (
-                            <span className="text-green-500 text-xs">✓</span>
-                          )}
+                            )}
+                          </Button>
                         </div>
                       </TableCell>
                       <TableCell>
