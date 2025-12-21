@@ -51,6 +51,7 @@ const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
 const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
 const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
+const ContractGeneratorPage = lazy(() => import("./pages/admin/ContractGeneratorPage"));
 
 
 const queryClient = new QueryClient();
@@ -99,6 +100,7 @@ const App = () => {
                 <Route path="facebook" element={<FacebookPage />} />
                 <Route path="clienti" element={<ClientsAdminPage />} />
                 <Route path="virtual-staging" element={<VirtualStagingPage />} />
+                <Route path="contracte" element={<ContractGeneratorPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
