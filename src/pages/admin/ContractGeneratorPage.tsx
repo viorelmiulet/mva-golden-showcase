@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
@@ -540,7 +540,7 @@ const ContractGeneratorPage = () => {
     }
   };
 
-  const copySignatureLink = async (contractId: string, partyType: 'proprietar' | 'chirias') => {
+  const getSignatureUrl = async (contractId: string, partyType: 'proprietar' | 'chirias'): Promise<string | null> => {
     try {
       let { data, error } = await supabase
         .from('contract_signatures')
@@ -560,24 +560,52 @@ const ContractGeneratorPage = () => {
         
         if (insertError) {
           console.error('Error creating signature:', insertError);
-          toast.error('Eroare la crearea linkului de semnătură');
-          return;
+          return null;
         }
         data = newSig;
       }
 
       if (error || !data) {
-        toast.error('Link-ul nu a fost găsit');
-        return;
+        return null;
       }
 
-      const signatureUrl = `${window.location.origin}/sign/${data.signature_token}`;
-      await navigator.clipboard.writeText(signatureUrl);
-      toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+      return `${window.location.origin}/sign/${data.signature_token}`;
     } catch (error: any) {
-      console.error('Error copying signature link:', error);
-      toast.error('Eroare la copierea linkului');
+      console.error('Error getting signature URL:', error);
+      return null;
     }
+  };
+
+  const copySignatureLink = async (contractId: string, partyType: 'proprietar' | 'chirias') => {
+    const signatureUrl = await getSignatureUrl(contractId, partyType);
+    if (!signatureUrl) {
+      toast.error('Eroare la obținerea linkului de semnătură');
+      return;
+    }
+    
+    await navigator.clipboard.writeText(signatureUrl);
+    toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+  };
+
+  const sendSignatureLinkWhatsApp = async (contractId: string, partyType: 'proprietar' | 'chirias', contract: SavedContract) => {
+    const signatureUrl = await getSignatureUrl(contractId, partyType);
+    if (!signatureUrl) {
+      toast.error('Eroare la obținerea linkului de semnătură');
+      return;
+    }
+    
+    const partyName = partyType === 'proprietar' 
+      ? (contract.proprietar_name || 'Proprietar')
+      : `${contract.client_prenume || ''} ${contract.client_name}`.trim();
+    
+    const message = encodeURIComponent(
+      `Bună ziua ${partyName},\n\n` +
+      `Vă rugăm să accesați următorul link pentru a semna contractul de închiriere pentru imobilul din ${contract.property_address}:\n\n` +
+      `${signatureUrl}\n\n` +
+      `Cu stimă,\nMVA Imobiliare`
+    );
+    
+    window.open(`https://wa.me/?text=${message}`, '_blank');
   };
 
   const generateSignatureLinks = async (contractId: string) => {
@@ -2234,7 +2262,7 @@ const ContractGeneratorPage = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -2248,12 +2276,30 @@ const ContractGeneratorPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="h-7 text-xs text-green-600 hover:text-green-700"
+                            onClick={() => sendSignatureLinkWhatsApp(contract.id, 'proprietar', contract)}
+                            title="Trimite link semnare proprietar pe WhatsApp"
+                          >
+                            <MessageCircle className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="h-7 text-xs"
                             onClick={() => copySignatureLink(contract.id, 'chirias')}
                             title="Copiază link semnare chiriaș"
                           >
                             <PenTool className="h-3 w-3 mr-1" />
                             Chir.
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs text-green-600 hover:text-green-700"
+                            onClick={() => sendSignatureLinkWhatsApp(contract.id, 'chirias', contract)}
+                            title="Trimite link semnare chiriaș pe WhatsApp"
+                          >
+                            <MessageCircle className="h-3 w-3" />
                           </Button>
                         </div>
                       </TableCell>
