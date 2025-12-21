@@ -47,7 +47,7 @@ interface ContractData {
   proprietate_adresa: string;
   proprietate_pret: string;
   proprietate_suprafata: string;
-  tip_contract: "vanzare-cumparare" | "inchiriere" | "precontract";
+  tip_contract: "inchiriere";
   data_contract: string;
   durata_inchiriere?: string;
   avans?: string;
@@ -82,7 +82,7 @@ const ContractGeneratorPage = () => {
     proprietate_adresa: "",
     proprietate_pret: "",
     proprietate_suprafata: "",
-    tip_contract: "vanzare-cumparare",
+    tip_contract: "inchiriere",
     data_contract: new Date().toISOString().split('T')[0],
   });
   
@@ -225,18 +225,7 @@ const ContractGeneratorPage = () => {
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
       
-      let title = "";
-      switch (contractData.tip_contract) {
-        case "vanzare-cumparare":
-          title = "CONTRACT DE VÂNZARE-CUMPĂRARE";
-          break;
-        case "inchiriere":
-          title = "CONTRACT DE ÎNCHIRIERE";
-          break;
-        case "precontract":
-          title = "PRECONTRACT DE VÂNZARE-CUMPĂRARE";
-          break;
-      }
+      const title = "CONTRACT DE ÎNCHIRIERE";
       
       doc.text(title, pageWidth / 2, y, { align: "center" });
       y += 15;
@@ -257,14 +246,13 @@ const ContractGeneratorPage = () => {
       const buyerText = `1. ${contractData.prenume} ${contractData.nume}, CNP ${contractData.cnp}, ` +
         `legitimat/ă cu C.I. seria ${contractData.seria_ci} nr. ${contractData.numar_ci}, ` +
         `domiciliat/ă în ${contractData.adresa}, ` +
-        `în calitate de ${contractData.tip_contract === "inchiriere" ? "CHIRIAȘ" : "CUMPĂRĂTOR"}`;
+        `în calitate de CHIRIAȘ`;
       
       const lines = doc.splitTextToSize(buyerText, pageWidth - 2 * margin);
       doc.text(lines, margin, y);
       y += lines.length * 5 + 10;
 
-      doc.text("2. _________________________________, în calitate de " + 
-        (contractData.tip_contract === "inchiriere" ? "PROPRIETAR" : "VÂNZĂTOR"), margin, y);
+      doc.text("2. _________________________________, în calitate de PROPRIETAR", margin, y);
       y += 15;
 
       doc.setFontSize(12);
@@ -275,14 +263,8 @@ const ContractGeneratorPage = () => {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       
-      let objectText = "";
-      if (contractData.tip_contract === "inchiriere") {
-        objectText = `Proprietarul închiriază, iar chiriașul ia în chirie imobilul situat în ${contractData.proprietate_adresa}, ` +
-          `cu o suprafață de ${contractData.proprietate_suprafata} mp.`;
-      } else {
-        objectText = `Vânzătorul vinde, iar cumpărătorul cumpără imobilul situat în ${contractData.proprietate_adresa}, ` +
-          `cu o suprafață de ${contractData.proprietate_suprafata} mp.`;
-      }
+      const objectText = `Proprietarul închiriază, iar chiriașul ia în chirie imobilul situat în ${contractData.proprietate_adresa}, ` +
+        `cu o suprafață de ${contractData.proprietate_suprafata} mp.`;
       
       const objectLines = doc.splitTextToSize(objectText, pageWidth - 2 * margin);
       doc.text(objectLines, margin, y);
@@ -296,17 +278,8 @@ const ContractGeneratorPage = () => {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       
-      let priceText = "";
-      if (contractData.tip_contract === "inchiriere") {
-        priceText = `Chiria lunară este de ${contractData.proprietate_pret} EUR, plătibilă până în data de 5 a fiecărei luni. ` +
-          `Durata contractului este de ${contractData.durata_inchiriere || "12"} luni.`;
-      } else if (contractData.tip_contract === "precontract") {
-        priceText = `Prețul total al imobilului este de ${contractData.proprietate_pret} EUR. ` +
-          `La semnarea prezentului precontract, cumpărătorul achită un avans de ${contractData.avans || "10%"} din prețul total.`;
-      } else {
-        priceText = `Prețul total al imobilului este de ${contractData.proprietate_pret} EUR, ` +
-          `achitat integral la data semnării contractului în formă autentică.`;
-      }
+      const priceText = `Chiria lunară este de ${contractData.proprietate_pret} EUR, plătibilă până în data de 5 a fiecărei luni. ` +
+        `Durata contractului este de ${contractData.durata_inchiriere || "12"} luni.`;
       
       const priceLines = doc.splitTextToSize(priceText, pageWidth - 2 * margin);
       doc.text(priceLines, margin, y);
@@ -320,15 +293,9 @@ const ContractGeneratorPage = () => {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       
-      if (contractData.tip_contract === "inchiriere") {
-        doc.text("Proprietarul se obligă să predea imobilul în stare corespunzătoare de folosință.", margin, y);
-        y += 7;
-        doc.text("Chiriașul se obligă să folosească imobilul ca un bun proprietar și să plătească chiria la termen.", margin, y);
-      } else {
-        doc.text("Vânzătorul garantează că imobilul este liber de orice sarcini.", margin, y);
-        y += 7;
-        doc.text("Cumpărătorul se obligă să achite integral prețul stabilit.", margin, y);
-      }
+      doc.text("Proprietarul se obligă să predea imobilul în stare corespunzătoare de folosință.", margin, y);
+      y += 7;
+      doc.text("Chiriașul se obligă să folosească imobilul ca un bun proprietar și să plătească chiria la termen.", margin, y);
       y += 20;
 
       doc.setFontSize(12);
@@ -347,7 +314,7 @@ const ContractGeneratorPage = () => {
       doc.text("_____________________", margin, y);
       doc.text("_____________________", pageWidth - margin - 50, y);
 
-      const fileName = `contract_${contractData.tip_contract}_${contractData.nume}_${contractData.prenume}_${Date.now()}.pdf`;
+      const fileName = `contract_inchiriere_${contractData.nume}_${contractData.prenume}_${Date.now()}.pdf`;
       doc.save(fileName);
       
       // Save to database
@@ -389,7 +356,7 @@ const ContractGeneratorPage = () => {
       proprietate_adresa: "",
       proprietate_pret: "",
       proprietate_suprafata: "",
-      tip_contract: "vanzare-cumparare",
+      tip_contract: "inchiriere",
       data_contract: new Date().toISOString().split('T')[0],
     });
     if (fileInputRef.current) {
@@ -398,16 +365,10 @@ const ContractGeneratorPage = () => {
   };
 
   const getContractTypeBadge = (type: string) => {
-    switch (type) {
-      case "vanzare-cumparare":
-        return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Vânzare</Badge>;
-      case "inchiriere":
-        return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Închiriere</Badge>;
-      case "precontract":
-        return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">Precontract</Badge>;
-      default:
-        return <Badge variant="outline">{type}</Badge>;
+    if (type === "inchiriere") {
+      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Închiriere</Badge>;
     }
+    return <Badge variant="outline">{type}</Badge>;
   };
 
   return (
@@ -616,25 +577,6 @@ const ContractGeneratorPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Tip Contract</Label>
-              <Select
-                value={contractData.tip_contract}
-                onValueChange={(value: "vanzare-cumparare" | "inchiriere" | "precontract") => 
-                  setContractData(prev => ({ ...prev, tip_contract: value }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="vanzare-cumparare">Contract Vânzare-Cumpărare</SelectItem>
-                  <SelectItem value="inchiriere">Contract Închiriere</SelectItem>
-                  <SelectItem value="precontract">Precontract</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>Data Contract</Label>
               <Input
                 type="date"
@@ -643,28 +585,15 @@ const ContractGeneratorPage = () => {
               />
             </div>
 
-            {contractData.tip_contract === "inchiriere" && (
-              <div className="space-y-2">
-                <Label>Durată Închiriere (luni)</Label>
-                <Input
-                  type="number"
-                  value={contractData.durata_inchiriere || ""}
-                  onChange={(e) => setContractData(prev => ({ ...prev, durata_inchiriere: e.target.value }))}
-                  placeholder="12"
-                />
-              </div>
-            )}
-
-            {contractData.tip_contract === "precontract" && (
-              <div className="space-y-2">
-                <Label>Avans (%)</Label>
-                <Input
-                  value={contractData.avans || ""}
-                  onChange={(e) => setContractData(prev => ({ ...prev, avans: e.target.value }))}
-                  placeholder="10%"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Durată Închiriere (luni)</Label>
+              <Input
+                type="number"
+                value={contractData.durata_inchiriere || ""}
+                onChange={(e) => setContractData(prev => ({ ...prev, durata_inchiriere: e.target.value }))}
+                placeholder="12"
+              />
+            </div>
 
             <Button
               className="w-full"
