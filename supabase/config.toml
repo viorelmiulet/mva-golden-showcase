@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.extract-id-data]
 verify_jwt = false
+
+[functions.send-signature-link]
+verify_jwt = false
