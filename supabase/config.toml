@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.send-signature-link]
 verify_jwt = false
+
+[functions.auto-generate-signed-contract]
+verify_jwt = false

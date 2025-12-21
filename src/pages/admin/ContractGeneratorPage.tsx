@@ -194,9 +194,38 @@ const ContractGeneratorPage = () => {
   const fileInputProprietarRef = useRef<HTMLInputElement>(null);
   const fileInputChiriasRef = useRef<HTMLInputElement>(null);
 
+  // Track contracts that need auto-regeneration
+  const autoRegeneratedRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     fetchContracts();
   }, []);
+
+  // Auto-regenerate PDF when both parties have signed
+  useEffect(() => {
+    const checkAndAutoRegenerate = async () => {
+      for (const contract of contracts) {
+        // Check if both parties signed and we haven't auto-regenerated yet
+        if (
+          contract.proprietar_signed && 
+          contract.chirias_signed && 
+          !autoRegeneratedRef.current.has(contract.id)
+        ) {
+          // Mark as processed to prevent duplicate regeneration
+          autoRegeneratedRef.current.add(contract.id);
+          
+          console.log('Auto-regenerating PDF for contract:', contract.id);
+          
+          // Automatically regenerate the PDF with signatures
+          await regeneratePdfWithSignatures(contract);
+        }
+      }
+    };
+    
+    if (contracts.length > 0) {
+      checkAndAutoRegenerate();
+    }
+  }, [contracts]);
 
   const fetchContracts = async () => {
     setIsLoadingContracts(true);
