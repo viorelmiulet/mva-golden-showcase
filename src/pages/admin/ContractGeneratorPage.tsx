@@ -651,7 +651,7 @@ const ContractGeneratorPage = () => {
       doc.text("1. PROPRIETAR:", margin, y);
       y += 6;
       doc.setFont("helvetica", "normal");
-      const proprietarText = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}${contract.proprietar_cnp ? `, CNP ${contract.proprietar_cnp}` : ''}${contract.proprietar_seria_ci ? `, C.I seria ${contract.proprietar_seria_ci}` : ''}${contract.proprietar_numar_ci ? ` nr. ${contract.proprietar_numar_ci}` : ''}, in calitate de proprietar al imobilului situat in ${contract.property_address}.`;
+      const proprietarText = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}${contract.proprietar_cnp ? `, CNP ${contract.proprietar_cnp}` : ''}${contract.proprietar_seria_ci ? `, C.I seria ${contract.proprietar_seria_ci}` : ''}${contract.proprietar_numar_ci ? ` nr. ${contract.proprietar_numar_ci}` : ''}${contract.proprietar_adresa ? `, cu domiciliul in ${contract.proprietar_adresa}` : ''}, in calitate de proprietar al imobilului situat in ${contract.property_address}.`;
       const propLines = doc.splitTextToSize(proprietarText, pageWidth - 2 * margin);
       doc.text(propLines, margin, y);
       y += propLines.length * 5 + 10;
@@ -660,7 +660,7 @@ const ContractGeneratorPage = () => {
       doc.text("2. CHIRIAS:", margin, y);
       y += 6;
       doc.setFont("helvetica", "normal");
-      const chiriasText = `${contract.client_prenume || ''} ${contract.client_name}${contract.client_cnp ? `, CNP ${contract.client_cnp}` : ''}${contract.client_seria_ci ? `, C.I seria ${contract.client_seria_ci}` : ''}${contract.client_numar_ci ? ` nr. ${contract.client_numar_ci}` : ''}, in calitate de chirias al imobilului situat in ${contract.property_address}.`;
+      const chiriasText = `${contract.client_prenume || ''} ${contract.client_name}${contract.client_cnp ? `, CNP ${contract.client_cnp}` : ''}${contract.client_seria_ci ? `, C.I seria ${contract.client_seria_ci}` : ''}${contract.client_numar_ci ? ` nr. ${contract.client_numar_ci}` : ''}${contract.client_adresa ? `, cu domiciliul in ${contract.client_adresa}` : ''}, in calitate de chirias al imobilului situat in ${contract.property_address}.`;
       const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
       doc.text(chirLines, margin, y);
       y += chirLines.length * 5 + 10;
