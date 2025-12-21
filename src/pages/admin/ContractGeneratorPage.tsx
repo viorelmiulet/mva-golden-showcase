@@ -647,7 +647,9 @@ const ContractGeneratorPage = () => {
         return null;
       }
 
-      return `${window.location.origin}/sign/${data.signature_token}`;
+      // Use production domain for signature links
+      const baseUrl = 'https://mvaimobiliare.ro';
+      return `${baseUrl}/sign/${data.signature_token}`;
     } catch (error: any) {
       console.error('Error getting signature URL:', error);
       return null;
