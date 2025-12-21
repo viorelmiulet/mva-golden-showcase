@@ -142,6 +142,23 @@ const formatDateRomanian = (dateString: string | null | undefined): string => {
   }
 };
 
+// Helper function to convert image URL to base64
+const imageUrlToBase64 = async (url: string): Promise<string | null> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn('Failed to convert image to base64:', error);
+    return null;
+  }
+};
+
 const ContractGeneratorPage = () => {
   const [isExtractingProprietar, setIsExtractingProprietar] = useState(false);
   const [isExtractingChirias, setIsExtractingChirias] = useState(false);
@@ -2081,8 +2098,19 @@ const ContractGeneratorPage = () => {
                     imageX = margin;
                   }
                   
-                  // Try to add image
-                  doc.addImage(item.images[i], 'JPEG', imageX, y, imageWidth, imageHeight);
+                  // Convert image URL to base64 before adding to PDF
+                  const base64Image = await imageUrlToBase64(item.images[i]);
+                  
+                  if (base64Image) {
+                    doc.addImage(base64Image, 'JPEG', imageX, y, imageWidth, imageHeight);
+                  } else {
+                    // Add placeholder if image conversion fails
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(imageX, y, imageWidth, imageHeight, 'F');
+                    doc.setFontSize(8);
+                    doc.text('[Imagine indisponibila]', imageX + 5, y + imageHeight / 2);
+                    doc.setFontSize(10);
+                  }
                   imageX += imageWidth + 5;
                 } catch (imgError) {
                   console.warn('Could not add image to PDF:', imgError);
@@ -2090,7 +2118,7 @@ const ContractGeneratorPage = () => {
                   doc.setFillColor(240, 240, 240);
                   doc.rect(imageX, y, imageWidth, imageHeight, 'F');
                   doc.setFontSize(8);
-                  doc.text('[Imagine]', imageX + 15, y + imageHeight / 2);
+                  doc.text('[Eroare imagine]', imageX + 10, y + imageHeight / 2);
                   doc.setFontSize(10);
                   imageX += imageWidth + 5;
                 }
