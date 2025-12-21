@@ -449,7 +449,8 @@ const ContractGeneratorPage = () => {
             quantity: item.quantity,
             condition: item.condition,
             location: item.location || null,
-            notes: item.notes || null
+            notes: item.notes || null,
+            images: item.images || []
           }));
           
           const { error: invError } = await supabase
@@ -993,6 +994,82 @@ const ContractGeneratorPage = () => {
         
         addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
         y += 15;
+        
+        // Add inventory images section if any item has images
+        const itemsWithImages = contractInventory.filter((item: any) => item.images && item.images.length > 0);
+        
+        if (itemsWithImages.length > 0) {
+          doc.addPage();
+          y = 25;
+          
+          doc.setFontSize(12);
+          doc.setFont("times", "bold");
+          doc.text("FOTOGRAFII INVENTAR", pageWidth / 2, y, { align: "center" });
+          y += 12;
+          
+          doc.setFontSize(10);
+          doc.setFont("times", "normal");
+          
+          for (const item of itemsWithImages) {
+            if (y > 250) {
+              doc.addPage();
+              y = 20;
+            }
+            
+            doc.setFont("times", "bold");
+            doc.text(removeDiacritics(`${item.item_name}${item.location ? ` - ${item.location}` : ''}`), margin, y);
+            y += 6;
+            doc.setFont("times", "normal");
+            
+            let imageX = margin;
+            const imageWidth = 50;
+            const imageHeight = 40;
+            const imagesPerRow = 3;
+            
+            for (let i = 0; i < item.images.length; i++) {
+              try {
+                // Check if we need a new row
+                if (i > 0 && i % imagesPerRow === 0) {
+                  y += imageHeight + 5;
+                  imageX = margin;
+                }
+                
+                // Check page break
+                if (y + imageHeight > 280) {
+                  doc.addPage();
+                  y = 20;
+                  imageX = margin;
+                }
+                
+                // Convert image URL to base64 before adding to PDF
+                const base64Image = await imageUrlToBase64(item.images[i]);
+                
+                if (base64Image) {
+                  doc.addImage(base64Image, 'JPEG', imageX, y, imageWidth, imageHeight);
+                } else {
+                  // Add placeholder if image conversion fails
+                  doc.setFillColor(240, 240, 240);
+                  doc.rect(imageX, y, imageWidth, imageHeight, 'F');
+                  doc.setFontSize(8);
+                  doc.text('[Imagine indisponibila]', imageX + 5, y + imageHeight / 2);
+                  doc.setFontSize(10);
+                }
+                imageX += imageWidth + 5;
+              } catch (imgError) {
+                console.warn('Could not add image to PDF:', imgError);
+                // Add placeholder text if image fails
+                doc.setFillColor(240, 240, 240);
+                doc.rect(imageX, y, imageWidth, imageHeight, 'F');
+                doc.setFontSize(8);
+                doc.text('[Eroare imagine]', imageX + 10, y + imageHeight / 2);
+                doc.setFontSize(10);
+                imageX += imageWidth + 5;
+              }
+            }
+            
+            y += imageHeight + 10;
+          }
+        }
         
         // SEMNATURI ANEXA 1
         if (y > 200) {
