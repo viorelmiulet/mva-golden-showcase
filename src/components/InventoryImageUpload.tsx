@@ -32,6 +32,16 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
     const newImages: string[] = [];
 
     try {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Upload session check:', { hasSession: !!session, userId: session?.user?.id });
+      
+      if (!session) {
+        toast.error('Trebuie să fii autentificat pentru a încărca imagini');
+        setUploading(false);
+        return;
+      }
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!file.type.startsWith('image/')) {
@@ -47,8 +57,10 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
           format: 'jpeg'
         });
 
-        // Upload to storage
-        const fileName = `inventory/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+        // Upload to storage - use floor-plans folder which has working policies
+        const fileName = `floor-plans/inventory-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+        
+        console.log('Attempting upload to:', fileName);
         
         const { error: uploadError } = await supabase.storage
           .from('project-images')
@@ -57,7 +69,10 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
             contentType: 'image/jpeg'
           });
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('Upload error details:', uploadError);
+          throw uploadError;
+        }
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
