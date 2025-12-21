@@ -49,6 +49,8 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
+const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
+const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
 
 
 const queryClient = new QueryClient();
@@ -90,11 +92,13 @@ const App = () => {
                 <Route path="utilizatori" element={<UsersAdminPage />} />
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="rapoarte" element={<ReportsPage />} />
                 <Route path="setari" element={<SettingsPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
                 <Route path="facebook" element={<FacebookPage />} />
+                <Route path="clienti" element={<ClientsAdminPage />} />
+                <Route path="virtual-staging" element={<VirtualStagingPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
