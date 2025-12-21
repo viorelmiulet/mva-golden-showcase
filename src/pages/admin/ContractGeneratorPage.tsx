@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -69,10 +69,16 @@ interface SavedContract {
   created_at: string;
   client_name: string;
   client_prenume: string | null;
+  client_cnp: string | null;
+  client_seria_ci: string | null;
+  client_numar_ci: string | null;
+  client_adresa: string | null;
   property_address: string;
   property_price: number | null;
+  property_currency: string | null;
   contract_type: string;
   contract_date: string;
+  duration_months: number | null;
   pdf_url: string | null;
   docx_url: string | null;
   proprietar_signed: boolean;
@@ -103,6 +109,7 @@ const ContractGeneratorPage = () => {
   const [isExtractingChirias, setIsExtractingChirias] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [regeneratingContractId, setRegeneratingContractId] = useState<string | null>(null);
   
   const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
@@ -139,7 +146,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date, pdf_url, docx_url, proprietar_signed, chirias_signed')
+        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, property_address, property_price, property_currency, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -402,6 +409,224 @@ const ContractGeneratorPage = () => {
     }
     toast.success('Linkuri de semnătură generate!');
     await fetchContracts();
+  };
+
+  const regeneratePdfWithSignatures = async (contract: SavedContract) => {
+    setRegeneratingContractId(contract.id);
+    
+    try {
+      // Fetch signatures from database
+      const { data: signatures, error: sigError } = await supabase
+        .from('contract_signatures')
+        .select('party_type, signature_data, signer_name')
+        .eq('contract_id', contract.id);
+
+      if (sigError) throw sigError;
+
+      const proprietarSignature = signatures?.find(s => s.party_type === 'proprietar')?.signature_data;
+      const chiriasSignature = signatures?.find(s => s.party_type === 'chirias')?.signature_data;
+
+      if (!proprietarSignature && !chiriasSignature) {
+        toast.error('Nu există semnături pentru acest contract');
+        return;
+      }
+
+      // Generate new PDF with signatures
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      let y = 25;
+
+      const addSection = (title: string) => {
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text(title, margin, y);
+        y += 8;
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+      };
+
+      const addParagraph = (text: string) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+        doc.text(lines, margin, y);
+        y += lines.length * 5 + 3;
+      };
+
+      const addBullet = (text: string) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        const lines = doc.splitTextToSize("- " + text, pageWidth - 2 * margin - 5);
+        doc.text(lines, margin + 3, y);
+        y += lines.length * 5 + 2;
+      };
+
+      const moneda = contract.property_currency || 'EUR';
+      const garantieVal = contract.property_price?.toString() || '';
+      const durataLuni = contract.duration_months?.toString() || '12';
+
+      // TITLU
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
+      y += 8;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.text("(Semnat electronic)", pageWidth / 2, y, { align: "center" });
+      y += 12;
+
+      doc.setFont("helvetica", "normal");
+      doc.text(`Incheiat astazi, ${contract.contract_date} intre:`, margin, y);
+      y += 10;
+
+      // PARTI CONTRACTANTE
+      doc.setFont("helvetica", "bold");
+      doc.text("1. PROPRIETAR:", margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      doc.text(`In calitate de proprietar al imobilului situat in ${contract.property_address}`, margin, y);
+      y += 10;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("2. CHIRIAS:", margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      const chiriasText = `${contract.client_prenume || ''} ${contract.client_name}${contract.client_cnp ? `, CNP ${contract.client_cnp}` : ''}${contract.client_seria_ci ? `, C.I seria ${contract.client_seria_ci}` : ''}${contract.client_numar_ci ? ` nr. ${contract.client_numar_ci}` : ''}, in calitate de chirias al imobilului situat in ${contract.property_address}.`;
+      const chirLines = doc.splitTextToSize(chiriasText, pageWidth - 2 * margin);
+      doc.text(chirLines, margin, y);
+      y += chirLines.length * 5 + 10;
+
+      // I. OBIECTUL CONTRACTULUI
+      addSection("I. OBIECTUL CONTRACTULUI");
+      addParagraph(`Proprietarul inchiriaza chiriasului imobilul situat in ${contract.property_address}`);
+      y += 5;
+
+      // II. DESTINATIA
+      addSection("II. DESTINATIA");
+      addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA.");
+      y += 5;
+
+      // III. DURATA
+      addSection("III. DURATA");
+      addParagraph(`Acest contract este incheiat pentru o perioada de ${durataLuni} luni.`);
+      y += 5;
+
+      // IV. CHIRIA SI MODALITATI DE PLATA
+      addSection("IV. CHIRIA SI MODALITATI DE PLATA");
+      addParagraph(`Chiria lunara convenita este de ${contract.property_price || 'N/A'} ${moneda}/luna.`);
+      addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati la semnare.`);
+      y += 5;
+
+      // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
+      addSection("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
+      doc.setFont("helvetica", "bold");
+      doc.text("OBLIGATIILE PROPRIETARULUI:", margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      addBullet("proprietarul isi asuma raspunderea ca spatiul este liber;");
+      addBullet("pune la dispozitia chiriasului imobilul in stare buna;");
+      addBullet("achita toate taxele legale ale imobilului.");
+      y += 5;
+
+      // VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI
+      addSection("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
+      doc.setFont("helvetica", "bold");
+      doc.text("OBLIGATIILE CHIRIASULUI:", margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      addBullet("sa asigure exploatarea imobilului conform destinatiei;");
+      addBullet("sa nu subinchirieze imobilul fara acordul scris al proprietarului;");
+      addBullet("sa achite platile curente: electricitate, gaze, apa, intretinere.");
+      y += 5;
+
+      // VII. PREDAREA IMOBILULUI
+      addSection("VII. PREDAREA IMOBILULUI");
+      addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului in starea in care l-a primit.");
+      y += 5;
+
+      // VIII. FORTA MAJORA
+      addSection("VIII. FORTA MAJORA");
+      addParagraph("Orice cauza neprevazuta si imposibil de evitat va fi considerata forta majora.");
+      y += 5;
+
+      // IX. CONDITIILE DE INCETARE A CONTRACTULUI
+      addSection("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      addParagraph("1. la expirarea duratei pentru care a fost incheiat;");
+      addParagraph("2. in situatia nerespectarii clauzelor contractuale;");
+      addParagraph("3. prin denuntare unilaterala cu notificare prealabila de 30 de zile.");
+      y += 15;
+
+      // SEMNATURI
+      if (y > 200) {
+        doc.addPage();
+        y = 30;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.text("PROPRIETAR", margin, y);
+      doc.text("CHIRIAS", pageWidth - margin - 30, y);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+      doc.text("", margin, y);
+      doc.text(`${contract.client_prenume || ''} ${contract.client_name}`, pageWidth - margin - 50, y);
+      y += 8;
+      
+      // Add electronic signatures
+      const signatureHeight = 25;
+      const signatureWidth = 50;
+      
+      if (proprietarSignature) {
+        try {
+          doc.addImage(proprietarSignature, 'PNG', margin, y, signatureWidth, signatureHeight);
+        } catch (e) {
+          console.error('Error adding proprietar signature:', e);
+        }
+      } else {
+        doc.text("(nesemnat)", margin, y + 10);
+      }
+      
+      if (chiriasSignature) {
+        try {
+          doc.addImage(chiriasSignature, 'PNG', pageWidth - margin - signatureWidth, y, signatureWidth, signatureHeight);
+        } catch (e) {
+          console.error('Error adding chirias signature:', e);
+        }
+      } else {
+        doc.text("(nesemnat)", pageWidth - margin - 40, y + 10);
+      }
+
+      // Generate and upload new PDF
+      const fileName = `contract_semnat_${contract.client_name}_${Date.now()}.pdf`;
+      const pdfBlob = doc.output('blob');
+      const pdfPath = await uploadContractFile(pdfBlob, fileName);
+
+      // Update contract in database with new PDF URL
+      if (pdfPath) {
+        await supabase
+          .from('contracts')
+          .update({ pdf_url: pdfPath })
+          .eq('id', contract.id);
+      }
+
+      // Download the signed PDF
+      doc.save(fileName);
+      
+      await fetchContracts();
+      toast.success("PDF cu semnături regenerat cu succes!");
+    } catch (error: any) {
+      console.error('Error regenerating PDF:', error);
+      toast.error("Eroare la regenerarea PDF-ului");
+    } finally {
+      setRegeneratingContractId(null);
+    }
   };
 
   const generateContract = async (format: 'pdf' | 'docx' = 'pdf') => {
@@ -1394,6 +1619,22 @@ const ContractGeneratorPage = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
+                          {(contract.proprietar_signed || contract.chirias_signed) && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-green-600 hover:text-green-700"
+                              onClick={() => regeneratePdfWithSignatures(contract)}
+                              disabled={regeneratingContractId === contract.id}
+                              title="Regenerează PDF cu semnături"
+                            >
+                              {regeneratingContractId === contract.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <FilePlus2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
                           {contract.pdf_url && (
                             <Button
                               variant="ghost"
@@ -1416,7 +1657,7 @@ const ContractGeneratorPage = () => {
                               <FileType className="h-4 w-4" />
                             </Button>
                           )}
-                          {!contract.pdf_url && !contract.docx_url && (
+                          {!contract.pdf_url && !contract.docx_url && !(contract.proprietar_signed || contract.chirias_signed) && (
                             <span className="text-muted-foreground text-xs">-</span>
                           )}
                         </div>
