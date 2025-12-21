@@ -74,9 +74,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Build the signature URL
-    const baseUrl = Deno.env.get("SITE_URL") || "https://fdpandnzblzvamhsoukt.lovableproject.com";
-    const signatureUrl = `${baseUrl}/sign/${signature.signature_token}`;
+    // Build the signature URL - use production domain
+    const signatureUrl = `https://mvaimobiliare.ro/sign/${signature.signature_token}`;
 
     const partyLabel = partyType === "proprietar" ? "Proprietar" : "Chiriaș";
 
