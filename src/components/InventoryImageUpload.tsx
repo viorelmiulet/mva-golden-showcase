@@ -32,16 +32,6 @@ const InventoryImageUpload = ({ images, onImagesChange, itemName }: InventoryIma
     const newImages: string[] = [];
 
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Upload session check:', { hasSession: !!session, userId: session?.user?.id });
-      
-      if (!session) {
-        toast.error('Trebuie să fii autentificat pentru a încărca imagini');
-        setUploading(false);
-        return;
-      }
-
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!file.type.startsWith('image/')) {
