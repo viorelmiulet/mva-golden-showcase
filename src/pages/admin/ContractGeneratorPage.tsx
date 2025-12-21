@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -165,6 +165,13 @@ const ContractGeneratorPage = () => {
     location: '',
     notes: ''
   });
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  
+  const updateInventoryItem = (id: string, field: keyof InventoryItem, value: string | number) => {
+    setInventoryItems(prev => prev.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
   
   const [contractData, setContractData] = useState<ContractData>({
     proprietar: { ...emptyPerson },
@@ -1945,33 +1952,105 @@ const ContractGeneratorPage = () => {
                     <TableHead className="w-[80px]">Cant.</TableHead>
                     <TableHead>Stare</TableHead>
                     <TableHead>Locație</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead className="w-[100px]">Acțiuni</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {inventoryItems.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.item_name}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
                       <TableCell>
-                        <Badge variant="outline">
-                          {item.condition === 'noua' && 'Nouă'}
-                          {item.condition === 'foarte_buna' && 'Foarte bună'}
-                          {item.condition === 'buna' && 'Bună'}
-                          {item.condition === 'satisfacatoare' && 'Satisfăcătoare'}
-                          {item.condition === 'uzata' && 'Uzată'}
-                        </Badge>
+                        {editingItemId === item.id ? (
+                          <Input
+                            value={item.item_name}
+                            onChange={(e) => updateInventoryItem(item.id, 'item_name', e.target.value)}
+                            className="h-8"
+                          />
+                        ) : (
+                          <span className="font-medium">{item.item_name}</span>
+                        )}
                       </TableCell>
-                      <TableCell>{item.location || '-'}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeInventoryItem(item.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        {editingItemId === item.id ? (
+                          <Input
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => updateInventoryItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
+                            className="h-8 w-16"
+                            min={1}
+                          />
+                        ) : (
+                          item.quantity
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingItemId === item.id ? (
+                          <Select
+                            value={item.condition}
+                            onValueChange={(value) => updateInventoryItem(item.id, 'condition', value)}
+                          >
+                            <SelectTrigger className="h-8 w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="noua">Nouă</SelectItem>
+                              <SelectItem value="foarte_buna">Foarte bună</SelectItem>
+                              <SelectItem value="buna">Bună</SelectItem>
+                              <SelectItem value="satisfacatoare">Satisfăcătoare</SelectItem>
+                              <SelectItem value="uzata">Uzată</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Badge variant="outline">
+                            {item.condition === 'noua' && 'Nouă'}
+                            {item.condition === 'foarte_buna' && 'Foarte bună'}
+                            {item.condition === 'buna' && 'Bună'}
+                            {item.condition === 'satisfacatoare' && 'Satisfăcătoare'}
+                            {item.condition === 'uzata' && 'Uzată'}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editingItemId === item.id ? (
+                          <Input
+                            value={item.location}
+                            onChange={(e) => updateInventoryItem(item.id, 'location', e.target.value)}
+                            className="h-8"
+                            placeholder="Ex: Living"
+                          />
+                        ) : (
+                          item.location || '-'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {editingItemId === item.id ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingItemId(null)}
+                              className="h-8 w-8 text-green-600 hover:text-green-700"
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setEditingItemId(item.id)}
+                              className="h-8 w-8"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeInventoryItem(item.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
