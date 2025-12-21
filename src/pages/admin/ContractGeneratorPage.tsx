@@ -75,6 +75,17 @@ interface SavedContract {
   contract_date: string;
   pdf_url: string | null;
   docx_url: string | null;
+  proprietar_signed: boolean;
+  chirias_signed: boolean;
+}
+
+interface ContractSignature {
+  id: string;
+  contract_id: string;
+  party_type: string;
+  signature_token: string;
+  signature_data: string | null;
+  signed_at: string | null;
 }
 
 const emptyPerson: PersonData = {
@@ -128,7 +139,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date, pdf_url, docx_url')
+        .select('id, created_at, client_name, client_prenume, property_address, property_price, contract_type, contract_date, pdf_url, docx_url, proprietar_signed, chirias_signed')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -247,7 +258,7 @@ const ContractGeneratorPage = () => {
 
   const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
     try {
-      const { error } = await supabase.from('contracts').insert({
+      const { data: insertedContract, error } = await supabase.from('contracts').insert({
         client_name: contractData.chirias.nume,
         client_prenume: contractData.chirias.prenume || null,
         client_cnp: contractData.chirias.cnp || null,
@@ -264,9 +275,15 @@ const ContractGeneratorPage = () => {
         pdf_generated: true,
         pdf_url: pdfUrl || null,
         docx_url: docxUrl || null,
-      });
+      }).select('id').single();
 
       if (error) throw error;
+
+      // Create signature links for the new contract
+      if (insertedContract) {
+        await createSignatureLinks(insertedContract.id);
+      }
+
       await fetchContracts();
     } catch (error: any) {
       console.error('Error saving contract:', error);
@@ -321,6 +338,70 @@ const ContractGeneratorPage = () => {
       console.error('Error downloading contract:', error);
       toast.error('Eroare la descărcarea contractului');
     }
+  };
+
+  const createSignatureLinks = async (contractId: string) => {
+    try {
+      const { error } = await supabase
+        .from('contract_signatures')
+        .insert([
+          { contract_id: contractId, party_type: 'proprietar' },
+          { contract_id: contractId, party_type: 'chirias' }
+        ]);
+
+      if (error) throw error;
+      return true;
+    } catch (error: any) {
+      console.error('Error creating signature links:', error);
+      return false;
+    }
+  };
+
+  const fetchSignatureLinks = async (contractId: string): Promise<ContractSignature[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('contract_signatures')
+        .select('*')
+        .eq('contract_id', contractId);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error: any) {
+      console.error('Error fetching signature links:', error);
+      return [];
+    }
+  };
+
+  const copySignatureLink = async (contractId: string, partyType: 'proprietar' | 'chirias') => {
+    try {
+      const { data, error } = await supabase
+        .from('contract_signatures')
+        .select('signature_token')
+        .eq('contract_id', contractId)
+        .eq('party_type', partyType)
+        .single();
+
+      if (error || !data) {
+        toast.error('Link-ul nu a fost găsit');
+        return;
+      }
+
+      const signatureUrl = `${window.location.origin}/sign/${data.signature_token}`;
+      await navigator.clipboard.writeText(signatureUrl);
+      toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+    } catch (error: any) {
+      console.error('Error copying signature link:', error);
+      toast.error('Eroare la copierea linkului');
+    }
+  };
+
+  const generateSignatureLinks = async (contractId: string) => {
+    const existing = await fetchSignatureLinks(contractId);
+    if (existing.length === 0) {
+      await createSignatureLinks(contractId);
+    }
+    toast.success('Linkuri de semnătură generate!');
+    await fetchContracts();
   };
 
   const generateContract = async (format: 'pdf' | 'docx' = 'pdf') => {
@@ -1246,7 +1327,8 @@ const ContractGeneratorPage = () => {
                     <TableHead>Chiriaș</TableHead>
                     <TableHead>Proprietate</TableHead>
                     <TableHead>Chirie</TableHead>
-                    <TableHead>Tip</TableHead>
+                    <TableHead>Semnături</TableHead>
+                    <TableHead>Linkuri Semnare</TableHead>
                     <TableHead>Descarcă</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -1267,7 +1349,48 @@ const ContractGeneratorPage = () => {
                         {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
                       </TableCell>
                       <TableCell>
-                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Închiriere</Badge>
+                        <div className="flex gap-1">
+                          <Badge 
+                            className={contract.proprietar_signed 
+                              ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                            }
+                          >
+                            P: {contract.proprietar_signed ? '✓' : '○'}
+                          </Badge>
+                          <Badge 
+                            className={contract.chirias_signed 
+                              ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                            }
+                          >
+                            C: {contract.chirias_signed ? '✓' : '○'}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => copySignatureLink(contract.id, 'proprietar')}
+                            title="Copiază link semnare proprietar"
+                          >
+                            <PenTool className="h-3 w-3 mr-1" />
+                            Prop.
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => copySignatureLink(contract.id, 'chirias')}
+                            title="Copiază link semnare chiriaș"
+                          >
+                            <PenTool className="h-3 w-3 mr-1" />
+                            Chir.
+                          </Button>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
