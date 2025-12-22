@@ -287,8 +287,9 @@ export function SwipeableContractCard({
           </div>
 
           {/* Quick action buttons (always visible) */}
-          <div className="flex items-center justify-center gap-2 mt-3">
-            {(contract.pdf_url || anySigned) && (
+          <div className="flex flex-col gap-2 mt-3">
+            {/* Preview & Download row */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -303,28 +304,67 @@ export function SwipeableContractCard({
                 )}
                 Previzualizare
               </Button>
-            )}
-            {!contract.proprietar_signed && (
+              {contract.pdf_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onDownloadPdf}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Signature links row */}
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                onClick={() => onSendEmail('proprietar')}
+                onClick={() => onCopySignatureLink('proprietar')}
+                disabled={contract.proprietar_signed}
               >
-                <Mail className="h-4 w-4 mr-1" />
-                Email P
+                <PenTool className="h-4 w-4 mr-1" />
+                {contract.proprietar_signed ? 'P semnat ✓' : 'Link P'}
               </Button>
-            )}
-            {!contract.chirias_signed && (
               <Button
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                onClick={() => onSendEmail('chirias')}
+                onClick={() => onCopySignatureLink('chirias')}
+                disabled={contract.chirias_signed}
               >
-                <Mail className="h-4 w-4 mr-1" />
-                Email C
+                <PenTool className="h-4 w-4 mr-1" />
+                {contract.chirias_signed ? 'C semnat ✓' : 'Link C'}
               </Button>
+            </div>
+            
+            {/* Email row - only show if not signed */}
+            {(!contract.proprietar_signed || !contract.chirias_signed) && (
+              <div className="flex items-center gap-2">
+                {!contract.proprietar_signed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onSendEmail('proprietar')}
+                  >
+                    <Mail className="h-4 w-4 mr-1" />
+                    Email P
+                  </Button>
+                )}
+                {!contract.chirias_signed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onSendEmail('chirias')}
+                  >
+                    <Mail className="h-4 w-4 mr-1" />
+                    Email C
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </CardContent>
