@@ -15,7 +15,9 @@ import {
   Calendar,
   Home,
   Euro,
-  Loader2
+  Loader2,
+  FileText,
+  FileType
 } from "lucide-react";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -304,15 +306,45 @@ export function SwipeableContractCard({
                 )}
                 Previzualizare
               </Button>
-              {contract.pdf_url && (
+              {anySigned && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onDownloadPdf}
+                  onClick={onRegenerate}
+                  disabled={isRegenerating}
+                  title="Regenerează PDF cu semnături"
                 >
-                  <Download className="h-4 w-4" />
+                  {isRegenerating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FilePlus2 className="h-4 w-4" />
+                  )}
                 </Button>
               )}
+            </div>
+            
+            {/* Download row */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={onDownloadPdf}
+                disabled={!contract.pdf_url}
+              >
+                <FileText className="h-4 w-4 mr-1" />
+                PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={onDownloadDocx}
+                disabled={!contract.docx_url}
+              >
+                <FileType className="h-4 w-4 mr-1" />
+                Word
+              </Button>
             </div>
             
             {/* Signature links row */}
@@ -339,33 +371,62 @@ export function SwipeableContractCard({
               </Button>
             </div>
             
-            {/* Email row - only show if not signed */}
+            {/* Email & WhatsApp row */}
             {(!contract.proprietar_signed || !contract.chirias_signed) && (
               <div className="flex items-center gap-2">
                 {!contract.proprietar_signed && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => onSendEmail('proprietar')}
-                  >
-                    <Mail className="h-4 w-4 mr-1" />
-                    Email P
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => onSendEmail('proprietar')}
+                    >
+                      <Mail className="h-4 w-4 mr-1" />
+                      Email P
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSendWhatsApp('proprietar')}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </>
                 )}
                 {!contract.chirias_signed && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => onSendEmail('chirias')}
-                  >
-                    <Mail className="h-4 w-4 mr-1" />
-                    Email C
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => onSendEmail('chirias')}
+                    >
+                      <Mail className="h-4 w-4 mr-1" />
+                      Email C
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSendWhatsApp('chirias')}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </>
                 )}
               </div>
             )}
+            
+            {/* Delete button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-destructive hover:text-destructive"
+              onClick={onDelete}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Șterge contract
+            </Button>
           </div>
         </CardContent>
       </Card>
