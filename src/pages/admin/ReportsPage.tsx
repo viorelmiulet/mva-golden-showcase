@@ -22,6 +22,114 @@ const removeDiacritics = (text: string): string => {
   return text.replace(/[ăâîșțĂÂÎȘȚşţŞŢ]/g, char => diacriticsMap[char] || char);
 };
 
+// Generate bar chart as base64 image
+const generateBarChart = (
+  data: { label: string; value: number }[],
+  title: string,
+  width: number = 500,
+  height: number = 200,
+  barColor: string = "#DAA520"
+): string => {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "";
+
+  // Background
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, width, height);
+
+  const padding = { top: 30, right: 20, bottom: 40, left: 60 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  // Title
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 14px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(title, width / 2, 18);
+
+  if (data.length === 0) {
+    ctx.fillStyle = "#666666";
+    ctx.font = "12px Arial";
+    ctx.fillText("Nu exista date", width / 2, height / 2);
+    return canvas.toDataURL("image/png");
+  }
+
+  const maxValue = Math.max(...data.map(d => d.value), 1);
+  const barWidth = Math.min(40, (chartWidth / data.length) * 0.7);
+  const gap = (chartWidth - barWidth * data.length) / (data.length + 1);
+
+  // Draw Y axis
+  ctx.strokeStyle = "#cccccc";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding.left, padding.top);
+  ctx.lineTo(padding.left, height - padding.bottom);
+  ctx.lineTo(width - padding.right, height - padding.bottom);
+  ctx.stroke();
+
+  // Y axis labels
+  ctx.fillStyle = "#666666";
+  ctx.font = "10px Arial";
+  ctx.textAlign = "right";
+  const ySteps = 5;
+  for (let i = 0; i <= ySteps; i++) {
+    const value = Math.round((maxValue / ySteps) * i);
+    const y = height - padding.bottom - (chartHeight / ySteps) * i;
+    ctx.fillText(value.toLocaleString(), padding.left - 5, y + 3);
+    
+    // Grid line
+    ctx.strokeStyle = "#eeeeee";
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+  }
+
+  // Draw bars
+  data.forEach((item, index) => {
+    const x = padding.left + gap + index * (barWidth + gap);
+    const barHeight = (item.value / maxValue) * chartHeight;
+    const y = height - padding.bottom - barHeight;
+
+    // Bar
+    ctx.fillStyle = barColor;
+    ctx.fillRect(x, y, barWidth, barHeight);
+
+    // Bar border
+    ctx.strokeStyle = "#B8860B";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, barWidth, barHeight);
+
+    // Value on top
+    if (item.value > 0) {
+      ctx.fillStyle = "#333333";
+      ctx.font = "bold 9px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(item.value.toLocaleString(), x + barWidth / 2, y - 5);
+    }
+
+    // Label
+    ctx.fillStyle = "#333333";
+    ctx.font = "9px Arial";
+    ctx.textAlign = "center";
+    ctx.save();
+    ctx.translate(x + barWidth / 2, height - padding.bottom + 10);
+    ctx.fillText(item.label, 0, 10);
+    ctx.restore();
+  });
+
+  return canvas.toDataURL("image/png");
+};
+
+// Get short month names without diacritics
+const getShortMonthName = (monthIndex: number): string => {
+  const months = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return months[monthIndex];
+};
+
 const ReportsPage = () => {
   const [reportType, setReportType] = useState<string>("monthly");
   const [selectedMonth, setSelectedMonth] = useState<string>(format(new Date(), "yyyy-MM"));
@@ -164,8 +272,73 @@ const ReportsPage = () => {
         headStyles: { fillColor: [218, 165, 32] },
       });
 
-      // Commissions detail
-      if (reportData.commissions.length > 0) {
+      // Generate monthly chart for annual reports
+      if (reportType === "yearly" && reportData.commissions.length > 0) {
+        const finalY = (doc as any).lastAutoTable.finalY || 120;
+        
+        // Group commissions by month
+        const monthlyEUR: { [key: number]: number } = {};
+        const monthlyRON: { [key: number]: number } = {};
+        
+        for (let i = 0; i < 12; i++) {
+          monthlyEUR[i] = 0;
+          monthlyRON[i] = 0;
+        }
+        
+        reportData.commissions.forEach(c => {
+          const month = parseISO(c.date).getMonth();
+          if (c.currency === "EUR") {
+            monthlyEUR[month] += Number(c.amount);
+          } else if (c.currency === "RON") {
+            monthlyRON[month] += Number(c.amount);
+          }
+        });
+
+        // EUR Chart
+        const eurData = Object.entries(monthlyEUR).map(([month, value]) => ({
+          label: getShortMonthName(Number(month)),
+          value: Math.round(value)
+        }));
+
+        doc.setFontSize(14);
+        doc.text("Grafic Comisioane Lunare", 14, finalY + 15);
+
+        const eurChart = generateBarChart(eurData, "Comisioane EUR pe luni", 500, 180, "#DAA520");
+        if (eurChart) {
+          doc.addImage(eurChart, "PNG", 14, finalY + 20, 180, 65);
+        }
+
+        // RON Chart
+        const ronData = Object.entries(monthlyRON).map(([month, value]) => ({
+          label: getShortMonthName(Number(month)),
+          value: Math.round(value)
+        }));
+
+        const ronChart = generateBarChart(ronData, "Comisioane RON pe luni", 500, 180, "#4A90D9");
+        if (ronChart) {
+          doc.addImage(ronChart, "PNG", 14, finalY + 90, 180, 65);
+        }
+
+        // Add new page for details
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.text("Detalii Comisioane", 14, 20);
+
+        autoTable(doc, {
+          startY: 25,
+          head: [["Data", "Tip", "Suma", "Moneda", "Factura"]],
+          body: reportData.commissions.map(c => [
+            format(parseISO(c.date), "dd.MM.yyyy"),
+            removeDiacritics(c.transaction_type),
+            Number(c.amount).toLocaleString(),
+            c.currency,
+            c.invoice_number || "-"
+          ]),
+          theme: "striped",
+          headStyles: { fillColor: [218, 165, 32] },
+        });
+      } else if (reportData.commissions.length > 0) {
+        // Monthly report - just show details table
         const finalY = (doc as any).lastAutoTable.finalY || 120;
         
         doc.setFontSize(14);
