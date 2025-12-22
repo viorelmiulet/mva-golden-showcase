@@ -10,6 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Upload, 
@@ -29,9 +35,15 @@ import {
   Save,
   FolderOpen,
   Trash2,
-  Check
+  Check,
+  Maximize2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn
 } from "lucide-react";
 import { toast } from "sonner";
+
 
 const roomTypes = [
   { value: "living", label: "Living", icon: Sofa },
@@ -80,6 +92,31 @@ export default function VirtualStagingPage() {
   const [showSaved, setShowSaved] = useState(false);
   const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Preview dialog state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'original' | 'result' | 'compare'>('compare');
+  const [previewImageId, setPreviewImageId] = useState<string | null>(null);
+
+  const openPreview = (imageId: string, mode: 'original' | 'result' | 'compare' = 'compare') => {
+    setPreviewImageId(imageId);
+    setPreviewMode(mode);
+    setPreviewOpen(true);
+  };
+
+  const previewImage = uploadedImages.find(img => img.id === previewImageId);
+  
+  const navigatePreview = (direction: 'prev' | 'next') => {
+    const imagesWithResults = uploadedImages.filter(img => img.result);
+    const currentIndex = imagesWithResults.findIndex(img => img.id === previewImageId);
+    if (currentIndex === -1) return;
+    
+    const newIndex = direction === 'next' 
+      ? (currentIndex + 1) % imagesWithResults.length
+      : (currentIndex - 1 + imagesWithResults.length) % imagesWithResults.length;
+    
+    setPreviewImageId(imagesWithResults[newIndex].id);
+  };
 
   const loadSavedImages = async () => {
     setIsLoadingSaved(true);
@@ -633,36 +670,54 @@ export default function VirtualStagingPage() {
               <div className="space-y-4">
                 {/* Main Image - Before/After */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="relative">
+                  <div 
+                    className="relative cursor-pointer group"
+                    onClick={() => openPreview(selectedImage.id, 'original')}
+                  >
                     <img
                       src={selectedImage.base64}
                       alt="Original"
-                      className="w-full rounded-lg border"
+                      className="w-full rounded-lg border transition-transform group-hover:scale-[1.02]"
                     />
                     <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                       Original
                     </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button size="icon" variant="secondary" className="h-7 w-7">
+                        <ZoomIn className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="relative group">
+                  <div 
+                    className="relative group cursor-pointer"
+                    onClick={() => openPreview(selectedImage.id, 'result')}
+                  >
                     <img
                       src={selectedImage.result}
                       alt="Staged"
-                      className="w-full rounded-lg border"
+                      className="w-full rounded-lg border transition-transform group-hover:scale-[1.02]"
                     />
                     <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                       Mobilat
                     </div>
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleDownload(selectedImage.result!, selectedImage.name, selectedImage.roomType)} 
-                        className="gap-1"
-                      >
-                        <Download className="h-4 w-4" />
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                      <Button size="icon" variant="secondary" className="h-7 w-7">
+                        <ZoomIn className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </div>
+
+                {/* Full Preview Button */}
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => openPreview(selectedImage.id, 'compare')}
+                  className="w-full gap-2"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                  Previzualizare Completă (Before/After)
+                </Button>
 
                 {/* Thumbnails of all completed */}
                 {doneCount > 1 && (
@@ -863,6 +918,175 @@ export default function VirtualStagingPage() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <ZoomIn className="h-5 w-5" />
+                Previzualizare: {previewImage?.name || 'Imagine'}
+              </span>
+              <div className="flex items-center gap-2">
+                {/* Mode Toggles */}
+                <div className="flex rounded-lg border overflow-hidden">
+                  <button
+                    onClick={() => setPreviewMode('original')}
+                    className={`px-3 py-1.5 text-xs transition-colors ${
+                      previewMode === 'original' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'hover:bg-muted'
+                    }`}
+                  >
+                    Original
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('compare')}
+                    className={`px-3 py-1.5 text-xs transition-colors ${
+                      previewMode === 'compare' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'hover:bg-muted'
+                    }`}
+                  >
+                    Compară
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('result')}
+                    className={`px-3 py-1.5 text-xs transition-colors ${
+                      previewMode === 'result' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'hover:bg-muted'
+                    }`}
+                  >
+                    Mobilat
+                  </button>
+                </div>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative flex-1 p-4 pt-2">
+            {previewImage && (
+              <>
+                {/* Navigation Arrows */}
+                {uploadedImages.filter(img => img.result).length > 1 && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute left-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+                      onClick={() => navigatePreview('prev')}
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="absolute right-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full shadow-lg"
+                      onClick={() => navigatePreview('next')}
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </Button>
+                  </>
+                )}
+
+                {/* Image Content */}
+                <div className="flex items-center justify-center h-[calc(95vh-140px)]">
+                  {previewMode === 'compare' ? (
+                    <div className="grid grid-cols-2 gap-4 w-full h-full max-w-6xl">
+                      <div className="relative flex items-center justify-center bg-muted/20 rounded-lg overflow-hidden">
+                        <img
+                          src={previewImage.base64}
+                          alt="Original"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                        <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+                          Original
+                        </div>
+                      </div>
+                      <div className="relative flex items-center justify-center bg-muted/20 rounded-lg overflow-hidden">
+                        <img
+                          src={previewImage.result}
+                          alt="Staged"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                        <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+                          Mobilat
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="relative flex items-center justify-center bg-muted/20 rounded-lg overflow-hidden w-full h-full max-w-5xl">
+                      <img
+                        src={previewMode === 'original' ? previewImage.base64 : previewImage.result}
+                        alt={previewMode === 'original' ? 'Original' : 'Staged'}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                      <div className="absolute bottom-3 left-3 bg-black/70 text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+                        {previewMode === 'original' ? 'Original' : 'Mobilat'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => previewImage.result && handleDownload(previewImage.result, previewImage.name, previewImage.roomType)}
+                    className="gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descarcă
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => handleSaveImage(previewImage.id)}
+                    disabled={isSaving || !!previewImage.savedUrl}
+                    className="gap-2"
+                  >
+                    {previewImage.savedUrl ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Salvată
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Salvează în Cloud
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Thumbnails */}
+                {uploadedImages.filter(img => img.result).length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4 overflow-x-auto pb-2">
+                    {uploadedImages.filter(img => img.result).map((img) => (
+                      <button
+                        key={img.id}
+                        onClick={() => setPreviewImageId(img.id)}
+                        className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+                          img.id === previewImageId 
+                            ? 'border-primary ring-2 ring-primary/30' 
+                            : 'border-transparent hover:border-muted-foreground/50 opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={img.result}
+                          alt={img.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
