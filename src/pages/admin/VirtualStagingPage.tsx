@@ -26,7 +26,11 @@ import {
   Loader2,
   ImageIcon,
   Sparkles,
-  Images
+  Images,
+  Save,
+  FolderOpen,
+  Trash2,
+  Check
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,6 +56,13 @@ interface GeneratedImage {
   index: number;
   imageUrl: string;
   style: string;
+  savedUrl?: string;
+}
+
+interface SavedImage {
+  name: string;
+  url: string;
+  createdAt: string;
 }
 
 export default function VirtualStagingPage() {
@@ -63,7 +74,126 @@ export default function VirtualStagingPage() {
   const [additionalPrompt, setAdditionalPrompt] = useState("");
   const [numberOfImages, setNumberOfImages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedImages, setSavedImages] = useState<SavedImage[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadSavedImages = async () => {
+    setIsLoadingSaved(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('virtual-staging')
+        .list('', { sortBy: { column: 'created_at', order: 'desc' } });
+
+      if (error) throw error;
+
+      const images = data
+        .filter(file => file.name.endsWith('.png') || file.name.endsWith('.jpg') || file.name.endsWith('.webp'))
+        .map(file => ({
+          name: file.name,
+          url: supabase.storage.from('virtual-staging').getPublicUrl(file.name).data.publicUrl,
+          createdAt: file.created_at || new Date().toISOString(),
+        }));
+
+      setSavedImages(images);
+    } catch (error: any) {
+      console.error('Error loading saved images:', error);
+      toast.error('Eroare la încărcarea imaginilor salvate');
+    } finally {
+      setIsLoadingSaved(false);
+    }
+  };
+
+  const handleSaveImage = async (imageUrl: string, index: number) => {
+    setIsSaving(true);
+    try {
+      // Convert base64 to blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      const fileName = `staging-${roomType}-${style}-${Date.now()}-${index}.png`;
+      
+      const { error } = await supabase.storage
+        .from('virtual-staging')
+        .upload(fileName, blob, {
+          contentType: 'image/png',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
+      
+      // Update the generated image with saved URL
+      setGeneratedImages(prev => prev.map((img, idx) => 
+        idx === index ? { ...img, savedUrl: publicUrl } : img
+      ));
+
+      toast.success('Imagine salvată în cloud!');
+    } catch (error: any) {
+      console.error('Error saving image:', error);
+      toast.error('Eroare la salvare: ' + error.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAllImages = async () => {
+    setIsSaving(true);
+    let savedCount = 0;
+    
+    for (let i = 0; i < generatedImages.length; i++) {
+      const img = generatedImages[i];
+      if (!img.savedUrl) {
+        try {
+          const response = await fetch(img.imageUrl);
+          const blob = await response.blob();
+          
+          const fileName = `staging-${roomType}-${style}-${Date.now()}-${i + 1}.png`;
+          
+          const { error } = await supabase.storage
+            .from('virtual-staging')
+            .upload(fileName, blob, {
+              contentType: 'image/png',
+              upsert: false
+            });
+
+          if (!error) {
+            const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
+            setGeneratedImages(prev => prev.map((prevImg, idx) => 
+              idx === i ? { ...prevImg, savedUrl: publicUrl } : prevImg
+            ));
+            savedCount++;
+          }
+        } catch (error) {
+          console.error('Error saving image:', error);
+        }
+      }
+    }
+    
+    setIsSaving(false);
+    if (savedCount > 0) {
+      toast.success(`${savedCount} ${savedCount === 1 ? 'imagine salvată' : 'imagini salvate'}!`);
+    }
+  };
+
+  const handleDeleteSavedImage = async (fileName: string) => {
+    try {
+      const { error } = await supabase.storage
+        .from('virtual-staging')
+        .remove([fileName]);
+
+      if (error) throw error;
+
+      setSavedImages(prev => prev.filter(img => img.name !== fileName));
+      toast.success('Imagine ștearsă!');
+    } catch (error: any) {
+      console.error('Error deleting image:', error);
+      toast.error('Eroare la ștergere: ' + error.message);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -394,14 +524,14 @@ export default function VirtualStagingPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button 
                     variant="outline" 
                     onClick={() => handleDownload(selectedImage?.imageUrl, selectedImageIndex + 1)} 
-                    className="flex-1 gap-2"
+                    className="gap-2"
                   >
                     <Download className="h-4 w-4" />
-                    Descarcă Imaginea
+                    Descarcă
                   </Button>
                   {generatedImages.length > 1 && (
                     <Button
@@ -414,7 +544,41 @@ export default function VirtualStagingPage() {
                     </Button>
                   )}
                   <Button
-                    variant="secondary"
+                    variant="default"
+                    onClick={() => selectedImage && handleSaveImage(selectedImage.imageUrl, selectedImageIndex)}
+                    disabled={isSaving || !!selectedImage?.savedUrl}
+                    className="gap-2"
+                  >
+                    {selectedImage?.savedUrl ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Salvată
+                      </>
+                    ) : isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Se salvează...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Salvează
+                      </>
+                    )}
+                  </Button>
+                  {generatedImages.length > 1 && generatedImages.some(img => !img.savedUrl) && (
+                    <Button
+                      variant="secondary"
+                      onClick={handleSaveAllImages}
+                      disabled={isSaving}
+                      className="gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      Salvează Toate
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
                     onClick={handleStaging}
                     disabled={isLoading}
                     className="gap-2"
@@ -436,6 +600,79 @@ export default function VirtualStagingPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Saved Images */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <FolderOpen className="h-5 w-5" />
+              Imagini Salvate
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowSaved(!showSaved);
+                if (!showSaved) loadSavedImages();
+              }}
+            >
+              {showSaved ? 'Ascunde' : 'Vezi Toate'}
+            </Button>
+          </div>
+        </CardHeader>
+        {showSaved && (
+          <CardContent>
+            {isLoadingSaved ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : savedImages.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {savedImages.map((img) => (
+                  <div key={img.name} className="group relative">
+                    <img
+                      src={img.url}
+                      alt={img.name}
+                      className="w-full aspect-square object-cover rounded-lg border"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = img.url;
+                          link.download = img.name;
+                          link.click();
+                        }}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8"
+                        onClick={() => handleDeleteSavedImage(img.name)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      {new Date(img.createdAt).toLocaleDateString('ro-RO')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                Nu ai imagini salvate încă
+              </p>
+            )}
+          </CardContent>
+        )}
+      </Card>
 
       {/* Tips */}
       <Card>
