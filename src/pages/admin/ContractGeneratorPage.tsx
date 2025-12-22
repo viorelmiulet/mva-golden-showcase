@@ -9,6 +9,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
@@ -181,6 +191,10 @@ const ContractGeneratorPage = () => {
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [previewContractName, setPreviewContractName] = useState<string>('');
   const [previewingContractId, setPreviewingContractId] = useState<string | null>(null);
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contractToDelete, setContractToDelete] = useState<{ id: string; name: string } | null>(null);
   
   const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
@@ -2562,11 +2576,21 @@ const ContractGeneratorPage = () => {
       if (error) throw error;
       
       setContracts(prev => prev.filter(c => c.id !== id));
+      setDeleteDialogOpen(false);
+      setContractToDelete(null);
       toast.success("Contract șters din istoric");
     } catch (error: any) {
       console.error('Error deleting contract:', error);
       toast.error("Eroare la ștergerea contractului");
     }
+  };
+
+  const openDeleteDialog = (contract: SavedContract) => {
+    setContractToDelete({
+      id: contract.id,
+      name: `${contract.client_prenume || ''} ${contract.client_name}`.trim()
+    });
+    setDeleteDialogOpen(true);
   };
 
   const handleReset = () => {
@@ -3511,7 +3535,7 @@ const ContractGeneratorPage = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive"
-                            onClick={() => handleDeleteContract(contract.id)}
+                            onClick={() => openDeleteDialog(contract)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -3622,6 +3646,31 @@ const ContractGeneratorPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmați ștergerea?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sunteți sigur că doriți să ștergeți contractul pentru{" "}
+              <span className="font-medium text-foreground">
+                {contractToDelete?.name}
+              </span>
+              ? Această acțiune nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => contractToDelete && handleDeleteContract(contractToDelete.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
