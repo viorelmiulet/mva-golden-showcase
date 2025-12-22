@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,8 @@ import {
   UtensilsCrossed,
   Loader2,
   ImageIcon,
-  Sparkles
+  Sparkles,
+  Images
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,12 +48,20 @@ const styles = [
   { value: "luxury", label: "Lux", description: "Premium, design sofisticat" },
 ];
 
+interface GeneratedImage {
+  index: number;
+  imageUrl: string;
+  style: string;
+}
+
 export default function VirtualStagingPage() {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
-  const [stagedImage, setStagedImage] = useState<string | null>(null);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const [roomType, setRoomType] = useState("living");
   const [style, setStyle] = useState("modern");
   const [additionalPrompt, setAdditionalPrompt] = useState("");
+  const [numberOfImages, setNumberOfImages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +77,8 @@ export default function VirtualStagingPage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       setOriginalImage(event.target?.result as string);
-      setStagedImage(null);
+      setGeneratedImages([]);
+      setSelectedImageIndex(0);
     };
     reader.readAsDataURL(file);
   };
@@ -79,6 +90,7 @@ export default function VirtualStagingPage() {
     }
 
     setIsLoading(true);
+    setGeneratedImages([]);
     try {
       const { data, error } = await supabase.functions.invoke("virtual-staging", {
         body: {
@@ -86,6 +98,7 @@ export default function VirtualStagingPage() {
           roomType,
           style,
           additionalPrompt,
+          numberOfImages,
         },
       });
 
@@ -96,9 +109,10 @@ export default function VirtualStagingPage() {
         return;
       }
 
-      if (data.stagedImage) {
-        setStagedImage(data.stagedImage);
-        toast.success("Mobilare virtuală completă!");
+      if (data.images && data.images.length > 0) {
+        setGeneratedImages(data.images);
+        setSelectedImageIndex(0);
+        toast.success(`${data.totalGenerated} ${data.totalGenerated === 1 ? 'imagine generată' : 'imagini generate'}!`);
       } else {
         toast.error("Nu s-a putut genera imaginea");
       }
@@ -110,26 +124,35 @@ export default function VirtualStagingPage() {
     }
   };
 
-  const handleDownload = () => {
-    if (!stagedImage) return;
-
+  const handleDownload = (imageUrl: string, index: number) => {
     const link = document.createElement("a");
-    link.href = stagedImage;
-    link.download = `virtual-staging-${roomType}-${style}-${Date.now()}.png`;
+    link.href = imageUrl;
+    link.download = `virtual-staging-${roomType}-${style}-${index}-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     toast.success("Imagine descărcată!");
   };
 
+  const handleDownloadAll = () => {
+    generatedImages.forEach((img, idx) => {
+      setTimeout(() => {
+        handleDownload(img.imageUrl, idx + 1);
+      }, idx * 500);
+    });
+  };
+
   const handleReset = () => {
     setOriginalImage(null);
-    setStagedImage(null);
+    setGeneratedImages([]);
+    setSelectedImageIndex(0);
     setAdditionalPrompt("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const selectedImage = generatedImages[selectedImageIndex];
 
   return (
     <div className="space-y-6">
@@ -237,6 +260,25 @@ export default function VirtualStagingPage() {
               </Select>
             </div>
 
+            {/* Number of Images */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Images className="h-4 w-4" />
+                Număr de imagini: {numberOfImages}
+              </Label>
+              <Slider
+                value={[numberOfImages]}
+                onValueChange={(value) => setNumberOfImages(value[0])}
+                min={1}
+                max={5}
+                step={1}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Generează până la 5 variații simultan (durează mai mult)
+              </p>
+            </div>
+
             {/* Additional Prompt */}
             <div className="space-y-3">
               <Label>Instrucțiuni Suplimentare (opțional)</Label>
@@ -263,7 +305,7 @@ export default function VirtualStagingPage() {
                 ) : (
                   <>
                     <Wand2 className="h-4 w-4" />
-                    Generează Mobilare
+                    Generează {numberOfImages > 1 ? `${numberOfImages} Imagini` : 'Mobilare'}
                   </>
                 )}
               </Button>
@@ -278,7 +320,12 @@ export default function VirtualStagingPage() {
         <Card>
           <CardHeader>
             <CardTitle>Rezultat</CardTitle>
-            <CardDescription>Imaginea cu mobilare virtuală</CardDescription>
+            <CardDescription>
+              {generatedImages.length > 0 
+                ? `${generatedImages.length} ${generatedImages.length === 1 ? 'imagine generată' : 'imagini generate'}`
+                : 'Imaginea cu mobilare virtuală'
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -289,34 +336,88 @@ export default function VirtualStagingPage() {
                 </div>
                 <div className="text-center">
                   <p className="font-medium">Se generează mobilarea virtuală...</p>
-                  <p className="text-sm text-muted-foreground">Acest proces poate dura 30-60 secunde</p>
+                  <p className="text-sm text-muted-foreground">
+                    {numberOfImages > 1 
+                      ? `Se generează ${numberOfImages} imagini (poate dura 1-3 minute)`
+                      : 'Acest proces poate dura 30-60 secunde'
+                    }
+                  </p>
                 </div>
               </div>
-            ) : stagedImage ? (
+            ) : generatedImages.length > 0 ? (
               <div className="space-y-4">
+                {/* Main Image */}
                 <div className="relative group">
                   <img
-                    src={stagedImage}
-                    alt="Staged"
+                    src={selectedImage?.imageUrl}
+                    alt={`Staged ${selectedImageIndex + 1}`}
                     className="w-full rounded-lg border"
                   />
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" onClick={handleDownload} className="gap-1">
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleDownload(selectedImage?.imageUrl, selectedImageIndex + 1)} 
+                      className="gap-1"
+                    >
                       <Download className="h-4 w-4" />
                       Descarcă
                     </Button>
                   </div>
+                  {generatedImages.length > 1 && (
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                      {selectedImageIndex + 1} / {generatedImages.length}
+                    </div>
+                  )}
                 </div>
+
+                {/* Thumbnails */}
+                {generatedImages.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {generatedImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                          idx === selectedImageIndex 
+                            ? 'border-primary ring-2 ring-primary/30' 
+                            : 'border-transparent hover:border-muted-foreground/50'
+                        }`}
+                      >
+                        <img
+                          src={img.imageUrl}
+                          alt={`Variație ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Actions */}
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleDownload} className="flex-1 gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleDownload(selectedImage?.imageUrl, selectedImageIndex + 1)} 
+                    className="flex-1 gap-2"
+                  >
                     <Download className="h-4 w-4" />
                     Descarcă Imaginea
                   </Button>
+                  {generatedImages.length > 1 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleDownloadAll}
+                      className="gap-2"
+                    >
+                      <Images className="h-4 w-4" />
+                      Toate ({generatedImages.length})
+                    </Button>
+                  )}
                   <Button
                     variant="secondary"
                     onClick={handleStaging}
                     disabled={isLoading}
-                    className="flex-1 gap-2"
+                    className="gap-2"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Regenerează
@@ -357,7 +458,7 @@ export default function VirtualStagingPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary font-bold">•</span>
-              Regenerează de mai multe ori pentru variații diferite
+              Generează mai multe variații pentru a alege cea mai bună
             </li>
           </ul>
         </CardContent>
