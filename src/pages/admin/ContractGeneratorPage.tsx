@@ -732,7 +732,20 @@ const ContractGeneratorPage = () => {
       `Cu stimă,\nMVA Imobiliare`
     );
     
-    window.open(`https://wa.me/?text=${message}`, '_blank');
+    const whatsappUrl = `https://wa.me/?text=${message}`;
+    
+    // Use location.href for mobile compatibility (window.open often gets blocked)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      window.location.href = whatsappUrl;
+    } else {
+      const newWindow = window.open(whatsappUrl, '_blank');
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        // Popup was blocked, try location.href as fallback
+        window.location.href = whatsappUrl;
+      }
+    }
   };
 
   const generateSignatureLinks = async (contractId: string) => {
