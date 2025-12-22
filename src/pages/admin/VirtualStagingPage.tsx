@@ -55,6 +55,7 @@ interface UploadedImage {
   id: string;
   base64: string;
   name: string;
+  roomType: string;
   status: 'pending' | 'processing' | 'done' | 'error';
   result?: string;
   savedUrl?: string;
@@ -70,7 +71,7 @@ interface SavedImage {
 export default function VirtualStagingPage() {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
-  const [roomType, setRoomType] = useState("living");
+  const [defaultRoomType, setDefaultRoomType] = useState("living");
   const [style, setStyle] = useState("modern");
   const [additionalPrompt, setAdditionalPrompt] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -115,7 +116,7 @@ export default function VirtualStagingPage() {
       const response = await fetch(img.result);
       const blob = await response.blob();
       
-      const fileName = `staging-${roomType}-${style}-${Date.now()}-${img.name}.png`;
+      const fileName = `staging-${img.roomType}-${style}-${Date.now()}-${img.name}.png`;
       
       const { error } = await supabase.storage
         .from('virtual-staging')
@@ -153,7 +154,7 @@ export default function VirtualStagingPage() {
         const response = await fetch(img.result!);
         const blob = await response.blob();
         
-        const fileName = `staging-${roomType}-${style}-${Date.now()}-${img.name}.png`;
+        const fileName = `staging-${img.roomType}-${style}-${Date.now()}-${img.name}.png`;
         
         const { error } = await supabase.storage
           .from('virtual-staging')
@@ -220,6 +221,7 @@ export default function VirtualStagingPage() {
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           base64: event.target?.result as string,
           name: file.name.replace(/\.[^/.]+$/, ""),
+          roomType: defaultRoomType,
           status: 'pending'
         };
         setUploadedImages(prev => [...prev, newImage]);
@@ -241,6 +243,12 @@ export default function VirtualStagingPage() {
       const remaining = uploadedImages.filter(img => img.id !== imageId);
       setSelectedImageId(remaining.length > 0 ? remaining[0].id : null);
     }
+  };
+
+  const handleRoomTypeChange = (imageId: string, newRoomType: string) => {
+    setUploadedImages(prev => prev.map(img => 
+      img.id === imageId ? { ...img, roomType: newRoomType } : img
+    ));
   };
 
   const handleStaging = async () => {
@@ -266,7 +274,7 @@ export default function VirtualStagingPage() {
         const { data, error } = await supabase.functions.invoke("virtual-staging", {
           body: {
             imageBase64: img.base64,
-            roomType,
+            roomType: img.roomType,
             style,
             additionalPrompt,
             numberOfImages: 1,
@@ -310,10 +318,10 @@ export default function VirtualStagingPage() {
     }
   };
 
-  const handleDownload = (imageUrl: string, name: string) => {
+  const handleDownload = (imageUrl: string, name: string, imgRoomType?: string) => {
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = `virtual-staging-${roomType}-${style}-${name}-${Date.now()}.png`;
+    link.download = `virtual-staging-${imgRoomType || 'room'}-${style}-${name}-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -324,7 +332,7 @@ export default function VirtualStagingPage() {
     const completedImages = uploadedImages.filter(img => img.result);
     completedImages.forEach((img, idx) => {
       setTimeout(() => {
-        handleDownload(img.result!, img.name);
+        handleDownload(img.result!, img.name, img.roomType);
       }, idx * 500);
     });
   };
@@ -392,55 +400,100 @@ export default function VirtualStagingPage() {
               
               {/* Uploaded Images Grid */}
               {uploadedImages.length > 0 && (
-                <div className="grid grid-cols-5 gap-2 mb-3">
-                  {uploadedImages.map((img) => (
-                    <div 
-                      key={img.id}
-                      onClick={() => setSelectedImageId(img.id)}
-                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImageId === img.id 
-                          ? 'border-primary ring-2 ring-primary/30' 
-                          : 'border-transparent hover:border-muted-foreground/50'
-                      }`}
-                    >
-                      <img
-                        src={img.base64}
-                        alt={img.name}
-                        className="w-full aspect-square object-cover"
-                      />
-                      {/* Status badge */}
-                      <div className={`absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center ${
-                        img.status === 'done' ? 'bg-green-500' :
-                        img.status === 'processing' ? 'bg-yellow-500' :
-                        img.status === 'error' ? 'bg-red-500' :
-                        'bg-muted-foreground/50'
-                      }`}>
-                        {img.status === 'processing' && (
-                          <Loader2 className="h-3 w-3 text-white animate-spin" />
-                        )}
-                        {img.status === 'done' && (
-                          <Check className="h-3 w-3 text-white" />
-                        )}
-                      </div>
-                      {/* Remove button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveImage(img.id);
-                        }}
-                        className="absolute top-1 left-1 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all"
+                <div className="space-y-2">
+                  {uploadedImages.map((img) => {
+                    const currentRoomType = roomTypes.find(r => r.value === img.roomType);
+                    const RoomIcon = currentRoomType?.icon || Sofa;
+                    return (
+                      <div 
+                        key={img.id}
+                        onClick={() => setSelectedImageId(img.id)}
+                        className={`relative flex items-center gap-3 p-2 rounded-lg border-2 cursor-pointer transition-all ${
+                          selectedImageId === img.id 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-transparent hover:border-muted-foreground/30 hover:bg-muted/30'
+                        }`}
                       >
-                        <Trash2 className="h-2.5 w-2.5" />
-                      </button>
-                    </div>
-                  ))}
+                        {/* Thumbnail */}
+                        <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
+                          <img
+                            src={img.base64}
+                            alt={img.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Status badge */}
+                          <div className={`absolute top-0.5 right-0.5 w-4 h-4 rounded-full flex items-center justify-center ${
+                            img.status === 'done' ? 'bg-green-500' :
+                            img.status === 'processing' ? 'bg-yellow-500' :
+                            img.status === 'error' ? 'bg-red-500' :
+                            'bg-muted-foreground/50'
+                          }`}>
+                            {img.status === 'processing' && (
+                              <Loader2 className="h-2.5 w-2.5 text-white animate-spin" />
+                            )}
+                            {img.status === 'done' && (
+                              <Check className="h-2.5 w-2.5 text-white" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{img.name}</p>
+                          {/* Room type selector */}
+                          <Select 
+                            value={img.roomType} 
+                            onValueChange={(value) => handleRoomTypeChange(img.id, value)}
+                          >
+                            <SelectTrigger 
+                              className="h-7 w-full mt-1 text-xs"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <RoomIcon className="h-3 w-3" />
+                                <SelectValue />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover z-50">
+                              {roomTypes.map((room) => {
+                                const Icon = room.icon;
+                                return (
+                                  <SelectItem key={room.value} value={room.value}>
+                                    <div className="flex items-center gap-2">
+                                      <Icon className="h-3.5 w-3.5" />
+                                      <span>{room.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Remove button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveImage(img.id);
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                  
                   {/* Add more button */}
                   {uploadedImages.length < 5 && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center hover:border-primary hover:bg-muted/50 transition-colors"
+                      className="w-full p-3 border-2 border-dashed rounded-lg flex items-center justify-center gap-2 hover:border-primary hover:bg-muted/50 transition-colors text-muted-foreground"
                     >
-                      <Upload className="h-5 w-5 text-muted-foreground" />
+                      <Upload className="h-4 w-4" />
+                      <span className="text-sm">Adaugă imagine ({5 - uploadedImages.length} locuri)</span>
                     </button>
                   )}
                 </div>
@@ -461,24 +514,24 @@ export default function VirtualStagingPage() {
               )}
             </div>
 
-            {/* Room Type */}
+            {/* Default Room Type for new uploads */}
             <div className="space-y-3">
-              <Label>Tip Cameră</Label>
+              <Label>Tip Cameră Implicit (pentru imagini noi)</Label>
               <div className="grid grid-cols-3 gap-2">
                 {roomTypes.map((room) => {
                   const Icon = room.icon;
                   return (
                     <button
                       key={room.value}
-                      onClick={() => setRoomType(room.value)}
-                      className={`p-3 rounded-lg border flex flex-col items-center gap-1 transition-all ${
-                        roomType === room.value
+                      onClick={() => setDefaultRoomType(room.value)}
+                      className={`p-2 rounded-lg border flex flex-col items-center gap-1 transition-all text-xs ${
+                        defaultRoomType === room.value
                           ? "border-primary bg-primary/10 text-primary"
                           : "hover:border-muted-foreground/50"
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
-                      <span className="text-xs font-medium">{room.label}</span>
+                      <Icon className="h-4 w-4" />
+                      <span className="font-medium">{room.label}</span>
                     </button>
                   );
                 })}
@@ -602,7 +655,7 @@ export default function VirtualStagingPage() {
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button 
                         size="sm" 
-                        onClick={() => handleDownload(selectedImage.result!, selectedImage.name)} 
+                        onClick={() => handleDownload(selectedImage.result!, selectedImage.name, selectedImage.roomType)} 
                         className="gap-1"
                       >
                         <Download className="h-4 w-4" />
@@ -638,7 +691,7 @@ export default function VirtualStagingPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button 
                     variant="outline" 
-                    onClick={() => handleDownload(selectedImage.result!, selectedImage.name)} 
+                    onClick={() => handleDownload(selectedImage.result!, selectedImage.name, selectedImage.roomType)} 
                     className="gap-2"
                   >
                     <Download className="h-4 w-4" />
