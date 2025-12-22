@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -52,11 +51,14 @@ const styles = [
   { value: "luxury", label: "Lux", description: "Premium, design sofisticat" },
 ];
 
-interface GeneratedImage {
-  index: number;
-  imageUrl: string;
-  style: string;
+interface UploadedImage {
+  id: string;
+  base64: string;
+  name: string;
+  status: 'pending' | 'processing' | 'done' | 'error';
+  result?: string;
   savedUrl?: string;
+  error?: string;
 }
 
 interface SavedImage {
@@ -66,14 +68,12 @@ interface SavedImage {
 }
 
 export default function VirtualStagingPage() {
-  const [originalImage, setOriginalImage] = useState<string | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [roomType, setRoomType] = useState("living");
   const [style, setStyle] = useState("modern");
   const [additionalPrompt, setAdditionalPrompt] = useState("");
-  const [numberOfImages, setNumberOfImages] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedImages, setSavedImages] = useState<SavedImage[]>([]);
   const [showSaved, setShowSaved] = useState(false);
@@ -106,14 +106,16 @@ export default function VirtualStagingPage() {
     }
   };
 
-  const handleSaveImage = async (imageUrl: string, index: number) => {
+  const handleSaveImage = async (imageId: string) => {
+    const img = uploadedImages.find(i => i.id === imageId);
+    if (!img?.result) return;
+
     setIsSaving(true);
     try {
-      // Convert base64 to blob
-      const response = await fetch(imageUrl);
+      const response = await fetch(img.result);
       const blob = await response.blob();
       
-      const fileName = `staging-${roomType}-${style}-${Date.now()}-${index}.png`;
+      const fileName = `staging-${roomType}-${style}-${Date.now()}-${img.name}.png`;
       
       const { error } = await supabase.storage
         .from('virtual-staging')
@@ -126,9 +128,8 @@ export default function VirtualStagingPage() {
 
       const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
       
-      // Update the generated image with saved URL
-      setGeneratedImages(prev => prev.map((img, idx) => 
-        idx === index ? { ...img, savedUrl: publicUrl } : img
+      setUploadedImages(prev => prev.map(i => 
+        i.id === imageId ? { ...i, savedUrl: publicUrl } : i
       ));
 
       toast.success('Imagine salvată în cloud!');
@@ -141,35 +142,35 @@ export default function VirtualStagingPage() {
   };
 
   const handleSaveAllImages = async () => {
+    const imagesToSave = uploadedImages.filter(img => img.result && !img.savedUrl);
+    if (imagesToSave.length === 0) return;
+
     setIsSaving(true);
     let savedCount = 0;
     
-    for (let i = 0; i < generatedImages.length; i++) {
-      const img = generatedImages[i];
-      if (!img.savedUrl) {
-        try {
-          const response = await fetch(img.imageUrl);
-          const blob = await response.blob();
-          
-          const fileName = `staging-${roomType}-${style}-${Date.now()}-${i + 1}.png`;
-          
-          const { error } = await supabase.storage
-            .from('virtual-staging')
-            .upload(fileName, blob, {
-              contentType: 'image/png',
-              upsert: false
-            });
+    for (const img of imagesToSave) {
+      try {
+        const response = await fetch(img.result!);
+        const blob = await response.blob();
+        
+        const fileName = `staging-${roomType}-${style}-${Date.now()}-${img.name}.png`;
+        
+        const { error } = await supabase.storage
+          .from('virtual-staging')
+          .upload(fileName, blob, {
+            contentType: 'image/png',
+            upsert: false
+          });
 
-          if (!error) {
-            const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
-            setGeneratedImages(prev => prev.map((prevImg, idx) => 
-              idx === i ? { ...prevImg, savedUrl: publicUrl } : prevImg
-            ));
-            savedCount++;
-          }
-        } catch (error) {
-          console.error('Error saving image:', error);
+        if (!error) {
+          const publicUrl = supabase.storage.from('virtual-staging').getPublicUrl(fileName).data.publicUrl;
+          setUploadedImages(prev => prev.map(i => 
+            i.id === img.id ? { ...i, savedUrl: publicUrl } : i
+          ));
+          savedCount++;
         }
+      } catch (error) {
+        console.error('Error saving image:', error);
       }
     }
     
@@ -196,68 +197,123 @@ export default function VirtualStagingPage() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Imaginea este prea mare. Maxim 10MB.");
+    const remainingSlots = 5 - uploadedImages.length;
+    if (remainingSlots <= 0) {
+      toast.error("Poți încărca maxim 5 imagini simultan");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setOriginalImage(event.target?.result as string);
-      setGeneratedImages([]);
-      setSelectedImageIndex(0);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleStaging = async () => {
-    if (!originalImage) {
-      toast.error("Încarcă o imagine mai întâi");
-      return;
-    }
-
-    setIsLoading(true);
-    setGeneratedImages([]);
-    try {
-      const { data, error } = await supabase.functions.invoke("virtual-staging", {
-        body: {
-          imageBase64: originalImage,
-          roomType,
-          style,
-          additionalPrompt,
-          numberOfImages,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data.error) {
-        toast.error(data.error);
+    const filesToProcess = files.slice(0, remainingSlots);
+    
+    filesToProcess.forEach(file => {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name}: Imaginea este prea mare. Maxim 10MB.`);
         return;
       }
 
-      if (data.images && data.images.length > 0) {
-        setGeneratedImages(data.images);
-        setSelectedImageIndex(0);
-        toast.success(`${data.totalGenerated} ${data.totalGenerated === 1 ? 'imagine generată' : 'imagini generate'}!`);
-      } else {
-        toast.error("Nu s-a putut genera imaginea");
-      }
-    } catch (error: any) {
-      console.error("Error:", error);
-      toast.error("Eroare la mobilarea virtuală: " + error.message);
-    } finally {
-      setIsLoading(false);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newImage: UploadedImage = {
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          base64: event.target?.result as string,
+          name: file.name.replace(/\.[^/.]+$/, ""),
+          status: 'pending'
+        };
+        setUploadedImages(prev => [...prev, newImage]);
+        if (!selectedImageId) {
+          setSelectedImageId(newImage.id);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (files.length > remainingSlots) {
+      toast.warning(`Doar ${remainingSlots} imagini au fost adăugate (maxim 5)`);
     }
   };
 
-  const handleDownload = (imageUrl: string, index: number) => {
+  const handleRemoveImage = (imageId: string) => {
+    setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+    if (selectedImageId === imageId) {
+      const remaining = uploadedImages.filter(img => img.id !== imageId);
+      setSelectedImageId(remaining.length > 0 ? remaining[0].id : null);
+    }
+  };
+
+  const handleStaging = async () => {
+    const pendingImages = uploadedImages.filter(img => img.status === 'pending');
+    if (pendingImages.length === 0) {
+      toast.error("Nu ai imagini de procesat");
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    // Set all pending to processing
+    setUploadedImages(prev => prev.map(img => 
+      img.status === 'pending' ? { ...img, status: 'processing' as const } : img
+    ));
+
+    // Process images in parallel with delay to avoid rate limiting
+    const processImage = async (img: UploadedImage, index: number) => {
+      // Delay between requests to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, index * 2000));
+      
+      try {
+        const { data, error } = await supabase.functions.invoke("virtual-staging", {
+          body: {
+            imageBase64: img.base64,
+            roomType,
+            style,
+            additionalPrompt,
+            numberOfImages: 1,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (data.images && data.images.length > 0) {
+          setUploadedImages(prev => prev.map(i => 
+            i.id === img.id 
+              ? { ...i, status: 'done' as const, result: data.images[0].imageUrl }
+              : i
+          ));
+        } else {
+          throw new Error("Nu s-a generat nicio imagine");
+        }
+      } catch (error: any) {
+        console.error("Error processing image:", error);
+        setUploadedImages(prev => prev.map(i => 
+          i.id === img.id 
+            ? { ...i, status: 'error' as const, error: error.message }
+            : i
+        ));
+      }
+    };
+
+    // Process all images
+    await Promise.all(pendingImages.map((img, index) => processImage(img, index)));
+    
+    setIsProcessing(false);
+    
+    const successCount = uploadedImages.filter(img => img.status === 'done').length + 
+                         pendingImages.filter(img => img.status !== 'error').length;
+    if (successCount > 0) {
+      toast.success(`${successCount} ${successCount === 1 ? 'imagine procesată' : 'imagini procesate'}!`);
+    }
+  };
+
+  const handleDownload = (imageUrl: string, name: string) => {
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = `virtual-staging-${roomType}-${style}-${index}-${Date.now()}.png`;
+    link.download = `virtual-staging-${roomType}-${style}-${name}-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -265,24 +321,28 @@ export default function VirtualStagingPage() {
   };
 
   const handleDownloadAll = () => {
-    generatedImages.forEach((img, idx) => {
+    const completedImages = uploadedImages.filter(img => img.result);
+    completedImages.forEach((img, idx) => {
       setTimeout(() => {
-        handleDownload(img.imageUrl, idx + 1);
+        handleDownload(img.result!, img.name);
       }, idx * 500);
     });
   };
 
   const handleReset = () => {
-    setOriginalImage(null);
-    setGeneratedImages([]);
-    setSelectedImageIndex(0);
+    setUploadedImages([]);
+    setSelectedImageId(null);
     setAdditionalPrompt("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const selectedImage = generatedImages[selectedImageIndex];
+  const selectedImage = uploadedImages.find(img => img.id === selectedImageId);
+  const pendingCount = uploadedImages.filter(img => img.status === 'pending').length;
+  const processingCount = uploadedImages.filter(img => img.status === 'processing').length;
+  const doneCount = uploadedImages.filter(img => img.status === 'done').length;
+  const hasResults = uploadedImages.some(img => img.result);
 
   return (
     <div className="space-y-6">
@@ -301,46 +361,101 @@ export default function VirtualStagingPage() {
         <Card>
           <CardHeader>
             <CardTitle>Configurare</CardTitle>
-            <CardDescription>Încarcă o imagine și selectează stilul dorit</CardDescription>
+            <CardDescription>
+              Încarcă până la 5 imagini diferite și selectează stilul dorit
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Image Upload */}
             <div className="space-y-3">
-              <Label>Imagine Cameră Goală</Label>
+              <Label className="flex items-center justify-between">
+                <span>Imagini Camere ({uploadedImages.length}/5)</span>
+                {uploadedImages.length > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleReset}
+                    className="text-xs h-6"
+                  >
+                    Șterge toate
+                  </Button>
+                )}
+              </Label>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageUpload}
                 className="hidden"
               />
-              {originalImage ? (
-                <div className="relative group">
-                  <img
-                    src={originalImage}
-                    alt="Original"
-                    className="w-full h-64 object-cover rounded-lg border"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
+              
+              {/* Uploaded Images Grid */}
+              {uploadedImages.length > 0 && (
+                <div className="grid grid-cols-5 gap-2 mb-3">
+                  {uploadedImages.map((img) => (
+                    <div 
+                      key={img.id}
+                      onClick={() => setSelectedImageId(img.id)}
+                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImageId === img.id 
+                          ? 'border-primary ring-2 ring-primary/30' 
+                          : 'border-transparent hover:border-muted-foreground/50'
+                      }`}
                     >
-                      <Upload className="h-4 w-4 mr-1" />
-                      Schimbă
-                    </Button>
-                  </div>
+                      <img
+                        src={img.base64}
+                        alt={img.name}
+                        className="w-full aspect-square object-cover"
+                      />
+                      {/* Status badge */}
+                      <div className={`absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center ${
+                        img.status === 'done' ? 'bg-green-500' :
+                        img.status === 'processing' ? 'bg-yellow-500' :
+                        img.status === 'error' ? 'bg-red-500' :
+                        'bg-muted-foreground/50'
+                      }`}>
+                        {img.status === 'processing' && (
+                          <Loader2 className="h-3 w-3 text-white animate-spin" />
+                        )}
+                        {img.status === 'done' && (
+                          <Check className="h-3 w-3 text-white" />
+                        )}
+                      </div>
+                      {/* Remove button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveImage(img.id);
+                        }}
+                        className="absolute top-1 left-1 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all"
+                      >
+                        <Trash2 className="h-2.5 w-2.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {/* Add more button */}
+                  {uploadedImages.length < 5 && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center hover:border-primary hover:bg-muted/50 transition-colors"
+                    >
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                    </button>
+                  )}
                 </div>
-              ) : (
+              )}
+
+              {/* Empty state upload */}
+              {uploadedImages.length === 0 && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-64 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-muted/50 transition-colors"
+                  className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-muted/50 transition-colors"
                 >
                   <ImageIcon className="h-12 w-12 text-muted-foreground" />
                   <div className="text-center">
-                    <p className="font-medium">Click pentru a încărca</p>
-                    <p className="text-sm text-muted-foreground">JPG, PNG sau WEBP (max 10MB)</p>
+                    <p className="font-medium">Click pentru a încărca imagini</p>
+                    <p className="text-sm text-muted-foreground">Până la 5 imagini (max 10MB fiecare)</p>
                   </div>
                 </button>
               )}
@@ -390,25 +505,6 @@ export default function VirtualStagingPage() {
               </Select>
             </div>
 
-            {/* Number of Images */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2">
-                <Images className="h-4 w-4" />
-                Număr de imagini: {numberOfImages}
-              </Label>
-              <Slider
-                value={[numberOfImages]}
-                onValueChange={(value) => setNumberOfImages(value[0])}
-                min={1}
-                max={5}
-                step={1}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Generează până la 5 variații simultan (durează mai mult)
-              </p>
-            </div>
-
             {/* Additional Prompt */}
             <div className="space-y-3">
               <Label>Instrucțiuni Suplimentare (opțional)</Label>
@@ -424,25 +520,34 @@ export default function VirtualStagingPage() {
             <div className="flex gap-2">
               <Button
                 onClick={handleStaging}
-                disabled={!originalImage || isLoading}
+                disabled={pendingCount === 0 || isProcessing}
                 className="flex-1 gap-2"
               >
-                {isLoading ? (
+                {isProcessing ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Se procesează...
+                    Se procesează {processingCount} imagini...
                   </>
                 ) : (
                   <>
                     <Wand2 className="h-4 w-4" />
-                    Generează {numberOfImages > 1 ? `${numberOfImages} Imagini` : 'Mobilare'}
+                    Procesează {pendingCount > 0 ? `${pendingCount} ${pendingCount === 1 ? 'Imagine' : 'Imagini'}` : 'Imaginile'}
                   </>
                 )}
               </Button>
-              <Button variant="outline" onClick={handleReset} disabled={isLoading}>
+              <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
+
+            {/* Status summary */}
+            {uploadedImages.length > 0 && (
+              <div className="flex gap-4 text-sm text-muted-foreground">
+                {pendingCount > 0 && <span>⏳ {pendingCount} în așteptare</span>}
+                {processingCount > 0 && <span>🔄 {processingCount} în procesare</span>}
+                {doneCount > 0 && <span>✓ {doneCount} finalizate</span>}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -451,14 +556,14 @@ export default function VirtualStagingPage() {
           <CardHeader>
             <CardTitle>Rezultat</CardTitle>
             <CardDescription>
-              {generatedImages.length > 0 
-                ? `${generatedImages.length} ${generatedImages.length === 1 ? 'imagine generată' : 'imagini generate'}`
-                : 'Imaginea cu mobilare virtuală'
+              {hasResults 
+                ? `${doneCount} ${doneCount === 1 ? 'imagine procesată' : 'imagini procesate'}`
+                : 'Imaginile cu mobilare virtuală'
               }
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
+            {isProcessing && !selectedImage?.result ? (
               <div className="h-96 rounded-lg border bg-muted/30 flex flex-col items-center justify-center gap-4">
                 <div className="relative">
                   <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -467,55 +572,61 @@ export default function VirtualStagingPage() {
                 <div className="text-center">
                   <p className="font-medium">Se generează mobilarea virtuală...</p>
                   <p className="text-sm text-muted-foreground">
-                    {numberOfImages > 1 
-                      ? `Se generează ${numberOfImages} imagini (poate dura 1-3 minute)`
-                      : 'Acest proces poate dura 30-60 secunde'
-                    }
+                    Se procesează {processingCount} imagini (poate dura 1-3 minute)
                   </p>
                 </div>
               </div>
-            ) : generatedImages.length > 0 ? (
+            ) : selectedImage?.result ? (
               <div className="space-y-4">
-                {/* Main Image */}
-                <div className="relative group">
-                  <img
-                    src={selectedImage?.imageUrl}
-                    alt={`Staged ${selectedImageIndex + 1}`}
-                    className="w-full rounded-lg border"
-                  />
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleDownload(selectedImage?.imageUrl, selectedImageIndex + 1)} 
-                      className="gap-1"
-                    >
-                      <Download className="h-4 w-4" />
-                      Descarcă
-                    </Button>
-                  </div>
-                  {generatedImages.length > 1 && (
-                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                      {selectedImageIndex + 1} / {generatedImages.length}
+                {/* Main Image - Before/After */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <img
+                      src={selectedImage.base64}
+                      alt="Original"
+                      className="w-full rounded-lg border"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                      Original
                     </div>
-                  )}
+                  </div>
+                  <div className="relative group">
+                    <img
+                      src={selectedImage.result}
+                      alt="Staged"
+                      className="w-full rounded-lg border"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                      Mobilat
+                    </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleDownload(selectedImage.result!, selectedImage.name)} 
+                        className="gap-1"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Thumbnails */}
-                {generatedImages.length > 1 && (
+                {/* Thumbnails of all completed */}
+                {doneCount > 1 && (
                   <div className="flex gap-2 overflow-x-auto pb-2">
-                    {generatedImages.map((img, idx) => (
+                    {uploadedImages.filter(img => img.result).map((img) => (
                       <button
-                        key={idx}
-                        onClick={() => setSelectedImageIndex(idx)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                          idx === selectedImageIndex 
+                        key={img.id}
+                        onClick={() => setSelectedImageId(img.id)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                          img.id === selectedImageId 
                             ? 'border-primary ring-2 ring-primary/30' 
                             : 'border-transparent hover:border-muted-foreground/50'
                         }`}
                       >
                         <img
-                          src={img.imageUrl}
-                          alt={`Variație ${idx + 1}`}
+                          src={img.result}
+                          alt={img.name}
                           className="w-full h-full object-cover"
                         />
                       </button>
@@ -527,29 +638,29 @@ export default function VirtualStagingPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button 
                     variant="outline" 
-                    onClick={() => handleDownload(selectedImage?.imageUrl, selectedImageIndex + 1)} 
+                    onClick={() => handleDownload(selectedImage.result!, selectedImage.name)} 
                     className="gap-2"
                   >
                     <Download className="h-4 w-4" />
                     Descarcă
                   </Button>
-                  {generatedImages.length > 1 && (
+                  {doneCount > 1 && (
                     <Button
                       variant="outline"
                       onClick={handleDownloadAll}
                       className="gap-2"
                     >
                       <Images className="h-4 w-4" />
-                      Toate ({generatedImages.length})
+                      Toate ({doneCount})
                     </Button>
                   )}
                   <Button
                     variant="default"
-                    onClick={() => selectedImage && handleSaveImage(selectedImage.imageUrl, selectedImageIndex)}
-                    disabled={isSaving || !!selectedImage?.savedUrl}
+                    onClick={() => handleSaveImage(selectedImage.id)}
+                    disabled={isSaving || !!selectedImage.savedUrl}
                     className="gap-2"
                   >
-                    {selectedImage?.savedUrl ? (
+                    {selectedImage.savedUrl ? (
                       <>
                         <Check className="h-4 w-4" />
                         Salvată
@@ -566,7 +677,7 @@ export default function VirtualStagingPage() {
                       </>
                     )}
                   </Button>
-                  {generatedImages.length > 1 && generatedImages.some(img => !img.savedUrl) && (
+                  {doneCount > 1 && uploadedImages.some(img => img.result && !img.savedUrl) && (
                     <Button
                       variant="secondary"
                       onClick={handleSaveAllImages}
@@ -577,23 +688,22 @@ export default function VirtualStagingPage() {
                       Salvează Toate
                     </Button>
                   )}
-                  <Button
-                    variant="ghost"
-                    onClick={handleStaging}
-                    disabled={isLoading}
-                    className="gap-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Regenerează
-                  </Button>
+                </div>
+              </div>
+            ) : selectedImage?.status === 'error' ? (
+              <div className="h-96 rounded-lg border-2 border-dashed border-red-300 flex flex-col items-center justify-center gap-3 text-red-500">
+                <Trash2 className="h-12 w-12" />
+                <div className="text-center">
+                  <p className="font-medium">Eroare la procesare</p>
+                  <p className="text-sm">{selectedImage.error || 'A apărut o eroare'}</p>
                 </div>
               </div>
             ) : (
               <div className="h-96 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-3 text-muted-foreground">
                 <Wand2 className="h-12 w-12" />
                 <div className="text-center">
-                  <p className="font-medium">Nicio imagine generată</p>
-                  <p className="text-sm">Încarcă o imagine și apasă "Generează Mobilare"</p>
+                  <p className="font-medium">Nicio imagine procesată</p>
+                  <p className="text-sm">Încarcă imagini și apasă "Procesează"</p>
                 </div>
               </div>
             )}
@@ -695,7 +805,7 @@ export default function VirtualStagingPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary font-bold">•</span>
-              Generează mai multe variații pentru a alege cea mai bună
+              Încarcă mai multe imagini pentru procesare batch eficientă
             </li>
           </ul>
         </CardContent>
