@@ -1,6 +1,16 @@
 import { useState, useRef, TouchEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { 
   Eye, 
@@ -69,6 +79,7 @@ export function SwipeableContractCard({
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipingLeft, setIsSwipingLeft] = useState(false);
   const [isSwipingRight, setIsSwipingRight] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const startXRef = useRef(0);
   const isDraggingRef = useRef(false);
 
@@ -201,7 +212,7 @@ export function SwipeableContractCard({
           variant="ghost"
           size="icon"
           className="h-10 w-10 text-white hover:bg-white/20"
-          onClick={() => { onDelete(); resetSwipe(); }}
+          onClick={() => { setDeleteDialogOpen(true); resetSwipe(); }}
           title="Șterge"
         >
           <Trash2 className="h-5 w-5" />
@@ -422,7 +433,7 @@ export function SwipeableContractCard({
               variant="outline"
               size="sm"
               className="w-full text-destructive hover:text-destructive"
-              onClick={onDelete}
+              onClick={() => setDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Șterge contract
@@ -430,6 +441,31 @@ export function SwipeableContractCard({
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmați ștergerea?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sunteți sigur că doriți să ștergeți contractul pentru{" "}
+              <span className="font-medium text-foreground">
+                {contract.client_prenume} {contract.client_name}
+              </span>
+              ? Această acțiune nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
