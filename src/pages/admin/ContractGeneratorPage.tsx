@@ -748,6 +748,40 @@ const ContractGeneratorPage = () => {
     }
   };
 
+  const shareSignatureLink = async (contractId: string, partyType: 'proprietar' | 'chirias', contract: SavedContract) => {
+    const signatureUrl = await getSignatureUrl(contractId, partyType);
+    if (!signatureUrl) {
+      toast.error('Eroare la obținerea linkului de semnătură');
+      return;
+    }
+    
+    const partyName = partyType === 'proprietar' 
+      ? (contract.proprietar_name || 'Proprietar')
+      : `${contract.client_prenume || ''} ${contract.client_name}`.trim();
+    
+    const shareData = {
+      title: 'Semnare Contract - MVA Imobiliare',
+      text: `Bună ziua ${partyName},\n\nVă rugăm să accesați linkul pentru a semna contractul de închiriere pentru imobilul din ${contract.property_address}.\n\nCu stimă,\nMVA Imobiliare`,
+      url: signatureUrl
+    };
+    
+    // Check if Web Share API is available and can share this data
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        toast.success('Link partajat cu succes!');
+      } catch (error: any) {
+        // User cancelled or share failed - fallback to WhatsApp
+        if (error.name !== 'AbortError') {
+          sendSignatureLinkWhatsApp(contractId, partyType, contract);
+        }
+      }
+    } else {
+      // Fallback to WhatsApp for browsers without Web Share API
+      sendSignatureLinkWhatsApp(contractId, partyType, contract);
+    }
+  };
+
   const generateSignatureLinks = async (contractId: string) => {
     const existing = await fetchSignatureLinks(contractId);
     if (existing.length === 0) {
@@ -3387,6 +3421,7 @@ const ContractGeneratorPage = () => {
                     onRegenerate={() => regeneratePdfWithSignatures(contract)}
                     onCopySignatureLink={(partyType) => copySignatureLink(contract.id, partyType)}
                     onSendWhatsApp={(partyType) => sendSignatureLinkWhatsApp(contract.id, partyType, contract)}
+                    onShareLink={(partyType) => shareSignatureLink(contract.id, partyType, contract)}
                     onSendEmail={(partyType) => openEmailDialog(contract.id, partyType, contract.property_address)}
                     onDelete={() => handleDeleteContract(contract.id)}
                     isRegenerating={regeneratingContractId === contract.id}
