@@ -27,7 +27,8 @@ import {
   Euro,
   Loader2,
   FileText,
-  FileType
+  FileType,
+  Share2
 } from "lucide-react";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -57,6 +58,7 @@ interface SwipeableContractCardProps {
   onRegenerate: () => void;
   onCopySignatureLink: (partyType: 'proprietar' | 'chirias') => void;
   onSendWhatsApp: (partyType: 'proprietar' | 'chirias') => void;
+  onShareLink: (partyType: 'proprietar' | 'chirias') => void;
   onSendEmail: (partyType: 'proprietar' | 'chirias') => void;
   onDelete: () => void;
   isRegenerating?: boolean;
@@ -71,6 +73,7 @@ export function SwipeableContractCard({
   onRegenerate,
   onCopySignatureLink,
   onSendWhatsApp,
+  onShareLink,
   onSendEmail,
   onDelete,
   isRegenerating,
@@ -373,9 +376,9 @@ export function SwipeableContractCard({
               </Button>
             </div>
             
-            {/* Email & WhatsApp for Proprietar */}
+            {/* Share & WhatsApp for Proprietar */}
             {!contract.proprietar_signed && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -389,16 +392,26 @@ export function SwipeableContractCard({
                   variant="outline"
                   size="sm"
                   className="h-10"
+                  onClick={() => onShareLink('proprietar')}
+                  title="Partajează link"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-10"
                   onClick={() => onSendWhatsApp('proprietar')}
+                  title="Trimite pe WhatsApp"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </Button>
               </div>
             )}
             
-            {/* Email & WhatsApp for Chirias */}
+            {/* Share & WhatsApp for Chirias */}
             {!contract.chirias_signed && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -412,7 +425,17 @@ export function SwipeableContractCard({
                   variant="outline"
                   size="sm"
                   className="h-10"
+                  onClick={() => onShareLink('chirias')}
+                  title="Partajează link"
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-10"
                   onClick={() => onSendWhatsApp('chirias')}
+                  title="Trimite pe WhatsApp"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </Button>
