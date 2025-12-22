@@ -233,23 +233,23 @@ export function SwipeableContractCard({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-4 space-y-3">
           {/* Header with name and signatures */}
-          <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-foreground truncate">
+              <h3 className="font-semibold text-foreground text-base leading-tight">
                 {contract.client_prenume} {contract.client_name}
               </h3>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                <Calendar className="h-3 w-3" />
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
                 {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
               </p>
             </div>
-            <div className="flex gap-1 shrink-0">
+            <div className="flex gap-1.5 shrink-0">
               <Badge 
                 variant="outline"
                 className={cn(
-                  "text-xs px-1.5",
+                  "text-xs px-2 py-0.5",
                   contract.proprietar_signed 
                     ? "bg-green-500/20 text-green-600 border-green-500/30" 
                     : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
@@ -260,7 +260,7 @@ export function SwipeableContractCard({
               <Badge 
                 variant="outline"
                 className={cn(
-                  "text-xs px-1.5",
+                  "text-xs px-2 py-0.5",
                   contract.chirias_signed 
                     ? "bg-green-500/20 text-green-600 border-green-500/30" 
                     : "bg-yellow-500/20 text-yellow-600 border-yellow-500/30"
@@ -272,58 +272,47 @@ export function SwipeableContractCard({
           </div>
 
           {/* Property address */}
-          <div className="flex items-start gap-2 text-sm mb-2">
+          <div className="flex items-start gap-2 text-sm">
             <Home className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-            <span className="text-muted-foreground line-clamp-2">{contract.property_address}</span>
+            <span className="text-muted-foreground line-clamp-2 leading-relaxed">{contract.property_address}</span>
           </div>
 
           {/* Price */}
           {contract.property_price && (
             <div className="flex items-center gap-2 text-sm">
-              <Euro className="h-4 w-4 text-muted-foreground" />
+              <Euro className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="font-medium text-foreground">
                 {contract.property_price.toLocaleString()} {contract.property_currency || 'EUR'}/lună
               </span>
             </div>
           )}
 
-          {/* Swipe hints */}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <ChevronLeft className="h-3 w-3" />
-              <span>Acțiuni</span>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span>Vizualizare</span>
-              <ChevronRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Quick action buttons (always visible) */}
-          <div className="flex flex-col gap-2 mt-3">
-            {/* Preview & Download row */}
-            <div className="flex items-center gap-2">
+          {/* Action buttons */}
+          <div className="pt-3 border-t border-border/50 space-y-2.5">
+            {/* Preview row */}
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="col-span-2 h-10"
                 onClick={onPreview}
                 disabled={isPreviewing}
               >
                 {isPreviewing ? (
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <Eye className="h-4 w-4 mr-1" />
+                  <Eye className="h-4 w-4 mr-2" />
                 )}
                 Previzualizare
               </Button>
-              {anySigned && (
+              {anySigned ? (
                 <Button
                   variant="outline"
                   size="sm"
+                  className="h-10"
                   onClick={onRegenerate}
                   disabled={isRegenerating}
-                  title="Regenerează PDF cu semnături"
+                  title="Regenerează PDF"
                 >
                   {isRegenerating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -331,111 +320,113 @@ export function SwipeableContractCard({
                     <FilePlus2 className="h-4 w-4" />
                   )}
                 </Button>
+              ) : (
+                <div className="h-10" />
               )}
             </div>
             
             {/* Download row */}
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="h-10"
                 onClick={onDownloadPdf}
                 disabled={!contract.pdf_url}
               >
-                <FileText className="h-4 w-4 mr-1" />
+                <FileText className="h-4 w-4 mr-2" />
                 PDF
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="h-10"
                 onClick={onDownloadDocx}
                 disabled={!contract.docx_url}
               >
-                <FileType className="h-4 w-4 mr-1" />
+                <FileType className="h-4 w-4 mr-2" />
                 Word
               </Button>
             </div>
             
             {/* Signature links row */}
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="h-10"
                 onClick={() => onCopySignatureLink('proprietar')}
                 disabled={contract.proprietar_signed}
               >
-                <PenTool className="h-4 w-4 mr-1" />
-                {contract.proprietar_signed ? 'P semnat ✓' : 'Link P'}
+                <PenTool className="h-4 w-4 mr-2" />
+                <span className="truncate">{contract.proprietar_signed ? 'P semnat ✓' : 'Link semnare P'}</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1"
+                className="h-10"
                 onClick={() => onCopySignatureLink('chirias')}
                 disabled={contract.chirias_signed}
               >
-                <PenTool className="h-4 w-4 mr-1" />
-                {contract.chirias_signed ? 'C semnat ✓' : 'Link C'}
+                <PenTool className="h-4 w-4 mr-2" />
+                <span className="truncate">{contract.chirias_signed ? 'C semnat ✓' : 'Link semnare C'}</span>
               </Button>
             </div>
             
-            {/* Email & WhatsApp row */}
-            {(!contract.proprietar_signed || !contract.chirias_signed) && (
-              <div className="flex items-center gap-2">
-                {!contract.proprietar_signed && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => onSendEmail('proprietar')}
-                    >
-                      <Mail className="h-4 w-4 mr-1" />
-                      Email P
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSendWhatsApp('proprietar')}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-                {!contract.chirias_signed && (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => onSendEmail('chirias')}
-                    >
-                      <Mail className="h-4 w-4 mr-1" />
-                      Email C
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSendWhatsApp('chirias')}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
+            {/* Email & WhatsApp for Proprietar */}
+            {!contract.proprietar_signed && (
+              <div className="grid grid-cols-4 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-3 h-10"
+                  onClick={() => onSendEmail('proprietar')}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Proprietar
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-10"
+                  onClick={() => onSendWhatsApp('proprietar')}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            
+            {/* Email & WhatsApp for Chirias */}
+            {!contract.chirias_signed && (
+              <div className="grid grid-cols-4 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="col-span-3 h-10"
+                  onClick={() => onSendEmail('chirias')}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Chiriaș
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-10"
+                  onClick={() => onSendWhatsApp('chirias')}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                </Button>
               </div>
             )}
             
             {/* Delete button */}
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="w-full text-destructive hover:text-destructive"
+              className="w-full h-10 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => setDeleteDialogOpen(true)}
             >
-              <Trash2 className="h-4 w-4 mr-1" />
+              <Trash2 className="h-4 w-4 mr-2" />
               Șterge contract
             </Button>
           </div>
