@@ -677,8 +677,41 @@ const ContractGeneratorPage = () => {
       return;
     }
     
-    await navigator.clipboard.writeText(signatureUrl);
-    toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+    // Try multiple methods for mobile compatibility
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(signatureUrl);
+        toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+      } else {
+        // Fallback for mobile browsers that don't support clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = signatureUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            toast.success(`Link de semnătură ${partyType === 'proprietar' ? 'proprietar' : 'chiriaș'} copiat!`);
+          } else {
+            // If copy fails, show the link for manual copy
+            toast.info(`Link generat: ${signatureUrl}`, { duration: 10000 });
+          }
+        } catch (err) {
+          toast.info(`Link generat: ${signatureUrl}`, { duration: 10000 });
+        }
+        
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      // Show link in toast as last resort
+      toast.info(`Link generat: ${signatureUrl}`, { duration: 10000 });
+    }
   };
 
   const sendSignatureLinkWhatsApp = async (contractId: string, partyType: 'proprietar' | 'chirias', contract: SavedContract) => {
