@@ -12,6 +12,16 @@ import { ro } from "date-fns/locale";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+// Function to remove Romanian diacritics
+const removeDiacritics = (text: string): string => {
+  const diacriticsMap: { [key: string]: string } = {
+    'ă': 'a', 'â': 'a', 'î': 'i', 'ș': 's', 'ț': 't',
+    'Ă': 'A', 'Â': 'A', 'Î': 'I', 'Ș': 'S', 'Ț': 'T',
+    'ş': 's', 'ţ': 't', 'Ş': 'S', 'Ţ': 'T' // Also handle cedilla variants
+  };
+  return text.replace(/[ăâîșțĂÂÎȘȚşţŞŢ]/g, char => diacriticsMap[char] || char);
+};
+
 const ReportsPage = () => {
   const [reportType, setReportType] = useState<string>("monthly");
   const [selectedMonth, setSelectedMonth] = useState<string>(format(new Date(), "yyyy-MM"));
@@ -110,9 +120,9 @@ const ReportsPage = () => {
     
     try {
       const doc = new jsPDF();
-      const periodLabel = reportType === "monthly" 
+      const periodLabel = removeDiacritics(reportType === "monthly" 
         ? format(reportData.startDate, "MMMM yyyy", { locale: ro })
-        : selectedYear;
+        : selectedYear);
 
       // Header
       doc.setFontSize(20);
@@ -121,14 +131,14 @@ const ReportsPage = () => {
       
       doc.setFontSize(16);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Raport ${reportType === "monthly" ? "Lunar" : "Anual"}`, 105, 30, { align: "center" });
+      doc.text(removeDiacritics(`Raport ${reportType === "monthly" ? "Lunar" : "Anual"}`), 105, 30, { align: "center" });
       
       doc.setFontSize(12);
       doc.setTextColor(100, 100, 100);
       doc.text(periodLabel, 105, 38, { align: "center" });
       
       doc.setFontSize(10);
-      doc.text(`Generat la: ${format(new Date(), "d MMMM yyyy, HH:mm", { locale: ro })}`, 105, 45, { align: "center" });
+      doc.text(removeDiacritics(`Generat la: ${format(new Date(), "d MMMM yyyy, HH:mm", { locale: ro })}`), 105, 45, { align: "center" });
 
       // Summary section
       doc.setFontSize(14);
@@ -140,15 +150,15 @@ const ReportsPage = () => {
         startY: 65,
         head: [["Indicator", "Valoare"]],
         body: [
-          ["Total Comisioane EUR", `${reportData.totalEUR.toLocaleString()} €`],
+          ["Total Comisioane EUR", `${reportData.totalEUR.toLocaleString()} EUR`],
           ["Total Comisioane RON", `${reportData.totalRON.toLocaleString()} RON`],
-          ["Tranzacții Vânzare", String(reportData.salesCount)],
-          ["Tranzacții Chirie", String(reportData.rentCount)],
-          ["Vizionări Total", String(reportData.viewingsTotal)],
-          ["Vizionări Finalizate", String(reportData.viewingsCompleted)],
-          ["Vizionări în Așteptare", String(reportData.viewingsPending)],
-          ["Proprietăți Active", String(reportData.propertiesCount)],
-          ["Complexe Rezidențiale", String(reportData.complexesCount)],
+          [removeDiacritics("Tranzactii Vanzare"), String(reportData.salesCount)],
+          [removeDiacritics("Tranzactii Chirie"), String(reportData.rentCount)],
+          [removeDiacritics("Vizionari Total"), String(reportData.viewingsTotal)],
+          [removeDiacritics("Vizionari Finalizate"), String(reportData.viewingsCompleted)],
+          [removeDiacritics("Vizionari in Asteptare"), String(reportData.viewingsPending)],
+          [removeDiacritics("Proprietati Active"), String(reportData.propertiesCount)],
+          [removeDiacritics("Complexe Rezidentiale"), String(reportData.complexesCount)],
         ],
         theme: "striped",
         headStyles: { fillColor: [218, 165, 32] },
@@ -163,10 +173,10 @@ const ReportsPage = () => {
 
         autoTable(doc, {
           startY: finalY + 20,
-          head: [["Data", "Tip", "Sumă", "Monedă", "Factură"]],
+          head: [["Data", "Tip", "Suma", "Moneda", "Factura"]],
           body: reportData.commissions.map(c => [
             format(parseISO(c.date), "dd.MM.yyyy"),
-            c.transaction_type,
+            removeDiacritics(c.transaction_type),
             Number(c.amount).toLocaleString(),
             c.currency,
             c.invoice_number || "-"
