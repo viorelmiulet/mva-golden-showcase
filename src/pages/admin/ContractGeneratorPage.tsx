@@ -2593,6 +2593,32 @@ const ContractGeneratorPage = () => {
     setInventoryItems([]);
   };
 
+  // Save contract without downloading
+  const saveContractOnly = async () => {
+    if (!contractData.proprietar.nume || !contractData.chirias.nume) {
+      toast.error("Vă rugăm completați datele proprietarului și chiriașului");
+      return;
+    }
+
+    if (!contractData.proprietate_adresa) {
+      toast.error("Vă rugăm completați adresa proprietății");
+      return;
+    }
+
+    setIsSaving(true);
+    
+    try {
+      await saveContractToDatabase();
+      toast.success("Contract salvat cu succes!");
+      handleReset();
+    } catch (error: any) {
+      console.error('Error saving contract:', error);
+      toast.error("Eroare la salvarea contractului");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const renderUploadCard = (
     type: 'proprietar' | 'chirias',
     title: string,
@@ -2935,49 +2961,71 @@ const ContractGeneratorPage = () => {
               />
             </div>
 
-            <div className="flex gap-2 pt-2">
-              <Button
-                variant="outline"
-                onClick={handleReset}
-                className="flex-1"
-              >
-                Resetează
-              </Button>
-              <Button
-                onClick={() => generateContract('pdf')}
-                disabled={isGenerating}
-                variant="outline"
-                className="flex-1"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generare...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="h-4 w-4 mr-2" />
-                    PDF
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={() => generateContract('docx')}
-                disabled={isGenerating}
-                className="flex-1"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generare...
-                  </>
-                ) : (
-                  <>
-                    <FileType className="h-4 w-4 mr-2" />
-                    Word
-                  </>
-                )}
-              </Button>
+            <div className="flex flex-col gap-2 pt-2">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  className="flex-1"
+                >
+                  Resetează
+                </Button>
+                <Button
+                  onClick={saveContractOnly}
+                  disabled={isSaving || isGenerating}
+                  className="flex-1"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Salvare...
+                    </>
+                  ) : (
+                    <>
+                      <FilePlus2 className="h-4 w-4 mr-2" />
+                      Generează
+                    </>
+                  )}
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => generateContract('pdf')}
+                  disabled={isGenerating}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generare...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 mr-2" />
+                      PDF
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => generateContract('docx')}
+                  disabled={isGenerating}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generare...
+                    </>
+                  ) : (
+                    <>
+                      <FileType className="h-4 w-4 mr-2" />
+                      Word
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
