@@ -1234,8 +1234,7 @@ const ContractGeneratorPage = () => {
           .eq('id', contract.id);
       }
 
-      // Download the signed PDF
-      doc.save(fileName);
+      // Don't auto-download - user can download manually from the contracts list
       
       await fetchContracts();
       toast.success("PDF cu semnături regenerat cu succes!");
