@@ -33,12 +33,22 @@ interface SignatureInfo {
   contract?: ContractInfo;
 }
 
+interface InventoryItem {
+  id: string;
+  item_name: string;
+  quantity: number;
+  condition: string | null;
+  location: string | null;
+  notes: string | null;
+}
+
 const SignContract = () => {
   const { token } = useParams<{ token: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSigning, setIsSigning] = useState(false);
   const [signatureInfo, setSignatureInfo] = useState<SignatureInfo | null>(null);
   const [contractInfo, setContractInfo] = useState<ContractInfo | null>(null);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -108,6 +118,16 @@ const SignContract = () => {
       }
 
       setContractInfo(contractData as ContractInfo);
+
+      // Fetch inventory items
+      const { data: invData, error: invError } = await supabase
+        .from('contract_inventory')
+        .select('*')
+        .eq('contract_id', sigData.contract_id);
+
+      if (!invError && invData) {
+        setInventoryItems(invData as InventoryItem[]);
+      }
     } catch (err) {
       console.error('Error fetching signature info:', err);
       setError("A apărut o eroare la încărcarea informațiilor.");
@@ -276,6 +296,125 @@ const SignContract = () => {
     y += 20;
     doc.text("_______________", margin, y);
     doc.text("_______________", pageWidth - margin - 40, y);
+
+    // ========== PROCES VERBAL DE PREDARE-PRIMIRE ==========
+    if (inventoryItems.length > 0) {
+      doc.addPage();
+      y = 25;
+
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(0, 51, 102);
+      doc.text("PROCES VERBAL DE PREDARE-PRIMIRE", pageWidth / 2, y, { align: "center" });
+      y += 8;
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Anexa la Contractul de Inchiriere din ${contractInfo?.contract_date || 'N/A'}`, pageWidth / 2, y, { align: "center" });
+      y += 15;
+
+      // Property info
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.text(`Imobil: ${removeDiacritics(contractInfo?.property_address || 'N/A')}`, margin, y);
+      y += 12;
+
+      // Inventory table header
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(0, 51, 102);
+      doc.text("LISTA INVENTAR", margin, y);
+      y += 8;
+
+      // Table
+      const colWidths = [80, 20, 35, 35];
+      const startX = margin;
+      const headers = ["Obiect", "Cant.", "Stare", "Locatie"];
+
+      // Draw header row
+      doc.setFillColor(0, 51, 102);
+      doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      
+      let xPos = startX + 2;
+      headers.forEach((header, i) => {
+        doc.text(header, xPos, y + 5.5);
+        xPos += colWidths[i];
+      });
+      y += 8;
+
+      // Draw data rows
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      
+      inventoryItems.forEach((item, index) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 25;
+          // Redraw header on new page
+          doc.setFillColor(0, 51, 102);
+          doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(255, 255, 255);
+          xPos = startX + 2;
+          headers.forEach((header, i) => {
+            doc.text(header, xPos, y + 5.5);
+            xPos += colWidths[i];
+          });
+          y += 8;
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+        }
+
+        const rowColor = index % 2 === 0 ? 245 : 255;
+        doc.setFillColor(rowColor, rowColor, rowColor);
+        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 7, 'F');
+        doc.setDrawColor(200, 200, 200);
+        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 7, 'S');
+
+        xPos = startX + 2;
+        const rowData = [
+          removeDiacritics(item.item_name || '-'),
+          String(item.quantity || 1),
+          removeDiacritics(item.condition || '-'),
+          removeDiacritics(item.location || '-')
+        ];
+        
+        rowData.forEach((cell, i) => {
+          const cellText = cell.length > (colWidths[i] / 2.5) ? cell.substring(0, Math.floor(colWidths[i] / 2.5)) + '...' : cell;
+          doc.text(cellText, xPos, y + 5);
+          xPos += colWidths[i];
+        });
+        y += 7;
+      });
+
+      // Signatures for Proces Verbal
+      y += 20;
+      if (y > 250) {
+        doc.addPage();
+        y = 25;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Am predat,", margin, y);
+      doc.text("Am primit,", pageWidth - margin - 30, y);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+      doc.text("PROPRIETAR", margin, y);
+      doc.text("CHIRIAS", pageWidth - margin - 25, y);
+      y += 6;
+      doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), margin, y);
+      doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), pageWidth - margin - 50, y);
+      y += 20;
+      doc.text("_______________", margin, y);
+      doc.text("_______________", pageWidth - margin - 40, y);
+    }
 
     return doc;
   };
