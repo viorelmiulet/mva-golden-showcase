@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AdminPWAInstallBanner from "@/components/AdminPWAInstallBanner";
 
 const DEFAULT_PASSWORD = "123456";
 
@@ -317,6 +318,9 @@ const AdminLayout = () => {
               <Outlet />
             </div>
           </main>
+
+          {/* PWA Install Banner for Admin */}
+          <AdminPWAInstallBanner />
         </div>
       </div>
     </SidebarProvider>
