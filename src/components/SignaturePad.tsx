@@ -65,8 +65,8 @@ const SignaturePad = ({ title, onSave, savedSignature }: SignaturePadProps) => {
               <SignatureCanvas
                 ref={signatureRef}
                 canvasProps={{
-                  className: "w-full h-24 rounded-lg",
-                  style: { width: "100%", height: "96px" }
+                  className: "w-full h-40 rounded-lg",
+                  style: { width: "100%", height: "160px" }
                 }}
                 backgroundColor="white"
                 penColor="black"
