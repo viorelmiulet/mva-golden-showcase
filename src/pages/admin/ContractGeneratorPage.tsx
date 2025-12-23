@@ -3993,11 +3993,11 @@ const ContractGeneratorPage = () => {
                   )}
                 </div>
                 {contractData.semnatura_proprietar ? (
-                  <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[100px] flex items-center justify-center">
+                  <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
                     <img 
                       src={contractData.semnatura_proprietar} 
                       alt="Semnătură Proprietar" 
-                      className="max-h-20"
+                      className="max-h-40"
                     />
                   </div>
                 ) : (
@@ -4029,11 +4029,11 @@ const ContractGeneratorPage = () => {
                   )}
                 </div>
                 {contractData.semnatura_chirias ? (
-                  <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[100px] flex items-center justify-center">
+                  <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
                     <img 
                       src={contractData.semnatura_chirias} 
                       alt="Semnătură Chiriași" 
-                      className="max-h-20"
+                      className="max-h-40"
                     />
                   </div>
                 ) : (
