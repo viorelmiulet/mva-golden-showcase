@@ -2253,237 +2253,248 @@ const ContractGeneratorPage = () => {
         toast.success("Contract generat si salvat cu succes!");
         return;
       } else {
-        // Generate PDF document with Times font (similar to Century)
+        // Generate PDF document with clean format matching the template
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
         const margin = 20;
         const textWidth = pageWidth - 2 * margin;
         let y = 25;
 
-        // Helper function to add section title with underline (bold italic like in image)
+        // Helper function to add section title (bold, blue)
         const addSectionTitle = (title: string) => {
           if (y > 260) {
             doc.addPage();
             y = 20;
           }
           doc.setFontSize(11);
-          doc.setFont("times", "bolditalic");
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(0, 51, 153); // Blue color
           doc.text(title, margin, y);
-          // Add underline
-          const titleWidth = doc.getTextWidth(title);
-          doc.setLineWidth(0.3);
-          doc.line(margin, y + 1, margin + titleWidth, y + 1);
           y += 8;
+          doc.setTextColor(0, 0, 0); // Reset to black
           doc.setFontSize(10);
-          doc.setFont("times", "normal");
+          doc.setFont("helvetica", "normal");
         };
 
-        // Helper function to add subsection title (bold, numbered)
-        const addSubsectionTitle = (title: string) => {
-          if (y > 260) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(10);
-          doc.setFont("times", "bold");
-          doc.text(title, margin, y);
-          y += 6;
-          doc.setFont("times", "normal");
-        };
-
-        // Helper function to add justified paragraph
-        const addParagraph = (text: string) => {
+        // Helper function to add paragraph with indent
+        const addParagraph = (text: string, indent: number = 8) => {
           if (y > 270) {
             doc.addPage();
             y = 20;
           }
-          doc.setFont("times", "normal");
-          const lines = doc.splitTextToSize(text, textWidth);
-          // Use justify alignment for all lines except the last
+          doc.setFont("helvetica", "normal");
+          const lines = doc.splitTextToSize(text, textWidth - indent);
           for (let i = 0; i < lines.length; i++) {
-            if (i < lines.length - 1) {
-              doc.text(lines[i], margin, y, { align: "justify", maxWidth: textWidth });
-            } else {
-              doc.text(lines[i], margin, y);
-            }
+            doc.text(lines[i], margin + indent, y);
             y += 5;
           }
           y += 2;
         };
 
-        // Helper function to add bullet point with dash
-        const addBullet = (text: string) => {
+        // Helper function to add simple paragraph (no indent)
+        const addSimpleParagraph = (text: string) => {
           if (y > 270) {
             doc.addPage();
             y = 20;
           }
-          doc.setFont("times", "normal");
-          const bulletIndent = 8;
-          const bulletTextWidth = textWidth - bulletIndent;
-          doc.text("-", margin + 3, y);
-          const lines = doc.splitTextToSize(text, bulletTextWidth);
+          doc.setFont("helvetica", "normal");
+          const lines = doc.splitTextToSize(text, textWidth);
           for (let i = 0; i < lines.length; i++) {
-            if (i < lines.length - 1) {
-              doc.text(lines[i], margin + bulletIndent, y, { align: "justify", maxWidth: bulletTextWidth });
-            } else {
-              doc.text(lines[i], margin + bulletIndent, y);
-            }
+            doc.text(lines[i], margin, y);
             y += 5;
           }
-          y += 1;
+          y += 2;
+        };
+
+        // Helper function to draw a box with text content
+        const drawPartyBox = (title: string, data: {
+          nume: string;
+          cnp: string;
+          seria: string;
+          numar: string;
+          emitent: string;
+          dataEmiterii: string;
+          domiciliu: string;
+          cetatenie: string;
+        }) => {
+          if (y > 200) {
+            doc.addPage();
+            y = 20;
+          }
+          
+          const boxStartY = y;
+          const lineHeight = 6;
+          const boxPadding = 5;
+          
+          // Calculate box height
+          const domiciliuLines = doc.splitTextToSize(`Domiciliu: ${data.domiciliu}`, textWidth - 2 * boxPadding);
+          const boxHeight = boxPadding + lineHeight * 6 + (domiciliuLines.length - 1) * 5 + boxPadding;
+          
+          // Draw box border
+          doc.setLineWidth(0.5);
+          doc.setDrawColor(0, 0, 0);
+          doc.rect(margin, boxStartY, textWidth, boxHeight);
+          
+          y = boxStartY + boxPadding + 4;
+          
+          // Title
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(10);
+          doc.text(title, margin + boxPadding, y);
+          y += lineHeight + 2;
+          
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          
+          // Nume
+          doc.text(`Nume: ${data.nume}`, margin + boxPadding, y);
+          y += lineHeight;
+          
+          // CNP
+          doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
+          y += lineHeight;
+          
+          // CI
+          doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
+          y += lineHeight;
+          
+          // Eliberat de
+          doc.text(`Eliberat de: ${data.emitent} la data de ${data.dataEmiterii}`, margin + boxPadding, y);
+          y += lineHeight;
+          
+          // Domiciliu (may wrap)
+          for (let i = 0; i < domiciliuLines.length; i++) {
+            doc.text(domiciliuLines[i], margin + boxPadding, y);
+            y += 5;
+          }
+          
+          // Cetatenie
+          doc.text(`Cetatenie: ${data.cetatenie}`, margin + boxPadding, y);
+          
+          y = boxStartY + boxHeight + 8;
         };
 
         // TITLU
-        doc.setFontSize(14);
-        doc.setFont("times", "bold");
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
         doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
         y += 12;
 
         doc.setFontSize(10);
-        doc.setFont("times", "normal");
-        doc.text(`Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`, margin, y);
-        y += 10;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`, pageWidth / 2, y, { align: "center" });
+        y += 12;
 
-        // PARTI CONTRACTANTE
-        doc.setFont("times", "bold");
-        doc.text("1. PROPRIETAR:", margin, y);
-        y += 6;
-        doc.setFont("times", "normal");
-        const proprietarCiDetails = contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii 
-          ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${formatDateRomanian(contractData.proprietar.ci_data_emiterii)}` 
-          : '';
-        const proprietarText = `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${proprietarCiDetails}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`;
-        const propLines = doc.splitTextToSize(proprietarText, textWidth);
-        for (let i = 0; i < propLines.length; i++) {
-          doc.text(propLines[i], margin, y, i < propLines.length - 1 ? { align: "justify", maxWidth: textWidth } : undefined);
-          y += 5;
-        }
-        y += 4;
+        // 1. PROPRIETAR BOX
+        drawPartyBox("1. PROPRIETAR (LOCATOR):", {
+          nume: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
+          cnp: contractData.proprietar.cnp,
+          seria: contractData.proprietar.seria_ci,
+          numar: contractData.proprietar.numar_ci,
+          emitent: contractData.proprietar.ci_emitent || '-',
+          dataEmiterii: formatDateRomanian(contractData.proprietar.ci_data_emiterii) || '-',
+          domiciliu: contractData.proprietar.adresa,
+          cetatenie: contractData.proprietar.cetatenie || 'Romana'
+        });
 
-        doc.setFont("times", "bold");
-        doc.text("2. CHIRIAS:", margin, y);
-        y += 6;
-        doc.setFont("times", "normal");
-        const chiriasCiDetails = contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii 
-          ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${formatDateRomanian(contractData.chirias.ci_data_emiterii)}` 
-          : '';
-        const chiriasText = `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${chiriasCiDetails}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`;
-        const chirLines = doc.splitTextToSize(chiriasText, textWidth);
-        for (let i = 0; i < chirLines.length; i++) {
-          doc.text(chirLines[i], margin, y, i < chirLines.length - 1 ? { align: "justify", maxWidth: textWidth } : undefined);
-          y += 5;
-        }
-        y += 8;
+        // 2. CHIRIAS BOX
+        drawPartyBox("2. CHIRIAS (LOCATAR):", {
+          nume: `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
+          cnp: contractData.chirias.cnp,
+          seria: contractData.chirias.seria_ci,
+          numar: contractData.chirias.numar_ci,
+          emitent: contractData.chirias.ci_emitent || '-',
+          dataEmiterii: formatDateRomanian(contractData.chirias.ci_data_emiterii) || '-',
+          domiciliu: contractData.chirias.adresa,
+          cetatenie: contractData.chirias.cetatenie || 'romana'
+        });
 
         // I. OBIECTUL CONTRACTULUI
         addSectionTitle("I. OBIECTUL CONTRACTULUI");
         addParagraph(`Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`);
-        y += 3;
 
         // II. DESTINATIA
         addSectionTitle("II. DESTINATIA");
         addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA. Destinatia spatiului inchiriat nu poate fi schimbata.");
-        y += 3;
 
         // III. DURATA
         addSectionTitle("III. DURATA");
-        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}. Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.`);
-        y += 3;
+        addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}.`);
+        addParagraph("Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.");
 
         // IV. CHIRIA SI MODALITATI DE PLATA
         addSectionTitle("IV. CHIRIA SI MODALITATI DE PLATA");
-        addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
+        addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/ luna.`);
         
-        const garantieText = contractData.garantie_status === "platita" 
-          ? `Garantia in valoare de ${garantieVal} ${moneda} s-a achitat astazi, la data semnarii contractului de inchiriere.`
-          : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`;
-        addParagraph(garantieText);
-        addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
-        addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
-        y += 3;
+        const garantieTextPdf = contractData.garantie_status === "platita" 
+          ? `Garantia in valoare de ${garantieVal} ${moneda} s-a platit la data semnarii contractului.`
+          : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului.`;
+        addParagraph(garantieTextPdf);
+        addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea contractului.");
 
         // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
         addSectionTitle("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
-        addSubsectionTitle("1. OBLIGATIILE PROPRIETARULUI:");
-        addBullet("proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului;");
-        addBullet("pune la dispozitia chiriasului imobilul in stare buna, pentru a fi folosit conform destinatiei avute in vedere in prezentul contract, impreuna cu un inventar (realizat de catre proprietar inainte de intrarea chiriasului in imobil) detaliat, intocmit in 2 (doua) exemplare semnate de ambele parti;");
-        addBullet("achita toate taxele legale ale imobilului (impozit pe cladiri, venituri);");
-        addBullet("sa suporte cheltuielile de reparatii pentru partile comune ale imobilului.");
-        y += 2;
-
-        addSubsectionTitle("2. DREPTURILE PROPRIETARULUI:");
-        addBullet("sa viziteze imobilul cand doreste, cu anuntarea in prealabil a chiriasului si in prezenta acestuia;");
-        addBullet("sa accepte sau sa respinga propunerile avansate de chirias de modificare a imobilului inchiriat in prezentul contract, in prealabil, sau ori de cate ori este necesar. Atat propunerile chiriasului cat si raspunsurile proprietarului se vor face in scris;");
-        addBullet("sa verifice achitarea obligatiilor de plata curente ale chiriasului.");
-        y += 3;
+        addParagraph("Obligatii: proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului.");
+        addParagraph("Drepturi: sa viziteze imobilul cu anuntarea prealabila; sa verifice achitarea obligatiilor de plata.");
 
         // VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI
         addSectionTitle("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
-        addSubsectionTitle("1. OBLIGATIILE CHIRIASULUI:");
-        addBullet("sa asigure exploatarea imobilului doar in conformitate cu destinatia avuta in vedere;");
-        addBullet("sa nu subinchirieze imobilul, decat cu acordul scris al proprietarului;");
-        addBullet("sa achite in termen legal platile curente: electricitate, gaze, gunoi, apa, intretinere;");
-        addBullet("sa mentina in buna stare imobilul si bunurile din inventar;");
-        addBullet("sa respecte normele de convietuire in conformitate cu regulamentul asociatiei de locatari;");
-        addBullet("sa permita accesul proprietarului in imobilul inchiriat cel putin o data pe luna;");
-        addBullet("sa predea spatiul in starea in care era la inceperea contractului.");
-        y += 2;
-
-        addSubsectionTitle("2. DREPTURILE CHIRIASULUI:");
-        addBullet("sa utilizeze imobilul in exclusivitate pe perioada derularii contractului;");
-        addBullet("sa faca imbunatatirile necesare fara sa modifice structura de rezistenta si doar cu acordul proprietarului.");
-        y += 3;
+        addParagraph("Obligatii: sa foloseasca imobilul conform destinatiei; sa nu subinchirieze; sa achite utilitatile; sa mentina bunurile in buna stare; sa predea spatiul in starea initiala.");
+        addParagraph("Drepturi: sa utilizeze imobilul in exclusivitate; sa faca imbunatatiri cu acordul proprietarului.");
 
         // VII. PREDAREA IMOBILULUI
         addSectionTitle("VII. PREDAREA IMOBILULUI");
-        addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului sau unui reprezentant autorizat al proprietarului, in starea in care l-a primit.");
-        y += 3;
+        addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
 
         // VIII. FORTA MAJORA
         addSectionTitle("VIII. FORTA MAJORA");
-        addParagraph("Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
-        addParagraph("Partea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.");
-        y += 3;
+        addParagraph("Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
 
         // IX. CONDITIILE DE INCETARE A CONTRACTULUI
         addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-        addParagraph("1. la expirarea duratei pentru care a fost incheiat;");
-        addParagraph("2. in situatia nerespectarii clauzelor contractuale de catre una din parti;");
-        addParagraph("3. clauza fortei majore;");
-        addParagraph("4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.");
-        y += 3;
+        addParagraph("a) la expirarea duratei pentru care a fost incheiat;");
+        addParagraph("b) in situatia nerespectarii clauzelor contractuale;");
+        addParagraph("c) clauza fortei majore;");
+        addParagraph("d) prin denuntare unilaterala cu notificare prealabila de 30 de zile.");
 
-        addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
-        
-        // INVENTAR - Add inventory section if items exist
+        // Art. 8 - INVENTAR IMOBIL
         if (inventoryItems.length > 0) {
+          addSectionTitle("Art. 8 - INVENTAR IMOBIL");
+          addParagraph("Lista bunurilor care fac parte din imobil:");
+          
+          // New page for inventory table
           doc.addPage();
           y = 25;
           
-          doc.setFontSize(14);
-          doc.setFont("times", "bold");
-          doc.text("ANEXA 1 - INVENTAR IMOBIL", pageWidth / 2, y, { align: "center" });
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.text("Lista de Inventar", pageWidth / 2, y, { align: "center" });
           y += 12;
           
-          doc.setFontSize(10);
-          doc.setFont("times", "normal");
-          addParagraph(`Inventar al bunurilor aflate in imobilul situat in ${contractData.proprietate_adresa}, predate de proprietar chiriasului la data inceperii contractului de inchiriere.`);
-          y += 5;
-          
-          // Table header
+          // Table configuration
+          const colWidths = [15, 65, 25, 30, 35]; // Nr, Denumire, Cantitate, Stare, Observatii
+          const tableWidth = colWidths.reduce((a, b) => a + b, 0);
           const startX = margin;
+          const rowHeight = 8;
           
-          doc.setFont("times", "bold");
-          doc.setFillColor(240, 240, 240);
-          doc.rect(startX, y - 4, textWidth, 8, 'F');
-          doc.text("Denumire", startX + 2, y);
-          doc.text("Cant.", startX + 55, y);
-          doc.text("Stare", startX + 70, y);
-          doc.text("Locatie", startX + 105, y);
-          doc.text("Observatii", startX + 130, y);
-          y += 8;
+          // Draw table header
+          doc.setFillColor(255, 255, 255);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(10);
+          doc.setLineWidth(0.3);
           
-          doc.setFont("times", "normal");
+          let currentX = startX;
+          const headers = ["Nr.", "Denumire", "Cantitate", "Stare", "Observatii"];
+          
+          headers.forEach((header, i) => {
+            doc.rect(currentX, y, colWidths[i], rowHeight);
+            doc.text(header, currentX + 2, y + 5.5);
+            currentX += colWidths[i];
+          });
+          y += rowHeight;
+          
+          // Draw table rows
+          doc.setFont("helvetica", "normal");
           
           const conditionLabels: Record<string, string> = {
             'noua': 'Noua',
@@ -2497,121 +2508,59 @@ const ContractGeneratorPage = () => {
             if (y > 270) {
               doc.addPage();
               y = 20;
+              
+              // Redraw header on new page
+              currentX = startX;
+              doc.setFont("helvetica", "bold");
+              headers.forEach((header, i) => {
+                doc.rect(currentX, y, colWidths[i], rowHeight);
+                doc.text(header, currentX + 2, y + 5.5);
+                currentX += colWidths[i];
+              });
+              y += rowHeight;
+              doc.setFont("helvetica", "normal");
             }
             
-            // Alternate row background
-            if (index % 2 === 0) {
-              doc.setFillColor(250, 250, 250);
-              doc.rect(startX, y - 4, textWidth, 6, 'F');
-            }
+            currentX = startX;
+            const rowData = [
+              (index + 1).toString(),
+              item.item_name.substring(0, 28),
+              item.quantity.toString(),
+              conditionLabels[item.condition] || 'Buna',
+              (item.notes || '-').substring(0, 15)
+            ];
             
-            doc.text(item.item_name.substring(0, 25), startX + 2, y);
-            doc.text(item.quantity.toString(), startX + 55, y);
-            doc.text(conditionLabels[item.condition] || item.condition, startX + 70, y);
-            doc.text((item.location || '-').substring(0, 12), startX + 105, y);
-            doc.text((item.notes || '-').substring(0, 20), startX + 130, y);
-            y += 6;
+            rowData.forEach((text, i) => {
+              doc.rect(currentX, y, colWidths[i], rowHeight);
+              doc.text(text, currentX + 2, y + 5.5);
+              currentX += colWidths[i];
+            });
+            y += rowHeight;
           });
           
           y += 10;
-          addParagraph(`Total articole inventariate: ${inventoryItems.length}`);
-          y += 10;
-          
-          addParagraph("Prezentul inventar a fost intocmit in 2 (doua) exemplare, cate unul pentru fiecare parte, si face parte integranta din contractul de inchiriere.");
-          y += 15;
-          
-          // Add inventory images section if any item has images
-          const itemsWithImages = inventoryItems.filter(item => item.images && item.images.length > 0);
-          
-          if (itemsWithImages.length > 0) {
-            doc.addPage();
-            y = 25;
-            
-            doc.setFontSize(12);
-            doc.setFont("times", "bold");
-            doc.text("FOTOGRAFII INVENTAR", pageWidth / 2, y, { align: "center" });
-            y += 12;
-            
-            doc.setFontSize(10);
-            doc.setFont("times", "normal");
-            
-            for (const item of itemsWithImages) {
-              if (y > 250) {
-                doc.addPage();
-                y = 20;
-              }
-              
-              doc.setFont("times", "bold");
-              doc.text(`${item.item_name}${item.location ? ` - ${item.location}` : ''}`, margin, y);
-              y += 6;
-              doc.setFont("times", "normal");
-              
-              let imageX = margin;
-              const { width: imageWidth, height: imageHeight, perRow: imagesPerRow } = imageSizeConfig[inventoryImageSize];
-              
-              for (let i = 0; i < item.images.length; i++) {
-                try {
-                  // Check if we need a new row
-                  if (i > 0 && i % imagesPerRow === 0) {
-                    y += imageHeight + 5;
-                    imageX = margin;
-                  }
-                  
-                  // Check page break
-                  if (y + imageHeight > 280) {
-                    doc.addPage();
-                    y = 20;
-                    imageX = margin;
-                  }
-                  
-                  // Convert image URL to base64 before adding to PDF
-                  const base64Image = await imageUrlToBase64(item.images[i]);
-                  
-                  if (base64Image) {
-                    doc.addImage(base64Image, 'JPEG', imageX, y, imageWidth, imageHeight);
-                  } else {
-                    // Add placeholder if image conversion fails
-                    doc.setFillColor(240, 240, 240);
-                    doc.rect(imageX, y, imageWidth, imageHeight, 'F');
-                    doc.setFontSize(8);
-                    doc.text('[Imagine indisponibila]', imageX + 5, y + imageHeight / 2);
-                    doc.setFontSize(10);
-                  }
-                  imageX += imageWidth + 5;
-                } catch (imgError) {
-                  console.warn('Could not add image to PDF:', imgError);
-                  // Add placeholder text if image fails
-                  doc.setFillColor(240, 240, 240);
-                  doc.rect(imageX, y, imageWidth, imageHeight, 'F');
-                  doc.setFontSize(8);
-                  doc.text('[Eroare imagine]', imageX + 10, y + imageHeight / 2);
-                  doc.setFontSize(10);
-                  imageX += imageWidth + 5;
-                }
-              }
-              
-              y += imageHeight + 10;
-            }
-          }
         }
 
         // SEMNATURI
-        if (y > 250) {
+        if (y > 220) {
           doc.addPage();
           y = 30;
         }
-        doc.setFont("times", "bold");
+        
+        y += 15;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
         doc.text("PROPRIETAR", margin, y);
         doc.text("CHIRIAS", pageWidth - margin - 30, y);
         y += 8;
-        doc.setFont("times", "normal");
+        
+        doc.setFont("helvetica", "normal");
         doc.text(`${contractData.proprietar.prenume} ${contractData.proprietar.nume}`, margin, y);
         doc.text(`${contractData.chirias.prenume} ${contractData.chirias.nume}`, pageWidth - margin - 50, y);
-        y += 8;
+        y += 15;
         
         // Add electronic signatures if available
         if (contractData.semnatura_proprietar || contractData.semnatura_chirias) {
-          y += 5;
           const signatureHeight = 25;
           const signatureWidth = 50;
           
@@ -2632,10 +2581,12 @@ const ContractGeneratorPage = () => {
           }
           y += signatureHeight + 5;
         } else {
-          y += 15;
-          doc.text("_____________________", margin, y);
-          doc.text("_____________________", pageWidth - margin - 50, y);
+          doc.text("Semnatura: _______________", margin, y);
+          doc.text("Semnatura: _______________", pageWidth - margin - 55, y);
         }
+        
+        y += 20;
+        doc.text(`Data: ${formatDateRomanian(contractData.data_contract)}`, pageWidth / 2, y, { align: "center" });
 
         const fileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${Date.now()}.pdf`;
         
