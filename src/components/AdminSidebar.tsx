@@ -18,7 +18,6 @@ import {
   UserCheck,
   ScrollText,
   Package,
-  X,
 } from "lucide-react";
 
 import {
@@ -33,7 +32,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
@@ -55,108 +53,72 @@ const menuItems = [
 ];
 
 export function AdminSidebar() {
-  const { state, toggleSidebar, setOpenMobile, openMobile } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
-  const isMobile = useIsMobile();
 
   const getNavCls = (isActive: boolean) =>
     isActive
       ? "bg-gold/20 text-gold hover:bg-gold/30"
       : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
 
-  const handleNavClick = () => {
-    // Close sidebar on mobile after navigation
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
-
   return (
-    <>
-      {/* Mobile overlay */}
-      {isMobile && openMobile && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setOpenMobile(false)}
-        />
-      )}
-      
-      <Sidebar 
-        className={`
-          ${collapsed && !isMobile ? "w-14" : "w-64"} 
-          bg-background/95 border-r border-gold/10
-          ${isMobile ? "fixed left-0 top-0 h-full z-50" : ""}
-          ${isMobile && !openMobile ? "-translate-x-full" : "translate-x-0"}
-          transition-transform duration-200
-        `} 
-        collapsible="icon"
-      >
-        <SidebarContent className="bg-background/95 h-full">
-          {/* Header with close button on mobile */}
-          <div className="p-2 border-b border-border/40 flex items-center justify-between">
-            {isMobile ? (
-              <>
-                <span className="text-sm font-medium text-gold px-2">Menu</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setOpenMobile(false)}
-                  className="hover:bg-gold/10 hover:text-gold"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </>
+    <Sidebar 
+      className={`
+        ${collapsed ? "w-14" : "w-64"} 
+        bg-background/95 border-r border-gold/10
+        transition-all duration-200 shrink-0
+      `} 
+      collapsible="icon"
+    >
+      <SidebarContent className="bg-background/95 h-full">
+        <div className="p-2 border-b border-border/40 flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="w-full justify-center hover:bg-gold/10 hover:text-gold"
+            title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
             ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleSidebar}
-                className="w-full justify-center hover:bg-gold/10 hover:text-gold"
-                title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
-              >
-                {collapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
-                )}
-              </Button>
+              <ChevronLeft className="h-4 w-4" />
             )}
-          </div>
+          </Button>
+        </div>
 
-          <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
-            <SidebarGroupLabel className={collapsed && !isMobile ? "justify-center" : ""}>
-              {(!collapsed || isMobile) && "Administrare"}
-            </SidebarGroupLabel>
+        <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
+          <SidebarGroupLabel className={collapsed ? "justify-center" : ""}>
+            {!collapsed && "Administrare"}
+          </SidebarGroupLabel>
 
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => {
-                  const isActive = item.exact
-                    ? currentPath === item.url
-                    : currentPath.startsWith(item.url);
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <NavLink
-                          to={item.url}
-                          end={item.exact}
-                          className={getNavCls(isActive)}
-                          onClick={handleNavClick}
-                        >
-                          <item.icon className="h-4 w-4 flex-shrink-0" />
-                          {(!collapsed || isMobile) && <span>{item.title}</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-    </>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                const isActive = item.exact
+                  ? currentPath === item.url
+                  : currentPath.startsWith(item.url);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.exact}
+                        className={getNavCls(isActive)}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }
