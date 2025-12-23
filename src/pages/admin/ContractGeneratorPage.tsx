@@ -4892,11 +4892,13 @@ const ContractGeneratorPage = () => {
       {/* Floating Action Button for Mobile */}
       {isMobile && (
         <Button
-          className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:scale-110 hover:shadow-[0_0_25px_hsl(var(--primary)/0.5)]"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Contract nou"
         >
           <Plus className="h-6 w-6" />
+          {/* Pulse ring animation */}
+          <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
         </Button>
       )}
     </div>
