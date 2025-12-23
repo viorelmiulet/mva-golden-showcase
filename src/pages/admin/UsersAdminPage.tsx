@@ -28,11 +28,13 @@ import {
 } from "@/components/ui/dialog";
 import { useCRMUsers, type CRMUser } from "@/hooks/useCRMUsers";
 import { useUserRoles, type AppRole } from "@/hooks/useUserRoles";
-import { Shield, Edit, Building2, Plus, Users, Trash2 } from "lucide-react";
+import { Shield, Edit, Building2, Plus, Users, Trash2, Mail, Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ComplexImportManager from "@/components/ComplexImportManager";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 const getRoleBadgeVariant = (role: AppRole | null) => {
   switch (role) {
@@ -71,7 +73,7 @@ export default function UsersAdminPage() {
   } = useCRMUsers();
 
   const { isAdmin } = useUserRoles();
-
+  const isMobile = useIsMobile();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isComplexDialogOpen, setIsComplexDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<CRMUser | null>(null);
@@ -130,13 +132,13 @@ export default function UsersAdminPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Gestionare Utilizatori</h1>
-          <p className="text-muted-foreground">Atribuie roluri și complexe pentru agenți</p>
+          <h1 className="text-2xl md:text-3xl font-bold">Gestionare Utilizatori</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Atribuie roluri și complexe pentru agenți</p>
         </div>
-        <Button onClick={() => setIsComplexDialogOpen(true)} className="gap-2">
+        <Button onClick={() => setIsComplexDialogOpen(true)} className="gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Complex Nou
         </Button>
@@ -154,47 +156,43 @@ export default function UsersAdminPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Utilizator</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead className="text-right">Acțiuni</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          {isMobile ? (
+            /* Mobile Card View */
+            <div className="space-y-3">
               {users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Niciun utilizator găsit
-                  </TableCell>
-                </TableRow>
+                <p className="text-center text-muted-foreground py-8">Niciun utilizator găsit</p>
               ) : (
                 users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar_url || undefined} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                            {getInitials(user.full_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">
-                          {user.full_name || "Nume nespecificat"}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{user.email || "-"}</TableCell>
-                    <TableCell>{user.phone || "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant={getRoleBadgeVariant(user.role)}>
-                        {getRoleLabel(user.role)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                  <MobileTableCard key={user.id}>
+                    <MobileCardHeader
+                      title={
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-7 w-7">
+                            <AvatarImage src={user.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {getInitials(user.full_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">{user.full_name || "Nume nespecificat"}</span>
+                        </div>
+                      }
+                      badge={
+                        <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                          {getRoleLabel(user.role)}
+                        </Badge>
+                      }
+                    />
+                    {user.email && (
+                      <MobileCardRow label="Email" icon={<Mail className="h-3 w-3" />}>
+                        <span className="text-sm truncate max-w-[150px]">{user.email}</span>
+                      </MobileCardRow>
+                    )}
+                    {user.phone && (
+                      <MobileCardRow label="Telefon" icon={<Phone className="h-3 w-3" />}>
+                        <span className="text-sm">{user.phone}</span>
+                      </MobileCardRow>
+                    )}
+                    <MobileCardActions>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -203,12 +201,69 @@ export default function UsersAdminPage() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </MobileCardActions>
+                  </MobileTableCard>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            /* Desktop Table View */
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Utilizator</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Telefon</TableHead>
+                  <TableHead>Rol</TableHead>
+                  <TableHead className="text-right">Acțiuni</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      Niciun utilizator găsit
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                              {getInitials(user.full_name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium">
+                            {user.full_name || "Nume nespecificat"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{user.email || "-"}</TableCell>
+                      <TableCell>{user.phone || "-"}</TableCell>
+                      <TableCell>
+                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                          {getRoleLabel(user.role)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditUser(user)}
+                          title="Editează utilizator"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

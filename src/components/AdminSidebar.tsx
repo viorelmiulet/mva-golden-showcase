@@ -52,16 +52,54 @@ const menuItems = [
   { title: "Setări", url: "/admin/setari", icon: Settings },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isMobileSheet?: boolean;
+  onNavigate?: () => void;
+}
+
+export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const collapsed = state === "collapsed";
+  const collapsed = !isMobileSheet && state === "collapsed";
 
   const getNavCls = (isActive: boolean) =>
     isActive
       ? "bg-gold/20 text-gold hover:bg-gold/30"
       : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
+
+  const handleNavClick = () => {
+    if (onNavigate) {
+      onNavigate();
+    }
+  };
+
+  // For mobile sheet, render a simpler version
+  if (isMobileSheet) {
+    return (
+      <nav className="flex-1 overflow-y-auto p-2">
+        <div className="space-y-1">
+          {menuItems.map((item) => {
+            const isActive = item.exact
+              ? currentPath === item.url
+              : currentPath.startsWith(item.url);
+            return (
+              <NavLink
+                key={item.title}
+                to={item.url}
+                end={item.exact}
+                onClick={handleNavClick}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${getNavCls(isActive)}`}
+              >
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span>{item.title}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <Sidebar 
@@ -69,6 +107,7 @@ export function AdminSidebar() {
         ${collapsed ? "w-14" : "w-64"} 
         bg-background/95 border-r border-gold/10
         transition-all duration-200 shrink-0
+        hidden md:flex
       `} 
       collapsible="icon"
     >
