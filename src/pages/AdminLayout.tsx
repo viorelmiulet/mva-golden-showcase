@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu } from "lucide-react";
+import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff } from "lucide-react";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useIsMobile } from "@/hooks/use-mobile";
+
 
 const DEFAULT_PASSWORD = "123456";
 
@@ -39,43 +39,29 @@ const AdminHeader = ({
   setShowNewPassword,
   handleChangePassword
 }: any) => {
-  const { setOpenMobile } = useSidebar();
-  const isMobile = useIsMobile();
-
   return (
-    <header className="h-14 md:h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-3 md:px-4 gap-2 md:gap-4">
-      {isMobile && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpenMobile(true)}
-          className="hover:bg-gold/10 hover:text-gold"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-      )}
+    <header className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-4 gap-4">
       <div className="flex items-center gap-2">
-        <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-gold" />
-        <h1 className="text-base md:text-lg font-semibold">
-          <span className="text-foreground hidden sm:inline">Panou </span>
+        <BarChart3 className="w-5 h-5 text-gold" />
+        <h1 className="text-lg font-semibold">
+          <span className="text-foreground">Panou </span>
           <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
             Admin
           </span>
         </h1>
       </div>
-      <div className="ml-auto flex items-center gap-1 md:gap-2">
+      <div className="ml-auto flex items-center gap-2">
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button 
               variant="ghost" 
-              size="icon"
-              className="h-8 w-8 md:h-9 md:w-auto md:px-3 text-muted-foreground hover:text-foreground"
+              className="h-9 px-3 text-muted-foreground hover:text-foreground"
             >
               <Settings className="w-4 h-4" />
-              <span className="hidden md:inline ml-2">Setări</span>
+              <span className="ml-2">Setări</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-md">
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Schimbă Parola</DialogTitle>
             </DialogHeader>
@@ -150,17 +136,16 @@ const AdminHeader = ({
         </Dialog>
         <Button 
           variant="ghost" 
-          size="icon"
           onClick={onLogout}
-          className="h-8 w-8 md:h-9 md:w-auto md:px-3 text-muted-foreground hover:text-foreground"
+          className="h-9 px-3 text-muted-foreground hover:text-foreground"
         >
           <LogOut className="w-4 h-4" />
-          <span className="hidden md:inline ml-2">Ieșire</span>
+          <span className="ml-2">Ieșire</span>
         </Button>
         <Link to="/">
-          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-9 md:w-auto md:px-3">
+          <Button variant="ghost" className="h-9 px-3">
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden md:inline ml-2">Site</span>
+            <span className="ml-2">Site</span>
           </Button>
         </Link>
       </div>
@@ -297,7 +282,7 @@ const AdminLayout = () => {
           />
 
           {/* Main Content */}
-          <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">
+          <main className="flex-1 p-6 overflow-x-auto min-w-[800px]">
             <div className="max-w-7xl mx-auto">
               <Outlet />
             </div>
