@@ -21,7 +21,8 @@ import {
   ImagePlus,
   Clock,
   Trash2,
-  Calculator
+  Calculator,
+  ArrowUpDown
 } from "lucide-react";
 
 import ImageUploadDialog from "@/components/ImageUploadDialog";
@@ -41,6 +42,8 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileFilterSort, type FilterOption, type SortOption } from "@/components/admin/MobileFilterSort";
 
 const ComplexDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -62,7 +65,9 @@ const ComplexDetail = () => {
   const [filterRooms, setFilterRooms] = useState<string>("all");
   const [filterSurfaceMin, setFilterSurfaceMin] = useState<string>("");
   const [filterSurfaceMax, setFilterSurfaceMax] = useState<string>("");
+  const [sortBy, setSortBy] = useState<{ key: string; direction: "asc" | "desc" } | undefined>();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({
@@ -459,10 +464,33 @@ const ComplexDetail = () => {
     return acc;
   }, {} as Record<string, Record<string, typeof properties>>) || {};
 
-  // Sort properties within each group by apartment number
+  // Sort properties within each group
   Object.keys(groupedByBuildingAndFloor).forEach(building => {
     Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
       groupedByBuildingAndFloor[building][floor].sort((a, b) => {
+        // Apply custom sort if selected
+        if (sortBy) {
+          let aVal: number, bVal: number;
+          switch (sortBy.key) {
+            case "price":
+              aVal = a.price_min || 0;
+              bVal = b.price_min || 0;
+              break;
+            case "surface":
+              aVal = a.surface_min || 0;
+              bVal = b.surface_min || 0;
+              break;
+            case "rooms":
+              aVal = a.rooms || 0;
+              bVal = b.rooms || 0;
+              break;
+            default:
+              aVal = getApartmentNumber(a.title);
+              bVal = getApartmentNumber(b.title);
+          }
+          return sortBy.direction === "asc" ? aVal - bVal : bVal - aVal;
+        }
+        // Default sort by apartment number
         return getApartmentNumber(a.title) - getApartmentNumber(b.title);
       });
     });
@@ -699,64 +727,173 @@ const ComplexDetail = () => {
       <Card className="border-border/50">
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filtre:</span>
-            </div>
-            
-            {/* Rooms Filter */}
-            <select
-              value={filterRooms}
-              onChange={(e) => setFilterRooms(e.target.value)}
-              className="h-9 px-3 text-sm border rounded-md bg-background"
-            >
-              <option value="all">Toate camerele</option>
-              {uniqueRooms.map(room => (
-                <option key={room} value={String(room)}>
-                  {room} {room === 1 ? 'cameră' : 'camere'}
-                </option>
-              ))}
-            </select>
+            {/* Mobile Filter Button */}
+            {isMobile ? (
+              <>
+                <MobileFilterSort
+                  filters={[
+                    {
+                      key: "rooms",
+                      label: "Camere",
+                      type: "select",
+                      options: [
+                        { value: "all", label: "Toate camerele" },
+                        ...uniqueRooms.map(room => ({
+                          value: String(room),
+                          label: `${room} ${room === 1 ? 'cameră' : 'camere'}`
+                        }))
+                      ]
+                    },
+                    {
+                      key: "surfaceMin",
+                      label: "Suprafață minimă (mp)",
+                      type: "number",
+                      placeholder: "ex: 40"
+                    },
+                    {
+                      key: "surfaceMax",
+                      label: "Suprafață maximă (mp)",
+                      type: "number",
+                      placeholder: "ex: 100"
+                    }
+                  ]}
+                  filterValues={{
+                    rooms: filterRooms,
+                    surfaceMin: filterSurfaceMin,
+                    surfaceMax: filterSurfaceMax
+                  }}
+                  onFilterChange={(key, value) => {
+                    if (key === "rooms") setFilterRooms(value);
+                    if (key === "surfaceMin") setFilterSurfaceMin(value);
+                    if (key === "surfaceMax") setFilterSurfaceMax(value);
+                  }}
+                  sortOptions={[
+                    { key: "price", label: "Preț" },
+                    { key: "surface", label: "Suprafață" },
+                    { key: "rooms", label: "Camere" }
+                  ]}
+                  currentSort={sortBy}
+                  onSortChange={(key, direction) => setSortBy({ key, direction })}
+                  onReset={() => {
+                    setFilterRooms("all");
+                    setFilterSurfaceMin("");
+                    setFilterSurfaceMax("");
+                    setSortBy(undefined);
+                  }}
+                  activeFiltersCount={
+                    (filterRooms !== "all" ? 1 : 0) +
+                    (filterSurfaceMin ? 1 : 0) +
+                    (filterSurfaceMax ? 1 : 0) +
+                    (sortBy ? 1 : 0)
+                  }
+                />
+                <Badge variant="secondary" className="ml-auto">
+                  {filteredProperties.length} / {properties?.length || 0}
+                </Badge>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <Home className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filtre:</span>
+                </div>
+                
+                {/* Rooms Filter */}
+                <select
+                  value={filterRooms}
+                  onChange={(e) => setFilterRooms(e.target.value)}
+                  className="h-9 px-3 text-sm border rounded-md bg-background"
+                >
+                  <option value="all">Toate camerele</option>
+                  {uniqueRooms.map(room => (
+                    <option key={room} value={String(room)}>
+                      {room} {room === 1 ? 'cameră' : 'camere'}
+                    </option>
+                  ))}
+                </select>
 
-            {/* Surface Filter */}
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                placeholder="Min mp"
-                value={filterSurfaceMin}
-                onChange={(e) => setFilterSurfaceMin(e.target.value)}
-                className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
-              />
-              <span className="text-muted-foreground">-</span>
-              <input
-                type="number"
-                placeholder="Max mp"
-                value={filterSurfaceMax}
-                onChange={(e) => setFilterSurfaceMax(e.target.value)}
-                className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
-              />
-            </div>
+                {/* Surface Filter */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min mp"
+                    value={filterSurfaceMin}
+                    onChange={(e) => setFilterSurfaceMin(e.target.value)}
+                    className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max mp"
+                    value={filterSurfaceMax}
+                    onChange={(e) => setFilterSurfaceMax(e.target.value)}
+                    className="w-[80px] h-9 px-2 text-sm border rounded-md bg-background"
+                  />
+                </div>
 
-            {/* Clear Filters */}
-            {(filterRooms !== "all" || filterSurfaceMin || filterSurfaceMax) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setFilterRooms("all");
-                  setFilterSurfaceMin("");
-                  setFilterSurfaceMax("");
-                }}
-                className="h-9 text-sm text-muted-foreground hover:text-foreground"
-              >
-                Resetează
-              </Button>
+                {/* Sort Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <ArrowUpDown className="h-4 w-4" />
+                      Sortare
+                      {sortBy && (
+                        <Badge variant="secondary" className="ml-1">
+                          {sortBy.direction === "asc" ? "↑" : "↓"}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "price", direction: "asc" })}>
+                      Preț ↑
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "price", direction: "desc" })}>
+                      Preț ↓
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "surface", direction: "asc" })}>
+                      Suprafață ↑
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "surface", direction: "desc" })}>
+                      Suprafață ↓
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "rooms", direction: "asc" })}>
+                      Camere ↑
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy({ key: "rooms", direction: "desc" })}>
+                      Camere ↓
+                    </DropdownMenuItem>
+                    {sortBy && (
+                      <DropdownMenuItem onClick={() => setSortBy(undefined)} className="text-destructive">
+                        Resetează sortare
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Clear Filters */}
+                {(filterRooms !== "all" || filterSurfaceMin || filterSurfaceMax || sortBy) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setFilterRooms("all");
+                      setFilterSurfaceMin("");
+                      setFilterSurfaceMax("");
+                      setSortBy(undefined);
+                    }}
+                    className="h-9 text-sm text-muted-foreground hover:text-foreground"
+                  >
+                    Resetează
+                  </Button>
+                )}
+
+                {/* Results count */}
+                <Badge variant="secondary" className="ml-auto">
+                  {filteredProperties.length} / {properties?.length || 0} apartamente
+                </Badge>
+              </>
             )}
-
-            {/* Results count */}
-            <Badge variant="secondary" className="ml-auto">
-              {filteredProperties.length} / {properties?.length || 0} apartamente
-            </Badge>
           </div>
         </CardContent>
       </Card>

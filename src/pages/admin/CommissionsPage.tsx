@@ -85,6 +85,7 @@ import {
 } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
+import { MobileFilterSort } from "@/components/admin/MobileFilterSort";
 
 interface Commission {
   id: string;
@@ -1000,74 +1001,151 @@ const CommissionsPage = () => {
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5" />
-            Filtre
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label>An</Label>
-              <Select value={filterYear} onValueChange={setFilterYear}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toți anii</SelectItem>
-                  {years.map(year => (
-                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Lună</Label>
-              <Select value={filterMonth} onValueChange={setFilterMonth}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toate lunile</SelectItem>
-                  {MONTHS.map((month, index) => (
-                    <SelectItem key={month} value={index.toString()}>{month}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Tip Tranzacție</Label>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toate tipurile</SelectItem>
-                  {TRANSACTION_TYPES.map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Factură</Label>
-              <Select value={filterInvoice} onValueChange={setFilterInvoice}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toate</SelectItem>
-                  <SelectItem value="da">Cu Factură</SelectItem>
-                  <SelectItem value="nu">Fără Factură</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Filter className="h-5 w-5" />
+              Filtre
+            </CardTitle>
+            {/* Mobile Filter Button */}
+            {isMobile && (
+              <MobileFilterSort
+                filters={[
+                  {
+                    key: "year",
+                    label: "An",
+                    type: "select",
+                    options: [
+                      { value: "all", label: "Toți anii" },
+                      ...years.map(year => ({ value: year.toString(), label: year.toString() }))
+                    ]
+                  },
+                  {
+                    key: "month",
+                    label: "Lună",
+                    type: "select",
+                    options: [
+                      { value: "all", label: "Toate lunile" },
+                      ...MONTHS.map((month, index) => ({ value: index.toString(), label: month }))
+                    ]
+                  },
+                  {
+                    key: "type",
+                    label: "Tip Tranzacție",
+                    type: "select",
+                    options: [
+                      { value: "all", label: "Toate tipurile" },
+                      ...TRANSACTION_TYPES.map(type => ({ value: type, label: type }))
+                    ]
+                  },
+                  {
+                    key: "invoice",
+                    label: "Factură",
+                    type: "select",
+                    options: [
+                      { value: "all", label: "Toate" },
+                      { value: "da", label: "Cu Factură" },
+                      { value: "nu", label: "Fără Factură" }
+                    ]
+                  }
+                ]}
+                filterValues={{
+                  year: filterYear,
+                  month: filterMonth,
+                  type: filterType,
+                  invoice: filterInvoice
+                }}
+                onFilterChange={(key, value) => {
+                  if (key === "year") setFilterYear(value);
+                  if (key === "month") setFilterMonth(value);
+                  if (key === "type") setFilterType(value);
+                  if (key === "invoice") setFilterInvoice(value);
+                }}
+                sortOptions={[
+                  { key: "date", label: "Dată" },
+                  { key: "amount", label: "Sumă" }
+                ]}
+                onReset={() => {
+                  setFilterYear(new Date().getFullYear().toString());
+                  setFilterMonth("all");
+                  setFilterType("all");
+                  setFilterInvoice("all");
+                }}
+                activeFiltersCount={
+                  (filterYear !== new Date().getFullYear().toString() ? 1 : 0) +
+                  (filterMonth !== "all" ? 1 : 0) +
+                  (filterType !== "all" ? 1 : 0) +
+                  (filterInvoice !== "all" ? 1 : 0)
+                }
+              />
+            )}
           </div>
-        </CardContent>
+        </CardHeader>
+        {/* Desktop Filters */}
+        {!isMobile && (
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label>An</Label>
+                <Select value={filterYear} onValueChange={setFilterYear}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toți anii</SelectItem>
+                    {years.map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Lună</Label>
+                <Select value={filterMonth} onValueChange={setFilterMonth}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate lunile</SelectItem>
+                    {MONTHS.map((month, index) => (
+                      <SelectItem key={month} value={index.toString()}>{month}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Tip Tranzacție</Label>
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate tipurile</SelectItem>
+                    {TRANSACTION_TYPES.map(type => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Factură</Label>
+                <Select value={filterInvoice} onValueChange={setFilterInvoice}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate</SelectItem>
+                    <SelectItem value="da">Cu Factură</SelectItem>
+                    <SelectItem value="nu">Fără Factură</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Commissions Table - Grouped by Month */}
