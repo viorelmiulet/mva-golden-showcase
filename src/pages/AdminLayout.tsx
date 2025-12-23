@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu, X } from "lucide-react";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DEFAULT_PASSWORD = "123456";
 
@@ -37,31 +38,54 @@ const AdminHeader = ({
   setShowCurrentPassword,
   showNewPassword,
   setShowNewPassword,
-  handleChangePassword
+  handleChangePassword,
+  isMobile,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen
 }: any) => {
   return (
-    <header className="h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-10 flex items-center px-4 gap-4">
+    <header className="h-14 md:h-16 border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-20 flex items-center px-3 md:px-4 gap-2 md:gap-4">
+      {/* Mobile Menu Button */}
+      {isMobile && (
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="shrink-0">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] p-0">
+            <div className="flex items-center gap-2 p-4 border-b border-border/40">
+              <BarChart3 className="w-5 h-5 text-gold" />
+              <span className="font-semibold">Panou Admin</span>
+            </div>
+            <AdminSidebar isMobileSheet onNavigate={() => setIsMobileMenuOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      )}
+
       <div className="flex items-center gap-2">
         <BarChart3 className="w-5 h-5 text-gold" />
-        <h1 className="text-lg font-semibold">
+        <h1 className="text-base md:text-lg font-semibold">
           <span className="text-foreground">Panou </span>
           <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
             Admin
           </span>
         </h1>
       </div>
-      <div className="ml-auto flex items-center gap-2">
+
+      <div className="ml-auto flex items-center gap-1 md:gap-2">
         <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
           <DialogTrigger asChild>
             <Button 
               variant="ghost" 
-              className="h-9 px-3 text-muted-foreground hover:text-foreground"
+              size={isMobile ? "icon" : "default"}
+              className="h-9 text-muted-foreground hover:text-foreground"
             >
               <Settings className="w-4 h-4" />
-              <span className="ml-2">Setări</span>
+              {!isMobile && <span className="ml-2">Setări</span>}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md mx-4">
             <DialogHeader>
               <DialogTitle>Schimbă Parola</DialogTitle>
             </DialogHeader>
@@ -136,16 +160,17 @@ const AdminHeader = ({
         </Dialog>
         <Button 
           variant="ghost" 
+          size={isMobile ? "icon" : "default"}
           onClick={onLogout}
-          className="h-9 px-3 text-muted-foreground hover:text-foreground"
+          className="h-9 text-muted-foreground hover:text-foreground"
         >
           <LogOut className="w-4 h-4" />
-          <span className="ml-2">Ieșire</span>
+          {!isMobile && <span className="ml-2">Ieșire</span>}
         </Button>
         <Link to="/">
-          <Button variant="ghost" className="h-9 px-3">
+          <Button variant="ghost" size={isMobile ? "icon" : "default"} className="h-9">
             <ArrowLeft className="w-4 h-4" />
-            <span className="ml-2">Site</span>
+            {!isMobile && <span className="ml-2">Site</span>}
           </Button>
         </Link>
       </div>
@@ -163,6 +188,8 @@ const AdminLayout = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_auth");
@@ -279,10 +306,13 @@ const AdminLayout = () => {
             showNewPassword={showNewPassword}
             setShowNewPassword={setShowNewPassword}
             handleChangePassword={handleChangePassword}
+            isMobile={isMobile}
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
           />
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 overflow-x-auto min-w-[800px]">
+          {/* Main Content - fully responsive */}
+          <main className="flex-1 p-3 md:p-6 overflow-x-hidden">
             <div className="max-w-7xl mx-auto">
               <Outlet />
             </div>
