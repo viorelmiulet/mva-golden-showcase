@@ -328,10 +328,10 @@ const SignContract = () => {
       doc.text("LISTA INVENTAR", margin, y);
       y += 8;
 
-      // Table
-      const colWidths = [80, 20, 35, 35];
+      // Table - matching the UI: Denumire, Cantitate, Stare, Observatii
+      const colWidths = [70, 25, 35, 40];
       const startX = margin;
-      const headers = ["Obiect", "Cant.", "Stare", "Locatie"];
+      const headers = ["Denumire", "Cantitate", "Stare", "Observatii"];
 
       // Draw header row
       doc.setFillColor(0, 51, 102);
@@ -380,12 +380,13 @@ const SignContract = () => {
         const rowData = [
           removeDiacritics(item.item_name || '-'),
           String(item.quantity || 1),
-          removeDiacritics(item.condition || '-'),
-          removeDiacritics(item.location || '-')
+          removeDiacritics(item.condition || 'Buna'),
+          removeDiacritics(item.notes || '-')
         ];
         
         rowData.forEach((cell, i) => {
-          const cellText = cell.length > (colWidths[i] / 2.5) ? cell.substring(0, Math.floor(colWidths[i] / 2.5)) + '...' : cell;
+          const maxLen = Math.floor(colWidths[i] / 2.2);
+          const cellText = cell.length > maxLen ? cell.substring(0, maxLen - 2) + '..' : cell;
           doc.text(cellText, xPos, y + 5);
           xPos += colWidths[i];
         });
