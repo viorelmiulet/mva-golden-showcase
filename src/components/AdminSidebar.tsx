@@ -18,6 +18,7 @@ import {
   UserCheck,
   ScrollText,
   Package,
+  Smartphone,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const menuItems = [
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
   { title: "Setări", url: "/admin/setari", icon: Settings },
+  { title: "Instalează App", url: "/admin/instaleaza", icon: Smartphone },
 ];
 
 interface AdminSidebarProps {
