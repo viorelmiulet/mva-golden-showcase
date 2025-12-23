@@ -395,28 +395,40 @@ const SignContract = () => {
         y += 7;
       });
 
-      // Signatures for Proces Verbal
-      y += 20;
-      if (y > 250) {
+      // Signatures for Proces Verbal - side by side boxes
+      y += 15;
+      if (y > 220) {
         doc.addPage();
         y = 25;
       }
 
+      const boxWidth = 75;
+      const boxHeight = 40;
+      const boxGap = 10;
+      const leftBoxX = margin;
+      const rightBoxX = margin + boxWidth + boxGap;
+
+      // Left signature box - Proprietar
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
-      doc.text("Am predat,", margin, y);
-      doc.text("Am primit,", pageWidth - margin - 30, y);
-      y += 8;
+      doc.text("Semnatura Proprietar", leftBoxX, y);
+      y += 5;
+      
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(leftBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
+
+      // Right signature box - Chirias
+      doc.text("Semnatura Chirias", rightBoxX, y - 5);
+      doc.roundedRect(rightBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
+
+      // Add names below the boxes
+      y += boxHeight + 8;
       doc.setFont("helvetica", "normal");
-      doc.text("PROPRIETAR", margin, y);
-      doc.text("CHIRIAS", pageWidth - margin - 25, y);
-      y += 6;
-      doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), pageWidth - margin - 50, y);
-      y += 20;
-      doc.text("_______________", margin, y);
-      doc.text("_______________", pageWidth - margin - 40, y);
+      doc.setFontSize(9);
+      doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), leftBoxX, y);
+      doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), rightBoxX, y);
     }
 
     return doc;
