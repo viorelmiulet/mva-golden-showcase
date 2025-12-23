@@ -106,6 +106,8 @@ interface SavedContract {
   property_address: string;
   property_price: number | null;
   property_currency: string | null;
+  garantie_amount: number | null;
+  garantie_status: string | null;
   contract_type: string;
   contract_date: string;
   duration_months: number | null;
@@ -296,7 +298,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, client_ci_emitent, client_ci_data_emiterii, proprietar_name, proprietar_prenume, proprietar_cnp, proprietar_seria_ci, proprietar_numar_ci, proprietar_adresa, proprietar_ci_emitent, proprietar_ci_data_emiterii, property_address, property_price, property_currency, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
+        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, client_ci_emitent, client_ci_data_emiterii, proprietar_name, proprietar_prenume, proprietar_cnp, proprietar_seria_ci, proprietar_numar_ci, proprietar_adresa, proprietar_ci_emitent, proprietar_ci_data_emiterii, property_address, property_price, property_currency, garantie_amount, garantie_status, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -449,6 +451,8 @@ const ContractGeneratorPage = () => {
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
         property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
+        garantie_amount: contractData.garantie ? parseFloat(contractData.garantie) : null,
+        garantie_status: contractData.garantie_status,
         property_currency: contractData.moneda || 'EUR',
         contract_type: 'inchiriere',
         contract_date: contractData.data_contract,
@@ -3462,6 +3466,7 @@ const ContractGeneratorPage = () => {
                       <TableHead>Chiriaș</TableHead>
                       <TableHead>Proprietate</TableHead>
                       <TableHead>Chirie</TableHead>
+                      <TableHead>Garanție</TableHead>
                       <TableHead>Semnături</TableHead>
                       <TableHead>Linkuri Semnare</TableHead>
                       <TableHead>Email</TableHead>
@@ -3483,6 +3488,24 @@ const ContractGeneratorPage = () => {
                         </TableCell>
                         <TableCell>
                           {contract.property_price ? `${contract.property_price.toLocaleString()} €` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs">
+                              {contract.garantie_amount ? `${contract.garantie_amount.toLocaleString()} €` : '-'}
+                            </span>
+                            {contract.garantie_status && (
+                              <Badge 
+                                variant="outline"
+                                className={contract.garantie_status === 'platita' 
+                                  ? "bg-green-500/20 text-green-400 border-green-500/30 text-[10px]" 
+                                  : "bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px]"
+                                }
+                              >
+                                {contract.garantie_status === 'platita' ? 'Plătită' : 'De plătit'}
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1">

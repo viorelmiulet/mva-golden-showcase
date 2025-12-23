@@ -343,6 +343,8 @@ export type Database = {
           created_at: string
           docx_url: string | null
           duration_months: number | null
+          garantie_amount: number | null
+          garantie_status: string | null
           id: string
           notes: string | null
           pdf_generated: boolean | null
@@ -377,6 +379,8 @@ export type Database = {
           created_at?: string
           docx_url?: string | null
           duration_months?: number | null
+          garantie_amount?: number | null
+          garantie_status?: string | null
           id?: string
           notes?: string | null
           pdf_generated?: boolean | null
@@ -411,6 +415,8 @@ export type Database = {
           created_at?: string
           docx_url?: string | null
           duration_months?: number | null
+          garantie_amount?: number | null
+          garantie_status?: string | null
           id?: string
           notes?: string | null
           pdf_generated?: boolean | null
