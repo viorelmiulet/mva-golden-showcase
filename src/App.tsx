@@ -8,12 +8,14 @@ import { lazy, Suspense } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 
+// Direct imports for always-rendered components
+import CookieConsent from "@/components/CookieConsent";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import PhoneButton from "@/components/PhoneButton";
+import ScrollIndicator from "@/components/ScrollIndicator";
+
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
-const CookieConsent = lazy(() => import("@/components/CookieConsent"));
-const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
-const PhoneButton = lazy(() => import("@/components/PhoneButton"));
-const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
