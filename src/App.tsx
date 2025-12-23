@@ -55,6 +55,7 @@ const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
 const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
 const ContractGeneratorPage = lazy(() => import("./pages/admin/ContractGeneratorPage"));
 const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPage"));
+const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 
 const queryClient = new QueryClient();
@@ -105,6 +106,7 @@ const App = () => {
                 <Route path="virtual-staging" element={<VirtualStagingPage />} />
                 <Route path="contracte" element={<ContractGeneratorPage />} />
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
+                <Route path="instaleaza" element={<InstallAppPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
