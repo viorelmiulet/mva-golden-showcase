@@ -72,6 +72,7 @@ interface ContractData {
   proprietate_adresa: string;
   proprietate_pret: string;
   garantie: string;
+  garantie_status: "platita" | "de_platit";
   moneda: "EUR" | "RON";
   numar_camere: string;
   data_contract: string;
@@ -244,6 +245,7 @@ const ContractGeneratorPage = () => {
     proprietate_adresa: "",
     proprietate_pret: "",
     garantie: "",
+    garantie_status: "platita",
     moneda: "EUR",
     numar_camere: "1",
     data_contract: new Date().toISOString().split('T')[0],
@@ -2096,7 +2098,9 @@ const ContractGeneratorPage = () => {
                 spacing: { after: 100 },
               }),
               new Paragraph({
-                text: `Garantia in valoare de ${garantieVal} ${moneda} se va plati la data semnarii contractului de inchiriere.`,
+                text: contractData.garantie_status === "platita" 
+                  ? `Garantia in valoare de ${garantieVal} ${moneda} s-a achitat astazi, la data semnarii contractului de inchiriere.`
+                  : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`,
                 spacing: { after: 100 },
               }),
               new Paragraph({
@@ -2386,7 +2390,10 @@ const ContractGeneratorPage = () => {
         addSectionTitle("IV. CHIRIA SI MODALITATI DE PLATA");
         addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna. Suma va fi achitata in numerar sau transfer bancar.`);
         
-        addParagraph(`Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`);
+        const garantieText = contractData.garantie_status === "platita" 
+          ? `Garantia in valoare de ${garantieVal} ${moneda} s-a achitat astazi, la data semnarii contractului de inchiriere.`
+          : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului de inchiriere.`;
+        addParagraph(garantieText);
         addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea prezentului contract de inchiriere, retinandu-se cheltuielile curente care cad in sarcina chiriasului potrivit prezentului contract.");
         addParagraph("Neplata chiriei in termen de 5 zile constituie o incalcare a contractului, proprietarul avand dreptul in acest caz sa rezilieze contractul de inchiriere fara nici o alta formalitate.");
         y += 3;
@@ -2683,6 +2690,7 @@ const ContractGeneratorPage = () => {
       proprietate_adresa: "",
       proprietate_pret: "",
       garantie: "",
+      garantie_status: "platita",
       moneda: "EUR",
       numar_camere: "1",
       data_contract: new Date().toISOString().split('T')[0],
@@ -3020,6 +3028,22 @@ const ContractGeneratorPage = () => {
                   className="h-9"
                 />
               </div>
+            </div>
+            
+            <div className="space-y-1">
+              <Label className="text-xs">Status Garanție</Label>
+              <Select
+                value={contractData.garantie_status}
+                onValueChange={(value: "platita" | "de_platit") => setContractData(prev => ({ ...prev, garantie_status: value }))}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="platita">Plătită la semnare</SelectItem>
+                  <SelectItem value="de_platit">De plătit în 10 zile</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
