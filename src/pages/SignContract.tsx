@@ -4,8 +4,10 @@ import SignatureCanvas from "react-signature-canvas";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download } from "lucide-react";
+import jsPDF from "jspdf";
 
 interface ContractInfo {
   id: string;
@@ -13,7 +15,12 @@ interface ContractInfo {
   client_prenume: string | null;
   property_address: string;
   property_price: number | null;
+  property_currency: string | null;
   contract_date: string;
+  duration_months: number | null;
+  garantie_amount: number | null;
+  proprietar_name: string | null;
+  proprietar_prenume: string | null;
 }
 
 interface SignatureInfo {
@@ -34,6 +41,8 @@ const SignContract = () => {
   const [contractInfo, setContractInfo] = useState<ContractInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 400, height: 200 });
@@ -88,7 +97,7 @@ const SignContract = () => {
       // Fetch contract info
       const { data: contractData, error: contractError } = await supabase
         .from('contracts')
-        .select('id, client_name, client_prenume, property_address, property_price, contract_date')
+        .select('id, client_name, client_prenume, property_address, property_price, property_currency, contract_date, duration_months, garantie_amount, proprietar_name, proprietar_prenume')
         .eq('id', sigData.contract_id)
         .single();
 
@@ -98,12 +107,195 @@ const SignContract = () => {
         return;
       }
 
-      setContractInfo(contractData);
+      setContractInfo(contractData as ContractInfo);
     } catch (err) {
       console.error('Error fetching signature info:', err);
       setError("A apărut o eroare la încărcarea informațiilor.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Remove diacritics helper
+  const removeDiacritics = (str: string): string => {
+    return str
+      .replace(/ă/g, 'a').replace(/Ă/g, 'A')
+      .replace(/â/g, 'a').replace(/Â/g, 'A')
+      .replace(/î/g, 'i').replace(/Î/g, 'I')
+      .replace(/ș/g, 's').replace(/Ș/g, 'S')
+      .replace(/ț/g, 't').replace(/Ț/g, 'T');
+  };
+
+  // Generate contract PDF for preview/download
+  const generateContractPdf = (): jsPDF => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let y = 25;
+
+    const durataLuni = contractInfo?.duration_months || 12;
+    const moneda = contractInfo?.property_currency || 'EUR';
+    const garantieVal = contractInfo?.garantie_amount || (contractInfo?.property_price || 0);
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(0, 51, 102);
+    doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Incheiat astazi, ${contractInfo?.contract_date || 'N/A'}`, pageWidth / 2, y, { align: "center" });
+    y += 15;
+
+    // Party boxes helper
+    const drawPartyBox = (title: string, data: any, startY: number) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 51, 102);
+      doc.text(title, margin, startY);
+      startY += 6;
+
+      doc.setDrawColor(0, 51, 102);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(margin, startY, pageWidth - 2 * margin, 28, 2, 2);
+      startY += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      
+      const leftCol = margin + 5;
+      const rightCol = pageWidth / 2 + 5;
+      
+      doc.text(`Nume: ${removeDiacritics(data.nume || '-')}`, leftCol, startY);
+      doc.text(`CNP: ${data.cnp || '-'}`, rightCol, startY);
+      startY += 5;
+      doc.text(`CI: Seria ${data.seria || '-'} Nr. ${data.numar || '-'}`, leftCol, startY);
+      doc.text(`Emitent: ${removeDiacritics(data.emitent || '-')}`, rightCol, startY);
+      startY += 5;
+      doc.text(`Domiciliu: ${removeDiacritics(data.domiciliu || '-')}`, leftCol, startY);
+      startY += 5;
+      doc.text(`Cetatenie: ${data.cetatenie || 'Romana'}`, leftCol, startY);
+      
+      return startY + 12;
+    };
+
+    // Proprietar box
+    y = drawPartyBox("1. PROPRIETAR (LOCATOR):", {
+      nume: `${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || 'N/A'}`,
+      cnp: '-',
+      seria: '-',
+      numar: '-',
+      emitent: '-',
+      domiciliu: '-',
+      cetatenie: 'Romana'
+    }, y);
+
+    // Chirias box
+    y = drawPartyBox("2. CHIRIAS (LOCATAR):", {
+      nume: `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name}`,
+      cnp: '-',
+      seria: '-',
+      numar: '-',
+      emitent: '-',
+      domiciliu: '-',
+      cetatenie: 'Romana'
+    }, y);
+
+    // Sections
+    const addSection = (title: string, content: string[]) => {
+      if (y > 260) {
+        doc.addPage();
+        y = 25;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 51, 102);
+      doc.text(title, margin, y);
+      y += 7;
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      content.forEach(line => {
+        const splitLines = doc.splitTextToSize(removeDiacritics(line), pageWidth - 2 * margin);
+        splitLines.forEach((l: string) => {
+          if (y > 280) {
+            doc.addPage();
+            y = 25;
+          }
+          doc.text(l, margin, y);
+          y += 5;
+        });
+      });
+      y += 3;
+    };
+
+    addSection("I. OBIECTUL CONTRACTULUI", [
+      `Proprietarul inchiriaza chiriasului imobilul situat in ${contractInfo?.property_address || 'N/A'}`
+    ]);
+
+    addSection("II. DESTINATIA", [
+      "Imobilul va fi folosit de chirias cu destinatia LOCUINTA."
+    ]);
+
+    addSection("III. DURATA", [
+      `Acest contract este incheiat pentru o perioada de ${durataLuni} luni.`
+    ]);
+
+    addSection("IV. CHIRIA SI MODALITATI DE PLATA", [
+      `Chiria lunara convenita este de ${contractInfo?.property_price || 'N/A'} ${moneda}/luna.`,
+      `Garantia in valoare de ${garantieVal} ${moneda} se va achita la semnarea contractului.`
+    ]);
+
+    addSection("V. OBLIGATIILE PROPRIETARULUI", [
+      "Proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului."
+    ]);
+
+    addSection("VI. OBLIGATIILE CHIRIASULUI", [
+      "Chiriasul se obliga sa foloseasca imobilul conform destinatiei, sa nu subinchirieze fara acord, sa achite utilitatile."
+    ]);
+
+    // Signature section
+    if (y > 240) {
+      doc.addPage();
+      y = 25;
+    }
+    y += 15;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("PROPRIETAR", margin, y);
+    doc.text("CHIRIAS", pageWidth - margin - 30, y);
+    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), margin, y);
+    doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), pageWidth - margin - 50, y);
+    y += 20;
+    doc.text("_______________", margin, y);
+    doc.text("_______________", pageWidth - margin - 40, y);
+
+    return doc;
+  };
+
+  const handlePreviewContract = () => {
+    setPreviewOpen(true);
+  };
+
+  const handleDownloadContract = () => {
+    setIsDownloading(true);
+    try {
+      const doc = generateContractPdf();
+      const fileName = `contract_${contractInfo?.client_name || 'document'}_${Date.now()}.pdf`;
+      doc.save(fileName);
+      toast.success("Contract descărcat cu succes!");
+    } catch (err) {
+      console.error('Error downloading contract:', err);
+      toast.error("Eroare la descărcarea contractului");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -232,7 +424,7 @@ const SignContract = () => {
               })}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="border rounded-lg p-4 bg-white">
               <p className="text-sm text-muted-foreground mb-2 text-center">Semnătura dvs.:</p>
               <img 
@@ -241,8 +433,48 @@ const SignContract = () => {
                 className="max-h-24 mx-auto"
               />
             </div>
+            
+            {/* Preview and Download buttons */}
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handlePreviewContract}
+                className="flex-1"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Previzualizare
+              </Button>
+              <Button 
+                onClick={handleDownloadContract}
+                disabled={isDownloading}
+                className="flex-1"
+              >
+                {isDownloading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                Descarcă
+              </Button>
+            </div>
           </CardContent>
         </Card>
+        
+        {/* Preview Dialog */}
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            <DialogHeader>
+              <DialogTitle>Previzualizare Contract</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              <iframe
+                src={URL.createObjectURL(new Blob([generateContractPdf().output('blob')], { type: 'application/pdf' }))}
+                className="w-full h-[70vh] border rounded"
+                title="Contract Preview"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -286,6 +518,33 @@ const SignContract = () => {
                   <p className="font-medium">{contractInfo.property_price.toLocaleString()} €</p>
                 </div>
               )}
+            </div>
+            
+            {/* Preview and Download buttons */}
+            <div className="flex gap-3 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={handlePreviewContract}
+                className="flex-1"
+                size="sm"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Previzualizare Contract
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleDownloadContract}
+                disabled={isDownloading}
+                className="flex-1"
+                size="sm"
+              >
+                {isDownloading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                Descarcă Contract
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -358,6 +617,22 @@ const SignContract = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Previzualizare Contract</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <iframe
+              src={previewOpen ? URL.createObjectURL(new Blob([generateContractPdf().output('blob')], { type: 'application/pdf' })) : ''}
+              className="w-full h-[70vh] border rounded"
+              title="Contract Preview"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
