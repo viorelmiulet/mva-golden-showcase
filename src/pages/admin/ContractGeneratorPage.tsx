@@ -19,10 +19,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye, Files } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye, Files, Settings } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { SwipeableContractCard } from "@/components/admin/SwipeableContractCard";
+import ContractClausesEditor from "@/components/admin/ContractClausesEditor";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -4073,6 +4075,22 @@ const ContractGeneratorPage = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Contract Clauses Editor */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="clauses" className="border rounded-lg">
+          <AccordionTrigger className="px-4 hover:no-underline">
+            <div className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              <span className="font-semibold">Clauze Standard Contract</span>
+              <Badge variant="secondary" className="ml-2">Editabile</Badge>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4">
+            <ContractClausesEditor />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Email Dialog */}
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
