@@ -395,40 +395,58 @@ const SignContract = () => {
         y += 7;
       });
 
-      // Signatures for Proces Verbal - side by side boxes
-      y += 15;
-      if (y > 220) {
+      // Signatures for Proces Verbal - side by side boxes like in the UI
+      y += 20;
+      if (y > 200) {
         doc.addPage();
         y = 25;
       }
 
-      const boxWidth = 75;
-      const boxHeight = 40;
-      const boxGap = 10;
+      // Section title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(180, 140, 60); // Golden color
+      doc.text("Semnaturi Digitale", margin, y);
+      y += 12;
+
+      const boxWidth = 80;
+      const boxHeight = 35;
+      const boxGap = 15;
       const leftBoxX = margin;
       const rightBoxX = margin + boxWidth + boxGap;
 
       // Left signature box - Proprietar
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setTextColor(180, 140, 60); // Golden color for label
       doc.text("Semnatura Proprietar", leftBoxX, y);
+      
+      // Right signature box label - Chirias
+      doc.text("Semnatura Chirias", rightBoxX, y);
       y += 5;
       
-      doc.setDrawColor(180, 180, 180);
-      doc.setLineWidth(0.5);
+      // Draw boxes with dashed border
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.3);
+      doc.setLineDashPattern([2, 2], 0);
       doc.roundedRect(leftBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
-
-      // Right signature box - Chirias
-      doc.text("Semnatura Chirias", rightBoxX, y - 5);
       doc.roundedRect(rightBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
+      doc.setLineDashPattern([], 0); // Reset to solid
 
-      // Add names below the boxes
-      y += boxHeight + 8;
+      // Helper text below boxes
+      y += boxHeight + 5;
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), leftBoxX, y);
-      doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), rightBoxX, y);
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text("Desenati semnatura cu mouse-ul sau degetul", leftBoxX + boxWidth/2, y, { align: 'center' });
+      doc.text("Desenati semnatura cu mouse-ul sau degetul", rightBoxX + boxWidth/2, y, { align: 'center' });
+
+      // Footer note
+      y += 10;
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      const noteText = "Semnaturile digitale vor fi incluse in documentele PDF si Word generate";
+      doc.text(noteText, pageWidth / 2, y, { align: 'center' });
     }
 
     return doc;
