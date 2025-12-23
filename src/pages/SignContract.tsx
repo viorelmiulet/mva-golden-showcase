@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import jsPDF from "jspdf";
 
 interface ContractInfo {
@@ -689,7 +691,51 @@ const SignContract = () => {
           </CardContent>
         </Card>
 
-        {/* Signature Pad */}
+        {/* Inventory Section */}
+        {inventoryItems.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Inventar Imobil</CardTitle>
+              </div>
+              <CardDescription>
+                Lista obiectelor incluse în contract ({inventoryItems.length} articole)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="font-semibold">Denumire</TableHead>
+                      <TableHead className="font-semibold text-center w-20">Cantitate</TableHead>
+                      <TableHead className="font-semibold w-24">Stare</TableHead>
+                      <TableHead className="font-semibold">Observații</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {inventoryItems.map((item, index) => (
+                      <TableRow key={item.id} className={index % 2 === 0 ? 'bg-background' : 'bg-muted/30'}>
+                        <TableCell className="font-medium">{item.item_name}</TableCell>
+                        <TableCell className="text-center">{item.quantity || 1}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {item.condition || 'Bună'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {item.notes || '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Semnătura Dvs.</CardTitle>
