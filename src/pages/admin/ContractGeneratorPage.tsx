@@ -26,6 +26,7 @@ import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { SwipeableContractCard } from "@/components/admin/SwipeableContractCard";
 import ContractClausesEditor from "@/components/admin/ContractClausesEditor";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchContractClauses, getClauseContentFromList, getClauseTitleFromList, type ContractClause } from "@/hooks/useContractClauses";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 import { format } from "date-fns";
@@ -266,10 +267,19 @@ const ContractGeneratorPage = () => {
 
   // Track contracts that need auto-regeneration
   const autoRegeneratedRef = useRef<Set<string>>(new Set());
+  
+  // Contract clauses from database
+  const [contractClauses, setContractClauses] = useState<ContractClause[]>([]);
 
   useEffect(() => {
     fetchContracts();
+    loadContractClauses();
   }, []);
+  
+  const loadContractClauses = async () => {
+    const clauses = await fetchContractClauses();
+    setContractClauses(clauses);
+  };
 
   // Auto-regenerate PDF when both parties have signed
   useEffect(() => {
@@ -1025,13 +1035,31 @@ const ContractGeneratorPage = () => {
       addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului sau unui reprezentant autorizat, in starea in care l-a primit.");
 
       // VIII. FORTA MAJORA
-      addSection("VIII. FORTA MAJORA");
-      addParagraph("Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca. Partea care invoca forta majora trebuie sa notifice celeilalte parti in maxim 5 zile de la aparitie.");
+      const fortaMajoraClause = contractClauses.find(c => c.section_key === 'forta_majora');
+      addSection(fortaMajoraClause?.section_title || "VIII. CLAUZA DE FORTA MAJORA");
+      const fortaMajoraContent = fortaMajoraClause?.content || "Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca. Partea care invoca forta majora trebuie sa notifice celeilalte parti in maxim 5 zile de la aparitie.";
+      fortaMajoraContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
 
       // IX. CONDITIILE DE INCETARE A CONTRACTULUI
-      addSection("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-      addParagraph("1. la expirarea duratei pentru care a fost incheiat; 2. in situatia nerespectarii clauzelor contractuale de catre una din parti; 3. clauza fortei majore; 4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.");
-      addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
+      const incetareClause = contractClauses.find(c => c.section_key === 'incetare_contract');
+      addSection(incetareClause?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      const incetareContent = incetareClause?.content || "1. la expirarea duratei pentru care a fost incheiat;\n2. in situatia nerespectarii clauzelor contractuale de catre una din parti;\n3. clauza fortei majore;\n4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile.";
+      incetareContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
+      
+      // Dispozitii finale
+      const dispozitiiClause = contractClauses.find(c => c.section_key === 'dispozitii_finale');
+      if (dispozitiiClause) {
+        addSection(dispozitiiClause.section_title);
+        dispozitiiClause.content.split('\n').forEach(line => {
+          if (line.trim()) addParagraph(line.trim());
+        });
+      } else {
+        addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
+      }
       y += 5;
 
       // Signature dimensions
@@ -1504,16 +1532,22 @@ const ContractGeneratorPage = () => {
         addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului sau unui reprezentant autorizat al proprietarului, in starea in care l-a primit.");
         y += 3;
 
-        addSection("VIII. FORTA MAJORA");
-        addParagraph("Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
-        addParagraph("Partea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.");
+        // VIII. FORTA MAJORA - from database
+        const fortaMajoraClausePdf = contractClauses.find(c => c.section_key === 'forta_majora');
+        addSection(fortaMajoraClausePdf?.section_title || "VIII. CLAUZA DE FORTA MAJORA");
+        const fortaMajoraContentPdf = fortaMajoraClausePdf?.content || "Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.\nPartea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.";
+        fortaMajoraContentPdf.split('\n').forEach(line => {
+          if (line.trim()) addParagraph(line.trim());
+        });
         y += 3;
 
-        addSection("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-        addParagraph("1. la expirarea duratei pentru care a fost incheiat;");
-        addParagraph("2. in situatia nerespectarii clauzelor contractuale de catre una din parti;");
-        addParagraph("3. clauza fortei majore;");
-        addParagraph("4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.");
+        // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+        const incetareClausePdf = contractClauses.find(c => c.section_key === 'incetare_contract');
+        addSection(incetareClausePdf?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+        const incetareContentPdf = incetareClausePdf?.content || "1. la expirarea duratei pentru care a fost incheiat;\n2. in situatia nerespectarii clauzelor contractuale de catre una din parti;\n3. clauza fortei majore;\n4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile.";
+        incetareContentPdf.split('\n').forEach(line => {
+          if (line.trim()) addParagraph(line.trim());
+        });
         y += 3;
 
         addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
@@ -1866,16 +1900,22 @@ const ContractGeneratorPage = () => {
       addParagraph("Dupa expirarea contractului chiriasul va preda imobilul proprietarului sau unui reprezentant autorizat al proprietarului, in starea in care l-a primit.");
       y += 3;
 
-      addSection("VIII. FORTA MAJORA");
-      addParagraph("Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
-      addParagraph("Partea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.");
+      // VIII. FORTA MAJORA - from database
+      const fortaMajoraClausePreview = contractClauses.find(c => c.section_key === 'forta_majora');
+      addSection(fortaMajoraClausePreview?.section_title || "VIII. CLAUZA DE FORTA MAJORA");
+      const fortaMajoraContentPreview = fortaMajoraClausePreview?.content || "Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.\nPartea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.";
+      fortaMajoraContentPreview.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
       y += 3;
 
-      addSection("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-      addParagraph("1. la expirarea duratei pentru care a fost incheiat;");
-      addParagraph("2. in situatia nerespectarii clauzelor contractuale de catre una din parti;");
-      addParagraph("3. clauza fortei majore;");
-      addParagraph("4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.");
+      // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+      const incetareClausePreview = contractClauses.find(c => c.section_key === 'incetare_contract');
+      addSection(incetareClausePreview?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      const incetareContentPreview = incetareClausePreview?.content || "1. la expirarea duratei pentru care a fost incheiat;\n2. in situatia nerespectarii clauzelor contractuale de catre una din parti;\n3. clauza fortei majore;\n4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile.";
+      incetareContentPreview.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
       y += 3;
 
       addParagraph("Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.");
@@ -2177,31 +2217,47 @@ const ContractGeneratorPage = () => {
                 spacing: { after: 200 },
               }),
               
-              // VIII. FORTA MAJORA
-              new Paragraph({
-                text: "VIII. FORTA MAJORA",
-                heading: HeadingLevel.HEADING_2,
-                spacing: { before: 200, after: 100 },
-              }),
-              new Paragraph({
-                text: "Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.",
-                spacing: { after: 100 },
-              }),
-              new Paragraph({
-                text: "Partea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.",
-                spacing: { after: 200 },
-              }),
+              // VIII. FORTA MAJORA - from database
+              ...(() => {
+                const fortaMajoraDocx = contractClauses.find(c => c.section_key === 'forta_majora');
+                const paragraphs = [];
+                paragraphs.push(new Paragraph({
+                  text: fortaMajoraDocx?.section_title || "VIII. FORTA MAJORA",
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 200, after: 100 },
+                }));
+                const content = fortaMajoraDocx?.content || "Orice cauza neprevazuta si imposibil de evitat, independenta de vointa partilor, aparuta dupa semnarea prezentului si care impiedica executarea contractului, va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.\nPartea care invoca cauza de forta majora trebuie sa notifice acest lucru celeilalte parti in maxim 5 zile de la aparitie.";
+                content.split('\n').forEach((line, idx, arr) => {
+                  if (line.trim()) {
+                    paragraphs.push(new Paragraph({
+                      text: line.trim(),
+                      spacing: { after: idx === arr.length - 1 ? 200 : 100 },
+                    }));
+                  }
+                });
+                return paragraphs;
+              })(),
               
-              // IX. CONDITIILE DE INCETARE A CONTRACTULUI
-              new Paragraph({
-                text: "IX. CONDITIILE DE INCETARE A CONTRACTULUI",
-                heading: HeadingLevel.HEADING_2,
-                spacing: { before: 200, after: 100 },
-              }),
-              new Paragraph({ text: "1. la expirarea duratei pentru care a fost incheiat;" }),
-              new Paragraph({ text: "2. in situatia nerespectarii clauzelor contractuale de catre una din parti;" }),
-              new Paragraph({ text: "3. clauza fortei majore;" }),
-              new Paragraph({ text: "4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile, cu pierderea garantiei in cazul in care denuntarea nu a fost facuta de catre chirias in termen de 30 de zile sau fara un motiv intemeiat.", spacing: { after: 100 } }),
+              // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+              ...(() => {
+                const incetareDocx = contractClauses.find(c => c.section_key === 'incetare_contract');
+                const paragraphs = [];
+                paragraphs.push(new Paragraph({
+                  text: incetareDocx?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI",
+                  heading: HeadingLevel.HEADING_2,
+                  spacing: { before: 200, after: 100 },
+                }));
+                const content = incetareDocx?.content || "1. la expirarea duratei pentru care a fost incheiat;\n2. in situatia nerespectarii clauzelor contractuale de catre una din parti;\n3. clauza fortei majore;\n4. prin denuntare unilaterala de catre oricare dintre parti, cu o notificare prealabila de 30 de zile.";
+                content.split('\n').forEach((line, idx, arr) => {
+                  if (line.trim()) {
+                    paragraphs.push(new Paragraph({
+                      text: line.trim(),
+                      spacing: { after: idx === arr.length - 1 ? 100 : 0 },
+                    }));
+                  }
+                });
+                return paragraphs;
+              })(),
               new Paragraph({
                 text: "Incetarea prezentului contract nu va avea efect asupra obligatiilor deja scadente intre partile contractante.",
                 spacing: { after: 400 },
@@ -2450,16 +2506,21 @@ const ContractGeneratorPage = () => {
         addSectionTitle("VII. PREDAREA IMOBILULUI");
         addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
 
-        // VIII. FORTA MAJORA
-        addSectionTitle("VIII. FORTA MAJORA");
-        addParagraph("Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
+        // VIII. FORTA MAJORA - from database
+        const fortaMajoraGen1 = contractClauses.find(c => c.section_key === 'forta_majora');
+        addSectionTitle(fortaMajoraGen1?.section_title || "VIII. FORTA MAJORA");
+        const fortaMajoraContent1 = fortaMajoraGen1?.content || "Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.";
+        fortaMajoraContent1.split('\n').forEach(line => {
+          if (line.trim()) addParagraph(line.trim());
+        });
 
-        // IX. CONDITIILE DE INCETARE A CONTRACTULUI
-        addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-        addParagraph("a) la expirarea duratei pentru care a fost incheiat;");
-        addParagraph("b) in situatia nerespectarii clauzelor contractuale;");
-        addParagraph("c) clauza fortei majore;");
-        addParagraph("d) prin denuntare unilaterala cu notificare prealabila de 30 de zile.");
+        // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+        const incetareGen1 = contractClauses.find(c => c.section_key === 'incetare_contract');
+        addSectionTitle(incetareGen1?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+        const incetareContent1 = incetareGen1?.content || "a) la expirarea duratei pentru care a fost incheiat;\nb) in situatia nerespectarii clauzelor contractuale;\nc) clauza fortei majore;\nd) prin denuntare unilaterala cu notificare prealabila de 30 de zile.";
+        incetareContent1.split('\n').forEach(line => {
+          if (line.trim()) addParagraph(line.trim());
+        });
 
         // Art. 8 - INVENTAR IMOBIL
         if (inventoryItems.length > 0) {
@@ -2803,10 +2864,21 @@ const ContractGeneratorPage = () => {
       addParagraph("Chiriasul va folosi imobilul conform destinatiei si va achita utilitatile la timp.");
       addSectionTitle("VII. PREDAREA IMOBILULUI");
       addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
-      addSectionTitle("VIII. FORTA MAJORA");
-      addParagraph("Orice cauza neprevazuta va fi considerata forta majora si va exonera de raspundere partea care o invoca.");
-      addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-      addParagraph("Contractul inceteaza la expirare, nerespectarea clauzelor, forta majora sau denuntare unilaterala cu 30 zile preaviz.");
+      // VIII. FORTA MAJORA - from database
+      const fortaMajoraBoth = contractClauses.find(c => c.section_key === 'forta_majora');
+      addSectionTitle(fortaMajoraBoth?.section_title || "VIII. FORTA MAJORA");
+      const fortaMajoraBothContent = fortaMajoraBoth?.content || "Orice cauza neprevazuta va fi considerata forta majora si va exonera de raspundere partea care o invoca.";
+      fortaMajoraBothContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
+      
+      // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+      const incetareBoth = contractClauses.find(c => c.section_key === 'incetare_contract');
+      addSectionTitle(incetareBoth?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      const incetareBothContent = incetareBoth?.content || "Contractul inceteaza la expirare, nerespectarea clauzelor, forta majora sau denuntare unilaterala cu 30 zile preaviz.";
+      incetareBothContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
 
       // Signatures
       y += 15;
@@ -2977,13 +3049,21 @@ const ContractGeneratorPage = () => {
       addParagraph("Drepturi: sa utilizeze imobilul in exclusivitate; sa faca imbunatatiri cu acordul proprietarului.");
       addSectionTitle("VII. PREDAREA IMOBILULUI");
       addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
-      addSectionTitle("VIII. FORTA MAJORA");
-      addParagraph("Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.");
-      addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-      addParagraph("a) la expirarea duratei pentru care a fost incheiat;");
-      addParagraph("b) in situatia nerespectarii clauzelor contractuale;");
-      addParagraph("c) clauza fortei majore;");
-      addParagraph("d) prin denuntare unilaterala cu notificare prealabila de 30 de zile.");
+      // VIII. FORTA MAJORA - from database
+      const fortaMajoraPreview = contractClauses.find(c => c.section_key === 'forta_majora');
+      addSectionTitle(fortaMajoraPreview?.section_title || "VIII. FORTA MAJORA");
+      const fortaMajoraPreviewContent = fortaMajoraPreview?.content || "Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.";
+      fortaMajoraPreviewContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
+      
+      // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
+      const incetarePreview = contractClauses.find(c => c.section_key === 'incetare_contract');
+      addSectionTitle(incetarePreview?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      const incetarePreviewContent = incetarePreview?.content || "a) la expirarea duratei pentru care a fost incheiat;\nb) in situatia nerespectarii clauzelor contractuale;\nc) clauza fortei majore;\nd) prin denuntare unilaterala cu notificare prealabila de 30 de zile.";
+      incetarePreviewContent.split('\n').forEach(line => {
+        if (line.trim()) addParagraph(line.trim());
+      });
 
       // Inventory if exists
       if (inventoryItems.length > 0) {
