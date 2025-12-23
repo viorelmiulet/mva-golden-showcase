@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import SignaturePad from "@/components/SignaturePad";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye, Files, Settings, Eraser } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye, Files, Settings, Eraser, Search, ArrowUpDown, Filter } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { SwipeableContractCard } from "@/components/admin/SwipeableContractCard";
 import ContractClausesEditor from "@/components/admin/ContractClausesEditor";
+import { MobileFilterSort, FilterOption, SortOption } from "@/components/admin/MobileFilterSort";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchContractClauses, getClauseContentFromList, getClauseTitleFromList, type ContractClause } from "@/hooks/useContractClauses";
 import jsPDF from "jspdf";
@@ -212,6 +214,114 @@ const ContractGeneratorPage = () => {
   
   const [contracts, setContracts] = useState<SavedContract[]>([]);
   const [isLoadingContracts, setIsLoadingContracts] = useState(true);
+  
+  // Mobile filter/sort state
+  const isMobile = useIsMobile();
+  const [contractFilterValues, setContractFilterValues] = useState<Record<string, string>>({});
+  const [contractSort, setContractSort] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "date", direction: "desc" });
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Filter and sort options for contracts
+  const contractFilterOptions: FilterOption[] = [
+    {
+      key: "signatureStatus",
+      label: "Status semnături",
+      type: "select",
+      options: [
+        { value: "all", label: "Toate" },
+        { value: "both_signed", label: "Ambii au semnat" },
+        { value: "partial", label: "Semnat parțial" },
+        { value: "none", label: "Nesemnat" },
+      ]
+    },
+    {
+      key: "hasDocuments",
+      label: "Documente",
+      type: "select",
+      options: [
+        { value: "all", label: "Toate" },
+        { value: "has_pdf", label: "Cu PDF" },
+        { value: "has_docx", label: "Cu Word" },
+        { value: "no_docs", label: "Fără documente" },
+      ]
+    }
+  ];
+  
+  const contractSortOptions: SortOption[] = [
+    { key: "date", label: "Data" },
+    { key: "name", label: "Nume chiriaș" },
+    { key: "price", label: "Chirie" },
+  ];
+  
+  // Filtered and sorted contracts
+  const filteredContracts = useMemo(() => {
+    let result = [...contracts];
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(contract => 
+        contract.client_name?.toLowerCase().includes(query) ||
+        contract.client_prenume?.toLowerCase().includes(query) ||
+        contract.property_address?.toLowerCase().includes(query) ||
+        contract.proprietar_name?.toLowerCase().includes(query) ||
+        contract.proprietar_prenume?.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply signature status filter
+    const signatureStatus = contractFilterValues.signatureStatus;
+    if (signatureStatus && signatureStatus !== "all") {
+      result = result.filter(contract => {
+        if (signatureStatus === "both_signed") return contract.proprietar_signed && contract.chirias_signed;
+        if (signatureStatus === "partial") return (contract.proprietar_signed && !contract.chirias_signed) || (!contract.proprietar_signed && contract.chirias_signed);
+        if (signatureStatus === "none") return !contract.proprietar_signed && !contract.chirias_signed;
+        return true;
+      });
+    }
+    
+    // Apply documents filter
+    const hasDocuments = contractFilterValues.hasDocuments;
+    if (hasDocuments && hasDocuments !== "all") {
+      result = result.filter(contract => {
+        if (hasDocuments === "has_pdf") return !!contract.pdf_url;
+        if (hasDocuments === "has_docx") return !!contract.docx_url;
+        if (hasDocuments === "no_docs") return !contract.pdf_url && !contract.docx_url;
+        return true;
+      });
+    }
+    
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+      switch (contractSort.key) {
+        case "date":
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+        case "name":
+          const nameA = `${a.client_prenume || ''} ${a.client_name || ''}`.toLowerCase();
+          const nameB = `${b.client_prenume || ''} ${b.client_name || ''}`.toLowerCase();
+          comparison = nameA.localeCompare(nameB);
+          break;
+        case "price":
+          comparison = (a.property_price || 0) - (b.property_price || 0);
+          break;
+        default:
+          comparison = 0;
+      }
+      return contractSort.direction === "asc" ? comparison : -comparison;
+    });
+    
+    return result;
+  }, [contracts, searchQuery, contractFilterValues, contractSort]);
+  
+  const activeFiltersCount = Object.values(contractFilterValues).filter(v => v && v !== "all").length + (searchQuery.trim() ? 1 : 0);
+  
+  const resetContractFilters = () => {
+    setContractFilterValues({});
+    setSearchQuery("");
+    setContractSort({ key: "date", direction: "desc" });
+  };
   
   // Inventory state
   interface InventoryItem {
@@ -4292,16 +4402,91 @@ const ContractGeneratorPage = () => {
       </Card>
 
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
-              Istoric Contracte
-            </CardTitle>
-            <Button variant="outline" size="sm" onClick={fetchContracts} disabled={isLoadingContracts}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingContracts ? 'animate-spin' : ''}`} />
-              Reîmprospătează
-            </Button>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Istoric Contracte
+                {contracts.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">{filteredContracts.length}</Badge>
+                )}
+              </CardTitle>
+              <Button variant="outline" size="sm" onClick={fetchContracts} disabled={isLoadingContracts}>
+                <RefreshCw className={`h-4 w-4 ${isLoadingContracts ? 'animate-spin' : ''} ${isMobile ? '' : 'mr-2'}`} />
+                {!isMobile && 'Reîmprospătează'}
+              </Button>
+            </div>
+            
+            {/* Mobile search and filter */}
+            {isMobile && contracts.length > 0 && (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Caută contracte..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 h-10"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+                <MobileFilterSort
+                  filters={contractFilterOptions}
+                  filterValues={contractFilterValues}
+                  onFilterChange={(key, value) => setContractFilterValues(prev => ({ ...prev, [key]: value }))}
+                  sortOptions={contractSortOptions}
+                  currentSort={contractSort}
+                  onSortChange={(key, direction) => setContractSort({ key, direction })}
+                  onReset={resetContractFilters}
+                  activeFiltersCount={activeFiltersCount}
+                />
+              </div>
+            )}
+            
+            {/* Desktop search */}
+            {!isMobile && contracts.length > 0 && (
+              <div className="flex gap-2">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Caută după nume, adresă..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select
+                  value={contractFilterValues.signatureStatus || "all"}
+                  onValueChange={(value) => setContractFilterValues(prev => ({ ...prev, signatureStatus: value }))}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Status semnături" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate</SelectItem>
+                    <SelectItem value="both_signed">Ambii au semnat</SelectItem>
+                    <SelectItem value="partial">Semnat parțial</SelectItem>
+                    <SelectItem value="none">Nesemnat</SelectItem>
+                  </SelectContent>
+                </Select>
+                {(searchQuery || Object.values(contractFilterValues).some(v => v && v !== "all")) && (
+                  <Button variant="ghost" size="sm" onClick={resetContractFilters}>
+                    <X className="h-4 w-4 mr-1" />
+                    Resetează
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -4314,11 +4499,20 @@ const ContractGeneratorPage = () => {
               <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>Nu există contracte generate încă</p>
             </div>
+          ) : filteredContracts.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Search className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>Nu s-au găsit contracte</p>
+              <p className="text-sm">Încercați alte criterii de căutare</p>
+              <Button variant="link" size="sm" onClick={resetContractFilters} className="mt-2">
+                Resetează filtrele
+              </Button>
+            </div>
           ) : (
             <>
               {/* Mobile view - Swipeable cards */}
-              <div className="md:hidden">
-                {contracts.map((contract) => (
+              <div className="md:hidden space-y-0">
+                {filteredContracts.map((contract) => (
                   <SwipeableContractCard
                     key={contract.id}
                     contract={contract}
@@ -4355,7 +4549,7 @@ const ContractGeneratorPage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {contracts.map((contract) => (
+                    {filteredContracts.map((contract) => (
                       <TableRow key={contract.id}>
                         <TableCell className="whitespace-nowrap">
                           {format(new Date(contract.created_at), 'dd MMM yyyy', { locale: ro })}
