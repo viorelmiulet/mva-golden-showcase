@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye } from "lucide-react";
+import { Upload, FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, History, Trash2, RefreshCw, Users, FileType, PenTool, FilePlus2, Mail, Send, Package, Plus, X, Pencil, Check, ImageIcon, MessageCircle, Eye, Files } from "lucide-react";
 import InventoryImageUpload from "@/components/InventoryImageUpload";
 import { SwipeableContractCard } from "@/components/admin/SwipeableContractCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -176,6 +176,7 @@ const ContractGeneratorPage = () => {
   const [isExtractingProprietar, setIsExtractingProprietar] = useState(false);
   const [isExtractingChirias, setIsExtractingChirias] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingBoth, setIsGeneratingBoth] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [regeneratingContractId, setRegeneratingContractId] = useState<string | null>(null);
   
@@ -2611,6 +2612,234 @@ const ContractGeneratorPage = () => {
     }
   };
 
+  const generateBothFormats = async () => {
+    if (!contractData.proprietar.nume || !contractData.chirias.nume) {
+      toast.error("Va rugam completati datele proprietarului si chiriasului");
+      return;
+    }
+
+    if (!contractData.proprietate_adresa) {
+      toast.error("Va rugam completati adresa proprietatii");
+      return;
+    }
+
+    setIsGeneratingBoth(true);
+    setIsSaving(true);
+    
+    try {
+      const moneda = contractData.moneda;
+      const garantieVal = contractData.garantie || contractData.proprietate_pret;
+      const camereText = contractData.numar_camere === "1" ? "1 camera" : `${contractData.numar_camere} camere`;
+      const timestamp = Date.now();
+
+      // Generate DOCX first
+      const docxDoc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              text: "CONTRACT DE INCHIRIERE",
+              heading: HeadingLevel.HEADING_1,
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 400 },
+            }),
+            new Paragraph({
+              text: `Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`,
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "1. PROPRIETAR: ", bold: true }),
+              ],
+            }),
+            new Paragraph({
+              text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}, cetatean ${contractData.proprietar.cetatenie}, identificat prin CNP ${contractData.proprietar.cnp}, C.I seria ${contractData.proprietar.seria_ci} nr. ${contractData.proprietar.numar_ci}${contractData.proprietar.ci_emitent && contractData.proprietar.ci_data_emiterii ? `, eliberat de ${contractData.proprietar.ci_emitent} la data de ${formatDateRomanian(contractData.proprietar.ci_data_emiterii)}` : ''}, in calitate de proprietar al imobilului situat in ${contractData.proprietate_adresa}`,
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "2. CHIRIAS: ", bold: true }),
+              ],
+            }),
+            new Paragraph({
+              text: `${contractData.chirias.prenume} ${contractData.chirias.nume}, cetatean ${contractData.chirias.cetatenie}, identificat prin CNP ${contractData.chirias.cnp}, C.I seria ${contractData.chirias.seria_ci} nr. ${contractData.chirias.numar_ci}${contractData.chirias.ci_emitent && contractData.chirias.ci_data_emiterii ? `, eliberat de ${contractData.chirias.ci_emitent} la data de ${formatDateRomanian(contractData.chirias.ci_data_emiterii)}` : ''}, in calitate de chirias al imobilului situat in ${contractData.proprietate_adresa}.`,
+              spacing: { after: 400 },
+            }),
+            new Paragraph({ text: "I. OBIECTUL CONTRACTULUI", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: `Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`, spacing: { after: 200 } }),
+            new Paragraph({ text: "II. DESTINATIA", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: "Imobilul va fi folosit de chirias cu destinatia LOCUINTA.", spacing: { after: 200 } }),
+            new Paragraph({ text: "III. DURATA", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: `Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}.`, spacing: { after: 200 } }),
+            new Paragraph({ text: "IV. CHIRIA SI MODALITATI DE PLATA", heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: `Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna.`, spacing: { after: 100 } }),
+            new Paragraph({ text: contractData.garantie_status === "platita" ? `Garantia in valoare de ${garantieVal} ${moneda} s-a achitat la data semnarii contractului.` : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare.`, spacing: { after: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "PROPRIETAR", bold: true }), new TextRun({ text: "\t\t\t\t\t\t\t\t\t\t" }), new TextRun({ text: "CHIRIAS", bold: true })], spacing: { after: 100 } }),
+            new Paragraph({ children: [new TextRun({ text: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}` }), new TextRun({ text: "\t\t\t\t\t\t\t\t" }), new TextRun({ text: `${contractData.chirias.prenume} ${contractData.chirias.nume}` })], spacing: { after: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "_____________________" }), new TextRun({ text: "\t\t\t\t\t\t\t" }), new TextRun({ text: "_____________________" })] }),
+          ],
+        }],
+      });
+
+      const docxBlob = await Packer.toBlob(docxDoc);
+      const docxFileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${timestamp}.docx`;
+      const docxPath = await uploadContractFile(docxBlob, docxFileName);
+      
+      // Download DOCX
+      const docxUrl = URL.createObjectURL(docxBlob);
+      const docxLink = document.createElement('a');
+      docxLink.href = docxUrl;
+      docxLink.download = docxFileName;
+      document.body.appendChild(docxLink);
+      docxLink.click();
+      document.body.removeChild(docxLink);
+      URL.revokeObjectURL(docxUrl);
+
+      // Generate PDF
+      const pdfDoc = new jsPDF();
+      const pageWidth = pdfDoc.internal.pageSize.getWidth();
+      const margin = 20;
+      const textWidth = pageWidth - 2 * margin;
+      let y = 25;
+
+      const addSectionTitle = (title: string) => {
+        if (y > 260) { pdfDoc.addPage(); y = 20; }
+        pdfDoc.setFontSize(11);
+        pdfDoc.setFont("helvetica", "bold");
+        pdfDoc.setTextColor(0, 51, 153);
+        pdfDoc.text(title, margin, y);
+        y += 8;
+        pdfDoc.setTextColor(0, 0, 0);
+        pdfDoc.setFontSize(10);
+        pdfDoc.setFont("helvetica", "normal");
+      };
+
+      const addParagraph = (text: string, indent: number = 8) => {
+        if (y > 270) { pdfDoc.addPage(); y = 20; }
+        pdfDoc.setFont("helvetica", "normal");
+        const lines = pdfDoc.splitTextToSize(text, textWidth - indent);
+        for (let i = 0; i < lines.length; i++) {
+          pdfDoc.text(lines[i], margin + indent, y);
+          y += 5;
+        }
+        y += 2;
+      };
+
+      const drawPartyBox = (title: string, data: { nume: string; cnp: string; seria: string; numar: string; emitent: string; dataEmiterii: string; domiciliu: string; cetatenie: string; }) => {
+        if (y > 200) { pdfDoc.addPage(); y = 20; }
+        const boxStartY = y;
+        const lineHeight = 6;
+        const boxPadding = 5;
+        const domiciliuLines = pdfDoc.splitTextToSize(`Domiciliu: ${data.domiciliu}`, textWidth - 2 * boxPadding);
+        const boxHeight = boxPadding + lineHeight * 6 + (domiciliuLines.length - 1) * 5 + boxPadding;
+        pdfDoc.setLineWidth(0.5);
+        pdfDoc.setDrawColor(0, 0, 0);
+        pdfDoc.rect(margin, boxStartY, textWidth, boxHeight);
+        y = boxStartY + boxPadding + 4;
+        pdfDoc.setFont("helvetica", "bold");
+        pdfDoc.setFontSize(10);
+        pdfDoc.text(title, margin + boxPadding, y);
+        y += lineHeight + 2;
+        pdfDoc.setFont("helvetica", "normal");
+        pdfDoc.text(`Nume: ${data.nume}`, margin + boxPadding, y); y += lineHeight;
+        pdfDoc.text(`CNP: ${data.cnp}`, margin + boxPadding, y); y += lineHeight;
+        pdfDoc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y); y += lineHeight;
+        pdfDoc.text(`Eliberat de: ${data.emitent} la data de ${data.dataEmiterii}`, margin + boxPadding, y); y += lineHeight;
+        for (let i = 0; i < domiciliuLines.length; i++) { pdfDoc.text(domiciliuLines[i], margin + boxPadding, y); y += 5; }
+        pdfDoc.text(`Cetatenie: ${data.cetatenie}`, margin + boxPadding, y);
+        y = boxStartY + boxHeight + 8;
+      };
+
+      // PDF Title
+      pdfDoc.setFontSize(16);
+      pdfDoc.setFont("helvetica", "bold");
+      pdfDoc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
+      y += 12;
+      pdfDoc.setFontSize(10);
+      pdfDoc.setFont("helvetica", "normal");
+      pdfDoc.text(`Incheiat astazi, ${formatDateRomanian(contractData.data_contract)} intre:`, pageWidth / 2, y, { align: "center" });
+      y += 12;
+
+      drawPartyBox("1. PROPRIETAR (LOCATOR):", {
+        nume: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
+        cnp: contractData.proprietar.cnp,
+        seria: contractData.proprietar.seria_ci,
+        numar: contractData.proprietar.numar_ci,
+        emitent: contractData.proprietar.ci_emitent || '-',
+        dataEmiterii: formatDateRomanian(contractData.proprietar.ci_data_emiterii) || '-',
+        domiciliu: contractData.proprietar.adresa,
+        cetatenie: contractData.proprietar.cetatenie || 'Romana'
+      });
+
+      drawPartyBox("2. CHIRIAS (LOCATAR):", {
+        nume: `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
+        cnp: contractData.chirias.cnp,
+        seria: contractData.chirias.seria_ci,
+        numar: contractData.chirias.numar_ci,
+        emitent: contractData.chirias.ci_emitent || '-',
+        dataEmiterii: formatDateRomanian(contractData.chirias.ci_data_emiterii) || '-',
+        domiciliu: contractData.chirias.adresa,
+        cetatenie: contractData.chirias.cetatenie || 'romana'
+      });
+
+      addSectionTitle("I. OBIECTUL CONTRACTULUI");
+      addParagraph(`Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`);
+      addSectionTitle("II. DESTINATIA");
+      addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA.");
+      addSectionTitle("III. DURATA");
+      addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanian(contractData.data_incepere || contractData.data_contract)}.`);
+      addSectionTitle("IV. CHIRIA SI MODALITATI DE PLATA");
+      addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/luna.`);
+      const garantieTextPdf = contractData.garantie_status === "platita" 
+        ? `Garantia in valoare de ${garantieVal} ${moneda} s-a platit la data semnarii contractului.`
+        : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare.`;
+      addParagraph(garantieTextPdf);
+      addSectionTitle("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
+      addParagraph("Proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului.");
+      addSectionTitle("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
+      addParagraph("Chiriasul va folosi imobilul conform destinatiei si va achita utilitatile la timp.");
+      addSectionTitle("VII. PREDAREA IMOBILULUI");
+      addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
+      addSectionTitle("VIII. FORTA MAJORA");
+      addParagraph("Orice cauza neprevazuta va fi considerata forta majora si va exonera de raspundere partea care o invoca.");
+      addSectionTitle("IX. CONDITIILE DE INCETARE A CONTRACTULUI");
+      addParagraph("Contractul inceteaza la expirare, nerespectarea clauzelor, forta majora sau denuntare unilaterala cu 30 zile preaviz.");
+
+      // Signatures
+      y += 15;
+      pdfDoc.setFont("helvetica", "bold");
+      pdfDoc.text("PROPRIETAR", margin, y);
+      pdfDoc.text("CHIRIAS", pageWidth - margin - 30, y);
+      y += 8;
+      pdfDoc.setFont("helvetica", "normal");
+      pdfDoc.text(`${contractData.proprietar.prenume} ${contractData.proprietar.nume}`, margin, y);
+      pdfDoc.text(`${contractData.chirias.prenume} ${contractData.chirias.nume}`, pageWidth - margin - 50, y);
+      y += 15;
+      if (contractData.semnatura_proprietar) {
+        try { pdfDoc.addImage(contractData.semnatura_proprietar, 'PNG', margin, y, 50, 25); } catch (e) {}
+      }
+      if (contractData.semnatura_chirias) {
+        try { pdfDoc.addImage(contractData.semnatura_chirias, 'PNG', pageWidth - margin - 50, y, 50, 25); } catch (e) {}
+      }
+
+      const pdfFileName = `contract_inchiriere_${contractData.chirias.nume}_${contractData.chirias.prenume}_${timestamp}.pdf`;
+      const pdfBlob = pdfDoc.output('blob');
+      const pdfPath = await uploadContractFile(pdfBlob, pdfFileName);
+      pdfDoc.save(pdfFileName);
+
+      // Save to database with both paths
+      await saveContractToDatabase(pdfPath || undefined, docxPath || undefined);
+      
+      toast.success("Ambele formate (PDF + DOCX) au fost generate si salvate cu succes!");
+    } catch (error: any) {
+      console.error('Error generating contracts:', error);
+      toast.error("Eroare la generarea contractelor");
+    } finally {
+      setIsGeneratingBoth(false);
+      setIsSaving(false);
+    }
+  };
+
   const handleDeleteContract = async (id: string) => {
     try {
       const { error } = await supabase.from('contracts').delete().eq('id', id);
@@ -3073,7 +3302,7 @@ const ContractGeneratorPage = () => {
               <div className="flex gap-2">
                 <Button
                   onClick={() => generateContract('pdf')}
-                  disabled={isGenerating}
+                  disabled={isGenerating || isGeneratingBoth}
                   variant="outline"
                   className="flex-1"
                 >
@@ -3091,7 +3320,7 @@ const ContractGeneratorPage = () => {
                 </Button>
                 <Button
                   onClick={() => generateContract('docx')}
-                  disabled={isGenerating}
+                  disabled={isGenerating || isGeneratingBoth}
                   variant="outline"
                   className="flex-1"
                 >
@@ -3108,6 +3337,24 @@ const ContractGeneratorPage = () => {
                   )}
                 </Button>
               </div>
+              <Button
+                onClick={generateBothFormats}
+                disabled={isGenerating || isGeneratingBoth}
+                variant="default"
+                className="w-full"
+              >
+                {isGeneratingBoth ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Se generează ambele formate...
+                  </>
+                ) : (
+                  <>
+                    <Files className="h-4 w-4 mr-2" />
+                    PDF + Word (ambele)
+                  </>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
