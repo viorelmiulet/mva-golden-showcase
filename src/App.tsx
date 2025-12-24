@@ -53,8 +53,7 @@ const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
 const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
 const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
-const ContractGeneratorPage = lazy(() => import("./pages/admin/ContractGeneratorPage"));
-const ExclusiveRepresentationPage = lazy(() => import("./pages/admin/ExclusiveRepresentationPage"));
+const ContractsPage = lazy(() => import("./pages/admin/ContractsPage"));
 const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPage"));
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
@@ -106,8 +105,7 @@ const App = () => {
                 <Route path="facebook" element={<FacebookPage />} />
                 <Route path="clienti" element={<ClientsAdminPage />} />
                 <Route path="virtual-staging" element={<VirtualStagingPage />} />
-                <Route path="contracte" element={<ContractGeneratorPage />} />
-                <Route path="contract-exclusiv" element={<ExclusiveRepresentationPage />} />
+                <Route path="contracte" element={<ContractsPage />} />
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
