@@ -106,10 +106,10 @@ const emptyBeneficiar: BeneficiarData = {
 };
 
 const defaultPrestator: PrestatorData = {
-  denumire: "MVA Imobiliare",
-  sediu: "București, Str. Exemplu, Nr. 10, Sector 1",
-  cui: "RO12345678",
-  reg_comert: "J40/1234/2020",
+  denumire: "MVA PERFECT BUSINESS",
+  sediu: "Sat Dudu, Comuna Chiajna, Str. Tineretului, Nr. 35BIS, camera 1, Bl. 2, Sc. 2, Et. 2, Ap. 26, Jud. Ilfov",
+  cui: "50477503",
+  reg_comert: "J23/6136/2024",
   reprezentant: "Viorel Miuleț",
   calitate_reprezentant: "Administrator",
 };
