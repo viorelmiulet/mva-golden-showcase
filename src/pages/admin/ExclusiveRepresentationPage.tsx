@@ -292,7 +292,7 @@ const ExclusiveRepresentationPage = () => {
       beneficiary_seria_ci: formData.beneficiar.seria_ci || null,
       beneficiary_numar_ci: formData.beneficiar.numar_ci || null,
       beneficiary_ci_emitent: formData.beneficiar.ci_emitent || null,
-      beneficiary_ci_data_emiterii: formData.beneficiar.ci_data_emiterii || null,
+      beneficiary_ci_data_emiterii: convertDateToISO(formData.beneficiar.ci_data_emiterii),
       beneficiary_adresa: formData.beneficiar.adresa || null,
       property_type: 'apartament',
       property_address: propertyAddress,
@@ -374,6 +374,19 @@ const ExclusiveRepresentationPage = () => {
       adresa.localitate,
       adresa.judet ? `Jud. ${adresa.judet}` : '',
     ].filter(Boolean).join(', ');
+  };
+
+  // Convert date from DD.MM.YYYY to YYYY-MM-DD for database
+  const convertDateToISO = (dateStr: string | null): string | null => {
+    if (!dateStr) return null;
+    // Check if already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    // Convert from DD.MM.YYYY to YYYY-MM-DD
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return null;
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
