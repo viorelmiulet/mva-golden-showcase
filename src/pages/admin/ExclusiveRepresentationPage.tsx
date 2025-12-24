@@ -714,10 +714,9 @@ const ExclusiveRepresentationPage = () => {
         </TabsList>
 
         <TabsContent value="new" className="space-y-6 mt-6">
-
-      {/* Contract Number & Date */}
-      <Card>
-        <CardHeader>
+          {/* Contract Number & Date */}
+          <Card>
+            <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Date Contract
@@ -1269,8 +1268,8 @@ const ExclusiveRepresentationPage = () => {
               Reset
             </Button>
           </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="history" className="mt-6">
