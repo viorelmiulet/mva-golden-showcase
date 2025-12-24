@@ -409,8 +409,13 @@ const ExclusiveRepresentationPage = () => {
 
       if (error) throw error;
 
-      if (data?.extractedData) {
-        const extracted = data.extractedData as ExtractedData;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      const extracted = data?.data as ExtractedData;
+      if (extracted) {
         setExtractedDataBeneficiar(extracted);
         
         setFormData(prev => ({
@@ -428,6 +433,8 @@ const ExclusiveRepresentationPage = () => {
         }));
         
         toast.success("Date extrase cu succes!");
+      } else {
+        toast.error("Nu s-au putut extrage datele din imagine.");
       }
     } catch (error: any) {
       console.error('Error extracting data:', error);
