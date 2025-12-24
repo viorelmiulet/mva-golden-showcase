@@ -110,7 +110,7 @@ const defaultPrestator: PrestatorData = {
   sediu: "Jud. Ilfov, Sat Dudu, Comuna Chiajna, Strada TINERETULUI, Nr. 35BIS, camera 1, Bl. 2, Scara 2, Etaj 2, Ap. 26",
   cui: "50477503",
   reg_comert: "J23/6136/2024",
-  reprezentant: "Viorel Miuleț",
+  reprezentant: "Miuleț Ana-Maria",
   calitate_reprezentant: "Administrator",
 };
 
