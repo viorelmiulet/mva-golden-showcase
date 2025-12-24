@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { 
   FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, 
   History, Trash2, RefreshCw, Building2, PenTool, Eye, Eraser, Percent,
-  Save, Edit, Plus
+  Save, Edit, Plus, Settings
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -175,6 +175,11 @@ const ExclusiveRepresentationPage = () => {
   const [editingContractId, setEditingContractId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   
+  // Default agent signature
+  const [defaultAgentSignature, setDefaultAgentSignature] = useState<string>("");
+  const [showSignatureSettings, setShowSignatureSettings] = useState(false);
+  const [isSavingSignature, setIsSavingSignature] = useState(false);
+  
   const isMobile = useIsMobile();
   const fileInputBeneficiarRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -192,6 +197,59 @@ const ExclusiveRepresentationPage = () => {
     semnatura_prestator: "",
     semnatura_beneficiar: "",
   });
+
+  // Fetch default agent signature on mount
+  useEffect(() => {
+    const fetchDefaultSignature = async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'default_agent_signature')
+        .maybeSingle();
+      
+      if (!error && data?.value) {
+        setDefaultAgentSignature(data.value);
+        setFormData(prev => ({
+          ...prev,
+          semnatura_prestator: data.value
+        }));
+      }
+    };
+    fetchDefaultSignature();
+  }, []);
+
+  // Save default agent signature
+  const saveDefaultSignature = async (signatureData: string) => {
+    setIsSavingSignature(true);
+    try {
+      const { data: existing } = await supabase
+        .from('site_settings')
+        .select('id')
+        .eq('key', 'default_agent_signature')
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from('site_settings')
+          .update({ value: signatureData })
+          .eq('key', 'default_agent_signature');
+      } else {
+        await supabase
+          .from('site_settings')
+          .insert({ key: 'default_agent_signature', value: signatureData });
+      }
+
+      setDefaultAgentSignature(signatureData);
+      setFormData(prev => ({ ...prev, semnatura_prestator: signatureData }));
+      toast.success("Semnătura standard a fost salvată!");
+      setShowSignatureSettings(false);
+    } catch (error) {
+      console.error('Error saving default signature:', error);
+      toast.error("Eroare la salvarea semnăturii");
+    } finally {
+      setIsSavingSignature(false);
+    }
+  };
 
   // Fetch saved contracts
   const { data: savedContracts, isLoading: isLoadingContracts } = useQuery({
@@ -1145,31 +1203,81 @@ const ExclusiveRepresentationPage = () => {
       {/* Signatures */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <PenTool className="h-5 w-5" />
-            Semnături Digitale
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2 text-primary">
+              <PenTool className="h-5 w-5" />
+              Semnături Digitale
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSignatureSettings(!showSignatureSettings)}
+            >
+              <Settings className="h-4 w-4 mr-1" />
+              {showSignatureSettings ? "Închide" : "Setări Semnătură"}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Signature Settings Panel */}
+          {showSignatureSettings && (
+            <div className="border-2 border-dashed border-primary/30 rounded-lg p-4 bg-primary/5 mb-4">
+              <h4 className="font-medium mb-3 text-sm">Configurare Semnătură Standard Prestator</h4>
+              <p className="text-xs text-muted-foreground mb-4">
+                Desenați semnătura care va fi aplicată automat pe toate contractele de reprezentare exclusivă.
+              </p>
+              {defaultAgentSignature ? (
+                <div className="space-y-3">
+                  <div className="border rounded-lg p-3 bg-white">
+                    <img 
+                      src={defaultAgentSignature} 
+                      alt="Semnătură Standard" 
+                      className="max-h-32 mx-auto"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDefaultAgentSignature("")}
+                      className="flex-1"
+                    >
+                      <Eraser className="h-4 w-4 mr-1" />
+                      Schimbă Semnătura
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <SignaturePad
+                    title=""
+                    savedSignature=""
+                    onSave={(sig) => saveDefaultSignature(sig)}
+                  />
+                  {isSavingSignature && (
+                    <div className="flex items-center justify-center text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Se salvează...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Prestator Signature */}
+            {/* Prestator Signature - Auto-applied */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-primary">Semnătură Prestator</span>
                 {formData.semnatura_prestator && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setFormData(prev => ({ ...prev, semnatura_prestator: "" }))}
-                    className="h-7 text-xs"
-                  >
-                    <Eraser className="h-3 w-3 mr-1" />
-                    Șterge
-                  </Button>
+                  <Badge variant="secondary" className="text-xs">
+                    Aplicată automat
+                  </Badge>
                 )}
               </div>
               {formData.semnatura_prestator ? (
-                <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
+                <div className="border-2 border-green-200 bg-green-50 rounded-lg p-4 min-h-[200px] flex items-center justify-center">
                   <img 
                     src={formData.semnatura_prestator} 
                     alt="Semnătură Prestator" 
@@ -1177,11 +1285,18 @@ const ExclusiveRepresentationPage = () => {
                   />
                 </div>
               ) : (
-                <SignaturePad
-                  title=""
-                  savedSignature=""
-                  onSave={(sig) => setFormData(prev => ({ ...prev, semnatura_prestator: sig }))}
-                />
+                <div className="border-2 border-dashed border-amber-300 bg-amber-50 rounded-lg p-4 min-h-[200px] flex flex-col items-center justify-center text-amber-700">
+                  <PenTool className="h-8 w-8 mb-2 opacity-50" />
+                  <p className="text-sm text-center">Nu există semnătură standard configurată</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSignatureSettings(true)}
+                    className="mt-3"
+                  >
+                    Configurează Semnătura
+                  </Button>
+                </div>
               )}
             </div>
 
