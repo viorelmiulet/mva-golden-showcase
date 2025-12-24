@@ -9,13 +9,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { 
   FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, 
-  History, Trash2, RefreshCw, Building2, PenTool, Eye, Eraser, Percent
+  History, Trash2, RefreshCw, Building2, PenTool, Eye, Eraser, Percent,
+  Save, Edit, Plus
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -167,8 +170,14 @@ const ExclusiveRepresentationPage = () => {
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   
+  // Tabs and editing
+  const [activeTab, setActiveTab] = useState("new");
+  const [editingContractId, setEditingContractId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  
   const isMobile = useIsMobile();
   const fileInputBeneficiarRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<ContractFormData>({
     numar_contract: "",
@@ -183,6 +192,175 @@ const ExclusiveRepresentationPage = () => {
     semnatura_prestator: "",
     semnatura_beneficiar: "",
   });
+
+  // Fetch saved contracts
+  const { data: savedContracts, isLoading: isLoadingContracts } = useQuery({
+    queryKey: ['exclusive-contracts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('exclusive_contracts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Save contract mutation
+  const saveContractMutation = useMutation({
+    mutationFn: async (contractData: any) => {
+      if (editingContractId) {
+        const { data, error } = await supabase
+          .from('exclusive_contracts')
+          .update(contractData)
+          .eq('id', editingContractId)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase
+          .from('exclusive_contracts')
+          .insert(contractData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return data;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exclusive-contracts'] });
+      toast.success(editingContractId ? "Contract actualizat!" : "Contract salvat!");
+      if (!editingContractId) {
+        handleReset();
+      }
+    },
+    onError: (error: any) => {
+      console.error('Error saving contract:', error);
+      toast.error("Eroare la salvarea contractului");
+    },
+  });
+
+  // Delete contract mutation
+  const deleteContractMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('exclusive_contracts')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exclusive-contracts'] });
+      toast.success("Contract șters!");
+    },
+    onError: (error: any) => {
+      console.error('Error deleting contract:', error);
+      toast.error("Eroare la ștergerea contractului");
+    },
+  });
+
+  const handleSaveContract = async () => {
+    if (!formData.beneficiar.nume || !formData.beneficiar.prenume) {
+      toast.error("Vă rugăm completați numele beneficiarului");
+      return;
+    }
+
+    if (!formData.proprietate.localitate || !formData.proprietate.strada) {
+      toast.error("Vă rugăm completați adresa proprietății");
+      return;
+    }
+
+    setIsSaving(true);
+    
+    const propertyAddress = [
+      formData.proprietate.localitate,
+      formData.proprietate.strada && `str. ${formData.proprietate.strada}`,
+      formData.proprietate.numar && `nr. ${formData.proprietate.numar}`,
+      formData.proprietate.bloc && `bl. ${formData.proprietate.bloc}`,
+      formData.proprietate.apartament && `ap. ${formData.proprietate.apartament}`,
+    ].filter(Boolean).join(', ');
+
+    const contractData = {
+      beneficiary_name: formData.beneficiar.nume,
+      beneficiary_prenume: formData.beneficiar.prenume,
+      beneficiary_cnp: formData.beneficiar.cnp || null,
+      beneficiary_seria_ci: formData.beneficiar.seria_ci || null,
+      beneficiary_numar_ci: formData.beneficiar.numar_ci || null,
+      beneficiary_ci_emitent: formData.beneficiar.ci_emitent || null,
+      beneficiary_ci_data_emiterii: formData.beneficiar.ci_data_emiterii || null,
+      beneficiary_adresa: formData.beneficiar.adresa || null,
+      property_type: 'apartament',
+      property_address: propertyAddress,
+      property_rooms: formData.proprietate.nr_camere ? parseInt(formData.proprietate.nr_camere) : null,
+      property_surface: formData.proprietate.suprafata_utila ? parseFloat(formData.proprietate.suprafata_utila) : null,
+      property_features: formData.proprietate.compartimentare || null,
+      sales_price: formData.pret_vanzare ? parseFloat(formData.pret_vanzare) : null,
+      currency: 'EUR',
+      commission_percent: formData.comision_procent ? parseFloat(formData.comision_procent) : null,
+      duration_months: formData.durata_luni ? parseInt(formData.durata_luni) : 6,
+      contract_date: formData.data_contract,
+      beneficiary_signature: formData.semnatura_beneficiar || null,
+      agent_signature: formData.semnatura_prestator || null,
+      beneficiary_signed_at: formData.semnatura_beneficiar ? new Date().toISOString() : null,
+      agent_signed_at: formData.semnatura_prestator ? new Date().toISOString() : null,
+      status: formData.semnatura_beneficiar && formData.semnatura_prestator ? 'signed' : 'draft',
+    };
+
+    try {
+      await saveContractMutation.mutateAsync(contractData);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const loadContractForEdit = (contract: any) => {
+    setEditingContractId(contract.id);
+    setFormData({
+      numar_contract: "",
+      data_contract: contract.contract_date || new Date().toISOString().split('T')[0],
+      prestator: { ...defaultPrestator },
+      beneficiar: {
+        nume: contract.beneficiary_name || '',
+        prenume: contract.beneficiary_prenume || '',
+        cnp: contract.beneficiary_cnp || '',
+        seria_ci: contract.beneficiary_seria_ci || '',
+        numar_ci: contract.beneficiary_numar_ci || '',
+        ci_emitent: contract.beneficiary_ci_emitent || '',
+        ci_data_emiterii: contract.beneficiary_ci_data_emiterii || '',
+        adresa: contract.beneficiary_adresa || '',
+      },
+      proprietate: {
+        ...emptyProperty,
+        nr_camere: contract.property_rooms?.toString() || '',
+        suprafata_utila: contract.property_surface?.toString() || '',
+        compartimentare: contract.property_features || 'decomandat',
+      },
+      pret_vanzare: contract.sales_price?.toString() || '',
+      pret_negociabil: true,
+      comision_procent: contract.commission_percent?.toString() || '3',
+      durata_luni: contract.duration_months?.toString() || '6',
+      semnatura_prestator: contract.agent_signature || '',
+      semnatura_beneficiar: contract.beneficiary_signature || '',
+    });
+    setActiveTab("new");
+    toast.info("Contract încărcat pentru editare");
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'signed':
+        return <Badge className="bg-green-500">Semnat</Badge>;
+      case 'draft':
+        return <Badge variant="secondary">Draft</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
   const formatAddress = (adresa: ExtractedData['adresa']) => {
     if (!adresa) return '';
@@ -480,6 +658,7 @@ const ExclusiveRepresentationPage = () => {
   const handleReset = () => {
     setUploadedImageBeneficiar(null);
     setExtractedDataBeneficiar(null);
+    setEditingContractId(null);
     setFormData({
       numar_contract: "",
       data_contract: new Date().toISOString().split('T')[0],
@@ -497,17 +676,44 @@ const ExclusiveRepresentationPage = () => {
     toast.success("Formular resetat");
   };
 
+  const handleNewContract = () => {
+    handleReset();
+    setActiveTab("new");
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-6 w-6" />
-          Contract Reprezentare Exclusivă
-        </h1>
-        <p className="text-muted-foreground">
-          Generați contracte de reprezentare exclusivă pentru vânzare imobile
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <FileText className="h-6 w-6" />
+            Contract Reprezentare Exclusivă
+          </h1>
+          <p className="text-muted-foreground">
+            Generați și gestionați contracte de reprezentare exclusivă
+          </p>
+        </div>
+        {activeTab === "history" && (
+          <Button onClick={handleNewContract}>
+            <Plus className="h-4 w-4 mr-2" />
+            Contract Nou
+          </Button>
+        )}
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="new" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            {editingContractId ? "Editare" : "Contract Nou"}
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Istoric ({savedContracts?.length || 0})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="new" className="space-y-6 mt-6">
 
       {/* Contract Number & Date */}
       <Card>
@@ -1001,6 +1207,24 @@ const ExclusiveRepresentationPage = () => {
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-3">
             <Button
+              onClick={handleSaveContract}
+              disabled={isSaving || isGenerating || isPreviewing}
+              variant="default"
+              className="flex-1 min-w-[140px]"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Se salvează...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {editingContractId ? "Actualizează" : "Salvează"}
+                </>
+              )}
+            </Button>
+            <Button
               onClick={handlePreview}
               disabled={isGenerating || isPreviewing}
               variant="secondary"
@@ -1021,6 +1245,7 @@ const ExclusiveRepresentationPage = () => {
             <Button
               onClick={handleGeneratePDF}
               disabled={isGenerating || isPreviewing}
+              variant="outline"
               className="flex-1 min-w-[140px]"
             >
               {isGenerating ? (
@@ -1037,7 +1262,7 @@ const ExclusiveRepresentationPage = () => {
             </Button>
             <Button
               onClick={handleReset}
-              variant="outline"
+              variant="ghost"
               className="min-w-[100px]"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -1046,6 +1271,101 @@ const ExclusiveRepresentationPage = () => {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Istoric Contracte Reprezentare Exclusivă
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingContracts ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : savedContracts && savedContracts.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Beneficiar</TableHead>
+                        <TableHead>Adresă Imobil</TableHead>
+                        <TableHead>Preț</TableHead>
+                        <TableHead>Comision</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Acțiuni</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {savedContracts.map((contract) => (
+                        <TableRow key={contract.id}>
+                          <TableCell className="whitespace-nowrap">
+                            {format(new Date(contract.contract_date), 'dd.MM.yyyy')}
+                          </TableCell>
+                          <TableCell>
+                            {contract.beneficiary_prenume} {contract.beneficiary_name}
+                          </TableCell>
+                          <TableCell className="max-w-[200px] truncate">
+                            {contract.property_address}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {contract.sales_price?.toLocaleString()} {contract.currency}
+                          </TableCell>
+                          <TableCell>
+                            {contract.commission_percent}%
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(contract.status || 'draft')}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => loadContractForEdit(contract)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm('Sigur doriți să ștergeți acest contract?')) {
+                                    deleteContractMutation.mutate(contract.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Nu există contracte salvate</p>
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={handleNewContract}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Creează primul contract
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
