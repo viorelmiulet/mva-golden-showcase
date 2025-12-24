@@ -19,6 +19,7 @@ import {
   ScrollText,
   Package,
   Smartphone,
+  History,
 } from "lucide-react";
 
 import {
@@ -48,6 +49,7 @@ const menuItems = [
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
+  { title: "Istoric", url: "/admin/istoric", icon: History },
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
   { title: "Setări", url: "/admin/setari", icon: Settings },
