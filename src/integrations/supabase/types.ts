@@ -518,6 +518,105 @@ export type Database = {
         }
         Relationships: []
       }
+      exclusive_contracts: {
+        Row: {
+          agent_signature: string | null
+          agent_signed_at: string | null
+          beneficiary_adresa: string | null
+          beneficiary_ci_data_emiterii: string | null
+          beneficiary_ci_emitent: string | null
+          beneficiary_cnp: string | null
+          beneficiary_email: string | null
+          beneficiary_name: string
+          beneficiary_numar_ci: string | null
+          beneficiary_phone: string | null
+          beneficiary_prenume: string | null
+          beneficiary_seria_ci: string | null
+          beneficiary_signature: string | null
+          beneficiary_signed_at: string | null
+          commission_percent: number | null
+          contract_date: string
+          created_at: string
+          currency: string | null
+          duration_months: number | null
+          id: string
+          pdf_url: string | null
+          property_address: string
+          property_features: string | null
+          property_land_surface: number | null
+          property_rooms: number | null
+          property_surface: number | null
+          property_type: string | null
+          sales_price: number | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_signature?: string | null
+          agent_signed_at?: string | null
+          beneficiary_adresa?: string | null
+          beneficiary_ci_data_emiterii?: string | null
+          beneficiary_ci_emitent?: string | null
+          beneficiary_cnp?: string | null
+          beneficiary_email?: string | null
+          beneficiary_name: string
+          beneficiary_numar_ci?: string | null
+          beneficiary_phone?: string | null
+          beneficiary_prenume?: string | null
+          beneficiary_seria_ci?: string | null
+          beneficiary_signature?: string | null
+          beneficiary_signed_at?: string | null
+          commission_percent?: number | null
+          contract_date: string
+          created_at?: string
+          currency?: string | null
+          duration_months?: number | null
+          id?: string
+          pdf_url?: string | null
+          property_address: string
+          property_features?: string | null
+          property_land_surface?: number | null
+          property_rooms?: number | null
+          property_surface?: number | null
+          property_type?: string | null
+          sales_price?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_signature?: string | null
+          agent_signed_at?: string | null
+          beneficiary_adresa?: string | null
+          beneficiary_ci_data_emiterii?: string | null
+          beneficiary_ci_emitent?: string | null
+          beneficiary_cnp?: string | null
+          beneficiary_email?: string | null
+          beneficiary_name?: string
+          beneficiary_numar_ci?: string | null
+          beneficiary_phone?: string | null
+          beneficiary_prenume?: string | null
+          beneficiary_seria_ci?: string | null
+          beneficiary_signature?: string | null
+          beneficiary_signed_at?: string | null
+          commission_percent?: number | null
+          contract_date?: string
+          created_at?: string
+          currency?: string | null
+          duration_months?: number | null
+          id?: string
+          pdf_url?: string | null
+          property_address?: string
+          property_features?: string | null
+          property_land_surface?: number | null
+          property_rooms?: number | null
+          property_surface?: number | null
+          property_type?: string | null
+          sales_price?: number | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
