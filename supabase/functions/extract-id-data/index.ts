@@ -128,10 +128,19 @@ Format:
     // Parse the JSON from the response
     let extractedData;
     try {
+      // Remove markdown code blocks if present
+      let cleanedContent = content;
+      if (content.includes('```json')) {
+        cleanedContent = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      } else if (content.includes('```')) {
+        cleanedContent = content.replace(/```\s*/g, '');
+      }
+      
       // Try to extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         extractedData = JSON.parse(jsonMatch[0]);
+        console.log('Extracted data:', JSON.stringify(extractedData));
       } else {
         throw new Error('No JSON found in response');
       }
