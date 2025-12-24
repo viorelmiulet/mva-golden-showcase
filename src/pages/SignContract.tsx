@@ -529,6 +529,19 @@ const SignContract = () => {
         } else if (autoGenResult?.bothSigned) {
           console.log('Both parties signed, PDF ready for generation');
           toast.success("Ambele părți au semnat! Contractul final este gata.");
+        } else {
+          // Only one party signed - send notification
+          try {
+            await supabase.functions.invoke('notify-contract-signed', {
+              body: { 
+                contractId: signatureInfo.contract_id, 
+                signerPartyType: signatureInfo.party_type 
+              }
+            });
+            console.log('Signature notification sent');
+          } catch (notifyErr) {
+            console.error('Error sending signature notification:', notifyErr);
+          }
         }
       } catch (autoGenErr) {
         console.error('Error calling auto-generate function:', autoGenErr);

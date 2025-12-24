@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.auto-generate-signed-contract]
 verify_jwt = false
+
+[functions.notify-contract-signed]
+verify_jwt = false
