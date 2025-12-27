@@ -121,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Send to admin email
       try {
         const emailResponse = await resend.emails.send({
-          from: "MVA Imobiliare <noreply@resend.dev>",
+          from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
           to: ["contact@mvaimobiliare.ro"], // Admin email
           subject: `✓ Contract Complet Semnat - ${propertyAddress}`,
           html: completionHtml,
@@ -219,7 +219,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send notification to admin about partial signing
     try {
       const emailResponse = await resend.emails.send({
-        from: "MVA Imobiliare <noreply@resend.dev>",
+        from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
         to: ["contact@mvaimobiliare.ro"], // Admin email
         subject: `Contract Semnat Parțial - ${signerName} (${signerPartyType === 'proprietar' ? 'Proprietar' : 'Chiriaș'})`,
         html: partialSignHtml,
