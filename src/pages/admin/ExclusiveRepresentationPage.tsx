@@ -147,9 +147,11 @@ const formatDateRomanian = (dateString: string | null | undefined): string => {
   }
 };
 
-// Remove diacritics for PDF
-const removeDiacritics = (text: string): string => {
+// Replace diacritics with normal letters for PDF (normalize handles combining characters)
+const replaceDiacritics = (text: string): string => {
   return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/ă/g, 'a').replace(/Ă/g, 'A')
     .replace(/â/g, 'a').replace(/Â/g, 'A')
     .replace(/î/g, 'i').replace(/Î/g, 'I')
@@ -527,7 +529,7 @@ const ExclusiveRepresentationPage = () => {
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 51, 153);
-      doc.text(removeDiacritics(title), margin, y);
+      doc.text(replaceDiacritics(title), margin, y);
       y += 8;
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(10);
@@ -537,7 +539,7 @@ const ExclusiveRepresentationPage = () => {
     const addParagraph = (text: string, indent: number = 0) => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.setFont("helvetica", "normal");
-      const lines = doc.splitTextToSize(removeDiacritics(text), textWidth - indent);
+      const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
       for (let i = 0; i < lines.length; i++) {
         doc.text(lines[i], margin + indent, y);
         y += 5;
@@ -548,7 +550,7 @@ const ExclusiveRepresentationPage = () => {
     const addBulletPoint = (text: string) => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.setFont("helvetica", "normal");
-      const bulletText = `• ${removeDiacritics(text)}`;
+      const bulletText = `• ${replaceDiacritics(text)}`;
       const lines = doc.splitTextToSize(bulletText, textWidth - 8);
       for (let i = 0; i < lines.length; i++) {
         doc.text(lines[i], margin + 8, y);
@@ -654,8 +656,8 @@ const ExclusiveRepresentationPage = () => {
     doc.text("BENEFICIAR", pageWidth - margin - 40, y);
     y += 8;
     doc.setFont("helvetica", "normal");
-    doc.text(removeDiacritics(formData.prestator.denumire), margin, y);
-    doc.text(removeDiacritics(`${formData.beneficiar.prenume} ${formData.beneficiar.nume}`), pageWidth - margin - 60, y);
+    doc.text(replaceDiacritics(formData.prestator.denumire), margin, y);
+    doc.text(replaceDiacritics(`${formData.beneficiar.prenume} ${formData.beneficiar.nume}`), pageWidth - margin - 60, y);
     y += 15;
 
     // Add signatures if available
