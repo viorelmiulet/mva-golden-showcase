@@ -42,9 +42,7 @@ import type {
   ContractData, 
   SavedContract, 
   ContractSignature, 
-  InventoryItem as InventoryItemType,
-  conditionLabels,
-  imageSizeConfig as imageSizeConfigType
+  InventoryItem as InventoryItemType
 } from "@/types/contract";
 import { emptyPerson, conditionLabels as conditionLabelsConst, imageSizeConfig as imageSizeConfigConst } from "@/types/contract";
 import { 
@@ -59,6 +57,7 @@ import {
   addPageFooter
 } from "@/lib/pdf/contractPdfUtils";
 import { generateRentalContractPdf, generateSignedRentalContractPdf, generatePreviewPdf } from "@/lib/pdf/rentalContractPdf";
+import { generateRentalContractDocx, generateDocxFilename, downloadDocxBlob } from "@/lib/pdf/rentalContractDocx";
 
 const ContractGeneratorPage = () => {
   const [isExtractingProprietar, setIsExtractingProprietar] = useState(false);
