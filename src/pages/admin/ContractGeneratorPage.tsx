@@ -29,6 +29,7 @@ import { MobileFilterSort, FilterOption, SortOption } from "@/components/admin/M
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchContractClauses, getClauseContentFromList, getClauseTitleFromList, type ContractClause } from "@/hooks/useContractClauses";
+import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 import { format } from "date-fns";
@@ -992,19 +993,6 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
       };
 
-      // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
-      const replaceDiacritics = (text: string): string => {
-        const normalized = text.normalize('NFD');
-        const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
-        return withoutCombining
-          .replace(/ă/g, 'a').replace(/Ă/g, 'A')
-          .replace(/â/g, 'a').replace(/Â/g, 'A')
-          .replace(/î/g, 'i').replace(/Î/g, 'I')
-          .replace(/ș/g, 's').replace(/Ș/g, 'S')
-          .replace(/ț/g, 't').replace(/Ț/g, 'T')
-          .replace(/ş/g, 's').replace(/Ş/g, 'S')
-          .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
-      };
 
       // Helper function to add paragraph with indent
       const addParagraph = (text: string, indent: number = 8) => {
@@ -1495,19 +1483,6 @@ const ContractGeneratorPage = () => {
           doc.setFont("helvetica", "normal");
         };
 
-        // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
-        const replaceDiacritics = (text: string): string => {
-          const normalized = text.normalize('NFD');
-          const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
-          return withoutCombining
-            .replace(/ă/g, 'a').replace(/Ă/g, 'A')
-            .replace(/â/g, 'a').replace(/Â/g, 'A')
-            .replace(/î/g, 'i').replace(/Î/g, 'I')
-            .replace(/ș/g, 's').replace(/Ș/g, 'S')
-            .replace(/ț/g, 't').replace(/Ț/g, 'T')
-            .replace(/ş/g, 's').replace(/Ş/g, 'S')
-            .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
-        };
 
         // Helper function to add paragraph with indent
         const addParagraph = (text: string, indent: number = 8) => {
@@ -3307,17 +3282,6 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
       };
 
-      // Functie pentru eliminarea diacriticelor romanesti
-      const removeDiacriticsLocal = (text: string): string => {
-        return text
-          .replace(/ă/g, 'a').replace(/Ă/g, 'A')
-          .replace(/â/g, 'a').replace(/Â/g, 'A')
-          .replace(/î/g, 'i').replace(/Î/g, 'I')
-          .replace(/ș/g, 's').replace(/Ș/g, 'S')
-          .replace(/ț/g, 't').replace(/Ț/g, 'T')
-          .replace(/ş/g, 's').replace(/Ş/g, 'S')
-          .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
-      };
 
       // Helper function to add paragraph with indent
       const addParagraph = (text: string, indent: number = 8) => {
@@ -3326,7 +3290,7 @@ const ContractGeneratorPage = () => {
           y = 20;
         }
         doc.setFont("helvetica", "normal");
-        const lines = doc.splitTextToSize(removeDiacriticsLocal(text), textWidth - indent);
+        const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
         for (let i = 0; i < lines.length; i++) {
           doc.text(lines[i], margin + indent, y);
           y += 5;
@@ -3356,9 +3320,9 @@ const ContractGeneratorPage = () => {
         const contentWidth = textWidth - 2 * boxPadding;
         
         // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${removeDiacriticsLocal(data.emitent)} la data de ${data.dataEmiterii}`;
+        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
         const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${removeDiacriticsLocal(data.domiciliu)}`;
+        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
         const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
         
         // Calculate total box height
@@ -3379,14 +3343,14 @@ const ContractGeneratorPage = () => {
         // Title
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(removeDiacriticsLocal(title), margin + boxPadding, y);
+        doc.text(replaceDiacritics(title), margin + boxPadding, y);
         y += lineHeight + 2;
         
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         
         // Nume
-        doc.text(`Nume: ${removeDiacriticsLocal(data.nume)}`, margin + boxPadding, y);
+        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
         y += lineHeight;
         
         // CNP
@@ -3410,7 +3374,7 @@ const ContractGeneratorPage = () => {
         }
         
         // Cetatenie
-        doc.text(`Cetatenie: ${removeDiacriticsLocal(data.cetatenie)}`, margin + boxPadding, y);
+        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
         
         y = boxStartY + boxHeight + 8;
       };

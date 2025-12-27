@@ -19,6 +19,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -147,19 +148,6 @@ const formatDateRomanian = (dateString: string | null | undefined): string => {
   }
 };
 
-// Replace diacritics with normal letters for PDF (normalize handles combining characters)
-const replaceDiacritics = (text: string): string => {
-  return text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/ă/g, 'a').replace(/Ă/g, 'A')
-    .replace(/â/g, 'a').replace(/Â/g, 'A')
-    .replace(/î/g, 'i').replace(/Î/g, 'I')
-    .replace(/ș/g, 's').replace(/Ș/g, 'S')
-    .replace(/ț/g, 't').replace(/Ț/g, 'T')
-    .replace(/ş/g, 's').replace(/Ş/g, 'S')
-    .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
-};
 
 const ExclusiveRepresentationPage = () => {
   const [isExtractingBeneficiar, setIsExtractingBeneficiar] = useState(false);
