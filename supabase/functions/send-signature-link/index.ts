@@ -81,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email with signature link
     const emailResponse = await resend.emails.send({
-      from: "MVA Imobiliare <noreply@resend.dev>",
+      from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
       to: [recipientEmail],
       subject: `Semnatura Contract Inchiriere - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
       html: `

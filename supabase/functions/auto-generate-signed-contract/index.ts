@@ -210,7 +210,7 @@ serve(async (req) => {
     // Send email notification to admin
     try {
       const emailResponse = await resend.emails.send({
-        from: "MVA Imobiliare <noreply@resend.dev>",
+        from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
         to: ["contact@mvaimobiliare.ro"],
         subject: `✓ Contract Complet Semnat - ${propertyAddress}`,
         html: completionHtml,

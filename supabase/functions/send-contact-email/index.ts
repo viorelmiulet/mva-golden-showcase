@@ -45,7 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending contact email from:", email);
 
     const emailResponse = await resend.emails.send({
-      from: "MVA IMOBILIARE <onboarding@resend.dev>",
+      from: "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
       to: ["mvaperfectbusiness@gmail.com"],
       subject: "Cerere de contact - MVA IMOBILIARE",
       html: `

@@ -73,7 +73,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending collaboration email with", attachments.length, "attachments");
 
     const emailResponse = await resend.emails.send({
-      from: "MVA IMOBILIARE <onboarding@resend.dev>",
+      from: "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
       to: ["mvaperfectbusiness@gmail.com"],
       subject: `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`,
       html: `
