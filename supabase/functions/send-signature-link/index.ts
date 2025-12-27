@@ -83,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "MVA Imobiliare <noreply@resend.dev>",
       to: [recipientEmail],
-      subject: `Semnătură Contract Închiriere - ${propertyAddress || "Proprietate"}`,
+      subject: `Semnatura Contract Inchiriere - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
       html: `
         <!DOCTYPE html>
         <html>
