@@ -992,9 +992,11 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
       };
 
-      // Functie pentru eliminarea diacriticelor romanesti
-      const removeDiacritics = (text: string): string => {
-        return text
+      // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
+      const replaceDiacritics = (text: string): string => {
+        const normalized = text.normalize('NFD');
+        const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
+        return withoutCombining
           .replace(/ă/g, 'a').replace(/Ă/g, 'A')
           .replace(/â/g, 'a').replace(/Â/g, 'A')
           .replace(/î/g, 'i').replace(/Î/g, 'I')
@@ -1011,7 +1013,7 @@ const ContractGeneratorPage = () => {
           y = 20;
         }
         doc.setFont("helvetica", "normal");
-        const lines = doc.splitTextToSize(removeDiacritics(text), textWidth - indent);
+        const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
         for (let i = 0; i < lines.length; i++) {
           doc.text(lines[i], margin + indent, y);
           y += 5;
@@ -1038,42 +1040,57 @@ const ContractGeneratorPage = () => {
         const boxStartY = y;
         const lineHeight = 6;
         const boxPadding = 5;
+        const initialOffset = 4;
+        const contentWidth = textWidth - 2 * boxPadding;
         
-        // Calculate box height
-        const domiciliuLines = doc.splitTextToSize(`Domiciliu: ${removeDiacritics(data.domiciliu)}`, textWidth - 2 * boxPadding);
-        const boxHeight = boxPadding + lineHeight * 6 + (domiciliuLines.length - 1) * 5 + boxPadding;
+        // Pre-calculate all multi-line texts
+        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
+        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
+        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
+        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
+        
+        // Calculate total box height correctly
+        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
+          lineHeight * 3 +
+          eliberatLines.length * 5 +
+          domiciliuLines.length * 5 +
+          lineHeight +
+          boxPadding;
         
         // Draw box border
         doc.setLineWidth(0.5);
         doc.setDrawColor(0, 0, 0);
         doc.rect(margin, boxStartY, textWidth, boxHeight);
         
-        y = boxStartY + boxPadding + 4;
+        y = boxStartY + boxPadding + initialOffset;
         
         // Title
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(removeDiacritics(title), margin + boxPadding, y);
+        doc.text(replaceDiacritics(title), margin + boxPadding, y);
         y += lineHeight + 2;
         
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         
-        doc.text(`Nume: ${removeDiacritics(data.nume)}`, margin + boxPadding, y);
+        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
         y += lineHeight;
         doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
         y += lineHeight;
         doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
         y += lineHeight;
-        doc.text(`Eliberat de: ${removeDiacritics(data.emitent)} la data de ${data.dataEmiterii}`, margin + boxPadding, y);
-        y += lineHeight;
+        
+        for (let i = 0; i < eliberatLines.length; i++) {
+          doc.text(eliberatLines[i], margin + boxPadding, y);
+          y += 5;
+        }
         
         for (let i = 0; i < domiciliuLines.length; i++) {
           doc.text(domiciliuLines[i], margin + boxPadding, y);
           y += 5;
         }
         
-        doc.text(`Cetatenie: ${removeDiacritics(data.cetatenie)}`, margin + boxPadding, y);
+        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
         
         y = boxStartY + boxHeight + 8;
       };
@@ -1185,8 +1202,8 @@ const ContractGeneratorPage = () => {
       doc.text("CHIRIAS", pageWidth - margin - 30, y);
       y += 8;
       doc.setFont("helvetica", "normal");
-      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+      doc.text(replaceDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+      doc.text(replaceDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
       y += 8;
       
       // Add signatures
@@ -1260,11 +1277,11 @@ const ContractGeneratorPage = () => {
             doc.rect(startX, y - 4, textWidth, 6, 'F');
           }
           
-          doc.text(removeDiacritics((item.item_name || '').substring(0, 25)), startX + 2, y);
+          doc.text(replaceDiacritics((item.item_name || '').substring(0, 25)), startX + 2, y);
           doc.text((item.quantity || 1).toString(), startX + 55, y);
-          doc.text(removeDiacritics(conditionLabels[item.condition] || item.condition || ''), startX + 70, y);
-          doc.text(removeDiacritics((item.location || '-').substring(0, 12)), startX + 105, y);
-          doc.text(removeDiacritics((item.notes || '-').substring(0, 20)), startX + 130, y);
+          doc.text(replaceDiacritics(conditionLabels[item.condition] || item.condition || ''), startX + 70, y);
+          doc.text(replaceDiacritics((item.location || '-').substring(0, 12)), startX + 105, y);
+          doc.text(replaceDiacritics((item.notes || '-').substring(0, 20)), startX + 130, y);
           y += 6;
         });
         
@@ -1297,7 +1314,7 @@ const ContractGeneratorPage = () => {
             }
             
             doc.setFont("times", "bold");
-            doc.text(removeDiacritics(`${item.item_name}${item.location ? ` - ${item.location}` : ''}`), margin, y);
+            doc.text(replaceDiacritics(`${item.item_name}${item.location ? ` - ${item.location}` : ''}`), margin, y);
             y += 6;
             doc.setFont("times", "normal");
             
@@ -1478,8 +1495,11 @@ const ContractGeneratorPage = () => {
           doc.setFont("helvetica", "normal");
         };
 
-        const removeDiacritics = (text: string): string => {
-          return text
+        // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
+        const replaceDiacritics = (text: string): string => {
+          const normalized = text.normalize('NFD');
+          const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
+          return withoutCombining
             .replace(/ă/g, 'a').replace(/Ă/g, 'A')
             .replace(/â/g, 'a').replace(/Â/g, 'A')
             .replace(/î/g, 'i').replace(/Î/g, 'I')
@@ -1496,7 +1516,7 @@ const ContractGeneratorPage = () => {
             y = 20;
           }
           doc.setFont("helvetica", "normal");
-          const lines = doc.splitTextToSize(removeDiacritics(text), textWidth - indent);
+          const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
           for (let i = 0; i < lines.length; i++) {
             doc.text(lines[i], margin + indent, y);
             y += 5;
@@ -1523,39 +1543,55 @@ const ContractGeneratorPage = () => {
           const boxStartY = y;
           const lineHeight = 6;
           const boxPadding = 5;
+          const initialOffset = 4;
+          const contentWidth = textWidth - 2 * boxPadding;
           
-          const domiciliuLines = doc.splitTextToSize(`Domiciliu: ${removeDiacritics(data.domiciliu)}`, textWidth - 2 * boxPadding);
-          const boxHeight = boxPadding + lineHeight * 6 + (domiciliuLines.length - 1) * 5 + boxPadding;
+          // Pre-calculate all multi-line texts
+          const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
+          const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
+          const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
+          const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
+          
+          // Calculate total box height correctly
+          const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
+            lineHeight * 3 +
+            eliberatLines.length * 5 +
+            domiciliuLines.length * 5 +
+            lineHeight +
+            boxPadding;
           
           doc.setLineWidth(0.5);
           doc.setDrawColor(0, 0, 0);
           doc.rect(margin, boxStartY, textWidth, boxHeight);
           
-          y = boxStartY + boxPadding + 4;
+          y = boxStartY + boxPadding + initialOffset;
           
           doc.setFont("helvetica", "bold");
           doc.setFontSize(10);
-          doc.text(removeDiacritics(title), margin + boxPadding, y);
+          doc.text(replaceDiacritics(title), margin + boxPadding, y);
           y += lineHeight + 2;
           
           doc.setFont("helvetica", "normal");
           doc.setFontSize(10);
           
-          doc.text(`Nume: ${removeDiacritics(data.nume)}`, margin + boxPadding, y);
+          doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
           y += lineHeight;
           doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
           y += lineHeight;
           doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
           y += lineHeight;
-          doc.text(`Eliberat de: ${removeDiacritics(data.emitent)} la data de ${data.dataEmiterii}`, margin + boxPadding, y);
-          y += lineHeight;
+          
+          for (let i = 0; i < eliberatLines.length; i++) {
+            doc.text(eliberatLines[i], margin + boxPadding, y);
+            y += 5;
+          }
           
           for (let i = 0; i < domiciliuLines.length; i++) {
             doc.text(domiciliuLines[i], margin + boxPadding, y);
             y += 5;
           }
           
-          doc.text(`Cetatenie: ${removeDiacritics(data.cetatenie)}`, margin + boxPadding, y);
+          doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
           
           y = boxStartY + boxHeight + 8;
         };
@@ -1712,10 +1748,10 @@ const ContractGeneratorPage = () => {
             currentX = startX;
             const rowData = [
               (index + 1).toString(),
-              removeDiacritics((item.item_name || '').substring(0, 28)),
+              replaceDiacritics((item.item_name || '').substring(0, 28)),
               (item.quantity || 1).toString(),
               conditionLabels[item.condition] || 'Buna',
-              removeDiacritics((item.notes || '-').substring(0, 15))
+              replaceDiacritics((item.notes || '-').substring(0, 15))
             ];
             
             rowData.forEach((text, i) => {
@@ -1738,8 +1774,8 @@ const ContractGeneratorPage = () => {
         doc.text("CHIRIAS", pageWidth - margin - 30, y);
         y += 8;
         doc.setFont("helvetica", "normal");
-        doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-        doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+        doc.text(replaceDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+        doc.text(replaceDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
         y += 8;
         
         if (proprietarSignature) {
@@ -1817,8 +1853,11 @@ const ContractGeneratorPage = () => {
         doc.setFont("helvetica", "normal");
       };
 
-      const removeDiacritics = (text: string): string => {
-        return text
+      // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
+      const replaceDiacritics = (text: string): string => {
+        const normalized = text.normalize('NFD');
+        const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
+        return withoutCombining
           .replace(/ă/g, 'a').replace(/Ă/g, 'A')
           .replace(/â/g, 'a').replace(/Â/g, 'A')
           .replace(/î/g, 'i').replace(/Î/g, 'I')
@@ -1835,7 +1874,7 @@ const ContractGeneratorPage = () => {
           y = 20;
         }
         doc.setFont("helvetica", "normal");
-        const lines = doc.splitTextToSize(removeDiacritics(text), textWidth - indent);
+        const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
         for (let i = 0; i < lines.length; i++) {
           doc.text(lines[i], margin + indent, y);
           y += 5;
@@ -1862,39 +1901,55 @@ const ContractGeneratorPage = () => {
         const boxStartY = y;
         const lineHeight = 6;
         const boxPadding = 5;
+        const initialOffset = 4;
+        const contentWidth = textWidth - 2 * boxPadding;
         
-        const domiciliuLines = doc.splitTextToSize(`Domiciliu: ${removeDiacritics(data.domiciliu)}`, textWidth - 2 * boxPadding);
-        const boxHeight = boxPadding + lineHeight * 6 + (domiciliuLines.length - 1) * 5 + boxPadding;
+        // Pre-calculate all multi-line texts
+        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
+        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
+        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
+        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
+        
+        // Calculate total box height correctly
+        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
+          lineHeight * 3 +
+          eliberatLines.length * 5 +
+          domiciliuLines.length * 5 +
+          lineHeight +
+          boxPadding;
         
         doc.setLineWidth(0.5);
         doc.setDrawColor(0, 0, 0);
         doc.rect(margin, boxStartY, textWidth, boxHeight);
         
-        y = boxStartY + boxPadding + 4;
+        y = boxStartY + boxPadding + initialOffset;
         
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(removeDiacritics(title), margin + boxPadding, y);
+        doc.text(replaceDiacritics(title), margin + boxPadding, y);
         y += lineHeight + 2;
         
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         
-        doc.text(`Nume: ${removeDiacritics(data.nume)}`, margin + boxPadding, y);
+        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
         y += lineHeight;
         doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
         y += lineHeight;
         doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
         y += lineHeight;
-        doc.text(`Eliberat de: ${removeDiacritics(data.emitent)} la data de ${data.dataEmiterii}`, margin + boxPadding, y);
-        y += lineHeight;
+        
+        for (let i = 0; i < eliberatLines.length; i++) {
+          doc.text(eliberatLines[i], margin + boxPadding, y);
+          y += 5;
+        }
         
         for (let i = 0; i < domiciliuLines.length; i++) {
           doc.text(domiciliuLines[i], margin + boxPadding, y);
           y += 5;
         }
         
-        doc.text(`Cetatenie: ${removeDiacritics(data.cetatenie)}`, margin + boxPadding, y);
+        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
         
         y = boxStartY + boxHeight + 8;
       };
@@ -2049,10 +2104,10 @@ const ContractGeneratorPage = () => {
           currentX = startX;
           const rowData = [
             (index + 1).toString(),
-            removeDiacritics((item.item_name || '').substring(0, 28)),
+            replaceDiacritics((item.item_name || '').substring(0, 28)),
             (item.quantity || 1).toString(),
             conditionLabels[item.condition] || 'Buna',
-            removeDiacritics((item.notes || '-').substring(0, 15))
+            replaceDiacritics((item.notes || '-').substring(0, 15))
           ];
           
           rowData.forEach((text, i) => {
@@ -2075,8 +2130,8 @@ const ContractGeneratorPage = () => {
       doc.text("CHIRIAS", pageWidth - margin - 30, y);
       y += 8;
       doc.setFont("helvetica", "normal");
-      doc.text(removeDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
-      doc.text(removeDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
+      doc.text(replaceDiacritics(`${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`), margin, y);
+      doc.text(replaceDiacritics(`${contract.client_prenume || ''} ${contract.client_name}`), pageWidth - margin - 50, y);
       y += 15;
       
       doc.text("_______________", margin, y);
@@ -2417,9 +2472,11 @@ const ContractGeneratorPage = () => {
           doc.setFont("helvetica", "normal");
         };
 
-        // Functie pentru eliminarea diacriticelor romanesti
-        const removeDiacritics = (text: string): string => {
-          return text
+        // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
+        const replaceDiacritics = (text: string): string => {
+          const normalized = text.normalize('NFD');
+          const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
+          return withoutCombining
             .replace(/ă/g, 'a').replace(/Ă/g, 'A')
             .replace(/â/g, 'a').replace(/Â/g, 'A')
             .replace(/î/g, 'i').replace(/Î/g, 'I')
@@ -2429,114 +2486,50 @@ const ContractGeneratorPage = () => {
             .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
         };
 
-        // Helper function to add paragraph with indent
         const addParagraph = (text: string, indent: number = 8) => {
-          if (y > 270) {
-            doc.addPage();
-            y = 20;
-          }
+          if (y > 270) { doc.addPage(); y = 20; }
           doc.setFont("helvetica", "normal");
-          const lines = doc.splitTextToSize(removeDiacritics(text), textWidth - indent);
-          for (let i = 0; i < lines.length; i++) {
-            doc.text(lines[i], margin + indent, y);
-            y += 5;
-          }
+          const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
+          for (let i = 0; i < lines.length; i++) { doc.text(lines[i], margin + indent, y); y += 5; }
           y += 2;
         };
 
-        // Helper function to add simple paragraph (no indent)
         const addSimpleParagraph = (text: string) => {
-          if (y > 270) {
-            doc.addPage();
-            y = 20;
-          }
+          if (y > 270) { doc.addPage(); y = 20; }
           doc.setFont("helvetica", "normal");
-          const lines = doc.splitTextToSize(removeDiacritics(text), textWidth);
-          for (let i = 0; i < lines.length; i++) {
-            doc.text(lines[i], margin, y);
-            y += 5;
-          }
+          const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth);
+          for (let i = 0; i < lines.length; i++) { doc.text(lines[i], margin, y); y += 5; }
           y += 2;
         };
 
-        // Helper function to draw a box with text content
-        const drawPartyBox = (title: string, data: {
-          nume: string;
-          cnp: string;
-          seria: string;
-          numar: string;
-          emitent: string;
-          dataEmiterii: string;
-          domiciliu: string;
-          cetatenie: string;
-        }) => {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+        const drawPartyBox = (title: string, data: { nume: string; cnp: string; seria: string; numar: string; emitent: string; dataEmiterii: string; domiciliu: string; cetatenie: string; }) => {
+          if (y > 200) { doc.addPage(); y = 20; }
           const boxStartY = y;
           const lineHeight = 6;
           const boxPadding = 5;
+          const initialOffset = 4;
           const contentWidth = textWidth - 2 * boxPadding;
-          
-          // Pre-calculate all multi-line texts
-          const eliberatText = `Eliberat de: ${removeDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
+          const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
           const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-          const domiciliuText = `Domiciliu: ${removeDiacritics(data.domiciliu)}`;
+          const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
           const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-          
-          // Calculate total box height
-          const boxHeight = boxPadding + (lineHeight + 2) + // title
-            lineHeight * 3 + // Nume, CNP, C.I.
-            eliberatLines.length * 5 + // Eliberat de (multi-line)
-            domiciliuLines.length * 5 + // Domiciliu (multi-line)
-            lineHeight + // Cetatenie
-            boxPadding;
-          
-          // Draw box border
+          const boxHeight = boxPadding + initialOffset + (lineHeight + 2) + lineHeight * 3 + eliberatLines.length * 5 + domiciliuLines.length * 5 + lineHeight + boxPadding;
           doc.setLineWidth(0.5);
           doc.setDrawColor(0, 0, 0);
           doc.rect(margin, boxStartY, textWidth, boxHeight);
-          
-          y = boxStartY + boxPadding + 4;
-          
-          // Title
+          y = boxStartY + boxPadding + initialOffset;
           doc.setFont("helvetica", "bold");
           doc.setFontSize(10);
-          doc.text(removeDiacritics(title), margin + boxPadding, y);
+          doc.text(replaceDiacritics(title), margin + boxPadding, y);
           y += lineHeight + 2;
-          
           doc.setFont("helvetica", "normal");
           doc.setFontSize(10);
-          
-          // Nume
-          doc.text(`Nume: ${removeDiacritics(data.nume)}`, margin + boxPadding, y);
-          y += lineHeight;
-          
-          // CNP
-          doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-          y += lineHeight;
-          
-          // CI
-          doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-          y += lineHeight;
-          
-          // Eliberat de (multi-line)
-          for (let i = 0; i < eliberatLines.length; i++) {
-            doc.text(eliberatLines[i], margin + boxPadding, y);
-            y += 5;
-          }
-          
-          // Domiciliu (may wrap)
-          for (let i = 0; i < domiciliuLines.length; i++) {
-            doc.text(domiciliuLines[i], margin + boxPadding, y);
-            y += 5;
-          }
-          
-          // Cetatenie
-          doc.text(`Cetatenie: ${removeDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-          
+          doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y); y += lineHeight;
+          doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y); y += lineHeight;
+          doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y); y += lineHeight;
+          for (let i = 0; i < eliberatLines.length; i++) { doc.text(eliberatLines[i], margin + boxPadding, y); y += 5; }
+          for (let i = 0; i < domiciliuLines.length; i++) { doc.text(domiciliuLines[i], margin + boxPadding, y); y += 5; }
+          doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
           y = boxStartY + boxHeight + 8;
         };
 
@@ -2884,22 +2877,29 @@ const ContractGeneratorPage = () => {
         pdfDoc.setFont("helvetica", "normal");
       };
 
-      // Functie pentru eliminarea diacriticelor romanesti
-      const removeDiacritics = (text: string): string => {
-        return text
+      // Functie pentru inlocuirea diacriticelor romanesti cu litere normale
+      const replaceDiacritics = (text: string): string => {
+        // Normalize to decomposed form first to handle combining characters
+        const normalized = text.normalize('NFD');
+        // Remove combining diacritical marks
+        const withoutCombining = normalized.replace(/[\u0300-\u036f]/g, '');
+        // Also handle precomposed Romanian characters that might not decompose
+        return withoutCombining
           .replace(/ă/g, 'a').replace(/Ă/g, 'A')
           .replace(/â/g, 'a').replace(/Â/g, 'A')
           .replace(/î/g, 'i').replace(/Î/g, 'I')
           .replace(/ș/g, 's').replace(/Ș/g, 'S')
           .replace(/ț/g, 't').replace(/Ț/g, 'T')
           .replace(/ş/g, 's').replace(/Ş/g, 'S')
-          .replace(/ţ/g, 't').replace(/Ţ/g, 'T');
+          .replace(/ţ/g, 't').replace(/Ţ/g, 'T')
+          .replace(/ș/g, 's').replace(/Ș/g, 'S')
+          .replace(/ț/g, 't').replace(/Ț/g, 'T');
       };
 
       const addParagraph = (text: string, indent: number = 8) => {
         if (y > 270) { pdfDoc.addPage(); y = 20; }
         pdfDoc.setFont("helvetica", "normal");
-        const lines = pdfDoc.splitTextToSize(removeDiacritics(text), textWidth - indent);
+        const lines = pdfDoc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
         for (let i = 0; i < lines.length; i++) {
           pdfDoc.text(lines[i], margin + indent, y);
           y += 5;
@@ -2912,16 +2912,17 @@ const ContractGeneratorPage = () => {
         const boxStartY = y;
         const lineHeight = 6;
         const boxPadding = 5;
+        const initialOffset = 4;
         const contentWidth = textWidth - 2 * boxPadding;
         
         // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${removeDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
+        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
         const eliberatLines = pdfDoc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${removeDiacritics(data.domiciliu)}`;
+        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
         const domiciliuLines = pdfDoc.splitTextToSize(domiciliuText, contentWidth);
         
-        // Calculate total box height: title + 4 fixed lines + eliberat lines + domiciliu lines + cetatenie
-        const boxHeight = boxPadding + (lineHeight + 2) + // title
+        // Calculate total box height correctly including initial offset
+        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) + // title area
           lineHeight * 3 + // Nume, CNP, C.I.
           eliberatLines.length * 5 + // Eliberat de (multi-line)
           domiciliuLines.length * 5 + // Domiciliu (multi-line)
@@ -2934,15 +2935,15 @@ const ContractGeneratorPage = () => {
         y = boxStartY + boxPadding + 4;
         pdfDoc.setFont("helvetica", "bold");
         pdfDoc.setFontSize(10);
-        pdfDoc.text(removeDiacritics(title), margin + boxPadding, y);
+        pdfDoc.text(replaceDiacritics(title), margin + boxPadding, y);
         y += lineHeight + 2;
         pdfDoc.setFont("helvetica", "normal");
-        pdfDoc.text(`Nume: ${removeDiacritics(data.nume)}`, margin + boxPadding, y); y += lineHeight;
+        pdfDoc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y); y += lineHeight;
         pdfDoc.text(`CNP: ${data.cnp}`, margin + boxPadding, y); y += lineHeight;
         pdfDoc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y); y += lineHeight;
         for (let i = 0; i < eliberatLines.length; i++) { pdfDoc.text(eliberatLines[i], margin + boxPadding, y); y += 5; }
         for (let i = 0; i < domiciliuLines.length; i++) { pdfDoc.text(domiciliuLines[i], margin + boxPadding, y); y += 5; }
-        pdfDoc.text(`Cetatenie: ${removeDiacritics(data.cetatenie)}`, margin + boxPadding, y);
+        pdfDoc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
         y = boxStartY + boxHeight + 8;
       };
 
