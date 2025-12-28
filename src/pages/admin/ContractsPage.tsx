@@ -1,15 +1,16 @@
 import { useState, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen, Handshake } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen, Handshake, Search } from "lucide-react";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
 const ExclusiveRepresentationPage = lazy(() => import("./ExclusiveRepresentationPage"));
 const GeneratedContractsPage = lazy(() => import("./GeneratedContractsPage"));
 const ComodatContractPage = lazy(() => import("./ComodatContractPage"));
+const IntermediationContractPage = lazy(() => import("./IntermediationContractPage"));
 
-type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate" | "comodat";
+type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate" | "comodat" | "intermediere";
 
 const contractTypes = [
   {
@@ -61,6 +62,22 @@ const contractTypes = [
     iconColor: "text-emerald-400",
   },
   {
+    id: "intermediere" as const,
+    title: "Contract Intermediere",
+    description: "Contract de intermediere pentru clienți căutători de imobile",
+    icon: Search,
+    secondaryIcon: Users,
+    features: [
+      "Criterii căutare",
+      "Comision personalizabil",
+      "Semnătură digitală",
+      "Generare PDF automată",
+    ],
+    gradient: "from-orange-500/20 to-red-600/20",
+    iconBg: "bg-orange-500/20",
+    iconColor: "text-orange-400",
+  },
+  {
     id: "reprezentare-exclusiva" as const,
     title: "Contract Reprezentare Exclusivă",
     description: "Contract de intermediere imobiliară cu reprezentare exclusivă",
@@ -103,6 +120,7 @@ const ContractsPage = () => {
           {selectedType === "generate" && <GeneratedContractsPage />}
           {selectedType === "inchiriere" && <ContractGeneratorPage />}
           {selectedType === "comodat" && <ComodatContractPage />}
+          {selectedType === "intermediere" && <IntermediationContractPage />}
           {selectedType === "reprezentare-exclusiva" && <ExclusiveRepresentationPage />}
         </Suspense>
       </div>
