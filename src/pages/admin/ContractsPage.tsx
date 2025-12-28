@@ -1,11 +1,12 @@
 import { useState, lazy, Suspense, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, Handshake, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Handshake, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { AnimatedSkeleton } from "@/components/ui/skeleton";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
@@ -171,9 +172,45 @@ const ContractsPage = () => {
         
         <Suspense
           fallback={
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-gold" />
-            </div>
+            <motion.div 
+              className="space-y-6 py-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {/* Form skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="space-y-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <AnimatedSkeleton className="h-4 w-24" />
+                    <AnimatedSkeleton className="h-10 w-full rounded-md" />
+                  </motion.div>
+                ))}
+              </div>
+              {/* Card skeleton */}
+              <motion.div
+                className="rounded-lg border bg-card p-6 space-y-4"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <AnimatedSkeleton className="h-6 w-48" />
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-4">
+                      <AnimatedSkeleton className="h-4 w-1/3" />
+                      <AnimatedSkeleton className="h-4 w-1/4" />
+                      <AnimatedSkeleton className="h-4 w-1/4" />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
           }
         >
           {selectedType === "inchiriere" && <ContractGeneratorPage />}
@@ -442,9 +479,39 @@ const ContractsPage = () => {
       {/* Generated Contracts List */}
       <Suspense
         fallback={
-          <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-6 w-6 animate-spin text-gold" />
-          </div>
+          <motion.div 
+            className="space-y-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="flex items-center justify-between">
+              <AnimatedSkeleton className="h-6 w-40" />
+              <AnimatedSkeleton className="h-9 w-24 rounded-md" />
+            </div>
+            {/* Table skeleton */}
+            <div className="rounded-lg border bg-card overflow-hidden">
+              {/* Header */}
+              <div className="flex gap-4 p-4 border-b bg-muted/30">
+                {[1, 2, 3, 4].map((i) => (
+                  <AnimatedSkeleton key={i} className="h-4 flex-1" />
+                ))}
+              </div>
+              {/* Rows */}
+              {[1, 2, 3].map((row) => (
+                <motion.div
+                  key={row}
+                  className="flex gap-4 p-4 border-b last:border-0"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: row * 0.1 }}
+                >
+                  {[1, 2, 3, 4].map((col) => (
+                    <AnimatedSkeleton key={col} className="h-4 flex-1" />
+                  ))}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         }
       >
         <GeneratedContractsPage />
