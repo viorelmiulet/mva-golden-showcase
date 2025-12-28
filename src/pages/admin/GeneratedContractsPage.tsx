@@ -101,6 +101,7 @@ interface ComodatContract {
 }
 
 type ContractTab = "toate" | "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+type StatusFilter = "toate" | "semnat" | "partial" | "nesemnat";
 
 const GeneratedContractsPage = () => {
   const [rentalContracts, setRentalContracts] = useState<RentalContract[]>([]);
@@ -109,6 +110,7 @@ const GeneratedContractsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<ContractTab>("toate");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("toate");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" | "comodat" } | null>(null);
   
@@ -212,32 +214,68 @@ const GeneratedContractsPage = () => {
     return { label: "Nesemnat", color: "bg-muted text-muted-foreground border-border", icon: AlertCircle };
   };
 
-  // Filter contracts based on search
-  const filterBySearch = <T extends { property_address: string }>(
-    contracts: T[],
-    getName: (c: T) => string
-  ) => {
-    if (!searchTerm.trim()) return contracts;
-    const query = searchTerm.toLowerCase();
-    return contracts.filter((contract) =>
-      getName(contract).toLowerCase().includes(query) ||
-      contract.property_address.toLowerCase().includes(query)
-    );
+  // Helper to get status label for filtering
+  const getRentalStatusLabel = (contract: RentalContract): string => {
+    const propSigned = contract.proprietar_signed;
+    const chiriSigned = contract.chirias_signed;
+    if (propSigned && chiriSigned) return "semnat";
+    if (propSigned || chiriSigned) return "partial";
+    return "nesemnat";
   };
 
-  const filteredRental = filterBySearch(
+  const getExclusiveStatusLabel = (contract: ExclusiveContract): string => {
+    if (contract.beneficiary_signed_at && contract.agent_signed_at) return "semnat";
+    if (contract.beneficiary_signed_at || contract.agent_signed_at) return "partial";
+    return "nesemnat";
+  };
+
+  const getComodatStatusLabel = (contract: ComodatContract): string => {
+    if (contract.comodant_signed_at && contract.comodatar_signed_at) return "semnat";
+    if (contract.comodant_signed_at || contract.comodatar_signed_at) return "partial";
+    return "nesemnat";
+  };
+
+  // Filter contracts based on search and status
+  const filterContracts = <T extends { property_address: string }>(
+    contracts: T[],
+    getName: (c: T) => string,
+    getStatusLabel: (c: T) => string
+  ) => {
+    let filtered = contracts;
+    
+    // Filter by search
+    if (searchTerm.trim()) {
+      const query = searchTerm.toLowerCase();
+      filtered = filtered.filter((contract) =>
+        getName(contract).toLowerCase().includes(query) ||
+        contract.property_address.toLowerCase().includes(query)
+      );
+    }
+    
+    // Filter by status
+    if (statusFilter !== "toate") {
+      filtered = filtered.filter((contract) => getStatusLabel(contract) === statusFilter);
+    }
+    
+    return filtered;
+  };
+
+  const filteredRental = filterContracts(
     rentalContracts,
-    (c) => `${c.client_name} ${c.client_prenume || ""}`
+    (c) => `${c.client_name} ${c.client_prenume || ""}`,
+    getRentalStatusLabel
   );
 
-  const filteredExclusive = filterBySearch(
+  const filteredExclusive = filterContracts(
     exclusiveContracts,
-    (c) => `${c.beneficiary_name} ${c.beneficiary_prenume || ""}`
+    (c) => `${c.beneficiary_name} ${c.beneficiary_prenume || ""}`,
+    getExclusiveStatusLabel
   );
 
-  const filteredComodat = filterBySearch(
+  const filteredComodat = filterContracts(
     comodatContracts,
-    (c) => `${c.comodatar_name} ${c.comodatar_prenume || ""}`
+    (c) => `${c.comodatar_name} ${c.comodatar_prenume || ""}`,
+    getComodatStatusLabel
   );
 
   // Get contracts by tab
@@ -780,6 +818,56 @@ const GeneratedContractsPage = () => {
           <Users className="h-4 w-4" />
           Intermediere
         </button>
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Status:</span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setStatusFilter("toate")}
+            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+              statusFilter === "toate" 
+                ? "bg-gold/20 text-gold border border-gold/30" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+            }`}
+          >
+            Toate
+          </button>
+          <button
+            onClick={() => setStatusFilter("semnat")}
+            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+              statusFilter === "semnat" 
+                ? "bg-green-500/20 text-green-400 border border-green-500/30" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+            }`}
+          >
+            <CheckCircle className="h-3 w-3" />
+            Semnat
+          </button>
+          <button
+            onClick={() => setStatusFilter("partial")}
+            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+              statusFilter === "partial" 
+                ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+            }`}
+          >
+            <Clock className="h-3 w-3" />
+            Parțial
+          </button>
+          <button
+            onClick={() => setStatusFilter("nesemnat")}
+            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+              statusFilter === "nesemnat" 
+                ? "bg-muted text-foreground border border-border" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
+            }`}
+          >
+            <AlertCircle className="h-3 w-3" />
+            Nesemnat
+          </button>
+        </div>
       </div>
 
       {/* Contracts List */}
