@@ -1,4 +1,4 @@
-import { useState, useRef, TouchEvent } from "react";
+import { useState, useRef, useCallback, memo, TouchEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +20,6 @@ import {
   Trash2, 
   FilePlus2,
   MessageCircle,
-  ChevronLeft,
-  ChevronRight,
   Calendar,
   Home,
   Euro,
@@ -65,7 +63,38 @@ interface SwipeableContractCardProps {
   isPreviewing?: boolean;
 }
 
-export function SwipeableContractCard({
+// Memoized action button for better performance
+const ActionButton = memo(({ 
+  onClick, 
+  disabled, 
+  title, 
+  children,
+  className 
+}: { 
+  onClick: () => void; 
+  disabled?: boolean; 
+  title?: string; 
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <Button
+    variant="ghost"
+    size="icon"
+    className={cn("h-10 w-10 text-white hover:bg-white/20 active:scale-95", className)}
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+  >
+    {children}
+  </Button>
+));
+
+ActionButton.displayName = "ActionButton";
+
+const SWIPE_THRESHOLD = 80;
+const MAX_SWIPE = 160;
+
+function SwipeableContractCardComponent({
   contract,
   onPreview,
   onDownloadPdf,
@@ -83,72 +112,72 @@ export function SwipeableContractCard({
   const [isSwipingLeft, setIsSwipingLeft] = useState(false);
   const [isSwipingRight, setIsSwipingRight] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef(0);
-  const isDraggingRef = useRef(false);
 
-  const SWIPE_THRESHOLD = 80;
-  const MAX_SWIPE = 160;
-
-  const handleTouchStart = (e: TouchEvent) => {
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     startXRef.current = e.touches[0].clientX;
-    isDraggingRef.current = true;
-  };
+    setIsDragging(true);
+  }, []);
 
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isDraggingRef.current) return;
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!startXRef.current) return;
     
     const currentX = e.touches[0].clientX;
     const diff = currentX - startXRef.current;
     
-    // Limit the swipe distance
-    const limitedDiff = Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, diff));
-    setSwipeOffset(limitedDiff);
-  };
+    // Limit the swipe distance with resistance at edges
+    const resistance = 0.5;
+    let limitedDiff = diff;
+    if (Math.abs(diff) > MAX_SWIPE) {
+      const overflow = Math.abs(diff) - MAX_SWIPE;
+      limitedDiff = diff > 0 
+        ? MAX_SWIPE + overflow * resistance 
+        : -(MAX_SWIPE + overflow * resistance);
+    }
+    
+    setSwipeOffset(Math.max(-MAX_SWIPE * 1.2, Math.min(MAX_SWIPE * 1.2, limitedDiff)));
+  }, []);
 
-  const handleTouchEnd = () => {
-    isDraggingRef.current = false;
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
     
     if (swipeOffset > SWIPE_THRESHOLD) {
-      // Swiped right - show left actions
       setIsSwipingRight(true);
       setIsSwipingLeft(false);
       setSwipeOffset(MAX_SWIPE);
     } else if (swipeOffset < -SWIPE_THRESHOLD) {
-      // Swiped left - show right actions
       setIsSwipingLeft(true);
       setIsSwipingRight(false);
       setSwipeOffset(-MAX_SWIPE);
     } else {
-      // Reset
       setSwipeOffset(0);
       setIsSwipingLeft(false);
       setIsSwipingRight(false);
     }
-  };
+  }, [swipeOffset]);
 
-  const resetSwipe = () => {
+  const resetSwipe = useCallback(() => {
     setSwipeOffset(0);
     setIsSwipingLeft(false);
     setIsSwipingRight(false);
-  };
+  }, []);
 
   const bothSigned = contract.proprietar_signed && contract.chirias_signed;
   const anySigned = contract.proprietar_signed || contract.chirias_signed;
 
   return (
     <div className="relative overflow-hidden rounded-lg mb-3">
-      {/* Left actions (visible when swiping right) */}
+      {/* Left actions (visible when swiping right) - GPU accelerated */}
       <div 
         className={cn(
-          "absolute inset-y-0 left-0 flex items-center gap-1 px-2 bg-gradient-to-r from-blue-600 to-blue-500 transition-opacity",
-          isSwipingRight ? "opacity-100" : "opacity-0"
+          "absolute inset-y-0 left-0 flex items-center gap-1 px-2 bg-gradient-to-r from-blue-600 to-blue-500",
+          "transform-gpu transition-opacity duration-150",
+          isSwipingRight ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{ width: MAX_SWIPE }}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 text-white hover:bg-white/20"
+        <ActionButton
           onClick={() => { onPreview(); resetSwipe(); }}
           disabled={isPreviewing}
         >
@@ -157,22 +186,14 @@ export function SwipeableContractCard({
           ) : (
             <Eye className="h-5 w-5" />
           )}
-        </Button>
+        </ActionButton>
         {contract.pdf_url && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 text-white hover:bg-white/20"
-            onClick={() => { onDownloadPdf(); resetSwipe(); }}
-          >
+          <ActionButton onClick={() => { onDownloadPdf(); resetSwipe(); }}>
             <Download className="h-5 w-5" />
-          </Button>
+          </ActionButton>
         )}
         {anySigned && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 text-white hover:bg-white/20"
+          <ActionButton
             onClick={() => { onRegenerate(); resetSwipe(); }}
             disabled={isRegenerating}
           >
@@ -181,56 +202,49 @@ export function SwipeableContractCard({
             ) : (
               <FilePlus2 className="h-5 w-5" />
             )}
-          </Button>
+          </ActionButton>
         )}
       </div>
 
-      {/* Right actions (visible when swiping left) */}
+      {/* Right actions (visible when swiping left) - GPU accelerated */}
       <div 
         className={cn(
-          "absolute inset-y-0 right-0 flex items-center gap-1 px-2 bg-gradient-to-l from-red-600 to-orange-500 transition-opacity",
-          isSwipingLeft ? "opacity-100" : "opacity-0"
+          "absolute inset-y-0 right-0 flex items-center gap-1 px-2 bg-gradient-to-l from-red-600 to-orange-500",
+          "transform-gpu transition-opacity duration-150",
+          isSwipingLeft ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{ width: MAX_SWIPE }}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 text-white hover:bg-white/20"
+        <ActionButton
           onClick={() => { onCopySignatureLink('proprietar'); resetSwipe(); }}
           title="Link semnare proprietar"
         >
           <PenTool className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 text-white hover:bg-white/20"
+        </ActionButton>
+        <ActionButton
           onClick={() => { onSendWhatsApp('chirias'); resetSwipe(); }}
           title="WhatsApp chiriaș"
         >
           <MessageCircle className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 text-white hover:bg-white/20"
+        </ActionButton>
+        <ActionButton
           onClick={() => { setDeleteDialogOpen(true); resetSwipe(); }}
           title="Șterge"
         >
           <Trash2 className="h-5 w-5" />
-        </Button>
+        </ActionButton>
       </div>
 
-      {/* Main card content */}
+      {/* Main card content - GPU accelerated transform */}
       <Card
         className={cn(
-          "transition-transform duration-200 ease-out touch-pan-y",
-          (isSwipingLeft || isSwipingRight) && "shadow-lg"
+          "transform-gpu touch-pan-y",
+          (isSwipingLeft || isSwipingRight) && "shadow-lg",
+          isDragging && "will-change-transform"
         )}
         style={{ 
-          transform: `translateX(${swipeOffset}px)`,
-          transition: isDraggingRef.current ? 'none' : 'transform 0.2s ease-out'
+          transform: `translate3d(${swipeOffset}px, 0, 0)`,
+          transition: isDragging ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -483,3 +497,6 @@ export function SwipeableContractCard({
     </div>
   );
 }
+
+// Export memoized component for better list performance
+export const SwipeableContractCard = memo(SwipeableContractCardComponent);
