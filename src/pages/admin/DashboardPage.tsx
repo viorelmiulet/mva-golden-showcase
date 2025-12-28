@@ -108,6 +108,58 @@ const scaleInVariants = {
   },
 };
 
+// Chart animation variants
+const chartContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
+    },
+  },
+};
+
+const chartCardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 20,
+    },
+  },
+};
+
+const chartSlideLeftVariants = {
+  hidden: { opacity: 0, x: -40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 25,
+    },
+  },
+};
+
+const chartSlideRightVariants = {
+  hidden: { opacity: 0, x: 40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 25,
+    },
+  },
+};
+
 const DashboardPage = () => {
   const isMobile = useIsMobile();
   const [selectedDayDetails, setSelectedDayDetails] = useState<{
@@ -851,9 +903,16 @@ const DashboardPage = () => {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
+        variants={chartContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
         {/* Commission Trend Chart - 12 months */}
-        <Card className="lg:col-span-2">
+        <motion.div variants={chartSlideLeftVariants} className="lg:col-span-2">
+        <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
               <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -914,9 +973,11 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Transaction Type Distribution */}
-        <Card>
+        <motion.div variants={chartSlideRightVariants}>
+        <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
               <Layers className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -970,10 +1031,17 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Charts Row 2 - Complex Breakdown */}
-      <Card>
+      <motion.div
+        variants={chartCardVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
+        <Card>
         <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
           <CardTitle className="flex items-center gap-2 text-sm md:text-base">
             <Building2 className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -1032,10 +1100,18 @@ const DashboardPage = () => {
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Bottom Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
+        variants={chartContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+      >
         {/* Properties Stats */}
+        <motion.div variants={chartSlideLeftVariants}>
         <Card>
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-sm md:text-base">Statistici Proprietăți</CardTitle>
@@ -1068,9 +1144,11 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Invoice Status */}
-        <Card>
+        <motion.div variants={chartSlideRightVariants}>
+        <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-sm md:text-base">Status Facturi</CardTitle>
             <CardDescription className="text-[10px] md:text-sm">Comisioane facturate</CardDescription>
@@ -1114,7 +1192,8 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Day Details Dialog */}
       <Dialog open={!!selectedDayDetails} onOpenChange={() => setSelectedDayDetails(null)}>
