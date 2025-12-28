@@ -307,6 +307,21 @@ const SignContract = () => {
     }
   };
 
+  const sendSignatureNotification = async (type: ContractType, id: string, party: string) => {
+    try {
+      await supabase.functions.invoke('notify-contract-signed', {
+        body: { 
+          contractId: id, 
+          contractType: type,
+          signerPartyType: party 
+        }
+      });
+      console.log('Signature notification sent successfully');
+    } catch (e) {
+      console.error('Error sending signature notification:', e);
+    }
+  };
+
   const handleSign = async () => {
     if (!signatureRef.current || signatureRef.current.isEmpty()) {
       toast.error("Vă rugăm să desenați semnătura");
@@ -351,6 +366,9 @@ const SignContract = () => {
         } catch (e) {
           console.error('Auto-generate error:', e);
         }
+
+        // Send notification
+        await sendSignatureNotification('inchiriere', contractId, partyType);
       } else if (contractType === 'comodat') {
         const signatureField = partyType === 'comodant' ? 'comodant_signature' : 'comodatar_signature';
         const signedAtField = partyType === 'comodant' ? 'comodant_signed_at' : 'comodatar_signed_at';
@@ -363,6 +381,9 @@ const SignContract = () => {
             status: 'signed'
           })
           .eq('id', contractId);
+
+        // Send notification
+        await sendSignatureNotification('comodat', contractId, partyType);
       } else if (contractType === 'exclusiv') {
         const signatureField = partyType === 'beneficiary' ? 'beneficiary_signature' : 'agent_signature';
         const signedAtField = partyType === 'beneficiary' ? 'beneficiary_signed_at' : 'agent_signed_at';
@@ -375,6 +396,9 @@ const SignContract = () => {
             status: 'signed'
           })
           .eq('id', contractId);
+
+        // Send notification
+        await sendSignatureNotification('exclusiv', contractId, partyType);
       } else if (contractType === 'intermediere') {
         const signedField = partyType === 'client' ? 'chirias_signed' : 'proprietar_signed';
         
@@ -410,6 +434,9 @@ const SignContract = () => {
               signer_name: contractInfo?.client_name || ''
             });
         }
+
+        // Send notification
+        await sendSignatureNotification('intermediere', contractId, partyType === 'client' ? 'chirias' : 'proprietar');
       }
 
       toast.success("Contractul a fost semnat cu succes!");
