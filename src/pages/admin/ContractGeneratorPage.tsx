@@ -577,7 +577,12 @@ const ContractGeneratorPage = () => {
         return null;
       }
 
-      return data.path;
+      // Return the full public URL instead of just the path
+      const { data: urlData } = supabase.storage
+        .from('contracts')
+        .getPublicUrl(data.path);
+
+      return urlData.publicUrl;
     } catch (error) {
       console.error('Error uploading contract:', error);
       return null;
@@ -585,27 +590,34 @@ const ContractGeneratorPage = () => {
   };
 
   const downloadContract = async (contract: SavedContract, type: 'pdf' | 'docx') => {
-    const filePath = type === 'pdf' ? contract.pdf_url : contract.docx_url;
-    if (!filePath) {
+    const fileUrl = type === 'pdf' ? contract.pdf_url : contract.docx_url;
+    if (!fileUrl) {
       toast.error(`Fișierul ${type.toUpperCase()} nu este disponibil`);
       return;
     }
 
     try {
-      const { data, error } = await supabase.storage
-        .from('contracts')
-        .download(filePath);
+      // Check if it's a full URL or just a path
+      if (fileUrl.startsWith('http')) {
+        // Full URL - open directly
+        window.open(fileUrl, '_blank');
+      } else {
+        // Relative path - download via Supabase
+        const { data, error } = await supabase.storage
+          .from('contracts')
+          .download(fileUrl);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const url = URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filePath.split('/').pop() || `contract.${type}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+        const url = URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileUrl.split('/').pop() || `contract.${type}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
     } catch (error: any) {
       console.error('Error downloading contract:', error);
       toast.error('Eroare la descărcarea contractului');
