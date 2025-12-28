@@ -19,7 +19,8 @@ import {
   Loader2,
   Handshake,
   Users,
-  Mail
+  Mail,
+  FileDown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -36,6 +37,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
+import { 
+  generateComodatContractPdf, 
+  generateExclusiveContractPdf, 
+  generateIntermediationContractPdf,
+  type ComodatContractData,
+  type ExclusiveContractData,
+  type IntermediationContractData
+} from "@/lib/pdf/allContractsPdf";
 
 interface RentalContract {
   id: string;
@@ -268,6 +277,94 @@ const GeneratedContractsPage = () => {
     setEmailDialogOpen(true);
   };
 
+  // Download PDF with signatures for Comodat contracts
+  const downloadComodatPdf = async (contractId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('comodat_contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (error || !data) {
+        toast.error("Eroare la încărcarea contractului");
+        return;
+      }
+
+      const pdf = generateComodatContractPdf(data as ComodatContractData);
+      const fileName = `contract_comodat_${data.comodatar_name}_${Date.now()}.pdf`;
+      pdf.save(fileName);
+      toast.success("PDF descărcat cu succes!");
+    } catch (err) {
+      console.error('Error downloading comodat PDF:', err);
+      toast.error("Eroare la generarea PDF");
+    }
+  };
+
+  // Download PDF with signatures for Exclusive contracts
+  const downloadExclusivePdf = async (contractId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('exclusive_contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (error || !data) {
+        toast.error("Eroare la încărcarea contractului");
+        return;
+      }
+
+      const pdf = generateExclusiveContractPdf(data as ExclusiveContractData);
+      const fileName = `contract_exclusiv_${data.beneficiary_name}_${Date.now()}.pdf`;
+      pdf.save(fileName);
+      toast.success("PDF descărcat cu succes!");
+    } catch (err) {
+      console.error('Error downloading exclusive PDF:', err);
+      toast.error("Eroare la generarea PDF");
+    }
+  };
+
+  // Download PDF with signatures for Intermediation contracts
+  const downloadIntermediationPdf = async (contractId: string) => {
+    try {
+      const { data: contract, error: contractError } = await supabase
+        .from('contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (contractError || !contract) {
+        toast.error("Eroare la încărcarea contractului");
+        return;
+      }
+
+      // Get signatures from contract_signatures table
+      const { data: signatures } = await supabase
+        .from('contract_signatures')
+        .select('*')
+        .eq('contract_id', contractId);
+
+      let clientSignature: string | null = null;
+      let agentSignature: string | null = null;
+
+      if (signatures) {
+        const clientSig = signatures.find(s => s.party_type === 'chirias' || s.party_type === 'client');
+        const agentSig = signatures.find(s => s.party_type === 'proprietar' || s.party_type === 'intermediar');
+        clientSignature = clientSig?.signature_data || null;
+        agentSignature = agentSig?.signature_data || null;
+      }
+
+      const pdf = generateIntermediationContractPdf(contract as IntermediationContractData, clientSignature, agentSignature);
+      const fileName = `contract_intermediere_${contract.client_name}_${Date.now()}.pdf`;
+      pdf.save(fileName);
+      toast.success("PDF descărcat cu succes!");
+    } catch (err) {
+      console.error('Error downloading intermediation PDF:', err);
+      toast.error("Eroare la generarea PDF");
+    }
+  };
+
   const RentalContractCard = ({ contract }: { contract: RentalContract }) => {
     const status = getSignatureStatus(contract);
     const StatusIcon = status.icon;
@@ -341,6 +438,17 @@ const GeneratedContractsPage = () => {
               >
                 <Mail className="h-4 w-4" />
               </Button>
+              {isIntermediere && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-orange-400 hover:text-orange-300"
+                  onClick={() => downloadIntermediationPdf(contract.id)}
+                  title="Descarcă PDF cu semnături"
+                >
+                  <FileDown className="h-4 w-4" />
+                </Button>
+              )}
               {contract.pdf_url && (
                 <Button
                   variant="ghost"
@@ -440,6 +548,15 @@ const GeneratedContractsPage = () => {
               >
                 <Mail className="h-4 w-4" />
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-purple-400 hover:text-purple-300"
+                onClick={() => downloadExclusivePdf(contract.id)}
+                title="Descarcă PDF cu semnături"
+              >
+                <FileDown className="h-4 w-4" />
+              </Button>
               {contract.pdf_url && (
                 <Button
                   variant="ghost"
@@ -525,6 +642,15 @@ const GeneratedContractsPage = () => {
                 title="Trimite link semnare"
               >
                 <Mail className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-emerald-400 hover:text-emerald-300"
+                onClick={() => downloadComodatPdf(contract.id)}
+                title="Descarcă PDF cu semnături"
+              >
+                <FileDown className="h-4 w-4" />
               </Button>
               {contract.pdf_url && (
                 <Button
