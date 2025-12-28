@@ -2038,6 +2038,7 @@ const ContractGeneratorPage = () => {
       const { data, error } = await supabase.functions.invoke('send-signature-link', {
         body: {
           contractId: emailDialogData.contractId,
+          contractType: "inchiriere",
           partyType: emailDialogData.partyType,
           recipientEmail: emailRecipient.email,
           recipientName: emailRecipient.name,
