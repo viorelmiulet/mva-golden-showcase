@@ -5,6 +5,7 @@ import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, Hands
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
@@ -89,19 +90,63 @@ const contractTypes = [
 const ContractsPage = () => {
   const [selectedType, setSelectedType] = useState<ContractType>("selection");
   const [mobileCardIndex, setMobileCardIndex] = useState(0);
+  const [[page, direction], setPage] = useState([0, 0]);
   const isMobile = useIsMobile();
 
+  // Animation variants for cards
+  const cardVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.9,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.9,
+    }),
+  };
+
+  const cardTransition = {
+    x: { type: "spring" as const, stiffness: 300, damping: 30 },
+    opacity: { duration: 0.2 },
+    scale: { duration: 0.2 },
+  };
+
   // Swipe handlers for mobile card carousel
-  const handleSwipeLeft = () => {
-    if (mobileCardIndex < contractTypes.length - 1) {
-      setMobileCardIndex((prev) => prev + 1);
+  const paginate = (newDirection: number) => {
+    const newIndex = mobileCardIndex + newDirection;
+    if (newIndex >= 0 && newIndex < contractTypes.length) {
+      setPage([newIndex, newDirection]);
+      setMobileCardIndex(newIndex);
     }
   };
 
-  const handleSwipeRight = () => {
-    if (mobileCardIndex > 0) {
-      setMobileCardIndex((prev) => prev - 1);
+  const handleSwipeLeft = () => paginate(1);
+  const handleSwipeRight = () => paginate(-1);
+
+  // Handle drag end for framer-motion
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = 50;
+    const velocity = info.velocity.x;
+    const offset = info.offset.x;
+
+    if (offset < -threshold || velocity < -500) {
+      handleSwipeLeft();
+    } else if (offset > threshold || velocity > 500) {
+      handleSwipeRight();
     }
+  };
+
+  const goToIndex = (index: number) => {
+    const direction = index > mobileCardIndex ? 1 : -1;
+    setPage([index, direction]);
+    setMobileCardIndex(index);
   };
 
   const swipeHandlers = useSwipeGesture({
@@ -152,54 +197,86 @@ const ContractsPage = () => {
         </p>
       </div>
 
-      {/* Mobile Swipeable Card Carousel */}
+      {/* Mobile Swipeable Card Carousel with Framer Motion */}
       {isMobile ? (
         <div className="space-y-3">
           {/* Swipeable Card Container */}
-          <div
-            className="relative overflow-hidden touch-pan-y"
-            {...swipeHandlers}
-          >
-            <div
-              className="flex transition-transform duration-300 ease-out"
-              style={{ transform: `translateX(-${mobileCardIndex * 100}%)` }}
-            >
-              {contractTypes.map((contract) => (
-                <div key={contract.id} className="w-full flex-shrink-0 px-1">
-                  <Card
-                    className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${contract.gradient} hover:border-gold/30 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
-                    onClick={() => setSelectedType(contract.id)}
-                  >
-                    <CardContent className="p-4 space-y-3">
-                      {/* Icons */}
-                      <div className="flex items-center gap-2">
-                        <div className={`p-2 rounded-xl ${contract.iconBg}`}>
-                          <contract.icon className={`h-5 w-5 ${contract.iconColor}`} />
-                        </div>
-                        <contract.secondaryIcon className="h-4 w-4 text-muted-foreground/50" />
+          <div className="relative overflow-hidden min-h-[280px]">
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={mobileCardIndex}
+                custom={direction}
+                variants={cardVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={cardTransition}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={handleDragEnd}
+                className="cursor-grab active:cursor-grabbing"
+              >
+                <Card
+                  className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${currentContract.gradient} hover:border-gold/30 transition-all duration-300`}
+                  onClick={() => setSelectedType(currentContract.id)}
+                >
+                  <CardContent className="p-4 space-y-3">
+                    {/* Icons */}
+                    <motion.div 
+                      className="flex items-center gap-2"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <div className={`p-2 rounded-xl ${currentContract.iconBg}`}>
+                        <currentContract.icon className={`h-5 w-5 ${currentContract.iconColor}`} />
                       </div>
+                      <currentContract.secondaryIcon className="h-4 w-4 text-muted-foreground/50" />
+                    </motion.div>
 
-                      {/* Title & Description */}
-                      <div className="space-y-1">
-                        <h2 className="text-lg font-semibold text-foreground group-hover:text-gold transition-colors">
-                          {contract.title}
-                        </h2>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          {contract.description}
-                        </p>
-                      </div>
+                    {/* Title & Description */}
+                    <motion.div 
+                      className="space-y-1"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 }}
+                    >
+                      <h2 className="text-lg font-semibold text-foreground group-hover:text-gold transition-colors">
+                        {currentContract.title}
+                      </h2>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {currentContract.description}
+                      </p>
+                    </motion.div>
 
-                      {/* Features - show on mobile carousel */}
-                      <ul className="space-y-1.5">
-                        {contract.features.slice(0, 3).map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Check className="h-3 w-3 text-gold shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
+                    {/* Features - show on mobile carousel */}
+                    <motion.ul 
+                      className="space-y-1.5"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      {currentContract.features.slice(0, 3).map((feature, index) => (
+                        <motion.li 
+                          key={index} 
+                          className="flex items-center gap-2 text-xs text-muted-foreground"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.25 + index * 0.05 }}
+                        >
+                          <Check className="h-3 w-3 text-gold shrink-0" />
+                          {feature}
+                        </motion.li>
+                      ))}
+                    </motion.ul>
 
-                      {/* CTA */}
+                    {/* CTA */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35 }}
+                    >
                       <Button
                         variant="default"
                         size="sm"
@@ -207,20 +284,46 @@ const ContractsPage = () => {
                       >
                         Deschide Contract →
                       </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
+                    </motion.div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Swipe hint indicators */}
+            {mobileCardIndex > 0 && (
+              <motion.div 
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/30"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ repeat: Infinity, repeatType: "reverse", duration: 1 }}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </motion.div>
+            )}
+            {mobileCardIndex < contractTypes.length - 1 && (
+              <motion.div 
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/30"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ repeat: Infinity, repeatType: "reverse", duration: 1 }}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </motion.div>
+            )}
           </div>
 
           {/* Navigation Dots & Arrows */}
-          <div className="flex items-center justify-center gap-4">
+          <motion.div 
+            className="flex items-center justify-center gap-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={handleSwipeRight}
+              onClick={() => paginate(-1)}
               disabled={mobileCardIndex === 0}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -228,15 +331,19 @@ const ContractsPage = () => {
             
             <div className="flex gap-2">
               {contractTypes.map((contract, index) => (
-                <button
+                <motion.button
                   key={contract.id}
-                  onClick={() => setMobileCardIndex(index)}
+                  onClick={() => goToIndex(index)}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300",
+                    "h-2 rounded-full transition-colors duration-300",
                     index === mobileCardIndex
-                      ? "w-6 bg-gold"
-                      : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                      ? "bg-gold"
+                      : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                   )}
+                  animate={{ 
+                    width: index === mobileCardIndex ? 24 : 8,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   aria-label={`Go to ${contract.shortTitle}`}
                 />
               ))}
@@ -246,31 +353,40 @@ const ContractsPage = () => {
               variant="ghost"
               size="icon"
               className="h-8 w-8"
-              onClick={handleSwipeLeft}
+              onClick={() => paginate(1)}
               disabled={mobileCardIndex === contractTypes.length - 1}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-          </div>
+          </motion.div>
 
           {/* Quick Type Selector Pills */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <motion.div 
+            className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             {contractTypes.map((contract, index) => (
-              <Button
+              <motion.div
                 key={contract.id}
-                variant={index === mobileCardIndex ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMobileCardIndex(index)}
-                className={cn(
-                  "shrink-0 text-xs",
-                  index === mobileCardIndex && "bg-gold text-gold-foreground hover:bg-gold/90"
-                )}
+                whileTap={{ scale: 0.95 }}
               >
-                <contract.icon className="h-3 w-3 mr-1" />
-                {contract.shortTitle}
-              </Button>
+                <Button
+                  variant={index === mobileCardIndex ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToIndex(index)}
+                  className={cn(
+                    "shrink-0 text-xs transition-all duration-200",
+                    index === mobileCardIndex && "bg-gold text-gold-foreground hover:bg-gold/90"
+                  )}
+                >
+                  <contract.icon className="h-3 w-3 mr-1" />
+                  {contract.shortTitle}
+                </Button>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       ) : (
         /* Desktop Grid */
