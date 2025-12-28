@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { 
   FileText, Download, Loader2, Camera, Sparkles, User, Home, Calendar, 
   History, Trash2, RefreshCw, Building2, PenTool, Eye, Eraser, Percent,
-  Save, Edit, Plus, Settings
+  Save, Edit, Plus, Settings, Mail
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
+import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 
 interface ExtractedData {
   nume: string;
@@ -153,6 +154,14 @@ const IntermediationContractPage = () => {
   
   const [defaultAgentSignature, setDefaultAgentSignature] = useState<string>("");
   
+  // Email dialog
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailDialogData, setEmailDialogData] = useState<{
+    contractId: string;
+    propertyAddress: string;
+    clientEmail: string;
+    clientName: string;
+  } | null>(null);
   const isMobile = useIsMobile();
   const fileInputClientRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -1119,6 +1128,22 @@ const IntermediationContractPage = () => {
                               <Button
                                 size="sm"
                                 variant="ghost"
+                                onClick={() => {
+                                  setEmailDialogData({
+                                    contractId: contract.id,
+                                    propertyAddress: contract.property_address || '',
+                                    clientEmail: '',
+                                    clientName: `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim(),
+                                  });
+                                  setEmailDialogOpen(true);
+                                }}
+                                title="Trimite link semnare"
+                              >
+                                <Mail className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
                                 onClick={() => loadContractForEdit(contract)}
                               >
                                 <Edit className="h-4 w-4" />
@@ -1165,6 +1190,23 @@ const IntermediationContractPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Send Signature Link Dialog */}
+      {emailDialogData && (
+        <SendSignatureLinkDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          contractId={emailDialogData.contractId}
+          contractType="intermediere"
+          propertyAddress={emailDialogData.propertyAddress}
+          parties={[
+            { value: "client", label: "Client" },
+            { value: "intermediar", label: "Intermediar" },
+          ]}
+          defaultEmail={emailDialogData.clientEmail}
+          defaultName={emailDialogData.clientName}
+        />
+      )}
     </div>
   );
 };
