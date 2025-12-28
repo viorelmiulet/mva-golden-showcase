@@ -52,10 +52,61 @@ import {
 } from "recharts";
 import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear, subYears, subDays } from "date-fns";
 import { ro } from "date-fns/locale";
+import { motion } from "framer-motion";
 
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+};
+
+const fadeInVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+    },
+  },
+};
+
+const scaleInVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 20,
+    },
+  },
+};
 
 const DashboardPage = () => {
   const isMobile = useIsMobile();
@@ -515,9 +566,17 @@ const DashboardPage = () => {
   );
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <motion.div 
+      className="space-y-4 md:space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       {/* Header */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4">
+      <motion.div 
+        className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4"
+        variants={fadeInVariants}
+      >
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
           <p className="text-xs md:text-sm text-muted-foreground">Statistici complete și analize</p>
@@ -531,101 +590,117 @@ const DashboardPage = () => {
             {format(new Date(), isMobile ? 'dd MMM' : 'dd MMMM yyyy', { locale: ro })}
           </Badge>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Actions Card */}
-      <Card className="border-gold/20 bg-gradient-to-br from-gold/5 to-transparent">
-        <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
-          <CardTitle className="text-base md:text-lg flex items-center gap-2">
-            <Activity className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-            Acțiuni Rapide
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-          <div className="grid grid-cols-3 gap-2 md:gap-3">
-            <Link 
-              to="/admin/proprietati" 
-              className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
-            >
-              <div className="p-1.5 md:p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                <Plus className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Proprietate</p>
-                <p className="hidden md:block text-xs text-muted-foreground">Proprietate nouă</p>
-              </div>
-              <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
-            </Link>
-
-            <Link 
-              to="/admin/import-xml" 
-              className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
-            >
-              <div className="p-1.5 md:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <FileSpreadsheet className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Import</p>
-                <p className="hidden md:block text-xs text-muted-foreground">Import proprietăți</p>
-              </div>
-              <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
-            </Link>
-
-            <Link 
-              to="/admin/comisioane" 
-              className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group"
-            >
-              <div className="p-1.5 md:p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-                <Coins className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Comisioane</p>
-                <p className="hidden md:block text-xs text-muted-foreground">Gestionare</p>
-              </div>
-              <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Main Stats Grid - Row 1 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-        <StatCard
-          title="Proprietăți"
-          value={propertiesData?.total || 0}
-          subtitle={isMobile ? `${propertiesData?.available || 0} disp.` : `${propertiesData?.available || 0} disponibile • ${propertiesData?.sold || 0} vândute`}
-          icon={Home}
-          loading={loadingProperties}
-        />
-        <StatCard
-          title="Apt. Complexe"
-          value={complexesData?.totalApartments || 0}
-          subtitle={`${complexesData?.totalProjects || 0} complexe`}
-          icon={Building2}
-          trend={complexesData?.overallSalesRate ? { value: complexesData.overallSalesRate, positive: true } : undefined}
-          loading={loadingComplexes}
-        />
-        <Card className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">Comisioane Lună</CardTitle>
-            <div className="p-1.5 md:p-2 rounded-lg bg-gold/10 shrink-0">
-              <Euro className="h-3.5 w-3.5 md:h-4 md:w-4 text-gold" />
-            </div>
+      <motion.div variants={scaleInVariants}>
+        <Card className="border-gold/20 bg-gradient-to-br from-gold/5 to-transparent">
+          <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
+            <CardTitle className="text-base md:text-lg flex items-center gap-2">
+              <Activity className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+              Acțiuni Rapide
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            {loadingCommissions ? (
-              <Skeleton className="h-6 md:h-8 w-20 md:w-24" />
-            ) : (
-              <>
-                <div className="text-lg md:text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
-                {commissionsData?.currentMonthRON && !isMobile ? (
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
-                ) : null}
-                {commissionsData?.monthlyGrowth !== undefined && (
-                  <div className={`text-[10px] md:text-xs mt-1.5 md:mt-2 flex items-center gap-1 ${commissionsData.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {commissionsData.monthlyGrowth >= 0 ? (
-                      <ArrowUpRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
+            <div className="grid grid-cols-3 gap-2 md:gap-3">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link 
+                  to="/admin/proprietati" 
+                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                >
+                  <div className="p-1.5 md:p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                    <Plus className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Proprietate</p>
+                    <p className="hidden md:block text-xs text-muted-foreground">Proprietate nouă</p>
+                  </div>
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                </Link>
+              </motion.div>
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link 
+                  to="/admin/import-xml" 
+                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                >
+                  <div className="p-1.5 md:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <FileSpreadsheet className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Import</p>
+                    <p className="hidden md:block text-xs text-muted-foreground">Import proprietăți</p>
+                  </div>
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                </Link>
+              </motion.div>
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link 
+                  to="/admin/comisioane" 
+                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                >
+                  <div className="p-1.5 md:p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
+                    <Coins className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Comisioane</p>
+                    <p className="hidden md:block text-xs text-muted-foreground">Gestionare</p>
+                  </div>
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                </Link>
+              </motion.div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Main Stats Grid - Row 1 */}
+      <motion.div 
+        className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4"
+        variants={containerVariants}
+      >
+        <motion.div variants={itemVariants}>
+          <StatCard
+            title="Proprietăți"
+            value={propertiesData?.total || 0}
+            subtitle={isMobile ? `${propertiesData?.available || 0} disp.` : `${propertiesData?.available || 0} disponibile • ${propertiesData?.sold || 0} vândute`}
+            icon={Home}
+            loading={loadingProperties}
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatCard
+            title="Apt. Complexe"
+            value={complexesData?.totalApartments || 0}
+            subtitle={`${complexesData?.totalProjects || 0} complexe`}
+            icon={Building2}
+            trend={complexesData?.overallSalesRate ? { value: complexesData.overallSalesRate, positive: true } : undefined}
+            loading={loadingComplexes}
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <Card className="relative overflow-hidden h-full">
+            <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">Comisioane Lună</CardTitle>
+              <div className="p-1.5 md:p-2 rounded-lg bg-gold/10 shrink-0">
+                <Euro className="h-3.5 w-3.5 md:h-4 md:w-4 text-gold" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              {loadingCommissions ? (
+                <Skeleton className="h-6 md:h-8 w-20 md:w-24" />
+              ) : (
+                <>
+                  <div className="text-lg md:text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
+                  {commissionsData?.currentMonthRON && !isMobile ? (
+                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
+                  ) : null}
+                  {commissionsData?.monthlyGrowth !== undefined && (
+                    <div className={`text-[10px] md:text-xs mt-1.5 md:mt-2 flex items-center gap-1 ${commissionsData.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {commissionsData.monthlyGrowth >= 0 ? (
+                        <ArrowUpRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
                     ) : (
                       <ArrowDownRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
                     )}
@@ -737,7 +812,8 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Stats Row 2 - KPIs */}
       <div className="grid grid-cols-2 gap-2 md:gap-4">
@@ -1098,7 +1174,7 @@ const DashboardPage = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 
