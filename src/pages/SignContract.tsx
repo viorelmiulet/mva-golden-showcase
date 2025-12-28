@@ -6,34 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import jsPDF from "jspdf";
-
-interface ContractInfo {
-  id: string;
-  client_name: string;
-  client_prenume: string | null;
-  property_address: string;
-  property_price: number | null;
-  property_currency: string | null;
-  contract_date: string;
-  duration_months: number | null;
-  garantie_amount: number | null;
-  proprietar_name: string | null;
-  proprietar_prenume: string | null;
-}
-
-interface SignatureInfo {
-  id: string;
-  contract_id: string;
-  party_type: string;
-  signature_data: string | null;
-  signed_at: string | null;
-  signer_name: string | null;
-  contract?: ContractInfo;
-}
 
 interface InventoryItem {
   id: string;
@@ -44,13 +18,59 @@ interface InventoryItem {
   notes: string | null;
 }
 
+type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+
+interface BaseContractInfo {
+  id: string;
+  contract_date: string;
+  property_address: string;
+}
+
+interface RentalContractInfo extends BaseContractInfo {
+  client_name: string;
+  client_prenume: string | null;
+  proprietar_name: string | null;
+  proprietar_prenume: string | null;
+  property_price: number | null;
+  property_currency: string | null;
+  duration_months: number | null;
+  garantie_amount: number | null;
+  contract_type: string;
+}
+
+interface ComodatContractInfo extends BaseContractInfo {
+  comodant_name: string;
+  comodant_prenume: string | null;
+  comodatar_name: string;
+  comodatar_prenume: string | null;
+  duration_months: number | null;
+  property_type: string | null;
+  purpose: string | null;
+}
+
+interface ExclusiveContractInfo extends BaseContractInfo {
+  beneficiary_name: string;
+  beneficiary_prenume: string | null;
+  sales_price: number | null;
+  currency: string | null;
+  commission_percent: number | null;
+  duration_months: number | null;
+  property_type: string | null;
+}
+
+interface SignatureInfo {
+  id: string;
+  contract_id: string;
+  party_type: string;
+  signature_data: string | null;
+  signed_at: string | null;
+  signer_name: string | null;
+}
+
 const SignContract = () => {
   const { token } = useParams<{ token: string }>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSigning, setIsSigning] = useState(false);
-  const [signatureInfo, setSignatureInfo] = useState<SignatureInfo | null>(null);
-  const [contractInfo, setContractInfo] = useState<ContractInfo | null>(null);
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -59,10 +79,21 @@ const SignContract = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 400, height: 200 });
 
+  // Contract type and data states
+  const [contractType, setContractType] = useState<ContractType | null>(null);
+  const [partyType, setPartyType] = useState<string | null>(null);
+  const [contractId, setContractId] = useState<string | null>(null);
+  const [signatureInfo, setSignatureInfo] = useState<SignatureInfo | null>(null);
+  const [contractInfo, setContractInfo] = useState<any>(null);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [alreadySigned, setAlreadySigned] = useState(false);
+  const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [signedAt, setSignedAt] = useState<string | null>(null);
+
   // Resize canvas to fit container
   const updateCanvasSize = useCallback(() => {
     if (containerRef.current) {
-      const width = containerRef.current.offsetWidth - 4; // account for border
+      const width = containerRef.current.offsetWidth - 4;
       setCanvasSize({ width: Math.max(300, width), height: 200 });
     }
   }, []);
@@ -70,7 +101,6 @@ const SignContract = () => {
   useEffect(() => {
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
-    // Also update on orientation change for mobile
     window.addEventListener('orientationchange', () => {
       setTimeout(updateCanvasSize, 100);
     });
@@ -82,392 +112,187 @@ const SignContract = () => {
 
   useEffect(() => {
     if (token) {
-      fetchSignatureInfo();
+      parseTokenAndFetchContract();
     }
   }, [token]);
 
-  const fetchSignatureInfo = async () => {
+  const parseTokenAndFetchContract = async () => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      setIsLoading(true);
-      setError(null);
-
-      // Fetch signature info by token
-      const { data: sigData, error: sigError } = await supabase
-        .from('contract_signatures')
-        .select('*')
-        .eq('signature_token', token)
-        .single();
-
-      if (sigError || !sigData) {
-        console.error('Signature fetch error:', sigError);
-        setError("Link-ul de semnătură nu este valid sau a expirat.");
-        return;
-      }
-
-      setSignatureInfo(sigData);
-
-      // Fetch contract info
-      const { data: contractData, error: contractError } = await supabase
-        .from('contracts')
-        .select('id, client_name, client_prenume, property_address, property_price, property_currency, contract_date, duration_months, garantie_amount, proprietar_name, proprietar_prenume')
-        .eq('id', sigData.contract_id)
-        .single();
-
-      if (contractError || !contractData) {
-        console.error('Contract fetch error:', contractError);
-        setError("Contractul nu a fost găsit.");
-        return;
-      }
-
-      setContractInfo(contractData as ContractInfo);
-
-      // Fetch inventory items
-      const { data: invData, error: invError } = await supabase
-        .from('contract_inventory')
-        .select('*')
-        .eq('contract_id', sigData.contract_id);
-
-      if (!invError && invData) {
-        setInventoryItems(invData as InventoryItem[]);
+      // Check if token is a composite token (type_id_party format) or a UUID
+      const isCompositeToken = token?.includes('_');
+      
+      if (isCompositeToken) {
+        // Parse composite token: type_contractId_partyType
+        const parts = token!.split('_');
+        if (parts.length < 3) {
+          setError("Link-ul de semnătură nu este valid.");
+          return;
+        }
+        
+        const type = parts[0] as ContractType;
+        const id = parts.slice(1, -1).join('_'); // Handle UUIDs with dashes
+        const party = parts[parts.length - 1];
+        
+        setContractType(type);
+        setContractId(id);
+        setPartyType(party);
+        
+        await fetchContractByType(type, id, party);
+      } else {
+        // UUID token - fetch from contract_signatures table (rental contracts)
+        await fetchRentalContractByToken(token!);
       }
     } catch (err) {
-      console.error('Error fetching signature info:', err);
-      setError("A apărut o eroare la încărcarea informațiilor.");
+      console.error('Error parsing token:', err);
+      setError("A apărut o eroare la încărcarea contractului.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Remove diacritics helper
-  const removeDiacritics = (str: string): string => {
-    return str
-      .replace(/ă/g, 'a').replace(/Ă/g, 'A')
-      .replace(/â/g, 'a').replace(/Â/g, 'A')
-      .replace(/î/g, 'i').replace(/Î/g, 'I')
-      .replace(/ș/g, 's').replace(/Ș/g, 'S')
-      .replace(/ț/g, 't').replace(/Ț/g, 'T');
+  const fetchRentalContractByToken = async (signatureToken: string) => {
+    const { data: sigData, error: sigError } = await supabase
+      .from('contract_signatures')
+      .select('*')
+      .eq('signature_token', signatureToken)
+      .single();
+
+    if (sigError || !sigData) {
+      console.error('Signature fetch error:', sigError);
+      setError("Link-ul de semnătură nu este valid sau a expirat.");
+      return;
+    }
+
+    setSignatureInfo(sigData);
+    setContractId(sigData.contract_id);
+    setPartyType(sigData.party_type);
+    
+    if (sigData.signature_data) {
+      setAlreadySigned(true);
+      setSignatureData(sigData.signature_data);
+      setSignedAt(sigData.signed_at);
+    }
+
+    // Fetch contract info
+    const { data: contractData, error: contractError } = await supabase
+      .from('contracts')
+      .select('*')
+      .eq('id', sigData.contract_id)
+      .single();
+
+    if (contractError || !contractData) {
+      console.error('Contract fetch error:', contractError);
+      setError("Contractul nu a fost găsit.");
+      return;
+    }
+
+    // Determine if it's intermediere or regular rental
+    if (contractData.contract_type === 'intermediere') {
+      setContractType('intermediere');
+    } else {
+      setContractType('inchiriere');
+    }
+    
+    setContractInfo(contractData);
+
+    // Fetch inventory for rental contracts
+    if (contractData.contract_type !== 'intermediere') {
+      const { data: invData } = await supabase
+        .from('contract_inventory')
+        .select('*')
+        .eq('contract_id', sigData.contract_id);
+      
+      if (invData) {
+        setInventoryItems(invData);
+      }
+    }
   };
 
-  // Generate contract PDF for preview/download
-  const generateContractPdf = (): jsPDF => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const margin = 20;
-    let y = 25;
+  const fetchContractByType = async (type: ContractType, id: string, party: string) => {
+    switch (type) {
+      case 'comodat': {
+        const { data: comodatData, error: comodatError } = await supabase
+          .from('comodat_contracts')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-    const durataLuni = contractInfo?.duration_months || 12;
-    const moneda = contractInfo?.property_currency || 'EUR';
-    const garantieVal = contractInfo?.garantie_amount || (contractInfo?.property_price || 0);
-
-    // Title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(0, 51, 102);
-    doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
-    y += 10;
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Incheiat astazi, ${contractInfo?.contract_date || 'N/A'}`, pageWidth / 2, y, { align: "center" });
-    y += 15;
-
-    // Party boxes helper
-    const drawPartyBox = (title: string, data: any, startY: number) => {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(0, 51, 102);
-      doc.text(title, margin, startY);
-      startY += 6;
-
-      doc.setDrawColor(0, 51, 102);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(margin, startY, pageWidth - 2 * margin, 28, 2, 2);
-      startY += 6;
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(0, 0, 0);
-      
-      const leftCol = margin + 5;
-      const rightCol = pageWidth / 2 + 5;
-      
-      doc.text(`Nume: ${removeDiacritics(data.nume || '-')}`, leftCol, startY);
-      doc.text(`CNP: ${data.cnp || '-'}`, rightCol, startY);
-      startY += 5;
-      doc.text(`CI: Seria ${data.seria || '-'} Nr. ${data.numar || '-'}`, leftCol, startY);
-      doc.text(`Emitent: ${removeDiacritics(data.emitent || '-')}`, rightCol, startY);
-      startY += 5;
-      doc.text(`Domiciliu: ${removeDiacritics(data.domiciliu || '-')}`, leftCol, startY);
-      startY += 5;
-      doc.text(`Cetatenie: ${data.cetatenie || 'Romana'}`, leftCol, startY);
-      
-      return startY + 12;
-    };
-
-    // Proprietar box
-    y = drawPartyBox("1. PROPRIETAR (LOCATOR):", {
-      nume: `${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || 'N/A'}`,
-      cnp: '-',
-      seria: '-',
-      numar: '-',
-      emitent: '-',
-      domiciliu: '-',
-      cetatenie: 'Romana'
-    }, y);
-
-    // Chirias box
-    y = drawPartyBox("2. CHIRIAS (LOCATAR):", {
-      nume: `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name}`,
-      cnp: '-',
-      seria: '-',
-      numar: '-',
-      emitent: '-',
-      domiciliu: '-',
-      cetatenie: 'Romana'
-    }, y);
-
-    // Sections
-    const addSection = (title: string, content: string[]) => {
-      if (y > 260) {
-        doc.addPage();
-        y = 25;
-      }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(0, 51, 102);
-      doc.text(title, margin, y);
-      y += 7;
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(0, 0, 0);
-      content.forEach(line => {
-        const splitLines = doc.splitTextToSize(removeDiacritics(line), pageWidth - 2 * margin);
-        splitLines.forEach((l: string) => {
-          if (y > 280) {
-            doc.addPage();
-            y = 25;
-          }
-          doc.text(l, margin, y);
-          y += 5;
-        });
-      });
-      y += 3;
-    };
-
-    addSection("I. OBIECTUL CONTRACTULUI", [
-      `Proprietarul inchiriaza chiriasului imobilul situat in ${contractInfo?.property_address || 'N/A'}`
-    ]);
-
-    addSection("II. DESTINATIA", [
-      "Imobilul va fi folosit de chirias cu destinatia LOCUINTA."
-    ]);
-
-    addSection("III. DURATA", [
-      `Acest contract este incheiat pentru o perioada de ${durataLuni} luni.`
-    ]);
-
-    addSection("IV. CHIRIA SI MODALITATI DE PLATA", [
-      `Chiria lunara convenita este de ${contractInfo?.property_price || 'N/A'} ${moneda}/luna.`,
-      `Garantia in valoare de ${garantieVal} ${moneda} se va achita la semnarea contractului.`
-    ]);
-
-    addSection("V. OBLIGATIILE PROPRIETARULUI", [
-      "Proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului."
-    ]);
-
-    addSection("VI. OBLIGATIILE CHIRIASULUI", [
-      "Chiriasul se obliga sa foloseasca imobilul conform destinatiei, sa nu subinchirieze fara acord, sa achite utilitatile."
-    ]);
-
-    // Signature section
-    if (y > 240) {
-      doc.addPage();
-      y = 25;
-    }
-    y += 15;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("PROPRIETAR", margin, y);
-    doc.text("CHIRIAS", pageWidth - margin - 30, y);
-    y += 8;
-    doc.setFont("helvetica", "normal");
-    doc.text(removeDiacritics(`${contractInfo?.proprietar_prenume || ''} ${contractInfo?.proprietar_name || ''}`), margin, y);
-    doc.text(removeDiacritics(`${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`), pageWidth - margin - 50, y);
-    y += 20;
-    doc.text("_______________", margin, y);
-    doc.text("_______________", pageWidth - margin - 40, y);
-
-    // ========== PROCES VERBAL DE PREDARE-PRIMIRE ==========
-    if (inventoryItems.length > 0) {
-      doc.addPage();
-      y = 25;
-
-      // Title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(0, 51, 102);
-      doc.text("PROCES VERBAL DE PREDARE-PRIMIRE", pageWidth / 2, y, { align: "center" });
-      y += 8;
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Anexa la Contractul de Inchiriere din ${contractInfo?.contract_date || 'N/A'}`, pageWidth / 2, y, { align: "center" });
-      y += 15;
-
-      // Property info
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text(`Imobil: ${removeDiacritics(contractInfo?.property_address || 'N/A')}`, margin, y);
-      y += 12;
-
-      // Inventory table header
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(0, 51, 102);
-      doc.text("LISTA INVENTAR", margin, y);
-      y += 8;
-
-      // Table - matching the UI: Denumire, Cantitate, Stare, Observatii
-      const colWidths = [70, 25, 35, 40];
-      const startX = margin;
-      const headers = ["Denumire", "Cantitate", "Stare", "Observatii"];
-
-      // Draw header row
-      doc.setFillColor(0, 51, 102);
-      doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(255, 255, 255);
-      
-      let xPos = startX + 2;
-      headers.forEach((header, i) => {
-        doc.text(header, xPos, y + 5.5);
-        xPos += colWidths[i];
-      });
-      y += 8;
-
-      // Draw data rows
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0, 0, 0);
-      
-      inventoryItems.forEach((item, index) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 25;
-          // Redraw header on new page
-          doc.setFillColor(0, 51, 102);
-          doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 8, 'F');
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(255, 255, 255);
-          xPos = startX + 2;
-          headers.forEach((header, i) => {
-            doc.text(header, xPos, y + 5.5);
-            xPos += colWidths[i];
-          });
-          y += 8;
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(0, 0, 0);
+        if (comodatError || !comodatData) {
+          console.error('Contract fetch error:', comodatError);
+          setError("Contractul nu a fost găsit.");
+          return;
         }
 
-        const rowColor = index % 2 === 0 ? 245 : 255;
-        doc.setFillColor(rowColor, rowColor, rowColor);
-        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 7, 'F');
-        doc.setDrawColor(200, 200, 200);
-        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 7, 'S');
-
-        xPos = startX + 2;
-        const rowData = [
-          removeDiacritics(item.item_name || '-'),
-          String(item.quantity || 1),
-          removeDiacritics(item.condition || 'Buna'),
-          removeDiacritics(item.notes || '-')
-        ];
-        
-        rowData.forEach((cell, i) => {
-          const maxLen = Math.floor(colWidths[i] / 2.2);
-          const cellText = cell.length > maxLen ? cell.substring(0, maxLen - 2) + '..' : cell;
-          doc.text(cellText, xPos, y + 5);
-          xPos += colWidths[i];
-        });
-        y += 7;
-      });
-
-      // Signatures for Proces Verbal - side by side boxes like in the UI
-      y += 20;
-      if (y > 200) {
-        doc.addPage();
-        y = 25;
+        setContractInfo(comodatData);
+        const signedAtField = party === 'comodant' ? 'comodant_signed_at' : 'comodatar_signed_at';
+        const sigField = party === 'comodant' ? 'comodant_signature' : 'comodatar_signature';
+        if (comodatData[signedAtField]) {
+          setAlreadySigned(true);
+          setSignedAt(comodatData[signedAtField] as string);
+          setSignatureData(comodatData[sigField] as string | null);
+        }
+        return;
       }
+      case 'exclusiv': {
+        const { data: exclusivData, error: exclusivError } = await supabase
+          .from('exclusive_contracts')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-      // Section title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(180, 140, 60); // Golden color
-      doc.text("Semnaturi Digitale", margin, y);
-      y += 12;
+        if (exclusivError || !exclusivData) {
+          console.error('Contract fetch error:', exclusivError);
+          setError("Contractul nu a fost găsit.");
+          return;
+        }
 
-      const boxWidth = 80;
-      const boxHeight = 35;
-      const boxGap = 15;
-      const leftBoxX = margin;
-      const rightBoxX = margin + boxWidth + boxGap;
+        setContractInfo(exclusivData);
+        const signedAtFieldEx = party === 'beneficiary' ? 'beneficiary_signed_at' : 'agent_signed_at';
+        const sigFieldEx = party === 'beneficiary' ? 'beneficiary_signature' : 'agent_signature';
+        if (exclusivData[signedAtFieldEx]) {
+          setAlreadySigned(true);
+          setSignedAt(exclusivData[signedAtFieldEx] as string);
+          setSignatureData(exclusivData[sigFieldEx] as string | null);
+        }
+        return;
+      }
+      case 'intermediere': {
+        const { data: interData, error: interError } = await supabase
+          .from('contracts')
+          .select('*')
+          .eq('id', id)
+          .single();
 
-      // Left signature box - Proprietar
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(180, 140, 60); // Golden color for label
-      doc.text("Semnatura Proprietar", leftBoxX, y);
-      
-      // Right signature box label - Chirias
-      doc.text("Semnatura Chirias", rightBoxX, y);
-      y += 5;
-      
-      // Draw boxes with dashed border
-      doc.setDrawColor(150, 150, 150);
-      doc.setLineWidth(0.3);
-      doc.setLineDashPattern([2, 2], 0);
-      doc.roundedRect(leftBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
-      doc.roundedRect(rightBoxX, y, boxWidth, boxHeight, 3, 3, 'S');
-      doc.setLineDashPattern([], 0); // Reset to solid
+        if (interError || !interData) {
+          console.error('Contract fetch error:', interError);
+          setError("Contractul nu a fost găsit.");
+          return;
+        }
 
-      // Helper text below boxes
-      y += boxHeight + 5;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(7);
-      doc.setTextColor(120, 120, 120);
-      doc.text("Desenati semnatura cu mouse-ul sau degetul", leftBoxX + boxWidth/2, y, { align: 'center' });
-      doc.text("Desenati semnatura cu mouse-ul sau degetul", rightBoxX + boxWidth/2, y, { align: 'center' });
-
-      // Footer note
-      y += 10;
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      const noteText = "Semnaturile digitale vor fi incluse in documentele PDF si Word generate";
-      doc.text(noteText, pageWidth / 2, y, { align: 'center' });
-    }
-
-    return doc;
-  };
-
-  const handlePreviewContract = () => {
-    setPreviewOpen(true);
-  };
-
-  const handleDownloadContract = () => {
-    setIsDownloading(true);
-    try {
-      const doc = generateContractPdf();
-      const fileName = `contract_${contractInfo?.client_name || 'document'}_${Date.now()}.pdf`;
-      doc.save(fileName);
-      toast.success("Contract descărcat cu succes!");
-    } catch (err) {
-      console.error('Error downloading contract:', err);
-      toast.error("Eroare la descărcarea contractului");
-    } finally {
-      setIsDownloading(false);
+        setContractInfo(interData);
+        const signedFieldInt = party === 'client' ? 'chirias_signed' : 'proprietar_signed';
+        if (interData[signedFieldInt]) {
+          setAlreadySigned(true);
+          const { data: sigData } = await supabase
+            .from('contract_signatures')
+            .select('*')
+            .eq('contract_id', id)
+            .eq('party_type', party === 'client' ? 'chirias' : 'proprietar')
+            .maybeSingle();
+          
+          if (sigData) {
+            setSignatureData(sigData.signature_data);
+            setSignedAt(sigData.signed_at);
+          }
+        }
+        return;
+      }
+      default:
+        setError("Tip de contract necunoscut.");
+        return;
     }
   };
 
@@ -488,74 +313,276 @@ const SignContract = () => {
       return;
     }
 
-    if (!signatureInfo) return;
+    if (!contractId || !partyType || !contractType) return;
 
     setIsSigning(true);
     try {
-      const signatureData = signatureRef.current.toDataURL("image/png");
+      const signatureDataUrl = signatureRef.current.toDataURL("image/png");
+      const now = new Date().toISOString();
 
-      const { error: updateError } = await supabase
-        .from('contract_signatures')
-        .update({
-          signature_data: signatureData,
-          signed_at: new Date().toISOString(),
-          signer_name: signatureInfo.party_type === 'proprietar' 
-            ? 'Proprietar' 
-            : `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`.trim()
-        })
-        .eq('signature_token', token);
+      if (contractType === 'inchiriere' && signatureInfo) {
+        // Update contract_signatures table
+        await supabase
+          .from('contract_signatures')
+          .update({
+            signature_data: signatureDataUrl,
+            signed_at: now,
+            signer_name: partyType === 'proprietar' 
+              ? 'Proprietar' 
+              : `${contractInfo?.client_prenume || ''} ${contractInfo?.client_name || ''}`.trim()
+          })
+          .eq('signature_token', token);
 
-      if (updateError) throw updateError;
+        // Update contract signed status
+        const updateField = partyType === 'proprietar' 
+          ? { proprietar_signed: true } 
+          : { chirias_signed: true };
 
-      // Update contract signed status
-      const updateField = signatureInfo.party_type === 'proprietar' 
-        ? { proprietar_signed: true } 
-        : { chirias_signed: true };
+        await supabase
+          .from('contracts')
+          .update(updateField)
+          .eq('id', contractId);
 
-      await supabase
-        .from('contracts')
-        .update(updateField)
-        .eq('id', signatureInfo.contract_id);
-
-      // Trigger auto-generation of signed PDF if both parties have signed
-      try {
-        const { data: autoGenResult, error: autoGenError } = await supabase.functions.invoke(
-          'auto-generate-signed-contract',
-          { body: { contractId: signatureInfo.contract_id } }
-        );
-        
-        if (autoGenError) {
-          console.error('Error triggering auto-generate:', autoGenError);
-        } else if (autoGenResult?.bothSigned) {
-          console.log('Both parties signed, PDF ready for generation');
-          toast.success("Ambele părți au semnat! Contractul final este gata.");
-        } else {
-          // Only one party signed - send notification
-          try {
-            await supabase.functions.invoke('notify-contract-signed', {
-              body: { 
-                contractId: signatureInfo.contract_id, 
-                signerPartyType: signatureInfo.party_type 
-              }
-            });
-            console.log('Signature notification sent');
-          } catch (notifyErr) {
-            console.error('Error sending signature notification:', notifyErr);
-          }
+        // Trigger auto-generation
+        try {
+          await supabase.functions.invoke('auto-generate-signed-contract', {
+            body: { contractId }
+          });
+        } catch (e) {
+          console.error('Auto-generate error:', e);
         }
-      } catch (autoGenErr) {
-        console.error('Error calling auto-generate function:', autoGenErr);
+      } else if (contractType === 'comodat') {
+        const signatureField = partyType === 'comodant' ? 'comodant_signature' : 'comodatar_signature';
+        const signedAtField = partyType === 'comodant' ? 'comodant_signed_at' : 'comodatar_signed_at';
+        
+        await supabase
+          .from('comodat_contracts')
+          .update({
+            [signatureField]: signatureDataUrl,
+            [signedAtField]: now,
+            status: 'signed'
+          })
+          .eq('id', contractId);
+      } else if (contractType === 'exclusiv') {
+        const signatureField = partyType === 'beneficiary' ? 'beneficiary_signature' : 'agent_signature';
+        const signedAtField = partyType === 'beneficiary' ? 'beneficiary_signed_at' : 'agent_signed_at';
+        
+        await supabase
+          .from('exclusive_contracts')
+          .update({
+            [signatureField]: signatureDataUrl,
+            [signedAtField]: now,
+            status: 'signed'
+          })
+          .eq('id', contractId);
+      } else if (contractType === 'intermediere') {
+        const signedField = partyType === 'client' ? 'chirias_signed' : 'proprietar_signed';
+        
+        await supabase
+          .from('contracts')
+          .update({ [signedField]: true })
+          .eq('id', contractId);
+
+        // Also create/update signature entry
+        const { data: existingSig } = await supabase
+          .from('contract_signatures')
+          .select('id')
+          .eq('contract_id', contractId)
+          .eq('party_type', partyType === 'client' ? 'chirias' : 'proprietar')
+          .maybeSingle();
+
+        if (existingSig) {
+          await supabase
+            .from('contract_signatures')
+            .update({
+              signature_data: signatureDataUrl,
+              signed_at: now
+            })
+            .eq('id', existingSig.id);
+        } else {
+          await supabase
+            .from('contract_signatures')
+            .insert({
+              contract_id: contractId,
+              party_type: partyType === 'client' ? 'chirias' : 'proprietar',
+              signature_data: signatureDataUrl,
+              signed_at: now,
+              signer_name: contractInfo?.client_name || ''
+            });
+        }
       }
 
       toast.success("Contractul a fost semnat cu succes!");
-      
-      // Refresh to show signed state
-      await fetchSignatureInfo();
+      setAlreadySigned(true);
+      setSignatureData(signatureDataUrl);
+      setSignedAt(now);
     } catch (err) {
       console.error('Error signing contract:', err);
       toast.error("Eroare la semnarea contractului");
     } finally {
       setIsSigning(false);
+    }
+  };
+
+  const getContractTypeLabel = () => {
+    switch (contractType) {
+      case 'inchiriere': return 'Închiriere';
+      case 'comodat': return 'Comodat';
+      case 'exclusiv': return 'Reprezentare Exclusivă';
+      case 'intermediere': return 'Intermediere';
+      default: return 'Contract';
+    }
+  };
+
+  const getPartyLabel = () => {
+    switch (contractType) {
+      case 'inchiriere':
+        return partyType === 'proprietar' ? 'Proprietar' : 'Chiriaș';
+      case 'comodat':
+        return partyType === 'comodant' ? 'Comodant' : 'Comodatar';
+      case 'exclusiv':
+        return partyType === 'beneficiary' ? 'Beneficiar' : 'Prestator/Agent';
+      case 'intermediere':
+        return partyType === 'client' ? 'Client' : 'Intermediar';
+      default:
+        return partyType || '';
+    }
+  };
+
+  const getContractIcon = () => {
+    switch (contractType) {
+      case 'inchiriere': return <Home className="h-12 w-12 text-cyan-500 mx-auto mb-4" />;
+      case 'comodat': return <Handshake className="h-12 w-12 text-emerald-500 mx-auto mb-4" />;
+      case 'exclusiv': return <Building2 className="h-12 w-12 text-purple-500 mx-auto mb-4" />;
+      case 'intermediere': return <Users className="h-12 w-12 text-orange-500 mx-auto mb-4" />;
+      default: return <FileText className="h-12 w-12 text-primary mx-auto mb-4" />;
+    }
+  };
+
+  const renderContractDetails = () => {
+    if (!contractInfo) return null;
+
+    switch (contractType) {
+      case 'inchiriere':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Chiriaș</p>
+              <p className="font-medium">{contractInfo.client_prenume} {contractInfo.client_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Data Contract</p>
+              <p className="font-medium">{contractInfo.contract_date}</p>
+            </div>
+            <div className="col-span-1 sm:col-span-2">
+              <p className="text-muted-foreground">Adresa Proprietății</p>
+              <p className="font-medium">{contractInfo.property_address}</p>
+            </div>
+            {contractInfo.property_price && (
+              <div>
+                <p className="text-muted-foreground">Chirie Lunară</p>
+                <p className="font-medium">{contractInfo.property_price.toLocaleString()} {contractInfo.property_currency || 'EUR'}</p>
+              </div>
+            )}
+            {contractInfo.duration_months && (
+              <div>
+                <p className="text-muted-foreground">Durată</p>
+                <p className="font-medium">{contractInfo.duration_months} luni</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'comodat':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Comodant</p>
+              <p className="font-medium">{contractInfo.comodant_prenume} {contractInfo.comodant_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Comodatar</p>
+              <p className="font-medium">{contractInfo.comodatar_prenume} {contractInfo.comodatar_name}</p>
+            </div>
+            <div className="col-span-1 sm:col-span-2">
+              <p className="text-muted-foreground">Adresa Proprietății</p>
+              <p className="font-medium">{contractInfo.property_address}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Data Contract</p>
+              <p className="font-medium">{contractInfo.contract_date}</p>
+            </div>
+            {contractInfo.duration_months && (
+              <div>
+                <p className="text-muted-foreground">Durată</p>
+                <p className="font-medium">{contractInfo.duration_months} luni</p>
+              </div>
+            )}
+            {contractInfo.purpose && (
+              <div className="col-span-1 sm:col-span-2">
+                <p className="text-muted-foreground">Scop</p>
+                <p className="font-medium">{contractInfo.purpose}</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'exclusiv':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Beneficiar</p>
+              <p className="font-medium">{contractInfo.beneficiary_prenume} {contractInfo.beneficiary_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Data Contract</p>
+              <p className="font-medium">{contractInfo.contract_date}</p>
+            </div>
+            <div className="col-span-1 sm:col-span-2">
+              <p className="text-muted-foreground">Adresa Proprietății</p>
+              <p className="font-medium">{contractInfo.property_address}</p>
+            </div>
+            {contractInfo.sales_price && (
+              <div>
+                <p className="text-muted-foreground">Preț Vânzare</p>
+                <p className="font-medium">{contractInfo.sales_price.toLocaleString()} {contractInfo.currency || 'EUR'}</p>
+              </div>
+            )}
+            {contractInfo.commission_percent && (
+              <div>
+                <p className="text-muted-foreground">Comision</p>
+                <p className="font-medium">{contractInfo.commission_percent}%</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'intermediere':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Client</p>
+              <p className="font-medium">{contractInfo.client_prenume} {contractInfo.client_name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Data Contract</p>
+              <p className="font-medium">{contractInfo.contract_date}</p>
+            </div>
+            <div className="col-span-1 sm:col-span-2">
+              <p className="text-muted-foreground">Criterii Căutare</p>
+              <p className="font-medium">{contractInfo.property_address}</p>
+            </div>
+            {contractInfo.duration_months && (
+              <div>
+                <p className="text-muted-foreground">Durată</p>
+                <p className="font-medium">{contractInfo.duration_months} luni</p>
+              </div>
+            )}
+          </div>
+        );
+      
+      default:
+        return null;
     }
   };
 
@@ -589,7 +616,7 @@ const SignContract = () => {
     );
   }
 
-  if (signatureInfo?.signature_data) {
+  if (alreadySigned) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="max-w-md w-full">
@@ -599,67 +626,39 @@ const SignContract = () => {
             </div>
             <CardTitle>Contract Semnat</CardTitle>
             <CardDescription>
-              Acest contract a fost deja semnat la data de{" "}
-              {new Date(signatureInfo.signed_at!).toLocaleDateString('ro-RO', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              Acest contract a fost deja semnat
+              {signedAt && (
+                <> la data de{" "}
+                {new Date(signedAt).toLocaleDateString('ro-RO', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}</>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="border rounded-lg p-4 bg-white">
-              <p className="text-sm text-muted-foreground mb-2 text-center">Semnătura dvs.:</p>
-              <img 
-                src={signatureInfo.signature_data} 
-                alt="Semnătură" 
-                className="max-h-24 mx-auto"
-              />
-            </div>
+            {signatureData && (
+              <div className="border rounded-lg p-4 bg-white">
+                <p className="text-sm text-muted-foreground mb-2 text-center">Semnătura dvs.:</p>
+                <img 
+                  src={signatureData} 
+                  alt="Semnătură" 
+                  className="max-h-24 mx-auto"
+                />
+              </div>
+            )}
             
-            {/* Preview and Download buttons */}
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={handlePreviewContract}
-                className="flex-1"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Previzualizare
-              </Button>
-              <Button 
-                onClick={handleDownloadContract}
-                disabled={isDownloading}
-                className="flex-1"
-              >
-                {isDownloading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-                Descarcă
-              </Button>
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">Tip Contract</p>
+              <p className="font-medium">{getContractTypeLabel()}</p>
+              <p className="text-sm text-muted-foreground mt-2 mb-1">Semnatar</p>
+              <p className="font-medium">{getPartyLabel()}</p>
             </div>
           </CardContent>
         </Card>
-        
-        {/* Preview Dialog */}
-        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-            <DialogHeader>
-              <DialogTitle>Previzualizare Contract</DialogTitle>
-            </DialogHeader>
-            <div className="mt-4">
-              <iframe
-                src={URL.createObjectURL(new Blob([generateContractPdf().output('blob')], { type: 'application/pdf' }))}
-                className="w-full h-[70vh] border rounded"
-                title="Contract Preview"
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }
@@ -669,10 +668,10 @@ const SignContract = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center py-6">
-          <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h1 className="text-2xl font-bold">Semnare Contract de Închiriere</h1>
+          {getContractIcon()}
+          <h1 className="text-2xl font-bold">Semnare Contract de {getContractTypeLabel()}</h1>
           <p className="text-muted-foreground mt-2">
-            {signatureInfo?.party_type === 'proprietar' ? 'Semnătură Proprietar' : 'Semnătură Chiriaș'}
+            Semnătură {getPartyLabel()}
           </p>
         </div>
 
@@ -682,60 +681,12 @@ const SignContract = () => {
             <CardTitle className="text-lg">Detalii Contract</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">Chiriaș</p>
-                <p className="font-medium">
-                  {contractInfo?.client_prenume} {contractInfo?.client_name}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Data Contract</p>
-                <p className="font-medium">{contractInfo?.contract_date}</p>
-              </div>
-              <div className="col-span-1 sm:col-span-2">
-                <p className="text-muted-foreground">Adresa Proprietății</p>
-                <p className="font-medium">{contractInfo?.property_address}</p>
-              </div>
-              {contractInfo?.property_price && (
-                <div>
-                  <p className="text-muted-foreground">Chirie Lunară</p>
-                  <p className="font-medium">{contractInfo.property_price.toLocaleString()} €</p>
-                </div>
-              )}
-            </div>
-            
-            {/* Preview and Download buttons */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Button 
-                variant="outline" 
-                onClick={handlePreviewContract}
-                className="flex-1"
-                size="sm"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Previzualizare Contract
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleDownloadContract}
-                disabled={isDownloading}
-                className="flex-1"
-                size="sm"
-              >
-                {isDownloading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-                Descarcă Contract
-              </Button>
-            </div>
+            {renderContractDetails()}
           </CardContent>
         </Card>
 
-        {/* Inventory Section */}
-        {inventoryItems.length > 0 && (
+        {/* Inventory Section - only for rental contracts */}
+        {contractType === 'inchiriere' && inventoryItems.length > 0 && (
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
@@ -779,6 +730,7 @@ const SignContract = () => {
           </Card>
         )}
 
+        {/* Signature Card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Semnătura Dvs.</CardTitle>
@@ -846,22 +798,6 @@ const SignContract = () => {
           </CardContent>
         </Card>
       </div>
-      
-      {/* Preview Dialog */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>Previzualizare Contract</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <iframe
-              src={previewOpen ? URL.createObjectURL(new Blob([generateContractPdf().output('blob')], { type: 'application/pdf' })) : ''}
-              className="w-full h-[70vh] border rounded"
-              title="Contract Preview"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
