@@ -309,12 +309,34 @@ const GeneratedContractsPage = () => {
   const { rental: displayRental, exclusive: displayExclusive, comodat: displayComodat } = getContractsByTab();
   const totalCount = displayRental.length + displayExclusive.length + displayComodat.length;
 
-  const openFile = (url: string | null) => {
+  // Helper to extract relative path from full storage URL
+  const getRelativeStoragePath = (fullUrl: string): string => {
+    const match = fullUrl.match(/\/contracts\/(.+)$/);
+    return match ? match[1] : fullUrl;
+  };
+
+  const openFile = async (url: string | null) => {
     if (!url) {
       toast.error("Fișierul nu este disponibil");
       return;
     }
-    window.open(url, "_blank");
+    
+    try {
+      // Extract relative path from full URL and create signed URL
+      const relativePath = getRelativeStoragePath(url);
+      const { data } = await supabase.storage
+        .from('contracts')
+        .createSignedUrl(relativePath, 3600);
+      
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, "_blank");
+      } else {
+        toast.error("Nu s-a putut accesa fișierul");
+      }
+    } catch (error) {
+      console.error('Error opening file:', error);
+      toast.error("Eroare la deschiderea fișierului");
+    }
   };
 
   const openEmailDialog = (

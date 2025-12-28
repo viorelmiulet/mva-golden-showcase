@@ -1296,6 +1296,14 @@ const ContractGeneratorPage = () => {
     setEmailDialogOpen(true);
   };
 
+  // Helper to extract relative path from full storage URL
+  const getRelativeStoragePath = (fullUrl: string): string => {
+    // Extract the filename from the full Supabase storage URL
+    // URL format: https://xxx.supabase.co/storage/v1/object/public/contracts/filename.pdf
+    const match = fullUrl.match(/\/contracts\/(.+)$/);
+    return match ? match[1] : fullUrl;
+  };
+
   const openPreviewDialog = async (contract: SavedContract) => {
     // If we have a pdf_url, use it directly
     if (contract.pdf_url) {
@@ -1304,9 +1312,12 @@ const ContractGeneratorPage = () => {
       setPreviewDialogOpen(true);
       
       try {
+        // Extract relative path from full URL
+        const relativePath = getRelativeStoragePath(contract.pdf_url);
+        
         const { data } = await supabase.storage
           .from('contracts')
-          .createSignedUrl(contract.pdf_url, 3600); // 1 hour expiry
+          .createSignedUrl(relativePath, 3600); // 1 hour expiry
         
         if (data?.signedUrl) {
           setPreviewPdfUrl(data.signedUrl);
