@@ -70,16 +70,35 @@ interface ExclusiveContract {
   pdf_url: string | null;
 }
 
+interface ComodatContract {
+  id: string;
+  created_at: string;
+  comodant_name: string;
+  comodant_prenume: string | null;
+  comodatar_name: string;
+  comodatar_prenume: string | null;
+  property_address: string;
+  property_type: string | null;
+  contract_date: string;
+  duration_months: number | null;
+  purpose: string | null;
+  comodant_signed_at: string | null;
+  comodatar_signed_at: string | null;
+  pdf_url: string | null;
+  status: string | null;
+}
+
 type ContractTab = "toate" | "inchiriere" | "comodat" | "exclusiv" | "intermediere";
 
 const GeneratedContractsPage = () => {
   const [rentalContracts, setRentalContracts] = useState<RentalContract[]>([]);
   const [exclusiveContracts, setExclusiveContracts] = useState<ExclusiveContract[]>([]);
+  const [comodatContracts, setComodatContracts] = useState<ComodatContract[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<ContractTab>("toate");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" } | null>(null);
+  const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" | "comodat" } | null>(null);
 
   useEffect(() => {
     fetchContracts();
@@ -88,7 +107,7 @@ const GeneratedContractsPage = () => {
   const fetchContracts = async () => {
     setIsLoading(true);
     try {
-      const [rentalRes, exclusiveRes] = await Promise.all([
+      const [rentalRes, exclusiveRes, comodatRes] = await Promise.all([
         supabase
           .from("contracts")
           .select("*")
@@ -97,13 +116,19 @@ const GeneratedContractsPage = () => {
           .from("exclusive_contracts")
           .select("*")
           .order("created_at", { ascending: false }),
+        supabase
+          .from("comodat_contracts")
+          .select("*")
+          .order("created_at", { ascending: false }),
       ]);
 
       if (rentalRes.error) throw rentalRes.error;
       if (exclusiveRes.error) throw exclusiveRes.error;
+      if (comodatRes.error) throw comodatRes.error;
 
       setRentalContracts(rentalRes.data || []);
       setExclusiveContracts(exclusiveRes.data || []);
+      setComodatContracts(comodatRes.data || []);
     } catch (error) {
       console.error("Error fetching contracts:", error);
       toast.error("Eroare la încărcarea contractelor");
@@ -116,7 +141,11 @@ const GeneratedContractsPage = () => {
     if (!contractToDelete) return;
 
     try {
-      const table = contractToDelete.type === "rental" ? "contracts" : "exclusive_contracts";
+      const table = contractToDelete.type === "rental" 
+        ? "contracts" 
+        : contractToDelete.type === "exclusive" 
+          ? "exclusive_contracts" 
+          : "comodat_contracts";
       const { error } = await supabase.from(table).delete().eq("id", contractToDelete.id);
 
       if (error) throw error;
@@ -153,6 +182,15 @@ const GeneratedContractsPage = () => {
     return { label: "Nesemnat", color: "bg-muted text-muted-foreground border-border", icon: AlertCircle };
   };
 
+  const getComodatStatus = (contract: ComodatContract) => {
+    if (contract.comodant_signed_at && contract.comodatar_signed_at) {
+      return { label: "Semnat", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle };
+    } else if (contract.comodant_signed_at || contract.comodatar_signed_at) {
+      return { label: "Parțial", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: Clock };
+    }
+    return { label: "Nesemnat", color: "bg-muted text-muted-foreground border-border", icon: AlertCircle };
+  };
+
   // Filter contracts based on search
   const filterBySearch = <T extends { property_address: string }>(
     contracts: T[],
@@ -176,24 +214,29 @@ const GeneratedContractsPage = () => {
     (c) => `${c.beneficiary_name} ${c.beneficiary_prenume || ""}`
   );
 
+  const filteredComodat = filterBySearch(
+    comodatContracts,
+    (c) => `${c.comodatar_name} ${c.comodatar_prenume || ""}`
+  );
+
   // Get contracts by tab
   const getContractsByTab = () => {
     switch (activeTab) {
       case "inchiriere":
-        return { rental: filteredRental, exclusive: [] };
+        return { rental: filteredRental, exclusive: [], comodat: [] };
       case "exclusiv":
-        return { rental: [], exclusive: filteredExclusive };
+        return { rental: [], exclusive: filteredExclusive, comodat: [] };
       case "comodat":
+        return { rental: [], exclusive: [], comodat: filteredComodat };
       case "intermediere":
-        // These types don't exist yet, return empty
-        return { rental: [], exclusive: [] };
+        return { rental: [], exclusive: [], comodat: [] };
       default:
-        return { rental: filteredRental, exclusive: filteredExclusive };
+        return { rental: filteredRental, exclusive: filteredExclusive, comodat: filteredComodat };
     }
   };
 
-  const { rental: displayRental, exclusive: displayExclusive } = getContractsByTab();
-  const totalCount = displayRental.length + displayExclusive.length;
+  const { rental: displayRental, exclusive: displayExclusive, comodat: displayComodat } = getContractsByTab();
+  const totalCount = displayRental.length + displayExclusive.length + displayComodat.length;
 
   const openFile = (url: string | null) => {
     if (!url) {

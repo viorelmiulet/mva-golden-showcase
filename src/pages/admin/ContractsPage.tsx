@@ -1,14 +1,15 @@
 import { useState, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen, Handshake } from "lucide-react";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
 const ExclusiveRepresentationPage = lazy(() => import("./ExclusiveRepresentationPage"));
 const GeneratedContractsPage = lazy(() => import("./GeneratedContractsPage"));
+const ComodatContractPage = lazy(() => import("./ComodatContractPage"));
 
-type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate";
+type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate" | "comodat";
 
 const contractTypes = [
   {
@@ -42,6 +43,22 @@ const contractTypes = [
     gradient: "from-cyan-500/20 to-blue-600/20",
     iconBg: "bg-cyan-500/20",
     iconColor: "text-cyan-400",
+  },
+  {
+    id: "comodat" as const,
+    title: "Contract Comodat",
+    description: "Contract de împrumut de folosință gratuită pentru imobile",
+    icon: Handshake,
+    secondaryIcon: Home,
+    features: [
+      "Folosință gratuită",
+      "Sediu social / locuință",
+      "Generare PDF automată",
+      "Obligații părți",
+    ],
+    gradient: "from-emerald-500/20 to-green-600/20",
+    iconBg: "bg-emerald-500/20",
+    iconColor: "text-emerald-400",
   },
   {
     id: "reprezentare-exclusiva" as const,
@@ -85,6 +102,7 @@ const ContractsPage = () => {
         >
           {selectedType === "generate" && <GeneratedContractsPage />}
           {selectedType === "inchiriere" && <ContractGeneratorPage />}
+          {selectedType === "comodat" && <ComodatContractPage />}
           {selectedType === "reprezentare-exclusiva" && <ExclusiveRepresentationPage />}
         </Suspense>
       </div>

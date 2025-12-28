@@ -265,6 +265,132 @@ export type Database = {
         }
         Relationships: []
       }
+      comodat_contracts: {
+        Row: {
+          comodant_adresa: string | null
+          comodant_ci_data_emiterii: string | null
+          comodant_ci_emitent: string | null
+          comodant_cnp: string | null
+          comodant_email: string | null
+          comodant_name: string
+          comodant_numar_ci: string | null
+          comodant_phone: string | null
+          comodant_prenume: string | null
+          comodant_seria_ci: string | null
+          comodant_signature: string | null
+          comodant_signed_at: string | null
+          comodatar_adresa: string | null
+          comodatar_ci_data_emiterii: string | null
+          comodatar_ci_emitent: string | null
+          comodatar_cnp: string | null
+          comodatar_email: string | null
+          comodatar_name: string
+          comodatar_numar_ci: string | null
+          comodatar_phone: string | null
+          comodatar_prenume: string | null
+          comodatar_seria_ci: string | null
+          comodatar_signature: string | null
+          comodatar_signed_at: string | null
+          contract_date: string
+          created_at: string
+          docx_url: string | null
+          duration_months: number | null
+          id: string
+          pdf_url: string | null
+          property_address: string
+          property_features: string | null
+          property_rooms: number | null
+          property_surface: number | null
+          property_type: string | null
+          purpose: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          comodant_adresa?: string | null
+          comodant_ci_data_emiterii?: string | null
+          comodant_ci_emitent?: string | null
+          comodant_cnp?: string | null
+          comodant_email?: string | null
+          comodant_name: string
+          comodant_numar_ci?: string | null
+          comodant_phone?: string | null
+          comodant_prenume?: string | null
+          comodant_seria_ci?: string | null
+          comodant_signature?: string | null
+          comodant_signed_at?: string | null
+          comodatar_adresa?: string | null
+          comodatar_ci_data_emiterii?: string | null
+          comodatar_ci_emitent?: string | null
+          comodatar_cnp?: string | null
+          comodatar_email?: string | null
+          comodatar_name: string
+          comodatar_numar_ci?: string | null
+          comodatar_phone?: string | null
+          comodatar_prenume?: string | null
+          comodatar_seria_ci?: string | null
+          comodatar_signature?: string | null
+          comodatar_signed_at?: string | null
+          contract_date: string
+          created_at?: string
+          docx_url?: string | null
+          duration_months?: number | null
+          id?: string
+          pdf_url?: string | null
+          property_address: string
+          property_features?: string | null
+          property_rooms?: number | null
+          property_surface?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comodant_adresa?: string | null
+          comodant_ci_data_emiterii?: string | null
+          comodant_ci_emitent?: string | null
+          comodant_cnp?: string | null
+          comodant_email?: string | null
+          comodant_name?: string
+          comodant_numar_ci?: string | null
+          comodant_phone?: string | null
+          comodant_prenume?: string | null
+          comodant_seria_ci?: string | null
+          comodant_signature?: string | null
+          comodant_signed_at?: string | null
+          comodatar_adresa?: string | null
+          comodatar_ci_data_emiterii?: string | null
+          comodatar_ci_emitent?: string | null
+          comodatar_cnp?: string | null
+          comodatar_email?: string | null
+          comodatar_name?: string
+          comodatar_numar_ci?: string | null
+          comodatar_phone?: string | null
+          comodatar_prenume?: string | null
+          comodatar_seria_ci?: string | null
+          comodatar_signature?: string | null
+          comodatar_signed_at?: string | null
+          contract_date?: string
+          created_at?: string
+          docx_url?: string | null
+          duration_months?: number | null
+          id?: string
+          pdf_url?: string | null
+          property_address?: string
+          property_features?: string | null
+          property_rooms?: number | null
+          property_surface?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       complexes: {
         Row: {
           created_at: string
