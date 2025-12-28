@@ -11,8 +11,8 @@ const corsHeaders = {
 
 interface NotifyContractSignedRequest {
   contractId: string;
-  signerPartyType: "proprietar" | "chirias";
-  notifyBothPartiesComplete?: boolean;
+  contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+  signerPartyType: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -28,47 +28,175 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { contractId, signerPartyType, notifyBothPartiesComplete }: NotifyContractSignedRequest = await req.json();
+    const { contractId, contractType, signerPartyType }: NotifyContractSignedRequest = await req.json();
 
-    console.log(`Processing notification for contract ${contractId}, signer: ${signerPartyType}, bothComplete: ${notifyBothPartiesComplete}`);
+    console.log(`Processing notification for ${contractType} contract ${contractId}, signer: ${signerPartyType}`);
 
-    if (!contractId) {
+    if (!contractId || !contractType) {
       return new Response(
-        JSON.stringify({ error: "Missing contractId" }),
+        JSON.stringify({ error: "Missing contractId or contractType" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Fetch contract details
-    const { data: contract, error: contractError } = await supabaseClient
-      .from("contracts")
-      .select("*")
-      .eq("id", contractId)
-      .single();
+    let propertyAddress = "";
+    let signerName = "";
+    let otherPartyName = "";
+    let otherPartyType = "";
+    let bothSigned = false;
+    let contractLabel = "";
 
-    if (contractError || !contract) {
-      console.error("Contract not found:", contractError);
-      return new Response(
-        JSON.stringify({ error: "Contract not found" }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    // Fetch contract based on type
+    switch (contractType) {
+      case "inchiriere": {
+        const { data: contract, error } = await supabaseClient
+          .from("contracts")
+          .select("*")
+          .eq("id", contractId)
+          .single();
+
+        if (error || !contract) {
+          console.error("Contract not found:", error);
+          return new Response(
+            JSON.stringify({ error: "Contract not found" }),
+            { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        propertyAddress = contract.property_address || "Proprietate";
+        const proprietarName = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`.trim() || "Proprietar";
+        const chiriasName = `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim() || "Chiriaș";
+
+        if (signerPartyType === "proprietar") {
+          signerName = proprietarName;
+          otherPartyName = chiriasName;
+          otherPartyType = "Chiriaș";
+        } else {
+          signerName = chiriasName;
+          otherPartyName = proprietarName;
+          otherPartyType = "Proprietar";
+        }
+
+        bothSigned = contract.proprietar_signed && contract.chirias_signed;
+        contractLabel = "Contract Închiriere";
+        break;
+      }
+
+      case "comodat": {
+        const { data: contract, error } = await supabaseClient
+          .from("comodat_contracts")
+          .select("*")
+          .eq("id", contractId)
+          .single();
+
+        if (error || !contract) {
+          console.error("Contract not found:", error);
+          return new Response(
+            JSON.stringify({ error: "Contract not found" }),
+            { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        propertyAddress = contract.property_address || "Proprietate";
+        const comodantName = `${contract.comodant_prenume || ''} ${contract.comodant_name || ''}`.trim() || "Comodant";
+        const comodatarName = `${contract.comodatar_prenume || ''} ${contract.comodatar_name || ''}`.trim() || "Comodatar";
+
+        if (signerPartyType === "comodant") {
+          signerName = comodantName;
+          otherPartyName = comodatarName;
+          otherPartyType = "Comodatar";
+        } else {
+          signerName = comodatarName;
+          otherPartyName = comodantName;
+          otherPartyType = "Comodant";
+        }
+
+        bothSigned = !!contract.comodant_signed_at && !!contract.comodatar_signed_at;
+        contractLabel = "Contract Comodat";
+        break;
+      }
+
+      case "exclusiv": {
+        const { data: contract, error } = await supabaseClient
+          .from("exclusive_contracts")
+          .select("*")
+          .eq("id", contractId)
+          .single();
+
+        if (error || !contract) {
+          console.error("Contract not found:", error);
+          return new Response(
+            JSON.stringify({ error: "Contract not found" }),
+            { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        propertyAddress = contract.property_address || "Proprietate";
+        const beneficiaryName = `${contract.beneficiary_prenume || ''} ${contract.beneficiary_name || ''}`.trim() || "Beneficiar";
+        const agentName = "MVA Imobiliare (Agent)";
+
+        if (signerPartyType === "beneficiary") {
+          signerName = beneficiaryName;
+          otherPartyName = agentName;
+          otherPartyType = "Agent";
+        } else {
+          signerName = agentName;
+          otherPartyName = beneficiaryName;
+          otherPartyType = "Beneficiar";
+        }
+
+        bothSigned = !!contract.beneficiary_signed_at && !!contract.agent_signed_at;
+        contractLabel = "Contract Reprezentare Exclusivă";
+        break;
+      }
+
+      case "intermediere": {
+        const { data: contract, error } = await supabaseClient
+          .from("contracts")
+          .select("*")
+          .eq("id", contractId)
+          .single();
+
+        if (error || !contract) {
+          console.error("Contract not found:", error);
+          return new Response(
+            JSON.stringify({ error: "Contract not found" }),
+            { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
+        }
+
+        propertyAddress = contract.property_address || "Proprietate";
+        const clientName = `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim() || "Client";
+        const intermediarName = "MVA Imobiliare (Intermediar)";
+
+        if (signerPartyType === "client" || signerPartyType === "chirias") {
+          signerName = clientName;
+          otherPartyName = intermediarName;
+          otherPartyType = "Intermediar";
+        } else {
+          signerName = intermediarName;
+          otherPartyName = clientName;
+          otherPartyType = "Client";
+        }
+
+        bothSigned = contract.proprietar_signed && contract.chirias_signed;
+        contractLabel = "Contract Intermediere";
+        break;
+      }
     }
 
-    const propertyAddress = contract.property_address || "Proprietate";
-    const proprietarName = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`.trim() || "Proprietar";
-    const chiriasName = `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim() || "Chiriaș";
+    const signerLabel = signerPartyType === "proprietar" ? "Proprietar" :
+                        signerPartyType === "chirias" ? "Chiriaș" :
+                        signerPartyType === "comodant" ? "Comodant" :
+                        signerPartyType === "comodatar" ? "Comodatar" :
+                        signerPartyType === "beneficiary" ? "Beneficiar" :
+                        signerPartyType === "agent" ? "Agent" :
+                        signerPartyType === "client" ? "Client" :
+                        signerPartyType === "intermediar" ? "Intermediar" : signerPartyType;
 
-    // If both parties have signed, send notification to both
-    if (notifyBothPartiesComplete && contract.proprietar_signed && contract.chirias_signed) {
-      console.log("Both parties signed - sending completion notifications");
-
-      const emailPromises = [];
-
-      // We need email addresses - check if we have them stored somewhere
-      // For now, we'll log this and the admin can see it in the dashboard
-      // In production, you'd want to store email addresses in the contract or signatures table
-
-      // Send notification email about completion (to admin or stored emails)
+    // Build email HTML
+    if (bothSigned) {
+      // Both parties signed - send completion notification
       const completionHtml = `
         <!DOCTYPE html>
         <html>
@@ -80,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <div style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
               <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 30px; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">✓ Contract Complet Semnat</h1>
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">✓ ${contractLabel} Complet Semnat</h1>
                 <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">MVA Imobiliare</p>
               </div>
               
@@ -89,13 +217,12 @@ const handler = async (req: Request): Promise<Response> => {
                 
                 <div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
                   <p style="color: #166534; margin: 0; font-weight: 500;">Detalii Contract:</p>
-                  <p style="color: #166534; margin: 10px 0 0 0;"><strong>Proprietate:</strong> ${propertyAddress}</p>
-                  <p style="color: #166534; margin: 5px 0 0 0;"><strong>Proprietar:</strong> ${proprietarName}</p>
-                  <p style="color: #166534; margin: 5px 0 0 0;"><strong>Chiriaș:</strong> ${chiriasName}</p>
+                  <p style="color: #166534; margin: 10px 0 0 0;"><strong>Tip:</strong> ${contractLabel}</p>
+                  <p style="color: #166534; margin: 5px 0 0 0;"><strong>Proprietate:</strong> ${propertyAddress}</p>
                 </div>
                 
                 <p style="color: #4a4a4a; line-height: 1.6; margin: 20px 0;">
-                  Contractul de închiriere a fost semnat digital de ambele părți și este acum valid. 
+                  Contractul a fost semnat digital de ambele părți și este acum valid. 
                   Puteți descărca documentul PDF final din panoul de administrare.
                 </p>
                 
@@ -118,15 +245,14 @@ const handler = async (req: Request): Promise<Response> => {
         </html>
       `;
 
-      // Send to admin email
       try {
         const emailResponse = await resend.emails.send({
           from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-          to: ["contact@mvaimobiliare.ro"], // Admin email
-          subject: `✓ Contract Complet Semnat - ${propertyAddress}`,
+          to: ["contact@mvaimobiliare.ro"],
+          subject: `✓ ${contractLabel} Complet Semnat - ${propertyAddress}`,
           html: completionHtml,
         });
-        console.log("Completion notification sent to admin:", emailResponse);
+        console.log("Completion notification sent:", emailResponse);
       } catch (emailErr) {
         console.error("Error sending completion email:", emailErr);
       }
@@ -141,26 +267,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Single party signed - notify the other party (if we have their email)
-    const otherParty = signerPartyType === "proprietar" ? "chirias" : "proprietar";
-    const signerName = signerPartyType === "proprietar" ? proprietarName : chiriasName;
-    const otherPartyName = otherParty === "proprietar" ? proprietarName : chiriasName;
-
-    console.log(`${signerName} (${signerPartyType}) signed. Notifying ${otherPartyName} (${otherParty})`);
-
-    // Get signature token for the other party to include link
-    const { data: otherSig, error: otherSigError } = await supabaseClient
-      .from("contract_signatures")
-      .select("signature_token, signed_at")
-      .eq("contract_id", contractId)
-      .eq("party_type", otherParty)
-      .single();
-
-    let signatureUrl = "";
-    if (otherSig && !otherSig.signed_at) {
-      signatureUrl = `https://mvaimobiliare.ro/sign/${otherSig.signature_token}`;
-    }
-
+    // Single party signed - send partial notification
     const partialSignHtml = `
       <!DOCTYPE html>
       <html>
@@ -171,35 +278,26 @@ const handler = async (req: Request): Promise<Response> => {
       <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <div style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
-            <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 30px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">Notificare Semnare Contract</h1>
+            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">📝 Semnătură Nouă - ${contractLabel}</h1>
               <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">MVA Imobiliare</p>
             </div>
             
             <div style="padding: 40px 30px;">
               <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 20px;">O parte a semnat contractul!</h2>
               
-              <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                <p style="color: #1e40af; margin: 0;"><strong>${signerName}</strong> (${signerPartyType === 'proprietar' ? 'Proprietar' : 'Chiriaș'}) a semnat contractul pentru:</p>
-                <p style="color: #1e40af; margin: 10px 0 0 0; font-weight: 500;">${propertyAddress}</p>
+              <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                <p style="color: #92400e; margin: 0;"><strong>${signerName}</strong> (${signerLabel}) a semnat contractul pentru:</p>
+                <p style="color: #92400e; margin: 10px 0 0 0; font-weight: 500;">${propertyAddress}</p>
               </div>
               
               <p style="color: #4a4a4a; line-height: 1.6; margin: 20px 0;">
-                Se așteaptă semnătura ${otherParty === 'proprietar' ? 'proprietarului' : 'chiriașului'} pentru finalizarea contractului.
+                Se așteaptă semnătura celeilalte părți (<strong>${otherPartyType}</strong>) pentru finalizarea contractului.
               </p>
               
-              ${signatureUrl ? `
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${signatureUrl}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
-                  Semnează Acum
-                </a>
-              </div>
-              ` : ''}
-              
-              <div style="text-align: center; margin: 20px 0;">
                 <a href="https://mvaimobiliare.ro/admin/contracte" 
-                   style="color: #D4AF37; text-decoration: underline; font-size: 14px;">
+                   style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
                   Vezi în Panoul Admin
                 </a>
               </div>
@@ -216,12 +314,11 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send notification to admin about partial signing
     try {
       const emailResponse = await resend.emails.send({
         from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-        to: ["contact@mvaimobiliare.ro"], // Admin email
-        subject: `Contract Semnat Parțial - ${signerName} (${signerPartyType === 'proprietar' ? 'Proprietar' : 'Chiriaș'})`,
+        to: ["contact@mvaimobiliare.ro"],
+        subject: `📝 ${contractLabel} Semnat Parțial - ${signerName} (${signerLabel})`,
         html: partialSignHtml,
       });
       console.log("Partial sign notification sent:", emailResponse);
@@ -232,7 +329,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: `Notificare trimisă pentru semnarea de către ${signerPartyType}`,
+        message: `Notificare trimisă pentru semnarea de către ${signerLabel}`,
         signerPartyType
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
