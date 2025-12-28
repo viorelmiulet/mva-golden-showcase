@@ -11,16 +11,41 @@ const corsHeaders = {
 
 interface SendSignatureLinkRequest {
   contractId: string;
-  partyType: "proprietar" | "chirias";
+  contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+  partyType: string; // proprietar, chirias, comodant, comodatar, beneficiary, client
   recipientEmail: string;
   recipientName: string;
   propertyAddress: string;
 }
 
+const getContractTypeLabel = (contractType: string): string => {
+  switch (contractType) {
+    case "inchiriere": return "Închiriere";
+    case "comodat": return "Comodat";
+    case "exclusiv": return "Reprezentare Exclusivă";
+    case "intermediere": return "Intermediere";
+    default: return "Contract";
+  }
+};
+
+const getPartyLabel = (contractType: string, partyType: string): string => {
+  switch (contractType) {
+    case "inchiriere":
+      return partyType === "proprietar" ? "Proprietar" : "Chiriaș";
+    case "comodat":
+      return partyType === "comodant" ? "Comodant" : "Comodatar";
+    case "exclusiv":
+      return partyType === "beneficiary" ? "Beneficiar" : "Prestator";
+    case "intermediere":
+      return partyType === "client" ? "Client" : "Intermediar";
+    default:
+      return partyType;
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("send-signature-link function called");
 
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -31,13 +56,13 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { contractId, partyType, recipientEmail, recipientName, propertyAddress }: SendSignatureLinkRequest = await req.json();
+    const { contractId, contractType, partyType, recipientEmail, recipientName, propertyAddress }: SendSignatureLinkRequest = await req.json();
 
-    console.log(`Sending signature link for contract ${contractId} to ${partyType}: ${recipientEmail}`);
+    console.log(`Sending signature link for ${contractType} contract ${contractId} to ${partyType}: ${recipientEmail}`);
 
-    if (!contractId || !partyType || !recipientEmail) {
+    if (!contractId || !contractType || !partyType || !recipientEmail) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: contractId, partyType, recipientEmail" }),
+        JSON.stringify({ error: "Missing required fields: contractId, contractType, partyType, recipientEmail" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -45,45 +70,137 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get signature token from database
-    const { data: signature, error: sigError } = await supabaseClient
-      .from("contract_signatures")
-      .select("signature_token, signed_at")
-      .eq("contract_id", contractId)
-      .eq("party_type", partyType)
-      .single();
+    // Determine table and signature handling based on contract type
+    let signatureToken: string | null = null;
+    let alreadySigned = false;
 
-    if (sigError || !signature) {
-      console.error("Error fetching signature:", sigError);
-      return new Response(
-        JSON.stringify({ error: "Signature link not found for this contract" }),
-        {
-          status: 404,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
+    if (contractType === "inchiriere") {
+      // For rental contracts, check contract_signatures table
+      const { data: signature, error: sigError } = await supabaseClient
+        .from("contract_signatures")
+        .select("signature_token, signed_at")
+        .eq("contract_id", contractId)
+        .eq("party_type", partyType)
+        .maybeSingle();
+
+      if (sigError) {
+        console.error("Error fetching signature:", sigError);
+      }
+
+      if (signature) {
+        signatureToken = signature.signature_token;
+        alreadySigned = !!signature.signed_at;
+      } else {
+        // Create signature entry if not exists
+        const { data: newSig, error: createError } = await supabaseClient
+          .from("contract_signatures")
+          .insert({
+            contract_id: contractId,
+            party_type: partyType,
+            signer_name: recipientName,
+          })
+          .select("signature_token")
+          .single();
+
+        if (createError) {
+          console.error("Error creating signature entry:", createError);
+          return new Response(
+            JSON.stringify({ error: "Failed to create signature entry" }),
+            { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+          );
         }
+        signatureToken = newSig.signature_token;
+      }
+    } else if (contractType === "comodat") {
+      // For comodat contracts, use the comodat_contracts table
+      const signatureField = partyType === "comodant" ? "comodant_signed_at" : "comodatar_signed_at";
+      
+      const { data: contract, error: contractError } = await supabaseClient
+        .from("comodat_contracts")
+        .select("id, " + signatureField)
+        .eq("id", contractId)
+        .maybeSingle();
+
+      if (contractError || !contract) {
+        console.error("Error fetching comodat contract:", contractError);
+        return new Response(
+          JSON.stringify({ error: "Contract not found" }),
+          { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      alreadySigned = !!contract[signatureField];
+      signatureToken = `${contractType}_${contractId}_${partyType}`;
+    } else if (contractType === "exclusiv") {
+      // For exclusive contracts
+      const signatureField = partyType === "beneficiary" ? "beneficiary_signed_at" : "agent_signed_at";
+      
+      const { data: contract, error: contractError } = await supabaseClient
+        .from("exclusive_contracts")
+        .select("id, " + signatureField)
+        .eq("id", contractId)
+        .maybeSingle();
+
+      if (contractError || !contract) {
+        console.error("Error fetching exclusive contract:", contractError);
+        return new Response(
+          JSON.stringify({ error: "Contract not found" }),
+          { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      alreadySigned = !!contract[signatureField];
+      signatureToken = `${contractType}_${contractId}_${partyType}`;
+    } else if (contractType === "intermediere") {
+      // For intermediation contracts (stored in contracts table)
+      const signatureField = partyType === "client" ? "chirias_signed" : "proprietar_signed";
+      
+      const { data: contract, error: contractError } = await supabaseClient
+        .from("contracts")
+        .select("id, " + signatureField)
+        .eq("id", contractId)
+        .eq("contract_type", "intermediere")
+        .maybeSingle();
+
+      if (contractError || !contract) {
+        console.error("Error fetching intermediation contract:", contractError);
+        return new Response(
+          JSON.stringify({ error: "Contract not found" }),
+          { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+
+      alreadySigned = !!contract[signatureField];
+      signatureToken = `${contractType}_${contractId}_${partyType}`;
+    }
+
+    if (!signatureToken) {
+      return new Response(
+        JSON.stringify({ error: "Could not generate signature token" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    if (signature.signed_at) {
+    if (alreadySigned) {
       return new Response(
-        JSON.stringify({ error: "This contract has already been signed" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        JSON.stringify({ error: "Acest contract a fost deja semnat de această parte" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Build the signature URL - use production domain
-    const signatureUrl = `https://mvaimobiliare.ro/sign/${signature.signature_token}`;
+    // Build the signature URL
+    const signatureUrl = contractType === "inchiriere" 
+      ? `https://mvaimobiliare.ro/sign/${signatureToken}`
+      : `https://mvaimobiliare.ro/sign/${signatureToken}`;
 
-    const partyLabel = partyType === "proprietar" ? "Proprietar" : "Chiriaș";
+    const contractTypeLabel = getContractTypeLabel(contractType);
+    const partyLabel = getPartyLabel(contractType, partyType);
 
     // Send email with signature link
     const emailResponse = await resend.emails.send({
       from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
       to: [recipientEmail],
-      subject: `Semnatura Contract Inchiriere - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
+      subject: `Semnătură Contract ${contractTypeLabel} - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -97,7 +214,7 @@ const handler = async (req: Request): Promise<Response> => {
               <!-- Header -->
               <div style="background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); padding: 30px; text-align: center;">
                 <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">MVA Imobiliare</h1>
-                <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">Contract de Închiriere</p>
+                <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">Contract de ${contractTypeLabel}</p>
               </div>
               
               <!-- Content -->
@@ -105,12 +222,12 @@ const handler = async (req: Request): Promise<Response> => {
                 <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 20px;">Bună ziua${recipientName ? `, ${recipientName}` : ''},</h2>
                 
                 <p style="color: #4a4a4a; line-height: 1.6; margin: 0 0 20px 0;">
-                  Ați primit acest email pentru a semna electronic contractul de închiriere în calitate de <strong>${partyLabel}</strong>.
+                  Ați primit acest email pentru a semna electronic contractul de ${contractTypeLabel.toLowerCase()} în calitate de <strong>${partyLabel}</strong>.
                 </p>
                 
                 ${propertyAddress ? `
                 <div style="background-color: #f8f9fa; border-left: 4px solid #D4AF37; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                  <p style="color: #666; margin: 0; font-size: 13px;">Proprietate:</p>
+                  <p style="color: #666; margin: 0; font-size: 13px;">${contractType === "intermediere" ? "Criterii căutare:" : "Proprietate:"}</p>
                   <p style="color: #1a1a1a; margin: 5px 0 0 0; font-weight: 500;">${propertyAddress}</p>
                 </div>
                 ` : ''}
