@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   FileText, 
@@ -18,7 +17,8 @@ import {
   Clock,
   AlertCircle,
   Loader2,
-  ExternalLink
+  Handshake,
+  Users
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -70,12 +70,14 @@ interface ExclusiveContract {
   pdf_url: string | null;
 }
 
+type ContractTab = "toate" | "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+
 const GeneratedContractsPage = () => {
   const [rentalContracts, setRentalContracts] = useState<RentalContract[]>([]);
   const [exclusiveContracts, setExclusiveContracts] = useState<ExclusiveContract[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<ContractTab>("toate");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" } | null>(null);
 
@@ -135,54 +137,71 @@ const GeneratedContractsPage = () => {
     const chiriSigned = contract.chirias_signed;
 
     if (propSigned && chiriSigned) {
-      return { label: "Complet semnat", color: "bg-green-500/20 text-green-400", icon: CheckCircle };
+      return { label: "Semnat", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle };
     } else if (propSigned || chiriSigned) {
-      return { label: "Parțial semnat", color: "bg-yellow-500/20 text-yellow-400", icon: Clock };
+      return { label: "Parțial", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: Clock };
     }
-    return { label: "Nesemnat", color: "bg-muted text-muted-foreground", icon: AlertCircle };
+    return { label: "Nesemnat", color: "bg-muted text-muted-foreground border-border", icon: AlertCircle };
   };
 
   const getExclusiveStatus = (contract: ExclusiveContract) => {
     if (contract.beneficiary_signed_at && contract.agent_signed_at) {
-      return { label: "Complet semnat", color: "bg-green-500/20 text-green-400", icon: CheckCircle };
+      return { label: "Semnat", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle };
     } else if (contract.beneficiary_signed_at || contract.agent_signed_at) {
-      return { label: "Parțial semnat", color: "bg-yellow-500/20 text-yellow-400", icon: Clock };
+      return { label: "Parțial", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: Clock };
     }
-    return { label: contract.status === "draft" ? "Draft" : "Nesemnat", color: "bg-muted text-muted-foreground", icon: AlertCircle };
+    return { label: "Nesemnat", color: "bg-muted text-muted-foreground border-border", icon: AlertCircle };
   };
 
-  const filterContracts = <T extends { property_address: string }>(
+  // Filter contracts based on search
+  const filterBySearch = <T extends { property_address: string }>(
     contracts: T[],
-    getName: (c: T) => string,
-    getStatus: (c: T) => { label: string }
+    getName: (c: T) => string
   ) => {
-    return contracts.filter((contract) => {
-      const matchesSearch =
-        getName(contract).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contract.property_address.toLowerCase().includes(searchTerm.toLowerCase());
-
-      if (statusFilter === "all") return matchesSearch;
-
-      const status = getStatus(contract).label;
-      if (statusFilter === "signed" && status === "Complet semnat") return matchesSearch;
-      if (statusFilter === "partial" && status === "Parțial semnat") return matchesSearch;
-      if (statusFilter === "unsigned" && (status === "Nesemnat" || status === "Draft")) return matchesSearch;
-
-      return false;
-    });
+    if (!searchTerm.trim()) return contracts;
+    const query = searchTerm.toLowerCase();
+    return contracts.filter((contract) =>
+      getName(contract).toLowerCase().includes(query) ||
+      contract.property_address.toLowerCase().includes(query)
+    );
   };
 
-  const filteredRental = filterContracts(
+  const filteredRental = filterBySearch(
     rentalContracts,
-    (c) => `${c.client_name} ${c.client_prenume || ""}`,
-    getSignatureStatus
+    (c) => `${c.client_name} ${c.client_prenume || ""}`
   );
 
-  const filteredExclusive = filterContracts(
+  const filteredExclusive = filterBySearch(
     exclusiveContracts,
-    (c) => `${c.beneficiary_name} ${c.beneficiary_prenume || ""}`,
-    getExclusiveStatus
+    (c) => `${c.beneficiary_name} ${c.beneficiary_prenume || ""}`
   );
+
+  // Get contracts by tab
+  const getContractsByTab = () => {
+    switch (activeTab) {
+      case "inchiriere":
+        return { rental: filteredRental, exclusive: [] };
+      case "exclusiv":
+        return { rental: [], exclusive: filteredExclusive };
+      case "comodat":
+      case "intermediere":
+        // These types don't exist yet, return empty
+        return { rental: [], exclusive: [] };
+      default:
+        return { rental: filteredRental, exclusive: filteredExclusive };
+    }
+  };
+
+  const { rental: displayRental, exclusive: displayExclusive } = getContractsByTab();
+  const totalCount = displayRental.length + displayExclusive.length;
+
+  const openFile = (url: string | null) => {
+    if (!url) {
+      toast.error("Fișierul nu este disponibil");
+      return;
+    }
+    window.open(url, "_blank");
+  };
 
   const RentalContractCard = ({ contract }: { contract: RentalContract }) => {
     const status = getSignatureStatus(contract);
@@ -198,7 +217,7 @@ const GeneratedContractsPage = () => {
                 <span className="font-medium text-foreground truncate">
                   {contract.client_name} {contract.client_prenume}
                 </span>
-                <Badge className={`${status.color} shrink-0`}>
+                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {status.label}
                 </Badge>
@@ -230,7 +249,8 @@ const GeneratedContractsPage = () => {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => window.open(contract.pdf_url!, "_blank")}
+                  onClick={() => openFile(contract.pdf_url)}
+                  title="Previzualizare PDF"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -240,7 +260,8 @@ const GeneratedContractsPage = () => {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => window.open(contract.docx_url!, "_blank")}
+                  onClick={() => openFile(contract.docx_url)}
+                  title="Descarcă DOCX"
                 >
                   <Download className="h-4 w-4" />
                 </Button>
@@ -253,6 +274,7 @@ const GeneratedContractsPage = () => {
                   setContractToDelete({ id: contract.id, type: "rental" });
                   setDeleteDialogOpen(true);
                 }}
+                title="Șterge"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -277,7 +299,7 @@ const GeneratedContractsPage = () => {
                 <span className="font-medium text-foreground truncate">
                   {contract.beneficiary_name} {contract.beneficiary_prenume}
                 </span>
-                <Badge className={`${status.color} shrink-0`}>
+                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {status.label}
                 </Badge>
@@ -309,7 +331,8 @@ const GeneratedContractsPage = () => {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => window.open(contract.pdf_url!, "_blank")}
+                  onClick={() => openFile(contract.pdf_url)}
+                  title="Previzualizare PDF"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
@@ -322,6 +345,7 @@ const GeneratedContractsPage = () => {
                   setContractToDelete({ id: contract.id, type: "exclusive" });
                   setDeleteDialogOpen(true);
                 }}
+                title="Șterge"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -331,6 +355,16 @@ const GeneratedContractsPage = () => {
       </Card>
     );
   };
+
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <FileText className="h-16 w-16 text-muted-foreground/30 mb-4" />
+      <p className="text-lg text-muted-foreground mb-1">Nu ai contracte generate încă.</p>
+      <p className="text-sm text-muted-foreground/70">
+        Selectează un tip de contract de mai sus pentru a începe.
+      </p>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -342,136 +376,64 @@ const GeneratedContractsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-6 w-6" />
-          Contracte Generate
-        </h1>
-        <p className="text-muted-foreground">
-          Vizualizează și gestionează toate contractele generate
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <FileText className="h-5 w-5 text-gold" />
+          <h1 className="text-xl font-semibold text-foreground">Contracte Generate</h1>
+          <Badge variant="secondary" className="rounded-full">
+            {rentalContracts.length + exclusiveContracts.length}
+          </Badge>
+        </div>
+        
+        <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Caută după nume sau adresă..."
+            placeholder="Caută contracte..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
+            className="pl-9 bg-muted/50 border-border/50"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filtrează după status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toate</SelectItem>
-            <SelectItem value="signed">Complet semnate</SelectItem>
-            <SelectItem value="partial">Parțial semnate</SelectItem>
-            <SelectItem value="unsigned">Nesemnate</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">
-              {rentalContracts.length + exclusiveContracts.length}
-            </p>
-            <p className="text-xs text-muted-foreground">Total contracte</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50 bg-cyan-500/10">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-cyan-400">{rentalContracts.length}</p>
-            <p className="text-xs text-muted-foreground">Închiriere</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50 bg-purple-500/10">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-purple-400">{exclusiveContracts.length}</p>
-            <p className="text-xs text-muted-foreground">Reprezentare</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50 bg-green-500/10">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-green-400">
-              {rentalContracts.filter((c) => c.proprietar_signed && c.chirias_signed).length +
-                exclusiveContracts.filter((c) => c.beneficiary_signed_at && c.agent_signed_at).length}
-            </p>
-            <p className="text-xs text-muted-foreground">Complet semnate</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">
-            Toate ({filteredRental.length + filteredExclusive.length})
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ContractTab)}>
+        <TabsList className="bg-muted/30 p-1">
+          <TabsTrigger value="toate" className="gap-2 data-[state=active]:bg-background">
+            <FileText className="h-4 w-4" />
+            Toate
           </TabsTrigger>
-          <TabsTrigger value="rental">
-            <Home className="h-4 w-4 mr-1" />
-            Închiriere ({filteredRental.length})
+          <TabsTrigger value="inchiriere" className="gap-2 data-[state=active]:bg-background">
+            <Home className="h-4 w-4" />
+            Închiriere
           </TabsTrigger>
-          <TabsTrigger value="exclusive">
-            <Building2 className="h-4 w-4 mr-1" />
-            Reprezentare ({filteredExclusive.length})
+          <TabsTrigger value="comodat" className="gap-2 data-[state=active]:bg-background">
+            <Handshake className="h-4 w-4" />
+            Comodat
+          </TabsTrigger>
+          <TabsTrigger value="exclusiv" className="gap-2 data-[state=active]:bg-background">
+            <Building2 className="h-4 w-4" />
+            Exclusiv
+          </TabsTrigger>
+          <TabsTrigger value="intermediere" className="gap-2 data-[state=active]:bg-background">
+            <Users className="h-4 w-4" />
+            Intermediere
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-3">
-          {filteredRental.length === 0 && filteredExclusive.length === 0 ? (
-            <Card className="border-border/50 bg-card/50">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nu există contracte generate</p>
-              </CardContent>
-            </Card>
+        <TabsContent value={activeTab} className="mt-6">
+          {totalCount === 0 ? (
+            <EmptyState />
           ) : (
-            <>
-              {filteredRental.map((contract) => (
+            <div className="space-y-3">
+              {displayRental.map((contract) => (
                 <RentalContractCard key={contract.id} contract={contract} />
               ))}
-              {filteredExclusive.map((contract) => (
+              {displayExclusive.map((contract) => (
                 <ExclusiveContractCard key={contract.id} contract={contract} />
               ))}
-            </>
-          )}
-        </TabsContent>
-
-        <TabsContent value="rental" className="space-y-3">
-          {filteredRental.length === 0 ? (
-            <Card className="border-border/50 bg-card/50">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                <Home className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nu există contracte de închiriere</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredRental.map((contract) => (
-              <RentalContractCard key={contract.id} contract={contract} />
-            ))
-          )}
-        </TabsContent>
-
-        <TabsContent value="exclusive" className="space-y-3">
-          {filteredExclusive.length === 0 ? (
-            <Card className="border-border/50 bg-card/50">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nu există contracte de reprezentare exclusivă</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredExclusive.map((contract) => (
-              <ExclusiveContractCard key={contract.id} contract={contract} />
-            ))
+            </div>
           )}
         </TabsContent>
       </Tabs>
