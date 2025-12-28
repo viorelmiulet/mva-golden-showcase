@@ -797,7 +797,9 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-        <Card className="relative overflow-hidden">
+        </motion.div>
+        <motion.div variants={itemVariants}>
+        <Card className="relative overflow-hidden h-full">
           <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">Medie/Zi</CardTitle>
