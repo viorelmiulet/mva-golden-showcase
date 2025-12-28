@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, AnimatedSkeleton, FadeInSkeleton, ChartSkeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -582,7 +582,7 @@ const DashboardPage = () => {
       </CardHeader>
       <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
         {loading ? (
-          <Skeleton className="h-6 md:h-8 w-20 md:w-24" />
+          <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
         ) : (
           <>
             <div className="text-lg md:text-2xl font-bold">{value}</div>
@@ -742,7 +742,7 @@ const DashboardPage = () => {
             </CardHeader>
             <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
               {loadingCommissions ? (
-                <Skeleton className="h-6 md:h-8 w-20 md:w-24" />
+                <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
               ) : (
                 <>
                   <div className="text-lg md:text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
@@ -807,7 +807,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
             {loadingCommissions ? (
-              <Skeleton className="h-6 md:h-8 w-20 md:w-24" />
+              <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
             ) : (
               <>
                 <div className="text-lg md:text-2xl font-bold">{(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €</div>
@@ -924,7 +924,21 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-2 md:p-6 pt-0 h-[200px] md:h-[320px]">
             {loadingCommissions ? (
-              <Skeleton className="h-full w-full" />
+              <div className="h-full w-full flex items-end justify-around gap-2 p-4">
+                {[40, 65, 45, 80, 55, 70, 50, 60, 75, 45, 55, 70].map((height, i) => (
+                  <motion.div
+                    key={i}
+                    className="bg-gold/20 rounded-t w-full"
+                    initial={{ height: 0 }}
+                    animate={{ height: `${height}%` }}
+                    transition={{
+                      duration: 0.5,
+                      delay: i * 0.08,
+                      ease: "easeOut",
+                    }}
+                  />
+                ))}
+              </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={commissionsData?.monthlyTrend || []} margin={isMobile ? { left: -20, right: 0 } : undefined}>
@@ -987,7 +1001,20 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-2 md:p-6 pt-0 h-[180px] md:h-[320px]">
             {loadingCommissions ? (
-              <Skeleton className="h-full w-full" />
+              <div className="h-full w-full flex items-center justify-center">
+                <motion.div
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-full border-8 border-muted"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.6, type: "spring" }}
+                >
+                  <motion.div
+                    className="w-full h-full rounded-full bg-gradient-to-tr from-gold/20 via-gold/10 to-transparent"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+                </motion.div>
+              </div>
             ) : commissionsData?.typeDistribution && commissionsData.typeDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -1051,7 +1078,21 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent className="p-2 md:p-6 pt-0 h-[220px] md:h-[280px]">
           {loadingComplexes ? (
-            <Skeleton className="h-full w-full" />
+            <div className="h-full w-full flex items-end justify-around gap-3 p-4">
+              {[60, 45, 75, 50, 65, 40].map((height, i) => (
+                <motion.div
+                  key={i}
+                  className="bg-gradient-to-t from-emerald-500/30 via-gold/20 to-blue-500/20 rounded-t w-full"
+                  initial={{ height: 0 }}
+                  animate={{ height: `${height}%` }}
+                  transition={{
+                    duration: 0.6,
+                    delay: i * 0.1,
+                    ease: "easeOut",
+                  }}
+                />
+              ))}
+            </div>
           ) : complexesData?.complexBreakdown && complexesData.complexBreakdown.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
@@ -1119,7 +1160,26 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
             {loadingProperties ? (
-              <Skeleton className="h-24 md:h-32 w-full" />
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  {[1, 2, 3].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="p-2 rounded-lg bg-muted/50 space-y-2"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      <AnimatedSkeleton className="h-5 w-12 mx-auto" />
+                      <AnimatedSkeleton className="h-3 w-8 mx-auto" />
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-between">
+                  <AnimatedSkeleton className="h-4 w-24" />
+                  <AnimatedSkeleton className="h-5 w-10 rounded-full" />
+                </div>
+              </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
                 <div className="grid grid-cols-3 gap-2 text-center">
@@ -1155,7 +1215,44 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
             {loadingCommissions ? (
-              <Skeleton className="h-24 md:h-32 w-full" />
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="space-y-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.15 }}
+                  >
+                    <div className="flex justify-between">
+                      <AnimatedSkeleton className="h-4 w-20" />
+                      <AnimatedSkeleton className="h-4 w-8" />
+                    </div>
+                    <motion.div
+                      className="h-2 bg-muted rounded-full overflow-hidden"
+                      initial={{ width: 0 }}
+                      animate={{ width: "100%" }}
+                      transition={{ delay: i * 0.15 + 0.2, duration: 0.4 }}
+                    >
+                      <motion.div
+                        className="h-full bg-gold/50 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${i === 1 ? 65 : 35}%` }}
+                        transition={{ delay: i * 0.15 + 0.4, duration: 0.5 }}
+                      />
+                    </motion.div>
+                  </motion.div>
+                ))}
+                <motion.div
+                  className="pt-2 border-t flex justify-between"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <AnimatedSkeleton className="h-4 w-24" />
+                  <AnimatedSkeleton className="h-4 w-8" />
+                </motion.div>
+              </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center gap-3 md:gap-4">
