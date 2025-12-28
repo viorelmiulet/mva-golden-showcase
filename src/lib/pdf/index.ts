@@ -2,3 +2,4 @@
 export * from './contractPdfUtils';
 export * from './rentalContractPdf';
 export * from './rentalContractDocx';
+export * from './allContractsPdf';
