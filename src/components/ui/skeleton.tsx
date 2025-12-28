@@ -20,19 +20,23 @@ function AnimatedSkeleton({
   className?: string
 }) {
   return (
-    <motion.div
+    <div
       className={cn(
-        "rounded-md bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%]",
+        "rounded-md bg-muted relative overflow-hidden",
         className
       )}
-      initial={{ backgroundPosition: "200% 0" }}
-      animate={{ backgroundPosition: "-200% 0" }}
-      transition={{
-        duration: 1.5,
-        repeat: Infinity,
-        ease: "linear",
-      }}
-    />
+    >
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/5 to-transparent"
+        initial={{ x: "-100%" }}
+        animate={{ x: "100%" }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      />
+    </div>
   )
 }
 
