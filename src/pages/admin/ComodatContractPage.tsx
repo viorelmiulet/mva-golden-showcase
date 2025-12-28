@@ -7,12 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, User, Home, Calendar, Sparkles } from "lucide-react";
+import { Upload, FileText, Download, Loader2, User, Home, Calendar, Sparkles, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
+import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 
 interface PersonData {
   nume: string;
@@ -58,6 +59,8 @@ const ComodatContractPage = () => {
   const [isExtractingComodant, setIsExtractingComodant] = useState(false);
   const [isExtractingComodatar, setIsExtractingComodatar] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [lastSavedContractId, setLastSavedContractId] = useState<string | null>(null);
   
   const [contractData, setContractData] = useState<ComodatData>({
     comodant: { ...emptyPerson },
@@ -401,7 +404,7 @@ const ComodatContractPage = () => {
       const pdfUrl = await uploadContractFile(pdfBlob, pdfFileName);
       
       // Save to database
-      const { error } = await supabase.from('comodat_contracts').insert({
+      const { data: insertedContract, error } = await supabase.from('comodat_contracts').insert({
         comodant_name: contractData.comodant.nume,
         comodant_prenume: contractData.comodant.prenume,
         comodant_cnp: contractData.comodant.cnp,
@@ -433,9 +436,14 @@ const ComodatContractPage = () => {
         purpose: contractData.scop_folosinta,
         pdf_url: pdfUrl,
         status: 'generated',
-      });
+      }).select('id').single();
 
       if (error) throw error;
+
+      // Save the contract ID for email sending
+      if (insertedContract) {
+        setLastSavedContractId(insertedContract.id);
+      }
 
       // Download PDF
       doc.save(pdfFileName);
@@ -782,24 +790,54 @@ const ComodatContractPage = () => {
         </CardContent>
       </Card>
 
-      <Button
-        onClick={generateContract}
-        disabled={isGenerating}
-        className="w-full"
-        size="lg"
-      >
-        {isGenerating ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Se generează...
-          </>
-        ) : (
-          <>
-            <Download className="h-4 w-4 mr-2" />
-            Generează Contract Comodat
-          </>
+      <div className="flex gap-3">
+        <Button
+          onClick={generateContract}
+          disabled={isGenerating}
+          className="flex-1"
+          size="lg"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Se generează...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Generează Contract Comodat
+            </>
+          )}
+        </Button>
+        
+        {lastSavedContractId && (
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setEmailDialogOpen(true)}
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Trimite Link Semnare
+          </Button>
         )}
-      </Button>
+      </div>
+
+      {/* Send Signature Link Dialog */}
+      {lastSavedContractId && (
+        <SendSignatureLinkDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          contractId={lastSavedContractId}
+          contractType="comodat"
+          propertyAddress={contractData.proprietate_adresa}
+          parties={[
+            { value: "comodant", label: "Comodant" },
+            { value: "comodatar", label: "Comodatar" },
+          ]}
+          defaultEmail={contractData.comodatar.email}
+          defaultName={`${contractData.comodatar.prenume} ${contractData.comodatar.nume}`.trim()}
+        />
+      )}
     </div>
   );
 };
