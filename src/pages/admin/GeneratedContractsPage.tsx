@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { 
   FileText, 
   Download, 
@@ -582,7 +582,7 @@ const GeneratedContractsPage = () => {
           <FileText className="h-5 w-5 text-gold" />
           <h1 className="text-xl font-semibold text-foreground">Contracte Generate</h1>
           <Badge variant="secondary" className="rounded-full">
-            {rentalContracts.length + exclusiveContracts.length}
+            {rentalContracts.length + exclusiveContracts.length + comodatContracts.length}
           </Badge>
         </div>
         
@@ -597,49 +597,81 @@ const GeneratedContractsPage = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ContractTab)}>
-        <TabsList className="bg-muted/30 p-1">
-          <TabsTrigger value="toate" className="gap-2 data-[state=active]:bg-background">
-            <FileText className="h-4 w-4" />
-            Toate
-          </TabsTrigger>
-          <TabsTrigger value="inchiriere" className="gap-2 data-[state=active]:bg-background">
-            <Home className="h-4 w-4" />
-            Închiriere
-          </TabsTrigger>
-          <TabsTrigger value="comodat" className="gap-2 data-[state=active]:bg-background">
-            <Handshake className="h-4 w-4" />
-            Comodat
-          </TabsTrigger>
-          <TabsTrigger value="exclusiv" className="gap-2 data-[state=active]:bg-background">
-            <Building2 className="h-4 w-4" />
-            Exclusiv
-          </TabsTrigger>
-          <TabsTrigger value="intermediere" className="gap-2 data-[state=active]:bg-background">
-            <Users className="h-4 w-4" />
-            Intermediere
-          </TabsTrigger>
-        </TabsList>
+      {/* Contract Type Tabs */}
+      <div className="flex items-center gap-4 border-b border-border/50 pb-4">
+        <button
+          onClick={() => setActiveTab("toate")}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "toate" 
+              ? "text-gold" 
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          Toate
+        </button>
+        <button
+          onClick={() => setActiveTab("inchiriere")}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "inchiriere" 
+              ? "text-gold" 
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Home className="h-4 w-4" />
+          Închiriere
+        </button>
+        <button
+          onClick={() => setActiveTab("comodat")}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "comodat" 
+              ? "text-gold" 
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Handshake className="h-4 w-4" />
+          Comodat
+        </button>
+        <button
+          onClick={() => setActiveTab("exclusiv")}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "exclusiv" 
+              ? "text-gold" 
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Building2 className="h-4 w-4" />
+          Exclusiv
+        </button>
+        <button
+          onClick={() => setActiveTab("intermediere")}
+          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "intermediere" 
+              ? "text-gold" 
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          Intermediere
+        </button>
+      </div>
 
-        <TabsContent value={activeTab} className="mt-6">
-          {totalCount === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="space-y-3">
-              {displayRental.map((contract) => (
-                <RentalContractCard key={contract.id} contract={contract} />
-              ))}
-              {displayExclusive.map((contract) => (
-                <ExclusiveContractCard key={contract.id} contract={contract} />
-              ))}
-              {displayComodat.map((contract) => (
-                <ComodatContractCard key={contract.id} contract={contract} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Contracts List */}
+      {totalCount === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="space-y-3">
+          {displayRental.map((contract) => (
+            <RentalContractCard key={contract.id} contract={contract} />
+          ))}
+          {displayExclusive.map((contract) => (
+            <ExclusiveContractCard key={contract.id} contract={contract} />
+          ))}
+          {displayComodat.map((contract) => (
+            <ComodatContractCard key={contract.id} contract={contract} />
+          ))}
+        </div>
+      )}
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
