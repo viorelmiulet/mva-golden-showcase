@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen, Handshake, Search } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, Handshake, Search } from "lucide-react";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
@@ -10,25 +10,9 @@ const GeneratedContractsPage = lazy(() => import("./GeneratedContractsPage"));
 const ComodatContractPage = lazy(() => import("./ComodatContractPage"));
 const IntermediationContractPage = lazy(() => import("./IntermediationContractPage"));
 
-type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate" | "comodat" | "intermediere";
+type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "comodat" | "intermediere";
 
 const contractTypes = [
-  {
-    id: "generate" as const,
-    title: "Contracte Generate",
-    description: "Vizualizează și gestionează toate contractele generate",
-    icon: FolderOpen,
-    secondaryIcon: FileText,
-    features: [
-      "Lista completă contracte",
-      "Filtrare și căutare",
-      "Status semnături",
-      "Descărcare PDF/DOCX",
-    ],
-    gradient: "from-gold/20 to-amber-600/20",
-    iconBg: "bg-gold/20",
-    iconColor: "text-gold",
-  },
   {
     id: "inchiriere" as const,
     title: "Contract Închiriere",
@@ -117,7 +101,6 @@ const ContractsPage = () => {
             </div>
           }
         >
-          {selectedType === "generate" && <GeneratedContractsPage />}
           {selectedType === "inchiriere" && <ContractGeneratorPage />}
           {selectedType === "comodat" && <ComodatContractPage />}
           {selectedType === "intermediere" && <IntermediationContractPage />}
@@ -139,6 +122,7 @@ const ContractsPage = () => {
         </p>
       </div>
 
+      {/* Contract Type Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {contractTypes.map((contract) => (
           <Card
@@ -186,6 +170,17 @@ const ContractsPage = () => {
           </Card>
         ))}
       </div>
+
+      {/* Generated Contracts List */}
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-6 w-6 animate-spin text-gold" />
+          </div>
+        }
+      >
+        <GeneratedContractsPage />
+      </Suspense>
     </div>
   );
 };
