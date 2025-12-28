@@ -111,46 +111,46 @@ const ContractsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-6 w-6" />
+        <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
+          <FileText className="h-5 w-5 md:h-6 md:w-6" />
           Contracte
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm md:text-base text-muted-foreground">
           Selectează tipul de contract pe care dorești să îl creezi
         </p>
       </div>
 
       {/* Contract Type Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
         {contractTypes.map((contract) => (
           <Card
             key={contract.id}
-            className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${contract.gradient} hover:border-gold/30 transition-all duration-300 cursor-pointer`}
+            className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${contract.gradient} hover:border-gold/30 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
             onClick={() => setSelectedType(contract.id)}
           >
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
               {/* Icons */}
               <div className="flex items-center gap-2">
-                <div className={`p-3 rounded-xl ${contract.iconBg}`}>
-                  <contract.icon className={`h-6 w-6 ${contract.iconColor}`} />
+                <div className={`p-2 md:p-3 rounded-xl ${contract.iconBg}`}>
+                  <contract.icon className={`h-5 w-5 md:h-6 md:w-6 ${contract.iconColor}`} />
                 </div>
-                <contract.secondaryIcon className="h-5 w-5 text-muted-foreground/50" />
+                <contract.secondaryIcon className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground/50" />
               </div>
 
               {/* Title & Description */}
-              <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-foreground group-hover:text-gold transition-colors">
+              <div className="space-y-1 md:space-y-2">
+                <h2 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-gold transition-colors">
                   {contract.title}
                 </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed line-clamp-2">
                   {contract.description}
                 </p>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-2">
+              {/* Features - hide on mobile, show summary */}
+              <ul className="hidden sm:block space-y-2">
                 {contract.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Check className="h-4 w-4 text-gold shrink-0" />
@@ -158,11 +158,17 @@ const ContractsPage = () => {
                   </li>
                 ))}
               </ul>
+              
+              {/* Mobile: show feature count */}
+              <div className="sm:hidden text-xs text-muted-foreground flex items-center gap-1">
+                <Check className="h-3 w-3 text-gold" />
+                {contract.features.length} funcționalități
+              </div>
 
               {/* CTA */}
               <Button
                 variant="link"
-                className="p-0 h-auto text-gold hover:text-gold/80 group-hover:translate-x-1 transition-transform"
+                className="p-0 h-auto text-gold hover:text-gold/80 group-hover:translate-x-1 transition-transform text-sm"
               >
                 Deschide →
               </Button>

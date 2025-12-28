@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { 
   FileText, 
@@ -20,7 +21,9 @@ import {
   Handshake,
   Users,
   Mail,
-  FileDown
+  FileDown,
+  Filter,
+  MoreHorizontal
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -36,6 +39,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 import ContractPreviewDialog from "@/components/admin/ContractPreviewDialog";
 import { 
@@ -106,6 +123,7 @@ type ContractTab = "toate" | "inchiriere" | "comodat" | "exclusiv" | "intermedie
 type StatusFilter = "toate" | "semnat" | "partial" | "nesemnat";
 
 const GeneratedContractsPage = () => {
+  const isMobile = useIsMobile();
   const [rentalContracts, setRentalContracts] = useState<RentalContract[]>([]);
   const [exclusiveContracts, setExclusiveContracts] = useState<ExclusiveContract[]>([]);
   const [comodatContracts, setComodatContracts] = useState<ComodatContract[]>([]);
@@ -115,6 +133,7 @@ const GeneratedContractsPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("toate");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" | "comodat" } | null>(null);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   
   // Email signature dialog state
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -569,42 +588,81 @@ const GeneratedContractsPage = () => {
     const StatusIcon = status.icon;
     const isIntermediere = contract.contract_type === "intermediere";
 
+    const actionItems = [
+      {
+        label: "Trimite link semnare",
+        icon: Mail,
+        onClick: () => openEmailDialog(
+          contract.id,
+          isIntermediere ? "intermediere" : "inchiriere",
+          contract.property_address,
+          isIntermediere 
+            ? [{ value: "client", label: "Client" }, { value: "intermediar", label: "Intermediar" }]
+            : [{ value: "proprietar", label: "Proprietar" }, { value: "chirias", label: "Chiriaș" }]
+        ),
+      },
+      ...(isIntermediere ? [{
+        label: "Previzualizare PDF",
+        icon: Eye,
+        onClick: () => previewIntermediationPdf(contract.id, `${contract.client_name} ${contract.client_prenume || ''}`),
+      }] : contract.pdf_url ? [{
+        label: "Previzualizare PDF",
+        icon: Eye,
+        onClick: () => openFile(contract.pdf_url),
+      }] : []),
+      ...(contract.docx_url ? [{
+        label: "Descarcă DOCX",
+        icon: Download,
+        onClick: () => openFile(contract.docx_url),
+      }] : []),
+      {
+        label: "Șterge",
+        icon: Trash2,
+        onClick: () => {
+          setContractToDelete({ id: contract.id, type: "rental" });
+          setDeleteDialogOpen(true);
+        },
+        destructive: true,
+      },
+    ];
+
     return (
       <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-4">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
+              {/* Header with name and status */}
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-1.5">
                 {isIntermediere ? (
                   <Users className="h-4 w-4 text-orange-400 shrink-0" />
                 ) : (
                   <Home className="h-4 w-4 text-cyan-400 shrink-0" />
                 )}
-                <span className="font-medium text-foreground truncate">
+                <span className="font-medium text-foreground text-sm md:text-base truncate max-w-[150px] md:max-w-none">
                   {contract.client_name} {contract.client_prenume}
                 </span>
-                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
-                  <StatusIcon className="h-3 w-3 mr-1" />
-                  {status.label}
+                <Badge variant="outline" className={`${status.color} shrink-0 text-[10px] md:text-xs px-1.5 py-0`}>
+                  <StatusIcon className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
+                  <span className="hidden sm:inline">{status.label}</span>
                 </Badge>
                 {isIntermediere && (
-                  <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">
+                  <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] md:text-xs hidden sm:flex">
                     Intermediere
                   </Badge>
                 )}
               </div>
               
-              <p className="text-sm text-muted-foreground truncate mb-1">
+              <p className="text-xs md:text-sm text-muted-foreground truncate mb-1">
                 {contract.property_address}
               </p>
               
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {format(new Date(contract.contract_date), "dd MMM yyyy", { locale: ro })}
+                  {format(new Date(contract.contract_date), "dd MMM", { locale: ro })}
                 </span>
                 {contract.property_price && !isIntermediere && (
-                  <span>
+                  <span className="hidden sm:inline">
                     {contract.property_price} {contract.property_currency || "EUR"}/lună
                   </span>
                 )}
@@ -614,75 +672,43 @@ const GeneratedContractsPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => openEmailDialog(
-                  contract.id,
-                  isIntermediere ? "intermediere" : "inchiriere",
-                  contract.property_address,
-                  isIntermediere 
-                    ? [
-                        { value: "client", label: "Client" },
-                        { value: "intermediar", label: "Intermediar" },
-                      ]
-                    : [
-                        { value: "proprietar", label: "Proprietar" },
-                        { value: "chirias", label: "Chiriaș" },
-                      ]
-                )}
-                title="Trimite link semnare"
-              >
-                <Mail className="h-4 w-4" />
-              </Button>
-              {isIntermediere ? (
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-1 shrink-0">
+              {actionItems.map((action, idx) => (
                 <Button
+                  key={idx}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-orange-400 hover:text-orange-300"
-                  onClick={() => previewIntermediationPdf(contract.id, `${contract.client_name} ${contract.client_prenume || ''}`)}
-                  title="Previzualizare PDF"
+                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  onClick={action.onClick}
+                  title={action.label}
                 >
-                  <Eye className="h-4 w-4" />
+                  <action.icon className="h-4 w-4" />
                 </Button>
-              ) : (
-                contract.pdf_url && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => openFile(contract.pdf_url)}
-                    title="Previzualizare PDF"
-                  >
-                    <Eye className="h-4 w-4" />
+              ))}
+            </div>
+
+            {/* Mobile Dropdown */}
+            <div className="md:hidden shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
                   </Button>
-                )
-              )}
-              {contract.docx_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => openFile(contract.docx_url)}
-                  title="Descarcă DOCX"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={() => {
-                  setContractToDelete({ id: contract.id, type: "rental" });
-                  setDeleteDialogOpen(true);
-                }}
-                title="Șterge"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-popover">
+                  {actionItems.map((action, idx) => (
+                    <DropdownMenuItem
+                      key={idx}
+                      onClick={action.onClick}
+                      className={action.destructive ? "text-destructive" : ""}
+                    >
+                      <action.icon className="h-4 w-4 mr-2" />
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardContent>
@@ -694,81 +720,106 @@ const GeneratedContractsPage = () => {
     const status = getExclusiveStatus(contract);
     const StatusIcon = status.icon;
 
+    const actionItems = [
+      {
+        label: "Trimite link semnare",
+        icon: Mail,
+        onClick: () => openEmailDialog(
+          contract.id,
+          "exclusiv",
+          contract.property_address,
+          [{ value: "beneficiary", label: "Beneficiar" }, { value: "agent", label: "Prestator/Agent" }]
+        ),
+      },
+      {
+        label: "Previzualizare PDF",
+        icon: Eye,
+        onClick: () => previewExclusivePdf(contract.id, `${contract.beneficiary_name} ${contract.beneficiary_prenume || ''}`),
+      },
+      {
+        label: "Șterge",
+        icon: Trash2,
+        onClick: () => {
+          setContractToDelete({ id: contract.id, type: "exclusive" });
+          setDeleteDialogOpen(true);
+        },
+        destructive: true,
+      },
+    ];
+
     return (
       <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-4">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-1.5">
                 <Building2 className="h-4 w-4 text-purple-400 shrink-0" />
-                <span className="font-medium text-foreground truncate">
+                <span className="font-medium text-foreground text-sm md:text-base truncate max-w-[150px] md:max-w-none">
                   {contract.beneficiary_name} {contract.beneficiary_prenume}
                 </span>
-                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
-                  <StatusIcon className="h-3 w-3 mr-1" />
-                  {status.label}
+                <Badge variant="outline" className={`${status.color} shrink-0 text-[10px] md:text-xs px-1.5 py-0`}>
+                  <StatusIcon className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
+                  <span className="hidden sm:inline">{status.label}</span>
                 </Badge>
               </div>
               
-              <p className="text-sm text-muted-foreground truncate mb-1">
+              <p className="text-xs md:text-sm text-muted-foreground truncate mb-1">
                 {contract.property_address}
               </p>
               
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {format(new Date(contract.contract_date), "dd MMM yyyy", { locale: ro })}
+                  {format(new Date(contract.contract_date), "dd MMM", { locale: ro })}
                 </span>
                 {contract.sales_price && (
-                  <span>
+                  <span className="hidden sm:inline">
                     {contract.sales_price.toLocaleString()} {contract.currency || "EUR"}
                   </span>
                 )}
                 {contract.commission_percent && (
-                  <span>Comision: {contract.commission_percent}%</span>
+                  <span>{contract.commission_percent}%</span>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => openEmailDialog(
-                  contract.id,
-                  "exclusiv",
-                  contract.property_address,
-                  [
-                    { value: "beneficiary", label: "Beneficiar" },
-                    { value: "agent", label: "Prestator/Agent" },
-                  ]
-                )}
-                title="Trimite link semnare"
-              >
-                <Mail className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-purple-400 hover:text-purple-300"
-                onClick={() => previewExclusivePdf(contract.id, `${contract.beneficiary_name} ${contract.beneficiary_prenume || ''}`)}
-                title="Previzualizare PDF"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={() => {
-                  setContractToDelete({ id: contract.id, type: "exclusive" });
-                  setDeleteDialogOpen(true);
-                }}
-                title="Șterge"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-1 shrink-0">
+              {actionItems.map((action, idx) => (
+                <Button
+                  key={idx}
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  onClick={action.onClick}
+                  title={action.label}
+                >
+                  <action.icon className="h-4 w-4" />
+                </Button>
+              ))}
+            </div>
+
+            {/* Mobile Dropdown */}
+            <div className="md:hidden shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-popover">
+                  {actionItems.map((action, idx) => (
+                    <DropdownMenuItem
+                      key={idx}
+                      onClick={action.onClick}
+                      className={action.destructive ? "text-destructive" : ""}
+                    >
+                      <action.icon className="h-4 w-4 mr-2" />
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardContent>
@@ -780,33 +831,60 @@ const GeneratedContractsPage = () => {
     const status = getComodatStatus(contract);
     const StatusIcon = status.icon;
 
+    const actionItems = [
+      {
+        label: "Trimite link semnare",
+        icon: Mail,
+        onClick: () => openEmailDialog(
+          contract.id,
+          "comodat",
+          contract.property_address,
+          [{ value: "comodant", label: "Comodant (Proprietar)" }, { value: "comodatar", label: "Comodatar (Beneficiar)" }]
+        ),
+      },
+      {
+        label: "Previzualizare PDF",
+        icon: Eye,
+        onClick: () => previewComodatPdf(contract.id, `${contract.comodatar_name} ${contract.comodatar_prenume || ''}`),
+      },
+      {
+        label: "Șterge",
+        icon: Trash2,
+        onClick: () => {
+          setContractToDelete({ id: contract.id, type: "comodat" });
+          setDeleteDialogOpen(true);
+        },
+        destructive: true,
+      },
+    ];
+
     return (
       <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-4">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-1.5">
                 <Handshake className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="font-medium text-foreground truncate">
+                <span className="font-medium text-foreground text-sm md:text-base truncate max-w-[150px] md:max-w-none">
                   {contract.comodatar_name} {contract.comodatar_prenume}
                 </span>
-                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
-                  <StatusIcon className="h-3 w-3 mr-1" />
-                  {status.label}
+                <Badge variant="outline" className={`${status.color} shrink-0 text-[10px] md:text-xs px-1.5 py-0`}>
+                  <StatusIcon className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />
+                  <span className="hidden sm:inline">{status.label}</span>
                 </Badge>
               </div>
               
-              <p className="text-sm text-muted-foreground truncate mb-1">
+              <p className="text-xs md:text-sm text-muted-foreground truncate mb-1">
                 {contract.property_address}
               </p>
               
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {format(new Date(contract.contract_date), "dd MMM yyyy", { locale: ro })}
+                  {format(new Date(contract.contract_date), "dd MMM", { locale: ro })}
                 </span>
                 {contract.property_type && (
-                  <span>{contract.property_type}</span>
+                  <span className="hidden sm:inline">{contract.property_type}</span>
                 )}
                 {contract.duration_months && (
                   <span>{contract.duration_months} luni</span>
@@ -814,45 +892,43 @@ const GeneratedContractsPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => openEmailDialog(
-                  contract.id,
-                  "comodat",
-                  contract.property_address,
-                  [
-                    { value: "comodant", label: "Comodant (Proprietar)" },
-                    { value: "comodatar", label: "Comodatar (Beneficiar)" },
-                  ]
-                )}
-                title="Trimite link semnare"
-              >
-                <Mail className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-emerald-400 hover:text-emerald-300"
-                onClick={() => previewComodatPdf(contract.id, `${contract.comodatar_name} ${contract.comodatar_prenume || ''}`)}
-                title="Previzualizare PDF"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={() => {
-                  setContractToDelete({ id: contract.id, type: "comodat" });
-                  setDeleteDialogOpen(true);
-                }}
-                title="Șterge"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-1 shrink-0">
+              {actionItems.map((action, idx) => (
+                <Button
+                  key={idx}
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  onClick={action.onClick}
+                  title={action.label}
+                >
+                  <action.icon className="h-4 w-4" />
+                </Button>
+              ))}
+            </div>
+
+            {/* Mobile Dropdown */}
+            <div className="md:hidden shrink-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-popover">
+                  {actionItems.map((action, idx) => (
+                    <DropdownMenuItem
+                      key={idx}
+                      onClick={action.onClick}
+                      className={action.destructive ? "text-destructive" : ""}
+                    >
+                      <action.icon className="h-4 w-4 mr-2" />
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardContent>
@@ -878,90 +954,154 @@ const GeneratedContractsPage = () => {
     );
   }
 
+  // Mobile filter options
+  const tabOptions = [
+    { value: "toate", label: "Toate", icon: FileText },
+    { value: "inchiriere", label: "Închiriere", icon: Home },
+    { value: "comodat", label: "Comodat", icon: Handshake },
+    { value: "exclusiv", label: "Exclusiv", icon: Building2 },
+    { value: "intermediere", label: "Intermediere", icon: Users },
+  ];
+
+  const statusOptions = [
+    { value: "toate", label: "Toate statusurile" },
+    { value: "semnat", label: "Semnate", icon: CheckCircle, color: "text-green-400" },
+    { value: "partial", label: "Parțiale", icon: Clock, color: "text-yellow-400" },
+    { value: "nesemnat", label: "Nesemnate", icon: AlertCircle, color: "text-muted-foreground" },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <FileText className="h-5 w-5 text-gold" />
-          <h1 className="text-xl font-semibold text-foreground">Contracte Generate</h1>
-          <Badge variant="secondary" className="rounded-full">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header - Mobile optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <FileText className="h-5 w-5 text-gold shrink-0" />
+          <h1 className="text-lg md:text-xl font-semibold text-foreground">Contracte Generate</h1>
+          <Badge variant="secondary" className="rounded-full text-xs">
             {rentalContracts.length + exclusiveContracts.length + comodatContracts.length}
           </Badge>
         </div>
         
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Caută contracte..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 bg-muted/50 border-border/50"
-          />
+        <div className="flex items-center gap-2">
+          {/* Mobile Filter Button */}
+          {isMobile && (
+            <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filtre
+                  {(activeTab !== "toate" || statusFilter !== "toate") && (
+                    <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {(activeTab !== "toate" ? 1 : 0) + (statusFilter !== "toate" ? 1 : 0)}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[70vh]">
+                <SheetHeader>
+                  <SheetTitle>Filtre</SheetTitle>
+                </SheetHeader>
+                <ScrollArea className="h-full py-4">
+                  <div className="space-y-6">
+                    {/* Type Filter */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-muted-foreground">Tip contract</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {tabOptions.map((tab) => {
+                          const Icon = tab.icon;
+                          return (
+                            <button
+                              key={tab.value}
+                              onClick={() => {
+                                setActiveTab(tab.value as ContractTab);
+                              }}
+                              className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${
+                                activeTab === tab.value 
+                                  ? "border-gold bg-gold/10 text-gold" 
+                                  : "border-border bg-muted/30 text-muted-foreground"
+                              }`}
+                            >
+                              <Icon className="h-4 w-4" />
+                              {tab.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {statusOptions.map((status) => {
+                          const Icon = status.icon;
+                          return (
+                            <button
+                              key={status.value}
+                              onClick={() => {
+                                setStatusFilter(status.value as StatusFilter);
+                              }}
+                              className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${
+                                statusFilter === status.value 
+                                  ? "border-gold bg-gold/10 text-gold" 
+                                  : "border-border bg-muted/30 text-muted-foreground"
+                              }`}
+                            >
+                              {Icon && <Icon className={`h-4 w-4 ${status.color || ""}`} />}
+                              {status.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      className="w-full" 
+                      onClick={() => setFilterSheetOpen(false)}
+                    >
+                      Aplică filtre
+                    </Button>
+                  </div>
+                </ScrollArea>
+              </SheetContent>
+            </Sheet>
+          )}
+          
+          <div className="relative flex-1 sm:w-48 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Caută..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 bg-muted/50 border-border/50 text-sm"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Contract Type Tabs */}
-      <div className="flex items-center gap-4 border-b border-border/50 pb-4">
-        <button
-          onClick={() => setActiveTab("toate")}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeTab === "toate" 
-              ? "text-gold" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <FileText className="h-4 w-4" />
-          Toate
-        </button>
-        <button
-          onClick={() => setActiveTab("inchiriere")}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeTab === "inchiriere" 
-              ? "text-gold" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Home className="h-4 w-4" />
-          Închiriere
-        </button>
-        <button
-          onClick={() => setActiveTab("comodat")}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeTab === "comodat" 
-              ? "text-gold" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Handshake className="h-4 w-4" />
-          Comodat
-        </button>
-        <button
-          onClick={() => setActiveTab("exclusiv")}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeTab === "exclusiv" 
-              ? "text-gold" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Building2 className="h-4 w-4" />
-          Exclusiv
-        </button>
-        <button
-          onClick={() => setActiveTab("intermediere")}
-          className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeTab === "intermediere" 
-              ? "text-gold" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Users className="h-4 w-4" />
-          Intermediere
-        </button>
+      {/* Contract Type Tabs - Desktop only */}
+      <div className="hidden md:flex items-center gap-4 border-b border-border/50 pb-4 overflow-x-auto">
+        {tabOptions.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value as ContractTab)}
+              className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap ${
+                activeTab === tab.value 
+                  ? "text-gold" 
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Status Filter */}
-      <div className="flex items-center gap-2">
+      {/* Status Filter - Desktop only */}
+      <div className="hidden md:flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Status:</span>
         <div className="flex items-center gap-1">
           <button
@@ -1010,11 +1150,33 @@ const GeneratedContractsPage = () => {
         </div>
       </div>
 
+      {/* Mobile Active Filters */}
+      {isMobile && (activeTab !== "toate" || statusFilter !== "toate") && (
+        <div className="flex flex-wrap gap-2">
+          {activeTab !== "toate" && (
+            <Badge variant="secondary" className="gap-1 py-1">
+              {tabOptions.find(t => t.value === activeTab)?.label}
+              <button onClick={() => setActiveTab("toate")} className="ml-1 hover:text-destructive">
+                ×
+              </button>
+            </Badge>
+          )}
+          {statusFilter !== "toate" && (
+            <Badge variant="secondary" className="gap-1 py-1">
+              {statusOptions.find(s => s.value === statusFilter)?.label}
+              <button onClick={() => setStatusFilter("toate")} className="ml-1 hover:text-destructive">
+                ×
+              </button>
+            </Badge>
+          )}
+        </div>
+      )}
+
       {/* Contracts List */}
       {totalCount === 0 ? (
         <EmptyState />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 md:space-y-3">
           {displayRental.map((contract) => (
             <RentalContractCard key={contract.id} contract={contract} />
           ))}
