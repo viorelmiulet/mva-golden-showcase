@@ -52,40 +52,67 @@ import {
 } from "recharts";
 import { format, startOfMonth, endOfMonth, subMonths, parseISO, differenceInDays, startOfYear, subYears, subDays } from "date-fns";
 import { ro } from "date-fns/locale";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
-// Animation variants
+// Check for reduced motion preference
+const useOptimizedMotion = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  
+  // Reduce animations on mobile or when user prefers reduced motion
+  return shouldReduceMotion || isMobile;
+};
+
+// Animation variants - optimized for performance
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  hidden: { opacity: 0, y: 15 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 24,
+      duration: 0.3,
     },
   },
 };
 
 const fadeInVariants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
+
+const chartContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const chartCardVariants = {
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
@@ -95,73 +122,31 @@ const fadeInVariants = {
   },
 };
 
-const scaleInVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 20,
-    },
-  },
-};
-
-// Chart animation variants
-const chartContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.3,
-    },
-  },
-};
-
-const chartCardVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 200,
-      damping: 20,
-    },
-  },
-};
-
 const chartSlideLeftVariants = {
-  hidden: { opacity: 0, x: -40 },
+  hidden: { opacity: 0, x: -30 },
   visible: {
     opacity: 1,
     x: 0,
     transition: {
-      type: "spring" as const,
-      stiffness: 200,
-      damping: 25,
+      duration: 0.4,
     },
   },
 };
 
 const chartSlideRightVariants = {
-  hidden: { opacity: 0, x: 40 },
+  hidden: { opacity: 0, x: 30 },
   visible: {
     opacity: 1,
     x: 0,
     transition: {
-      type: "spring" as const,
-      stiffness: 200,
-      damping: 25,
+      duration: 0.4,
     },
   },
 };
 
 const DashboardPage = () => {
   const isMobile = useIsMobile();
+  const reduceMotion = useOptimizedMotion();
   const [selectedDayDetails, setSelectedDayDetails] = useState<{
     date: string;
     totalEUR: number;
@@ -620,14 +605,14 @@ const DashboardPage = () => {
   return (
     <motion.div 
       className="space-y-4 md:space-y-6"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
+      initial={reduceMotion ? undefined : "hidden"}
+      animate={reduceMotion ? undefined : "visible"}
+      variants={reduceMotion ? undefined : containerVariants}
     >
       {/* Header */}
       <motion.div 
         className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4"
-        variants={fadeInVariants}
+        variants={reduceMotion ? undefined : fadeInVariants}
       >
         <div>
           <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
@@ -645,7 +630,7 @@ const DashboardPage = () => {
       </motion.div>
 
       {/* Quick Actions Card */}
-      <motion.div variants={scaleInVariants}>
+      <motion.div variants={reduceMotion ? undefined : fadeInVariants}>
         <Card className="border-gold/20 bg-gradient-to-br from-gold/5 to-transparent">
           <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
             <CardTitle className="text-base md:text-lg flex items-center gap-2">
@@ -655,7 +640,7 @@ const DashboardPage = () => {
           </CardHeader>
           <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
             <div className="grid grid-cols-3 gap-2 md:gap-3">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/proprietati" 
                   className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
@@ -671,7 +656,7 @@ const DashboardPage = () => {
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/import-xml" 
                   className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
@@ -687,7 +672,7 @@ const DashboardPage = () => {
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/comisioane" 
                   className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
@@ -710,9 +695,9 @@ const DashboardPage = () => {
       {/* Main Stats Grid - Row 1 */}
       <motion.div 
         className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4"
-        variants={containerVariants}
+        variants={reduceMotion ? undefined : containerVariants}
       >
-        <motion.div variants={itemVariants}>
+        <motion.div variants={reduceMotion ? undefined : itemVariants}>
           <StatCard
             title="Proprietăți"
             value={propertiesData?.total || 0}
@@ -721,7 +706,7 @@ const DashboardPage = () => {
             loading={loadingProperties}
           />
         </motion.div>
-        <motion.div variants={itemVariants}>
+        <motion.div variants={reduceMotion ? undefined : itemVariants}>
           <StatCard
             title="Apt. Complexe"
             value={complexesData?.totalApartments || 0}
@@ -731,7 +716,7 @@ const DashboardPage = () => {
             loading={loadingComplexes}
           />
         </motion.div>
-        <motion.div variants={itemVariants}>
+        <motion.div variants={reduceMotion ? undefined : itemVariants}>
           <Card className="relative overflow-hidden h-full">
             <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
@@ -798,7 +783,7 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
         </motion.div>
-        <motion.div variants={itemVariants}>
+        <motion.div variants={reduceMotion ? undefined : itemVariants}>
         <Card className="relative overflow-hidden h-full">
           <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
@@ -907,13 +892,13 @@ const DashboardPage = () => {
       {/* Charts Row 1 */}
       <motion.div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
-        variants={chartContainerVariants}
-        initial="hidden"
-        whileInView="visible"
+        variants={reduceMotion ? undefined : chartContainerVariants}
+        initial={reduceMotion ? undefined : "hidden"}
+        whileInView={reduceMotion ? undefined : "visible"}
         viewport={{ once: true, margin: "-50px" }}
       >
         {/* Commission Trend Chart - 12 months */}
-        <motion.div variants={chartSlideLeftVariants} className="lg:col-span-2">
+        <motion.div variants={reduceMotion ? undefined : chartSlideLeftVariants} className="lg:col-span-2">
         <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
@@ -992,7 +977,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Transaction Type Distribution */}
-        <motion.div variants={chartSlideRightVariants}>
+        <motion.div variants={reduceMotion ? undefined : chartSlideRightVariants}>
         <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
@@ -1065,9 +1050,9 @@ const DashboardPage = () => {
 
       {/* Charts Row 2 - Complex Breakdown */}
       <motion.div
-        variants={chartCardVariants}
-        initial="hidden"
-        whileInView="visible"
+        variants={reduceMotion ? undefined : chartCardVariants}
+        initial={reduceMotion ? undefined : "hidden"}
+        whileInView={reduceMotion ? undefined : "visible"}
         viewport={{ once: true, margin: "-50px" }}
       >
         <Card>
@@ -1148,13 +1133,13 @@ const DashboardPage = () => {
       {/* Bottom Stats Row */}
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-        variants={chartContainerVariants}
-        initial="hidden"
-        whileInView="visible"
+        variants={reduceMotion ? undefined : chartContainerVariants}
+        initial={reduceMotion ? undefined : "hidden"}
+        whileInView={reduceMotion ? undefined : "visible"}
         viewport={{ once: true, margin: "-50px" }}
       >
         {/* Properties Stats */}
-        <motion.div variants={chartSlideLeftVariants}>
+        <motion.div variants={reduceMotion ? undefined : chartSlideLeftVariants}>
         <Card>
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-sm md:text-base">Statistici Proprietăți</CardTitle>
@@ -1209,7 +1194,7 @@ const DashboardPage = () => {
         </motion.div>
 
         {/* Invoice Status */}
-        <motion.div variants={chartSlideRightVariants}>
+        <motion.div variants={reduceMotion ? undefined : chartSlideRightVariants}>
         <Card className="h-full">
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-sm md:text-base">Status Facturi</CardTitle>
