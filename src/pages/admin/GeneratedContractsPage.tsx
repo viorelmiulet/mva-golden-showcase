@@ -37,6 +37,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
+import ContractPreviewDialog from "@/components/admin/ContractPreviewDialog";
 import { 
   generateComodatContractPdf, 
   generateExclusiveContractPdf, 
@@ -45,6 +46,7 @@ import {
   type ExclusiveContractData,
   type IntermediationContractData
 } from "@/lib/pdf/allContractsPdf";
+import { generateRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 
 interface RentalContract {
   id: string;
@@ -121,6 +123,16 @@ const GeneratedContractsPage = () => {
     contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere";
     propertyAddress: string;
     parties: { value: string; label: string }[];
+  } | null>(null);
+
+  // Preview dialog state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [currentPreviewContract, setCurrentPreviewContract] = useState<{
+    id: string;
+    type: "rental" | "exclusive" | "comodat" | "intermediere";
   } | null>(null);
 
   useEffect(() => {
@@ -315,7 +327,39 @@ const GeneratedContractsPage = () => {
     setEmailDialogOpen(true);
   };
 
-  // Download PDF with signatures for Comodat contracts
+  // Preview Comodat contract
+  const previewComodatPdf = async (contractId: string, contractName: string) => {
+    setPreviewLoading(true);
+    setPreviewTitle(`Contract Comodat - ${contractName}`);
+    setPreviewOpen(true);
+    setCurrentPreviewContract({ id: contractId, type: "comodat" });
+
+    try {
+      const { data, error } = await supabase
+        .from('comodat_contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (error || !data) {
+        toast.error("Eroare la încărcarea contractului");
+        setPreviewOpen(false);
+        return;
+      }
+
+      const pdf = generateComodatContractPdf(data as ComodatContractData);
+      const blob = pdf.output('blob');
+      setPreviewBlob(blob);
+    } catch (err) {
+      console.error('Error previewing comodat PDF:', err);
+      toast.error("Eroare la generarea previzualizării");
+      setPreviewOpen(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Download Comodat PDF
   const downloadComodatPdf = async (contractId: string) => {
     try {
       const { data, error } = await supabase
@@ -339,7 +383,39 @@ const GeneratedContractsPage = () => {
     }
   };
 
-  // Download PDF with signatures for Exclusive contracts
+  // Preview Exclusive contract
+  const previewExclusivePdf = async (contractId: string, contractName: string) => {
+    setPreviewLoading(true);
+    setPreviewTitle(`Contract Exclusiv - ${contractName}`);
+    setPreviewOpen(true);
+    setCurrentPreviewContract({ id: contractId, type: "exclusive" });
+
+    try {
+      const { data, error } = await supabase
+        .from('exclusive_contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (error || !data) {
+        toast.error("Eroare la încărcarea contractului");
+        setPreviewOpen(false);
+        return;
+      }
+
+      const pdf = generateExclusiveContractPdf(data as ExclusiveContractData);
+      const blob = pdf.output('blob');
+      setPreviewBlob(blob);
+    } catch (err) {
+      console.error('Error previewing exclusive PDF:', err);
+      toast.error("Eroare la generarea previzualizării");
+      setPreviewOpen(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Download Exclusive PDF
   const downloadExclusivePdf = async (contractId: string) => {
     try {
       const { data, error } = await supabase
@@ -363,7 +439,54 @@ const GeneratedContractsPage = () => {
     }
   };
 
-  // Download PDF with signatures for Intermediation contracts
+  // Preview Intermediation contract
+  const previewIntermediationPdf = async (contractId: string, contractName: string) => {
+    setPreviewLoading(true);
+    setPreviewTitle(`Contract Intermediere - ${contractName}`);
+    setPreviewOpen(true);
+    setCurrentPreviewContract({ id: contractId, type: "intermediere" });
+
+    try {
+      const { data: contract, error: contractError } = await supabase
+        .from('contracts')
+        .select('*')
+        .eq('id', contractId)
+        .single();
+
+      if (contractError || !contract) {
+        toast.error("Eroare la încărcarea contractului");
+        setPreviewOpen(false);
+        return;
+      }
+
+      const { data: signatures } = await supabase
+        .from('contract_signatures')
+        .select('*')
+        .eq('contract_id', contractId);
+
+      let clientSignature: string | null = null;
+      let agentSignature: string | null = null;
+
+      if (signatures) {
+        const clientSig = signatures.find(s => s.party_type === 'chirias' || s.party_type === 'client');
+        const agentSig = signatures.find(s => s.party_type === 'proprietar' || s.party_type === 'intermediar');
+        clientSignature = clientSig?.signature_data || null;
+        agentSignature = agentSig?.signature_data || null;
+      }
+
+      const pdf = generateIntermediationContractPdf(contract as IntermediationContractData, clientSignature, agentSignature);
+      const blob = pdf.output('blob');
+      setPreviewBlob(blob);
+    } catch (err) {
+      console.error('Error previewing intermediation PDF:', err);
+      toast.error("Eroare la generarea previzualizării");
+      setPreviewOpen(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  // Download Intermediation PDF
   const downloadIntermediationPdf = async (contractId: string) => {
     try {
       const { data: contract, error: contractError } = await supabase
@@ -377,7 +500,6 @@ const GeneratedContractsPage = () => {
         return;
       }
 
-      // Get signatures from contract_signatures table
       const { data: signatures } = await supabase
         .from('contract_signatures')
         .select('*')
@@ -400,6 +522,23 @@ const GeneratedContractsPage = () => {
     } catch (err) {
       console.error('Error downloading intermediation PDF:', err);
       toast.error("Eroare la generarea PDF");
+    }
+  };
+
+  // Handle download from preview
+  const handleDownloadFromPreview = async () => {
+    if (!currentPreviewContract) return;
+    
+    switch (currentPreviewContract.type) {
+      case "comodat":
+        await downloadComodatPdf(currentPreviewContract.id);
+        break;
+      case "exclusive":
+        await downloadExclusivePdf(currentPreviewContract.id);
+        break;
+      case "intermediere":
+        await downloadIntermediationPdf(currentPreviewContract.id);
+        break;
     }
   };
 
@@ -476,27 +615,28 @@ const GeneratedContractsPage = () => {
               >
                 <Mail className="h-4 w-4" />
               </Button>
-              {isIntermediere && (
+              {isIntermediere ? (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-orange-400 hover:text-orange-300"
-                  onClick={() => downloadIntermediationPdf(contract.id)}
-                  title="Descarcă PDF cu semnături"
-                >
-                  <FileDown className="h-4 w-4" />
-                </Button>
-              )}
-              {contract.pdf_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => openFile(contract.pdf_url)}
+                  onClick={() => previewIntermediationPdf(contract.id, `${contract.client_name} ${contract.client_prenume || ''}`)}
                   title="Previzualizare PDF"
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
+              ) : (
+                contract.pdf_url && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openFile(contract.pdf_url)}
+                    title="Previzualizare PDF"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                )
               )}
               {contract.docx_url && (
                 <Button
@@ -590,22 +730,11 @@ const GeneratedContractsPage = () => {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-purple-400 hover:text-purple-300"
-                onClick={() => downloadExclusivePdf(contract.id)}
-                title="Descarcă PDF cu semnături"
+                onClick={() => previewExclusivePdf(contract.id, `${contract.beneficiary_name} ${contract.beneficiary_prenume || ''}`)}
+                title="Previzualizare PDF"
               >
-                <FileDown className="h-4 w-4" />
+                <Eye className="h-4 w-4" />
               </Button>
-              {contract.pdf_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => openFile(contract.pdf_url)}
-                  title="Previzualizare PDF"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -685,22 +814,11 @@ const GeneratedContractsPage = () => {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-emerald-400 hover:text-emerald-300"
-                onClick={() => downloadComodatPdf(contract.id)}
-                title="Descarcă PDF cu semnături"
+                onClick={() => previewComodatPdf(contract.id, `${contract.comodatar_name} ${contract.comodatar_prenume || ''}`)}
+                title="Previzualizare PDF"
               >
-                <FileDown className="h-4 w-4" />
+                <Eye className="h-4 w-4" />
               </Button>
-              {contract.pdf_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => openFile(contract.pdf_url)}
-                  title="Previzualizare PDF"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -916,6 +1034,22 @@ const GeneratedContractsPage = () => {
           parties={emailDialogData.parties}
         />
       )}
+
+      {/* Contract Preview Dialog */}
+      <ContractPreviewDialog
+        open={previewOpen}
+        onOpenChange={(open) => {
+          setPreviewOpen(open);
+          if (!open) {
+            setPreviewBlob(null);
+            setCurrentPreviewContract(null);
+          }
+        }}
+        pdfBlob={previewBlob}
+        title={previewTitle}
+        onDownload={handleDownloadFromPreview}
+        isLoading={previewLoading}
+      />
     </div>
   );
 };
