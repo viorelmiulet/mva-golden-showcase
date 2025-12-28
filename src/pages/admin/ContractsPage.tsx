@@ -1,15 +1,32 @@
 import { useState, lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Loader2, FolderOpen } from "lucide-react";
 
 // Lazy load the contract generators
 const ContractGeneratorPage = lazy(() => import("./ContractGeneratorPage"));
 const ExclusiveRepresentationPage = lazy(() => import("./ExclusiveRepresentationPage"));
+const GeneratedContractsPage = lazy(() => import("./GeneratedContractsPage"));
 
-type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva";
+type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "generate";
 
 const contractTypes = [
+  {
+    id: "generate" as const,
+    title: "Contracte Generate",
+    description: "Vizualizează și gestionează toate contractele generate",
+    icon: FolderOpen,
+    secondaryIcon: FileText,
+    features: [
+      "Lista completă contracte",
+      "Filtrare și căutare",
+      "Status semnături",
+      "Descărcare PDF/DOCX",
+    ],
+    gradient: "from-gold/20 to-amber-600/20",
+    iconBg: "bg-gold/20",
+    iconColor: "text-gold",
+  },
   {
     id: "inchiriere" as const,
     title: "Contract Închiriere",
@@ -66,6 +83,7 @@ const ContractsPage = () => {
             </div>
           }
         >
+          {selectedType === "generate" && <GeneratedContractsPage />}
           {selectedType === "inchiriere" && <ContractGeneratorPage />}
           {selectedType === "reprezentare-exclusiva" && <ExclusiveRepresentationPage />}
         </Suspense>
