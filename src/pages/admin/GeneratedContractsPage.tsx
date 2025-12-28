@@ -18,7 +18,8 @@ import {
   AlertCircle,
   Loader2,
   Handshake,
-  Users
+  Users,
+  Mail
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -34,6 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 
 interface RentalContract {
   id: string;
@@ -46,6 +48,7 @@ interface RentalContract {
   property_price: number | null;
   property_currency: string | null;
   contract_date: string;
+  contract_type: string;
   duration_months: number | null;
   proprietar_signed: boolean | null;
   chirias_signed: boolean | null;
@@ -99,6 +102,15 @@ const GeneratedContractsPage = () => {
   const [activeTab, setActiveTab] = useState<ContractTab>("toate");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; type: "rental" | "exclusive" | "comodat" } | null>(null);
+  
+  // Email signature dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailDialogData, setEmailDialogData] = useState<{
+    contractId: string;
+    contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere";
+    propertyAddress: string;
+    parties: { value: string; label: string }[];
+  } | null>(null);
 
   useEffect(() => {
     fetchContracts();
@@ -246,9 +258,20 @@ const GeneratedContractsPage = () => {
     window.open(url, "_blank");
   };
 
+  const openEmailDialog = (
+    contractId: string,
+    contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere",
+    propertyAddress: string,
+    parties: { value: string; label: string }[]
+  ) => {
+    setEmailDialogData({ contractId, contractType, propertyAddress, parties });
+    setEmailDialogOpen(true);
+  };
+
   const RentalContractCard = ({ contract }: { contract: RentalContract }) => {
     const status = getSignatureStatus(contract);
     const StatusIcon = status.icon;
+    const isIntermediere = contract.contract_type === "intermediere";
 
     return (
       <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
@@ -256,7 +279,11 @@ const GeneratedContractsPage = () => {
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                <Home className="h-4 w-4 text-cyan-400 shrink-0" />
+                {isIntermediere ? (
+                  <Users className="h-4 w-4 text-orange-400 shrink-0" />
+                ) : (
+                  <Home className="h-4 w-4 text-cyan-400 shrink-0" />
+                )}
                 <span className="font-medium text-foreground truncate">
                   {contract.client_name} {contract.client_prenume}
                 </span>
@@ -264,6 +291,11 @@ const GeneratedContractsPage = () => {
                   <StatusIcon className="h-3 w-3 mr-1" />
                   {status.label}
                 </Badge>
+                {isIntermediere && (
+                  <Badge variant="outline" className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-xs">
+                    Intermediere
+                  </Badge>
+                )}
               </div>
               
               <p className="text-sm text-muted-foreground truncate mb-1">
@@ -275,7 +307,7 @@ const GeneratedContractsPage = () => {
                   <Calendar className="h-3 w-3" />
                   {format(new Date(contract.contract_date), "dd MMM yyyy", { locale: ro })}
                 </span>
-                {contract.property_price && (
+                {contract.property_price && !isIntermediere && (
                   <span>
                     {contract.property_price} {contract.property_currency || "EUR"}/lună
                   </span>
@@ -287,6 +319,28 @@ const GeneratedContractsPage = () => {
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => openEmailDialog(
+                  contract.id,
+                  isIntermediere ? "intermediere" : "inchiriere",
+                  contract.property_address,
+                  isIntermediere 
+                    ? [
+                        { value: "client", label: "Client" },
+                        { value: "intermediar", label: "Intermediar" },
+                      ]
+                    : [
+                        { value: "proprietar", label: "Proprietar" },
+                        { value: "chirias", label: "Chiriaș" },
+                      ]
+                )}
+                title="Trimite link semnare"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
               {contract.pdf_url && (
                 <Button
                   variant="ghost"
@@ -369,6 +423,23 @@ const GeneratedContractsPage = () => {
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => openEmailDialog(
+                  contract.id,
+                  "exclusiv",
+                  contract.property_address,
+                  [
+                    { value: "beneficiary", label: "Beneficiar" },
+                    { value: "agent", label: "Prestator/Agent" },
+                  ]
+                )}
+                title="Trimite link semnare"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
               {contract.pdf_url && (
                 <Button
                   variant="ghost"
@@ -386,6 +457,92 @@ const GeneratedContractsPage = () => {
                 className="h-8 w-8 text-destructive hover:text-destructive"
                 onClick={() => {
                   setContractToDelete({ id: contract.id, type: "exclusive" });
+                  setDeleteDialogOpen(true);
+                }}
+                title="Șterge"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const ComodatContractCard = ({ contract }: { contract: ComodatContract }) => {
+    const status = getComodatStatus(contract);
+    const StatusIcon = status.icon;
+
+    return (
+      <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <Handshake className="h-4 w-4 text-emerald-400 shrink-0" />
+                <span className="font-medium text-foreground truncate">
+                  {contract.comodatar_name} {contract.comodatar_prenume}
+                </span>
+                <Badge variant="outline" className={`${status.color} shrink-0 text-xs`}>
+                  <StatusIcon className="h-3 w-3 mr-1" />
+                  {status.label}
+                </Badge>
+              </div>
+              
+              <p className="text-sm text-muted-foreground truncate mb-1">
+                {contract.property_address}
+              </p>
+              
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {format(new Date(contract.contract_date), "dd MMM yyyy", { locale: ro })}
+                </span>
+                {contract.property_type && (
+                  <span>{contract.property_type}</span>
+                )}
+                {contract.duration_months && (
+                  <span>{contract.duration_months} luni</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => openEmailDialog(
+                  contract.id,
+                  "comodat",
+                  contract.property_address,
+                  [
+                    { value: "comodant", label: "Comodant (Proprietar)" },
+                    { value: "comodatar", label: "Comodatar (Beneficiar)" },
+                  ]
+                )}
+                title="Trimite link semnare"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
+              {contract.pdf_url && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => openFile(contract.pdf_url)}
+                  title="Previzualizare PDF"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={() => {
+                  setContractToDelete({ id: contract.id, type: "comodat" });
                   setDeleteDialogOpen(true);
                 }}
                 title="Șterge"
@@ -476,6 +633,9 @@ const GeneratedContractsPage = () => {
               {displayExclusive.map((contract) => (
                 <ExclusiveContractCard key={contract.id} contract={contract} />
               ))}
+              {displayComodat.map((contract) => (
+                <ComodatContractCard key={contract.id} contract={contract} />
+              ))}
             </div>
           )}
         </TabsContent>
@@ -498,6 +658,18 @@ const GeneratedContractsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Send Signature Link Dialog */}
+      {emailDialogData && (
+        <SendSignatureLinkDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          contractId={emailDialogData.contractId}
+          contractType={emailDialogData.contractType}
+          propertyAddress={emailDialogData.propertyAddress}
+          parties={emailDialogData.parties}
+        />
+      )}
     </div>
   );
 };
