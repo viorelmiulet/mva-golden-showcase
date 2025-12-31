@@ -24,19 +24,6 @@ serve(async (req) => {
     const immofluxApiKey = Deno.env.get('IMMOFLUX_API_KEY');
     const immofluxApiUser = Deno.env.get('IMMOFLUX_API_USER');
 
-    console.log('Environment check:');
-    console.log('- SUPABASE_URL exists:', !!supabaseUrl);
-    console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseKey);
-    console.log('- IMMOFLUX_API_KEY exists:', !!immofluxApiKey);
-    console.log('- IMMOFLUX_API_USER exists:', !!immofluxApiUser);
-
-    if (!immofluxApiKey || !immofluxApiUser) {
-      console.error('Missing Immoflux credentials!');
-      console.error('IMMOFLUX_API_KEY:', immofluxApiKey ? 'SET' : 'NOT SET');
-      console.error('IMMOFLUX_API_USER:', immofluxApiUser ? 'SET' : 'NOT SET');
-      throw new Error('Immoflux API credentials not configured');
-    }
-
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Request body parsing...');
@@ -47,15 +34,35 @@ serve(async (req) => {
 
     console.log('Immoflux integration called with action:', action);
 
+    // Actions that DON'T require Immoflux credentials
+    const xmlActions = ['analyze_xml', 'import_xml_feed', 'import_xml_with_mapping'];
+    const noCredentialsActions = [...xmlActions, 'scrape_website'];
+    
+    // Check credentials only for actions that need them
+    if (!noCredentialsActions.includes(action)) {
+      console.log('Environment check:');
+      console.log('- SUPABASE_URL exists:', !!supabaseUrl);
+      console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseKey);
+      console.log('- IMMOFLUX_API_KEY exists:', !!immofluxApiKey);
+      console.log('- IMMOFLUX_API_USER exists:', !!immofluxApiUser);
+
+      if (!immofluxApiKey || !immofluxApiUser) {
+        console.error('Missing Immoflux credentials!');
+        console.error('IMMOFLUX_API_KEY:', immofluxApiKey ? 'SET' : 'NOT SET');
+        console.error('IMMOFLUX_API_USER:', immofluxApiUser ? 'SET' : 'NOT SET');
+        throw new Error('Immoflux API credentials not configured');
+      }
+    }
+
     switch (action) {
       case 'sync_properties':
-        return await syncProperties(supabase, immofluxApiKey, immofluxApiUser);
+        return await syncProperties(supabase, immofluxApiKey!, immofluxApiUser!);
       
       case 'scrape_website':
         return await scrapeWebsiteProperties(supabase, url || 'https://imobiliaremilitari.ro/crm/properties');
       
       case 'get_property':
-        return await getProperty(supabase, immofluxApiKey, immofluxApiUser, propertyId);
+        return await getProperty(supabase, immofluxApiKey!, immofluxApiUser!, propertyId);
       
       case 'analyze_xml':
         return await analyzeXmlStructure(xml_url);
@@ -67,7 +74,7 @@ serve(async (req) => {
         return await importXmlWithCustomMapping(supabase, xml_url, requestBody.field_mapping);
       
       case 'test_connection':
-        return await testConnection(immofluxApiKey, immofluxApiUser);
+        return await testConnection(immofluxApiKey!, immofluxApiUser!);
       
       default:
         throw new Error('Invalid action specified');
