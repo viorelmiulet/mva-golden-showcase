@@ -60,24 +60,124 @@ export const XmlFieldMappingDialog = ({
       TARGET_FIELDS.forEach(({ value: targetField }) => {
         const detected = detectedFields.find(field => {
           const fieldLower = field.toLowerCase();
-          const targetLower = targetField.toLowerCase();
           
           // Direct match
-          if (fieldLower === targetLower) return true;
+          if (fieldLower === targetField.toLowerCase()) return true;
           
-          // Common variations
-          if (targetField === "title" && (fieldLower.includes("titlu") || fieldLower.includes("name") || fieldLower.includes("denumire"))) return true;
-          if (targetField === "description" && (fieldLower.includes("desc") || fieldLower.includes("content") || fieldLower.includes("detalii"))) return true;
-          if (targetField === "location" && (fieldLower.includes("location") || fieldLower.includes("address") || fieldLower.includes("adresa") || fieldLower.includes("oras"))) return true;
-          if (targetField === "price" && (fieldLower.includes("pret") || fieldLower.includes("price") || fieldLower.includes("cost"))) return true;
-          if (targetField === "surface" && (fieldLower.includes("suprafata") || fieldLower.includes("surface") || fieldLower.includes("area") || fieldLower.includes("mp"))) return true;
-          if (targetField === "rooms" && (fieldLower.includes("camere") || fieldLower.includes("rooms") || fieldLower.includes("bedrooms"))) return true;
-          if (targetField === "currency" && (fieldLower.includes("currency") || fieldLower.includes("moneda") || fieldLower.includes("valuta"))) return true;
-          if (targetField === "images" && (fieldLower.includes("image") || fieldLower.includes("photo") || fieldLower.includes("foto") || fieldLower.includes("poza"))) return true;
-          if (targetField === "features" && (fieldLower.includes("features") || fieldLower.includes("caracteristici") || fieldLower.includes("amenities"))) return true;
-          if (targetField === "contact" && (fieldLower.includes("contact") || fieldLower.includes("phone") || fieldLower.includes("telefon"))) return true;
-          
-          return false;
+          // Comprehensive variations for each target field
+          switch (targetField) {
+            case "title":
+              return fieldLower.includes("titlu") || 
+                     fieldLower.includes("title") || 
+                     fieldLower.includes("name") || 
+                     fieldLower.includes("denumire") ||
+                     fieldLower.includes("nume") ||
+                     fieldLower === "titlu_anunt" ||
+                     fieldLower === "property_title";
+                     
+            case "description":
+              return fieldLower.includes("desc") || 
+                     fieldLower.includes("content") || 
+                     fieldLower.includes("detalii") ||
+                     fieldLower.includes("text") ||
+                     fieldLower.includes("info") ||
+                     fieldLower === "descriere" ||
+                     fieldLower === "property_description";
+                     
+            case "location":
+              return fieldLower.includes("location") || 
+                     fieldLower.includes("address") || 
+                     fieldLower.includes("adresa") || 
+                     fieldLower.includes("oras") ||
+                     fieldLower.includes("city") ||
+                     fieldLower.includes("zona") ||
+                     fieldLower.includes("cartier") ||
+                     fieldLower.includes("localitate") ||
+                     fieldLower.includes("geo") ||
+                     fieldLower === "geo_location" ||
+                     fieldLower === "property_location";
+                     
+            case "price":
+              return fieldLower.includes("pret") || 
+                     fieldLower.includes("price") || 
+                     fieldLower.includes("cost") ||
+                     fieldLower.includes("suma") ||
+                     fieldLower.includes("valoare") ||
+                     fieldLower === "property_price";
+                     
+            case "surface":
+              return fieldLower.includes("suprafata") || 
+                     fieldLower.includes("surface") || 
+                     fieldLower.includes("area") || 
+                     fieldLower.includes("mp") ||
+                     fieldLower.includes("metri") ||
+                     fieldLower.includes("sqm") ||
+                     fieldLower.includes("sq_m") ||
+                     fieldLower === "suprafata_utila" ||
+                     fieldLower === "suprafata_totala";
+                     
+            case "rooms":
+              return fieldLower.includes("camere") || 
+                     fieldLower.includes("rooms") || 
+                     fieldLower.includes("bedrooms") ||
+                     fieldLower.includes("nr_camere") ||
+                     fieldLower.includes("numar_camere") ||
+                     fieldLower === "nr_cam" ||
+                     fieldLower === "bedroom_count";
+                     
+            case "currency":
+              return fieldLower.includes("currency") || 
+                     fieldLower.includes("moneda") || 
+                     fieldLower.includes("valuta") ||
+                     fieldLower === "coin" ||
+                     fieldLower === "money_type";
+                     
+            case "images":
+              return fieldLower.includes("image") || 
+                     fieldLower.includes("photo") || 
+                     fieldLower.includes("foto") || 
+                     fieldLower.includes("poza") ||
+                     fieldLower.includes("picture") ||
+                     fieldLower.includes("gallery") ||
+                     fieldLower.includes("galerie") ||
+                     fieldLower.includes("media") ||
+                     fieldLower === "imagini" ||
+                     fieldLower === "poze";
+                     
+            case "features":
+              return fieldLower.includes("features") || 
+                     fieldLower.includes("caracteristici") || 
+                     fieldLower.includes("amenities") ||
+                     fieldLower.includes("facilities") ||
+                     fieldLower.includes("dotari") ||
+                     fieldLower.includes("optiuni") ||
+                     fieldLower.includes("comfort") ||
+                     fieldLower.includes("extras");
+                     
+            case "contact":
+              return fieldLower.includes("contact") || 
+                     fieldLower.includes("phone") || 
+                     fieldLower.includes("telefon") ||
+                     fieldLower.includes("tel") ||
+                     fieldLower.includes("mobile") ||
+                     fieldLower.includes("mobil") ||
+                     fieldLower.includes("email") ||
+                     fieldLower.includes("agent");
+                     
+            case "transaction_type":
+              return fieldLower.includes("transaction") || 
+                     fieldLower.includes("tranzactie") ||
+                     fieldLower.includes("tip_anunt") ||
+                     fieldLower.includes("offer_type") ||
+                     fieldLower.includes("listing_type") ||
+                     fieldLower === "vanzare" ||
+                     fieldLower === "inchiriere" ||
+                     fieldLower === "sale" ||
+                     fieldLower === "rent";
+                     
+            default:
+              return false;
+          }
         });
         
         if (detected) {
