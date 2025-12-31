@@ -20,17 +20,69 @@ interface XmlFieldMappingDialogProps {
 }
 
 const TARGET_FIELDS = [
+  // Required fields
   { value: "title", label: "Titlu", required: true },
-  { value: "description", label: "Descriere", required: false },
   { value: "location", label: "Locație", required: true },
   { value: "price", label: "Preț", required: true },
-  { value: "surface", label: "Suprafață", required: false },
   { value: "rooms", label: "Camere", required: true },
+  
+  // Property details
+  { value: "description", label: "Descriere", required: false },
+  { value: "surface", label: "Suprafață Utilă", required: false },
+  { value: "surface_total", label: "Suprafață Totală", required: false },
+  { value: "surface_land", label: "Suprafață Teren", required: false },
   { value: "currency", label: "Monedă", required: false },
-  { value: "images", label: "Imagini", required: false },
-  { value: "features", label: "Caracteristici", required: false },
-  { value: "contact", label: "Contact", required: false },
   { value: "transaction_type", label: "Tip Tranzacție", required: false },
+  { value: "property_type", label: "Tip Proprietate", required: false },
+  
+  // Building info
+  { value: "floor", label: "Etaj", required: false },
+  { value: "total_floors", label: "Total Etaje", required: false },
+  { value: "year_built", label: "An Construcție", required: false },
+  { value: "building_type", label: "Tip Clădire", required: false },
+  { value: "compartment", label: "Compartimentare", required: false },
+  
+  // Room details
+  { value: "bathrooms", label: "Băi", required: false },
+  { value: "kitchens", label: "Bucătării", required: false },
+  { value: "balconies", label: "Balcoane", required: false },
+  { value: "terraces", label: "Terase", required: false },
+  { value: "garages", label: "Garaje", required: false },
+  { value: "parking", label: "Locuri Parcare", required: false },
+  
+  // Features & amenities
+  { value: "features", label: "Caracteristici", required: false },
+  { value: "amenities", label: "Facilități", required: false },
+  { value: "comfort", label: "Confort", required: false },
+  { value: "heating", label: "Încălzire", required: false },
+  { value: "conditioning", label: "Aer Condiționat", required: false },
+  { value: "furnished", label: "Mobilat", required: false },
+  
+  // Media
+  { value: "images", label: "Imagini", required: false },
+  { value: "floor_plan", label: "Plan Apartament", required: false },
+  { value: "video", label: "Video", required: false },
+  { value: "virtual_tour", label: "Tur Virtual", required: false },
+  
+  // Contact & source
+  { value: "contact", label: "Contact/Telefon", required: false },
+  { value: "email", label: "Email", required: false },
+  { value: "agent", label: "Agent", required: false },
+  { value: "agency", label: "Agenție", required: false },
+  { value: "source_url", label: "Link Sursă", required: false },
+  { value: "external_id", label: "ID Extern", required: false },
+  
+  // Status & dates
+  { value: "availability_status", label: "Status Disponibilitate", required: false },
+  { value: "available_from", label: "Disponibil Din", required: false },
+  { value: "updated_at", label: "Ultima Actualizare", required: false },
+  
+  // Location details
+  { value: "city", label: "Oraș", required: false },
+  { value: "zone", label: "Zonă/Cartier", required: false },
+  { value: "street", label: "Stradă", required: false },
+  { value: "latitude", label: "Latitudine", required: false },
+  { value: "longitude", label: "Longitudine", required: false },
 ];
 
 export const XmlFieldMappingDialog = ({
@@ -57,127 +109,92 @@ export const XmlFieldMappingDialog = ({
     if (detectedFields.length > 0 && Object.keys(mapping).length === 0) {
       const autoMapping: Record<string, string> = {};
       
+      // Define mapping patterns for each target field
+      const fieldPatterns: Record<string, string[]> = {
+        // Required
+        title: ["titlu", "title", "name", "denumire", "nume", "titlu_anunt", "property_title"],
+        location: ["location", "address", "adresa", "oras", "city", "zona", "cartier", "localitate", "geo", "geo_location", "property_location", "locatie"],
+        price: ["pret", "price", "cost", "suma", "valoare", "property_price"],
+        rooms: ["camere", "rooms", "bedrooms", "nr_camere", "numar_camere", "nr_cam", "bedroom_count"],
+        
+        // Property details
+        description: ["desc", "content", "detalii", "text", "info", "descriere", "property_description", "observatii"],
+        surface: ["suprafata", "surface", "area", "mp", "metri", "sqm", "sq_m", "suprafata_utila", "useful_area"],
+        surface_total: ["suprafata_totala", "total_area", "gross_area", "suprafata_construita"],
+        surface_land: ["teren", "land", "lot", "suprafata_teren", "land_area"],
+        currency: ["currency", "moneda", "valuta", "coin", "money_type"],
+        transaction_type: ["transaction", "tranzactie", "tip_anunt", "offer_type", "listing_type", "vanzare", "inchiriere", "sale", "rent", "tip_tranzactie"],
+        property_type: ["tip_proprietate", "property_type", "tip_imobil", "categorie", "category", "type"],
+        
+        // Building info
+        floor: ["etaj", "floor", "nivel", "level"],
+        total_floors: ["etaje", "floors", "nr_etaje", "total_floors", "numar_etaje"],
+        year_built: ["an", "year", "an_constructie", "year_built", "constructie", "built"],
+        building_type: ["tip_cladire", "building_type", "structura", "structure"],
+        compartment: ["compartimentare", "compartment", "layout"],
+        
+        // Room details
+        bathrooms: ["bai", "bathrooms", "bath", "baie", "nr_bai"],
+        kitchens: ["bucatarii", "kitchens", "kitchen", "bucatarie"],
+        balconies: ["balcoane", "balconies", "balcon", "balcony"],
+        terraces: ["terase", "terraces", "terasa", "terrace"],
+        garages: ["garaje", "garages", "garaj", "garage"],
+        parking: ["parcare", "parking", "loc_parcare", "parking_spots"],
+        
+        // Features
+        features: ["features", "caracteristici", "amenities", "facilities", "dotari", "optiuni", "comfort", "extras"],
+        amenities: ["amenities", "facilitati", "utilities"],
+        comfort: ["confort", "comfort_level"],
+        heating: ["incalzire", "heating", "centrala", "termica"],
+        conditioning: ["aer", "ac", "conditioning", "clima", "climatizare"],
+        furnished: ["mobilat", "furnished", "mobilier", "furniture"],
+        
+        // Media
+        images: ["image", "photo", "foto", "poza", "picture", "gallery", "galerie", "media", "imagini", "poze", "photos"],
+        floor_plan: ["plan", "floor_plan", "schita", "schema", "blueprint"],
+        video: ["video", "clip", "movie", "film"],
+        virtual_tour: ["tour", "virtual", "3d", "360"],
+        
+        // Contact
+        contact: ["contact", "phone", "telefon", "tel", "mobile", "mobil", "agent_phone"],
+        email: ["email", "mail", "e-mail"],
+        agent: ["agent", "broker", "consultant"],
+        agency: ["agentie", "agency", "firma", "company"],
+        source_url: ["url", "link", "source", "sursa", "storia", "olx"],
+        external_id: ["id_extern", "external_id", "ref", "reference", "cod", "code"],
+        
+        // Status
+        availability_status: ["status", "disponibilitate", "availability", "stare"],
+        available_from: ["disponibil", "available", "from_date", "start_date"],
+        updated_at: ["actualizat", "updated", "modified", "data_actualizare"],
+        
+        // Location details
+        city: ["oras", "city", "municipiu", "localitate"],
+        zone: ["zona", "zone", "cartier", "neighborhood", "sector"],
+        street: ["strada", "street", "adresa_strada"],
+        latitude: ["lat", "latitude", "latitudine"],
+        longitude: ["lng", "lon", "longitude", "longitudine"],
+      };
+      
       TARGET_FIELDS.forEach(({ value: targetField }) => {
+        const patterns = fieldPatterns[targetField] || [];
+        
         const detected = detectedFields.find(field => {
           const fieldLower = field.toLowerCase();
           
-          // Direct match
+          // Direct match with target field name
           if (fieldLower === targetField.toLowerCase()) return true;
           
-          // Comprehensive variations for each target field
-          switch (targetField) {
-            case "title":
-              return fieldLower.includes("titlu") || 
-                     fieldLower.includes("title") || 
-                     fieldLower.includes("name") || 
-                     fieldLower.includes("denumire") ||
-                     fieldLower.includes("nume") ||
-                     fieldLower === "titlu_anunt" ||
-                     fieldLower === "property_title";
-                     
-            case "description":
-              return fieldLower.includes("desc") || 
-                     fieldLower.includes("content") || 
-                     fieldLower.includes("detalii") ||
-                     fieldLower.includes("text") ||
-                     fieldLower.includes("info") ||
-                     fieldLower === "descriere" ||
-                     fieldLower === "property_description";
-                     
-            case "location":
-              return fieldLower.includes("location") || 
-                     fieldLower.includes("address") || 
-                     fieldLower.includes("adresa") || 
-                     fieldLower.includes("oras") ||
-                     fieldLower.includes("city") ||
-                     fieldLower.includes("zona") ||
-                     fieldLower.includes("cartier") ||
-                     fieldLower.includes("localitate") ||
-                     fieldLower.includes("geo") ||
-                     fieldLower === "geo_location" ||
-                     fieldLower === "property_location";
-                     
-            case "price":
-              return fieldLower.includes("pret") || 
-                     fieldLower.includes("price") || 
-                     fieldLower.includes("cost") ||
-                     fieldLower.includes("suma") ||
-                     fieldLower.includes("valoare") ||
-                     fieldLower === "property_price";
-                     
-            case "surface":
-              return fieldLower.includes("suprafata") || 
-                     fieldLower.includes("surface") || 
-                     fieldLower.includes("area") || 
-                     fieldLower.includes("mp") ||
-                     fieldLower.includes("metri") ||
-                     fieldLower.includes("sqm") ||
-                     fieldLower.includes("sq_m") ||
-                     fieldLower === "suprafata_utila" ||
-                     fieldLower === "suprafata_totala";
-                     
-            case "rooms":
-              return fieldLower.includes("camere") || 
-                     fieldLower.includes("rooms") || 
-                     fieldLower.includes("bedrooms") ||
-                     fieldLower.includes("nr_camere") ||
-                     fieldLower.includes("numar_camere") ||
-                     fieldLower === "nr_cam" ||
-                     fieldLower === "bedroom_count";
-                     
-            case "currency":
-              return fieldLower.includes("currency") || 
-                     fieldLower.includes("moneda") || 
-                     fieldLower.includes("valuta") ||
-                     fieldLower === "coin" ||
-                     fieldLower === "money_type";
-                     
-            case "images":
-              return fieldLower.includes("image") || 
-                     fieldLower.includes("photo") || 
-                     fieldLower.includes("foto") || 
-                     fieldLower.includes("poza") ||
-                     fieldLower.includes("picture") ||
-                     fieldLower.includes("gallery") ||
-                     fieldLower.includes("galerie") ||
-                     fieldLower.includes("media") ||
-                     fieldLower === "imagini" ||
-                     fieldLower === "poze";
-                     
-            case "features":
-              return fieldLower.includes("features") || 
-                     fieldLower.includes("caracteristici") || 
-                     fieldLower.includes("amenities") ||
-                     fieldLower.includes("facilities") ||
-                     fieldLower.includes("dotari") ||
-                     fieldLower.includes("optiuni") ||
-                     fieldLower.includes("comfort") ||
-                     fieldLower.includes("extras");
-                     
-            case "contact":
-              return fieldLower.includes("contact") || 
-                     fieldLower.includes("phone") || 
-                     fieldLower.includes("telefon") ||
-                     fieldLower.includes("tel") ||
-                     fieldLower.includes("mobile") ||
-                     fieldLower.includes("mobil") ||
-                     fieldLower.includes("email") ||
-                     fieldLower.includes("agent");
-                     
-            case "transaction_type":
-              return fieldLower.includes("transaction") || 
-                     fieldLower.includes("tranzactie") ||
-                     fieldLower.includes("tip_anunt") ||
-                     fieldLower.includes("offer_type") ||
-                     fieldLower.includes("listing_type") ||
-                     fieldLower === "vanzare" ||
-                     fieldLower === "inchiriere" ||
-                     fieldLower === "sale" ||
-                     fieldLower === "rent";
-                     
-            default:
-              return false;
-          }
+          // Check if any pattern matches
+          return patterns.some(pattern => {
+            // Exact match
+            if (fieldLower === pattern) return true;
+            // Contains pattern
+            if (fieldLower.includes(pattern)) return true;
+            // Pattern contains field
+            if (pattern.includes(fieldLower) && fieldLower.length > 2) return true;
+            return false;
+          });
         });
         
         if (detected) {
@@ -188,7 +205,7 @@ export const XmlFieldMappingDialog = ({
       setMapping(autoMapping);
       
       if (Object.keys(autoMapping).length > 0) {
-        toast.success(`Auto-detectate ${Object.keys(autoMapping).length} mapări`);
+        toast.success(`Auto-detectate ${Object.keys(autoMapping).length} mapări din ${detectedFields.length} câmpuri`);
       }
     }
   }, [detectedFields, savedMapping]);
