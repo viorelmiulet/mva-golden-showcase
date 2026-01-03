@@ -169,35 +169,85 @@ export const XmlFieldMappingDialog = ({
     };
     
     const autoMapping: Record<string, string> = {};
+    const usedFields = new Set<string>();
     
-    // Auto-detect ALL fields first
-    TARGET_FIELDS.forEach(({ value: targetField }) => {
-      const patterns = fieldPatterns[targetField] || [];
+    // Helper function to check if field matches pattern
+    const fieldMatchesPattern = (field: string, patterns: string[]): boolean => {
+      const fieldLower = field.toLowerCase().replace(/[-_\s]/g, '');
       
+      for (const pattern of patterns) {
+        const patternLower = pattern.toLowerCase().replace(/[-_\s]/g, '');
+        
+        // Exact match
+        if (fieldLower === patternLower) return true;
+        
+        // Field contains pattern
+        if (fieldLower.includes(patternLower)) return true;
+        
+        // Pattern contains field (for short fields)
+        if (patternLower.includes(fieldLower) && fieldLower.length >= 3) return true;
+        
+        // Word boundary match
+        const fieldWords = field.toLowerCase().split(/[-_\s]+/);
+        const patternWords = pattern.toLowerCase().split(/[-_\s]+/);
+        if (fieldWords.some(w => patternWords.includes(w) && w.length >= 3)) return true;
+      }
+      return false;
+    };
+    
+    // Auto-detect ALL fields - match each target to best available source
+    TARGET_FIELDS.forEach(({ value: targetField }) => {
+      const patterns = fieldPatterns[targetField] || [targetField];
+      
+      // Find best matching field that hasn't been used
       const detected = detectedFields.find(field => {
+        if (usedFields.has(field)) return false;
+        
         const fieldLower = field.toLowerCase();
         
         // Direct match with target field name
         if (fieldLower === targetField.toLowerCase()) return true;
+        if (fieldLower.replace(/[-_]/g, '') === targetField.replace(/[-_]/g, '')) return true;
         
-        // Check if any pattern matches
-        return patterns.some(pattern => {
-          if (fieldLower === pattern) return true;
-          if (fieldLower.includes(pattern)) return true;
-          if (pattern.includes(fieldLower) && fieldLower.length > 2) return true;
-          return false;
-        });
+        // Check pattern matches
+        return fieldMatchesPattern(field, patterns);
       });
       
       if (detected) {
         autoMapping[targetField] = detected;
+        usedFields.add(detected);
+      }
+    });
+    
+    // Second pass: try to match remaining source fields to remaining target fields
+    const unmappedTargets = TARGET_FIELDS
+      .filter(({ value }) => !autoMapping[value])
+      .map(({ value }) => value);
+    
+    const unmappedSources = detectedFields.filter(f => !usedFields.has(f));
+    
+    unmappedSources.forEach(sourceField => {
+      const sourceLower = sourceField.toLowerCase().replace(/[-_\s]/g, '');
+      
+      for (const targetField of unmappedTargets) {
+        if (autoMapping[targetField]) continue;
+        
+        const targetLower = targetField.toLowerCase().replace(/[-_\s]/g, '');
+        
+        // Fuzzy matching for remaining fields
+        if (sourceLower.includes(targetLower) || targetLower.includes(sourceLower)) {
+          if (sourceLower.length >= 3 && targetLower.length >= 3) {
+            autoMapping[targetField] = sourceField;
+            break;
+          }
+        }
       }
     });
     
     // Override with saved mapping if available (for previously mapped fields)
     if (savedMapping && Object.keys(savedMapping).length > 0) {
       Object.keys(savedMapping).forEach(key => {
-        if (savedMapping[key]) {
+        if (savedMapping[key] && detectedFields.includes(savedMapping[key])) {
           autoMapping[key] = savedMapping[key];
         }
       });
@@ -205,14 +255,12 @@ export const XmlFieldMappingDialog = ({
     
     setMapping(autoMapping);
     
-    const savedCount = savedMapping ? Object.keys(savedMapping).filter(k => savedMapping[k]).length : 0;
-    const newCount = Object.keys(autoMapping).length - savedCount;
+    console.log('Auto-detected mapping:', autoMapping);
+    console.log('Detected fields:', detectedFields);
+    console.log('Mapped count:', Object.keys(autoMapping).filter(k => autoMapping[k]).length);
     
-    if (savedCount > 0 && newCount > 0) {
-      toast.success(`Încărcate ${savedCount} mapări salvate + ${newCount} noi auto-detectate`);
-    } else if (Object.keys(autoMapping).length > 0) {
-      toast.success(`Auto-detectate ${Object.keys(autoMapping).length} mapări din ${detectedFields.length} câmpuri`);
-    }
+    const mappedCount = Object.keys(autoMapping).filter(k => autoMapping[k]).length;
+    toast.success(`Auto-detectate ${mappedCount} mapări din ${detectedFields.length} câmpuri`);
   }, [detectedFields, savedMapping]);
 
   // Load saved mappings from localStorage
