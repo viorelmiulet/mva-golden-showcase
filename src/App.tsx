@@ -18,15 +18,15 @@ import ScrollIndicator from "@/components/ScrollIndicator";
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
 
-// Mobile app pages
-const MobileAppLayout = lazy(() => import("./layouts/MobileAppLayout"));
-const MobileHome = lazy(() => import("./pages/mobile/MobileHome"));
-const MobileSearch = lazy(() => import("./pages/mobile/MobileSearch"));
-const MobileComplexes = lazy(() => import("./pages/mobile/MobileComplexes"));
-const MobileFavorites = lazy(() => import("./pages/mobile/MobileFavorites"));
-const MobileAccount = lazy(() => import("./pages/mobile/MobileAccount"));
-const MobilePropertyDetail = lazy(() => import("./pages/mobile/MobilePropertyDetail"));
-const MobileComplexDetail = lazy(() => import("./pages/mobile/MobileComplexDetail"));
+// Mobile app pages - imported directly for better performance
+import MobileAppLayout from "./layouts/MobileAppLayout";
+import MobileHome from "./pages/mobile/MobileHome";
+import MobileSearch from "./pages/mobile/MobileSearch";
+import MobileComplexes from "./pages/mobile/MobileComplexes";
+import MobileFavorites from "./pages/mobile/MobileFavorites";
+import MobileAccount from "./pages/mobile/MobileAccount";
+import MobilePropertyDetail from "./pages/mobile/MobilePropertyDetail";
+import MobileComplexDetail from "./pages/mobile/MobileComplexDetail";
 
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
