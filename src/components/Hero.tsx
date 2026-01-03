@@ -6,16 +6,17 @@ import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { CollaborationForm } from "@/components/CollaborationForm"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
   const { data: stats, isLoading } = useRealEstateStats();
+  const { t, language } = useLanguage();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      // Track navigation click
       trackEvent('scroll_to_section', 'navigation', sectionId);
     }
   };
@@ -52,15 +53,18 @@ const Hero = () => {
           <header className="space-y-4 sm:space-y-6 lg:space-y-8 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
             <div className="space-y-3 sm:space-y-4 lg:space-y-6">
               <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight" itemProp="headline">
-                <span className="block text-foreground mb-1 sm:mb-2">Soluții Imobiliare</span>
+                <span className="block text-foreground mb-1 sm:mb-2">
+                  {language === 'ro' ? 'Soluții Imobiliare' : 'Real Estate Solutions'}
+                </span>
                 <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Complete
+                  {language === 'ro' ? 'Complete' : 'Complete'}
                 </span>
               </h1>
               
               <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0 px-2 sm:px-0" itemProp="description">
-                Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. 
-                Investiții sigure cu finisaje premium și locații strategice.
+                {language === 'ro' 
+                  ? 'Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. Investiții sigure cu finisaje premium și locații strategice.'
+                  : 'Discover the most selective real estate projects in western Bucharest. Safe investments with premium finishes and strategic locations.'}
               </p>
             </div>
             
@@ -72,7 +76,7 @@ const Hero = () => {
                   className="group px-3 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-xs sm:text-base font-semibold w-full xs:w-auto shadow-2xl"
                 >
                   <UserPlus className="mr-1.5 sm:mr-2 h-4 w-4 flex-shrink-0" />
-                  <span>Colaborează cu noi</span>
+                  <span>{language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}</span>
                 </Button>
               </CollaborationForm>
               
@@ -88,43 +92,57 @@ const Hero = () => {
                   className="w-full xs:w-auto px-4 sm:px-6 lg:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base font-semibold"
                 >
                   <WhatsAppIcon className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">Contactează-ne pe </span>WhatsApp
+                  <span className="hidden xs:inline">{language === 'ro' ? 'Contactează-ne pe ' : 'Contact us on '}</span>WhatsApp
                 </Button>
               </a>
             </nav>
           </header>
 
           {/* Right Column - Stats Cards */}
-          <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:ml-auto lg:mr-0" aria-label="Statistici cheie proprietăți">
+          <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie proprietăți' : 'Key property statistics'}>
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
               <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
                 {isLoading ? "..." : stats?.propertiesCount || 0}
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">Proprietăți listate</div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">Apartamente disponibile</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">
+                {language === 'ro' ? 'Proprietăți listate' : 'Listed properties'}
+              </div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">
+                {language === 'ro' ? 'Apartamente disponibile' : 'Available apartments'}
+              </div>
             </div>
             
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
               <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
                 {isLoading ? "..." : stats?.projectsCount || 0}
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">Complexe disponibile</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">
+                {language === 'ro' ? 'Complexe disponibile' : 'Available complexes'}
+              </div>
               <div className="text-[10px] xs:text-xs text-foreground font-medium">Chiajna, Ilfov</div>
             </div>
             
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
               <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">1-3</div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">Camere disponibile</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">
+                {language === 'ro' ? 'Camere disponibile' : 'Rooms available'}
+              </div>
               <div className="text-[10px] xs:text-xs text-foreground font-medium">30-75 mp</div>
             </div>
             
             <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
               <div className="flex items-center mb-1">
                 <MapPin className="w-3 h-3 text-gold mr-1 drop-shadow-lg" />
-                <div className="text-[10px] xs:text-xs text-gold font-semibold drop-shadow-lg">Vest București</div>
+                <div className="text-[10px] xs:text-xs text-gold font-semibold drop-shadow-lg">
+                  {language === 'ro' ? 'Vest București' : 'West Bucharest'}
+                </div>
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">Locație strategică</div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">Acces facil la centru</div>
+              <div className="text-[10px] xs:text-xs text-muted-foreground">
+                {language === 'ro' ? 'Locație strategică' : 'Strategic location'}
+              </div>
+              <div className="text-[10px] xs:text-xs text-foreground font-medium">
+                {language === 'ro' ? 'Acces facil la centru' : 'Easy access to center'}
+              </div>
             </div>
           </aside>
         </div>
