@@ -10,10 +10,12 @@ import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ComplexGridSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Complexe = () => {
   const { trackComplex } = usePlausible();
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  const { t, language } = useLanguage();
   
   const { data: projects, isLoading } = useQuery({
     queryKey: ['public-projects'],
@@ -137,10 +139,10 @@ const Complexe = () => {
           {/* Hero Section */}
           <div className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent px-2">
-              Complexe Rezidențiale
+              {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-              Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi
+              {t.complexes?.subtitle || 'Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi'}
             </p>
           </div>
 
@@ -226,25 +228,25 @@ const Complexe = () => {
                         <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t">
                           {project.price_range && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Preț</p>
+                              <p className="text-xs text-muted-foreground">{t.properties?.price || 'Preț'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.price_range}</p>
                             </div>
                           )}
                           {project.surface_range && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Suprafață</p>
+                              <p className="text-xs text-muted-foreground">{language === 'ro' ? 'Suprafață' : 'Surface'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.surface_range}</p>
                             </div>
                           )}
                           {project.rooms_range && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Camere</p>
+                              <p className="text-xs text-muted-foreground">{t.properties?.rooms || 'Camere'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.rooms_range}</p>
                             </div>
                           )}
                           {project.completion_date && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Finalizare</p>
+                              <p className="text-xs text-muted-foreground">{t.complexes?.completionDate || 'Finalizare'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.completion_date}</p>
                             </div>
                           )}
@@ -254,8 +256,8 @@ const Complexe = () => {
                         {stats.total > 0 && (
                           <div className="pt-3 md:pt-4 border-t space-y-2 md:space-y-3">
                             <div className="flex items-center justify-between text-xs md:text-sm">
-                              <span className="font-semibold">Disponibilitate</span>
-                              <span className="text-muted-foreground">{stats.available} din {stats.total}</span>
+                              <span className="font-semibold">{language === 'ro' ? 'Disponibilitate' : 'Availability'}</span>
+                              <span className="text-muted-foreground">{stats.available} {language === 'ro' ? 'din' : 'of'} {stats.total}</span>
                             </div>
                             {/* Dual bar chart */}
                             <div className="flex gap-1 h-3 md:h-4 rounded-full overflow-hidden bg-muted/20">
@@ -271,11 +273,11 @@ const Complexe = () => {
                             <div className="flex items-center justify-center gap-4 md:gap-6 text-[10px] md:text-xs">
                               <div className="flex items-center gap-1.5 md:gap-2">
                                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500 flex-shrink-0"></div>
-                                <span>{stats.available} disponibile</span>
+                                <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
                               <div className="flex items-center gap-1.5 md:gap-2">
                                 <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500 flex-shrink-0"></div>
-                                <span>{stats.sold} vândute</span>
+                                <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
                           </div>
@@ -284,7 +286,9 @@ const Complexe = () => {
                         {/* Call to Action */}
                         <div className="pt-3 md:pt-4">
                           <div className="flex items-center justify-between text-primary group-hover:text-primary/80 transition-colors">
-                            <span className="font-semibold text-sm md:text-base">Vezi apartamente disponibile</span>
+                            <span className="font-semibold text-sm md:text-base">
+                              {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}
+                            </span>
                             <Home className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform flex-shrink-0" />
                           </div>
                         </div>
@@ -299,8 +303,12 @@ const Complexe = () => {
           {projects?.length === 0 && (
             <div className="text-center py-16">
               <Building2 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Nu există complexe disponibile</h3>
-              <p className="text-muted-foreground">Revino în curând pentru noi proiecte!</p>
+              <h3 className="text-xl font-semibold mb-2">
+                {language === 'ro' ? 'Nu există complexe disponibile' : 'No complexes available'}
+              </h3>
+              <p className="text-muted-foreground">
+                {language === 'ro' ? 'Revino în curând pentru noi proiecte!' : 'Come back soon for new projects!'}
+              </p>
             </div>
           )}
         </main>

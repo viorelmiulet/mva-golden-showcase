@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { X, Cookie } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const consent = localStorage.getItem("cookieConsent");
@@ -31,11 +33,11 @@ const CookieConsent = () => {
         <div className="flex items-start gap-3">
           <Cookie className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-2">Consimțământ Cookie-uri</h3>
+            <h3 className="font-semibold text-sm mb-2">
+              {t.cookies?.message?.split('.')[0] || "Cookie Consent"}
+            </h3>
             <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
-              Folosim cookie-uri pentru a îmbunătăți experiența dvs. pe site, 
-              pentru analiză trafic și pentru funcționalități personalizate. 
-              Acceptând, sunteți de acord cu politica noastră de cookie-uri.
+              {t.cookies?.message || "We use cookies to improve your experience on our site."}
             </p>
             <div className="flex gap-2 flex-wrap">
               <Button 
@@ -43,7 +45,7 @@ const CookieConsent = () => {
                 size="sm"
                 className="text-xs"
               >
-                Accept toate
+                {t.cookies?.accept || "Accept"}
               </Button>
               <Button 
                 onClick={rejectCookies} 
@@ -51,7 +53,7 @@ const CookieConsent = () => {
                 size="sm"
                 className="text-xs"
               >
-                Doar necesare
+                {t.cookies?.decline || "Decline"}
               </Button>
             </div>
           </div>

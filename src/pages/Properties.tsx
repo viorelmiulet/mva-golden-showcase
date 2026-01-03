@@ -36,6 +36,7 @@ import { Helmet } from "react-helmet-async"
 import { useFavorites } from "@/hooks/useFavorites"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { PropertyGridSkeleton } from "@/components/skeletons"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ScrapedProperty {
   title: string
@@ -64,6 +65,7 @@ const Properties = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
+  const { t, language } = useLanguage()
 
   // Fetch existing properties (exclude properties from residential complexes)
   const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
@@ -354,11 +356,11 @@ const Properties = () => {
             <div className="text-center mb-6 sm:mb-8 md:mb-12 px-2">
               <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4">
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Ofertele Noastre
+                  {t.properties?.title || 'Ofertele Noastre'}
                 </span>
               </h1>
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
-                Descoperă proprietățile noastre disponibile pentru vânzare
+                {t.properties?.subtitle || 'Descoperă proprietățile noastre disponibile pentru vânzare'}
               </p>
             </div>
 
@@ -370,21 +372,25 @@ const Properties = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                       {/* Transaction Type Filter */}
                       <div className="col-span-2 sm:col-span-1">
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Tip tranzacție</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                          {language === 'ro' ? 'Tip tranzacție' : 'Transaction type'}
+                        </label>
                         <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder="Selectează tipul" />
+                            <SelectValue placeholder={language === 'ro' ? 'Selectează tipul' : 'Select type'} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">Toate</SelectItem>
-                            <SelectItem value="sale">Vânzare</SelectItem>
-                            <SelectItem value="rent">Chirie</SelectItem>
+                            <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                            <SelectItem value="sale">{t.properties?.forSale || 'Vânzare'}</SelectItem>
+                            <SelectItem value="rent">{t.properties?.forRent || 'Chirie'}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       {/* Price Range Filter */}
                       <div className="col-span-2 lg:col-span-2">
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Preț (EUR)</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                          {t.properties?.price || 'Preț'} (EUR)
+                        </label>
                         <div className="flex gap-1.5 sm:gap-2 items-center">
                           <Input
                             type="number"
@@ -408,33 +414,37 @@ const Properties = () => {
 
                       {/* Rooms Filter */}
                       <div>
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Camere</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                          {t.properties?.rooms || 'Camere'}
+                        </label>
                         <Select value={roomsFilter} onValueChange={setRoomsFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder="Camere" />
+                            <SelectValue placeholder={t.properties?.rooms || 'Camere'} />
                           </SelectTrigger>
                            <SelectContent>
-                            <SelectItem value="all">Toate</SelectItem>
-                            <SelectItem value="1">1 cameră</SelectItem>
-                            <SelectItem value="2">2 camere</SelectItem>
-                            <SelectItem value="3">3 camere</SelectItem>
-                            <SelectItem value="4">4 camere</SelectItem>
-                            <SelectItem value="5">5 camere</SelectItem>
-                            <SelectItem value="6">6 camere</SelectItem>
-                            <SelectItem value="7">7+ camere</SelectItem>
+                            <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                            <SelectItem value="1">1 {language === 'ro' ? 'cameră' : 'room'}</SelectItem>
+                            <SelectItem value="2">2 {t.properties?.rooms || 'camere'}</SelectItem>
+                            <SelectItem value="3">3 {t.properties?.rooms || 'camere'}</SelectItem>
+                            <SelectItem value="4">4 {t.properties?.rooms || 'camere'}</SelectItem>
+                            <SelectItem value="5">5 {t.properties?.rooms || 'camere'}</SelectItem>
+                            <SelectItem value="6">6 {t.properties?.rooms || 'camere'}</SelectItem>
+                            <SelectItem value="7">7+ {t.properties?.rooms || 'camere'}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       {/* Zone Filter */}
                       <div>
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Zonă</label>
+                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                          {language === 'ro' ? 'Zonă' : 'Zone'}
+                        </label>
                         <Select value={locationFilter} onValueChange={setLocationFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder="Zonă" />
+                            <SelectValue placeholder={language === 'ro' ? 'Zonă' : 'Zone'} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">Toate zonele</SelectItem>
+                            <SelectItem value="all">{language === 'ro' ? 'Toate zonele' : 'All zones'}</SelectItem>
                             {uniqueZones.map((zone) => (
                               <SelectItem key={zone} value={zone}>
                                 {zone}

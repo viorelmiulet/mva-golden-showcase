@@ -189,4 +189,95 @@ export const ro = {
     registerButton: "Creează cont",
     logout: "Deconectare",
   },
+
+  // FAQ
+  faq: {
+    title: "Întrebări Frecvente",
+    subtitle: "Răspunsuri la cele mai comune întrebări",
+    stillQuestions: "Mai ai întrebări?",
+    contactUs: "Contactează-ne",
+  },
+
+  // Career
+  career: {
+    title: "Cariere",
+    subtitle: "Alătură-te echipei noastre",
+    openPositions: "Poziții Disponibile",
+    noPositions: "Nu există poziții disponibile momentan",
+    apply: "Aplică",
+    benefits: "Beneficii",
+    requirements: "Cerințe",
+  },
+
+  // Blog
+  blog: {
+    title: "Blog",
+    subtitle: "Noutăți din lumea imobiliară",
+    readMore: "Citește articolul",
+    recentPosts: "Articole Recente",
+    noArticles: "Nu există articole",
+    publishedOn: "Publicat pe",
+  },
+
+  // Why Choose Us
+  whyChooseUs: {
+    title: "De Ce Să Ne Alegi",
+    subtitle: "Motivele pentru care clienții ne aleg",
+    experience: "Experiență Dovedită",
+    experienceText: "Peste 10 ani de experiență în piața imobiliară locală.",
+    network: "Rețea Extinsă",
+    networkText: "Acces la o gamă largă de proprietăți și dezvoltatori.",
+    personalized: "Abordare Personalizată",
+    personalizedText: "Fiecare client beneficiază de atenție individuală.",
+    transparency: "Transparență Totală",
+    transparencyText: "Comunicare deschisă și onestă în fiecare etapă.",
+    support: "Suport Complet",
+    supportText: "Te ghidăm de la prima vizită până la predarea cheilor.",
+    results: "Rezultate Demonstrate",
+    resultsText: "Sute de clienți mulțumiți și tranzacții încheiate cu succes.",
+  },
+
+  // Cookie Consent
+  cookies: {
+    message: "Folosim cookie-uri pentru a îmbunătăți experiența ta pe site.",
+    accept: "Accept",
+    decline: "Refuz",
+    learnMore: "Află mai multe",
+  },
+
+  // Mobile App
+  mobile: {
+    home: "Acasă",
+    search: "Caută",
+    complexes: "Complexe",
+    favorites: "Favorite",
+    account: "Cont",
+    welcome: "Bine ai venit!",
+    welcomeSubtitle: "Descoperă proprietăți de vis",
+    signIn: "Conectează-te",
+    signUp: "Creează cont",
+    signOut: "Deconectare",
+    language: "Limbă",
+    contactInfo: "Informații Contact",
+    savedProperties: "Proprietăți Salvate",
+    noFavorites: "Nu ai proprietăți salvate",
+    exploreProperties: "Explorează proprietăți",
+  },
+
+  // Onboarding
+  onboarding: {
+    welcome: "Bine ai venit la MVA Imobiliare",
+    welcomeDesc: "Descoperă cele mai bune proprietăți din zonă",
+    search: "Caută Proprietăți",
+    searchDesc: "Găsește locuința perfectă cu filtrele noastre avansate",
+    favorites: "Salvează Favoritele",
+    favoritesDesc: "Marchează proprietățile preferate pentru mai târziu",
+    contact: "Contactează-ne Ușor",
+    contactDesc: "Un singur click și ești în legătură cu noi",
+    getStarted: "Începe Acum",
+    skip: "Sari peste",
+    next: "Continuă",
+  },
 };
+
+export type TranslationKeys = typeof ro;
