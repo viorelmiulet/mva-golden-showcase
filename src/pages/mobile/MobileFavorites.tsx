@@ -57,8 +57,8 @@ const MobileFavorites = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen">
-        <MobileHeader title={language === 'ro' ? 'Favorite' : 'Favorites'} />
+      <div className="min-h-screen bg-background">
+        <MobileHeader title={language === 'ro' ? 'Favorite' : 'Favorites'} showBack />
         <div className="pt-14 px-4 flex flex-col items-center justify-center min-h-[60vh]">
           <Heart className="w-16 h-16 text-muted-foreground mb-4" />
           <h2 className="text-xl font-semibold mb-2">
@@ -80,8 +80,8 @@ const MobileFavorites = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <MobileHeader title={language === 'ro' ? 'Favorite' : 'Favorites'} />
+    <div className="min-h-screen bg-background">
+      <MobileHeader title={language === 'ro' ? 'Favorite' : 'Favorites'} showBack />
       
       <div className="pt-14 px-4 pb-4">
         {isLoading ? (

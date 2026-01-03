@@ -123,8 +123,8 @@ const MobileSearch = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <MobileHeader title={language === 'ro' ? 'Caută proprietăți' : 'Search properties'} />
+    <div className="min-h-screen bg-background">
+      <MobileHeader title={language === 'ro' ? 'Caută proprietăți' : 'Search properties'} showBack />
       
       <div className="pt-14 px-4 pb-4">
         {/* Search Bar */}

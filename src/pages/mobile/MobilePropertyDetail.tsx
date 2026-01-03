@@ -74,7 +74,7 @@ const MobilePropertyDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <MobileHeader showBack />
         <div className="pt-14">
           <Skeleton className="w-full h-72" />
@@ -91,7 +91,7 @@ const MobilePropertyDetail = () => {
 
   if (!property) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <MobileHeader showBack />
         <div className="pt-14 px-4 flex flex-col items-center justify-center min-h-[60vh]">
           <h2 className="text-xl font-semibold mb-2">
@@ -110,7 +110,7 @@ const MobilePropertyDetail = () => {
   const images = property.images || [];
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <MobileHeader 
         showBack 
         rightAction={
