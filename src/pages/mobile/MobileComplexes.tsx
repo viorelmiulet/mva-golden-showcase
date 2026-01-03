@@ -13,18 +13,37 @@ const MobileComplexes = () => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { language } = useLanguage();
 
-  // Fetch all complexes
+  // Fetch all complexes with apartment count
   const { data: complexes = [], isLoading } = useQuery({
-    queryKey: ['mobile-all-complexes'],
+    queryKey: ['mobile-all-complexes-with-counts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all projects
+      const { data: projects, error } = await supabase
         .from('real_estate_projects')
         .select('*')
         .order('is_recommended', { ascending: false })
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data || [];
+      if (!projects) return [];
+
+      // Then get apartment counts for each
+      const projectsWithCounts = await Promise.all(
+        projects.map(async (project) => {
+          const { count } = await supabase
+            .from('catalog_offers')
+            .select('*', { count: 'exact', head: true })
+            .eq('project_id', project.id)
+            .eq('availability_status', 'available');
+          
+          return {
+            ...project,
+            available_apartments: count || 0
+          };
+        })
+      );
+
+      return projectsWithCounts;
     }
   });
 
@@ -109,6 +128,11 @@ const MobileComplexes = () => {
                       </p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-3">
+                      {complex.available_apartments > 0 && (
+                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                          {complex.available_apartments} {language === 'ro' ? 'apt. disponibile' : 'available'}
+                        </Badge>
+                      )}
                       {complex.price_range && (
                         <Badge variant="outline" className="text-gold border-gold/30">
                           {complex.price_range}

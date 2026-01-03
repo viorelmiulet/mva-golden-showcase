@@ -42,15 +42,17 @@ const MobileComplexDetail = () => {
     enabled: !!id
   });
 
-  // Fetch apartments in this complex
-  const { data: apartments = [] } = useQuery({
+  // Fetch apartments in this complex - no limit to get all
+  const { data: apartments = [], isLoading: isLoadingApartments } = useQuery({
     queryKey: ['mobile-complex-apartments', id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('*')
         .eq('project_id', id)
-        .order('rooms', { ascending: true });
+        .eq('availability_status', 'available')
+        .order('rooms', { ascending: true })
+        .order('price_min', { ascending: true });
       
       if (error) throw error;
       return data || [];
@@ -253,24 +255,64 @@ const MobileComplexDetail = () => {
         )}
 
         {/* Available apartments */}
-        {apartments.length > 0 && (
-          <div>
-            <h2 className="font-semibold mb-3">
-              {language === 'ro' ? 'Apartamente disponibile' : 'Available Apartments'} ({apartments.length})
-            </h2>
+        <div>
+          <h2 className="font-semibold mb-3">
+            {language === 'ro' ? 'Apartamente disponibile' : 'Available Apartments'} 
+            {!isLoadingApartments && ` (${apartments.length})`}
+          </h2>
+          
+          {isLoadingApartments ? (
             <div className="space-y-3">
-              {apartments.slice(0, 5).map((apt) => (
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-12 h-12 rounded-lg" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-16" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : apartments.length === 0 ? (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Building2 className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {language === 'ro' 
+                    ? 'Nu există apartamente disponibile momentan' 
+                    : 'No apartments available at the moment'}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {apartments.map((apt) => (
                 <Link key={apt.id} to={`/app/proprietate/${apt.id}`}>
                   <Card className="hover:border-gold/30 transition-colors">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
-                            <Home className="w-6 h-6 text-gold" />
-                          </div>
+                          {apt.images && apt.images.length > 0 ? (
+                            <img 
+                              src={apt.images[0]} 
+                              alt=""
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
+                              <Home className="w-6 h-6 text-gold" />
+                            </div>
+                          )}
                           <div>
                             <p className="font-medium text-sm">
-                              {apt.rooms} {language === 'ro' ? 'camere' : 'rooms'}
+                              {apt.title || `${apt.rooms} ${language === 'ro' ? 'camere' : 'rooms'}`}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {apt.rooms} {language === 'ro' ? 'cam' : 'rooms'}
                               {apt.surface_min && ` • ${apt.surface_min}m²`}
                             </p>
                             <p className="text-gold font-semibold text-sm">
@@ -284,16 +326,9 @@ const MobileComplexDetail = () => {
                   </Card>
                 </Link>
               ))}
-              {apartments.length > 5 && (
-                <Button variant="outline" className="w-full">
-                  {language === 'ro' 
-                    ? `Vezi toate (${apartments.length})` 
-                    : `View all (${apartments.length})`}
-                </Button>
-              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Fixed bottom CTA */}
