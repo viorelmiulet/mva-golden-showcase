@@ -86,7 +86,7 @@ const MobileComplexDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <MobileHeader showBack />
         <div className="pt-14">
           <Skeleton className="w-full h-56" />
@@ -102,7 +102,7 @@ const MobileComplexDetail = () => {
 
   if (!complex) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <MobileHeader showBack />
         <div className="pt-14 px-4 flex flex-col items-center justify-center min-h-[60vh]">
           <h2 className="text-xl font-semibold mb-2">
@@ -119,7 +119,7 @@ const MobileComplexDetail = () => {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <MobileHeader 
         showBack 
         rightAction={

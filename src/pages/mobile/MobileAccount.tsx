@@ -51,8 +51,8 @@ const MobileAccount = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} />
+      <div className="min-h-screen bg-background">
+        <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} showBack />
         <div className="pt-14 px-4 flex items-center justify-center min-h-[60vh]">
           <div className="animate-pulse text-gold">
             {language === 'ro' ? 'Se încarcă...' : 'Loading...'}
@@ -64,8 +64,8 @@ const MobileAccount = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} />
+      <div className="min-h-screen bg-background">
+        <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} showBack />
         <div className="pt-14 px-4 pb-4">
           {/* Login prompt */}
           <div className="flex flex-col items-center justify-center py-12">
@@ -143,8 +143,8 @@ const MobileAccount = () => {
 
   // Logged in user view
   return (
-    <div className="min-h-screen">
-      <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} />
+    <div className="min-h-screen bg-background">
+      <MobileHeader title={language === 'ro' ? 'Contul meu' : 'My Account'} showBack />
       
       <div className="pt-14 px-4 pb-4">
         {/* User profile card */}

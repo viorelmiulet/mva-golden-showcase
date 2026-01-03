@@ -29,12 +29,12 @@ const MobileComplexes = () => {
   });
 
   return (
-    <div className="min-h-screen">
-      <MobileHeader title={language === 'ro' ? 'Complexe rezidențiale' : 'Residential Complexes'} />
+    <div className="min-h-screen bg-background">
+      <MobileHeader title={language === 'ro' ? 'Complexe rezidențiale' : 'Residential Complexes'} showBack />
       
       <div className="pt-14 px-4 pb-4">
         {/* Results count */}
-        <div className="py-4">
+        <div className="py-3">
           <p className="text-sm text-muted-foreground">
             {complexes.length} {language === 'ro' ? 'complexe disponibile' : 'complexes available'}
           </p>

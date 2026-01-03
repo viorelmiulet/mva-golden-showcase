@@ -1,42 +1,57 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Bell, Settings } from "lucide-react";
+import { ChevronLeft, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MobileHeaderProps {
   title?: string;
   showBack?: boolean;
-  showNotifications?: boolean;
-  showSettings?: boolean;
+  showShare?: boolean;
+  onShare?: () => void;
   rightAction?: React.ReactNode;
 }
 
 const MobileHeader = ({ 
   title, 
   showBack = false, 
-  showNotifications = false,
-  showSettings = false,
+  showShare = false,
+  onShare,
   rightAction 
 }: MobileHeaderProps) => {
   const navigate = useNavigate();
 
+  const handleShare = async () => {
+    if (onShare) {
+      onShare();
+    } else if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title || 'MVA Imobiliare',
+          url: window.location.href
+        });
+      } catch (err) {
+        // Share cancelled
+      }
+    }
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border/50 pt-safe">
-      <div className="flex items-center justify-between h-14 px-4">
-        <div className="flex items-center gap-2 min-w-[48px]">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border h-14">
+      <div className="flex items-center justify-between h-full px-3 max-w-lg mx-auto">
+        <div className="flex items-center gap-2 min-w-[40px]">
           {showBack ? (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="h-9 w-9"
+              className="h-9 w-9 -ml-2"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
           ) : (
             <img 
-              src="/mva-logo-luxury-horizontal.svg" 
+              src="/mva-logo-luxury.svg" 
               alt="MVA" 
-              className="h-6"
+              className="h-8 w-8"
             />
           )}
         </div>
@@ -47,21 +62,15 @@ const MobileHeader = ({
           </h1>
         )}
 
-        <div className="flex items-center gap-1 min-w-[48px] justify-end">
-          {showNotifications && (
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold rounded-full" />
-            </Button>
-          )}
-          {showSettings && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-9 w-9"
-              onClick={() => navigate("/app/setari")}
+        <div className="flex items-center gap-1 min-w-[40px] justify-end">
+          {showShare && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              className="h-9 w-9 -mr-2"
             >
-              <Settings className="w-5 h-5" />
+              <Share2 className="w-5 h-5" />
             </Button>
           )}
           {rightAction}
