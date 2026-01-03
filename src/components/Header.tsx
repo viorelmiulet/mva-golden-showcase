@@ -15,6 +15,8 @@ import {
 import { toast } from "sonner"
 import { useUserRoles } from "@/hooks/useUserRoles"
 import { usePrefetch } from "@/hooks/usePrefetch"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { LanguageToggle } from "@/components/LanguageToggle"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -23,6 +25,7 @@ const Header = () => {
   const navigate = useNavigate()
   const { isAdmin } = useUserRoles()
   const { prefetchOnHover } = usePrefetch()
+  const { t } = useLanguage()
 
   // Map route paths to prefetch keys
   const getPrefetchKey = (path: string) => {
@@ -58,7 +61,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    toast.success("Deconectat cu succes")
+    toast.success(t.auth.logout)
     navigate("/")
   }
 
@@ -100,16 +103,16 @@ const Header = () => {
   };
 
   const navItems: NavItem[] = [
-    { name: 'Acasă', id: 'home', type: 'scroll' },
-    { name: 'Despre', id: 'despre', type: 'scroll' },
-    { name: 'Servicii', id: 'servicii', type: 'scroll' },
-    { name: 'Proprietăți', id: '/proprietati', type: 'link' },
-    { name: 'Complexe Rezidențiale', id: '/complexe', type: 'link' },
-    { name: 'Calculator Credit', id: '/calculator-credit', type: 'link' },
-    { name: 'De ce noi?', id: '/de-ce-sa-ne-alegi', type: 'link' },
-    { name: 'Blog', id: '/blog', type: 'link' },
-    { name: 'FAQ', id: '/faq', type: 'link' },
-    { name: 'Contact', id: 'contact', type: 'scroll' }
+    { name: t.nav.home, id: 'home', type: 'scroll' },
+    { name: t.nav.about, id: 'despre', type: 'scroll' },
+    { name: t.services.title, id: 'servicii', type: 'scroll' },
+    { name: t.nav.properties, id: '/proprietati', type: 'link' },
+    { name: t.nav.complexes, id: '/complexe', type: 'link' },
+    { name: t.nav.calculator, id: '/calculator-credit', type: 'link' },
+    { name: t.nav.whyUs, id: '/de-ce-sa-ne-alegi', type: 'link' },
+    { name: t.nav.blog, id: '/blog', type: 'link' },
+    { name: t.nav.faq, id: '/faq', type: 'link' },
+    { name: t.nav.contact, id: 'contact', type: 'scroll' }
   ]
 
   return (
@@ -252,12 +255,13 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
+            <LanguageToggle />
             {user ? (
               <>
                 <Link to="/favorite">
                   <Button variant="ghost" size="sm" className="text-xs">
                     <Heart className="w-4 h-4 mr-1" />
-                    Favorite
+                    {t.nav.favorites}
                   </Button>
                 </Link>
                 <DropdownMenu>
@@ -271,7 +275,7 @@ const Header = () => {
                     <DropdownMenuItem asChild>
                       <Link to="/favorite" className="flex items-center">
                         <Heart className="w-4 h-4 mr-2" />
-                        Favoritele mele
+                        {t.nav.favorites}
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
@@ -280,7 +284,7 @@ const Header = () => {
                         <DropdownMenuItem asChild>
                           <Link to="/admin" className="flex items-center text-gold">
                             <Settings className="w-4 h-4 mr-2" />
-                            Panou Admin
+                            {t.nav.admin}
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -288,7 +292,7 @@ const Header = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
-                      Deconectare
+                      {t.auth.logout}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -297,7 +301,7 @@ const Header = () => {
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
                 <WhatsAppIcon className="w-3 h-3 mr-2" />
-                Contact WhatsApp
+                {t.common.whatsapp}
               </Button>
             </a>
           </div>
@@ -311,13 +315,14 @@ const Header = () => {
             </SheetTrigger>
             <SheetContent side="right" className="w-80 sm:w-96 overflow-y-auto">
               <div className="flex flex-col space-y-6 mt-8 pb-8">
-                {/* Mobile Logo in Sheet */}
-                <div className="flex items-center justify-center pb-6 border-b border-border/30">
-                  <div className="text-center">
+                {/* Mobile Logo + Language Toggle */}
+                <div className="flex items-center justify-between pb-6 border-b border-border/30">
+                  <div className="text-center flex-1">
                     <div className="font-cinzel text-xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                       MVA IMOBILIARE
                     </div>
                   </div>
+                  <LanguageToggle />
                 </div>
 
                 {navItems.map((item) => (
@@ -351,27 +356,27 @@ const Header = () => {
                       <Link to="/favorite">
                         <Button variant="luxuryOutline" className="w-full h-12 text-base">
                           <Heart className="w-4 h-4 mr-2" />
-                          Favoritele Mele
+                          {t.nav.favorites}
                         </Button>
                       </Link>
                       {isAdmin && (
                         <Link to="/admin">
                           <Button variant="luxury" className="w-full h-12 text-base">
                             <Settings className="w-4 h-4 mr-2" />
-                            Panou Admin
+                            {t.nav.admin}
                           </Button>
                         </Link>
                       )}
                       <Button variant="ghost" onClick={handleLogout} className="w-full h-12 text-base text-destructive">
                         <LogOut className="w-4 h-4 mr-2" />
-                        Deconectare
+                        {t.auth.logout}
                       </Button>
                     </>
                   ) : null}
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                     <Button variant="luxury" className="w-full h-12 text-base">
                       <WhatsAppIcon className="w-4 h-4 mr-2" />
-                      Contactează-ne pe WhatsApp
+                      {t.common.whatsapp}
                     </Button>
                   </a>
                 </div>

@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // Direct imports for always-rendered components
 import CookieConsent from "@/components/CookieConsent";
@@ -71,13 +72,14 @@ const App = () => {
   return (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-            <div className="animate-pulse text-gold">Se încarcă...</div>
-          </div>}>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+              <div className="animate-pulse text-gold">Se încarcă...</div>
+            </div>}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
@@ -124,13 +126,14 @@ const App = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
             </Routes>
-          </Suspense>
-          <WhatsAppButton />
-          <PhoneButton />
-          <CookieConsent />
-          <ScrollIndicator />
-        </BrowserRouter>
-      </TooltipProvider>
+            </Suspense>
+            <WhatsAppButton />
+            <PhoneButton />
+            <CookieConsent />
+            <ScrollIndicator />
+          </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   </HelmetProvider>
   );
