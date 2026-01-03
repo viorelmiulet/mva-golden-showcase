@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { usePlausible } from "@/hooks/usePlausible"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { 
   Phone, 
   Mail, 
@@ -20,6 +21,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 const Contact = () => {
   const { data: settings } = useSiteSettings();
   const { trackContact } = usePlausible();
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState({
     nume: '',
     prenume: '',
@@ -114,26 +116,28 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Phone,
-      title: "Telefon",
+      title: t.contact?.phone || "Telefon",
       info: phoneDisplay,
       action: `tel:${phoneNumber}`
     },
     {
       icon: Mail,
-      title: "Email",
+      title: t.contact?.email || "Email",
       info: emailAddress,
       action: `mailto:${emailAddress}`
     },
     {
       icon: MapPin,
-      title: "Adresă",
+      title: t.contact?.address || "Adresă",
       info: address,
       action: null
     },
     {
       icon: Clock,
-      title: "Program",
-      info: "L-V 10:00-18:00 • S 10:00-15:00 • D închis",
+      title: t.contact?.workingHours || "Program",
+      info: language === 'ro' 
+        ? "L-V 10:00-18:00 • S 10:00-15:00 • D închis"
+        : "Mon-Fri 10:00-18:00 • Sat 10:00-15:00 • Sun closed",
       action: null
     }
   ]
@@ -154,21 +158,22 @@ const Contact = () => {
             <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
               <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
               <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/30 px-4 py-1.5 text-xs sm:text-sm font-semibold">
-                Hai să vorbim
+                {language === 'ro' ? 'Hai să vorbim' : "Let's talk"}
               </Badge>
               <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
             </div>
             
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
-              <span className="text-foreground">Contactează-ne </span>
+              <span className="text-foreground">{t.contact?.title || 'Contactează-ne'} </span>
               <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent animate-pulse">
-                Astăzi
+                {language === 'ro' ? 'Astăzi' : 'Today'}
               </span>
             </h2>
             
             <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-              Suntem aici să răspundem la întrebările tale despre complexele rezidențiale 
-              și să te ghidăm către apartamentul perfect pentru tine.
+              {language === 'ro' 
+                ? 'Suntem aici să răspundem la întrebările tale despre complexele rezidențiale și să te ghidăm către apartamentul perfect pentru tine.'
+                : 'We are here to answer your questions about residential complexes and guide you to the perfect apartment for you.'}
             </p>
           </div>
 

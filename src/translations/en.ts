@@ -1,4 +1,6 @@
-export const en = {
+import type { TranslationKeys } from "./ro";
+
+export const en: TranslationKeys = {
   // Navigation
   nav: {
     home: "Home",
@@ -188,5 +190,94 @@ export const en = {
     loginButton: "Sign In",
     registerButton: "Create Account",
     logout: "Logout",
+  },
+
+  // FAQ
+  faq: {
+    title: "Frequently Asked Questions",
+    subtitle: "Answers to common questions",
+    stillQuestions: "Still have questions?",
+    contactUs: "Contact us",
+  },
+
+  // Career
+  career: {
+    title: "Careers",
+    subtitle: "Join our team",
+    openPositions: "Open Positions",
+    noPositions: "No positions available at the moment",
+    apply: "Apply",
+    benefits: "Benefits",
+    requirements: "Requirements",
+  },
+
+  // Blog
+  blog: {
+    title: "Blog",
+    subtitle: "Real estate news and updates",
+    readMore: "Read article",
+    recentPosts: "Recent Posts",
+    noArticles: "No articles",
+    publishedOn: "Published on",
+  },
+
+  // Why Choose Us
+  whyChooseUs: {
+    title: "Why Choose Us",
+    subtitle: "Reasons why clients choose us",
+    experience: "Proven Experience",
+    experienceText: "Over 10 years of experience in the local real estate market.",
+    network: "Extensive Network",
+    networkText: "Access to a wide range of properties and developers.",
+    personalized: "Personalized Approach",
+    personalizedText: "Each client receives individual attention.",
+    transparency: "Complete Transparency",
+    transparencyText: "Open and honest communication at every stage.",
+    support: "Full Support",
+    supportText: "We guide you from the first visit to key handover.",
+    results: "Proven Results",
+    resultsText: "Hundreds of satisfied clients and successfully completed transactions.",
+  },
+
+  // Cookie Consent
+  cookies: {
+    message: "We use cookies to improve your experience on our site.",
+    accept: "Accept",
+    decline: "Decline",
+    learnMore: "Learn more",
+  },
+
+  // Mobile App
+  mobile: {
+    home: "Home",
+    search: "Search",
+    complexes: "Complexes",
+    favorites: "Favorites",
+    account: "Account",
+    welcome: "Welcome!",
+    welcomeSubtitle: "Discover dream properties",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    signOut: "Sign Out",
+    language: "Language",
+    contactInfo: "Contact Info",
+    savedProperties: "Saved Properties",
+    noFavorites: "No saved properties",
+    exploreProperties: "Explore properties",
+  },
+
+  // Onboarding
+  onboarding: {
+    welcome: "Welcome to MVA Imobiliare",
+    welcomeDesc: "Discover the best properties in the area",
+    search: "Search Properties",
+    searchDesc: "Find your perfect home with our advanced filters",
+    favorites: "Save Favorites",
+    favoritesDesc: "Mark your preferred properties for later",
+    contact: "Easy Contact",
+    contactDesc: "One click and you're connected with us",
+    getStarted: "Get Started",
+    skip: "Skip",
+    next: "Continue",
   },
 };

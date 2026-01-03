@@ -7,14 +7,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const MobileBottomNav = () => {
   const location = useLocation();
   const { favorites } = useFavorites();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   const navItems = [
-    { path: "/app", icon: Home, label: language === 'ro' ? "Acasă" : "Home" },
-    { path: "/app/cauta", icon: Search, label: language === 'ro' ? "Caută" : "Search" },
-    { path: "/app/complexe", icon: Building2, label: language === 'ro' ? "Complexe" : "Complexes" },
-    { path: "/app/favorite", icon: Heart, label: language === 'ro' ? "Favorite" : "Favorites", badge: favorites.length },
-    { path: "/app/cont", icon: User, label: language === 'ro' ? "Cont" : "Account" },
+    { path: "/app", icon: Home, label: t.mobile?.home || "Acasă" },
+    { path: "/app/cauta", icon: Search, label: t.mobile?.search || "Caută" },
+    { path: "/app/complexe", icon: Building2, label: t.mobile?.complexes || "Complexe" },
+    { path: "/app/favorite", icon: Heart, label: t.mobile?.favorites || "Favorite", badge: favorites.length },
+    { path: "/app/cont", icon: User, label: t.mobile?.account || "Cont" },
   ];
 
   const isActive = (path: string) => {

@@ -1,4 +1,4 @@
-import { ro } from "./ro";
+import { ro, TranslationKeys } from "./ro";
 import { en } from "./en";
 
 export const translations = {
@@ -7,4 +7,4 @@ export const translations = {
 };
 
 export type Language = "ro" | "en";
-export type TranslationKeys = typeof ro;
+export type { TranslationKeys };

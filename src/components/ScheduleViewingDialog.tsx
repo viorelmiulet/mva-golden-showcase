@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlausible } from "@/hooks/usePlausible";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const scheduleSchema = z.object({
   name: z.string().trim().min(2, "Numele trebuie să aibă cel puțin 2 caractere").max(100, "Numele este prea lung"),
@@ -49,6 +50,7 @@ export const ScheduleViewingDialog = ({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { trackViewingScheduled } = usePlausible();
+  const { t } = useLanguage();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -151,7 +153,7 @@ export const ScheduleViewingDialog = ({
         {trigger || (
           <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
             <Calendar className="w-4 h-4" />
-            Programează Vizionare
+            {t.properties?.scheduleViewing || t.viewing?.title}
           </Button>
         )}
       </DialogTrigger>
@@ -159,10 +161,10 @@ export const ScheduleViewingDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            Programează Vizionare
+            {t.viewing?.title}
           </DialogTitle>
           <DialogDescription className="text-sm">
-            Completați formularul pentru a programa o vizionare pentru <span className="font-semibold text-foreground">{propertyTitle}</span>
+            {t.viewing?.subtitle} <span className="font-semibold text-foreground">{propertyTitle}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -171,12 +173,12 @@ export const ScheduleViewingDialog = ({
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
               <User className="w-4 h-4 text-muted-foreground" />
-              Nume complet *
+              {t.viewing?.yourName || t.contact?.name} *
             </Label>
             <Input
               id="name"
               name="name"
-              placeholder="Introduceți numele dvs."
+              placeholder={t.viewing?.yourName || t.contact?.name}
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? "border-destructive" : ""}
@@ -189,7 +191,7 @@ export const ScheduleViewingDialog = ({
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-muted-foreground" />
-              Telefon *
+              {t.viewing?.yourPhone || t.contact?.phone} *
             </Label>
             <Input
               id="phone"
@@ -208,7 +210,7 @@ export const ScheduleViewingDialog = ({
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground" />
-              Email (opțional)
+              {t.viewing?.yourEmail || t.contact?.email} ({t.common?.none || 'opțional'})
             </Label>
             <Input
               id="email"
