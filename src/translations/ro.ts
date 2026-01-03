@@ -1,0 +1,192 @@
+export const ro = {
+  // Navigation
+  nav: {
+    home: "Acasă",
+    properties: "Proprietăți",
+    complexes: "Complexe",
+    projects: "Proiecte",
+    about: "Despre noi",
+    contact: "Contact",
+    favorites: "Favorite",
+    login: "Autentificare",
+    admin: "Admin",
+    calculator: "Calculator Credit",
+    blog: "Blog",
+    faq: "FAQ",
+    whyUs: "De ce noi",
+    career: "Carieră",
+  },
+  
+  // Hero Section
+  hero: {
+    title: "Găsește-ți casa visurilor tale",
+    subtitle: "Explorează cele mai bune proprietăți din București și împrejurimi",
+    searchPlaceholder: "Caută după locație, preț sau caracteristici...",
+    searchButton: "Caută",
+    viewProperties: "Vezi Proprietăți",
+    contactUs: "Contactează-ne",
+  },
+  
+  // Properties
+  properties: {
+    title: "Proprietăți",
+    subtitle: "Descoperă portofoliul nostru de proprietăți",
+    rooms: "camere",
+    surface: "mp",
+    price: "Preț",
+    location: "Locație",
+    viewDetails: "Vezi Detalii",
+    scheduleViewing: "Programează Vizionare",
+    addToFavorites: "Adaugă la Favorite",
+    removeFromFavorites: "Elimină din Favorite",
+    available: "Disponibil",
+    reserved: "Rezervat",
+    sold: "Vândut",
+    forSale: "De vânzare",
+    forRent: "De închiriat",
+    filters: "Filtre",
+    sortBy: "Sortează după",
+    priceAsc: "Preț crescător",
+    priceDesc: "Preț descrescător",
+    newest: "Cele mai noi",
+    noResults: "Nu s-au găsit proprietăți",
+  },
+  
+  // Complexes
+  complexes: {
+    title: "Complexe Rezidențiale",
+    subtitle: "Proiecte noi în dezvoltare",
+    apartments: "apartamente",
+    startingFrom: "De la",
+    completionDate: "Termen finalizare",
+    viewComplex: "Vezi Complexul",
+  },
+  
+  // Contact
+  contact: {
+    title: "Contactează-ne",
+    subtitle: "Suntem aici să te ajutăm",
+    name: "Nume",
+    email: "Email",
+    phone: "Telefon",
+    message: "Mesaj",
+    send: "Trimite",
+    sending: "Se trimite...",
+    success: "Mesajul a fost trimis cu succes!",
+    error: "Eroare la trimitere. Încearcă din nou.",
+    address: "Adresă",
+    workingHours: "Program",
+    weekdays: "Luni - Vineri",
+    weekend: "Sâmbătă - Duminică",
+  },
+  
+  // About
+  about: {
+    title: "Despre Noi",
+    subtitle: "Experiență și profesionalism în imobiliare",
+    description: "Cu peste 10 ani de experiență pe piața imobiliară din București, oferim servicii de consultanță și intermediere pentru achiziția, vânzarea și închirierea proprietăților.",
+    mission: "Misiunea noastră",
+    missionText: "Să găsim proprietatea perfectă pentru fiecare client, oferind servicii personalizate și transparente.",
+    values: "Valorile noastre",
+    experience: "Ani de experiență",
+    clients: "Clienți mulțumiți",
+    transactions: "Tranzacții finalizate",
+  },
+  
+  // Services
+  services: {
+    title: "Servicii",
+    subtitle: "Ce oferim",
+    buying: "Cumpărare",
+    buyingDesc: "Te ajutăm să găsești proprietatea perfectă pentru nevoile tale.",
+    selling: "Vânzare",
+    sellingDesc: "Vindem proprietatea ta la cel mai bun preț, în cel mai scurt timp.",
+    renting: "Închiriere",
+    rentingDesc: "Servicii complete de închiriere pentru proprietari și chiriași.",
+    consulting: "Consultanță",
+    consultingDesc: "Consiliere profesională pentru investiții imobiliare.",
+  },
+  
+  // Footer
+  footer: {
+    description: "Agenție imobiliară cu experiență în București și împrejurimi.",
+    quickLinks: "Link-uri Rapide",
+    contact: "Contact",
+    followUs: "Urmărește-ne",
+    rights: "Toate drepturile rezervate",
+    privacy: "Politica de Confidențialitate",
+    terms: "Termeni și Condiții",
+    cookies: "Politica Cookies",
+  },
+  
+  // Common
+  common: {
+    loading: "Se încarcă...",
+    error: "Eroare",
+    success: "Succes",
+    cancel: "Anulează",
+    save: "Salvează",
+    delete: "Șterge",
+    edit: "Editează",
+    view: "Vezi",
+    close: "Închide",
+    back: "Înapoi",
+    next: "Următorul",
+    previous: "Anterior",
+    search: "Caută",
+    filter: "Filtrează",
+    clear: "Șterge",
+    all: "Toate",
+    none: "Niciunul",
+    yes: "Da",
+    no: "Nu",
+    currency: "EUR",
+    phone: "Telefon",
+    email: "Email",
+    whatsapp: "WhatsApp",
+  },
+  
+  // Mortgage Calculator
+  calculator: {
+    title: "Calculator Credit Ipotecar",
+    subtitle: "Calculează rata lunară pentru creditul tău",
+    propertyPrice: "Preț proprietate",
+    downPayment: "Avans",
+    loanTerm: "Perioadă credit",
+    years: "ani",
+    interestRate: "Dobândă anuală",
+    monthlyPayment: "Rată lunară",
+    totalPayment: "Total de plată",
+    totalInterest: "Total dobândă",
+    calculate: "Calculează",
+  },
+  
+  // Schedule Viewing
+  viewing: {
+    title: "Programează o vizionare",
+    subtitle: "Completează formularul pentru a programa o vizită",
+    preferredDate: "Data preferată",
+    preferredTime: "Ora preferată",
+    yourName: "Numele tău",
+    yourPhone: "Telefonul tău",
+    yourEmail: "Email-ul tău",
+    additionalMessage: "Mesaj adițional",
+    schedule: "Programează",
+    success: "Vizionarea a fost programată cu succes!",
+  },
+  
+  // Auth
+  auth: {
+    login: "Autentificare",
+    register: "Înregistrare",
+    email: "Email",
+    password: "Parolă",
+    confirmPassword: "Confirmă parola",
+    forgotPassword: "Ai uitat parola?",
+    noAccount: "Nu ai cont?",
+    hasAccount: "Ai deja cont?",
+    loginButton: "Intră în cont",
+    registerButton: "Creează cont",
+    logout: "Deconectare",
+  },
+};
