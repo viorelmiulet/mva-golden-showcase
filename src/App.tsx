@@ -18,6 +18,16 @@ import ScrollIndicator from "@/components/ScrollIndicator";
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
 
+// Mobile app pages
+const MobileAppLayout = lazy(() => import("./layouts/MobileAppLayout"));
+const MobileHome = lazy(() => import("./pages/mobile/MobileHome"));
+const MobileSearch = lazy(() => import("./pages/mobile/MobileSearch"));
+const MobileComplexes = lazy(() => import("./pages/mobile/MobileComplexes"));
+const MobileFavorites = lazy(() => import("./pages/mobile/MobileFavorites"));
+const MobileAccount = lazy(() => import("./pages/mobile/MobileAccount"));
+const MobilePropertyDetail = lazy(() => import("./pages/mobile/MobilePropertyDetail"));
+const MobileComplexDetail = lazy(() => import("./pages/mobile/MobileComplexDetail"));
+
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
 const Properties = lazy(() => import("./pages/Properties"));
@@ -122,6 +132,17 @@ const App = () => {
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               <Route path="/sign/:token" element={<SignContract />} />
+              
+              {/* Mobile App Routes */}
+              <Route path="/app" element={<MobileAppLayout />}>
+                <Route index element={<MobileHome />} />
+                <Route path="cauta" element={<MobileSearch />} />
+                <Route path="complexe" element={<MobileComplexes />} />
+                <Route path="favorite" element={<MobileFavorites />} />
+                <Route path="cont" element={<MobileAccount />} />
+                <Route path="proprietate/:id" element={<MobilePropertyDetail />} />
+                <Route path="complex/:id" element={<MobileComplexDetail />} />
+              </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
