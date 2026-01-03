@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { ArrowUp, Download } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -13,12 +14,15 @@ interface BeforeInstallPromptEvent extends Event {
 const Footer = () => {
   const location = useLocation()
   const { data: settings } = useSiteSettings()
+  const { language, t } = useLanguage()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstalled, setIsInstalled] = useState(false)
 
   const phoneNumber = settings?.phone?.replace(/\s/g, '') || "0767941512"
   const companyName = settings?.companyName || "MVA IMOBILIARE"
-  const companyDescription = settings?.companyDescription || "Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului. Transformăm visurile tale de locuință în realitate."
+  const companyDescription = settings?.companyDescription || (language === 'ro' 
+    ? "Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului. Transformăm visurile tale de locuință în realitate."
+    : "The trusted real estate agency for premium residential complexes in western Bucharest. We transform your housing dreams into reality.")
   const facebookUrl = settings?.facebook || "https://www.facebook.com/profile.php?id=61575213335398"
 
   useEffect(() => {
@@ -72,20 +76,26 @@ const Footer = () => {
   };
 
   const quickLinks = [
-    { name: 'Acasă', id: 'home', type: 'scroll' as const },
-    { name: 'Despre Noi', id: 'despre', type: 'scroll' as const },
-    { name: 'Servicii', id: 'servicii', type: 'scroll' as const },
-    { name: 'Proiecte', id: 'proprietati', type: 'scroll' as const },
-    { name: 'Calculator Credit', id: '/calculator-credit', type: 'link' as const },
-    { name: 'Contact', id: 'contact', type: 'scroll' as const }
+    { name: t.nav.home, id: 'home', type: 'scroll' as const },
+    { name: t.nav.about, id: 'despre', type: 'scroll' as const },
+    { name: t.services.title, id: 'servicii', type: 'scroll' as const },
+    { name: t.nav.projects, id: 'proprietati', type: 'scroll' as const },
+    { name: t.nav.calculator, id: '/calculator-credit', type: 'link' as const },
+    { name: t.nav.contact, id: 'contact', type: 'scroll' as const }
   ];
 
-  const services = [
+  const services = language === 'ro' ? [
     'Vânzare Apartamente',
     'Consultanță Investiții',
     'Evaluări Profesionale',
     'Management Proprietăți',
     'Consultanță Juridică'
+  ] : [
+    'Apartment Sales',
+    'Investment Consulting',
+    'Professional Valuations',
+    'Property Management',
+    'Legal Consulting'
   ];
 
   return (
@@ -185,7 +195,7 @@ const Footer = () => {
                     <button
                       onClick={handleInstall}
                       className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
-                      title="Instalează Aplicația"
+                      title={language === 'ro' ? 'Instalează Aplicația' : 'Install App'}
                     >
                       <Download className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" />
                     </button>
@@ -197,7 +207,7 @@ const Footer = () => {
               <div className="text-center">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center">
                   <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
-                  Navigare
+                  {language === 'ro' ? 'Navigare' : 'Navigation'}
                 </h3>
                 <ul className="space-y-2 sm:space-y-3">
                   {quickLinks.map((link) => (
@@ -226,7 +236,7 @@ const Footer = () => {
               <div className="text-center md:text-left">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center md:justify-start">
                   <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
-                  Servicii
+                  {t.services.title}
                 </h3>
                 <ul className="space-y-2 sm:space-y-3">
                   {services.map((service, index) => (
@@ -252,24 +262,24 @@ const Footer = () => {
               
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-center sm:text-left">
                 <p className="text-muted-foreground text-xs sm:text-sm">
-                  © 2025 {companyName}. Toate drepturile rezervate.
+                  © 2025 {companyName}. {t.footer.rights}.
                 </p>
               </div>
               
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <div className="flex gap-3 sm:gap-4 text-xs">
                   <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
-                    Politică Confidențialitate
+                    {t.footer.privacy}
                   </button>
                   <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
-                    Termeni & Condiții
+                    {t.footer.terms}
                   </button>
                 </div>
                 
                 <button 
                   onClick={scrollToTop}
                   className="w-10 h-10 sm:w-8 sm:h-8 bg-gold/10 rounded-lg flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
-                  title="Înapoi sus"
+                  title={language === 'ro' ? 'Înapoi sus' : 'Back to top'}
                 >
                   <ArrowUp className="w-4 h-4 text-gold group-hover:text-gold-light transition-colors" />
                 </button>
