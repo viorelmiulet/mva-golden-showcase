@@ -13,8 +13,8 @@ const slides = [
     icon: Home,
     titleRo: "Bine ai venit la MVA",
     titleEn: "Welcome to MVA",
-    descriptionRo: "Descoperă cele mai bune proprietăți și complexe rezidențiale din Cluj-Napoca",
-    descriptionEn: "Discover the best properties and residential complexes in Cluj-Napoca",
+    descriptionRo: "Descoperă cele mai bune proprietăți și complexe rezidențiale din București",
+    descriptionEn: "Discover the best properties and residential complexes in Bucharest",
     color: "from-primary/20 to-primary/5",
   },
   {
