@@ -1,0 +1,325 @@
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import MobileHeader from "@/components/mobile/MobileHeader";
+import { 
+  MapPin, 
+  Home, 
+  Ruler, 
+  Heart, 
+  Share2, 
+  Phone, 
+  Check,
+  ChevronRight,
+  Building2
+} from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const MobileComplexDetail = () => {
+  const { id } = useParams();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { language } = useLanguage();
+
+  const { data: complex, isLoading } = useQuery({
+    queryKey: ['mobile-complex', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('real_estate_projects')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id
+  });
+
+  // Fetch apartments in this complex
+  const { data: apartments = [] } = useQuery({
+    queryKey: ['mobile-complex-apartments', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('catalog_offers')
+        .select('*')
+        .eq('project_id', id)
+        .order('rooms', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!id
+  });
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: complex?.name,
+          text: complex?.description || complex?.name,
+          url: window.location.href
+        });
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    }
+  };
+
+  const whatsappMessage = encodeURIComponent(
+    `Bună ziua! Sunt interesat de complexul: ${complex?.name}\n${window.location.href}`
+  );
+
+  const formatPrice = (price: number, currency: string = 'EUR') => {
+    return new Intl.NumberFormat('ro-RO', {
+      style: 'currency',
+      currency: currency,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <MobileHeader showBack />
+        <div className="pt-14">
+          <Skeleton className="w-full h-56" />
+          <div className="p-4 space-y-4">
+            <Skeleton className="h-7 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!complex) {
+    return (
+      <div className="min-h-screen">
+        <MobileHeader showBack />
+        <div className="pt-14 px-4 flex flex-col items-center justify-center min-h-[60vh]">
+          <h2 className="text-xl font-semibold mb-2">
+            {language === 'ro' ? 'Complex negăsit' : 'Complex not found'}
+          </h2>
+          <Link to="/app/complexe">
+            <Button variant="luxury">
+              {language === 'ro' ? 'Înapoi la complexe' : 'Back to complexes'}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pb-24">
+      <MobileHeader 
+        showBack 
+        rightAction={
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={handleShare}
+            >
+              <Share2 className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleFavorite(complex.id, 'complex')}
+            >
+              <Heart 
+                className={`w-5 h-5 ${isFavorite(complex.id, 'complex') ? 'fill-gold text-gold' : ''}`}
+              />
+            </Button>
+          </div>
+        }
+      />
+      
+      {/* Hero image */}
+      <div className="pt-14">
+        <div className="relative h-56">
+          <img
+            src={complex.main_image || '/placeholder.svg'}
+            alt={complex.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="flex flex-wrap gap-2">
+              {complex.is_recommended && (
+                <Badge className="bg-gold text-background">
+                  {language === 'ro' ? 'Recomandat' : 'Recommended'}
+                </Badge>
+              )}
+              {complex.status && (
+                <Badge variant="secondary">{complex.status}</Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-4">
+        {/* Title */}
+        <div>
+          <h1 className="text-2xl font-bold mb-1">{complex.name}</h1>
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <MapPin className="w-4 h-4" />
+            {complex.location}
+          </p>
+        </div>
+
+        {/* Quick stats */}
+        <div className="flex flex-wrap gap-2">
+          {complex.price_range && (
+            <Badge variant="outline" className="text-gold border-gold/30 py-1.5 px-3">
+              {complex.price_range}
+            </Badge>
+          )}
+          {complex.rooms_range && (
+            <Badge variant="outline" className="py-1.5 px-3">
+              {complex.rooms_range} {language === 'ro' ? 'camere' : 'rooms'}
+            </Badge>
+          )}
+          {complex.surface_range && (
+            <Badge variant="outline" className="py-1.5 px-3">
+              {complex.surface_range}
+            </Badge>
+          )}
+        </div>
+
+        {/* Description */}
+        {complex.description && (
+          <Card>
+            <CardContent className="p-4">
+              <h2 className="font-semibold mb-2">
+                {language === 'ro' ? 'Despre complex' : 'About'}
+              </h2>
+              <p className="text-sm text-muted-foreground whitespace-pre-line">
+                {complex.description}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Features */}
+        {complex.features && complex.features.length > 0 && (
+          <Card>
+            <CardContent className="p-4">
+              <h2 className="font-semibold mb-3">
+                {language === 'ro' ? 'Dotări' : 'Features'}
+              </h2>
+              <div className="grid grid-cols-2 gap-2">
+                {complex.features.map((feature: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Location advantages */}
+        {complex.location_advantages && complex.location_advantages.length > 0 && (
+          <Card>
+            <CardContent className="p-4">
+              <h2 className="font-semibold mb-3">
+                {language === 'ro' ? 'Avantaje locație' : 'Location Advantages'}
+              </h2>
+              <div className="space-y-2">
+                {complex.location_advantages.map((advantage: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <Check className="w-4 h-4 text-gold flex-shrink-0" />
+                    <span>{advantage}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Available apartments */}
+        {apartments.length > 0 && (
+          <div>
+            <h2 className="font-semibold mb-3">
+              {language === 'ro' ? 'Apartamente disponibile' : 'Available Apartments'} ({apartments.length})
+            </h2>
+            <div className="space-y-3">
+              {apartments.slice(0, 5).map((apt) => (
+                <Link key={apt.id} to={`/app/proprietate/${apt.id}`}>
+                  <Card className="hover:border-gold/30 transition-colors">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
+                            <Home className="w-6 h-6 text-gold" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">
+                              {apt.rooms} {language === 'ro' ? 'camere' : 'rooms'}
+                              {apt.surface_min && ` • ${apt.surface_min}m²`}
+                            </p>
+                            <p className="text-gold font-semibold text-sm">
+                              {formatPrice(apt.price_min || 0, apt.currency || 'EUR')}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+              {apartments.length > 5 && (
+                <Button variant="outline" className="w-full">
+                  {language === 'ro' 
+                    ? `Vezi toate (${apartments.length})` 
+                    : `View all (${apartments.length})`}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Fixed bottom CTA */}
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border/50">
+        <div className="flex gap-3">
+          <a href="tel:0767941512" className="flex-1">
+            <Button variant="outline" className="w-full">
+              <Phone className="w-4 h-4 mr-2" />
+              {language === 'ro' ? 'Sună acum' : 'Call now'}
+            </Button>
+          </a>
+          <a 
+            href={`https://wa.me/40767941512?text=${whatsappMessage}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1"
+          >
+            <Button variant="luxury" className="w-full">
+              <WhatsAppIcon className="w-4 h-4 mr-2" />
+              WhatsApp
+            </Button>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MobileComplexDetail;
