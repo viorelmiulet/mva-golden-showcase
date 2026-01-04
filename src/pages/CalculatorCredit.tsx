@@ -1,12 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import MortgageCalculator from '@/components/MortgageCalculator';
 import { Calculator, CheckCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import WhatsAppIcon from '@/components/icons/WhatsAppIcon';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CalculatorIpotecar = () => {
+  const { t } = useLanguage();
   const benefits = [
     'Consultanță gratuită pentru credite imobiliare',
     'Parteneriate cu principalele bănci din România',
@@ -31,6 +34,9 @@ const CalculatorIpotecar = () => {
 
         <main className="pt-24 pb-16">
           <div className="container mx-auto px-4">
+            {/* Breadcrumbs */}
+            <Breadcrumbs items={[{ label: t.nav?.calculator || 'Calculator Credit' }]} />
+
             {/* Hero Section */}
             <div className="text-center mb-12">
               <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-4">

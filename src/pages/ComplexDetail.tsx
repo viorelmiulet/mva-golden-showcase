@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
@@ -349,6 +350,14 @@ const ComplexDetail = () => {
         <Header />
         
         <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
+          {/* Breadcrumbs */}
+          <Breadcrumbs 
+            items={[
+              { label: 'Complexe', href: '/complexe' },
+              { label: project.name }
+            ]} 
+          />
+
           {/* Back Button */}
           <Link to="/complexe" className="inline-block mb-4 sm:mb-6 md:mb-8">
             <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8 sm:h-9">

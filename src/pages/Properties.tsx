@@ -30,6 +30,7 @@ import {
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import Breadcrumbs from "@/components/Breadcrumbs"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
@@ -352,6 +353,9 @@ const Properties = () => {
         <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <div className="max-w-6xl mx-auto">
             
+            {/* Breadcrumbs */}
+            <Breadcrumbs items={[{ label: t.properties?.title || 'Proprietăți' }]} />
+
             {/* Header */}
             <div className="text-center mb-6 sm:mb-8 md:mb-12 px-2">
               <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4">

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import {
   ArrowLeft,
   MapPin,
@@ -307,6 +308,14 @@ const PropertyDetail = () => {
         <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4" role="main">
           <div className="container mx-auto max-w-6xl">
             
+            {/* Breadcrumbs */}
+            <Breadcrumbs 
+              items={[
+                { label: 'Proprietăți', href: '/proprietati' },
+                { label: property.title }
+              ]} 
+            />
+
             {/* Back Button */}
             <nav aria-label="Breadcrumb navigation">
               <Link to="/proprietati">
