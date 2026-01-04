@@ -398,9 +398,11 @@ const ComplexDetail = () => {
               <div className="rounded-lg overflow-hidden shadow-2xl">
                 <img
                   src={project.main_image}
-                  alt={project.name}
+                  alt={`${project.name} - complex rezidențial în ${project.location || 'București'} cu apartamente moderne, finisaje premium și facilități complete`}
+                  title={`${project.name} - ${project.price_range || 'Complex rezidențial premium'}`}
                   className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover"
                   loading="lazy"
+                  itemProp="image"
                 />
               </div>
             )}

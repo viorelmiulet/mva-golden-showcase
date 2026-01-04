@@ -174,9 +174,11 @@ const Complexe = () => {
                         {project.main_image ? (
                           <img
                             src={project.main_image}
-                            alt={project.name}
+                            alt={`${project.name} - complex rezidențial în ${project.location || 'București'} cu apartamente moderne, finisaje premium și facilități complete`}
+                            title={`${project.name} - ${project.price_range || 'Preț la cerere'}`}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             loading="lazy"
+                            itemProp="image"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">

@@ -416,8 +416,10 @@ const RegimHotelier = () => {
                       {rental.images?.[0] ? (
                         <img 
                           src={rental.images[0]} 
-                          alt={rental.title}
+                          alt={`${rental.title} - cazare regim hotelier în ${rental.location || 'București'}, ${rental.rooms} camere, capacitate ${rental.max_guests} persoane`}
+                          title={`${rental.title} - ${rental.base_price} ${rental.currency}/noapte`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -500,7 +502,8 @@ const RegimHotelier = () => {
                       <div className="relative group">
                         <img 
                           src={selectedRental.images[currentImageIndex]} 
-                          alt={`${selectedRental.title} ${currentImageIndex + 1}`}
+                          alt={`${selectedRental.title} - imagine ${currentImageIndex + 1} din ${selectedRental.images.length}, cazare în ${selectedRental.location || 'București'}`}
+                          title={`${selectedRental.title} - ${currentImageIndex + 1}/${selectedRental.images.length}`}
                           className="w-full h-64 object-cover rounded-lg cursor-zoom-in"
                           onClick={() => setLightboxOpen(true)}
                         />
@@ -558,7 +561,8 @@ const RegimHotelier = () => {
                           <img 
                             key={i}
                             src={img} 
-                            alt={`${selectedRental.title} ${i + 1}`}
+                            alt={`${selectedRental.title} - miniatură ${i + 1} din ${selectedRental.images.length}`}
+                            title={`Imagine ${i + 1}`}
                             className={`w-full h-14 object-cover rounded cursor-pointer transition-opacity ${
                               currentImageIndex === i ? 'ring-2 ring-gold opacity-100' : 'opacity-60 hover:opacity-100'
                             }`}

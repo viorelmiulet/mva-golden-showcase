@@ -84,7 +84,8 @@ const MobileHome = () => {
         <div className="flex items-center gap-3 mb-5">
           <img 
             src="/mva-logo-luxury.svg" 
-            alt="MVA" 
+            alt="MVA Imobiliare - Agenție imobiliară premium în București și Chiajna"
+            title="MVA Imobiliare"
             className="h-10 w-10"
           />
           <div>
@@ -188,7 +189,8 @@ const MobileHome = () => {
                       <div className="relative w-28 h-28 flex-shrink-0">
                         <img
                           src={property.images?.[0] || '/placeholder.svg'}
-                          alt={property.title}
+                          alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
+                          title={property.title}
                           className="w-full h-full object-cover"
                         />
                         <button
@@ -272,7 +274,8 @@ const MobileHome = () => {
                   <Card className="overflow-hidden h-36 relative">
                     <img
                       src={complex.main_image || '/placeholder.svg'}
-                      alt={complex.name}
+                      alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu apartamente moderne`}
+                      title={complex.name}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />

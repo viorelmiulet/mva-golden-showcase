@@ -567,9 +567,11 @@ const PropertyDetail = () => {
                             {prop.images?.[0] ? (
                               <img
                                 src={prop.images[0]}
-                                alt={prop.title}
+                                alt={`${prop.title} - apartament ${prop.rooms || ''} camere în ${prop.location || 'București'}`}
+                                title={prop.title}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 loading="lazy"
+                                itemProp="image"
                               />
                             ) : (
                               <div className="w-full h-full bg-muted flex items-center justify-center">
