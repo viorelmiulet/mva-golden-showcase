@@ -965,6 +965,7 @@ export type Database = {
           notes: string | null
           num_guests: number | null
           payment_status: string | null
+          reminder_sent_at: string | null
           rental_id: string
           status: string | null
           total_price: number | null
@@ -982,6 +983,7 @@ export type Database = {
           notes?: string | null
           num_guests?: number | null
           payment_status?: string | null
+          reminder_sent_at?: string | null
           rental_id: string
           status?: string | null
           total_price?: number | null
@@ -999,6 +1001,7 @@ export type Database = {
           notes?: string | null
           num_guests?: number | null
           payment_status?: string | null
+          reminder_sent_at?: string | null
           rental_id?: string
           status?: string | null
           total_price?: number | null
