@@ -21,15 +21,6 @@ serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
-    if (!apiKey) {
-      console.error("FIRECRAWL_API_KEY not configured");
-      return new Response(
-        JSON.stringify({ success: false, error: "Firecrawl nu este configurat" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // Validate Airbnb URL
     if (!airbnb_url.includes("airbnb.com") && !airbnb_url.includes("airbnb.")) {
       return new Response(
@@ -38,79 +29,111 @@ serve(async (req) => {
       );
     }
 
-    console.log("Scraping Airbnb listing:", airbnb_url);
-
-    // Use Firecrawl to scrape the Airbnb listing with JSON extraction
-    const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: airbnb_url,
-        formats: [
-          "markdown",
-          {
-            type: "json",
-            prompt: `Extract the following information from this Airbnb listing:
-              - title: The property title/name
-              - description: Full property description
-              - location: City and area/neighborhood
-              - address: Full address if available
-              - price_per_night: Nightly price (number only, no currency)
-              - currency: Currency code (EUR, USD, RON, etc.)
-              - rooms: Number of bedrooms
-              - bathrooms: Number of bathrooms
-              - max_guests: Maximum number of guests
-              - amenities: Array of amenities/facilities
-              - images: Array of image URLs
-              - check_in_time: Check-in time
-              - check_out_time: Check-out time
-              - house_rules: Any house rules mentioned
-              - host_name: Name of the host
-              - rating: Average rating (number)
-              - reviews_count: Number of reviews
-              - property_type: Type of property (apartment, house, studio, etc.)
-              - surface: Surface area in square meters if mentioned`,
-          },
-          "screenshot",
-        ],
-        onlyMainContent: true,
-        waitFor: 3000,
-      }),
-    });
-
-    const scrapeData = await scrapeResponse.json();
-
-    if (!scrapeResponse.ok) {
-      console.error("Firecrawl error:", scrapeData);
+    const perplexityKey = Deno.env.get("PERPLEXITY_API_KEY");
+    if (!perplexityKey) {
+      console.error("PERPLEXITY_API_KEY not configured");
       return new Response(
-        JSON.stringify({ success: false, error: scrapeData.error || "Eroare la scraping" }),
+        JSON.stringify({ success: false, error: "Perplexity AI nu este configurat" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Scrape successful");
+    console.log("Extracting Airbnb listing info using Perplexity:", airbnb_url);
 
-    // Extract the JSON data
-    const extractedData = scrapeData.data?.json || scrapeData.json || {};
-    const markdown = scrapeData.data?.markdown || scrapeData.markdown || "";
-    const screenshot = scrapeData.data?.screenshot || scrapeData.screenshot;
+    // Use Perplexity AI to search for information about the Airbnb listing
+    const perplexityResponse = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${perplexityKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "sonar",
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert at extracting property information from Airbnb listings. 
+            Extract detailed property information and return it ONLY as a valid JSON object with these exact fields:
+            {
+              "title": "property title",
+              "description": "full description",
+              "location": "city and neighborhood",
+              "address": "full address if available",
+              "price_per_night": number (just the number, no currency),
+              "currency": "EUR or USD or RON",
+              "rooms": number of bedrooms,
+              "bathrooms": number of bathrooms,
+              "max_guests": maximum guests,
+              "amenities": ["array", "of", "amenities"],
+              "images": ["array", "of", "image", "urls"],
+              "check_in_time": "15:00",
+              "check_out_time": "11:00",
+              "house_rules": "any rules mentioned",
+              "host_name": "host name",
+              "rating": number or null,
+              "reviews_count": number or null,
+              "property_type": "apartment/house/studio",
+              "surface": number in sqm or null
+            }
+            Return ONLY the JSON object, no other text.`
+          },
+          {
+            role: "user",
+            content: `Please find and extract all available information about this Airbnb listing: ${airbnb_url}
+            
+            Search for details like the property name, description, location, price, number of rooms, amenities, and any other relevant information.
+            Return the data as a JSON object.`
+          }
+        ],
+        temperature: 0.1,
+        max_tokens: 2000,
+      }),
+    });
 
-    // Parse additional data from markdown if JSON extraction missed some
+    if (!perplexityResponse.ok) {
+      const errorText = await perplexityResponse.text();
+      console.error("Perplexity API error:", perplexityResponse.status, errorText);
+      return new Response(
+        JSON.stringify({ success: false, error: `Eroare Perplexity: ${perplexityResponse.status}` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const perplexityData = await perplexityResponse.json();
+    console.log("Perplexity response received");
+
+    const aiContent = perplexityData.choices?.[0]?.message?.content || "";
+    const citations = perplexityData.citations || [];
+
+    console.log("AI content:", aiContent);
+
+    // Try to parse the JSON from the response
+    let extractedData: any = {};
+    try {
+      // Find JSON in the response (it might be wrapped in markdown code blocks)
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        extractedData = JSON.parse(jsonMatch[0]);
+      }
+    } catch (parseError) {
+      console.error("Error parsing AI response as JSON:", parseError);
+      // Try to extract basic info from text
+      extractedData = extractBasicInfoFromText(aiContent, airbnb_url);
+    }
+
+    // Build the final data object with defaults
     const parsedData = {
-      title: extractedData.title || extractTitleFromMarkdown(markdown),
-      description: extractedData.description || extractDescriptionFromMarkdown(markdown),
+      title: extractedData.title || `Proprietate Airbnb`,
+      description: extractedData.description || aiContent.substring(0, 500),
       location: extractedData.location || "",
       address: extractedData.address || "",
-      price_per_night: parseFloat(extractedData.price_per_night) || extractPriceFromMarkdown(markdown),
+      price_per_night: parseFloat(extractedData.price_per_night) || 0,
       currency: extractedData.currency || "EUR",
-      rooms: parseInt(extractedData.rooms) || extractRoomsFromMarkdown(markdown),
+      rooms: parseInt(extractedData.rooms) || 1,
       bathrooms: parseInt(extractedData.bathrooms) || 1,
-      max_guests: parseInt(extractedData.max_guests) || extractGuestsFromMarkdown(markdown),
-      amenities: extractedData.amenities || [],
-      images: extractedData.images || [],
+      max_guests: parseInt(extractedData.max_guests) || 2,
+      amenities: Array.isArray(extractedData.amenities) ? extractedData.amenities : [],
+      images: Array.isArray(extractedData.images) ? extractedData.images : [],
       check_in_time: extractedData.check_in_time || "15:00",
       check_out_time: extractedData.check_out_time || "11:00",
       house_rules: extractedData.house_rules || "",
@@ -120,7 +143,8 @@ serve(async (req) => {
       property_type: extractedData.property_type || "apartament",
       surface: parseFloat(extractedData.surface) || null,
       source_url: airbnb_url,
-      screenshot: screenshot,
+      citations: citations,
+      ai_summary: aiContent,
     };
 
     // If import_to_rentals is true, save to short_term_rentals table
@@ -142,8 +166,8 @@ serve(async (req) => {
           surface: parsedData.surface,
           base_price: parsedData.price_per_night || 0,
           currency: parsedData.currency,
-          amenities: Array.isArray(parsedData.amenities) ? parsedData.amenities : [],
-          images: Array.isArray(parsedData.images) ? parsedData.images : [],
+          amenities: parsedData.amenities,
+          images: parsedData.images,
           check_in_time: parsedData.check_in_time,
           check_out_time: parsedData.check_out_time,
           rules: parsedData.house_rules,
@@ -191,57 +215,49 @@ serve(async (req) => {
   }
 });
 
-// Helper functions to extract data from markdown if JSON extraction fails
-function extractTitleFromMarkdown(markdown: string): string {
-  const lines = markdown.split("\n");
-  for (const line of lines) {
-    if (line.startsWith("# ")) {
-      return line.substring(2).trim();
-    }
-  }
-  return "";
-}
-
-function extractDescriptionFromMarkdown(markdown: string): string {
-  const lines = markdown.split("\n");
-  const descLines: string[] = [];
-  let started = false;
+// Helper function to extract basic info from unstructured text
+function extractBasicInfoFromText(text: string, url: string): any {
+  const data: any = {};
   
-  for (const line of lines) {
-    if (line.toLowerCase().includes("despre") || line.toLowerCase().includes("about")) {
-      started = true;
-      continue;
-    }
-    if (started && line.trim()) {
-      if (line.startsWith("#") || line.startsWith("---")) break;
-      descLines.push(line);
-      if (descLines.length >= 5) break;
-    }
+  // Try to extract title (usually the first sentence or heading)
+  const titleMatch = text.match(/^([^.\n]+)/);
+  if (titleMatch) {
+    data.title = titleMatch[1].trim().substring(0, 100);
   }
   
-  return descLines.join(" ").trim();
-}
-
-function extractPriceFromMarkdown(markdown: string): number {
-  const priceMatch = markdown.match(/(\d+)\s*(€|EUR|RON|USD|\$)/i);
+  // Try to extract price
+  const priceMatch = text.match(/(\d+)\s*(€|EUR|RON|USD|\$|lei)/i);
   if (priceMatch) {
-    return parseInt(priceMatch[1]);
+    data.price_per_night = parseInt(priceMatch[1]);
+    if (priceMatch[2].includes("€") || priceMatch[2].toUpperCase() === "EUR") {
+      data.currency = "EUR";
+    } else if (priceMatch[2].includes("$") || priceMatch[2].toUpperCase() === "USD") {
+      data.currency = "USD";
+    } else {
+      data.currency = "RON";
+    }
   }
-  return 0;
-}
-
-function extractRoomsFromMarkdown(markdown: string): number {
-  const roomMatch = markdown.match(/(\d+)\s*(dormitor|bedroom|camera|room)/i);
+  
+  // Try to extract rooms
+  const roomMatch = text.match(/(\d+)\s*(dormitor|bedroom|camer[aă]|room)/i);
   if (roomMatch) {
-    return parseInt(roomMatch[1]);
+    data.rooms = parseInt(roomMatch[1]);
   }
-  return 1;
-}
-
-function extractGuestsFromMarkdown(markdown: string): number {
-  const guestMatch = markdown.match(/(\d+)\s*(oaspe|guest|persoan)/i);
+  
+  // Try to extract guests
+  const guestMatch = text.match(/(\d+)\s*(oaspe|guest|persoan[aă])/i);
   if (guestMatch) {
-    return parseInt(guestMatch[1]);
+    data.max_guests = parseInt(guestMatch[1]);
   }
-  return 2;
+  
+  // Try to extract location from common patterns
+  const locationMatch = text.match(/(București|Bucharest|Cluj|Timișoara|Iași|Brașov|Constanța|Sibiu|Chiajna|Militari)/i);
+  if (locationMatch) {
+    data.location = locationMatch[1];
+  }
+  
+  // Use the full text as description
+  data.description = text.substring(0, 1000);
+  
+  return data;
 }
