@@ -347,21 +347,28 @@ const ShortTermRentalsPage = () => {
   const syncAllSources = async () => {
     setSyncingAll(true);
     try {
+      console.log("Starting sync all sources...");
       const response = await supabase.functions.invoke("rental-ical-sync");
+      console.log("Sync all response:", response);
+      
       if (response.error) throw new Error(response.error.message);
       
       const data = response.data;
       const successCount = data.results?.filter((r: any) => r.success).length || 0;
       const errorCount = data.results?.filter((r: any) => !r.success).length || 0;
       
-      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      // Force refresh all relevant queries
+      await queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      await queryClient.refetchQueries({ queryKey: ["admin-ical-sources"] });
+      await queryClient.refetchQueries({ queryKey: ["admin-rental-availability"] });
       
       toast({ 
         title: "Sincronizare completă!", 
         description: `${successCount} surse sincronizate cu succes${errorCount > 0 ? `, ${errorCount} erori` : ""}` 
       });
     } catch (error: any) {
+      console.error("Sync all error:", error);
       toast({ title: "Eroare la sincronizare", description: error.message, variant: "destructive" });
     } finally {
       setSyncingAll(false);
@@ -371,6 +378,8 @@ const ShortTermRentalsPage = () => {
   const syncSingleSource = async (source: ICalSource) => {
     setSyncingSourceId(source.id);
     try {
+      console.log("Starting sync for source:", source.source_name, source.ical_url);
+      
       const response = await supabase.functions.invoke("rental-ical-import", {
         body: {
           rental_id: source.rental_id,
@@ -378,6 +387,8 @@ const ShortTermRentalsPage = () => {
           source_name: source.source_name,
         },
       });
+
+      console.log("Sync response:", response);
 
       if (response.error) throw new Error(response.error.message);
       if (!response.data.success) throw new Error(response.data.error || "Eroare la sincronizare");
@@ -392,14 +403,17 @@ const ShortTermRentalsPage = () => {
         })
         .eq("id", source.id);
 
-      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      // Force refresh all relevant queries
+      await queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      await queryClient.refetchQueries({ queryKey: ["admin-rental-availability"] });
 
       toast({
         title: "Sincronizat cu succes!",
         description: `${response.data.imported_dates || 0} date importate din ${source.source_name}`,
       });
     } catch (error: any) {
+      console.error("Sync error:", error);
       // Update error status
       await supabase
         .from("rental_ical_sources")
@@ -410,7 +424,7 @@ const ShortTermRentalsPage = () => {
         })
         .eq("id", source.id);
 
-      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
       toast({
         title: "Eroare la sincronizare",
         description: error.message,
