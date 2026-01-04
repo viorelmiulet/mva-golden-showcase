@@ -299,14 +299,46 @@ const RegimHotelier = () => {
     }
   };
 
+  // Check if all dates in a range are available
+  const isRangeAvailable = (start: Date, end: Date) => {
+    const days = eachDayOfInterval({ start, end: addDays(end, -1) });
+    return days.every(day => isDateAvailable(day));
+  };
+
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
+    
+    // Don't allow selecting unavailable dates
+    if (!isDateAvailable(date)) {
+      toast({
+        title: language === "ro" ? "Dată indisponibilă" : "Date unavailable",
+        description: language === "ro" 
+          ? "Această dată nu este disponibilă pentru rezervare" 
+          : "This date is not available for booking",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!checkIn || (checkIn && checkOut)) {
       setCheckIn(date);
       setCheckOut(undefined);
     } else {
       if (isAfter(date, checkIn)) {
+        // Check if all dates in the range are available
+        if (!isRangeAvailable(checkIn, date)) {
+          toast({
+            title: language === "ro" ? "Interval indisponibil" : "Range unavailable",
+            description: language === "ro" 
+              ? "Există date ocupate în intervalul selectat. Alegeți alt interval." 
+              : "There are booked dates in the selected range. Choose another range.",
+            variant: "destructive",
+          });
+          // Reset and start fresh with the new date
+          setCheckIn(date);
+          setCheckOut(undefined);
+          return;
+        }
         setCheckOut(date);
       } else {
         setCheckIn(date);
