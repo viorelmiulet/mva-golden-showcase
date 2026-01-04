@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Loader2, Image as ImageIcon, GripVertical } from "lucide-react";
 
 interface RentalImageUploadProps {
   images: string[];
@@ -12,6 +12,8 @@ interface RentalImageUploadProps {
 const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +27,6 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Validate file type
         if (!file.type.startsWith("image/")) {
           toast({
             title: "Eroare",
@@ -35,7 +36,6 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
           continue;
         }
 
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast({
             title: "Eroare",
@@ -45,12 +45,10 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
           continue;
         }
 
-        // Generate unique filename
         const fileExt = file.name.split(".").pop();
         const fileName = `rental-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `rentals/${fileName}`;
 
-        // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from("project-images")
           .upload(filePath, file, {
@@ -68,7 +66,6 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
           continue;
         }
 
-        // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from("project-images")
           .getPublicUrl(filePath);
@@ -99,20 +96,54 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
   };
 
   const removeImage = async (imageUrl: string) => {
-    // Extract file path from URL for deletion
     const urlParts = imageUrl.split("/project-images/");
     if (urlParts.length > 1) {
       const filePath = urlParts[1];
-      
-      // Try to delete from storage (ignore errors for external URLs)
       await supabase.storage
         .from("project-images")
         .remove([filePath])
         .catch(() => {});
     }
-
-    // Remove from list
     onChange(images.filter(img => img !== imageUrl));
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newImages = [...images];
+    const [draggedImage] = newImages.splice(draggedIndex, 1);
+    newImages.splice(dropIndex, 0, draggedImage);
+    
+    onChange(newImages);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   return (
@@ -150,15 +181,33 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
       {images.length > 0 ? (
         <div className="grid grid-cols-3 gap-2">
           {images.map((imageUrl, index) => (
-            <div key={index} className="relative group aspect-video">
+            <div
+              key={imageUrl}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
+              className={`relative group aspect-video cursor-move transition-all duration-200 ${
+                draggedIndex === index ? "opacity-50 scale-95" : ""
+              } ${
+                dragOverIndex === index && draggedIndex !== index
+                  ? "ring-2 ring-primary ring-offset-2"
+                  : ""
+              }`}
+            >
               <img
                 src={imageUrl}
                 alt={`Imagine ${index + 1}`}
-                className="w-full h-full object-cover rounded-md border"
+                className="w-full h-full object-cover rounded-md border pointer-events-none"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/placeholder.svg";
                 }}
               />
+              <div className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                <GripVertical className="w-3 h-3 text-muted-foreground" />
+              </div>
               <button
                 type="button"
                 onClick={() => removeImage(imageUrl)}
@@ -181,6 +230,12 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
             Nicio imagine încărcată
           </p>
         </div>
+      )}
+
+      {images.length > 1 && (
+        <p className="text-xs text-muted-foreground text-center">
+          Trage imaginile pentru a le reordona. Prima imagine va fi afișată ca principală.
+        </p>
       )}
     </div>
   );
