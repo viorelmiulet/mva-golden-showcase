@@ -167,22 +167,43 @@ const RegimHotelier = () => {
     setIsSubmitting(true);
 
     try {
+      const totalPrice = calculateTotalPrice();
+      const checkInStr = format(checkIn, "yyyy-MM-dd");
+      const checkOutStr = format(checkOut, "yyyy-MM-dd");
+
       const { error } = await supabase
         .from("rental_bookings")
         .insert({
           rental_id: selectedRental.id,
-          check_in: format(checkIn, "yyyy-MM-dd"),
-          check_out: format(checkOut, "yyyy-MM-dd"),
+          check_in: checkInStr,
+          check_out: checkOutStr,
           guest_name: bookingForm.guest_name,
           guest_email: bookingForm.guest_email,
           guest_phone: bookingForm.guest_phone,
           num_guests: bookingForm.num_guests,
-          total_price: calculateTotalPrice(),
+          total_price: totalPrice,
           currency: selectedRental.currency,
           notes: bookingForm.notes,
         });
 
       if (error) throw error;
+
+      // Send email notification
+      supabase.functions.invoke('send-booking-notification', {
+        body: {
+          propertyTitle: selectedRental.title,
+          propertyLocation: selectedRental.location,
+          guestName: bookingForm.guest_name,
+          guestEmail: bookingForm.guest_email,
+          guestPhone: bookingForm.guest_phone,
+          checkIn: checkInStr,
+          checkOut: checkOutStr,
+          numGuests: bookingForm.num_guests,
+          totalPrice: totalPrice,
+          currency: selectedRental.currency,
+          notes: bookingForm.notes,
+        }
+      }).catch(err => console.error("Email notification error:", err));
 
       toast({
         title: language === "ro" ? "Cerere trimisă!" : "Request sent!",
