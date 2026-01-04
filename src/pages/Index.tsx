@@ -81,6 +81,76 @@ const Index = () => {
     }
   };
 
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://mvaimobiliare.ro/#localbusiness",
+    "name": "MVA Imobiliare",
+    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "logo": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "url": "https://mvaimobiliare.ro",
+    "telephone": "+40767941512",
+    "email": "contact@mvaimobiliare.ro",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Strada Principală",
+      "addressLocality": "Chiajna",
+      "addressRegion": "Ilfov",
+      "postalCode": "077040",
+      "addressCountry": "RO"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "44.4268",
+      "longitude": "25.9667"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "10:00",
+        "closes": "14:00"
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/mvaimobiliare",
+      "https://www.instagram.com/mvaimobiliare"
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Servicii Imobiliare",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Vânzare Apartamente"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Consultanță Imobiliară"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Evaluare Proprietăți"
+          }
+        }
+      ]
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -117,6 +187,9 @@ const Index = () => {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(websiteSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(localBusinessSchema)}
         </script>
       </Helmet>
       <div className="min-h-screen">
