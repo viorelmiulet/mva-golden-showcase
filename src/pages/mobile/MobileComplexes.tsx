@@ -91,7 +91,8 @@ const MobileComplexes = () => {
                   <div className="relative">
                     <img
                       src={complex.main_image || '/placeholder.svg'}
-                      alt={complex.name}
+                      alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu ${complex.available_apartments || 0} apartamente disponibile`}
+                      title={complex.name}
                       className="w-full h-48 object-cover"
                     />
                     <button

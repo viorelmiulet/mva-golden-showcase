@@ -535,9 +535,11 @@ const Properties = () => {
                         <div className="aspect-video mb-4 overflow-hidden rounded-lg">
                           <img 
                             src={(property.images as string[])[0]} 
-                            alt={property.title}
+                            alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}, preț ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
+                            title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"
+                            itemProp="image"
                           />
                         </div>
                       )}

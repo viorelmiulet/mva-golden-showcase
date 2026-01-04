@@ -153,7 +153,8 @@ const MobileComplexDetail = () => {
         <div className="relative h-56">
           <img
             src={complex.main_image || '/placeholder.svg'}
-            alt={complex.name}
+            alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu apartamente moderne și facilități premium`}
+            title={complex.name}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />

@@ -147,7 +147,8 @@ const MobilePropertyDetail = () => {
             {images.length > 0 ? (
               <img
                 src={images[currentImageIndex]}
-                alt={property.title}
+                alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
+                title={property.title}
                 className="w-full h-full object-cover"
               />
             ) : (

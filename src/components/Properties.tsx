@@ -92,9 +92,11 @@ const Properties = () => {
             <div className="relative aspect-video overflow-hidden">
               <img 
                 src={property.images?.[0] || "/placeholder.svg"} 
-                alt={property.title}
+                alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
+                title={`${property.title} - ${property.price_min?.toLocaleString()} ${property.currency || 'EUR'}`}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 loading="lazy"
+                itemProp="image"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
