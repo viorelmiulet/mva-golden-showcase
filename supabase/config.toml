@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.import-airbnb-listing]
 verify_jwt = false
+
+[functions.import-booking-listing]
+verify_jwt = false
