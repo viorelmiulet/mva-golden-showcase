@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Contact from "@/components/Contact";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ContactPage = () => {
@@ -29,6 +30,9 @@ const ContactPage = () => {
       <Header />
       
       <main className="min-h-screen pt-20">
+        <div className="container mx-auto px-4">
+          <Breadcrumbs items={[{ label: t.contact.title }]} />
+        </div>
         <Contact />
       </main>
 

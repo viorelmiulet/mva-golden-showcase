@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Services from "@/components/Services";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Servicii = () => {
@@ -29,6 +30,9 @@ const Servicii = () => {
       <Header />
       
       <main className="min-h-screen pt-20">
+        <div className="container mx-auto px-4">
+          <Breadcrumbs items={[{ label: t.services.title }]} />
+        </div>
         <Services />
       </main>
 
