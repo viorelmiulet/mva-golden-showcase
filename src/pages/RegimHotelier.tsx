@@ -76,6 +76,7 @@ const RegimHotelier = () => {
   const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [bookingForm, setBookingForm] = useState({
     guest_name: "",
     guest_email: "",
@@ -86,6 +87,11 @@ const RegimHotelier = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const dateLocale = language === "ro" ? ro : enUS;
+
+  // Reset image index when selecting a new rental
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [selectedRental?.id]);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["short-term-rentals"],
@@ -396,12 +402,41 @@ const RegimHotelier = () => {
                 <div className="grid md:grid-cols-2 gap-6 mt-4">
                   {/* Images */}
                   <div className="space-y-4">
-                    {selectedRental.images?.[0] ? (
-                      <img 
-                        src={selectedRental.images[0]} 
-                        alt={selectedRental.title}
-                        className="w-full h-64 object-cover rounded-lg"
-                      />
+                    {selectedRental.images?.length > 0 ? (
+                      <div className="relative">
+                        <img 
+                          src={selectedRental.images[currentImageIndex]} 
+                          alt={`${selectedRental.title} ${currentImageIndex + 1}`}
+                          className="w-full h-64 object-cover rounded-lg"
+                        />
+                        {selectedRental.images.length > 1 && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10"
+                              onClick={() => setCurrentImageIndex((prev) => 
+                                prev === 0 ? selectedRental.images.length - 1 : prev - 1
+                              )}
+                            >
+                              <ChevronLeft className="w-6 h-6" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10"
+                              onClick={() => setCurrentImageIndex((prev) => 
+                                prev === selectedRental.images.length - 1 ? 0 : prev + 1
+                              )}
+                            >
+                              <ChevronRight className="w-6 h-6" />
+                            </Button>
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                              {currentImageIndex + 1} / {selectedRental.images.length}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     ) : (
                       <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
                         <Bed className="w-16 h-16 text-muted-foreground" />
@@ -409,13 +444,16 @@ const RegimHotelier = () => {
                     )}
                     
                     {selectedRental.images?.length > 1 && (
-                      <div className="grid grid-cols-4 gap-2">
-                        {selectedRental.images.slice(1, 5).map((img, i) => (
+                      <div className="grid grid-cols-5 gap-2">
+                        {selectedRental.images.map((img, i) => (
                           <img 
                             key={i}
                             src={img} 
-                            alt={`${selectedRental.title} ${i + 2}`}
-                            className="w-full h-16 object-cover rounded"
+                            alt={`${selectedRental.title} ${i + 1}`}
+                            className={`w-full h-14 object-cover rounded cursor-pointer transition-opacity ${
+                              currentImageIndex === i ? 'ring-2 ring-gold opacity-100' : 'opacity-60 hover:opacity-100'
+                            }`}
+                            onClick={() => setCurrentImageIndex(i)}
                           />
                         ))}
                       </div>
