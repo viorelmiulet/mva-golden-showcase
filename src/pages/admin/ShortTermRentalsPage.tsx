@@ -38,7 +38,9 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Settings2
+  Settings2,
+  ExternalLink,
+  Loader2
 } from "lucide-react";
 
 interface ShortTermRental {
@@ -137,6 +139,9 @@ const ShortTermRentalsPage = () => {
   const [selectedRentalForIcal, setSelectedRentalForIcal] = useState<ShortTermRental | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncInterval, setSyncInterval] = useState(6);
+  const [airbnbUrl, setAirbnbUrl] = useState("");
+  const [importingAirbnb, setImportingAirbnb] = useState(false);
+  const [airbnbPreview, setAirbnbPreview] = useState<any>(null);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["admin-short-term-rentals"],
@@ -407,11 +412,12 @@ const ShortTermRentalsPage = () => {
       </div>
 
       <Tabs defaultValue="properties">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="properties">Proprietăți</TabsTrigger>
           <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
+          <TabsTrigger value="import">Import Airbnb</TabsTrigger>
         </TabsList>
 
         <TabsContent value="properties" className="space-y-4">
@@ -787,6 +793,257 @@ const ShortTermRentalsPage = () => {
             </Card>
           </div>
         </TabsContent>
+
+        <TabsContent value="import">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5" />
+                  Import din Airbnb
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Importă detaliile unei proprietăți direct din pagina Airbnb.
+                </p>
+
+                <div>
+                  <Label>Link Airbnb</Label>
+                  <Input
+                    value={airbnbUrl}
+                    onChange={(e) => setAirbnbUrl(e.target.value)}
+                    placeholder="https://www.airbnb.com/rooms/..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Copiază link-ul complet al proprietății de pe Airbnb
+                  </p>
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!airbnbUrl || importingAirbnb}
+                  onClick={async () => {
+                    if (!airbnbUrl) return;
+                    
+                    setImportingAirbnb(true);
+                    setAirbnbPreview(null);
+                    
+                    try {
+                      const response = await supabase.functions.invoke("import-airbnb-listing", {
+                        body: { airbnb_url: airbnbUrl, import_to_rentals: false },
+                      });
+
+                      if (response.error) {
+                        throw new Error(response.error.message);
+                      }
+
+                      if (!response.data.success) {
+                        throw new Error(response.data.error || "Eroare la import");
+                      }
+
+                      setAirbnbPreview(response.data.data);
+                      toast({ title: "Date extrase cu succes!", description: "Verifică și confirmă importul" });
+                    } catch (error: any) {
+                      console.error("Import error:", error);
+                      toast({
+                        title: "Eroare la extragere",
+                        description: error.message || "Nu s-au putut extrage datele",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setImportingAirbnb(false);
+                    }
+                  }}
+                >
+                  {importingAirbnb ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Se extrag datele...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Extrage detalii
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+                  <p><strong>Ce se importă:</strong></p>
+                  <p>• Titlu, descriere, locație</p>
+                  <p>• Preț pe noapte, număr camere, oaspeți</p>
+                  <p>• Facilități, imagini, reguli</p>
+                  <p>• Check-in/check-out</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {airbnbPreview && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview Import</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {airbnbPreview.screenshot && (
+                    <div className="rounded-lg overflow-hidden border">
+                      <img 
+                        src={`data:image/png;base64,${airbnbPreview.screenshot}`} 
+                        alt="Screenshot" 
+                        className="w-full h-40 object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Titlu</Label>
+                      <p className="font-medium">{airbnbPreview.title || "N/A"}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Preț/noapte</Label>
+                        <p className="font-medium">{airbnbPreview.price_per_night || "N/A"} {airbnbPreview.currency}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Locație</Label>
+                        <p className="font-medium">{airbnbPreview.location || "N/A"}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Camere</Label>
+                        <p className="font-medium">{airbnbPreview.rooms || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Băi</Label>
+                        <p className="font-medium">{airbnbPreview.bathrooms || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Oaspeți max</Label>
+                        <p className="font-medium">{airbnbPreview.max_guests || "N/A"}</p>
+                      </div>
+                    </div>
+
+                    {airbnbPreview.amenities && airbnbPreview.amenities.length > 0 && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Facilități</Label>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {airbnbPreview.amenities.slice(0, 6).map((amenity: string, i: number) => (
+                            <Badge key={i} variant="outline" className="text-xs">{amenity}</Badge>
+                          ))}
+                          {airbnbPreview.amenities.length > 6 && (
+                            <Badge variant="outline" className="text-xs">+{airbnbPreview.amenities.length - 6}</Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {airbnbPreview.description && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Descriere</Label>
+                        <p className="text-sm line-clamp-3">{airbnbPreview.description}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      className="flex-1"
+                      onClick={async () => {
+                        setImportingAirbnb(true);
+                        try {
+                          const response = await supabase.functions.invoke("import-airbnb-listing", {
+                            body: { airbnb_url: airbnbUrl, import_to_rentals: true },
+                          });
+
+                          if (response.error || !response.data.success) {
+                            throw new Error(response.data?.error || response.error?.message || "Eroare la salvare");
+                          }
+
+                          queryClient.invalidateQueries({ queryKey: ["admin-short-term-rentals"] });
+                          toast({ 
+                            title: "Proprietate importată!", 
+                            description: "Proprietatea a fost adăugată și este inactivă pentru revizuire" 
+                          });
+                          setAirbnbUrl("");
+                          setAirbnbPreview(null);
+                        } catch (error: any) {
+                          toast({
+                            title: "Eroare la salvare",
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setImportingAirbnb(false);
+                        }
+                      }}
+                      disabled={importingAirbnb}
+                    >
+                      {importingAirbnb ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2" />
+                      )}
+                      Salvează proprietatea
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setAirbnbPreview(null);
+                        setAirbnbUrl("");
+                      }}
+                    >
+                      Anulează
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {!airbnbPreview && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cum funcționează</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">1</div>
+                      <div>
+                        <p className="font-medium">Copiază link-ul Airbnb</p>
+                        <p className="text-sm text-muted-foreground">Deschide proprietatea pe Airbnb și copiază URL-ul din browser</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">2</div>
+                      <div>
+                        <p className="font-medium">Extrage datele</p>
+                        <p className="text-sm text-muted-foreground">Apasă butonul și așteaptă să fie extrase toate detaliile</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">3</div>
+                      <div>
+                        <p className="font-medium">Verifică și salvează</p>
+                        <p className="text-sm text-muted-foreground">Revizuiește datele și salvează proprietatea</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                      <strong>Notă:</strong> Proprietatea va fi salvată ca inactivă. Poți să o editezi și să o activezi ulterior.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value="calendar">
           <div className="grid md:grid-cols-2 gap-6">
             <Card>

@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.rental-ical-sync]
 verify_jwt = false
+
+[functions.import-airbnb-listing]
+verify_jwt = false
