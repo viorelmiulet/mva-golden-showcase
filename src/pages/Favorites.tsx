@@ -89,6 +89,18 @@ const Favorites = () => {
       <Helmet>
         <title>Favorite | MVA Imobiliare</title>
         <meta name="description" content="Proprietățile și complexele tale favorite salvate." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/favorite" />
+        
+        <meta property="og:title" content="Favorite | MVA Imobiliare" />
+        <meta property="og:description" content="Proprietățile și complexele tale favorite salvate." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/favorite" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Favorite | MVA Imobiliare" />
+        <meta name="twitter:description" content="Proprietățile și complexele tale favorite salvate." />
       </Helmet>
 
       <div className="min-h-screen bg-background">

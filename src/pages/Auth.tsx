@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -70,8 +71,22 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <>
+      <Helmet>
+        <title>Autentificare | MVA Imobiliare</title>
+        <meta name="description" content="Autentifică-te pentru a accesa panoul de administrare MVA Imobiliare." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/auth" />
+        
+        <meta property="og:title" content="Autentificare | MVA Imobiliare" />
+        <meta property="og:description" content="Autentifică-te pentru a accesa panoul de administrare." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/auth" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+      </Helmet>
+      
+      <div className="min-h-screen bg-background">
+        <Header />
       
       <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
         <div className="max-w-md mx-auto">
@@ -133,7 +148,8 @@ const Auth = () => {
       </main>
       
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
