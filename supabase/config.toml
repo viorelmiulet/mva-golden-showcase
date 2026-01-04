@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.send-booking-reminders]
 verify_jwt = false
+
+[functions.generate-sitemap-images]
+verify_jwt = false
