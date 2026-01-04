@@ -268,12 +268,18 @@ const Footer = () => {
               
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <div className="flex gap-3 sm:gap-4 text-xs">
-                  <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
+                  <Link 
+                    to="/politica-confidentialitate" 
+                    className="text-muted-foreground hover:text-gold transition-colors touch-manipulation"
+                  >
                     {t.footer.privacy}
-                  </button>
-                  <button className="text-muted-foreground hover:text-gold transition-colors touch-manipulation">
+                  </Link>
+                  <Link 
+                    to="/termeni-conditii" 
+                    className="text-muted-foreground hover:text-gold transition-colors touch-manipulation"
+                  >
                     {t.footer.terms}
-                  </button>
+                  </Link>
                 </div>
                 
                 <button 
