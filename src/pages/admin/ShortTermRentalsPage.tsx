@@ -150,6 +150,7 @@ const ShortTermRentalsPage = () => {
   
   // Manual booking state
   const [isManualBookingOpen, setIsManualBookingOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<RentalBooking | null>(null);
   const [manualBooking, setManualBooking] = useState({
     guest_name: "",
     guest_phone: "",
@@ -383,6 +384,87 @@ const ShortTermRentalsPage = () => {
         notes: "",
       });
       toast({ title: "Rezervare adăugată cu succes!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Eroare", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateBookingDetailsMutation = useMutation({
+    mutationFn: async () => {
+      if (!editingBooking) return;
+      
+      const rental = rentals.find(r => r.id === editingBooking.rental_id);
+      
+      // Check if dates changed
+      const datesChanged = 
+        editingBooking.check_in !== manualBooking.check_in || 
+        editingBooking.check_out !== manualBooking.check_out;
+
+      if (datesChanged) {
+        // Unblock old dates
+        const oldCheckIn = new Date(editingBooking.check_in);
+        const oldCheckOut = new Date(editingBooking.check_out);
+        const oldDates = eachDayOfInterval({ start: oldCheckIn, end: addDays(oldCheckOut, -1) });
+        
+        for (const date of oldDates) {
+          await supabase
+            .from("rental_availability")
+            .delete()
+            .eq("rental_id", editingBooking.rental_id)
+            .eq("date", format(date, "yyyy-MM-dd"));
+        }
+
+        // Block new dates
+        const newCheckIn = new Date(manualBooking.check_in);
+        const newCheckOut = new Date(manualBooking.check_out);
+        const newDates = eachDayOfInterval({ start: newCheckIn, end: addDays(newCheckOut, -1) });
+        
+        for (const date of newDates) {
+          await supabase
+            .from("rental_availability")
+            .upsert({
+              rental_id: editingBooking.rental_id,
+              date: format(date, "yyyy-MM-dd"),
+              is_available: false,
+              guest_name: manualBooking.guest_name,
+              notes: `Rezervare: ${manualBooking.guest_name}`,
+            }, { onConflict: "rental_id,date" });
+        }
+      }
+
+      // Update booking
+      const { error } = await supabase
+        .from("rental_bookings")
+        .update({
+          guest_name: manualBooking.guest_name,
+          guest_phone: manualBooking.guest_phone,
+          guest_email: manualBooking.guest_email || null,
+          check_in: manualBooking.check_in,
+          check_out: manualBooking.check_out,
+          num_guests: manualBooking.num_guests,
+          total_price: manualBooking.total_price,
+          notes: manualBooking.notes || null,
+        })
+        .eq("id", editingBooking.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      setIsManualBookingOpen(false);
+      setEditingBooking(null);
+      setManualBooking({
+        guest_name: "",
+        guest_phone: "",
+        guest_email: "",
+        check_in: "",
+        check_out: "",
+        num_guests: 1,
+        total_price: 0,
+        notes: "",
+      });
+      toast({ title: "Rezervare actualizată cu succes!" });
     },
     onError: (error: any) => {
       toast({ title: "Eroare", description: error.message, variant: "destructive" });
@@ -722,6 +804,26 @@ const ShortTermRentalsPage = () => {
                     <TableCell>{getPaymentBadge(booking.payment_status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-1">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setEditingBooking(booking);
+                            setManualBooking({
+                              guest_name: booking.guest_name,
+                              guest_phone: booking.guest_phone,
+                              guest_email: booking.guest_email || "",
+                              check_in: booking.check_in,
+                              check_out: booking.check_out,
+                              num_guests: booking.num_guests,
+                              total_price: booking.total_price,
+                              notes: booking.notes || "",
+                            });
+                            setIsManualBookingOpen(true);
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -1649,12 +1751,30 @@ const ShortTermRentalsPage = () => {
         </TabsContent>
 
       {/* Manual Booking Dialog */}
-      <Dialog open={isManualBookingOpen} onOpenChange={setIsManualBookingOpen}>
+      <Dialog open={isManualBookingOpen} onOpenChange={(open) => {
+        setIsManualBookingOpen(open);
+        if (!open) {
+          setEditingBooking(null);
+          setManualBooking({
+            guest_name: "",
+            guest_phone: "",
+            guest_email: "",
+            check_in: "",
+            check_out: "",
+            num_guests: 1,
+            total_price: 0,
+            notes: "",
+          });
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Adaugă rezervare manuală</DialogTitle>
-            {selectedRentalForCalendar && (
+            <DialogTitle>{editingBooking ? "Editează rezervarea" : "Adaugă rezervare manuală"}</DialogTitle>
+            {selectedRentalForCalendar && !editingBooking && (
               <p className="text-sm text-muted-foreground">{selectedRentalForCalendar.title}</p>
+            )}
+            {editingBooking && (
+              <p className="text-sm text-muted-foreground">{editingBooking.short_term_rentals?.title}</p>
             )}
           </DialogHeader>
 
@@ -1763,11 +1883,18 @@ const ShortTermRentalsPage = () => {
                   !manualBooking.guest_phone || 
                   !manualBooking.check_in || 
                   !manualBooking.check_out ||
-                  createManualBookingMutation.isPending
+                  createManualBookingMutation.isPending ||
+                  updateBookingDetailsMutation.isPending
                 }
-                onClick={() => createManualBookingMutation.mutate()}
+                onClick={() => {
+                  if (editingBooking) {
+                    updateBookingDetailsMutation.mutate();
+                  } else {
+                    createManualBookingMutation.mutate();
+                  }
+                }}
               >
-                {createManualBookingMutation.isPending ? (
+                {(createManualBookingMutation.isPending || updateBookingDetailsMutation.isPending) ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Se salvează...
@@ -1775,13 +1902,16 @@ const ShortTermRentalsPage = () => {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Salvează rezervarea
+                    {editingBooking ? "Actualizează rezervarea" : "Salvează rezervarea"}
                   </>
                 )}
               </Button>
               <Button 
                 variant="outline"
-                onClick={() => setIsManualBookingOpen(false)}
+                onClick={() => {
+                  setIsManualBookingOpen(false);
+                  setEditingBooking(null);
+                }}
               >
                 Anulează
               </Button>
