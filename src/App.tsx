@@ -74,6 +74,8 @@ const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
+const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
+const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 
 const queryClient = new QueryClient();
 
@@ -141,6 +143,8 @@ const App = () => {
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               <Route path="/regim-hotelier" element={<RegimHotelier />} />
+              <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
+              <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/sign/:token" element={<SignContract />} />
               
               {/* Mobile App Routes */}
