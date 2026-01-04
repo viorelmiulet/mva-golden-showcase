@@ -142,6 +142,9 @@ const ShortTermRentalsPage = () => {
   const [airbnbUrl, setAirbnbUrl] = useState("");
   const [importingAirbnb, setImportingAirbnb] = useState(false);
   const [airbnbPreview, setAirbnbPreview] = useState<any>(null);
+  const [bookingUrl, setBookingUrl] = useState("");
+  const [importingBooking, setImportingBooking] = useState(false);
+  const [bookingPreview, setBookingPreview] = useState<any>(null);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["admin-short-term-rentals"],
@@ -417,7 +420,8 @@ const ShortTermRentalsPage = () => {
           <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
-          <TabsTrigger value="import">Import Airbnb</TabsTrigger>
+          <TabsTrigger value="import-airbnb">Import Airbnb</TabsTrigger>
+          <TabsTrigger value="import-booking">Import Booking</TabsTrigger>
         </TabsList>
 
         <TabsContent value="properties" className="space-y-4">
@@ -794,7 +798,7 @@ const ShortTermRentalsPage = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="import">
+        <TabsContent value="import-airbnb">
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
@@ -1035,6 +1039,260 @@ const ShortTermRentalsPage = () => {
 
                   <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
                     <p className="text-sm text-amber-800 dark:text-amber-200">
+                      <strong>Notă:</strong> Proprietatea va fi salvată ca inactivă. Poți să o editezi și să o activezi ulterior.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="import-booking">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5" />
+                  Import din Booking.com
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Importă detaliile unei proprietăți direct din pagina Booking.com.
+                </p>
+
+                <div>
+                  <Label>Link Booking.com</Label>
+                  <Input
+                    value={bookingUrl}
+                    onChange={(e) => setBookingUrl(e.target.value)}
+                    placeholder="https://www.booking.com/hotel/..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Copiază link-ul complet al proprietății de pe Booking.com
+                  </p>
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!bookingUrl || importingBooking}
+                  onClick={async () => {
+                    if (!bookingUrl) return;
+                    
+                    setImportingBooking(true);
+                    setBookingPreview(null);
+                    
+                    try {
+                      const response = await supabase.functions.invoke("import-booking-listing", {
+                        body: { booking_url: bookingUrl, import_to_rentals: false },
+                      });
+
+                      if (response.error) {
+                        throw new Error(response.error.message);
+                      }
+
+                      if (!response.data.success) {
+                        throw new Error(response.data.error || "Eroare la import");
+                      }
+
+                      setBookingPreview(response.data.data);
+                      toast({ title: "Date extrase cu succes!", description: "Verifică și confirmă importul" });
+                    } catch (error: any) {
+                      console.error("Import error:", error);
+                      toast({
+                        title: "Eroare la extragere",
+                        description: error.message || "Nu s-au putut extrage datele",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setImportingBooking(false);
+                    }
+                  }}
+                >
+                  {importingBooking ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Se extrag datele...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Extrage detalii
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+                  <p><strong>Ce se importă:</strong></p>
+                  <p>• Titlu, descriere, locație</p>
+                  <p>• Preț pe noapte, rating, recenzii</p>
+                  <p>• Facilități, imagini, reguli</p>
+                  <p>• Mic dejun, anulare gratuită, parcare</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {bookingPreview && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview Import</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Titlu</Label>
+                      <p className="font-medium">{bookingPreview.title || "N/A"}</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Preț/noapte</Label>
+                        <p className="font-medium">{bookingPreview.price_per_night || "N/A"} {bookingPreview.currency}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Rating</Label>
+                        <p className="font-medium">{bookingPreview.rating ? `${bookingPreview.rating}/10` : "N/A"}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Locație</Label>
+                      <p className="font-medium">{bookingPreview.location || "N/A"}</p>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Camere</Label>
+                        <p className="font-medium">{bookingPreview.rooms || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Băi</Label>
+                        <p className="font-medium">{bookingPreview.bathrooms || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Oaspeți max</Label>
+                        <p className="font-medium">{bookingPreview.max_guests || "N/A"}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {bookingPreview.breakfast_included && (
+                        <Badge className="bg-green-500">Mic dejun inclus</Badge>
+                      )}
+                      {bookingPreview.free_cancellation && (
+                        <Badge className="bg-blue-500">Anulare gratuită</Badge>
+                      )}
+                    </div>
+
+                    {bookingPreview.amenities && bookingPreview.amenities.length > 0 && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Facilități</Label>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {bookingPreview.amenities.slice(0, 6).map((amenity: string, i: number) => (
+                            <Badge key={i} variant="outline" className="text-xs">{amenity}</Badge>
+                          ))}
+                          {bookingPreview.amenities.length > 6 && (
+                            <Badge variant="outline" className="text-xs">+{bookingPreview.amenities.length - 6}</Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {bookingPreview.description && (
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Descriere</Label>
+                        <p className="text-sm line-clamp-3">{bookingPreview.description}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t">
+                    <Button
+                      className="flex-1"
+                      onClick={async () => {
+                        setImportingBooking(true);
+                        try {
+                          const response = await supabase.functions.invoke("import-booking-listing", {
+                            body: { booking_url: bookingUrl, import_to_rentals: true },
+                          });
+
+                          if (response.error || !response.data.success) {
+                            throw new Error(response.data?.error || response.error?.message || "Eroare la salvare");
+                          }
+
+                          queryClient.invalidateQueries({ queryKey: ["admin-short-term-rentals"] });
+                          toast({ 
+                            title: "Proprietate importată!", 
+                            description: "Proprietatea a fost adăugată și este inactivă pentru revizuire" 
+                          });
+                          setBookingUrl("");
+                          setBookingPreview(null);
+                        } catch (error: any) {
+                          toast({
+                            title: "Eroare la salvare",
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setImportingBooking(false);
+                        }
+                      }}
+                      disabled={importingBooking}
+                    >
+                      {importingBooking ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2" />
+                      )}
+                      Salvează proprietatea
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setBookingPreview(null);
+                        setBookingUrl("");
+                      }}
+                    >
+                      Anulează
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {!bookingPreview && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cum funcționează</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">1</div>
+                      <div>
+                        <p className="font-medium">Copiază link-ul Booking.com</p>
+                        <p className="text-sm text-muted-foreground">Deschide proprietatea pe Booking.com și copiază URL-ul din browser</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">2</div>
+                      <div>
+                        <p className="font-medium">Extrage datele</p>
+                        <p className="text-sm text-muted-foreground">Apasă butonul și așteaptă să fie extrase toate detaliile</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">3</div>
+                      <div>
+                        <p className="font-medium">Verifică și salvează</p>
+                        <p className="text-sm text-muted-foreground">Revizuiește datele și salvează proprietatea</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
                       <strong>Notă:</strong> Proprietatea va fi salvată ca inactivă. Poți să o editezi și să o activezi ulterior.
                     </p>
                   </div>
