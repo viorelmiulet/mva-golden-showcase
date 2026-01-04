@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
@@ -1578,10 +1579,18 @@ const ShortTermRentalsPage = () => {
 
                 <div>
                   <Label>Monedă</Label>
-                  <Input
+                  <Select
                     value={editingRental.currency || "EUR"}
-                    onChange={(e) => setEditingRental({ ...editingRental, currency: e.target.value })}
-                  />
+                    onValueChange={(value) => setEditingRental({ ...editingRental, currency: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selectează moneda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                      <SelectItem value="RON">RON (Lei)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
