@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import RentalImageUpload from "@/components/RentalImageUpload";
 import { 
   Plus, 
   Edit, 
@@ -719,15 +720,10 @@ const ShortTermRentalsPage = () => {
               </div>
 
               <div>
-                <Label>Imagini (URL-uri separate prin virgulă)</Label>
-                <Textarea
-                  value={editingRental.images?.join("\n") || ""}
-                  onChange={(e) => setEditingRental({ 
-                    ...editingRental, 
-                    images: e.target.value.split("\n").map(a => a.trim()).filter(Boolean) 
-                  })}
-                  placeholder="https://..."
-                  rows={3}
+                <Label>Imagini</Label>
+                <RentalImageUpload
+                  images={editingRental.images || []}
+                  onChange={(newImages) => setEditingRental({ ...editingRental, images: newImages })}
                 />
               </div>
 
