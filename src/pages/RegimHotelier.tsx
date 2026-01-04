@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { 
   Bed, 
   Bath, 
@@ -366,6 +367,7 @@ const RegimHotelier = () => {
       <main className="min-h-screen pt-20 pb-12">
         <section className="py-12 sm:py-16 bg-gradient-to-br from-background to-muted">
           <div className="container mx-auto px-4">
+            <Breadcrumbs items={[{ label: language === "ro" ? "Regim Hotelier" : "Short-Term Rentals" }]} />
             <div className="text-center max-w-3xl mx-auto mb-12">
               <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4">
                 {language === "ro" ? "Regim Hotelier" : "Short-Term Rentals"}

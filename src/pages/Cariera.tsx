@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useLanguage } from "@/contexts/LanguageContext"
+import Breadcrumbs from "@/components/Breadcrumbs"
 
 const Cariera = () => {
   const { t, language } = useLanguage();
@@ -181,7 +182,8 @@ const Cariera = () => {
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
         <Header />
 
-        <main className="container mx-auto px-4 pt-32 pb-20" role="main">
+        <main className="container mx-auto px-4 pt-24 pb-20" role="main">
+          <Breadcrumbs items={[{ label: t.career.heroTitle }]} />
           {/* Hero Section */}
           <header className="max-w-4xl mx-auto text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold/20 mb-6">
