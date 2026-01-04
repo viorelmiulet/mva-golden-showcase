@@ -103,9 +103,9 @@ const Header = () => {
   };
 
   const navItems: NavItem[] = [
-    { name: t.nav.home, id: 'home', type: 'scroll' },
-    { name: t.nav.about, id: 'despre', type: 'scroll' },
-    { name: t.services.title, id: 'servicii', type: 'scroll' },
+    { name: t.nav.home, id: '/', type: 'link' },
+    { name: t.nav.about, id: '/despre-noi', type: 'link' },
+    { name: t.services.title, id: '/servicii', type: 'link' },
     { name: t.nav.properties, id: '/proprietati', type: 'link' },
     { name: t.nav.complexes, id: '/complexe', type: 'link' },
     { name: t.nav.shortTermRentals, id: '/regim-hotelier', type: 'link' },
@@ -113,7 +113,7 @@ const Header = () => {
     { name: t.nav.whyUs, id: '/de-ce-sa-ne-alegi', type: 'link' },
     { name: t.nav.blog, id: '/blog', type: 'link' },
     { name: t.nav.faq, id: '/faq', type: 'link' },
-    { name: t.nav.contact, id: 'contact', type: 'scroll' }
+    { name: t.nav.contact, id: '/contact', type: 'link' }
   ]
 
   return (

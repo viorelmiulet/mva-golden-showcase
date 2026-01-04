@@ -59,6 +59,9 @@ const Cariera = lazy(() => import("./pages/Cariera"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const DespreNoi = lazy(() => import("./pages/DespreNoi"));
+const Servicii = lazy(() => import("./pages/Servicii"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
@@ -95,6 +98,9 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
+              <Route path="/despre-noi" element={<DespreNoi />} />
+              <Route path="/servicii" element={<Servicii />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/proprietati" element={<Properties />} />
               <Route path="/proprietati/:id" element={<PropertyDetail />} />
               <Route path="/proiecte/:id" element={<ProjectDetail />} />
