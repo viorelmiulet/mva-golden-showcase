@@ -295,6 +295,38 @@ const ShortTermRentalsPage = () => {
     },
   });
 
+  const deleteBookingMutation = useMutation({
+    mutationFn: async (booking: RentalBooking) => {
+      // First, unblock the dates in availability
+      const checkIn = new Date(booking.check_in);
+      const checkOut = new Date(booking.check_out);
+      const dates = eachDayOfInterval({ start: checkIn, end: addDays(checkOut, -1) });
+      
+      for (const date of dates) {
+        await supabase
+          .from("rental_availability")
+          .delete()
+          .eq("rental_id", booking.rental_id)
+          .eq("date", format(date, "yyyy-MM-dd"));
+      }
+
+      // Then delete the booking
+      const { error } = await supabase
+        .from("rental_bookings")
+        .delete()
+        .eq("id", booking.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      toast({ title: "Rezervare ștearsă și date deblocate!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Eroare", description: error.message, variant: "destructive" });
+    },
+  });
+
   const createManualBookingMutation = useMutation({
     mutationFn: async () => {
       if (!selectedRentalForCalendar) return;
@@ -703,6 +735,18 @@ const ShortTermRentalsPage = () => {
                           onClick={() => updateBookingMutation.mutate({ id: booking.id, payment_status: "paid" })}
                         >
                           Plătit
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          disabled={deleteBookingMutation.isPending}
+                          onClick={() => {
+                            if (confirm("Ești sigur că vrei să ștergi această rezervare? Datele vor fi deblocate automat din calendar.")) {
+                              deleteBookingMutation.mutate(booking);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
