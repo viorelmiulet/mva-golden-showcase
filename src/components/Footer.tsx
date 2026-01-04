@@ -76,12 +76,12 @@ const Footer = () => {
   };
 
   const quickLinks = [
-    { name: t.nav.home, id: 'home', type: 'scroll' as const },
-    { name: t.nav.about, id: 'despre', type: 'scroll' as const },
-    { name: t.services.title, id: 'servicii', type: 'scroll' as const },
-    { name: t.nav.projects, id: 'proprietati', type: 'scroll' as const },
+    { name: t.nav.home, id: '/', type: 'link' as const },
+    { name: t.nav.about, id: '/despre-noi', type: 'link' as const },
+    { name: t.services.title, id: '/servicii', type: 'link' as const },
+    { name: t.nav.projects, id: '/proprietati', type: 'link' as const },
     { name: t.nav.calculator, id: '/calculator-credit', type: 'link' as const },
-    { name: t.nav.contact, id: 'contact', type: 'scroll' as const }
+    { name: t.nav.contact, id: '/contact', type: 'link' as const }
   ];
 
   const services = language === 'ro' ? [
