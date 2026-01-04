@@ -13,22 +13,24 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
-
-const jobApplicationSchema = z.object({
-  fullName: z.string().min(3, "Numele trebuie să conțină minim 3 caractere"),
-  email: z.string().email("Email invalid"),
-  phone: z.string().min(10, "Număr de telefon invalid"),
-  position: z.string().min(1, "Selectează poziția dorită"),
-  experience: z.string().min(1, "Selectează experiența"),
-  coverLetter: z.string().min(50, "Scrisoarea de intenție trebuie să conțină minim 50 caractere"),
-})
-
-type JobApplicationForm = z.infer<typeof jobApplicationSchema>
+import { useLanguage } from "@/contexts/LanguageContext"
 
 const Cariera = () => {
+  const { t, language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [cvFile, setCvFile] = useState<File | null>(null)
   const { toast } = useToast()
+
+  const jobApplicationSchema = z.object({
+    fullName: z.string().min(3, t.career.validationErrors.nameMin),
+    email: z.string().email(t.career.validationErrors.emailInvalid),
+    phone: z.string().min(10, t.career.validationErrors.phoneInvalid),
+    position: z.string().min(1, t.career.validationErrors.positionRequired),
+    experience: z.string().min(1, t.career.validationErrors.experienceRequired),
+    coverLetter: z.string().min(50, t.career.validationErrors.coverLetterMin),
+  })
+
+  type JobApplicationForm = z.infer<typeof jobApplicationSchema>
 
   const {
     register,
@@ -49,16 +51,16 @@ const Cariera = () => {
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "Fișier prea mare",
-          description: "CV-ul nu poate depăși 5MB",
+          title: t.career.fileTooLarge,
+          description: t.career.fileTooLargeMessage,
           variant: "destructive",
         })
         return
       }
       if (!file.type.includes("pdf") && !file.type.includes("doc")) {
         toast({
-          title: "Format invalid",
-          description: "Te rugăm să încarci un fișier PDF sau DOC",
+          title: t.career.invalidFormat,
+          description: t.career.invalidFormatMessage,
           variant: "destructive",
         })
         return
@@ -106,8 +108,8 @@ const Cariera = () => {
       if (error) throw error
 
       toast({
-        title: "Aplicare trimisă cu succes!",
-        description: "Vă mulțumim pentru interes. Vă vom contacta în curând.",
+        title: t.career.successTitle,
+        description: t.career.successMessage,
       })
 
       reset()
@@ -115,8 +117,8 @@ const Cariera = () => {
     } catch (error) {
       console.error("Error submitting application:", error)
       toast({
-        title: "Eroare la trimitere",
-        description: "A apărut o eroare. Te rugăm să încerci din nou.",
+        title: t.career.errorTitle,
+        description: t.career.errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -127,10 +129,10 @@ const Cariera = () => {
   return (
     <>
       <Helmet>
-        <title>Carieră Agent Imobiliar - Alătură-te Echipei MVA Imobiliare București</title>
+        <title>{language === 'ro' ? 'Carieră Agent Imobiliar - Alătură-te Echipei MVA Imobiliare București' : 'Real Estate Agent Career - Join MVA Imobiliare Team Bucharest'}</title>
         <meta
           name="description"
-          content="Construiește o carieră de succes ca agent imobiliar la MVA Imobiliare. Oferim training profesional, recompense competitive și oportunități de creștere în domeniul imobiliar premium din București."
+          content={t.career.heroSubtitle}
         />
         <meta name="keywords" content="job agent imobiliar, carieră imobiliare București, angajare consultant imobiliar, locuri de muncă imobiliare, agent vânzări proprietăți" />
         <link rel="canonical" href="https://mvaimobiliare.ro/cariera" />
@@ -143,20 +145,20 @@ const Cariera = () => {
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/cariera" />
-        <meta property="og:title" content="Carieră Agent Imobiliar - MVA Imobiliare" />
-        <meta property="og:description" content="Alătură-te echipei MVA Imobiliare și construiește o carieră de succes în domeniul imobiliar premium" />
+        <meta property="og:title" content={language === 'ro' ? 'Carieră Agent Imobiliar - MVA Imobiliare' : 'Real Estate Agent Career - MVA Imobiliare'} />
+        <meta property="og:description" content={t.career.heroSubtitle} />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary" />
-        <meta property="twitter:title" content="Carieră MVA Imobiliare" />
+        <meta property="twitter:title" content={language === 'ro' ? 'Carieră MVA Imobiliare' : 'Career MVA Imobiliare'} />
         
         {/* Structured Data - Job Posting */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "JobPosting",
-            "title": "Agent Imobiliar",
-            "description": "MVA Imobiliare caută agenți imobiliari motivați pentru a se alătura echipei noastre în domeniul proprietăților premium din București",
+            "title": t.career.positions["agent-imobiliar"],
+            "description": t.career.heroSubtitle,
             "hiringOrganization": {
               "@type": "Organization",
               "name": "MVA Imobiliare",
@@ -184,36 +186,22 @@ const Cariera = () => {
           <header className="max-w-4xl mx-auto text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold/20 mb-6">
               <Briefcase className="w-4 h-4 text-gold" />
-              <span className="text-sm text-gold">Alătură-te Echipei</span>
+              <span className="text-sm text-gold">{t.career.badge}</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-cinzel font-bold mb-6 bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-              Construiește o Carieră ca Agent Imobiliar
+              {t.career.heroTitle}
             </h1>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              La MVA Imobiliare căutăm constant profesioniști pasionați care doresc să facă parte
-              dintr-o echipă dinamică și orientată spre excelență în domeniul imobiliar premium.
+              {t.career.heroSubtitle}
             </p>
           </header>
 
           {/* Benefits Section */}
           <section className="max-w-6xl mx-auto mb-16">
             <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  title: "Creștere Profesională",
-                  description: "Programe de training și dezvoltare continuă",
-                },
-                {
-                  title: "Mediu Motivant",
-                  description: "Lucru cu proprietăți premium și clienți sofisticați",
-                },
-                {
-                  title: "Recompense Competitive",
-                  description: "Salarizare atractivă și sistem de bonusuri",
-                },
-              ].map((benefit, index) => (
+              {t.career.benefitsList.map((benefit, index) => (
                 <div key={index} className="card-responsive text-center">
                   <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
                     <CheckCircle2 className="w-6 h-6 text-gold" />
@@ -230,18 +218,18 @@ const Cariera = () => {
             <article className="card-responsive">
               <header className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-cinzel font-bold mb-3">
-                  Formular de Aplicare
+                  {t.career.formTitle}
                 </h2>
                 <p className="text-muted-foreground">
-                  Completează formularul de mai jos și ne vom întoarce cu un răspuns în maximum 48 de ore
+                  {t.career.formSubtitle}
                 </p>
               </header>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" aria-label="Formular aplicare job">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" aria-label={t.career.formTitle}>
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="fullName">Nume Complet *</Label>
+                    <Label htmlFor="fullName">{t.career.fullName} *</Label>
                     <Input
                       id="fullName"
                       {...register("fullName")}
@@ -255,7 +243,7 @@ const Cariera = () => {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email">{t.career.email} *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -269,7 +257,7 @@ const Cariera = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="phone">Telefon *</Label>
+                      <Label htmlFor="phone">{t.career.phone} *</Label>
                       <Input
                         id="phone"
                         {...register("phone")}
@@ -286,13 +274,13 @@ const Cariera = () => {
                 {/* Position & Experience */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="position">Poziție Dorită *</Label>
+                    <Label htmlFor="position">{t.career.position} *</Label>
                     <Select value={position} onValueChange={(value) => setValue("position", value)}>
                       <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Selectează poziția" />
+                        <SelectValue placeholder={t.career.selectPosition} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="agent-imobiliar">Agent Imobiliar</SelectItem>
+                        <SelectItem value="agent-imobiliar">{t.career.positions["agent-imobiliar"]}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.position && (
@@ -301,16 +289,16 @@ const Cariera = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="experience">Experiență *</Label>
+                    <Label htmlFor="experience">{t.career.experience} *</Label>
                     <Select value={experience} onValueChange={(value) => setValue("experience", value)}>
                       <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Selectează experiența" />
+                        <SelectValue placeholder={t.career.selectExperience} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="fara-experienta">Fără Experiență</SelectItem>
-                        <SelectItem value="0-2-ani">0-2 ani</SelectItem>
-                        <SelectItem value="2-5-ani">2-5 ani</SelectItem>
-                        <SelectItem value="5plus-ani">Peste 5 ani</SelectItem>
+                        <SelectItem value="fara-experienta">{t.career.experienceLevels["fara-experienta"]}</SelectItem>
+                        <SelectItem value="0-2-ani">{t.career.experienceLevels["0-2-ani"]}</SelectItem>
+                        <SelectItem value="2-5-ani">{t.career.experienceLevels["2-5-ani"]}</SelectItem>
+                        <SelectItem value="5plus-ani">{t.career.experienceLevels["5plus-ani"]}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.experience && (
@@ -321,7 +309,7 @@ const Cariera = () => {
 
                 {/* CV Upload */}
                 <div>
-                  <Label htmlFor="cv">Încarcă CV (opțional)</Label>
+                  <Label htmlFor="cv">{t.career.uploadCv}</Label>
                   <div className="mt-2">
                     <label
                       htmlFor="cv"
@@ -330,7 +318,7 @@ const Cariera = () => {
                       <div className="text-center">
                         <Upload className="w-8 h-8 text-gold mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
-                          {cvFile ? cvFile.name : "Click pentru a încărca CV-ul (PDF, DOC - max 5MB)"}
+                          {cvFile ? cvFile.name : t.career.uploadCvText}
                         </p>
                       </div>
                       <input
@@ -346,11 +334,11 @@ const Cariera = () => {
 
                 {/* Cover Letter */}
                 <div>
-                  <Label htmlFor="coverLetter">Scrisoare de Intenție *</Label>
+                  <Label htmlFor="coverLetter">{t.career.coverLetter} *</Label>
                   <Textarea
                     id="coverLetter"
                     {...register("coverLetter")}
-                    placeholder="Scrie câteva rânduri despre motivația ta de a te alătura echipei MVA Imobiliare..."
+                    placeholder={t.career.coverLetterPlaceholder}
                     rows={6}
                     className="mt-2"
                   />
@@ -368,11 +356,11 @@ const Cariera = () => {
                   className="w-full"
                 >
                   {isSubmitting ? (
-                    <>Trimitem aplicația...</>
+                    <>{t.career.submitting}</>
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-2" />
-                      Trimite Aplicația
+                      {t.career.submit}
                     </>
                   )}
                 </Button>

@@ -7,51 +7,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-const faqItems = [
-  {
-    question: "Care sunt comisioanele agenției?",
-    answer: "Comisionul standard pentru serviciile noastre este competitiv și transparent. Acesta variază în funcție de tipul și valoarea proprietății. Vă vom prezenta toate detaliile și costurilepentru serviciile noastre încă de la prima consultație, fără costuri ascunse.",
-  },
-  {
-    question: "Cât durează procesul de vânzare a unei proprietăți?",
-    answer: "Durata medie de vânzare depinde de mai mulți factori: locația, prețul, starea proprietății și condițiile pieței. În medie, o proprietate bine evaluată se vinde în 2-3 luni. Echipa noastră folosește strategii de marketing eficiente pentru a accelera procesul.",
-  },
-  {
-    question: "Cum evaluați o proprietate?",
-    answer: "Evaluarea se face pe baza unei analize detaliate care include: locația, suprafața utilă, starea proprietății, dotările și finisajele, prețurile similare din zonă, și tendințele actuale ale pieței. Oferim evaluări gratuite pentru proprietățile pe care le listăm.",
-  },
-  {
-    question: "Ce documente sunt necesare pentru vânzarea unei proprietăți?",
-    answer: "Documentele principale includ: actul de proprietate (contractul de vânzare-cumpărare), certificatul de atestare fiscală, certificatul energetic, certificatul de urbanism, extras de carte funciară, și dovada achitării taxelor și impozitelor. Vă vom asista în pregătirea tuturor documentelor necesare.",
-  },
-  {
-    question: "Oferiți servicii de asistență juridică?",
-    answer: "Da, colaborăm cu notari și avocați cu experiență în tranzacții imobiliare. Vă putem recomanda specialiști de încredere și vă asistăm pe parcursul întregului proces, de la verificarea actelor până la semnarea contractului final.",
-  },
-  {
-    question: "Pot viziona proprietăți în weekend?",
-    answer: "Desigur! Înțelegem că programul dvs. poate fi încărcat în timpul săptămânii. Organizăm vizionări și în weekend, după programare. Suntem flexibili și ne adaptăm nevoilor clienților noștri.",
-  },
-  {
-    question: "Cum vă asigurați că proprietățile listate sunt verificate?",
-    answer: "Toate proprietățile din portofoliul nostru trec printr-un proces riguros de verificare: validăm documentele de proprietate, verificăm starea tehnică a imobilului, confirmăm informațiile furnizate de proprietar și ne asigurăm că toate datele prezentate sunt corecte și actualizate.",
-  },
-  {
-    question: "Oferiți servicii de închiriere?",
-    answer: "Da, oferim servicii complete de închiriere, atât pentru proprietari cât și pentru chiriași. Gestionăm întregul proces: promovarea proprietății, selecția chiriașilor, verificarea bonității, întocmirea contractului și asistență pe parcursul perioadei de închiriere.",
-  },
-  {
-    question: "Cum pot lista proprietatea mea pe site-ul dvs.?",
-    answer: "Procesul este simplu: ne contactați telefonic, prin email sau completați formularul de pe site. Un consultant vă va vizita pentru evaluarea proprietății, vom face fotografii profesionale și vom crea anunțul. Proprietatea va fi promovată pe site-ul nostru și pe toate platformele relevante.",
-  },
-  {
-    question: "Oferiți consultanță pentru investiții imobiliare?",
-    answer: "Da, oferim servicii de consultanță pentru investitori interesați de piața imobiliară din București și Ilfov. Vă putem ajuta să identificați oportunități profitabile, să analizați rentabilitatea investițiilor și să luați decizii informate bazate pe datele reale ale pieței.",
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const FAQ = () => {
+  const { t } = useLanguage();
+  
+  const faqItems = t.faq.items;
+
   const faqStructuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -68,20 +30,20 @@ const FAQ = () => {
   return (
     <>
       <Helmet>
-        <title>Întrebări Frecvente - FAQ | MVA Imobiliare</title>
-        <meta name="description" content="Răspunsuri la cele mai frecvente întrebări despre serviciile MVA Imobiliare: comisioane, proces de vânzare, evaluări, documente necesare și mult mai mult." />
+        <title>{t.faq.title} - FAQ | MVA Imobiliare</title>
+        <meta name="description" content={t.faq.subtitle} />
         <meta name="keywords" content="întrebări frecvente imobiliare, FAQ agenție imobiliară, comision agenție, vânzare casă, cumpărare apartament" />
         <link rel="canonical" href="https://mvaimobiliare.ro/faq" />
         
-        <meta property="og:title" content="Întrebări Frecvente - FAQ | MVA Imobiliare" />
-        <meta property="og:description" content="Răspunsuri la cele mai frecvente întrebări despre serviciile MVA Imobiliare: comisioane, proces de vânzare, evaluări, documente necesare și mult mai mult." />
+        <meta property="og:title" content={`${t.faq.title} - FAQ | MVA Imobiliare`} />
+        <meta property="og:description" content={t.faq.subtitle} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/faq" />
         <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Întrebări Frecvente - FAQ | MVA Imobiliare" />
-        <meta name="twitter:description" content="Răspunsuri la cele mai frecvente întrebări despre serviciile MVA Imobiliare" />
+        <meta name="twitter:title" content={`${t.faq.title} - FAQ | MVA Imobiliare`} />
+        <meta name="twitter:description" content={t.faq.subtitle} />
         <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
         
         <script type="application/ld+json">
@@ -96,10 +58,10 @@ const FAQ = () => {
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
-                Întrebări Frecvente
+                {t.faq.title}
               </h1>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2">
-                Răspunsuri la cele mai comune întrebări despre serviciile noastre
+                {t.faq.subtitle}
               </p>
             </div>
 
@@ -123,16 +85,16 @@ const FAQ = () => {
 
               <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-gold/5 border border-gold/20 text-center">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-foreground px-2">
-                  Nu ai găsit răspunsul pe care îl căutai?
+                  {t.faq.stillQuestions}
                 </h2>
                 <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 px-4">
-                  Echipa noastră este aici să te ajute! Contactează-ne și vom răspunde tuturor întrebărilor tale.
+                  {t.faq.helpText}
                 </p>
                 <a
                   href="tel:+40726555888"
                   className="inline-block px-6 sm:px-8 py-3 bg-gold text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gold/90 transition-colors touch-manipulation min-h-[44px]"
                 >
-                  Contactează-ne
+                  {t.faq.contactUs}
                 </a>
               </div>
             </div>
