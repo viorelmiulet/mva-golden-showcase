@@ -138,6 +138,7 @@ const ShortTermRentalsPage = () => {
   const [importingIcal, setImportingIcal] = useState(false);
   const [selectedRentalForIcal, setSelectedRentalForIcal] = useState<ShortTermRental | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
+  const [syncingSourceId, setSyncingSourceId] = useState<string | null>(null);
   const [syncInterval, setSyncInterval] = useState(6);
   const [airbnbUrl, setAirbnbUrl] = useState("");
   const [importingAirbnb, setImportingAirbnb] = useState(false);
@@ -363,6 +364,59 @@ const ShortTermRentalsPage = () => {
       toast({ title: "Eroare la sincronizare", description: error.message, variant: "destructive" });
     } finally {
       setSyncingAll(false);
+    }
+  };
+
+  const syncSingleSource = async (source: ICalSource) => {
+    setSyncingSourceId(source.id);
+    try {
+      const response = await supabase.functions.invoke("rental-ical-import", {
+        body: {
+          rental_id: source.rental_id,
+          ical_url: source.ical_url,
+          source_name: source.source_name,
+        },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+      if (!response.data.success) throw new Error(response.data.error || "Eroare la sincronizare");
+
+      // Update last sync status
+      await supabase
+        .from("rental_ical_sources")
+        .update({
+          last_sync_at: new Date().toISOString(),
+          last_sync_status: "success",
+          last_sync_error: null,
+        })
+        .eq("id", source.id);
+
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+
+      toast({
+        title: "Sincronizat cu succes!",
+        description: `${response.data.imported_dates || 0} date importate din ${source.source_name}`,
+      });
+    } catch (error: any) {
+      // Update error status
+      await supabase
+        .from("rental_ical_sources")
+        .update({
+          last_sync_at: new Date().toISOString(),
+          last_sync_status: "error",
+          last_sync_error: error.message,
+        })
+        .eq("id", source.id);
+
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      toast({
+        title: "Eroare la sincronizare",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSyncingSourceId(null);
     }
   };
 
@@ -686,6 +740,15 @@ const ShortTermRentalsPage = () => {
                             )}
                           </div>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={syncingSourceId === source.id}
+                          onClick={() => syncSingleSource(source)}
+                          title="Sincronizează acum"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${syncingSourceId === source.id ? 'animate-spin' : ''}`} />
+                        </Button>
                         <Switch
                           checked={source.is_active}
                           onCheckedChange={(checked) => 
