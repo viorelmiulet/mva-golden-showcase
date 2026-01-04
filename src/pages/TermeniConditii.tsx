@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const TermeniConditii = () => {
@@ -10,6 +11,10 @@ const TermeniConditii = () => {
   
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: isRomanian ? "Acasă" : "Home", url: "/" },
+        { name: isRomanian ? "Termeni și Condiții" : "Terms and Conditions", url: "/termeni-conditii" }
+      ]} />
       <Helmet>
         <title>{isRomanian ? 'Termeni și Condiții | MVA Imobiliare' : 'Terms and Conditions | MVA Imobiliare'}</title>
         <meta name="description" content={isRomanian 

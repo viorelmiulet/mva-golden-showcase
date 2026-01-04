@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import BreadcrumbSchema from '@/components/BreadcrumbSchema';
 import MortgageCalculator from '@/components/MortgageCalculator';
 import { Calculator, CheckCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,10 @@ const CalculatorIpotecar = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: t.nav?.calculator || 'Calculator Credit', url: "/calculator-credit" }
+      ]} />
       <Helmet>
         <title>Calculator Credit | MVA - Estimează Rata Lunară</title>
         <meta

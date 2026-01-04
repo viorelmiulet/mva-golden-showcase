@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const PoliticaConfidentialitate = () => {
@@ -10,6 +11,10 @@ const PoliticaConfidentialitate = () => {
   
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: isRomanian ? "Acasă" : "Home", url: "/" },
+        { name: isRomanian ? "Politica de Confidențialitate" : "Privacy Policy", url: "/politica-confidentialitate" }
+      ]} />
       <Helmet>
         <title>{isRomanian ? 'Politica de Confidențialitate | MVA Imobiliare' : 'Privacy Policy | MVA Imobiliare'}</title>
         <meta name="description" content={isRomanian 

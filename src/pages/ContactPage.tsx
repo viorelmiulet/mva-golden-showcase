@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Contact from "@/components/Contact";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const ContactPage = () => {
@@ -10,6 +11,10 @@ const ContactPage = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: t.contact.title, url: "/contact" }
+      ]} />
       <Helmet>
         <title>{t.contact.title} | MVA Imobiliare</title>
         <meta name="description" content={t.contact.subtitle} />

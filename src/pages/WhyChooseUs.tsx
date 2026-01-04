@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { Helmet } from "react-helmet-async"
+import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { 
   Shield, 
@@ -77,6 +78,10 @@ const WhyChooseUs = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: language === 'ro' ? "Acasă" : "Home", url: "/" },
+        { name: language === 'ro' ? "De ce să ne alegi" : "Why Choose Us", url: "/de-ce-sa-ne-alegi" }
+      ]} />
       <Helmet>
         <title>{language === 'ro' ? 'De ce să ne alegi pe noi? - Agenție Imobiliară Expertă | MVA Imobiliare' : 'Why Choose Us? - Expert Real Estate Agency | MVA Imobiliare'}</title>
         <meta name="description" content={t.whyChooseUs.heroSubtitle} />
