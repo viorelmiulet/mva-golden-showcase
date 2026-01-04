@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import {
   Accordion,
   AccordionContent,
@@ -56,6 +57,9 @@ const FAQ = () => {
       <main className="min-h-screen pt-20">
         <section className="py-12 sm:py-16 bg-background">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+            {/* Breadcrumbs */}
+            <Breadcrumbs items={[{ label: t.faq.title }]} />
+
             <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                 {t.faq.title}

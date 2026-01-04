@@ -5,6 +5,7 @@ import { Building2, Home, MapPin, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -136,6 +137,9 @@ const Complexe = () => {
         <Header />
         
         <main className="container mx-auto px-4 py-16 md:py-24">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={[{ label: t.complexes?.title || 'Complexe Rezidențiale' }]} />
+
           {/* Hero Section */}
           <div className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent px-2">
