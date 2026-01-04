@@ -193,6 +193,7 @@ const RegimHotelier = () => {
         body: {
           propertyTitle: selectedRental.title,
           propertyLocation: selectedRental.location,
+          propertyAddress: selectedRental.address,
           guestName: bookingForm.guest_name,
           guestEmail: bookingForm.guest_email,
           guestPhone: bookingForm.guest_phone,
@@ -202,6 +203,8 @@ const RegimHotelier = () => {
           totalPrice: totalPrice,
           currency: selectedRental.currency,
           notes: bookingForm.notes,
+          checkInTime: selectedRental.check_in_time,
+          checkOutTime: selectedRental.check_out_time,
         }
       }).catch(err => console.error("Email notification error:", err));
 
