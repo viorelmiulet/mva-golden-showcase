@@ -908,6 +908,190 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_availability: {
+        Row: {
+          booking_reference: string | null
+          created_at: string
+          custom_price: number | null
+          date: string
+          guest_name: string | null
+          id: string
+          is_available: boolean | null
+          notes: string | null
+          rental_id: string
+        }
+        Insert: {
+          booking_reference?: string | null
+          created_at?: string
+          custom_price?: number | null
+          date: string
+          guest_name?: string | null
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          rental_id: string
+        }
+        Update: {
+          booking_reference?: string | null
+          created_at?: string
+          custom_price?: number | null
+          date?: string
+          guest_name?: string | null
+          id?: string
+          is_available?: boolean | null
+          notes?: string | null
+          rental_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_availability_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "short_term_rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string
+          currency: string | null
+          guest_email: string | null
+          guest_name: string
+          guest_phone: string
+          id: string
+          notes: string | null
+          num_guests: number | null
+          payment_status: string | null
+          rental_id: string
+          status: string | null
+          total_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string
+          currency?: string | null
+          guest_email?: string | null
+          guest_name: string
+          guest_phone: string
+          id?: string
+          notes?: string | null
+          num_guests?: number | null
+          payment_status?: string | null
+          rental_id: string
+          status?: string | null
+          total_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string
+          currency?: string | null
+          guest_email?: string | null
+          guest_name?: string
+          guest_phone?: string
+          id?: string
+          notes?: string | null
+          num_guests?: number | null
+          payment_status?: string | null
+          rental_id?: string
+          status?: string | null
+          total_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_bookings_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "short_term_rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      short_term_rentals: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          base_price: number
+          bathrooms: number | null
+          check_in_time: string | null
+          check_out_time: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          location: string | null
+          max_guests: number | null
+          min_nights: number | null
+          rooms: number | null
+          rules: string | null
+          surface: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          base_price?: number
+          bathrooms?: number | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          location?: string | null
+          max_guests?: number | null
+          min_nights?: number | null
+          rooms?: number | null
+          rules?: string | null
+          surface?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          base_price?: number
+          bathrooms?: number | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          location?: string | null
+          max_guests?: number | null
+          min_nights?: number | null
+          rooms?: number | null
+          rules?: string | null
+          surface?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string
