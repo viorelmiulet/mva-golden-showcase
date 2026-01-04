@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const categories = [
   { id: "all", name: "Toate", icon: FileText },
@@ -157,6 +158,10 @@ const Blog = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: "Blog", url: "/blog" }
+      ]} />
       <Helmet>
         <title>Blog Imobiliar - Sfaturi și Ghiduri | MVA Imobiliare</title>
         <meta name="description" content="Descoperiți articole despre piața imobiliară, ghiduri de cumpărare și vânzare, tendințe și sfaturi de investiții imobiliare în București." />

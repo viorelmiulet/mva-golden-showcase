@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Services from "@/components/Services";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Servicii = () => {
@@ -10,6 +11,10 @@ const Servicii = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: t.services.title, url: "/servicii" }
+      ]} />
       <Helmet>
         <title>{t.services.title} | MVA Imobiliare</title>
         <meta name="description" content={t.services.subtitle} />

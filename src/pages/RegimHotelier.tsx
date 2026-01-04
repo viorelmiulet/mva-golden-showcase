@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { 
   Bed, 
   Bath, 
@@ -350,6 +351,10 @@ const RegimHotelier = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: language === "ro" ? "Acasă" : "Home", url: "/" },
+        { name: language === "ro" ? "Regim Hotelier" : "Short-Term Rentals", url: "/regim-hotelier" }
+      ]} />
       <Helmet>
         <title>{language === "ro" ? "Regim Hotelier - Închirieri pe Termen Scurt | MVA Imobiliare" : "Short-Term Rentals | MVA Imobiliare"}</title>
         <meta 

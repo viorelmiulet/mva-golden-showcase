@@ -5,6 +5,7 @@ import Services from "@/components/Services"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect, lazy, Suspense } from "react"
 import { Helmet } from "react-helmet-async"
+import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 
 // Lazy load components that are below the fold
 const Properties = lazy(() => import("@/components/Properties"))
@@ -153,6 +154,7 @@ const Index = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[{ name: "Acasă", url: "/" }]} />
       <Helmet>
         <title>MVA Imobiliare - Agenție Imobiliară Premium în Chiajna și Vestul Bucureștiului</title>
         <meta name="description" content="MVA Imobiliare - Agenție imobiliară de încredere specializată în apartamente și case premium în Chiajna, Militari Residence și vestul Bucureștiului. Consultanță expertă în vânzare și cumpărare proprietăți." />

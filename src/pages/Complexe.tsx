@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/useFavorites";

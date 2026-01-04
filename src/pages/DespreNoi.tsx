@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import About from "@/components/About";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const DespreNoi = () => {
@@ -10,6 +11,10 @@ const DespreNoi = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: t.about.title, url: "/despre-noi" }
+      ]} />
       <Helmet>
         <title>{t.about.title} | MVA Imobiliare</title>
         <meta name="description" content={t.about.description} />

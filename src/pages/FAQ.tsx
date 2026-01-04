@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import {
   Accordion,
   AccordionContent,
@@ -30,6 +31,10 @@ const FAQ = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: t.faq.title, url: "/faq" }
+      ]} />
       <Helmet>
         <title>{t.faq.title} - FAQ | MVA Imobiliare</title>
         <meta name="description" content={t.faq.subtitle} />

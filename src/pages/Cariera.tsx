@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useLanguage } from "@/contexts/LanguageContext"
 import Breadcrumbs from "@/components/Breadcrumbs"
+import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 
 const Cariera = () => {
   const { t, language } = useLanguage();
@@ -129,6 +130,10 @@ const Cariera = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: language === 'ro' ? 'Carieră' : 'Career', url: "/cariera" }
+      ]} />
       <Helmet>
         <title>{language === 'ro' ? 'Carieră Agent Imobiliar - Alătură-te Echipei MVA Imobiliare București' : 'Real Estate Agent Career - Join MVA Imobiliare Team Bucharest'}</title>
         <meta

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const blogPosts: Record<string, {
   title: string;
@@ -1017,6 +1018,11 @@ const BlogPost = () => {
 
   return (
     <>
+      <BreadcrumbSchema items={[
+        { name: "Acasă", url: "/" },
+        { name: "Blog", url: "/blog" },
+        { name: post.title, url: `/blog/${slug}` }
+      ]} />
       <Helmet>
         <title>{post.title} | MVA Imobiliare Blog</title>
         <meta name="description" content={post.title} />

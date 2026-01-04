@@ -28,6 +28,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
