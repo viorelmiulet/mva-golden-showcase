@@ -49,7 +49,7 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
         const fileName = `rental-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `rentals/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
+        const { data, error: uploadError } = await supabase.storage
           .from("project-images")
           .upload(filePath, file, {
             cacheControl: "3600",
@@ -60,9 +60,14 @@ const RentalImageUpload = ({ images, onChange }: RentalImageUploadProps) => {
           console.error("Upload error:", uploadError);
           toast({
             title: "Eroare upload",
-            description: uploadError.message,
+            description: typeof uploadError.message === 'string' ? uploadError.message : "Eroare la încărcarea imaginii",
             variant: "destructive",
           });
+          continue;
+        }
+
+        if (!data?.path) {
+          console.error("Upload failed: no path returned");
           continue;
         }
 
