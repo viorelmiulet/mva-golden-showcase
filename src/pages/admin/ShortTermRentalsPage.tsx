@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format, addDays, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
+import { format, addDays, eachDayOfInterval, startOfMonth, endOfMonth, differenceInDays } from "date-fns";
 import { ro } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -160,6 +160,20 @@ const ShortTermRentalsPage = () => {
     total_price: 0,
     notes: "",
   });
+
+  // Auto-calculate total price when dates change
+  useEffect(() => {
+    if (manualBooking.check_in && manualBooking.check_out && selectedRentalForCalendar) {
+      const nights = differenceInDays(
+        new Date(manualBooking.check_out), 
+        new Date(manualBooking.check_in)
+      );
+      if (nights > 0) {
+        const calculatedPrice = nights * selectedRentalForCalendar.base_price;
+        setManualBooking(prev => ({ ...prev, total_price: calculatedPrice }));
+      }
+    }
+  }, [manualBooking.check_in, manualBooking.check_out, selectedRentalForCalendar]);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["admin-short-term-rentals"],
@@ -1650,6 +1664,19 @@ const ShortTermRentalsPage = () => {
               </div>
             </div>
 
+            {manualBooking.check_in && manualBooking.check_out && selectedRentalForCalendar && (
+              <div className="p-3 bg-muted rounded-lg text-sm">
+                <div className="flex justify-between items-center">
+                  <span>
+                    {differenceInDays(new Date(manualBooking.check_out), new Date(manualBooking.check_in))} nopți × {selectedRentalForCalendar.base_price} {selectedRentalForCalendar.currency}
+                  </span>
+                  <span className="font-medium">
+                    = {differenceInDays(new Date(manualBooking.check_out), new Date(manualBooking.check_in)) * selectedRentalForCalendar.base_price} {selectedRentalForCalendar.currency}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Număr oaspeți</Label>
@@ -1670,6 +1697,7 @@ const ShortTermRentalsPage = () => {
                   onChange={(e) => setManualBooking({ ...manualBooking, total_price: parseFloat(e.target.value) || 0 })}
                   placeholder="0"
                 />
+                <p className="text-xs text-muted-foreground mt-1">Poți modifica prețul calculat automat</p>
               </div>
             </div>
 
