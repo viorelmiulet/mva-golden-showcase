@@ -69,6 +69,8 @@ const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPa
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
+const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
+const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
 
 const queryClient = new QueryClient();
 
@@ -121,6 +123,7 @@ const App = () => {
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
+                <Route path="regim-hotelier" element={<ShortTermRentalsPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
@@ -131,6 +134,7 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
+              <Route path="/regim-hotelier" element={<RegimHotelier />} />
               <Route path="/sign/:token" element={<SignContract />} />
               
               {/* Mobile App Routes */}

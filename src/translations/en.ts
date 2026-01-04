@@ -17,6 +17,7 @@ export const en: TranslationKeys = {
     faq: "FAQ",
     whyUs: "Why Us",
     career: "Career",
+    shortTermRentals: "Short-Term Rentals",
   },
   
   // Hero Section

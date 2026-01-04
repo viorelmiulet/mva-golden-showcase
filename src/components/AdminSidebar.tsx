@@ -20,6 +20,7 @@ import {
   Package,
   Smartphone,
   History,
+  Hotel,
 } from "lucide-react";
 
 import {
@@ -40,6 +41,7 @@ const menuItems = [
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
+  { title: "Regim Hotelier", url: "/admin/regim-hotelier", icon: Hotel },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
   { title: "Clienți CRM", url: "/admin/clienti", icon: UserCheck },
