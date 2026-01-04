@@ -34,7 +34,11 @@ import {
   Upload,
   Link,
   Copy,
-  RefreshCw
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Settings2
 } from "lucide-react";
 
 interface ShortTermRental {
@@ -80,6 +84,20 @@ interface RentalBooking {
   short_term_rentals?: { title: string };
 }
 
+interface ICalSource {
+  id: string;
+  rental_id: string;
+  source_name: string;
+  ical_url: string;
+  is_active: boolean;
+  last_sync_at: string | null;
+  last_sync_status: string | null;
+  last_sync_error: string | null;
+  sync_interval_hours: number;
+  created_at: string;
+  short_term_rentals?: { title: string };
+}
+
 const emptyRental: Partial<ShortTermRental> = {
   title: "",
   description: "",
@@ -117,6 +135,8 @@ const ShortTermRentalsPage = () => {
   const [icalSourceName, setIcalSourceName] = useState("");
   const [importingIcal, setImportingIcal] = useState(false);
   const [selectedRentalForIcal, setSelectedRentalForIcal] = useState<ShortTermRental | null>(null);
+  const [syncingAll, setSyncingAll] = useState(false);
+  const [syncInterval, setSyncInterval] = useState(6);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["admin-short-term-rentals"],
@@ -141,6 +161,19 @@ const ShortTermRentalsPage = () => {
       
       if (error) throw error;
       return data as RentalBooking[];
+    },
+  });
+
+  const { data: icalSources = [], isLoading: icalSourcesLoading } = useQuery({
+    queryKey: ["admin-ical-sources"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("rental_ical_sources")
+        .select("*, short_term_rentals(title)")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data as ICalSource[];
     },
   });
 
@@ -252,6 +285,77 @@ const ShortTermRentalsPage = () => {
       toast({ title: "Disponibilitate actualizată!" });
     },
   });
+
+  const addIcalSourceMutation = useMutation({
+    mutationFn: async (data: { rental_id: string; source_name: string; ical_url: string; sync_interval_hours: number }) => {
+      const { error } = await supabase
+        .from("rental_ical_sources")
+        .insert(data);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      setIcalUrl("");
+      setIcalSourceName("");
+      setSyncInterval(6);
+      toast({ title: "Sursă iCal adăugată!", description: "Sincronizarea automată va rula periodic" });
+    },
+    onError: (error) => {
+      toast({ title: "Eroare", description: String(error), variant: "destructive" });
+    },
+  });
+
+  const deleteIcalSourceMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("rental_ical_sources")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      toast({ title: "Sursă ștearsă!" });
+    },
+  });
+
+  const toggleIcalSourceMutation = useMutation({
+    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      const { error } = await supabase
+        .from("rental_ical_sources")
+        .update({ is_active })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      toast({ title: "Status actualizat!" });
+    },
+  });
+
+  const syncAllSources = async () => {
+    setSyncingAll(true);
+    try {
+      const response = await supabase.functions.invoke("rental-ical-sync");
+      if (response.error) throw new Error(response.error.message);
+      
+      const data = response.data;
+      const successCount = data.results?.filter((r: any) => r.success).length || 0;
+      const errorCount = data.results?.filter((r: any) => !r.success).length || 0;
+      
+      queryClient.invalidateQueries({ queryKey: ["admin-ical-sources"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+      
+      toast({ 
+        title: "Sincronizare completă!", 
+        description: `${successCount} surse sincronizate cu succes${errorCount > 0 ? `, ${errorCount} erori` : ""}` 
+      });
+    } catch (error: any) {
+      toast({ title: "Eroare la sincronizare", description: error.message, variant: "destructive" });
+    } finally {
+      setSyncingAll(false);
+    }
+  };
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -506,117 +610,178 @@ const ShortTermRentalsPage = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="w-5 h-5" />
-                  Import Calendar (iCal)
+                  <Settings2 className="w-5 h-5" />
+                  Surse iCal configurate
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Importă calendare de pe alte platforme pentru a sincroniza rezervările.
-                </p>
-
-                <div>
-                  <Label>Selectează proprietatea</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {rentals.map(rental => (
-                      <Button
-                        key={rental.id}
-                        variant={selectedRentalForIcal?.id === rental.id ? "default" : "outline"}
-                        className="justify-start text-left h-auto py-2"
-                        onClick={() => setSelectedRentalForIcal(rental)}
-                      >
-                        <span className="truncate">{rental.title}</span>
-                      </Button>
-                    ))}
-                  </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Sursele configurate sunt sincronizate automat periodic.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={syncAllSources}
+                    disabled={syncingAll}
+                  >
+                    {syncingAll ? (
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                    )}
+                    Sincronizează acum
+                  </Button>
                 </div>
 
-                {selectedRentalForIcal && (
-                  <div className="space-y-3 p-4 bg-muted rounded-lg">
-                    <p className="font-medium text-sm">Import pentru: {selectedRentalForIcal.title}</p>
-                    
-                    <div>
-                      <Label>Numele sursei</Label>
-                      <Input
-                        value={icalSourceName}
-                        onChange={(e) => setIcalSourceName(e.target.value)}
-                        placeholder="ex: Airbnb, Booking.com"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Link iCal (URL)</Label>
-                      <Input
-                        value={icalUrl}
-                        onChange={(e) => setIcalUrl(e.target.value)}
-                        placeholder="https://..."
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Găsești acest link în setările calendarului de pe platforma respectivă
-                      </p>
-                    </div>
-
-                    <Button
-                      className="w-full"
-                      disabled={!icalUrl || importingIcal}
-                      onClick={async () => {
-                        if (!selectedRentalForIcal || !icalUrl) return;
-                        
-                        setImportingIcal(true);
-                        try {
-                          const response = await supabase.functions.invoke("rental-ical-import", {
-                            body: {
-                              rental_id: selectedRentalForIcal.id,
-                              ical_url: icalUrl,
-                              source_name: icalSourceName || "iCal",
-                            },
-                          });
-
-                          if (response.error) {
-                            throw new Error(response.error.message);
+                {icalSources.length === 0 ? (
+                  <p className="text-center py-4 text-muted-foreground">
+                    Nu există surse iCal configurate
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {icalSources.map(source => (
+                      <div key={source.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium truncate">{source.source_name}</p>
+                            {source.is_active ? (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Activ</Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-gray-50 text-gray-500">Inactiv</Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {source.short_term_rentals?.title}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <Clock className="w-3 h-3" />
+                            <span>La {source.sync_interval_hours}h</span>
+                            {source.last_sync_at && (
+                              <>
+                                <span>•</span>
+                                {source.last_sync_status === "success" ? (
+                                  <span className="flex items-center gap-1 text-green-600">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    {format(new Date(source.last_sync_at), "dd.MM HH:mm")}
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1 text-red-600">
+                                    <XCircle className="w-3 h-3" />
+                                    Eroare
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <Switch
+                          checked={source.is_active}
+                          onCheckedChange={(checked) => 
+                            toggleIcalSourceMutation.mutate({ id: source.id, is_active: checked })
                           }
-
-                          const data = response.data;
-                          toast({
-                            title: "Import reușit!",
-                            description: `${data.dates_imported} zile blocate importate din ${data.events_found} evenimente`,
-                          });
-                          
-                          queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
-                          setIcalUrl("");
-                          setIcalSourceName("");
-                        } catch (error: any) {
-                          console.error("Import error:", error);
-                          toast({
-                            title: "Eroare la import",
-                            description: error.message || "Nu s-a putut importa calendarul",
-                            variant: "destructive",
-                          });
-                        } finally {
-                          setImportingIcal(false);
-                        }
-                      }}
-                    >
-                      {importingIcal ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                          Se importă...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4 mr-2" />
-                          Importă calendarul
-                        </>
-                      )}
-                    </Button>
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            if (confirm("Ești sigur că vrei să ștergi această sursă?")) {
+                              deleteIcalSourceMutation.mutate(source.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 )}
+
+                <div className="border-t pt-4 space-y-3">
+                  <p className="font-medium text-sm">Adaugă sursă nouă</p>
+                  
+                  <div>
+                    <Label>Proprietate</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {rentals.map(rental => (
+                        <Button
+                          key={rental.id}
+                          variant={selectedRentalForIcal?.id === rental.id ? "default" : "outline"}
+                          className="justify-start text-left h-auto py-2"
+                          onClick={() => setSelectedRentalForIcal(rental)}
+                          size="sm"
+                        >
+                          <span className="truncate">{rental.title}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {selectedRentalForIcal && (
+                    <div className="space-y-3 p-4 bg-muted rounded-lg">
+                      <div>
+                        <Label>Numele sursei *</Label>
+                        <Input
+                          value={icalSourceName}
+                          onChange={(e) => setIcalSourceName(e.target.value)}
+                          placeholder="ex: Airbnb, Booking.com"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Link iCal (URL) *</Label>
+                        <Input
+                          value={icalUrl}
+                          onChange={(e) => setIcalUrl(e.target.value)}
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Interval sincronizare (ore)</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={24}
+                          value={syncInterval}
+                          onChange={(e) => setSyncInterval(parseInt(e.target.value) || 6)}
+                        />
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        disabled={!icalUrl || !icalSourceName || addIcalSourceMutation.isPending}
+                        onClick={() => {
+                          if (!selectedRentalForIcal) return;
+                          addIcalSourceMutation.mutate({
+                            rental_id: selectedRentalForIcal.id,
+                            source_name: icalSourceName,
+                            ical_url: icalUrl,
+                            sync_interval_hours: syncInterval,
+                          });
+                        }}
+                      >
+                        {addIcalSourceMutation.isPending ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            Se adaugă...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Adaugă sursă
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
 
                 <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
                   <p><strong>Sfaturi:</strong></p>
                   <p>• Airbnb: Setări → Calendar & disponibilitate → Export calendar</p>
                   <p>• Booking.com: Tarifuri și disponibilitate → Sincronizare calendar</p>
-                  <p>• Rulează importul periodic pentru actualizări</p>
+                  <p>• Sincronizarea automată rulează la intervalul configurat</p>
                 </div>
               </CardContent>
             </Card>
