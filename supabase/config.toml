@@ -62,3 +62,6 @@ verify_jwt = false
 
 [functions.rental-ical-import]
 verify_jwt = false
+
+[functions.rental-ical-sync]
+verify_jwt = false

@@ -1014,6 +1014,56 @@ export type Database = {
           },
         ]
       }
+      rental_ical_sources: {
+        Row: {
+          created_at: string
+          ical_url: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          last_sync_error: string | null
+          last_sync_status: string | null
+          rental_id: string
+          source_name: string
+          sync_interval_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ical_url: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          rental_id: string
+          source_name: string
+          sync_interval_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ical_url?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          rental_id?: string
+          source_name?: string
+          sync_interval_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_ical_sources_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "short_term_rentals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       short_term_rentals: {
         Row: {
           address: string | null
