@@ -81,6 +81,8 @@ const RegimHotelier = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [bookingForm, setBookingForm] = useState({
     guest_name: "",
     guest_email: "",
@@ -89,6 +91,38 @@ const RegimHotelier = () => {
     notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd || !selectedRental?.images?.length) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      // Swipe left = next image
+      setCurrentImageIndex((prev) => 
+        prev === selectedRental.images.length - 1 ? 0 : prev + 1
+      );
+    } else if (isRightSwipe) {
+      // Swipe right = previous image
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? selectedRental.images.length - 1 : prev - 1
+      );
+    }
+  };
 
   // Handle keyboard navigation in lightbox
   useEffect(() => {
@@ -801,13 +835,21 @@ const RegimHotelier = () => {
             </Button>
           </a>
 
-          {/* Main image */}
-          <img
-            src={selectedRental.images[currentImageIndex]}
-            alt={`${selectedRental.title} ${currentImageIndex + 1}`}
-            className="max-h-[85vh] max-w-[90vw] object-contain"
+          {/* Main image with swipe support */}
+          <div
+            className="max-h-[85vh] max-w-[90vw] flex items-center justify-center"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <img
+              src={selectedRental.images[currentImageIndex]}
+              alt={`${selectedRental.title} ${currentImageIndex + 1}`}
+              className="max-h-[85vh] max-w-[90vw] object-contain select-none pointer-events-none"
+              draggable={false}
+            />
+          </div>
 
           {/* Navigation buttons */}
           {selectedRental.images.length > 1 && (
