@@ -6,6 +6,7 @@ import { Calendar, User, ArrowRight, Clock, TrendingUp, Home, Lightbulb, PiggyBa
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const categories = [
   { id: "all", name: "Toate", icon: FileText },
@@ -180,6 +181,7 @@ const Blog = () => {
         {/* Hero Section */}
         <section className="py-12 sm:py-16 bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+            <Breadcrumbs items={[{ label: "Blog" }]} />
             <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                 Blog Imobiliar MVA

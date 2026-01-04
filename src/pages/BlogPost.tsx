@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const blogPosts: Record<string, {
   title: string;
@@ -1049,14 +1050,7 @@ const BlogPost = () => {
         <article className="py-8 sm:py-12 bg-background">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-4xl mx-auto">
-              {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                <Link to="/" className="hover:text-foreground transition-colors">Acasă</Link>
-                <span>/</span>
-                <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
-                <span>/</span>
-                <span className="text-foreground truncate">{post.title}</span>
-              </nav>
+              <Breadcrumbs items={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />
 
               {/* Back Button */}
               <Link to="/blog" className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors mb-6">
