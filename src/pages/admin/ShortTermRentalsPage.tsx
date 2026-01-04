@@ -1605,18 +1605,46 @@ const ShortTermRentalsPage = () => {
 
                 <div>
                   <Label>Check-in</Label>
-                  <Input
+                  <Select
                     value={editingRental.check_in_time || "14:00"}
-                    onChange={(e) => setEditingRental({ ...editingRental, check_in_time: e.target.value })}
-                  />
+                    onValueChange={(value) => setEditingRental({ ...editingRental, check_in_time: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Ora check-in" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 24 }, (_, i) => {
+                        const hour = i.toString().padStart(2, '0');
+                        return (
+                          <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
+                            {hour}:00
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label>Check-out</Label>
-                  <Input
+                  <Select
                     value={editingRental.check_out_time || "11:00"}
-                    onChange={(e) => setEditingRental({ ...editingRental, check_out_time: e.target.value })}
-                  />
+                    onValueChange={(value) => setEditingRental({ ...editingRental, check_out_time: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Ora check-out" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 24 }, (_, i) => {
+                        const hour = i.toString().padStart(2, '0');
+                        return (
+                          <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
+                            {hour}:00
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
