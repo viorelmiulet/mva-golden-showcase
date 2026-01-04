@@ -229,8 +229,8 @@ const handler = async (req: Request): Promise<Response> => {
                 <div class="contact-box">
                   <p style="margin: 0 0 10px;">Aveți întrebări? Suntem aici să vă ajutăm!</p>
                   <p style="margin: 0;">
-                    📞 <a href="tel:+40723229282">+40 723 229 282</a><br>
-                    ✉️ <a href="mailto:contact@mvaimobiliare.ro">contact@mvaimobiliare.ro</a>
+                    📞 <a href="tel:+40758433114">+40 758 433 114</a><br>
+                    ✉️ <a href="mailto:mvaperfectbusiness@gmail.com">mvaperfectbusiness@gmail.com</a>
                   </p>
                 </div>
               </div>
