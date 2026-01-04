@@ -29,7 +29,12 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  Save
+  Save,
+  Download,
+  Upload,
+  Link,
+  Copy,
+  RefreshCw
 } from "lucide-react";
 
 interface ShortTermRental {
@@ -108,6 +113,10 @@ const ShortTermRentalsPage = () => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [priceOverride, setPriceOverride] = useState("");
   const [blockDates, setBlockDates] = useState(false);
+  const [icalUrl, setIcalUrl] = useState("");
+  const [icalSourceName, setIcalSourceName] = useState("");
+  const [importingIcal, setImportingIcal] = useState(false);
+  const [selectedRentalForIcal, setSelectedRentalForIcal] = useState<ShortTermRental | null>(null);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["admin-short-term-rentals"],
@@ -298,6 +307,7 @@ const ShortTermRentalsPage = () => {
           <TabsTrigger value="properties">Proprietăți</TabsTrigger>
           <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
+          <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="properties" className="space-y-4">
@@ -437,6 +447,181 @@ const ShortTermRentalsPage = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="ical">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Download className="w-5 h-5" />
+                  Export Calendar (iCal)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Exportă calendarul de disponibilitate pentru a-l importa în alte platforme 
+                  (Airbnb, Booking.com, Google Calendar, etc.)
+                </p>
+
+                <div className="space-y-2">
+                  <Label>Selectează proprietatea</Label>
+                  {rentals.map(rental => (
+                    <div key={rental.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                      <div className="flex-1">
+                        <p className="font-medium">{rental.title}</p>
+                        <p className="text-xs text-muted-foreground">{rental.location}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/rental-ical-export?rental_id=${rental.id}`;
+                          navigator.clipboard.writeText(url);
+                          toast({ title: "Link copiat!", description: "Folosește acest link pentru import în alte platforme" });
+                        }}
+                      >
+                        <Copy className="w-4 h-4 mr-1" />
+                        Copiază link
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          window.open(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/rental-ical-export?rental_id=${rental.id}`, "_blank");
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        Descarcă
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {rentals.length === 0 && (
+                  <p className="text-center py-4 text-muted-foreground">
+                    Nu există proprietăți pentru export
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="w-5 h-5" />
+                  Import Calendar (iCal)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Importă calendare de pe alte platforme pentru a sincroniza rezervările.
+                </p>
+
+                <div>
+                  <Label>Selectează proprietatea</Label>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {rentals.map(rental => (
+                      <Button
+                        key={rental.id}
+                        variant={selectedRentalForIcal?.id === rental.id ? "default" : "outline"}
+                        className="justify-start text-left h-auto py-2"
+                        onClick={() => setSelectedRentalForIcal(rental)}
+                      >
+                        <span className="truncate">{rental.title}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedRentalForIcal && (
+                  <div className="space-y-3 p-4 bg-muted rounded-lg">
+                    <p className="font-medium text-sm">Import pentru: {selectedRentalForIcal.title}</p>
+                    
+                    <div>
+                      <Label>Numele sursei</Label>
+                      <Input
+                        value={icalSourceName}
+                        onChange={(e) => setIcalSourceName(e.target.value)}
+                        placeholder="ex: Airbnb, Booking.com"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Link iCal (URL)</Label>
+                      <Input
+                        value={icalUrl}
+                        onChange={(e) => setIcalUrl(e.target.value)}
+                        placeholder="https://..."
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Găsești acest link în setările calendarului de pe platforma respectivă
+                      </p>
+                    </div>
+
+                    <Button
+                      className="w-full"
+                      disabled={!icalUrl || importingIcal}
+                      onClick={async () => {
+                        if (!selectedRentalForIcal || !icalUrl) return;
+                        
+                        setImportingIcal(true);
+                        try {
+                          const response = await supabase.functions.invoke("rental-ical-import", {
+                            body: {
+                              rental_id: selectedRentalForIcal.id,
+                              ical_url: icalUrl,
+                              source_name: icalSourceName || "iCal",
+                            },
+                          });
+
+                          if (response.error) {
+                            throw new Error(response.error.message);
+                          }
+
+                          const data = response.data;
+                          toast({
+                            title: "Import reușit!",
+                            description: `${data.dates_imported} zile blocate importate din ${data.events_found} evenimente`,
+                          });
+                          
+                          queryClient.invalidateQueries({ queryKey: ["admin-rental-availability"] });
+                          setIcalUrl("");
+                          setIcalSourceName("");
+                        } catch (error: any) {
+                          console.error("Import error:", error);
+                          toast({
+                            title: "Eroare la import",
+                            description: error.message || "Nu s-a putut importa calendarul",
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setImportingIcal(false);
+                        }
+                      }}
+                    >
+                      {importingIcal ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Se importă...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Importă calendarul
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+                  <p><strong>Sfaturi:</strong></p>
+                  <p>• Airbnb: Setări → Calendar & disponibilitate → Export calendar</p>
+                  <p>• Booking.com: Tarifuri și disponibilitate → Sincronizare calendar</p>
+                  <p>• Rulează importul periodic pentru actualizări</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         <TabsContent value="calendar">
           <div className="grid md:grid-cols-2 gap-6">
             <Card>

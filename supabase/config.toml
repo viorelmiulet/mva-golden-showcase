@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.notify-contract-signed]
 verify_jwt = false
+
+[functions.rental-ical-export]
+verify_jwt = false
+
+[functions.rental-ical-import]
+verify_jwt = false
