@@ -308,8 +308,9 @@ const ShortTermRentalsPage = () => {
       setSyncInterval(6);
       toast({ title: "Sursă iCal adăugată!", description: "Sincronizarea automată va rula periodic" });
     },
-    onError: (error) => {
-      toast({ title: "Eroare", description: String(error), variant: "destructive" });
+    onError: (error: any) => {
+      const message = error?.message || (typeof error === 'string' ? error : 'Eroare la adăugarea sursei iCal');
+      toast({ title: "Eroare", description: message, variant: "destructive" });
     },
   });
 
