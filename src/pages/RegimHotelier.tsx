@@ -30,7 +30,10 @@ import {
   Wind,
   Coffee,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X,
+  ZoomIn,
+  Download
 } from "lucide-react";
 
 interface ShortTermRental {
@@ -77,6 +80,7 @@ const RegimHotelier = () => {
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [bookingForm, setBookingForm] = useState({
     guest_name: "",
     guest_email: "",
@@ -85,6 +89,28 @@ const RegimHotelier = () => {
     notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle keyboard navigation in lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxOpen || !selectedRental?.images?.length) return;
+      
+      if (e.key === 'ArrowLeft') {
+        setCurrentImageIndex((prev) => 
+          prev === 0 ? selectedRental.images.length - 1 : prev - 1
+        );
+      } else if (e.key === 'ArrowRight') {
+        setCurrentImageIndex((prev) => 
+          prev === selectedRental.images.length - 1 ? 0 : prev + 1
+        );
+      } else if (e.key === 'Escape') {
+        setLightboxOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, selectedRental?.images?.length]);
 
   const dateLocale = language === "ro" ? ro : enUS;
 
@@ -403,21 +429,33 @@ const RegimHotelier = () => {
                   {/* Images */}
                   <div className="space-y-4">
                     {selectedRental.images?.length > 0 ? (
-                      <div className="relative">
+                      <div className="relative group">
                         <img 
                           src={selectedRental.images[currentImageIndex]} 
                           alt={`${selectedRental.title} ${currentImageIndex + 1}`}
-                          className="w-full h-64 object-cover rounded-lg"
+                          className="w-full h-64 object-cover rounded-lg cursor-zoom-in"
+                          onClick={() => setLightboxOpen(true)}
                         />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setLightboxOpen(true)}
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                        </Button>
                         {selectedRental.images.length > 1 && (
                           <>
                             <Button
                               variant="ghost"
                               size="icon"
                               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10"
-                              onClick={() => setCurrentImageIndex((prev) => 
-                                prev === 0 ? selectedRental.images.length - 1 : prev - 1
-                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentImageIndex((prev) => 
+                                  prev === 0 ? selectedRental.images.length - 1 : prev - 1
+                                );
+                              }}
                             >
                               <ChevronLeft className="w-6 h-6" />
                             </Button>
@@ -425,9 +463,12 @@ const RegimHotelier = () => {
                               variant="ghost"
                               size="icon"
                               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10"
-                              onClick={() => setCurrentImageIndex((prev) => 
-                                prev === selectedRental.images.length - 1 ? 0 : prev + 1
-                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCurrentImageIndex((prev) => 
+                                  prev === selectedRental.images.length - 1 ? 0 : prev + 1
+                                );
+                              }}
                             >
                               <ChevronRight className="w-6 h-6" />
                             </Button>
@@ -725,6 +766,109 @@ const RegimHotelier = () => {
           </DialogContent>
         </Dialog>
       </main>
+
+      {/* Fullscreen Lightbox */}
+      {lightboxOpen && selectedRental?.images?.length > 0 && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full h-12 w-12 z-10"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <X className="w-6 h-6" />
+          </Button>
+
+          {/* Download button */}
+          <a
+            href={selectedRental.images[currentImageIndex]}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute top-4 right-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-white/10 hover:bg-white/20 text-white rounded-full h-12 w-12"
+            >
+              <Download className="w-5 h-5" />
+            </Button>
+          </a>
+
+          {/* Main image */}
+          <img
+            src={selectedRental.images[currentImageIndex]}
+            alt={`${selectedRental.title} ${currentImageIndex + 1}`}
+            className="max-h-[85vh] max-w-[90vw] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Navigation buttons */}
+          {selectedRental.images.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-14 w-14"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex((prev) => 
+                    prev === 0 ? selectedRental.images.length - 1 : prev - 1
+                  );
+                }}
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full h-14 w-14"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex((prev) => 
+                    prev === selectedRental.images.length - 1 ? 0 : prev + 1
+                  );
+                }}
+              >
+                <ChevronRight className="w-8 h-8" />
+              </Button>
+            </>
+          )}
+
+          {/* Image counter */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 text-white px-4 py-2 rounded-full text-sm">
+            {currentImageIndex + 1} / {selectedRental.images.length}
+          </div>
+
+          {/* Thumbnail strip */}
+          {selectedRental.images.length > 1 && (
+            <div 
+              className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto py-2 px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {selectedRental.images.map((img, i) => (
+                <img
+                  key={i}
+                  src={img}
+                  alt={`Thumbnail ${i + 1}`}
+                  className={`h-16 w-24 object-cover rounded cursor-pointer transition-all flex-shrink-0 ${
+                    currentImageIndex === i 
+                      ? 'ring-2 ring-white opacity-100 scale-105' 
+                      : 'opacity-50 hover:opacity-80'
+                  }`}
+                  onClick={() => setCurrentImageIndex(i)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <Footer />
     </>
