@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { 
   Clock, 
   MapPin, 
@@ -80,19 +81,14 @@ export const RecentlyViewed = ({
               <div key={property.id} className="relative group flex-shrink-0 w-[200px] sm:w-[240px]">
                 <Link to={`/proprietati/${property.id}`}>
                   <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg">
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      {property.image ? (
-                        <img
-                          src={property.image}
-                          alt={property.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Home className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
+                    <div className="relative overflow-hidden">
+                      <OptimizedPropertyImage
+                        src={property.image}
+                        alt={property.title}
+                        className="group-hover:scale-105 transition-transform duration-300"
+                        aspectRatio="4/3"
+                        quality={70}
+                      />
                       <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-[10px] px-1.5 py-0.5 rounded text-muted-foreground">
                         {formatTimeAgo(property.viewedAt)}
                       </div>
@@ -141,19 +137,14 @@ export const RecentlyViewed = ({
             <div key={property.id} className="relative group">
               <Link to={`/proprietati/${property.id}`}>
                 <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg h-full">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    {property.image ? (
-                      <img
-                        src={property.image}
-                        alt={property.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Home className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
+                  <div className="relative overflow-hidden">
+                    <OptimizedPropertyImage
+                      src={property.image}
+                      alt={property.title}
+                      className="group-hover:scale-105 transition-transform duration-300"
+                      aspectRatio="4/3"
+                      quality={65}
+                    />
                   </div>
                   <CardContent className="p-2">
                     <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-gold transition-colors">

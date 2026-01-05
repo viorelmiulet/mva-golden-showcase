@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { MapPin, Heart, Building2 } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -89,11 +90,13 @@ const MobileComplexes = () => {
               <Link key={complex.id} to={`/app/complex/${complex.id}`}>
                 <Card className="overflow-hidden hover:border-gold/30 transition-colors">
                   <div className="relative">
-                    <img
-                      src={complex.main_image || '/placeholder.svg'}
+                    <OptimizedPropertyImage
+                      src={complex.main_image}
                       alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu ${complex.available_apartments || 0} apartamente disponibile`}
                       title={complex.name}
-                      className="w-full h-48 object-cover"
+                      containerClassName="w-full h-48"
+                      aspectRatio="auto"
+                      quality={75}
                     />
                     <button
                       onClick={(e) => {
