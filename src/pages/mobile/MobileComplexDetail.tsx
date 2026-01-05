@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { 
   MapPin, 
   Home, 
@@ -151,11 +151,14 @@ const MobileComplexDetail = () => {
       {/* Hero image */}
       <div className="pt-14">
         <div className="relative h-56">
-          <img
-            src={complex.main_image || '/placeholder.svg'}
+          <OptimizedPropertyImage
+            src={complex.main_image}
             alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu apartamente moderne și facilități premium`}
             title={complex.name}
-            className="w-full h-full object-cover"
+            containerClassName="w-full h-full"
+            aspectRatio="auto"
+            priority
+            quality={85}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
@@ -298,10 +301,12 @@ const MobileComplexDetail = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           {apt.images && apt.images.length > 0 ? (
-                            <img 
-                              src={apt.images[0]} 
+                            <OptimizedPropertyImage
+                              src={apt.images[0]}
                               alt=""
-                              className="w-12 h-12 rounded-lg object-cover"
+                              containerClassName="w-12 h-12 rounded-lg"
+                              aspectRatio="auto"
+                              quality={60}
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">

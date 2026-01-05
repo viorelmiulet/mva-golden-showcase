@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { 
   MapPin, 
   Home, 
@@ -144,12 +145,15 @@ const MobilePropertyDetail = () => {
             className="w-full h-72 bg-muted cursor-pointer"
             onClick={() => setShowGallery(true)}
           >
-            {images.length > 0 ? (
-              <img
+          {images.length > 0 ? (
+              <OptimizedPropertyImage
                 src={images[currentImageIndex]}
                 alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
                 title={property.title}
-                className="w-full h-full object-cover"
+                containerClassName="w-full h-full"
+                aspectRatio="auto"
+                priority={currentImageIndex === 0}
+                quality={85}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -270,10 +274,12 @@ const MobilePropertyDetail = () => {
               <h2 className="font-semibold mb-3">
                 {language === 'ro' ? 'Plan apartament' : 'Floor Plan'}
               </h2>
-              <img
+              <OptimizedPropertyImage
                 src={property.floor_plan}
                 alt="Floor plan"
-                className="w-full rounded-lg"
+                containerClassName="w-full rounded-lg"
+                aspectRatio="auto"
+                quality={90}
               />
             </CardContent>
           </Card>
