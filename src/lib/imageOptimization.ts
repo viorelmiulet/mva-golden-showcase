@@ -1,5 +1,6 @@
 /**
  * Image optimization utilities for Supabase Storage
+ * With automatic WebP conversion for smaller file sizes
  */
 
 // Supabase project configuration
@@ -22,7 +23,26 @@ interface TransformOptions {
 }
 
 /**
- * Compress an image file before upload
+ * Check if browser supports WebP
+ */
+export const supportsWebP = (): boolean => {
+  if (typeof window === 'undefined') return true;
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+};
+
+/**
+ * Get the optimal image format based on browser support
+ */
+export const getOptimalFormat = (): 'webp' | 'jpeg' => {
+  return supportsWebP() ? 'webp' : 'jpeg';
+};
+
+/**
+ * Compress an image file before upload - defaults to WebP for smaller sizes
  * Reduces file size significantly while maintaining visual quality
  */
 export const compressImage = (
@@ -33,7 +53,7 @@ export const compressImage = (
     maxWidth = 1920,
     maxHeight = 1920,
     quality = 0.85,
-    format = 'jpeg'
+    format = 'webp' // Default to WebP for better compression
   } = options;
 
   return new Promise((resolve, reject) => {
@@ -71,17 +91,34 @@ export const compressImage = (
         // Draw the image
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to blob
+        // Convert to blob - try WebP first, fallback to JPEG
         const mimeType = format === 'webp' ? 'image/webp' : 
                          format === 'png' ? 'image/png' : 'image/jpeg';
         
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              console.log(`Image compressed: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB (${Math.round((1 - blob.size / file.size) * 100)}% reduction)`);
+              const reduction = Math.round((1 - blob.size / file.size) * 100);
+              console.log(`Image compressed to ${format.toUpperCase()}: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB (${reduction}% reduction)`);
               resolve(blob);
             } else {
-              reject(new Error('Failed to compress image'));
+              // Fallback to JPEG if WebP fails
+              if (format === 'webp') {
+                canvas.toBlob(
+                  (jpegBlob) => {
+                    if (jpegBlob) {
+                      console.log(`WebP failed, used JPEG: ${(file.size / 1024).toFixed(1)}KB → ${(jpegBlob.size / 1024).toFixed(1)}KB`);
+                      resolve(jpegBlob);
+                    } else {
+                      reject(new Error('Failed to compress image'));
+                    }
+                  },
+                  'image/jpeg',
+                  quality
+                );
+              } else {
+                reject(new Error('Failed to compress image'));
+              }
             }
           },
           mimeType,
@@ -98,21 +135,22 @@ export const compressImage = (
 };
 
 /**
- * Compress an image file and return as a File object
+ * Compress an image file and return as a File object - defaults to WebP
  */
 export const compressImageToFile = async (
   file: File,
   options: ImageCompressionOptions = {}
 ): Promise<File> => {
-  const blob = await compressImage(file, options);
-  const extension = options.format === 'webp' ? 'webp' : 
-                    options.format === 'png' ? 'png' : 'jpg';
+  const format = options.format || 'webp';
+  const blob = await compressImage(file, { ...options, format });
+  const extension = format === 'webp' ? 'webp' : 
+                    format === 'png' ? 'png' : 'jpg';
   const newName = file.name.replace(/\.[^.]+$/, `.${extension}`);
   return new File([blob], newName, { type: blob.type });
 };
 
 /**
- * Generate an optimized Supabase Storage URL with transformations
+ * Generate an optimized Supabase Storage URL with WebP transformation
  * Uses Supabase's built-in image transformation API
  */
 export const getSupabaseTransformUrl = (
@@ -125,7 +163,7 @@ export const getSupabaseTransformUrl = (
     height, 
     quality = 80, 
     resize = 'contain',
-    format = 'webp'
+    format = 'webp' // Default to WebP
   } = options;
 
   const params = new URLSearchParams();
@@ -140,7 +178,7 @@ export const getSupabaseTransformUrl = (
 };
 
 /**
- * Get optimized image URL with automatic sizing based on screen
+ * Get optimized image URL with automatic WebP conversion
  * Supports both Supabase URLs and external URLs
  */
 export const getOptimizedImageUrl = (
@@ -164,7 +202,7 @@ export const getOptimizedImageUrl = (
     }
   }
 
-  // For URLs that already have render endpoint, update params
+  // For URLs that already have render endpoint, ensure WebP format
   if (url.includes('supabase.co/storage/v1/render/')) {
     const baseUrl = url.split('?')[0];
     const params = new URLSearchParams();
@@ -180,7 +218,7 @@ export const getOptimizedImageUrl = (
 };
 
 /**
- * Generate srcset for responsive images
+ * Generate srcset for responsive images with WebP format
  */
 export const generateSrcSet = (url: string, sizes: number[]): string => {
   if (!url) return '';
@@ -191,18 +229,23 @@ export const generateSrcSet = (url: string, sizes: number[]): string => {
 };
 
 /**
- * Preset configurations for different use cases
+ * Default responsive sizes for srcset
+ */
+export const defaultSrcSetSizes = [320, 480, 640, 768, 1024, 1280, 1536, 1920];
+
+/**
+ * Preset configurations for different use cases - all with WebP
  */
 export const imagePresets = {
-  thumbnail: { width: 150, height: 150, quality: 60 },
-  card: { width: 400, height: 300, quality: 75 },
-  main: { width: 800, height: 600, quality: 80 },
-  lightbox: { width: 1920, height: 1080, quality: 90 },
-  full: { width: 1920, height: 1920, quality: 85 }
+  thumbnail: { width: 150, height: 150, quality: 60, format: 'webp' as const },
+  card: { width: 400, height: 300, quality: 75, format: 'webp' as const },
+  main: { width: 800, height: 600, quality: 80, format: 'webp' as const },
+  lightbox: { width: 1920, height: 1080, quality: 90, format: 'webp' as const },
+  full: { width: 1920, height: 1920, quality: 85, format: 'webp' as const }
 } as const;
 
 /**
- * Upload image with automatic compression
+ * Upload image with automatic WebP compression
  */
 export const uploadOptimizedImage = async (
   supabase: any,
@@ -212,21 +255,25 @@ export const uploadOptimizedImage = async (
   compressionOptions?: ImageCompressionOptions
 ): Promise<{ url: string; error: Error | null }> => {
   try {
-    // Compress the image before upload
+    // Compress the image to WebP before upload
     const compressedFile = await compressImageToFile(file, {
       maxWidth: 1920,
       maxHeight: 1920,
       quality: 0.85,
-      format: 'jpeg',
+      format: 'webp', // Default to WebP for best compression
       ...compressionOptions
     });
+
+    // Update file path to use .webp extension
+    const webpFilePath = filePath.replace(/\.[^.]+$/, '.webp');
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from(bucketName)
-      .upload(filePath, compressedFile, {
+      .upload(webpFilePath, compressedFile, {
         cacheControl: '31536000', // 1 year cache
-        upsert: true
+        upsert: true,
+        contentType: 'image/webp'
       });
 
     if (uploadError) {
@@ -236,11 +283,19 @@ export const uploadOptimizedImage = async (
     // Get the public URL
     const { data } = supabase.storage
       .from(bucketName)
-      .getPublicUrl(filePath);
+      .getPublicUrl(webpFilePath);
 
     return { url: data.publicUrl, error: null };
   } catch (error) {
     console.error('Error uploading optimized image:', error);
     return { url: '', error: error as Error };
   }
+};
+
+/**
+ * Convert image URL to WebP format using Supabase transform
+ * Works for any Supabase storage image
+ */
+export const toWebP = (url: string, width?: number): string => {
+  return getOptimizedImageUrl(url, width || 1920, 80);
 };
