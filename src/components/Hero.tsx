@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowDown, Sparkles, MapPin, Phone, UserPlus } from "lucide-react"
@@ -7,11 +8,17 @@ import { CollaborationForm } from "@/components/CollaborationForm"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { addPreloadLink } from "@/hooks/useImagePreload"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
   const { data: stats, isLoading } = useRealEstateStats();
   const { t, language } = useLanguage();
+
+  // Preload hero image immediately for LCP optimization
+  useEffect(() => {
+    addPreloadLink(heroProperty, { width: 1920, quality: 85, priority: 'high' });
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);

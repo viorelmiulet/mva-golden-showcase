@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { MapPin, Home, Ruler, ArrowRight, Sparkles, Building2, Heart } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCriticalImagePreload } from "@/hooks/useImagePreload";
 
 const MobileHome = () => {
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
@@ -67,6 +69,15 @@ const MobileHome = () => {
 
   const properties = featuredProperties.length > 0 ? featuredProperties : recentProperties;
   const isLoading = loadingProperties || loadingRecent;
+
+  // Preload first visible images for LCP optimization
+  const firstPropertyImages = properties.slice(0, 2).map(p => p.images?.[0]);
+  const firstComplexImages = complexes.slice(0, 2).map(c => c.main_image);
+  useCriticalImagePreload([...firstPropertyImages, ...firstComplexImages], { 
+    width: 400, 
+    quality: 75, 
+    priority: 'high' 
+  });
 
   const formatPrice = (price: number, currency: string = 'EUR') => {
     return new Intl.NumberFormat('ro-RO', {
