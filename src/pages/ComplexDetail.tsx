@@ -29,6 +29,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
@@ -397,13 +398,14 @@ const ComplexDetail = () => {
 
             {project.main_image && (
               <div className="rounded-lg overflow-hidden shadow-2xl">
-                <img
+                <OptimizedPropertyImage
                   src={project.main_image}
                   alt={`${project.name} - complex rezidențial în ${project.location || 'București'} cu apartamente moderne, finisaje premium și facilități complete`}
                   title={`${project.name} - ${project.price_range || 'Complex rezidențial premium'}`}
-                  className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px] object-cover"
-                  loading="lazy"
-                  itemProp="image"
+                  containerClassName="w-full h-48 sm:h-64 md:h-80 lg:h-[400px]"
+                  aspectRatio="auto"
+                  priority
+                  quality={85}
                 />
               </div>
             )}
