@@ -10,11 +10,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Wand2, Download, Loader2, Image, Upload, X, Settings2, Layers, CheckSquare, Save, FolderOpen, Trash2 } from "lucide-react";
+import { Wand2, Download, Loader2, Image, Upload, X, Settings2, Layers, CheckSquare, Save, FolderOpen, Trash2, Search, Filter, Calendar, RefreshCw } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+import { ro } from "date-fns/locale";
 
 const ROOM_TYPES = [
   { value: "living", label: "Living modern" },
@@ -943,6 +947,103 @@ const ImageGallery = ({
   onDelete: (filename: string) => void;
   onRefresh: () => void;
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRoomFilter, setSelectedRoomFilter] = useState<string>("all");
+  const [selectedStyleFilter, setSelectedStyleFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+
+  // Extract room types and styles from filenames
+  const extractRoomFromFilename = (filename: string): string => {
+    const roomMappings: Record<string, string> = {
+      'living': 'Living',
+      'bedroom': 'Dormitor',
+      'kitchen': 'Bucătărie',
+      'bathroom': 'Baie',
+      'office': 'Birou',
+      'dining': 'Sufragerie',
+      'balcony': 'Balcon/Terasă',
+      'hallway': 'Hol',
+      'exterior': 'Exterior',
+      'pool': 'Piscină',
+      'garden': 'Grădină',
+    };
+
+    const lowerFilename = filename.toLowerCase();
+    for (const [key, label] of Object.entries(roomMappings)) {
+      if (lowerFilename.includes(key)) {
+        return label;
+      }
+    }
+    return 'Altele';
+  };
+
+  const extractStyleFromFilename = (filename: string): string => {
+    const styleMappings: Record<string, string> = {
+      'modern': 'Modern',
+      'minimalist': 'Minimalist',
+      'classic': 'Clasic',
+      'scandinavian': 'Scandinav',
+      'industrial': 'Industrial',
+      'luxury': 'Luxos',
+      'bohemian': 'Boho',
+      'art-deco': 'Art Deco',
+      'rustic': 'Rustic',
+      'coastal': 'Mediteranean',
+    };
+
+    const lowerFilename = filename.toLowerCase();
+    for (const [key, label] of Object.entries(styleMappings)) {
+      if (lowerFilename.includes(key)) {
+        return label;
+      }
+    }
+    return 'Altele';
+  };
+
+  // Get unique room types and styles from images
+  const roomTypes = ['all', ...new Set(images.map(img => extractRoomFromFilename(img.name)))];
+  const styles = ['all', ...new Set(images.map(img => extractStyleFromFilename(img.name)))];
+
+  // Filter images
+  const filteredImages = images.filter(img => {
+    // Search filter
+    if (searchQuery && !img.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    // Room type filter
+    if (selectedRoomFilter !== 'all' && extractRoomFromFilename(img.name) !== selectedRoomFilter) {
+      return false;
+    }
+
+    // Style filter
+    if (selectedStyleFilter !== 'all' && extractStyleFromFilename(img.name) !== selectedStyleFilter) {
+      return false;
+    }
+
+    // Date range filter
+    const imageDate = new Date(img.createdAt);
+    if (dateFrom && isBefore(imageDate, startOfDay(dateFrom))) {
+      return false;
+    }
+    if (dateTo && isAfter(imageDate, endOfDay(dateTo))) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedRoomFilter("all");
+    setSelectedStyleFilter("all");
+    setDateFrom(undefined);
+    setDateTo(undefined);
+  };
+
+  const hasActiveFilters = searchQuery || selectedRoomFilter !== 'all' || selectedStyleFilter !== 'all' || dateFrom || dateTo;
+
   const downloadFromGallery = async (url: string, filename: string) => {
     try {
       const response = await fetch(url);
@@ -981,60 +1082,175 @@ const ImageGallery = ({
 
   return (
     <div className="space-y-4">
+      {/* Search and Filter Section */}
+      <div className="space-y-3">
+        {/* Search bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Caută imagini..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Filters row */}
+        <div className="flex flex-wrap gap-2">
+          {/* Room type filter */}
+          <Select value={selectedRoomFilter} onValueChange={setSelectedRoomFilter}>
+            <SelectTrigger className="w-[160px]">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Tip cameră" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toate camerele</SelectItem>
+              {roomTypes.filter(r => r !== 'all').map(room => (
+                <SelectItem key={room} value={room}>{room}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Style filter */}
+          <Select value={selectedStyleFilter} onValueChange={setSelectedStyleFilter}>
+            <SelectTrigger className="w-[160px]">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Stil" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toate stilurile</SelectItem>
+              {styles.filter(s => s !== 'all').map(style => (
+                <SelectItem key={style} value={style}>{style}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Date from filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+                <Calendar className="w-4 h-4 mr-2" />
+                {dateFrom ? format(dateFrom, 'dd.MM.yyyy') : 'De la...'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={dateFrom}
+                onSelect={setDateFrom}
+                locale={ro}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Date to filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+                <Calendar className="w-4 h-4 mr-2" />
+                {dateTo ? format(dateTo, 'dd.MM.yyyy') : 'Până la...'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={dateTo}
+                onSelect={setDateTo}
+                locale={ro}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Clear filters button */}
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="w-4 h-4 mr-1" />
+              Resetează
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Results header */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {images.length} imagini salvate
+          {filteredImages.length === images.length 
+            ? `${images.length} imagini salvate`
+            : `${filteredImages.length} din ${images.length} imagini`
+          }
         </p>
         <Button variant="outline" size="sm" onClick={onRefresh}>
-          <Loader2 className="w-4 h-4 mr-2" />
+          <RefreshCw className="w-4 h-4 mr-2" />
           Reîncarcă
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((img) => (
-          <div key={img.name} className="relative group">
-            <img
-              src={img.url}
-              alt={img.name}
-              className="w-full h-40 object-cover rounded-lg"
-            />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => downloadFromGallery(img.url, img.name)}
-              >
-                <Download className="w-4 h-4" />
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Șterge imaginea?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Această acțiune nu poate fi anulată. Imaginea va fi ștearsă permanent din galerie.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Anulează</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(img.name)}>
-                      Șterge
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+      {/* Images grid */}
+      {filteredImages.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>Nu s-au găsit imagini</p>
+          <p className="text-sm">Încearcă să modifici filtrele sau să cauți altceva</p>
+          <Button variant="link" onClick={clearFilters} className="mt-2">
+            Resetează filtrele
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredImages.map((img) => (
+            <div key={img.name} className="relative group">
+              <img
+                src={img.url}
+                alt={img.name}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+              <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%]">
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
+                  {extractRoomFromFilename(img.name)}
+                </Badge>
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 bg-background/80">
+                  {extractStyleFromFilename(img.name)}
+                </Badge>
+              </div>
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => downloadFromGallery(img.url, img.name)}
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="destructive">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Șterge imaginea?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Această acțiune nu poate fi anulată. Imaginea va fi ștearsă permanent din galerie.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Anulează</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => onDelete(img.name)}>
+                        Șterge
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <p className="text-xs mt-1 text-center truncate text-muted-foreground">
+                {format(new Date(img.createdAt), 'dd MMM yyyy, HH:mm', { locale: ro })}
+              </p>
             </div>
-            <p className="text-xs mt-1 text-center truncate text-muted-foreground">
-              {new Date(img.createdAt).toLocaleDateString('ro-RO')}
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
