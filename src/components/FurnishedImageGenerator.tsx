@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Wand2, Download, Loader2, Image } from "lucide-react";
+import { Wand2, Download, Loader2, Image, Upload, X, Settings2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const ROOM_TYPES = [
   { value: "living", label: "Living modern" },
@@ -16,6 +20,9 @@ const ROOM_TYPES = [
   { value: "dining", label: "Sufragerie" },
   { value: "balcony", label: "Balcon/Terasă" },
   { value: "hallway", label: "Hol" },
+  { value: "exterior", label: "Exterior clădire" },
+  { value: "pool", label: "Piscină" },
+  { value: "garden", label: "Grădină" },
 ];
 
 const STYLES = [
@@ -25,6 +32,44 @@ const STYLES = [
   { value: "scandinavian", label: "Scandinav" },
   { value: "industrial", label: "Industrial" },
   { value: "luxury", label: "Luxos" },
+  { value: "bohemian", label: "Boho" },
+  { value: "art_deco", label: "Art Deco" },
+  { value: "rustic", label: "Rustic" },
+  { value: "coastal", label: "Mediteranean" },
+];
+
+const ASPECT_RATIOS = [
+  { value: "1:1", label: "1:1 (Pătrat)" },
+  { value: "16:9", label: "16:9 (Landscape)" },
+  { value: "9:16", label: "9:16 (Portrait/Stories)" },
+  { value: "4:3", label: "4:3 (Standard)" },
+  { value: "3:2", label: "3:2 (Foto)" },
+];
+
+const LIGHTING_OPTIONS = [
+  { value: "natural", label: "Lumină naturală" },
+  { value: "warm", label: "Caldă (golden hour)" },
+  { value: "bright", label: "Luminoasă" },
+  { value: "dramatic", label: "Dramatică" },
+  { value: "soft", label: "Soft/Difuză" },
+  { value: "evening", label: "Seară/Noapte" },
+];
+
+const PHOTO_STYLES = [
+  { value: "professional", label: "Profesional imobiliar" },
+  { value: "magazine", label: "Stil revistă" },
+  { value: "cozy", label: "Atmosferă caldă" },
+  { value: "staging", label: "Home staging" },
+  { value: "3d_render", label: "Render 3D" },
+  { value: "architectural", label: "Arhitectural" },
+];
+
+const LOGO_POSITIONS = [
+  { value: "bottom-right", label: "Dreapta jos" },
+  { value: "bottom-left", label: "Stânga jos" },
+  { value: "top-right", label: "Dreapta sus" },
+  { value: "top-left", label: "Stânga sus" },
+  { value: "center", label: "Centru" },
 ];
 
 export const FurnishedImageGenerator = () => {
@@ -32,8 +77,57 @@ export const FurnishedImageGenerator = () => {
   const [roomType, setRoomType] = useState("living");
   const [style, setStyle] = useState("modern");
   const [numberOfImages, setNumberOfImages] = useState("4");
+  const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [lighting, setLighting] = useState("natural");
+  const [photoStyle, setPhotoStyle] = useState("professional");
+  
+  // Logo options
+  const [includeLogo, setIncludeLogo] = useState(false);
+  const [useCustomLogo, setUseCustomLogo] = useState(false);
+  const [customLogoBase64, setCustomLogoBase64] = useState<string | null>(null);
+  const [customLogoPreview, setCustomLogoPreview] = useState<string | null>(null);
+  const [logoPosition, setLogoPosition] = useState("bottom-right");
+  const [logoSize, setLogoSize] = useState("medium");
+  
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<{ index: number; imageUrl: string; roomType: string }[]>([]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Vă rugăm să încărcați doar imagini");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Logo-ul trebuie să fie sub 2MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setCustomLogoBase64(base64);
+      setCustomLogoPreview(base64);
+      setUseCustomLogo(true);
+      toast.success("Logo încărcat cu succes");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeCustomLogo = () => {
+    setCustomLogoBase64(null);
+    setCustomLogoPreview(null);
+    setUseCustomLogo(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const generateImages = async () => {
     if (!description.trim()) {
@@ -52,7 +146,15 @@ export const FurnishedImageGenerator = () => {
           description,
           roomType,
           style,
-          numberOfImages: parseInt(numberOfImages)
+          numberOfImages: parseInt(numberOfImages),
+          aspectRatio,
+          lighting,
+          photoStyle,
+          includeLogo,
+          useCustomLogo: includeLogo && useCustomLogo,
+          customLogoBase64: includeLogo && useCustomLogo ? customLogoBase64 : null,
+          logoPosition,
+          logoSize
         }
       });
 
@@ -80,7 +182,7 @@ export const FurnishedImageGenerator = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `apartament-${index}.png`;
+      a.download = `apartament-${roomType}-${style}-${index}.png`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -106,11 +208,12 @@ export const FurnishedImageGenerator = () => {
           Generator Imagini Apartamente
         </CardTitle>
         <CardDescription>
-          Generează imagini sugestive pentru anunțuri imobiliare bazate pe descriere
+          Generează imagini sugestive pentru anunțuri imobiliare cu opțiuni avansate de personalizare
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
+          {/* Basic Options */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Tip Cameră</label>
@@ -161,6 +264,198 @@ export const FurnishedImageGenerator = () => {
             </div>
           </div>
 
+          {/* Advanced Options Collapsible */}
+          <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" className="w-full justify-between" disabled={isGenerating}>
+                <span className="flex items-center gap-2">
+                  <Settings2 className="w-4 h-4" />
+                  Opțiuni Avansate
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {advancedOpen ? "Ascunde" : "Arată"}
+                </span>
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-4">
+              {/* Photo Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Aspect Ratio</label>
+                  <Select value={aspectRatio} onValueChange={setAspectRatio} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASPECT_RATIOS.map((ar) => (
+                        <SelectItem key={ar.value} value={ar.value}>
+                          {ar.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Iluminare</label>
+                  <Select value={lighting} onValueChange={setLighting} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LIGHTING_OPTIONS.map((l) => (
+                        <SelectItem key={l.value} value={l.value}>
+                          {l.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Stil Foto</label>
+                  <Select value={photoStyle} onValueChange={setPhotoStyle} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PHOTO_STYLES.map((ps) => (
+                        <SelectItem key={ps.value} value={ps.value}>
+                          {ps.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Logo Section */}
+              <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="include-logo" className="text-sm font-medium">
+                      Adaugă Logo pe Imagini
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Logo-ul va fi aplicat pe toate imaginile generate
+                    </p>
+                  </div>
+                  <Switch
+                    id="include-logo"
+                    checked={includeLogo}
+                    onCheckedChange={setIncludeLogo}
+                    disabled={isGenerating}
+                  />
+                </div>
+
+                {includeLogo && (
+                  <div className="space-y-4 pt-2 border-t">
+                    {/* Logo Type Selection */}
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          id="default-logo"
+                          name="logo-type"
+                          checked={!useCustomLogo}
+                          onChange={() => setUseCustomLogo(false)}
+                          disabled={isGenerating}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor="default-logo" className="text-sm cursor-pointer">
+                          Logo MVA Imobiliare
+                        </Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          id="custom-logo"
+                          name="logo-type"
+                          checked={useCustomLogo}
+                          onChange={() => setUseCustomLogo(true)}
+                          disabled={isGenerating}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor="custom-logo" className="text-sm cursor-pointer">
+                          Logo personalizat
+                        </Label>
+                      </div>
+                    </div>
+
+                    {/* Custom Logo Upload */}
+                    {useCustomLogo && (
+                      <div className="space-y-2">
+                        <Label className="text-sm">Încarcă Logo</Label>
+                        <div className="flex items-center gap-3">
+                          <Input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            disabled={isGenerating}
+                            className="max-w-xs"
+                          />
+                          {customLogoPreview && (
+                            <div className="relative">
+                              <img
+                                src={customLogoPreview}
+                                alt="Custom logo preview"
+                                className="h-12 w-auto rounded border bg-white p-1"
+                              />
+                              <button
+                                onClick={removeCustomLogo}
+                                className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                                disabled={isGenerating}
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Format: PNG, JPG, WebP. Max 2MB. Recomandat: fundal transparent.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Logo Position & Size */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm">Poziție Logo</Label>
+                        <Select value={logoPosition} onValueChange={setLogoPosition} disabled={isGenerating}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LOGO_POSITIONS.map((pos) => (
+                              <SelectItem key={pos.value} value={pos.value}>
+                                {pos.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-sm">Mărime Logo</Label>
+                        <Select value={logoSize} onValueChange={setLogoSize} disabled={isGenerating}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="small">Mic</SelectItem>
+                            <SelectItem value="medium">Mediu</SelectItem>
+                            <SelectItem value="large">Mare</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Descriere Apartament
