@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,9 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Wand2, Download, Loader2, Image, Upload, X, Settings2, Layers, CheckSquare } from "lucide-react";
+import { Wand2, Download, Loader2, Image, Upload, X, Settings2, Layers, CheckSquare, Save, FolderOpen, Trash2 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const ROOM_TYPES = [
   { value: "living", label: "Living modern" },
@@ -100,10 +102,131 @@ export const FurnishedImageGenerator = () => {
   const [logoSize, setLogoSize] = useState("medium");
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<{ index: number; imageUrl: string; roomType: string }[]>([]);
+  const [savedImages, setSavedImages] = useState<{ name: string; url: string; createdAt: string }[]>([]);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("generator");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load saved images from storage on mount
+  useEffect(() => {
+    if (activeTab === "gallery") {
+      loadSavedImages();
+    }
+  }, [activeTab]);
+
+  const loadSavedImages = async () => {
+    setIsLoadingGallery(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('virtual-staging')
+        .list('generated-images', {
+          limit: 100,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+
+      if (error) throw error;
+
+      const images = await Promise.all(
+        (data || []).map(async (file) => {
+          const { data: urlData } = supabase.storage
+            .from('virtual-staging')
+            .getPublicUrl(`generated-images/${file.name}`);
+          
+          return {
+            name: file.name,
+            url: urlData.publicUrl,
+            createdAt: file.created_at || new Date().toISOString()
+          };
+        })
+      );
+
+      setSavedImages(images);
+    } catch (error) {
+      console.error('Error loading saved images:', error);
+      toast.error("Eroare la încărcarea galeriei");
+    } finally {
+      setIsLoadingGallery(false);
+    }
+  };
+
+  const saveImageToStorage = async (imageUrl: string, roomType: string, index: number) => {
+    try {
+      // Fetch the image and convert to blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const sanitizedRoomType = roomType.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      const filename = `${sanitizedRoomType}-${timestamp}-${index}.png`;
+      
+      const { error } = await supabase.storage
+        .from('virtual-staging')
+        .upload(`generated-images/${filename}`, blob, {
+          contentType: 'image/png',
+          upsert: false
+        });
+
+      if (error) throw error;
+      
+      return filename;
+    } catch (error) {
+      console.error('Error saving image:', error);
+      throw error;
+    }
+  };
+
+  const saveAllImagesToStorage = async () => {
+    if (generatedImages.length === 0) {
+      toast.error("Nu există imagini de salvat");
+      return;
+    }
+
+    setIsSaving(true);
+    let savedCount = 0;
+
+    try {
+      toast.info(`Salvez ${generatedImages.length} imagini în galerie...`);
+
+      for (const img of generatedImages) {
+        try {
+          await saveImageToStorage(img.imageUrl, img.roomType, img.index);
+          savedCount++;
+        } catch (err) {
+          console.error(`Error saving image ${img.index}:`, err);
+        }
+      }
+
+      if (savedCount > 0) {
+        toast.success(`${savedCount} imagini salvate în galerie!`);
+        loadSavedImages();
+      } else {
+        toast.error("Nu s-a putut salva nicio imagine");
+      }
+    } catch (error) {
+      console.error('Error saving images:', error);
+      toast.error("Eroare la salvarea imaginilor");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveSingleImage = async (img: { imageUrl: string; roomType: string; index: number }) => {
+    setIsSaving(true);
+    try {
+      await saveImageToStorage(img.imageUrl, img.roomType, img.index);
+      toast.success("Imaginea a fost salvată în galerie!");
+      loadSavedImages();
+    } catch (error) {
+      toast.error("Eroare la salvarea imaginii");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const toggleRoomType = (roomValue: string) => {
     setSelectedRoomTypes(prev => 
@@ -119,6 +242,22 @@ export const FurnishedImageGenerator = () => {
 
   const clearAllRooms = () => {
     setSelectedRoomTypes([]);
+  };
+
+  const deleteFromGallery = async (filename: string) => {
+    try {
+      const { error } = await supabase.storage
+        .from('virtual-staging')
+        .remove([`generated-images/${filename}`]);
+
+      if (error) throw error;
+
+      setSavedImages(prev => prev.filter(img => img.name !== filename));
+      toast.success("Imaginea a fost ștearsă");
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error("Eroare la ștergerea imaginii");
+    }
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -727,18 +866,33 @@ export const FurnishedImageGenerator = () => {
 
         {generatedImages.length > 0 && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <h3 className="text-lg font-semibold">
                 Imagini Generate ({generatedImages.length})
               </h3>
-              <Button 
-                variant="outline" 
-                onClick={downloadAllImages}
-                size="sm"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Descarcă Toate
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={saveAllImagesToStorage}
+                  size="sm"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-2" />
+                  )}
+                  Salvează în Galerie
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={downloadAllImages}
+                  size="sm"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Descarcă Toate
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -749,7 +903,15 @@ export const FurnishedImageGenerator = () => {
                     alt={`Apartament ${img.index}`}
                     className="w-full h-40 object-cover rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => saveSingleImage(img)}
+                      disabled={isSaving}
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
                     <Button
                       size="sm"
                       variant="secondary"
@@ -767,4 +929,117 @@ export const FurnishedImageGenerator = () => {
       </CardContent>
     </Card>
   );
+};
+
+// Gallery Component
+const ImageGallery = ({ 
+  images, 
+  isLoading, 
+  onDelete,
+  onRefresh 
+}: { 
+  images: { name: string; url: string; createdAt: string }[];
+  isLoading: boolean;
+  onDelete: (filename: string) => void;
+  onRefresh: () => void;
+}) => {
+  const downloadFromGallery = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+      toast.success("Imaginea a fost descărcată");
+    } catch (error) {
+      toast.error("Eroare la descărcarea imaginii");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <FolderOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p>Nu există imagini salvate în galerie</p>
+        <p className="text-sm">Generează și salvează imagini pentru a le vedea aici</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {images.length} imagini salvate
+        </p>
+        <Button variant="outline" size="sm" onClick={onRefresh}>
+          <Loader2 className="w-4 h-4 mr-2" />
+          Reîncarcă
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {images.map((img) => (
+          <div key={img.name} className="relative group">
+            <img
+              src={img.url}
+              alt={img.name}
+              className="w-full h-40 object-cover rounded-lg"
+            />
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => downloadFromGallery(img.url, img.name)}
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="destructive">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Șterge imaginea?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Această acțiune nu poate fi anulată. Imaginea va fi ștearsă permanent din galerie.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(img.name)}>
+                      Șterge
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <p className="text-xs mt-1 text-center truncate text-muted-foreground">
+              {new Date(img.createdAt).toLocaleDateString('ro-RO')}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Main Export with Tabs
+export const FurnishedImageGeneratorWithGallery = () => {
+  return <FurnishedImageGenerator />;
 };
