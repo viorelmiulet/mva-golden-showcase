@@ -1,11 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   MapPin, 
-  Home, 
-  Ruler, 
   Euro,
   ArrowRight,
   Sparkles,
@@ -15,6 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 
 const Properties = () => {
   // Fetch 12 random offers from catalog_offers (exclude apartments from residential complexes)
@@ -89,14 +87,14 @@ const Properties = () => {
             )}
             
             {/* Image */}
-            <div className="relative aspect-video overflow-hidden">
-              <img 
-                src={property.images?.[0] || "/placeholder.svg"} 
+            <div className="relative overflow-hidden">
+              <OptimizedPropertyImage
+                src={property.images?.[0]}
                 alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
                 title={`${property.title} - ${property.price_min?.toLocaleString()} ${property.currency || 'EUR'}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                loading="lazy"
-                itemProp="image"
+                className="group-hover:scale-110 transition-transform duration-700"
+                aspectRatio="video"
+                quality={75}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               

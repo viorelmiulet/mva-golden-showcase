@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
-import { MapPin, Euro, Home, Ruler, ArrowRight, Sparkles, Building2, Heart } from "lucide-react";
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
+import { MapPin, Home, Ruler, ArrowRight, Sparkles, Building2, Heart } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -185,13 +185,15 @@ const MobileHome = () => {
               <Link key={property.id} to={`/app/proprietate/${property.id}`}>
                 <Card className="overflow-hidden hover:border-gold/30 transition-colors">
                   <CardContent className="p-0">
-                    <div className="flex gap-3">
+                      <div className="flex gap-3">
                       <div className="relative w-28 h-28 flex-shrink-0">
-                        <img
-                          src={property.images?.[0] || '/placeholder.svg'}
+                        <OptimizedPropertyImage
+                          src={property.images?.[0]}
                           alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
                           title={property.title}
-                          className="w-full h-full object-cover"
+                          containerClassName="w-full h-full"
+                          aspectRatio="auto"
+                          quality={70}
                         />
                         <button
                           onClick={(e) => {
@@ -272,11 +274,13 @@ const MobileHome = () => {
                   className="flex-shrink-0 w-64 snap-start"
                 >
                   <Card className="overflow-hidden h-36 relative">
-                    <img
-                      src={complex.main_image || '/placeholder.svg'}
+                    <OptimizedPropertyImage
+                      src={complex.main_image}
                       alt={`${complex.name} - complex rezidențial în ${complex.location || 'București'} cu apartamente moderne`}
                       title={complex.name}
-                      className="w-full h-full object-cover"
+                      containerClassName="w-full h-full"
+                      aspectRatio="auto"
+                      quality={70}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3">
