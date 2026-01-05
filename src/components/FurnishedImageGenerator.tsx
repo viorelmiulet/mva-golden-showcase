@@ -952,6 +952,36 @@ const ImageGallery = ({
   const [selectedStyleFilter, setSelectedStyleFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
+  
+  // Multi-select state
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [isProcessingBulk, setIsProcessingBulk] = useState(false);
+
+  const toggleImageSelection = (imageName: string) => {
+    setSelectedImages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(imageName)) {
+        newSet.delete(imageName);
+      } else {
+        newSet.add(imageName);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllFiltered = () => {
+    setSelectedImages(new Set(filteredImages.map(img => img.name)));
+  };
+
+  const clearSelection = () => {
+    setSelectedImages(new Set());
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedImages(new Set());
+  };
 
   // Extract room types and styles from filenames
   const extractRoomFromFilename = (filename: string): string => {
@@ -1056,10 +1086,70 @@ const ImageGallery = ({
       a.click();
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
-      toast.success("Imaginea a fost descărcată");
+      return true;
     } catch (error) {
-      toast.error("Eroare la descărcarea imaginii");
+      console.error('Error downloading:', error);
+      return false;
     }
+  };
+
+  const downloadSelectedImages = async () => {
+    if (selectedImages.size === 0) return;
+    
+    setIsProcessingBulk(true);
+    let successCount = 0;
+    
+    try {
+      toast.info(`Descărcare ${selectedImages.size} imagini...`);
+      
+      for (const imageName of selectedImages) {
+        const img = images.find(i => i.name === imageName);
+        if (img) {
+          const success = await downloadFromGallery(img.url, img.name);
+          if (success) successCount++;
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      
+      toast.success(`${successCount} imagini descărcate`);
+    } catch (error) {
+      toast.error("Eroare la descărcarea imaginilor");
+    } finally {
+      setIsProcessingBulk(false);
+    }
+  };
+
+  const deleteSelectedImages = async () => {
+    if (selectedImages.size === 0) return;
+    
+    setIsProcessingBulk(true);
+    let successCount = 0;
+    
+    try {
+      toast.info(`Ștergere ${selectedImages.size} imagini...`);
+      
+      for (const imageName of selectedImages) {
+        try {
+          await onDeleteBulk(imageName);
+          successCount++;
+        } catch (err) {
+          console.error(`Error deleting ${imageName}:`, err);
+        }
+      }
+      
+      toast.success(`${successCount} imagini șterse`);
+      clearSelection();
+      onRefresh();
+    } catch (error) {
+      toast.error("Eroare la ștergerea imaginilor");
+    } finally {
+      setIsProcessingBulk(false);
+    }
+  };
+
+  // Helper for bulk delete (we need to add this to props)
+  const onDeleteBulk = async (filename: string) => {
+    onDelete(filename);
   };
 
   if (isLoading) {
@@ -1173,6 +1263,69 @@ const ImageGallery = ({
         </div>
       </div>
 
+      {/* Selection Mode Toolbar */}
+      {selectionMode && (
+        <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium">
+              {selectedImages.size} selectate
+            </span>
+            <Button variant="ghost" size="sm" onClick={selectAllFiltered}>
+              <CheckSquare className="w-4 h-4 mr-1" />
+              Selectează toate ({filteredImages.length})
+            </Button>
+            <Button variant="ghost" size="sm" onClick={clearSelection}>
+              <X className="w-4 h-4 mr-1" />
+              Deselectează
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={downloadSelectedImages}
+              disabled={selectedImages.size === 0 || isProcessingBulk}
+            >
+              {isProcessingBulk ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-1" />
+              )}
+              Descarcă
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={selectedImages.size === 0 || isProcessingBulk}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Șterge
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Șterge {selectedImages.size} imagini?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Această acțiune nu poate fi anulată. Toate imaginile selectate vor fi șterse permanent din galerie.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Anulează</AlertDialogCancel>
+                  <AlertDialogAction onClick={deleteSelectedImages}>
+                    Șterge {selectedImages.size} imagini
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button variant="ghost" size="sm" onClick={exitSelectionMode}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Results header */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
@@ -1181,10 +1334,22 @@ const ImageGallery = ({
             : `${filteredImages.length} din ${images.length} imagini`
           }
         </p>
-        <Button variant="outline" size="sm" onClick={onRefresh}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Reîncarcă
-        </Button>
+        <div className="flex items-center gap-2">
+          {!selectionMode && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setSelectionMode(true)}
+            >
+              <CheckSquare className="w-4 h-4 mr-2" />
+              Selectare
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={onRefresh}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Reîncarcă
+          </Button>
+        </div>
       </div>
 
       {/* Images grid */}
@@ -1200,13 +1365,32 @@ const ImageGallery = ({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredImages.map((img) => (
-            <div key={img.name} className="relative group">
+            <div 
+              key={img.name} 
+              className={`relative group cursor-pointer ${
+                selectionMode && selectedImages.has(img.name) 
+                  ? 'ring-2 ring-primary ring-offset-2 rounded-lg' 
+                  : ''
+              }`}
+              onClick={() => selectionMode && toggleImageSelection(img.name)}
+            >
+              {/* Selection checkbox */}
+              {selectionMode && (
+                <div className="absolute top-2 right-2 z-10">
+                  <Checkbox
+                    checked={selectedImages.has(img.name)}
+                    onCheckedChange={() => toggleImageSelection(img.name)}
+                    className="bg-background border-2"
+                  />
+                </div>
+              )}
+              
               <img
                 src={img.url}
                 alt={img.name}
                 className="w-full h-40 object-cover rounded-lg"
               />
-              <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%]">
+              <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[60%]">
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
                   {extractRoomFromFilename(img.name)}
                 </Badge>
@@ -1214,36 +1398,45 @@ const ImageGallery = ({
                   {extractStyleFromFilename(img.name)}
                 </Badge>
               </div>
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => downloadFromGallery(img.url, img.name)}
-                >
-                  <Download className="w-4 h-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="destructive">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Șterge imaginea?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Această acțiune nu poate fi anulată. Imaginea va fi ștearsă permanent din galerie.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Anulează</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDelete(img.name)}>
-                        Șterge
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              
+              {!selectionMode && (
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadFromGallery(img.url, img.name).then(success => {
+                        if (success) toast.success("Imaginea a fost descărcată");
+                        else toast.error("Eroare la descărcarea imaginii");
+                      });
+                    }}
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive" onClick={(e) => e.stopPropagation()}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Șterge imaginea?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Această acțiune nu poate fi anulată. Imaginea va fi ștearsă permanent din galerie.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Anulează</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(img.name)}>
+                          Șterge
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
               <p className="text-xs mt-1 text-center truncate text-muted-foreground">
                 {format(new Date(img.createdAt), 'dd MMM yyyy, HH:mm', { locale: ro })}
               </p>
