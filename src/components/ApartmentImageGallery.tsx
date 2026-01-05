@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { 
@@ -13,72 +13,90 @@ import {
   Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOptimizedImage } from "@/hooks/useOptimizedImage";
+import { getOptimizedImageUrl } from "@/lib/imageOptimization";
 
-import { 
-  getOptimizedImageUrl, 
-  generateSrcSet 
-} from "@/lib/imageOptimization";
-
-// Lazy loading image component with Intersection Observer
-interface LazyImageProps {
+// Optimized image component using the centralized hook
+interface OptimizedGalleryImageProps {
   src: string;
-  srcSet?: string;
-  sizes?: string;
   alt: string;
   className?: string;
   style?: React.CSSProperties;
   onLoad?: () => void;
   priority?: boolean;
+  width?: number;
+  quality?: number;
+  sizes?: string;
 }
 
-const LazyImage = ({ src, srcSet, sizes, alt, className, style, onLoad, priority = false }: LazyImageProps) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(priority);
-  const imgRef = useRef<HTMLImageElement>(null);
+const OptimizedGalleryImage = ({ 
+  src, 
+  alt, 
+  className, 
+  style, 
+  onLoad, 
+  priority = false,
+  width,
+  quality = 80,
+  sizes = '100vw'
+}: OptimizedGalleryImageProps) => {
+  const {
+    optimizedSrc,
+    srcSet,
+    isLoaded,
+    isInView,
+    isSupabaseImage,
+    containerRef,
+    imgRef,
+    handleLoad: hookHandleLoad,
+    handleError,
+  } = useOptimizedImage({
+    src,
+    width,
+    quality,
+    priority,
+  });
 
-  useEffect(() => {
-    if (priority) return;
-    
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '200px', threshold: 0.01 }
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [priority]);
-
-  const handleLoad = useCallback(() => {
-    setIsLoaded(true);
+  const handleImageLoad = () => {
+    hookHandleLoad();
     onLoad?.();
-  }, [onLoad]);
+  };
 
   return (
-    <>
+    <div ref={containerRef} className="relative w-full h-full">
       {!isLoaded && (
         <div className="absolute inset-0 bg-muted animate-pulse" />
       )}
-      <img
-        ref={imgRef}
-        src={isInView ? src : undefined}
-        srcSet={isInView ? srcSet : undefined}
-        sizes={sizes}
-        alt={alt}
-        className={cn(className, !isLoaded && "opacity-0")}
-        style={style}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        onLoad={handleLoad}
-      />
-    </>
+      {isInView && (
+        <picture>
+          {isSupabaseImage && srcSet && (
+            <source
+              type="image/webp"
+              srcSet={srcSet}
+              sizes={sizes}
+            />
+          )}
+          <img
+            ref={imgRef}
+            src={optimizedSrc}
+            srcSet={isSupabaseImage ? srcSet : undefined}
+            sizes={sizes}
+            alt={alt}
+            className={cn(
+              className, 
+              'transition-opacity duration-300',
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            style={style}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={priority ? "high" : "auto"}
+            onLoad={handleImageLoad}
+            onError={handleError}
+          />
+        </picture>
+      )}
+    </div>
   );
 };
 
@@ -144,14 +162,6 @@ export const ApartmentImageGallery = ({
   const minSwipeDistance = 50;
 
   const validImages = images?.filter(img => img && img.trim() !== '') || [];
-  
-  // Memoize optimized image URLs
-  const optimizedImages = useMemo(() => ({
-    main: validImages.map(img => getOptimizedImageUrl(img, imageSizes.main)),
-    thumbnails: validImages.map(img => getOptimizedImageUrl(img, imageSizes.thumbnail, 60)),
-    lightbox: validImages.map(img => getOptimizedImageUrl(img, imageSizes.lightbox, 90)),
-    grid: validImages.map(img => getOptimizedImageUrl(img, 300, 70))
-  }), [validImages, imageSizes]);
 
   useEffect(() => {
     if (!isLightboxOpen) {
@@ -285,13 +295,10 @@ export const ApartmentImageGallery = ({
             className="col-span-3 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
-            <LazyImage
-              src={optimizedImages.main[0]}
-              srcSet={`
-                ${getOptimizedImageUrl(validImages[0], 600)} 600w,
-                ${getOptimizedImageUrl(validImages[0], 900)} 900w,
-                ${getOptimizedImageUrl(validImages[0], 1200)} 1200w
-              `}
+            <OptimizedGalleryImage
+              src={validImages[0]}
+              width={imageSizes.main}
+              quality={85}
               sizes="(min-width: 1024px) 75vw, 100vw"
               alt={title}
               className="w-full h-full object-cover transition-transform duration-300 ease-out"
@@ -321,8 +328,10 @@ export const ApartmentImageGallery = ({
                 }}
                 className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
-                <LazyImage
-                  src={getOptimizedImageUrl(img, 300)}
+                <OptimizedGalleryImage
+                  src={img}
+                  width={300}
+                  quality={70}
                   alt={`${title} - ${idx + 2}`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
@@ -339,8 +348,10 @@ export const ApartmentImageGallery = ({
                 }}
                 className="relative aspect-[4/3] rounded-lg overflow-hidden group"
               >
-                <LazyImage
-                  src={getOptimizedImageUrl(validImages[4], 300)}
+                <OptimizedGalleryImage
+                  src={validImages[4]}
+                  width={300}
+                  quality={70}
                   alt={`${title} - mai multe`}
                   className="w-full h-full object-cover"
                 />
@@ -369,13 +380,10 @@ export const ApartmentImageGallery = ({
             className="aspect-[4/3] rounded-lg overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
-            <LazyImage
-              src={optimizedImages.main[0]}
-              srcSet={`
-                ${getOptimizedImageUrl(validImages[0], 400)} 400w,
-                ${getOptimizedImageUrl(validImages[0], 600)} 600w,
-                ${getOptimizedImageUrl(validImages[0], 800)} 800w
-              `}
+            <OptimizedGalleryImage
+              src={validImages[0]}
+              width={imageSizes.main}
+              quality={85}
               sizes="100vw"
               alt={title}
               className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
@@ -402,7 +410,7 @@ export const ApartmentImageGallery = ({
           {/* Thumbnail strip */}
           {validImages.length > 1 && (
             <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-              {optimizedImages.thumbnails.slice(0, 5).map((img, idx) => (
+              {validImages.slice(0, 5).map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => {
@@ -415,8 +423,10 @@ export const ApartmentImageGallery = ({
                     "border-transparent"
                   )}
                 >
-                  <LazyImage
+                  <OptimizedGalleryImage
                     src={img}
+                    width={imageSizes.thumbnail}
+                    quality={60}
                     alt={`${title} - ${idx + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -546,7 +556,7 @@ export const ApartmentImageGallery = ({
               /* Grid View */
               <div className="flex-1 overflow-y-auto px-4 pb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {optimizedImages.grid.map((img, idx) => (
+                  {validImages.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => {
@@ -559,11 +569,12 @@ export const ApartmentImageGallery = ({
                         currentIndex === idx && "ring-2 ring-gold"
                       )}
                     >
-                      <img
+                      <OptimizedGalleryImage
                         src={img}
+                        width={300}
+                        quality={70}
                         alt={`${title} - ${idx + 1}`}
                         className="w-full h-full object-cover"
-                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -579,14 +590,11 @@ export const ApartmentImageGallery = ({
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  <img
+                  <OptimizedGalleryImage
                     key={currentIndex}
-                    src={optimizedImages.lightbox[currentIndex]}
-                    srcSet={`
-                      ${getOptimizedImageUrl(validImages[currentIndex], 800)} 800w,
-                      ${getOptimizedImageUrl(validImages[currentIndex], 1200)} 1200w,
-                      ${getOptimizedImageUrl(validImages[currentIndex], 1920)} 1920w
-                    `}
+                    src={validImages[currentIndex]}
+                    width={imageSizes.lightbox}
+                    quality={90}
                     sizes="100vw"
                     alt={`${title} - Imagine ${currentIndex + 1}`}
                     className="max-w-[90vw] max-h-[75vh] object-contain select-none animate-fade-in"
@@ -594,7 +602,7 @@ export const ApartmentImageGallery = ({
                       transform: `scale(${zoomLevel})`,
                       transition: 'transform 0.3s ease-out'
                     }}
-                    draggable={false}
+                    priority={true}
                   />
 
                   {/* Navigation Arrows */}
@@ -624,7 +632,7 @@ export const ApartmentImageGallery = ({
                 {validImages.length > 1 && (
                   <div className="flex-shrink-0 py-6 pb-12 px-4">
                     <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
-                      {optimizedImages.thumbnails.map((img, idx) => (
+                      {validImages.map((img, idx) => (
                         <button
                           key={idx}
                           onClick={() => {
@@ -638,11 +646,12 @@ export const ApartmentImageGallery = ({
                               : "border-transparent opacity-70 hover:opacity-100"
                           )}
                         >
-                          <img
+                          <OptimizedGalleryImage
                             src={img}
+                            width={imageSizes.thumbnail}
+                            quality={60}
                             alt={`Thumbnail ${idx + 1}`}
                             className="w-full h-full object-cover"
-                            loading="lazy"
                           />
                         </button>
                       ))}
