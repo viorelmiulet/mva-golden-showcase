@@ -6,10 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Wand2, Download, Loader2, Image, Upload, X, Settings2 } from "lucide-react";
+import { Wand2, Download, Loader2, Image, Upload, X, Settings2, Layers, CheckSquare } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Progress } from "@/components/ui/progress";
 
 const ROOM_TYPES = [
   { value: "living", label: "Living modern" },
@@ -81,6 +84,13 @@ export const FurnishedImageGenerator = () => {
   const [lighting, setLighting] = useState("natural");
   const [photoStyle, setPhotoStyle] = useState("professional");
   
+  // Batch processing
+  const [batchMode, setBatchMode] = useState(false);
+  const [selectedRoomTypes, setSelectedRoomTypes] = useState<string[]>(["living"]);
+  const [imagesPerRoom, setImagesPerRoom] = useState("2");
+  const [batchProgress, setBatchProgress] = useState(0);
+  const [currentBatchRoom, setCurrentBatchRoom] = useState("");
+  
   // Logo options
   const [includeLogo, setIncludeLogo] = useState(false);
   const [useCustomLogo, setUseCustomLogo] = useState(false);
@@ -94,6 +104,22 @@ export const FurnishedImageGenerator = () => {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleRoomType = (roomValue: string) => {
+    setSelectedRoomTypes(prev => 
+      prev.includes(roomValue)
+        ? prev.filter(r => r !== roomValue)
+        : [...prev, roomValue]
+    );
+  };
+
+  const selectAllRooms = () => {
+    setSelectedRoomTypes(ROOM_TYPES.map(r => r.value));
+  };
+
+  const clearAllRooms = () => {
+    setSelectedRoomTypes([]);
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,36 +161,99 @@ export const FurnishedImageGenerator = () => {
       return;
     }
 
+    if (batchMode && selectedRoomTypes.length === 0) {
+      toast.error("Vă rugăm să selectați cel puțin un tip de cameră pentru batch processing");
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedImages([]);
+    setBatchProgress(0);
+    setCurrentBatchRoom("");
 
     try {
-      toast.info("Generez imaginile... (poate dura câteva minute)");
+      if (batchMode) {
+        // Batch processing - generate images for multiple room types
+        const totalRooms = selectedRoomTypes.length;
+        const allImages: { index: number; imageUrl: string; roomType: string }[] = [];
+        let globalIndex = 1;
 
-      const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
-        body: {
-          description,
-          roomType,
-          style,
-          numberOfImages: parseInt(numberOfImages),
-          aspectRatio,
-          lighting,
-          photoStyle,
-          includeLogo,
-          useCustomLogo: includeLogo && useCustomLogo,
-          customLogoBase64: includeLogo && useCustomLogo ? customLogoBase64 : null,
-          logoPosition,
-          logoSize
+        toast.info(`Generez imagini pentru ${totalRooms} tipuri de camere...`);
+
+        for (let roomIdx = 0; roomIdx < selectedRoomTypes.length; roomIdx++) {
+          const currentRoom = selectedRoomTypes[roomIdx];
+          const roomLabel = ROOM_TYPES.find(r => r.value === currentRoom)?.label || currentRoom;
+          
+          setCurrentBatchRoom(roomLabel);
+          setBatchProgress(Math.round((roomIdx / totalRooms) * 100));
+
+          const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
+            body: {
+              description,
+              roomType: currentRoom,
+              style,
+              numberOfImages: parseInt(imagesPerRoom),
+              aspectRatio,
+              lighting,
+              photoStyle,
+              includeLogo,
+              useCustomLogo: includeLogo && useCustomLogo,
+              customLogoBase64: includeLogo && useCustomLogo ? customLogoBase64 : null,
+              logoPosition,
+              logoSize,
+              batchMode: true
+            }
+          });
+
+          if (error) {
+            console.error(`Error generating images for ${currentRoom}:`, error);
+            toast.error(`Eroare la generarea imaginilor pentru ${roomLabel}`);
+            continue;
+          }
+
+          if (data?.success && data?.images) {
+            const roomImages = data.images.map((img: any) => ({
+              ...img,
+              index: globalIndex++,
+              roomType: `${STYLES.find(s => s.value === style)?.label || style} - ${roomLabel}`
+            }));
+            allImages.push(...roomImages);
+            setGeneratedImages([...allImages]);
+          }
         }
-      });
 
-      if (error) throw error;
-
-      if (data?.success && data?.images) {
-        setGeneratedImages(data.images);
-        toast.success(`${data.totalGenerated} imagini generate cu succes!`);
+        setBatchProgress(100);
+        setCurrentBatchRoom("");
+        toast.success(`${allImages.length} imagini generate pentru ${totalRooms} tipuri de camere!`);
       } else {
-        throw new Error(data?.error || 'Failed to generate images');
+        // Single room type generation
+        toast.info("Generez imaginile... (poate dura câteva minute)");
+
+        const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
+          body: {
+            description,
+            roomType,
+            style,
+            numberOfImages: parseInt(numberOfImages),
+            aspectRatio,
+            lighting,
+            photoStyle,
+            includeLogo,
+            useCustomLogo: includeLogo && useCustomLogo,
+            customLogoBase64: includeLogo && useCustomLogo ? customLogoBase64 : null,
+            logoPosition,
+            logoSize
+          }
+        });
+
+        if (error) throw error;
+
+        if (data?.success && data?.images) {
+          setGeneratedImages(data.images);
+          toast.success(`${data.totalGenerated} imagini generate cu succes!`);
+        } else {
+          throw new Error(data?.error || 'Failed to generate images');
+        }
       }
 
     } catch (error) {
@@ -172,6 +261,8 @@ export const FurnishedImageGenerator = () => {
       toast.error("Eroare la generarea imaginilor");
     } finally {
       setIsGenerating(false);
+      setBatchProgress(0);
+      setCurrentBatchRoom("");
     }
   };
 
@@ -213,56 +304,183 @@ export const FurnishedImageGenerator = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
-          {/* Basic Options */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Tip Cameră</label>
-              <Select value={roomType} onValueChange={setRoomType} disabled={isGenerating}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROOM_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* Batch Mode Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                <Label htmlFor="batch-mode" className="text-sm font-medium">
+                  Batch Processing
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Generează imagini pentru mai multe tipuri de camere simultan
+              </p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Stil Design</label>
-              <Select value={style} onValueChange={setStyle} disabled={isGenerating}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STYLES.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Număr Imagini</label>
-              <Select value={numberOfImages} onValueChange={setNumberOfImages} disabled={isGenerating}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 imagine</SelectItem>
-                  <SelectItem value="2">2 imagini</SelectItem>
-                  <SelectItem value="4">4 imagini</SelectItem>
-                  <SelectItem value="6">6 imagini</SelectItem>
-                  <SelectItem value="8">8 imagini</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Switch
+              id="batch-mode"
+              checked={batchMode}
+              onCheckedChange={setBatchMode}
+              disabled={isGenerating}
+            />
           </div>
+
+          {/* Batch Mode - Multiple Room Selection */}
+          {batchMode ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium">
+                  Selectează Tipurile de Camere ({selectedRoomTypes.length} selectate)
+                </label>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={selectAllRooms}
+                    disabled={isGenerating}
+                  >
+                    <CheckSquare className="w-3 h-3 mr-1" />
+                    Toate
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearAllRooms}
+                    disabled={isGenerating}
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Niciunul
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                {ROOM_TYPES.map((type) => (
+                  <div
+                    key={type.value}
+                    className={`flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${
+                      selectedRoomTypes.includes(type.value)
+                        ? 'bg-primary/10 border-primary'
+                        : 'hover:bg-muted'
+                    }`}
+                    onClick={() => !isGenerating && toggleRoomType(type.value)}
+                  >
+                    <Checkbox
+                      checked={selectedRoomTypes.includes(type.value)}
+                      onCheckedChange={() => toggleRoomType(type.value)}
+                      disabled={isGenerating}
+                    />
+                    <span className="text-sm">{type.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Stil Design</label>
+                  <Select value={style} onValueChange={setStyle} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STYLES.map((s) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Imagini per Cameră</label>
+                  <Select value={imagesPerRoom} onValueChange={setImagesPerRoom} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 imagine</SelectItem>
+                      <SelectItem value="2">2 imagini</SelectItem>
+                      <SelectItem value="3">3 imagini</SelectItem>
+                      <SelectItem value="4">4 imagini</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {selectedRoomTypes.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedRoomTypes.map(roomValue => {
+                    const room = ROOM_TYPES.find(r => r.value === roomValue);
+                    return (
+                      <Badge key={roomValue} variant="secondary" className="gap-1">
+                        {room?.label}
+                        <X 
+                          className="w-3 h-3 cursor-pointer hover:text-destructive" 
+                          onClick={() => toggleRoomType(roomValue)}
+                        />
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="text-sm text-muted-foreground">
+                Total: {selectedRoomTypes.length * parseInt(imagesPerRoom)} imagini vor fi generate
+              </p>
+            </div>
+          ) : (
+            /* Single Room Mode - Basic Options */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Tip Cameră</label>
+                <Select value={roomType} onValueChange={setRoomType} disabled={isGenerating}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROOM_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Stil Design</label>
+                <Select value={style} onValueChange={setStyle} disabled={isGenerating}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STYLES.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Număr Imagini</label>
+                <Select value={numberOfImages} onValueChange={setNumberOfImages} disabled={isGenerating}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 imagine</SelectItem>
+                    <SelectItem value="2">2 imagini</SelectItem>
+                    <SelectItem value="4">4 imagini</SelectItem>
+                    <SelectItem value="6">6 imagini</SelectItem>
+                    <SelectItem value="8">8 imagini</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           {/* Advanced Options Collapsible */}
           <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
@@ -469,21 +687,39 @@ export const FurnishedImageGenerator = () => {
             />
           </div>
 
+          {/* Progress indicator for batch mode */}
+          {isGenerating && batchMode && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Progres: {currentBatchRoom}</span>
+                <span>{batchProgress}%</span>
+              </div>
+              <Progress value={batchProgress} className="h-2" />
+            </div>
+          )}
+
           <Button 
             onClick={generateImages}
-            disabled={!description.trim() || isGenerating}
+            disabled={
+              !description.trim() || 
+              isGenerating || 
+              (batchMode && selectedRoomTypes.length === 0)
+            }
             className="w-full"
             size="lg"
           >
             {isGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generez imagini...
+                {batchMode ? `Generez ${currentBatchRoom}...` : "Generez imagini..."}
               </>
             ) : (
               <>
                 <Wand2 className="w-4 h-4 mr-2" />
-                Generează Imagini
+                {batchMode 
+                  ? `Generează ${selectedRoomTypes.length * parseInt(imagesPerRoom)} Imagini`
+                  : "Generează Imagini"
+                }
               </>
             )}
           </Button>
