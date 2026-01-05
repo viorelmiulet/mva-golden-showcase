@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { getOptimizedImageUrl, generateSrcSet, defaultSrcSetSizes } from '@/lib/imageOptimization';
 
 interface OptimizedImageProps {
   src: string;
@@ -10,11 +11,15 @@ interface OptimizedImageProps {
   priority?: boolean;
   placeholder?: 'blur' | 'empty';
   onLoad?: () => void;
+  sizes?: string;
+  quality?: number;
 }
 
 /**
- * Optimized Image component for better Core Web Vitals
+ * Optimized Image component with automatic WebP conversion
  * - Lazy loading with IntersectionObserver
+ * - Automatic WebP conversion for Supabase images
+ * - Responsive srcset generation
  * - Placeholder to prevent CLS
  * - Priority loading for LCP images
  */
@@ -25,15 +30,31 @@ const OptimizedImage = ({
   width,
   height,
   priority = false,
-  placeholder = 'empty',
+  placeholder = 'blur',
   onLoad,
+  sizes = '100vw',
+  quality = 80,
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(priority);
+  const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Check if image is from Supabase storage
+  const isSupabaseImage = src?.includes('supabase.co/storage');
+
+  // Generate optimized URLs
+  const optimizedSrc = isSupabaseImage 
+    ? getOptimizedImageUrl(src, width || 1920, quality)
+    : src;
+
+  const srcSet = isSupabaseImage 
+    ? generateSrcSet(src, defaultSrcSetSizes)
+    : undefined;
 
   useEffect(() => {
-    if (priority || !imgRef.current) return;
+    if (priority || !containerRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -48,7 +69,7 @@ const OptimizedImage = ({
       }
     );
 
-    observer.observe(imgRef.current);
+    observer.observe(containerRef.current);
 
     return () => observer.disconnect();
   }, [priority]);
@@ -58,11 +79,20 @@ const OptimizedImage = ({
     onLoad?.();
   };
 
+  const handleError = () => {
+    setHasError(true);
+    // Fallback to original src if WebP fails
+    if (imgRef.current && isSupabaseImage) {
+      imgRef.current.src = src;
+      imgRef.current.srcset = '';
+    }
+  };
+
   const aspectRatio = width && height ? width / height : undefined;
 
   return (
     <div
-      ref={imgRef}
+      ref={containerRef}
       className={cn(
         'relative overflow-hidden',
         !isLoaded && placeholder === 'blur' && 'bg-muted animate-pulse',
@@ -73,20 +103,34 @@ const OptimizedImage = ({
       }}
     >
       {isInView && (
-        <img
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          fetchPriority={priority ? 'high' : 'auto'}
-          onLoad={handleLoad}
-          className={cn(
-            'w-full h-full object-cover transition-opacity duration-300',
-            isLoaded ? 'opacity-100' : 'opacity-0'
+        <picture>
+          {/* WebP source for browsers that support it */}
+          {isSupabaseImage && srcSet && (
+            <source
+              type="image/webp"
+              srcSet={srcSet}
+              sizes={sizes}
+            />
           )}
-        />
+          <img
+            ref={imgRef}
+            src={optimizedSrc}
+            srcSet={!isSupabaseImage ? undefined : srcSet}
+            sizes={sizes}
+            alt={alt}
+            width={width}
+            height={height}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={priority ? 'high' : 'auto'}
+            onLoad={handleLoad}
+            onError={handleError}
+            className={cn(
+              'w-full h-full object-cover transition-opacity duration-300',
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+          />
+        </picture>
       )}
       {!isLoaded && placeholder === 'blur' && (
         <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/10" />
