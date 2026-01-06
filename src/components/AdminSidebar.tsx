@@ -21,6 +21,7 @@ import {
   Smartphone,
   History,
   Hotel,
+  Chrome,
 } from "lucide-react";
 
 import {
@@ -56,6 +57,7 @@ const menuItems = [
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Instalează App", url: "/admin/instaleaza", icon: Smartphone },
+  { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
 ];
 
 interface AdminSidebarProps {
