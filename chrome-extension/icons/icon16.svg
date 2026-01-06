@@ -1,0 +1,15 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold16" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+  </defs>
+  <!-- Hexagon background -->
+  <path d="M8 1 L14 4 L14 12 L8 15 L2 12 L2 4 Z" fill="url(#gold16)"/>
+  <!-- Inner dark hexagon -->
+  <path d="M8 2.5 L12.5 5 L12.5 11 L8 13.5 L3.5 11 L3.5 5 Z" fill="#1A1A1A"/>
+  <!-- M letter simplified -->
+  <path d="M5 5 L6 5 L8 8 L10 5 L11 5 L11 11 L10 11 L10 6.5 L8.5 9 L7.5 9 L6 6.5 L6 11 L5 11 Z" fill="url(#gold16)"/>
+</svg>
