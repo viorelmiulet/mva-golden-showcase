@@ -361,7 +361,7 @@ export const XmlFieldMappingDialog = ({
           )}
 
           {/* Mapping Table */}
-          <ScrollArea className="flex-1 pr-4">
+          <ScrollArea className="flex-1 min-h-0 max-h-[50vh] pr-4">
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground">
                 Mapează câmpurile detectate din XML la câmpurile din baza de date.
