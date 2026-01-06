@@ -207,7 +207,7 @@ const popupHtml = `<!DOCTYPE html>
 
 const popupJs = `const SUPABASE_URL = 'https://fdpandnzblzvamhsoukt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGFuZG56Ymx6dmFtaHNvdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM2ODUsImV4cCI6MjA3NzQ0OTY4NX0.RB-3XaeYVlmt4VpGTzh72hpAl1J4HUkbe-_u-NZjAsU';
-const ADMIN_URL = 'https://mva-imobiliare.ro';
+const ADMIN_URL = 'https://a0228d82-898b-4546-9599-8fbda4644c54.lovableproject.com';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await chrome.storage.local.get(['notificationsEnabled', 'lastCheckTime']);
@@ -282,7 +282,7 @@ async function loadStats() {
 
 const backgroundJs = `const SUPABASE_URL = 'https://fdpandnzblzvamhsoukt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGFuZG56Ymx6dmFtaHNvdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM2ODUsImV4cCI6MjA3NzQ0OTY4NX0.RB-3XaeYVlmt4VpGTzh72hpAl1J4HUkbe-_u-NZjAsU';
-const ADMIN_URL = 'https://mva-imobiliare.ro';
+const ADMIN_URL = 'https://a0228d82-898b-4546-9599-8fbda4644c54.lovableproject.com';
 const CHECK_INTERVAL = 5;
 
 chrome.runtime.onInstalled.addListener(() => {
