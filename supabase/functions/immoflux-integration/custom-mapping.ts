@@ -161,7 +161,7 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
         // Build property object
         const title = extractedData.title || `Proprietate ${index + 1}`;
         const description = extractedData.description || '';
-        const location = extractedData.location || 'Necunoscut';
+        const location = extractedData.location || extractedData.zone || extractedData.city || 'Necunoscut';
         
         // Parse price
         const priceRaw = extractedData.price;
@@ -197,14 +197,28 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
                                extractedData.transaction_type?.toLowerCase() === 'inchiriere' 
                                ? 'rent' : 'sale';
         
-        const property = {
+        // Parse additional fields
+        const floor = parseNumber(extractedData.floor);
+        const totalFloors = parseNumber(extractedData.total_floors);
+        const bathrooms = parseNumber(extractedData.bathrooms);
+        const yearBuilt = parseNumber(extractedData.year_built);
+        const parking = parseNumber(extractedData.parking);
+        const balconies = parseNumber(extractedData.balconies);
+        const surfaceLand = parseNumber(extractedData.surface_land);
+        const surfaceTotal = parseNumber(extractedData.surface_total);
+        
+        // Parse coordinates
+        const latitude = extractedData.latitude ? parseFloat(extractedData.latitude) : null;
+        const longitude = extractedData.longitude ? parseFloat(extractedData.longitude) : null;
+        
+        const property: any = {
           title,
           description,
           location,
           price_min: price,
           price_max: price,
           surface_min: surface,
-          surface_max: surface,
+          surface_max: surfaceTotal || surface,
           rooms,
           currency,
           images,
@@ -212,11 +226,42 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
           amenities: features,
           contact_info: contact,
           transaction_type: transactionType,
-          availability_status: 'available',
+          availability_status: extractedData.availability_status || 'available',
           is_featured: false,
           source: 'api',
-          project_name: null
+          project_name: null,
+          // Additional fields
+          floor,
+          total_floors: totalFloors,
+          bathrooms,
+          year_built: yearBuilt,
+          property_type: extractedData.property_type || null,
+          building_type: extractedData.building_type || null,
+          compartment: extractedData.compartment || null,
+          heating: extractedData.heating || null,
+          parking,
+          balconies,
+          furnished: extractedData.furnished || null,
+          external_id: extractedData.external_id || null,
+          source_url: extractedData.source_url || null,
+          zone: extractedData.zone || null,
+          city: extractedData.city || null,
+          latitude,
+          longitude,
+          agent: extractedData.agent || null,
+          agency: extractedData.agency || null,
+          surface_land: surfaceLand,
+          comfort: extractedData.comfort || null,
+          video: extractedData.video || null,
+          virtual_tour: extractedData.virtual_tour || null,
         };
+        
+        // Remove null values to avoid database issues
+        Object.keys(property).forEach(key => {
+          if (property[key] === null || property[key] === undefined) {
+            delete property[key];
+          }
+        });
         
         // Validate minimum required fields
         if (property.title && property.price_min > 0 && property.rooms > 0) {

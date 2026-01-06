@@ -22,6 +22,16 @@ import {
   Copy,
   CheckCircle,
   Calendar,
+  Building,
+  Bath,
+  Car,
+  Thermometer,
+  Sofa,
+  Layers,
+  Construction,
+  Square,
+  Video,
+  View,
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { Helmet } from "react-helmet-async";
@@ -51,6 +61,32 @@ interface Property {
   project_name: string | null;
   storia_link: string | null;
   availability_status: string;
+  // Additional fields from XML import
+  floor?: number | null;
+  total_floors?: number | null;
+  bathrooms?: number | null;
+  year_built?: number | null;
+  property_type?: string | null;
+  building_type?: string | null;
+  compartment?: string | null;
+  heating?: string | null;
+  parking?: number | null;
+  balconies?: number | null;
+  furnished?: string | null;
+  external_id?: string | null;
+  source_url?: string | null;
+  zone?: string | null;
+  city?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  agent?: string | null;
+  agency?: string | null;
+  surface_land?: number | null;
+  comfort?: string | null;
+  video?: string | null;
+  virtual_tour?: string | null;
+  contact_info?: any;
+  transaction_type?: string | null;
 }
 
 const PropertyDetail = () => {
@@ -404,11 +440,178 @@ const PropertyDetail = () => {
                   </Card>
                 </div>
 
+                {/* Additional Property Details */}
+                {(property.floor || property.bathrooms || property.year_built || property.parking || 
+                  property.heating || property.furnished || property.building_type || property.compartment ||
+                  property.balconies || property.surface_land || property.comfort) && (
+                  <Card className="border-gold/20">
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Detalii Tehnice</h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                        {property.floor !== null && property.floor !== undefined && (
+                          <div className="flex items-center gap-2">
+                            <Building className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Etaj</div>
+                              <div className="text-sm font-medium">
+                                {property.floor}{property.total_floors ? ` / ${property.total_floors}` : ''}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.bathrooms !== null && property.bathrooms !== undefined && (
+                          <div className="flex items-center gap-2">
+                            <Bath className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Băi</div>
+                              <div className="text-sm font-medium">{property.bathrooms}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.year_built && (
+                          <div className="flex items-center gap-2">
+                            <Construction className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">An Construcție</div>
+                              <div className="text-sm font-medium">{property.year_built}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.parking !== null && property.parking !== undefined && (
+                          <div className="flex items-center gap-2">
+                            <Car className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Parcare</div>
+                              <div className="text-sm font-medium">{property.parking} locuri</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.balconies !== null && property.balconies !== undefined && (
+                          <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Balcoane</div>
+                              <div className="text-sm font-medium">{property.balconies}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.surface_land && (
+                          <div className="flex items-center gap-2">
+                            <Square className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Teren</div>
+                              <div className="text-sm font-medium">{property.surface_land} mp</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.heating && (
+                          <div className="flex items-center gap-2">
+                            <Thermometer className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Încălzire</div>
+                              <div className="text-sm font-medium">{property.heating}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.furnished && (
+                          <div className="flex items-center gap-2">
+                            <Sofa className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Mobilat</div>
+                              <div className="text-sm font-medium">{property.furnished}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.building_type && (
+                          <div className="flex items-center gap-2">
+                            <Building className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Tip Clădire</div>
+                              <div className="text-sm font-medium">{property.building_type}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.compartment && (
+                          <div className="flex items-center gap-2">
+                            <Layers className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Compartimentare</div>
+                              <div className="text-sm font-medium">{property.compartment}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.comfort && (
+                          <div className="flex items-center gap-2">
+                            <Home className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Confort</div>
+                              <div className="text-sm font-medium">{property.comfort}</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {property.property_type && (
+                          <div className="flex items-center gap-2">
+                            <Home className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Tip Proprietate</div>
+                              <div className="text-sm font-medium">{property.property_type}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Video & Virtual Tour */}
+                {(property.video || property.virtual_tour) && (
+                  <Card className="border-gold/20">
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Media</h2>
+                      <div className="flex flex-wrap gap-3">
+                        {property.video && (
+                          <a 
+                            href={property.video} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors"
+                          >
+                            <Video className="w-5 h-5 text-gold" />
+                            <span className="text-sm font-medium">Vezi Video</span>
+                          </a>
+                        )}
+                        {property.virtual_tour && (
+                          <a 
+                            href={property.virtual_tour} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors"
+                          >
+                            <View className="w-5 h-5 text-gold" />
+                            <span className="text-sm font-medium">Tur Virtual 360°</span>
+                          </a>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Description */}
                 <Card className="border-gold/20">
                   <CardContent className="p-4 sm:p-5 md:p-6">
                     <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Descriere</h2>
-                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
+                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed whitespace-pre-line">
                       {property.description}
                     </p>
                   </CardContent>
