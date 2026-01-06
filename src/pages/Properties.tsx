@@ -25,7 +25,9 @@ import {
   Phone,
   Filter,
   Search,
-  Heart
+  Heart,
+  Bath,
+  Construction
 } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import Header from "@/components/Header"
@@ -62,6 +64,12 @@ const Properties = () => {
   const [roomsFilter, setRoomsFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
   const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
+  // Advanced filters
+  const [floorFilter, setFloorFilter] = useState("all")
+  const [bathroomsFilter, setBathroomsFilter] = useState("all")
+  const [yearBuiltFilter, setYearBuiltFilter] = useState("all")
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState("all")
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   
   const [showFilters, setShowFilters] = useState(true)
   const { toast } = useToast()
@@ -138,9 +146,67 @@ const Properties = () => {
         if (txType !== transactionTypeFilter) return false
       }
 
+      // Floor filter
+      if (floorFilter && floorFilter !== "all") {
+        if (floorFilter === "ground") {
+          if (property.floor !== 0) return false
+        } else if (floorFilter === "top") {
+          if (!property.floor || !property.total_floors || property.floor !== property.total_floors) return false
+        } else {
+          const selectedFloor = parseInt(floorFilter)
+          if (property.floor !== selectedFloor) return false
+        }
+      }
+
+      // Bathrooms filter
+      if (bathroomsFilter && bathroomsFilter !== "all") {
+        const selectedBathrooms = parseInt(bathroomsFilter)
+        if (bathroomsFilter === "3") {
+          // 3+ means 3 or more bathrooms
+          if (!property.bathrooms || property.bathrooms < 3) return false
+        } else {
+          if (property.bathrooms !== selectedBathrooms) return false
+        }
+      }
+
+      // Year built filter
+      if (yearBuiltFilter && yearBuiltFilter !== "all") {
+        if (!property.year_built) return false
+        const currentYear = new Date().getFullYear()
+        if (yearBuiltFilter === "new") {
+          // Last 2 years
+          if (property.year_built < currentYear - 2) return false
+        } else if (yearBuiltFilter === "recent") {
+          // Last 5 years
+          if (property.year_built < currentYear - 5) return false
+        } else if (yearBuiltFilter === "2010s") {
+          // 2010-2019
+          if (property.year_built < 2010 || property.year_built > 2019) return false
+        } else if (yearBuiltFilter === "older") {
+          // Before 2010
+          if (property.year_built >= 2010) return false
+        }
+      }
+
+      // Property type filter
+      if (propertyTypeFilter && propertyTypeFilter !== "all") {
+        const propType = (property.property_type || '').toLowerCase()
+        const title = (property.title || '').toLowerCase()
+        
+        if (propertyTypeFilter === "apartament") {
+          if (!propType.includes('apartament') && !title.includes('apartament') && !title.includes('garsoniera')) return false
+        } else if (propertyTypeFilter === "casa") {
+          if (!propType.includes('casa') && !propType.includes('vila') && !title.includes('casa') && !title.includes('vila')) return false
+        } else if (propertyTypeFilter === "penthouse") {
+          if (!propType.includes('penthouse') && !title.includes('penthouse')) return false
+        } else if (propertyTypeFilter === "studio") {
+          if (!propType.includes('studio') && !propType.includes('garsoniera') && !title.includes('studio') && !title.includes('garsoniera')) return false
+        }
+      }
+
       return true
     })
-  }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter])
+  }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
 
   // Extract zone from title or description
   function extractZone(property: any): string | null {
@@ -460,6 +526,107 @@ const Properties = () => {
                       </div>
                     </div>
 
+                    {/* Advanced Filters Toggle */}
+                    <div className="mt-3 sm:mt-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                        className="text-xs sm:text-sm text-gold hover:text-gold/80"
+                      >
+                        <Filter className="w-3.5 h-3.5 mr-1.5" />
+                        {showAdvancedFilters 
+                          ? (language === 'ro' ? 'Ascunde filtre avansate' : 'Hide advanced filters')
+                          : (language === 'ro' ? 'Arată filtre avansate' : 'Show advanced filters')
+                        }
+                      </Button>
+                    </div>
+
+                    {/* Advanced Filters */}
+                    {showAdvancedFilters && (
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                          {/* Floor Filter */}
+                          <div>
+                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {language === 'ro' ? 'Etaj' : 'Floor'}
+                            </label>
+                            <Select value={floorFilter} onValueChange={setFloorFilter}>
+                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                                <SelectValue placeholder={language === 'ro' ? 'Etaj' : 'Floor'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                                <SelectItem value="ground">{language === 'ro' ? 'Parter' : 'Ground floor'}</SelectItem>
+                                <SelectItem value="1">{language === 'ro' ? 'Etaj 1' : 'Floor 1'}</SelectItem>
+                                <SelectItem value="2">{language === 'ro' ? 'Etaj 2' : 'Floor 2'}</SelectItem>
+                                <SelectItem value="3">{language === 'ro' ? 'Etaj 3' : 'Floor 3'}</SelectItem>
+                                <SelectItem value="4">{language === 'ro' ? 'Etaj 4' : 'Floor 4'}</SelectItem>
+                                <SelectItem value="5">{language === 'ro' ? 'Etaj 5+' : 'Floor 5+'}</SelectItem>
+                                <SelectItem value="top">{language === 'ro' ? 'Ultimul etaj' : 'Top floor'}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Bathrooms Filter */}
+                          <div>
+                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {language === 'ro' ? 'Băi' : 'Bathrooms'}
+                            </label>
+                            <Select value={bathroomsFilter} onValueChange={setBathroomsFilter}>
+                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                                <SelectValue placeholder={language === 'ro' ? 'Băi' : 'Bathrooms'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                                <SelectItem value="1">1 {language === 'ro' ? 'baie' : 'bathroom'}</SelectItem>
+                                <SelectItem value="2">2 {language === 'ro' ? 'băi' : 'bathrooms'}</SelectItem>
+                                <SelectItem value="3">3+ {language === 'ro' ? 'băi' : 'bathrooms'}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Year Built Filter */}
+                          <div>
+                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {language === 'ro' ? 'An construcție' : 'Year built'}
+                            </label>
+                            <Select value={yearBuiltFilter} onValueChange={setYearBuiltFilter}>
+                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                                <SelectValue placeholder={language === 'ro' ? 'An' : 'Year'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                                <SelectItem value="new">{language === 'ro' ? 'Construcție nouă (2+ ani)' : 'New build (2+ years)'}</SelectItem>
+                                <SelectItem value="recent">{language === 'ro' ? 'Recent (5 ani)' : 'Recent (5 years)'}</SelectItem>
+                                <SelectItem value="2010s">2010 - 2019</SelectItem>
+                                <SelectItem value="older">{language === 'ro' ? 'Înainte de 2010' : 'Before 2010'}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Property Type Filter */}
+                          <div>
+                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {language === 'ro' ? 'Tip proprietate' : 'Property type'}
+                            </label>
+                            <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
+                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
+                                <SelectValue placeholder={language === 'ro' ? 'Tip' : 'Type'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
+                                <SelectItem value="apartament">{language === 'ro' ? 'Apartament' : 'Apartment'}</SelectItem>
+                                <SelectItem value="casa">{language === 'ro' ? 'Casă / Vilă' : 'House / Villa'}</SelectItem>
+                                <SelectItem value="penthouse">Penthouse</SelectItem>
+                                <SelectItem value="studio">{language === 'ro' ? 'Garsonieră / Studio' : 'Studio'}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Clear Filters */}
                     <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                       <div className="text-xs sm:text-sm text-muted-foreground">
@@ -474,6 +641,10 @@ const Properties = () => {
                           setRoomsFilter("all")
                           setLocationFilter("all")
                           setTransactionTypeFilter("all")
+                          setFloorFilter("all")
+                          setBathroomsFilter("all")
+                          setYearBuiltFilter("all")
+                          setPropertyTypeFilter("all")
                         }}
                         className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
                       >
