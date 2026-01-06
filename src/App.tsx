@@ -74,6 +74,7 @@ const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
+const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 
@@ -132,6 +133,7 @@ const App = () => {
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
                 <Route path="regim-hotelier" element={<ShortTermRentalsPage />} />
+                <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
