@@ -404,29 +404,71 @@ const icon128Svg = `<svg width="128" height="128" viewBox="0 0 128 128" xmlns="h
 export default function DownloadExtensionPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
+  const [iconPreviews, setIconPreviews] = useState<{[key: string]: string}>({});
+
+  // Generate icon previews on mount
+  useState(() => {
+    const generatePreviews = async () => {
+      const previews: {[key: string]: string} = {};
+      
+      // Create data URLs for previews
+      const svg16Blob = new Blob([icon16Svg], { type: 'image/svg+xml' });
+      const svg48Blob = new Blob([icon48Svg], { type: 'image/svg+xml' });
+      const svg128Blob = new Blob([icon128Svg], { type: 'image/svg+xml' });
+      
+      previews['16'] = URL.createObjectURL(svg16Blob);
+      previews['48'] = URL.createObjectURL(svg48Blob);
+      previews['128'] = URL.createObjectURL(svg128Blob);
+      
+      setIconPreviews(previews);
+    };
+    generatePreviews();
+  });
 
   const svgToPng = async (svgString: string, size: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
+      // Use higher resolution for better quality
+      const scale = size < 48 ? 4 : size < 128 ? 2 : 1;
+      canvas.width = size * scale;
+      canvas.height = size * scale;
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         reject(new Error('Could not get canvas context'));
         return;
       }
 
+      // Enable image smoothing for better quality
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
       const img = new Image();
       const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(svgBlob);
 
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size * scale, size * scale);
         URL.revokeObjectURL(url);
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error('Could not create blob'));
-        }, 'image/png');
+        
+        // Create final canvas at correct size
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = size;
+        finalCanvas.height = size;
+        const finalCtx = finalCanvas.getContext('2d');
+        if (finalCtx) {
+          finalCtx.imageSmoothingEnabled = true;
+          finalCtx.imageSmoothingQuality = 'high';
+          finalCtx.drawImage(canvas, 0, 0, size, size);
+          finalCanvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Could not create blob'));
+          }, 'image/png');
+        } else {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Could not create blob'));
+          }, 'image/png');
+        }
       };
 
       img.onerror = () => {
@@ -518,6 +560,28 @@ export default function DownloadExtensionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Icon Preview */}
+          <div className="flex items-center justify-center gap-6 p-4 bg-muted/30 rounded-lg">
+            <div className="text-center">
+              {iconPreviews['16'] && (
+                <img src={iconPreviews['16']} alt="Icon 16x16" className="w-4 h-4 mx-auto mb-1" />
+              )}
+              <span className="text-xs text-muted-foreground">16px</span>
+            </div>
+            <div className="text-center">
+              {iconPreviews['48'] && (
+                <img src={iconPreviews['48']} alt="Icon 48x48" className="w-12 h-12 mx-auto mb-1" />
+              )}
+              <span className="text-xs text-muted-foreground">48px</span>
+            </div>
+            <div className="text-center">
+              {iconPreviews['128'] && (
+                <img src={iconPreviews['128']} alt="Icon 128x128" className="w-24 h-24 mx-auto mb-1" />
+              )}
+              <span className="text-xs text-muted-foreground">128px</span>
+            </div>
+          </div>
+
           {/* Features */}
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
@@ -534,7 +598,7 @@ export default function DownloadExtensionPage() {
             </div>
             <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
               <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>Logo MVA personalizat</span>
+              <span>Iconițe PNG generate</span>
             </div>
           </div>
 
@@ -548,7 +612,7 @@ export default function DownloadExtensionPage() {
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Se generează...
+                Se generează iconițele PNG...
               </>
             ) : isDownloaded ? (
               <>
@@ -562,6 +626,11 @@ export default function DownloadExtensionPage() {
               </>
             )}
           </Button>
+
+          {/* What's included */}
+          <div className="text-xs text-center text-muted-foreground bg-muted/30 rounded-lg p-3">
+            <strong>Arhiva include:</strong> manifest.json, popup.html, popup.js, background.js, icons/icon16.png, icons/icon48.png, icons/icon128.png, README.txt
+          </div>
 
           {/* Installation Instructions */}
           <div className="space-y-3 pt-4 border-t">
