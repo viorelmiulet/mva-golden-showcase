@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "MVA Admin Notificări",
-  "version": "1.0.0",
-  "description": "Primește notificări pentru vizionări noi, clienți și evenimente din panoul MVA Admin",
+  "name": "MVA Admin Panel",
+  "version": "1.1.0",
+  "description": "Acces rapid la panoul de administrare MVA - vizionări, clienți, proprietăți, contracte și notificări",
   "permissions": [
     "notifications",
     "alarms",
@@ -17,7 +17,8 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
-    }
+    },
+    "default_title": "MVA Admin Panel"
   },
   "background": {
     "service_worker": "background.js"
