@@ -100,88 +100,157 @@ export type Database = {
       }
       catalog_offers: {
         Row: {
+          agency: string | null
+          agent: string | null
           amenities: string[] | null
           availability_status: string | null
           available_units: number | null
+          balconies: number | null
+          bathrooms: number | null
+          building_type: string | null
+          city: string | null
+          comfort: string | null
+          compartment: string | null
           contact_info: Json | null
           created_at: string
           currency: string | null
           description: string | null
+          external_id: string | null
           features: string[] | null
+          floor: number | null
           floor_plan: string | null
+          furnished: string | null
+          heating: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
+          parking: number | null
           price_max: number | null
           price_min: number | null
           project_id: string | null
           project_name: string | null
+          property_type: string | null
           rooms: number | null
           source: string | null
+          source_url: string | null
           storia_link: string | null
+          surface_land: number | null
           surface_max: number | null
           surface_min: number | null
           title: string
+          total_floors: number | null
           transaction_type: string | null
           updated_at: string
+          video: string | null
+          virtual_tour: string | null
           whatsapp_catalog_id: string | null
+          year_built: number | null
+          zone: string | null
         }
         Insert: {
+          agency?: string | null
+          agent?: string | null
           amenities?: string[] | null
           availability_status?: string | null
           available_units?: number | null
+          balconies?: number | null
+          bathrooms?: number | null
+          building_type?: string | null
+          city?: string | null
+          comfort?: string | null
+          compartment?: string | null
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
           description?: string | null
+          external_id?: string | null
           features?: string[] | null
+          floor?: number | null
           floor_plan?: string | null
+          furnished?: string | null
+          heating?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          parking?: number | null
           price_max?: number | null
           price_min?: number | null
           project_id?: string | null
           project_name?: string | null
+          property_type?: string | null
           rooms?: number | null
           source?: string | null
+          source_url?: string | null
           storia_link?: string | null
+          surface_land?: number | null
           surface_max?: number | null
           surface_min?: number | null
           title: string
+          total_floors?: number | null
           transaction_type?: string | null
           updated_at?: string
+          video?: string | null
+          virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
+          year_built?: number | null
+          zone?: string | null
         }
         Update: {
+          agency?: string | null
+          agent?: string | null
           amenities?: string[] | null
           availability_status?: string | null
           available_units?: number | null
+          balconies?: number | null
+          bathrooms?: number | null
+          building_type?: string | null
+          city?: string | null
+          comfort?: string | null
+          compartment?: string | null
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
           description?: string | null
+          external_id?: string | null
           features?: string[] | null
+          floor?: number | null
           floor_plan?: string | null
+          furnished?: string | null
+          heating?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          parking?: number | null
           price_max?: number | null
           price_min?: number | null
           project_id?: string | null
           project_name?: string | null
+          property_type?: string | null
           rooms?: number | null
           source?: string | null
+          source_url?: string | null
           storia_link?: string | null
+          surface_land?: number | null
           surface_max?: number | null
           surface_min?: number | null
           title?: string
+          total_floors?: number | null
           transaction_type?: string | null
           updated_at?: string
+          video?: string | null
+          virtual_tour?: string | null
           whatsapp_catalog_id?: string | null
+          year_built?: number | null
+          zone?: string | null
         }
         Relationships: [
           {
