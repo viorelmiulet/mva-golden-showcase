@@ -80,11 +80,11 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
     }
   };
 
-  // For mobile sheet, render a simpler version
+  // For mobile sheet, render a simpler version with better scrolling
   if (isMobileSheet) {
     return (
-      <nav className="flex-1 overflow-y-auto p-2">
-        <div className="space-y-1">
+      <nav className="flex-1 overflow-y-auto overscroll-contain p-2 pb-8">
+        <div className="space-y-0.5">
           {menuItems.map((item) => {
             const isActive = item.exact
               ? currentPath === item.url
@@ -95,7 +95,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                 to={item.url}
                 end={item.exact}
                 onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${getNavCls(isActive)}`}
+                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-manipulation active:scale-[0.98] ${getNavCls(isActive)}`}
               >
                 <item.icon className="h-5 w-5 flex-shrink-0" />
                 <span>{item.title}</span>
@@ -103,6 +103,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
             );
           })}
         </div>
+        {/* Safe area padding for iOS */}
+        <div className="h-safe-area-inset-bottom" />
       </nav>
     );
   }
