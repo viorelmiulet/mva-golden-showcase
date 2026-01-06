@@ -12,94 +12,186 @@
     }
     
     body {
-      width: 320px;
+      width: 360px;
+      max-height: 580px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
       color: #fff;
     }
     
     .header {
-      padding: 16px;
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+    }
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
     .logo {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: linear-gradient(135deg, #d4af37, #b8962e);
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 14px;
       color: #1a1a2e;
     }
     
     .header-text h1 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #d4af37;
     }
     
     .header-text p {
-      font-size: 11px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
       color: rgba(255, 255, 255, 0.6);
     }
     
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-dot.offline {
+      background: #ef4444;
+      animation: none;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
     .content {
-      padding: 16px;
+      padding: 12px;
+      max-height: 480px;
+      overflow-y: auto;
     }
     
     .stats {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
     }
     
     .stat-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 6px;
       text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: rgba(212, 175, 55, 0.3);
+      transform: translateY(-2px);
     }
     
     .stat-card .icon {
-      font-size: 24px;
-      margin-bottom: 4px;
+      font-size: 18px;
+      margin-bottom: 2px;
     }
     
     .stat-card .value {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 700;
       color: #d4af37;
     }
     
     .stat-card .label {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.6);
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.2;
     }
     
-    .actions {
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 12px 0 8px 4px;
+    }
+    
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    
+    .menu-item {
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #fff;
+    }
+    
+    .menu-item:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: rgba(212, 175, 55, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .menu-item .icon {
+      font-size: 20px;
+    }
+    
+    .menu-item .label {
+      font-size: 10px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .quick-actions {
+      display: flex;
       gap: 8px;
+      margin-top: 12px;
     }
     
     .btn {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 14px;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       border: none;
@@ -117,34 +209,37 @@
     }
     
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
     
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
     }
     
-    .toggle-row {
+    .settings-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      margin-top: 12px;
     }
     
-    .toggle-label {
-      font-size: 13px;
+    .settings-label {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .toggle {
-      width: 44px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
+      width: 40px;
+      height: 22px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 11px;
       position: relative;
       cursor: pointer;
       transition: background 0.2s;
@@ -157,8 +252,8 @@
     .toggle::after {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       background: #fff;
       border-radius: 50%;
       top: 2px;
@@ -167,72 +262,201 @@
     }
     
     .toggle.active::after {
-      transform: translateX(20px);
+      transform: translateX(18px);
     }
     
     .footer {
-      padding: 12px 16px;
+      padding: 10px 16px;
       text-align: center;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.4);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
     .loading {
       display: none;
       text-align: center;
-      padding: 8px;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 12px;
+      padding: 6px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11px;
     }
     
     .loading.show {
       display: block;
     }
+    
+    /* Scrollbar */
+    .content::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .content::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.3);
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="logo">MVA</div>
-    <div class="header-text">
-      <h1>MVA Admin</h1>
-      <p>Panou de administrare</p>
+    <div class="header-left">
+      <div class="logo">MVA</div>
+      <div class="header-text">
+        <h1>MVA Admin Panel</h1>
+        <p>Acces rapid administrare</p>
+      </div>
+    </div>
+    <div class="connection-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Online</span>
     </div>
   </div>
   
   <div class="content">
+    <!-- Quick Stats -->
     <div class="stats">
-      <div class="stat-card">
+      <div class="stat-card" data-url="/admin/vizionari">
         <div class="icon">📅</div>
         <div class="value" id="viewingsCount">-</div>
-        <div class="label">Vizionări azi</div>
+        <div class="label">Vizionări</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-url="/admin/clienti">
         <div class="icon">👤</div>
         <div class="value" id="clientsCount">-</div>
-        <div class="label">Clienți noi</div>
+        <div class="label">Clienți</div>
+      </div>
+      <div class="stat-card" data-url="/admin/proprietati">
+        <div class="icon">🏠</div>
+        <div class="value" id="propertiesCount">-</div>
+        <div class="label">Proprietăți</div>
+      </div>
+      <div class="stat-card" data-url="/admin/contracte">
+        <div class="icon">📝</div>
+        <div class="value" id="contractsCount">-</div>
+        <div class="label">Contracte</div>
       </div>
     </div>
     
-    <div class="toggle-row">
-      <span class="toggle-label">🔔 Notificări active</span>
-      <div class="toggle active" id="notificationsToggle"></div>
+    <!-- Main Menu -->
+    <div class="section-title">📂 Meniu Principal</div>
+    <div class="menu-grid">
+      <div class="menu-item" data-url="/admin">
+        <span class="icon">📊</span>
+        <span class="label">Dashboard</span>
+      </div>
+      <div class="menu-item" data-url="/admin/analytics">
+        <span class="icon">📈</span>
+        <span class="label">Analytics</span>
+      </div>
+      <div class="menu-item" data-url="/admin/proprietati">
+        <span class="icon">🏠</span>
+        <span class="label">Proprietăți</span>
+      </div>
+      <div class="menu-item" data-url="/admin/complexe">
+        <span class="icon">🏢</span>
+        <span class="label">Complexe</span>
+      </div>
+      <div class="menu-item" data-url="/admin/regim-hotelier">
+        <span class="icon">🏨</span>
+        <span class="label">Regim Hotelier</span>
+      </div>
+      <div class="menu-item" data-url="/admin/comisioane">
+        <span class="icon">💰</span>
+        <span class="label">Comisioane</span>
+      </div>
     </div>
     
-    <div class="actions">
+    <!-- CRM Section -->
+    <div class="section-title">👥 CRM & Clienți</div>
+    <div class="menu-grid">
+      <div class="menu-item" data-url="/admin/vizionari">
+        <span class="icon">📅</span>
+        <span class="label">Vizionări</span>
+      </div>
+      <div class="menu-item" data-url="/admin/clienti">
+        <span class="icon">👤</span>
+        <span class="label">Clienți CRM</span>
+      </div>
+      <div class="menu-item" data-url="/admin/utilizatori">
+        <span class="icon">👥</span>
+        <span class="label">Utilizatori</span>
+      </div>
+    </div>
+    
+    <!-- Documents Section -->
+    <div class="section-title">📄 Documente</div>
+    <div class="menu-grid">
+      <div class="menu-item" data-url="/admin/contracte">
+        <span class="icon">📜</span>
+        <span class="label">Contracte</span>
+      </div>
+      <div class="menu-item" data-url="/admin/inventar-presetat">
+        <span class="icon">📦</span>
+        <span class="label">Inventar</span>
+      </div>
+      <div class="menu-item" data-url="/admin/rapoarte">
+        <span class="icon">📑</span>
+        <span class="label">Rapoarte</span>
+      </div>
+    </div>
+    
+    <!-- Tools Section -->
+    <div class="section-title">🛠️ Instrumente</div>
+    <div class="menu-grid">
+      <div class="menu-item" data-url="/admin/virtual-staging">
+        <span class="icon">✨</span>
+        <span class="label">Virtual Staging</span>
+      </div>
+      <div class="menu-item" data-url="/admin/import">
+        <span class="icon">📥</span>
+        <span class="label">Import XML</span>
+      </div>
+      <div class="menu-item" data-url="/admin/facebook">
+        <span class="icon">📱</span>
+        <span class="label">Facebook</span>
+      </div>
+      <div class="menu-item" data-url="/admin/carti-vizita">
+        <span class="icon">💳</span>
+        <span class="label">Cărți Vizită</span>
+      </div>
+      <div class="menu-item" data-url="/admin/istoric">
+        <span class="icon">🕐</span>
+        <span class="label">Istoric</span>
+      </div>
+      <div class="menu-item" data-url="/admin/setari">
+        <span class="icon">⚙️</span>
+        <span class="label">Setări</span>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
       <button class="btn btn-primary" id="openAdmin">
-        🏠 Deschide Panoul Admin
+        🏠 Deschide Admin
       </button>
       <button class="btn btn-secondary" id="checkNow">
-        🔄 Verifică acum
+        🔄 Actualizează
       </button>
+    </div>
+    
+    <!-- Notifications Toggle -->
+    <div class="settings-row">
+      <span class="settings-label">🔔 Notificări push</span>
+      <div class="toggle active" id="notificationsToggle"></div>
     </div>
     
     <div class="loading" id="loading">Se încarcă...</div>
   </div>
   
   <div class="footer">
-    Ultima verificare: <span id="lastCheck">-</span>
+    <span>Ultima verificare: <span id="lastCheck">-</span></span>
+    <span>v1.1.0</span>
   </div>
   
   <script src="popup.js"></script>
