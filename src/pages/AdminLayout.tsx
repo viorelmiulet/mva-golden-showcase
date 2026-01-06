@@ -54,12 +54,12 @@ const AdminHeader = ({
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 flex flex-col h-full">
+          <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 flex flex-col h-[100dvh] overflow-hidden">
             <div className="flex items-center gap-2 p-4 border-b border-border/40 shrink-0">
               <BarChart3 className="w-5 h-5 text-gold" />
               <span className="font-semibold">Panou Admin</span>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y">
               <AdminSidebar isMobileSheet onNavigate={() => setIsMobileMenuOpen(false)} />
             </div>
           </SheetContent>
