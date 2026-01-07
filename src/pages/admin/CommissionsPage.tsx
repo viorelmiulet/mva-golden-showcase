@@ -448,17 +448,17 @@ const CommissionsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Comisioane</h1>
-          <p className="text-muted-foreground">Gestionează comisioanele din tranzacții</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Comisioane</h1>
+          <p className="text-muted-foreground text-sm">Gestionează comisioanele</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportExcel}>
-            <Download className="mr-2 h-4 w-4" />
-            Export Excel
+          <Button variant="outline" onClick={handleExportExcel} size="sm" className="flex-1 sm:flex-none">
+            <Download className="mr-1.5 h-4 w-4" />
+            <span className="hidden sm:inline">Export</span>
           </Button>
           
           <Dialog open={isAddDialogOpen || !!editingCommission} onOpenChange={(open) => {
@@ -469,15 +469,15 @@ const CommissionsPage = () => {
             }
           }}>
             <DialogTrigger asChild>
-              <Button onClick={() => setIsAddDialogOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Adaugă Comision
+              <Button onClick={() => setIsAddDialogOpen(true)} size="sm" className="flex-1 sm:flex-none">
+                <Plus className="mr-1.5 h-4 w-4" />
+                <span className="hidden sm:inline">Adaugă</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-w-[95vw] sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
-                {editingCommission ? "Editează Comision" : "Adaugă Comision Nou"}
+              <DialogTitle className="text-base md:text-lg">
+                {editingCommission ? "Editează Comision" : "Adaugă Comision"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
@@ -737,31 +737,32 @@ const CommissionsPage = () => {
         </Card>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section - Hide on mobile, show simplified version */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Monthly Bar Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BarChart3 className="h-5 w-5" />
-              Evoluție Lunară {filterYear !== "all" ? filterYear : ""}
+        <Card className="hidden sm:block">
+          <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <BarChart3 className="h-4 w-4 md:h-5 md:w-5" />
+              Evoluție {filterYear !== "all" ? filterYear : ""}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="h-[200px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyTotals} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <BarChart data={monthlyTotals} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     dataKey="month" 
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 10 }}
                     tickFormatter={(value) => value.substring(0, 3)}
                     className="text-muted-foreground"
                   />
                   <YAxis 
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 10 }}
                     tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`}
                     className="text-muted-foreground"
+                    width={45}
                   />
                   <Tooltip 
                     formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
@@ -770,10 +771,9 @@ const CommissionsPage = () => {
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: 'hsl(var(--foreground))'
+                      color: 'hsl(var(--foreground))',
+                      fontSize: '11px'
                     }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
                   />
                   <Bar 
                     dataKey="total" 
@@ -786,16 +786,16 @@ const CommissionsPage = () => {
           </CardContent>
         </Card>
 
-        {/* Transaction Types Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <PieChart className="h-5 w-5" />
-              Distribuție pe Tipuri
+        {/* Transaction Types Pie Chart - simplified for mobile */}
+        <Card className="hidden sm:block">
+          <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <PieChart className="h-4 w-4 md:h-5 md:w-5" />
+              Distribuție Tipuri
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[400px]">
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
@@ -818,34 +818,11 @@ const CommissionsPage = () => {
                       return Object.entries(typeData).map(([name, value]) => ({ name, value }));
                     })()}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={95}
+                    cy="45%"
+                    innerRadius={40}
+                    outerRadius={70}
                     paddingAngle={3}
                     dataKey="value"
-                    label={({ cx, cy, midAngle, outerRadius, name, percent, value }) => {
-                      const RADIAN = Math.PI / 180;
-                      const radius = outerRadius + 35;
-                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          fill="hsl(var(--foreground))"
-                          textAnchor={x > cx ? 'start' : 'end'}
-                          dominantBaseline="central"
-                          fontSize={11}
-                          fontWeight={500}
-                        >
-                          {`${name} ${(percent * 100).toFixed(0)}%`}
-                          <tspan x={x} dy={14} fontSize={10} fill="hsl(var(--muted-foreground))">
-                            €{value.toLocaleString()}
-                          </tspan>
-                        </text>
-                      );
-                    }}
-                    labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
                   >
                     {[
                       { name: 'Vânzări', color: '#22c55e' },
@@ -861,15 +838,13 @@ const CommissionsPage = () => {
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: 'hsl(var(--foreground))'
+                      fontSize: '11px'
                     }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
                   />
                   <Legend 
                     verticalAlign="bottom" 
-                    height={36}
-                    formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+                    height={30}
+                    formatter={(value) => <span className="text-xs">{value}</span>}
                   />
                 </RechartsPieChart>
               </ResponsiveContainer>
@@ -877,16 +852,16 @@ const CommissionsPage = () => {
           </CardContent>
         </Card>
 
-        {/* Invoice Status Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <FileText className="h-5 w-5" />
+        {/* Invoice Status Pie Chart - hide on mobile */}
+        <Card className="hidden lg:block">
+          <CardHeader className="p-4 md:p-6 pb-2 md:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <FileText className="h-4 w-4 md:h-5 md:w-5" />
               Facturi Emise
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="h-[200px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
@@ -905,34 +880,14 @@ const CommissionsPage = () => {
                       ];
                     })()}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
+                    cy="45%"
+                    innerRadius={40}
+                    outerRadius={70}
                     paddingAngle={2}
                     dataKey="value"
-                    label={({ cx, cy, midAngle, outerRadius, name, percent }) => {
-                      const RADIAN = Math.PI / 180;
-                      const radius = outerRadius + 25;
-                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          fill="hsl(var(--foreground))"
-                          textAnchor={x > cx ? 'start' : 'end'}
-                          dominantBaseline="central"
-                          fontSize={11}
-                          fontWeight={500}
-                        >
-                          {`${name} ${(percent * 100).toFixed(0)}%`}
-                        </text>
-                      );
-                    }}
-                    labelLine={false}
                   >
-                    <Cell fill="#ef4444" />
                     <Cell fill="#22c55e" />
+                    <Cell fill="#ef4444" />
                   </Pie>
                   <Tooltip 
                     formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
@@ -940,15 +895,13 @@ const CommissionsPage = () => {
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      color: 'hsl(var(--foreground))'
+                      fontSize: '11px'
                     }}
-                    labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
                   />
                   <Legend 
                     verticalAlign="bottom" 
-                    height={36}
-                    formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
+                    height={30}
+                    formatter={(value) => <span className="text-xs">{value}</span>}
                   />
                 </RechartsPieChart>
               </ResponsiveContainer>
@@ -957,39 +910,29 @@ const CommissionsPage = () => {
         </Card>
       </div>
 
-      {/* Monthly Summary Cards */}
+      {/* Monthly Summary Cards - optimized for mobile */}
       {monthlyTotals.length > 0 && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Sumar Lunar {filterYear !== "all" ? filterYear : ""}</CardTitle>
-            <div className="text-sm text-muted-foreground">
-              Total: <span className="font-bold text-primary">{monthlyTotals.reduce((sum, m) => sum + m.count, 0)} tranzacții</span>
+          <CardHeader className="flex flex-row items-center justify-between p-4 md:p-6 pb-2 md:pb-3">
+            <CardTitle className="text-base md:text-lg">Sumar {filterYear !== "all" ? filterYear : ""}</CardTitle>
+            <div className="text-xs md:text-sm text-muted-foreground">
+              <span className="font-bold text-primary">{monthlyTotals.reduce((sum, m) => sum + m.count, 0)}</span> tranzacții
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          <CardContent className="p-3 md:p-6 pt-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
               {monthlyTotals.map(({ month, total, count, salesCount, rentCount }) => (
-                <div key={month} className="p-3 bg-muted/50 rounded-lg border border-border/50">
-                  <p className="text-xs font-medium text-muted-foreground text-center mb-2">{month}</p>
-                  <p className="text-sm sm:text-base font-bold text-primary text-center mb-2">€{total.toLocaleString()}</p>
-                  <div className="space-y-1 border-t border-border/50 pt-2 mt-2">
-                    <div className="flex items-center justify-between text-[10px] pb-1 border-b border-border/30 mb-1">
-                      <span className="text-foreground font-semibold">Total</span>
-                      <span className="font-bold text-foreground">{count}</span>
+                <div key={month} className="p-2 md:p-3 bg-muted/50 rounded-lg border border-border/50">
+                  <p className="text-[10px] md:text-xs font-medium text-muted-foreground text-center mb-1 md:mb-2">{month.substring(0, 3)}</p>
+                  <p className="text-xs md:text-base font-bold text-primary text-center mb-1 md:mb-2">€{total.toLocaleString()}</p>
+                  <div className="space-y-0.5 md:space-y-1 border-t border-border/50 pt-1 md:pt-2 mt-1 md:mt-2">
+                    <div className="flex items-center justify-between text-[9px] md:text-[10px]">
+                      <span className="text-green-500">Vânz.</span>
+                      <span className="font-medium">{salesCount}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-green-500 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                        Vânzări
-                      </span>
-                      <span className="font-medium text-foreground">{salesCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-blue-500 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        Chirii
-                      </span>
-                      <span className="font-medium text-foreground">{rentCount}</span>
+                    <div className="flex items-center justify-between text-[9px] md:text-[10px]">
+                      <span className="text-blue-500">Chir.</span>
+                      <span className="font-medium">{rentCount}</span>
                     </div>
                   </div>
                 </div>

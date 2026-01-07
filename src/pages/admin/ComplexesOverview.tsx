@@ -150,94 +150,94 @@ const ComplexesOverview = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-8">
       {/* Header Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+      <div className="text-center space-y-2 md:space-y-4">
+        <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
           Selectează un complex
         </h1>
-        <p className="text-muted-foreground text-lg">
-          Gestionează proprietățile și vânzările din fiecare complex imobiliar
+        <p className="text-muted-foreground text-sm md:text-lg">
+          Gestionează proprietățile din fiecare complex
         </p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
         <Card className="border-primary/20 hover:border-primary/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Complexe
             </CardTitle>
-            <Building2 className="h-5 w-5 text-primary" />
+            <Building2 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totals.complexes}</div>
+          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-3xl font-bold">{totals.complexes}</div>
           </CardContent>
         </Card>
 
         <Card className="border-blue-500/20 hover:border-blue-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Proprietăți
             </CardTitle>
-            <Home className="h-5 w-5 text-blue-500" />
+            <Home className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-500">{totals.properties}</div>
+          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-3xl font-bold text-blue-500">{totals.properties}</div>
           </CardContent>
         </Card>
 
         <Card className="border-green-500/20 hover:border-green-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Disponibile
             </CardTitle>
-            <CheckCircle className="h-5 w-5 text-green-500" />
+            <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-500">{totals.available}</div>
+          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-3xl font-bold text-green-500">{totals.available}</div>
           </CardContent>
         </Card>
 
         <Card className="border-red-500/20 hover:border-red-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Vândute
             </CardTitle>
-            <XCircle className="h-5 w-5 text-red-500" />
+            <XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-red-500">{totals.sold}</div>
+          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-3xl font-bold text-red-500">{totals.sold}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Projects Section */}
-      <div className="space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="space-y-3 md:space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Complexe</h2>
-            <p className="text-muted-foreground">{totals.complexes} complexe active</p>
+            <h2 className="text-lg md:text-2xl font-bold">Complexe</h2>
+            <p className="text-muted-foreground text-sm">{totals.complexes} complexe active</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setImportDialogOpen(true)} variant="outline">
-              <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Import Excel/PDF
+            <Button onClick={() => setImportDialogOpen(true)} variant="outline" size="sm" className="flex-1 md:flex-none">
+              <FileSpreadsheet className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Import</span>
             </Button>
-            <Link to="/admin/complexe/add">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Adaugă Complex
+            <Link to="/admin/complexe/add" className="flex-1 md:flex-none">
+              <Button size="sm" className="w-full">
+                <Plus className="mr-1.5 h-4 w-4" />
+                <span className="hidden sm:inline">Adaugă</span> Complex
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {projectsStats?.map(project => (
             <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
               {/* Project Image */}
-              <div className="relative h-48 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
+              <div className="relative h-32 md:h-48 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
                 {project.main_image ? (
                   <img
                     src={project.main_image}
@@ -246,60 +246,60 @@ const ComplexesOverview = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="h-16 w-16 text-primary/30" />
+                    <Building2 className="h-10 w-10 md:h-16 md:w-16 text-primary/30" />
                   </div>
                 )}
-                <div className="absolute top-4 right-4">
-                  <Badge variant="secondary" className="backdrop-blur-sm bg-background/80">
-                    {project.total_properties} proprietăți
+                <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                  <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 text-[10px] md:text-xs">
+                    {project.total_properties} prop.
                   </Badge>
                 </div>
               </div>
 
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4">
                 {/* Project Name and Location */}
                 <div>
-                  <h3 className="text-xl font-bold">{project.name}</h3>
+                  <h3 className="text-base md:text-xl font-bold line-clamp-1">{project.name}</h3>
                   {project.location && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                    <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1 mt-0.5 md:mt-1">
                       <MapPin className="h-3 w-3" />
-                      {project.location}
+                      <span className="line-clamp-1">{project.location}</span>
                     </p>
                   )}
                 </div>
 
                 {/* Progress Bar */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
+                <div className="space-y-1.5 md:space-y-2">
+                  <div className="flex items-center justify-between text-xs md:text-sm">
                     <span className="text-muted-foreground">Vândute</span>
                     <span className="font-semibold">{project.soldPercentage}%</span>
                   </div>
-                  <Progress value={project.soldPercentage} className="h-2" />
+                  <Progress value={project.soldPercentage} className="h-1.5 md:h-2" />
                 </div>
 
                 {/* Statistics */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Disponibile</p>
-                    <p className="text-2xl font-bold text-green-600">{project.available}</p>
+                <div className="grid grid-cols-2 gap-2 md:gap-4 pt-2 md:pt-4 border-t">
+                  <div className="space-y-0.5 md:space-y-1">
+                    <p className="text-xs md:text-sm text-muted-foreground">Disponibile</p>
+                    <p className="text-lg md:text-2xl font-bold text-green-600">{project.available}</p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Vândute</p>
-                    <p className="text-2xl font-bold text-red-600">{project.sold}</p>
+                  <div className="space-y-0.5 md:space-y-1">
+                    <p className="text-xs md:text-sm text-muted-foreground">Vândute</p>
+                    <p className="text-lg md:text-2xl font-bold text-red-600">{project.sold}</p>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 md:gap-2">
                   <Link to={`/admin/complexe/${project.id}/edit`} className="flex-1">
-                    <Button variant="outline" className="w-full" size="sm">
-                      <Edit className="mr-2 h-4 w-4" />
+                    <Button variant="outline" className="w-full h-8 md:h-9 text-xs md:text-sm" size="sm">
+                      <Edit className="mr-1 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                       Editează
                     </Button>
                   </Link>
                   <Link to={`/admin/complexe/${project.id}`} className="flex-1">
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors" size="sm">
-                      <TrendingUp className="mr-2 h-4 w-4" />
+                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors h-8 md:h-9 text-xs md:text-sm" size="sm">
+                      <TrendingUp className="mr-1 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                       Detalii
                     </Button>
                   </Link>
@@ -307,9 +307,9 @@ const ComplexesOverview = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => handleDeleteClick(project.id)}
-                    className="border-destructive/30 hover:bg-destructive/10 text-destructive hover:text-destructive"
+                    className="border-destructive/30 hover:bg-destructive/10 text-destructive hover:text-destructive h-8 md:h-9 w-8 md:w-9 p-0"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                   </Button>
                 </div>
               </CardContent>
