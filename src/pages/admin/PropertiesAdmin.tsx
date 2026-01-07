@@ -297,31 +297,31 @@ const PropertiesAdmin = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8">
       {/* Scrape Properties Section */}
       <Card className="glass border-gold/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5 text-gold" />
-            Adaugă Proprietăți din ImmoFlux
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <Plus className="w-4 h-4 md:w-5 md:h-5 text-gold" />
+            Adaugă Proprietăți
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3">
-            {propertyIds.map((id, index) => (
+        <CardContent className="space-y-3 md:space-y-4 p-4 pt-0 md:p-6 md:pt-0">
+          <div className="grid gap-2 md:gap-3">
+            {propertyIds.slice(0, 3).map((id, index) => (
               <div key={index} className="flex gap-2">
                 <Input
-                  placeholder={`ID Proprietate ${index + 1}`}
+                  placeholder={`ID ${index + 1}`}
                   value={id}
                   onChange={(e) => updatePropertyId(index, e.target.value)}
-                  className="flex-1"
+                  className="flex-1 h-9 md:h-10 text-sm"
                 />
                 <Button
                   onClick={() => scrapeProperty(id, index)}
                   disabled={loadingStates[index] || !id.trim()}
                   size="sm"
                   variant="outline"
-                  className="border-gold/30"
+                  className="border-gold/30 h-9 md:h-10 w-9 md:w-10 p-0"
                 >
                   {loadingStates[index] ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -336,7 +336,7 @@ const PropertiesAdmin = () => {
           <Button
             onClick={scrapeAllProperties}
             disabled={isLoading}
-            className="w-full"
+            className="w-full h-9 md:h-10 text-sm"
             variant="luxury"
           >
             {isLoading ? (
@@ -347,7 +347,7 @@ const PropertiesAdmin = () => {
             ) : (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Adaugă Toate Proprietățile
+                Adaugă Toate
               </>
             )}
           </Button>
@@ -356,10 +356,10 @@ const PropertiesAdmin = () => {
 
       {/* Properties List */}
       <Card className="glass border-gold/20">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Home className="w-5 h-5 text-gold" />
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-base md:text-lg">
+              <Home className="w-4 h-4 md:w-5 md:h-5 text-gold" />
               Proprietăți ({properties?.length || 0})
             </div>
             {properties && properties.length > 0 && (
@@ -368,23 +368,23 @@ const PropertiesAdmin = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-destructive/30 hover:bg-destructive/10 text-destructive"
+                    className="border-destructive/30 hover:bg-destructive/10 text-destructive h-8 text-xs md:text-sm"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
+                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
                     Șterge Toate
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Confirmare ștergere masivă</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Ești sigur că vrei să ștergi TOATE proprietățile ({properties?.length} proprietăți)?
+                    <AlertDialogTitle className="text-base md:text-lg">Confirmare ștergere</AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm">
+                      Ești sigur că vrei să ștergi toate {properties?.length} proprietățile?
                       <br />
-                      <span className="font-semibold text-destructive">Această acțiune nu poate fi anulată!</span>
+                      <span className="font-semibold text-destructive">Acțiunea nu poate fi anulată!</span>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={deleteAllProperties}
                       className="bg-destructive hover:bg-destructive/90"
@@ -397,83 +397,79 @@ const PropertiesAdmin = () => {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
           {propertiesLoading ? (
-            <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto text-gold" />
-              <p className="text-muted-foreground mt-2">Se încarcă proprietățile...</p>
+            <div className="text-center py-6 md:py-8">
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-gold" />
+              <p className="text-muted-foreground mt-2 text-sm">Se încarcă...</p>
             </div>
           ) : properties && properties.length > 0 ? (
-            <div className="grid gap-4">
+            <div className="grid gap-3 md:gap-4">
               {properties.map((property: any) => (
                 <Card
                   key={property.id}
                   className="border-border/30 hover:border-gold/30 transition-colors"
                 >
-                  <CardContent className="p-4">
-                    <div className="flex gap-4">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex gap-3 md:gap-4">
                       {property.images?.[0] && (
                         <img
                           src={property.images[0]}
                           alt={property.title}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-16 h-16 md:w-24 md:h-24 object-cover rounded-lg shrink-0"
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg mb-2 truncate">
+                        <h3 className="font-semibold text-sm md:text-lg mb-1.5 md:mb-2 line-clamp-2">
                           {property.title}
                         </h3>
-                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                          <Badge variant="secondary" className="bg-gold/10">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            {property.location}
-                          </Badge>
-                          <Badge variant="secondary" className="bg-gold/10">
-                            <Euro className="w-3 h-3 mr-1" />
+                        <div className="flex flex-wrap gap-1 md:gap-2 text-xs md:text-sm text-muted-foreground">
+                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
+                            <Euro className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
                             €{property.price_min?.toLocaleString()}
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10">
-                            <Ruler className="w-3 h-3 mr-1" />
-                            {property.surface_min} mp
+                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
+                            <Ruler className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                            {property.surface_min}mp
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10">
-                            <Home className="w-3 h-3 mr-1" />
-                            {property.rooms} cam
+                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
+                            <Home className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                            {property.rooms}cam
                           </Badge>
                         </div>
                       </div>
-                      <div className="flex gap-2 items-start">
+                      <div className="flex flex-col md:flex-row gap-1.5 md:gap-2 items-end md:items-start shrink-0">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30"
+                          className="border-gold/30 h-7 w-7 md:h-8 md:w-8 p-0"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10"
+                              className="border-destructive/30 hover:bg-destructive/10 h-7 w-7 md:h-8 md:w-8 p-0"
                             >
                               {deletingId === property.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
                               ) : (
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                               )}
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Ești sigur că vrei să ștergi această proprietate?
+                                Ștergi această proprietate?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Anulează</AlertDialogCancel>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => deleteProperty(property.id)}
                               >
@@ -489,9 +485,9 @@ const PropertiesAdmin = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <Home className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground">Nu există proprietăți</p>
+            <div className="text-center py-6 md:py-8">
+              <Home className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
+              <p className="text-muted-foreground text-sm">Nu există proprietăți</p>
             </div>
           )}
         </CardContent>
