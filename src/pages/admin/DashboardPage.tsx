@@ -890,16 +890,11 @@ const DashboardPage = () => {
       </div>
 
       {/* Charts Row 1 */}
-      <motion.div 
+      <div 
         className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6"
-        variants={reduceMotion ? undefined : chartContainerVariants}
-        initial={reduceMotion ? undefined : "hidden"}
-        whileInView={reduceMotion ? undefined : "visible"}
-        viewport={{ once: true, margin: "-50px" }}
       >
         {/* Commission Trend Chart - 12 months */}
-        <motion.div variants={reduceMotion ? undefined : chartSlideLeftVariants} className="lg:col-span-2">
-        <Card className="h-full">
+        <Card className="lg:col-span-2">
           <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
               <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -911,90 +906,88 @@ const DashboardPage = () => {
               </CardDescription>
             )}
           </CardHeader>
-          <CardContent className="p-2 md:p-6 pt-0 h-[160px] md:h-[320px]">
-            {loadingCommissions ? (
-              <div className="h-full w-full flex items-end justify-around gap-1 md:gap-2 p-2 md:p-4">
-                {(isMobile ? [40, 65, 45, 80, 55, 70] : [40, 65, 45, 80, 55, 70, 50, 60, 75, 45, 55, 70]).map((height, i) => (
-                  <div
-                    key={i}
-                    className="bg-gold/20 rounded-t w-full"
-                    style={{ height: `${height}%` }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart 
-                  data={isMobile ? commissionsData?.monthlyTrend?.slice(-6) || [] : commissionsData?.monthlyTrend || []} 
-                  margin={isMobile ? { left: -25, right: 5, top: 5, bottom: 0 } : undefined}
-                >
-                  <defs>
-                    <linearGradient id="colorEUR" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#DAA520" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#DAA520" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={!isMobile} />
-                  <XAxis 
-                    dataKey="month" 
-                    className="text-xs" 
-                    tick={{ fontSize: isMobile ? 9 : 10 }} 
-                    interval={0}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    yAxisId="left" 
-                    className="text-xs" 
-                    tick={{ fontSize: isMobile ? 9 : 10 }} 
-                    width={isMobile ? 35 : 60}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => isMobile ? `${(value/1000).toFixed(0)}k` : value.toLocaleString()}
-                  />
-                  {!isMobile && <YAxis yAxisId="right" orientation="right" className="text-xs" tick={{ fontSize: 10 }} />}
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      color: 'hsl(var(--foreground))',
-                      fontSize: isMobile ? '10px' : '12px'
-                    }}
-                    formatter={(value: number) => [`${value.toLocaleString()} €`, 'Comisioane']}
-                  />
-                  {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
-                  <Area 
-                    yAxisId="left"
-                    type="monotone" 
-                    dataKey="EUR" 
-                    stroke="#DAA520" 
-                    strokeWidth={isMobile ? 2 : 1}
-                    fillOpacity={1} 
-                    fill="url(#colorEUR)"
-                    name="Comisioane (€)"
-                  />
-                  {!isMobile && (
-                    <Line 
-                      yAxisId="right"
-                      type="monotone" 
-                      dataKey="count" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      dot={{ fill: '#3b82f6', r: 3 }}
-                      name="Nr. Tranzacții"
+          <CardContent className="p-2 md:p-6 pt-0">
+            <div className="h-[180px] md:h-[320px] w-full">
+              {loadingCommissions ? (
+                <div className="h-full w-full flex items-end justify-around gap-1 md:gap-2 p-2 md:p-4">
+                  {(isMobile ? [40, 65, 45, 80, 55, 70] : [40, 65, 45, 80, 55, 70, 50, 60, 75, 45, 55, 70]).map((height, i) => (
+                    <div
+                      key={i}
+                      className="bg-gold/20 rounded-t w-full"
+                      style={{ height: `${height}%` }}
                     />
-                  )}
-                </ComposedChart>
-              </ResponsiveContainer>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart 
+                    data={isMobile ? commissionsData?.monthlyTrend?.slice(-6) || [] : commissionsData?.monthlyTrend || []} 
+                    margin={isMobile ? { left: -20, right: 5, top: 5, bottom: 5 } : { left: 0, right: 10, top: 5, bottom: 5 }}
+                  >
+                    <defs>
+                      <linearGradient id="colorEUR" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#DAA520" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#DAA520" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                    <XAxis 
+                      dataKey="month" 
+                      tick={{ fontSize: isMobile ? 9 : 11 }} 
+                      interval={0}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      yAxisId="left" 
+                      tick={{ fontSize: isMobile ? 9 : 11 }} 
+                      width={isMobile ? 40 : 60}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => isMobile ? `${(value/1000).toFixed(0)}k` : value.toLocaleString()}
+                    />
+                    {!isMobile && <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} width={40} />}
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--foreground))',
+                        fontSize: isMobile ? '10px' : '12px'
+                      }}
+                      formatter={(value: number) => [`${value.toLocaleString()} €`, 'Comisioane']}
+                    />
+                    {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
+                    <Area 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="EUR" 
+                      stroke="#DAA520" 
+                      strokeWidth={2}
+                      fillOpacity={1} 
+                      fill="url(#colorEUR)"
+                      name="Comisioane (€)"
+                    />
+                    {!isMobile && (
+                      <Line 
+                        yAxisId="right"
+                        type="monotone" 
+                        dataKey="count" 
+                        stroke="#3b82f6" 
+                        strokeWidth={2}
+                        dot={{ fill: '#3b82f6', r: 3 }}
+                        name="Nr. Tranzacții"
+                      />
+                    )}
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
+            </div>
           </CardContent>
         </Card>
-        </motion.div>
 
         {/* Transaction Type Distribution */}
-        <motion.div variants={reduceMotion ? undefined : chartSlideRightVariants}>
-        <Card className="h-full">
+        <Card>
           <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
             <CardTitle className="flex items-center gap-2 text-sm md:text-base">
               <Layers className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -1002,62 +995,57 @@ const DashboardPage = () => {
             </CardTitle>
             {!isMobile && <CardDescription className="text-sm">Pe tip tranzacție</CardDescription>}
           </CardHeader>
-          <CardContent className="p-2 md:p-6 pt-0 h-[160px] md:h-[320px]">
-            {loadingCommissions ? (
-              <div className="h-full w-full flex items-center justify-center">
-                <div className="w-16 h-16 md:w-32 md:h-32 rounded-full border-4 md:border-8 border-muted" />
-              </div>
-            ) : commissionsData?.typeDistribution && commissionsData.typeDistribution.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={commissionsData.typeDistribution}
-                    cx="50%"
-                    cy={isMobile ? "45%" : "45%"}
-                    innerRadius={isMobile ? 25 : 50}
-                    outerRadius={isMobile ? 45 : 80}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {commissionsData.typeDistribution.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px',
-                      fontSize: isMobile ? '10px' : '12px'
-                    }}
-                    formatter={(value: number) => [`${Math.round(value).toLocaleString()} €`, 'Valoare']}
-                  />
-                  <Legend 
-                    verticalAlign="bottom" 
-                    height={isMobile ? 20 : 36}
-                    wrapperStyle={{ fontSize: isMobile ? '9px' : '11px' }}
-                    formatter={(value) => value}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
-                Nu există date
-              </div>
-            )}
+          <CardContent className="p-2 md:p-6 pt-0">
+            <div className="h-[180px] md:h-[320px] w-full">
+              {loadingCommissions ? (
+                <div className="h-full w-full flex items-center justify-center">
+                  <div className="w-16 h-16 md:w-32 md:h-32 rounded-full border-4 md:border-8 border-muted" />
+                </div>
+              ) : commissionsData?.typeDistribution && commissionsData.typeDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={commissionsData.typeDistribution}
+                      cx="50%"
+                      cy="45%"
+                      innerRadius={isMobile ? 30 : 50}
+                      outerRadius={isMobile ? 55 : 80}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {commissionsData.typeDistribution.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        fontSize: isMobile ? '10px' : '12px'
+                      }}
+                      formatter={(value: number) => [`${Math.round(value).toLocaleString()} €`, 'Valoare']}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={isMobile ? 30 : 36}
+                      wrapperStyle={{ fontSize: isMobile ? '10px' : '11px' }}
+                      formatter={(value) => value}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
+                  Nu există date
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
-        </motion.div>
-      </motion.div>
+      </div>
 
       {/* Charts Row 2 - Complex Breakdown */}
-      <motion.div
-        variants={reduceMotion ? undefined : chartCardVariants}
-        initial={reduceMotion ? undefined : "hidden"}
-        whileInView={reduceMotion ? undefined : "visible"}
-        viewport={{ once: true, margin: "-50px" }}
-      >
-        <Card>
+      <Card>
         <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
           <CardTitle className="flex items-center gap-2 text-sm md:text-base">
             <Building2 className="h-4 w-4 md:h-5 md:w-5 text-gold" />
@@ -1065,85 +1053,77 @@ const DashboardPage = () => {
           </CardTitle>
           {!isMobile && <CardDescription className="text-sm">Distribuție și rată de vânzare</CardDescription>}
         </CardHeader>
-        <CardContent className="p-2 md:p-6 pt-0 h-[180px] md:h-[280px]">
-          {loadingComplexes ? (
-            <div className="h-full w-full flex items-end justify-around gap-2 p-2 md:p-4">
-              {(isMobile ? [60, 45, 75, 50] : [60, 45, 75, 50, 65, 40]).map((height, i) => (
-                <div
-                  key={i}
-                  className="bg-gradient-to-t from-emerald-500/30 via-gold/20 to-blue-500/20 rounded-t w-full"
-                  style={{ height: `${height}%` }}
-                />
-              ))}
-            </div>
-          ) : complexesData?.complexBreakdown && complexesData.complexBreakdown.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={isMobile ? complexesData.complexBreakdown.slice(0, 4) : complexesData.complexBreakdown} 
-                layout="horizontal"
-                margin={isMobile ? { left: -15, right: 5, top: 5, bottom: 5 } : undefined}
-              >
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={!isMobile} />
-                <XAxis 
-                  dataKey="name" 
-                  type="category" 
-                  className="text-xs" 
-                  tick={{ fontSize: isMobile ? 8 : 11 }} 
-                  angle={isMobile ? -35 : 0} 
-                  textAnchor={isMobile ? "end" : "middle"} 
-                  height={isMobile ? 45 : 30} 
-                  interval={0}
-                  tickFormatter={(value) => isMobile ? value.substring(0, 10) : value}
-                />
-                <YAxis 
-                  type="number" 
-                  className="text-xs" 
-                  tick={{ fontSize: isMobile ? 8 : 10 }} 
-                  width={isMobile ? 25 : 40}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: isMobile ? '10px' : '12px'
-                  }}
-                  formatter={(value: number, key: string) => {
-                    const labelMap: Record<string, string> = {
-                      available: 'Disponibile',
-                      sold: 'Vândute',
-                      reserved: 'Rezervate',
-                    };
-                    return [value, labelMap[key] ?? key];
-                  }}
-                />
-                {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
-                <Bar dataKey="available" stackId="a" fill="#10b981" name="Disponibile" radius={isMobile ? [2, 2, 0, 0] : 0} />
-                <Bar dataKey="sold" stackId="a" fill="#DAA520" name="Vândute" radius={0} />
-                <Bar dataKey="reserved" stackId="a" fill="#3b82f6" name="Rezervate" radius={isMobile ? [2, 2, 0, 0] : 0} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
-              Nu există complexe
-            </div>
-          )}
+        <CardContent className="p-2 md:p-6 pt-0">
+          <div className="h-[200px] md:h-[280px] w-full">
+            {loadingComplexes ? (
+              <div className="h-full w-full flex items-end justify-around gap-2 p-2 md:p-4">
+                {(isMobile ? [60, 45, 75, 50] : [60, 45, 75, 50, 65, 40]).map((height, i) => (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-t from-emerald-500/30 via-gold/20 to-blue-500/20 rounded-t w-full"
+                    style={{ height: `${height}%` }}
+                  />
+                ))}
+              </div>
+            ) : complexesData?.complexBreakdown && complexesData.complexBreakdown.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={isMobile ? complexesData.complexBreakdown.slice(0, 4) : complexesData.complexBreakdown} 
+                  layout="horizontal"
+                  margin={isMobile ? { left: -10, right: 5, top: 5, bottom: 40 } : { left: 0, right: 10, top: 5, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    type="category" 
+                    tick={{ fontSize: isMobile ? 9 : 11 }} 
+                    angle={isMobile ? -45 : 0} 
+                    textAnchor={isMobile ? "end" : "middle"} 
+                    height={isMobile ? 60 : 30} 
+                    interval={0}
+                    tickFormatter={(value) => isMobile ? (value.length > 12 ? value.substring(0, 12) + '...' : value) : value}
+                  />
+                  <YAxis 
+                    type="number" 
+                    tick={{ fontSize: isMobile ? 9 : 11 }} 
+                    width={isMobile ? 30 : 40}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: isMobile ? '10px' : '12px'
+                    }}
+                    formatter={(value: number, key: string) => {
+                      const labelMap: Record<string, string> = {
+                        available: 'Disponibile',
+                        sold: 'Vândute',
+                        reserved: 'Rezervate',
+                      };
+                      return [value, labelMap[key] ?? key];
+                    }}
+                  />
+                  {!isMobile && <Legend wrapperStyle={{ fontSize: '11px' }} />}
+                  <Bar dataKey="available" stackId="a" fill="#10b981" name="Disponibile" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="sold" stackId="a" fill="#DAA520" name="Vândute" radius={0} />
+                  <Bar dataKey="reserved" stackId="a" fill="#3b82f6" name="Rezervate" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
+                Nu există complexe
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
-      </motion.div>
 
       {/* Bottom Stats Row */}
-      <motion.div 
-        className="grid grid-cols-2 gap-3 md:gap-6"
-        variants={reduceMotion ? undefined : chartContainerVariants}
-        initial={reduceMotion ? undefined : "hidden"}
-        whileInView={reduceMotion ? undefined : "visible"}
-        viewport={{ once: true, margin: "-50px" }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
         {/* Properties Stats */}
-        <motion.div variants={reduceMotion ? undefined : chartSlideLeftVariants}>
         <Card>
           <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
             <CardTitle className="text-sm md:text-base">{isMobile ? "Prețuri" : "Statistici Proprietăți"}</CardTitle>
@@ -1154,21 +1134,11 @@ const DashboardPage = () => {
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   {[1, 2, 3].map((i) => (
-                    <motion.div
-                      key={i}
-                      className="p-2 rounded-lg bg-muted/50 space-y-2"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
-                    >
-                      <AnimatedSkeleton className="h-5 w-12 mx-auto" />
-                      <AnimatedSkeleton className="h-3 w-8 mx-auto" />
-                    </motion.div>
+                    <div key={i} className="p-2 rounded-lg bg-muted/50 space-y-2">
+                      <Skeleton className="h-5 w-12 mx-auto" />
+                      <Skeleton className="h-3 w-8 mx-auto" />
+                    </div>
                   ))}
-                </div>
-                <div className="flex justify-between">
-                  <AnimatedSkeleton className="h-4 w-24" />
-                  <AnimatedSkeleton className="h-5 w-10 rounded-full" />
                 </div>
               </div>
             ) : (
@@ -1195,11 +1165,9 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-        </motion.div>
 
         {/* Invoice Status */}
-        <motion.div variants={reduceMotion ? undefined : chartSlideRightVariants}>
-        <Card className="h-full">
+        <Card>
           <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
             <CardTitle className="text-sm md:text-base">Status Facturi</CardTitle>
             <CardDescription className="text-[10px] md:text-sm">Comisioane facturate</CardDescription>
@@ -1208,41 +1176,14 @@ const DashboardPage = () => {
             {loadingCommissions ? (
               <div className="space-y-4">
                 {[1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="space-y-2"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.15 }}
-                  >
+                  <div key={i} className="space-y-2">
                     <div className="flex justify-between">
-                      <AnimatedSkeleton className="h-4 w-20" />
-                      <AnimatedSkeleton className="h-4 w-8" />
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-8" />
                     </div>
-                    <motion.div
-                      className="h-2 bg-muted rounded-full overflow-hidden"
-                      initial={{ width: 0 }}
-                      animate={{ width: "100%" }}
-                      transition={{ delay: i * 0.15 + 0.2, duration: 0.4 }}
-                    >
-                      <motion.div
-                        className="h-full bg-gold/50 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${i === 1 ? 65 : 35}%` }}
-                        transition={{ delay: i * 0.15 + 0.4, duration: 0.5 }}
-                      />
-                    </motion.div>
-                  </motion.div>
+                    <Skeleton className="h-2 w-full rounded-full" />
+                  </div>
                 ))}
-                <motion.div
-                  className="pt-2 border-t flex justify-between"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <AnimatedSkeleton className="h-4 w-24" />
-                  <AnimatedSkeleton className="h-4 w-8" />
-                </motion.div>
               </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
@@ -1280,8 +1221,7 @@ const DashboardPage = () => {
             )}
           </CardContent>
         </Card>
-        </motion.div>
-      </motion.div>
+      </div>
 
       {/* Day Details Dialog */}
       <Dialog open={!!selectedDayDetails} onOpenChange={() => setSelectedDayDetails(null)}>
