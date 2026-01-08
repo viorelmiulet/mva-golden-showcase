@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton, AnimatedSkeleton, FadeInSkeleton, ChartSkeleton } from "@/components/ui/skeleton";
@@ -57,6 +57,8 @@ import { motion, useReducedMotion } from "framer-motion";
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
 // Check for reduced motion preference
 const useOptimizedMotion = () => {
@@ -147,12 +149,26 @@ const chartSlideRightVariants = {
 const DashboardPage = () => {
   const isMobile = useIsMobile();
   const reduceMotion = useOptimizedMotion();
+  const queryClient = useQueryClient();
   const [selectedDayDetails, setSelectedDayDetails] = useState<{
     date: string;
     totalEUR: number;
     totalRON: number;
     transactions: { amount: number; currency: string; type: string }[];
   } | null>(null);
+  
+  // Pull to refresh
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['dashboard-properties-detailed'] });
+    await queryClient.invalidateQueries({ queryKey: ['dashboard-complexes-detailed'] });
+    await queryClient.invalidateQueries({ queryKey: ['dashboard-viewings-detailed'] });
+    await queryClient.invalidateQueries({ queryKey: ['dashboard-commissions-detailed'] });
+  }, [queryClient]);
+
+  const { containerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    disabled: !isMobile,
+  });
   
   const handleSparklineClick = (data: any) => {
     if (data?.activePayload?.[0]?.payload) {
@@ -603,12 +619,20 @@ const DashboardPage = () => {
   );
 
   return (
-    <motion.div 
-      className="space-y-4 md:space-y-6"
-      initial={reduceMotion ? undefined : "hidden"}
-      animate={reduceMotion ? undefined : "visible"}
-      variants={reduceMotion ? undefined : containerVariants}
-    >
+    <div ref={containerRef}>
+      {isMobile && (
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance} 
+          isRefreshing={isRefreshing} 
+          progress={progress} 
+        />
+      )}
+      <motion.div 
+        className="space-y-4 md:space-y-6"
+        initial={reduceMotion ? undefined : "hidden"}
+        animate={reduceMotion ? undefined : "visible"}
+        variants={reduceMotion ? undefined : containerVariants}
+      >
       {/* Header */}
       <motion.div 
         className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4"
@@ -1281,7 +1305,8 @@ const DashboardPage = () => {
           )}
         </DialogContent>
       </Dialog>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
 
