@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +86,8 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 import { MobileFilterSort } from "@/components/admin/MobileFilterSort";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
 interface Commission {
   id: string;
@@ -134,6 +136,16 @@ const CommissionsPage = () => {
   const [existingInvoiceUrl, setExistingInvoiceUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+
+  // Pull to refresh
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['commissions'] });
+  }, [queryClient]);
+
+  const { containerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    disabled: !isMobile,
+  });
 
   const { data: commissions, isLoading } = useQuery({
     queryKey: ['commissions'],
@@ -448,7 +460,15 @@ const CommissionsPage = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div ref={containerRef}>
+      {isMobile && (
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance} 
+          isRefreshing={isRefreshing} 
+          progress={progress} 
+        />
+      )}
+      <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -1432,6 +1452,7 @@ const CommissionsPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };

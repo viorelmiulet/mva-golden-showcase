@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,8 +24,12 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
 const PropertiesAdmin = () => {
+  const isMobile = useIsMobile();
   const [propertyIds, setPropertyIds] = useState(Array(5).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState(Array(5).fill(false));
@@ -35,6 +39,16 @@ const PropertiesAdmin = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Pull to refresh
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['all-properties'] });
+  }, [queryClient]);
+
+  const { containerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    disabled: !isMobile,
+  });
 
   const scrapeProperty = async (propertyId: string, index: number) => {
     if (!propertyId.trim()) {
@@ -297,7 +311,15 @@ const PropertiesAdmin = () => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-8">
+    <div ref={containerRef}>
+      {isMobile && (
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance} 
+          isRefreshing={isRefreshing} 
+          progress={progress} 
+        />
+      )}
+      <div className="space-y-4 md:space-y-8">
       {/* Scrape Properties Section */}
       <Card className="glass border-gold/20">
         <CardHeader className="p-4 md:p-6">
@@ -614,6 +636,7 @@ const PropertiesAdmin = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
