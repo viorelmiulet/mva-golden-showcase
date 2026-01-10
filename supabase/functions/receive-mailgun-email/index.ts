@@ -28,27 +28,80 @@ Deno.serve(async (req) => {
     const inReplyTo = formData.get('In-Reply-To') as string || '';
     const timestamp = formData.get('timestamp') as string;
     
-    // Handle attachments
-    const attachmentCount = parseInt(formData.get('attachment-count') as string || '0');
-    const attachments: any[] = [];
-    
-    for (let i = 1; i <= attachmentCount; i++) {
-      const attachment = formData.get(`attachment-${i}`);
-      if (attachment instanceof File) {
-        attachments.push({
-          name: attachment.name,
-          size: attachment.size,
-          type: attachment.type,
-        });
-      }
-    }
-    
-    console.log('Email data:', { sender, recipient, subject, attachmentCount });
-    
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Generate unique email ID for attachment paths
+    const emailId = crypto.randomUUID();
+    
+    // Handle attachments
+    const attachmentCount = parseInt(formData.get('attachment-count') as string || '0');
+    const attachments: any[] = [];
+    
+    console.log(`Processing ${attachmentCount} attachments`);
+    
+    for (let i = 1; i <= attachmentCount; i++) {
+      const attachment = formData.get(`attachment-${i}`);
+      if (attachment instanceof File) {
+        try {
+          // Read file content
+          const arrayBuffer = await attachment.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          
+          // Generate unique filename
+          const sanitizedName = attachment.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const filePath = `${emailId}/${sanitizedName}`;
+          
+          // Upload to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('email-attachments')
+            .upload(filePath, uint8Array, {
+              contentType: attachment.type,
+              upsert: true
+            });
+          
+          if (uploadError) {
+            console.error(`Error uploading attachment ${attachment.name}:`, uploadError);
+            // Still add metadata even if upload fails
+            attachments.push({
+              name: attachment.name,
+              size: attachment.size,
+              type: attachment.type,
+              url: null,
+              error: uploadError.message
+            });
+          } else {
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from('email-attachments')
+              .getPublicUrl(filePath);
+            
+            console.log(`Uploaded attachment: ${attachment.name} -> ${urlData.publicUrl}`);
+            
+            attachments.push({
+              name: attachment.name,
+              size: attachment.size,
+              type: attachment.type,
+              url: urlData.publicUrl,
+              path: filePath
+            });
+          }
+        } catch (attachError) {
+          console.error(`Error processing attachment ${attachment.name}:`, attachError);
+          attachments.push({
+            name: attachment.name,
+            size: attachment.size,
+            type: attachment.type,
+            url: null,
+            error: String(attachError)
+          });
+        }
+      }
+    }
+    
+    console.log('Email data:', { sender, recipient, subject, attachmentCount, attachments: attachments.length });
     
     // Calculate received_at from timestamp or use now
     const receivedAt = timestamp 
@@ -59,6 +112,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from('received_emails')
       .insert({
+        id: emailId,
         sender,
         recipient,
         subject,
