@@ -17,8 +17,11 @@ import {
   CheckCircle2,
   Stamp,
   Grid3X3,
-  Eye
+  Eye,
+  CheckSquare,
+  Square
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import JSZip from "jszip";
 
 interface UploadedImage {
@@ -68,6 +71,7 @@ export default function WatermarkPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const watermarkInputRef = useRef<HTMLInputElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -177,7 +181,48 @@ export default function WatermarkPage() {
       }
       return prev.filter(img => img.id !== id);
     });
+    setSelectedImages(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   }, []);
+
+  const toggleImageSelection = useCallback((id: string) => {
+    setSelectedImages(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAllImages = useCallback(() => {
+    setSelectedImages(new Set(images.map(img => img.id)));
+  }, [images]);
+
+  const deselectAllImages = useCallback(() => {
+    setSelectedImages(new Set());
+  }, []);
+
+  const deleteSelectedImages = useCallback(() => {
+    selectedImages.forEach(id => {
+      const image = images.find(img => img.id === id);
+      if (image) {
+        URL.revokeObjectURL(image.preview);
+        if (image.watermarked) {
+          URL.revokeObjectURL(image.watermarked);
+        }
+      }
+    });
+    setImages(prev => prev.filter(img => !selectedImages.has(img.id)));
+    const count = selectedImages.size;
+    setSelectedImages(new Set());
+    toast.success(`${count} imagini șterse`);
+  }, [selectedImages, images]);
 
   const clearAllImages = useCallback(() => {
     images.forEach(img => {
@@ -737,7 +782,43 @@ export default function WatermarkPage() {
           onDrop={handleDrop}
         >
           <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">Imagini ({images.length})</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base sm:text-lg">Imagini ({images.length})</CardTitle>
+              {images.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {selectedImages.size > 0 && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={deleteSelectedImages}
+                      className="h-7 text-xs"
+                      disabled={isProcessing}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Șterge ({selectedImages.size})
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={selectedImages.size === images.length ? deselectAllImages : selectAllImages}
+                    className="h-7 text-xs"
+                  >
+                    {selectedImages.size === images.length ? (
+                      <>
+                        <Square className="h-3 w-3 mr-1" />
+                        Deselectează
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="h-3 w-3 mr-1" />
+                        Selectează tot
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {images.length === 0 ? (
@@ -779,40 +860,63 @@ export default function WatermarkPage() {
                 </div>
                 
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {images.map(image => (
-                  <div 
-                    key={image.id} 
-                    className="relative group aspect-square rounded-lg overflow-hidden bg-muted"
-                  >
-                    <img
-                      src={image.watermarked || image.preview}
-                      alt={image.file.name}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Status overlay */}
-                    {image.status === "processing" && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Loader2 className="h-4 w-4 text-white animate-spin" />
-                      </div>
-                    )}
-                    
-                    {image.status === "done" && (
-                      <div className="absolute top-1 left-1">
-                        <CheckCircle2 className="h-4 w-4 text-green-500 drop-shadow-md" />
-                      </div>
-                    )}
-                    
-                    {/* Remove button */}
-                    <button
-                      onClick={() => removeImage(image.id)}
-                      className="absolute top-1 right-1 p-0.5 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      disabled={isProcessing}
+                {images.map(image => {
+                  const isSelected = selectedImages.has(image.id);
+                  return (
+                    <div 
+                      key={image.id} 
+                      className={`relative group aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer transition-all ${
+                        isSelected ? "ring-2 ring-gold ring-offset-1" : ""
+                      }`}
+                      onClick={() => toggleImageSelection(image.id)}
                     >
-                      <X className="h-3 w-3 text-white" />
-                    </button>
-                  </div>
-                ))}
+                      <img
+                        src={image.watermarked || image.preview}
+                        alt={image.file.name}
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Selection checkbox */}
+                      <div 
+                        className={`absolute top-1 left-1 transition-opacity ${
+                          isSelected || selectedImages.size > 0 ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleImageSelection(image.id)}
+                          className="h-4 w-4 bg-black/50 border-white data-[state=checked]:bg-gold data-[state=checked]:border-gold"
+                        />
+                      </div>
+                      
+                      {/* Status overlay */}
+                      {image.status === "processing" && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <Loader2 className="h-4 w-4 text-white animate-spin" />
+                        </div>
+                      )}
+                      
+                      {image.status === "done" && !isSelected && (
+                        <div className="absolute top-1 right-1">
+                          <CheckCircle2 className="h-4 w-4 text-green-500 drop-shadow-md" />
+                        </div>
+                      )}
+                      
+                      {/* Remove button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(image.id);
+                        }}
+                        className="absolute bottom-1 right-1 p-0.5 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        disabled={isProcessing}
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </button>
+                    </div>
+                  );
+                })}
                 </div>
               </div>
             )}
