@@ -13,13 +13,27 @@ import {
   RefreshCw,
   Inbox,
   ChevronLeft,
-  Paperclip
+  Paperclip,
+  Reply,
+  Send,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +45,7 @@ interface ReceivedEmail {
   body_plain: string | null;
   body_html: string | null;
   stripped_text: string | null;
+  message_id: string | null;
   attachments: any[];
   is_read: boolean;
   is_starred: boolean;
@@ -42,6 +57,10 @@ interface ReceivedEmail {
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred'>('all');
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyTo, setReplyTo] = useState("");
+  const [replySubject, setReplySubject] = useState("");
+  const [replyBody, setReplyBody] = useState("");
   const queryClient = useQueryClient();
 
   const { data: emails, isLoading, refetch } = useQuery({
@@ -93,6 +112,29 @@ const InboxPage = () => {
     }
   });
 
+  const sendReplyMutation = useMutation({
+    mutationFn: async ({ to, subject, body, inReplyTo }: { 
+      to: string; 
+      subject: string; 
+      body: string; 
+      inReplyTo?: string;
+    }) => {
+      const { data, error } = await supabase.functions.invoke('reply-email', {
+        body: { to, subject, body, inReplyTo }
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Răspunsul a fost trimis!');
+      setReplyDialogOpen(false);
+      setReplyBody("");
+    },
+    onError: (error: any) => {
+      toast.error(`Eroare la trimitere: ${error.message}`);
+    }
+  });
+
   const handleSelectEmail = async (email: ReceivedEmail) => {
     setSelectedEmail(email);
     if (!email.is_read) {
@@ -119,6 +161,31 @@ const InboxPage = () => {
 
   const handleDelete = (email: ReceivedEmail) => {
     deleteEmailMutation.mutate(email.id);
+  };
+
+  const handleOpenReply = (email: ReceivedEmail) => {
+    // Extract email address from sender (could be "Name <email@domain.com>" format)
+    const emailMatch = email.sender.match(/<([^>]+)>/) || [null, email.sender];
+    const senderEmail = emailMatch[1] || email.sender;
+    
+    setReplyTo(senderEmail);
+    setReplySubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject || ''}`);
+    setReplyBody("");
+    setReplyDialogOpen(true);
+  };
+
+  const handleSendReply = () => {
+    if (!replyTo || !replyBody.trim()) {
+      toast.error('Completează destinatarul și mesajul');
+      return;
+    }
+    
+    sendReplyMutation.mutate({
+      to: replyTo,
+      subject: replySubject,
+      body: replyBody,
+      inReplyTo: selectedEmail?.message_id || undefined
+    });
   };
 
   const extractSenderName = (sender: string) => {
@@ -281,9 +348,17 @@ const InboxPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-muted-foreground hidden sm:inline">
                       {format(new Date(selectedEmail.received_at), 'dd MMMM yyyy, HH:mm', { locale: ro })}
                     </span>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => handleOpenReply(selectedEmail)}
+                    >
+                      <Reply className="h-4 w-4 mr-2" />
+                      Răspunde
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -373,6 +448,86 @@ const InboxPage = () => {
           </code>
         </CardContent>
       </Card>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Reply className="h-5 w-5" />
+              Răspunde la email
+            </DialogTitle>
+            <DialogDescription>
+              Trimite un răspuns către expeditor
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reply-to">Către</Label>
+              <Input
+                id="reply-to"
+                value={replyTo}
+                onChange={(e) => setReplyTo(e.target.value)}
+                placeholder="email@example.com"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="reply-subject">Subiect</Label>
+              <Input
+                id="reply-subject"
+                value={replySubject}
+                onChange={(e) => setReplySubject(e.target.value)}
+                placeholder="Re: Subiect"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="reply-body">Mesaj</Label>
+              <Textarea
+                id="reply-body"
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                placeholder="Scrie răspunsul tău aici..."
+                className="min-h-[200px]"
+              />
+            </div>
+            
+            {selectedEmail && (
+              <div className="p-3 bg-muted rounded-lg text-sm">
+                <p className="font-medium text-muted-foreground mb-2">Email original:</p>
+                <p className="text-xs text-muted-foreground">
+                  De la: {selectedEmail.sender}<br/>
+                  Subiect: {selectedEmail.subject}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplyDialogOpen(false)}>
+              Anulează
+            </Button>
+            <Button 
+              onClick={handleSendReply}
+              disabled={sendReplyMutation.isPending || !replyBody.trim()}
+            >
+              {sendReplyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Se trimite...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Trimite
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

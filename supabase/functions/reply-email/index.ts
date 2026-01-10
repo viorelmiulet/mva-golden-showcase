@@ -1,0 +1,75 @@
+import { sendMailgunEmail } from '../_shared/mailgun.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface ReplyEmailRequest {
+  to: string;
+  subject: string;
+  body: string;
+  inReplyTo?: string;
+  originalEmailId?: string;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { to, subject, body, inReplyTo }: ReplyEmailRequest = await req.json();
+
+    if (!to || !subject || !body) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: to, subject, body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Sending reply email to:', to);
+
+    // Build custom headers for threading
+    const customHeaders: Record<string, string> = {};
+    if (inReplyTo) {
+      customHeaders['In-Reply-To'] = inReplyTo;
+      customHeaders['References'] = inReplyTo;
+    }
+
+    const result = await sendMailgunEmail({
+      to,
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px;">
+          ${body.split('\n').map(line => `<p style="margin: 0 0 10px 0;">${line || '&nbsp;'}</p>`).join('')}
+          <br/>
+          <p style="color: #666; font-size: 12px;">
+            —<br/>
+            MVA Imobiliare<br/>
+            <a href="https://mvaimobiliare.ro" style="color: #C6A052;">mvaimobiliare.ro</a>
+          </p>
+        </div>
+      `,
+      customHeaders,
+    });
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to send email');
+    }
+
+    console.log('Reply sent successfully');
+
+    return new Response(
+      JSON.stringify({ success: true, messageId: result.messageId }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Error sending reply:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
