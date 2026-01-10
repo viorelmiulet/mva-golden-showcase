@@ -574,47 +574,49 @@ const DashboardPage = () => {
     loading: boolean;
     color?: string;
   }) => (
-    <Card className="relative overflow-hidden">
-      <div className={`absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-${color}/5 rounded-full -translate-y-1/2 translate-x-1/2`} />
-      <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
-        <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">{title}</CardTitle>
-        <div className={`p-1.5 md:p-2 rounded-lg bg-${color}/10 shrink-0`}>
-          <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 text-${color}`} />
+    <div className="admin-glass-card relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+      <div className={`absolute top-0 right-0 w-20 md:w-28 h-20 md:h-28 bg-gradient-to-br from-gold/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500`} />
+      <div className="p-4 md:p-6">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs md:text-sm font-medium text-muted-foreground/80">{title}</span>
+          <div className="p-2 md:p-2.5 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/5">
+            <Icon className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
         {loading ? (
-          <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
+          <AnimatedSkeleton className="h-7 md:h-9 w-24 md:w-28" />
         ) : (
           <>
-            <div className="text-lg md:text-2xl font-bold">{value}</div>
+            <div className="text-xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">{value}</div>
             {subtitle && (
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 line-clamp-2">{subtitle}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground/70 mt-1.5 line-clamp-2">{subtitle}</p>
             )}
             {trend && (
-              <div className={`text-[10px] md:text-xs mt-1.5 md:mt-2 flex items-center gap-1 ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
-                {trend.positive ? (
-                  <ArrowUpRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                ) : (
-                  <ArrowDownRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                )}
-                <span className="truncate">{Math.abs(trend.value)}% față de luna trecută</span>
+              <div className={`text-[10px] md:text-xs mt-2 flex items-center gap-1.5 ${trend.positive ? 'text-emerald-500' : 'text-red-500'}`}>
+                <span className={`p-1 rounded-full ${trend.positive ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                  {trend.positive ? (
+                    <ArrowUpRight className="h-3 w-3" />
+                  ) : (
+                    <ArrowDownRight className="h-3 w-3" />
+                  )}
+                </span>
+                <span className="truncate font-medium">{Math.abs(trend.value)}% față de luna trecută</span>
               </div>
             )}
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 
   const MiniStatCard = ({ label, value, icon: Icon, color }: { label: string; value: string | number; icon: any; color: string }) => (
-    <div className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg bg-muted/50">
-      <div className={`p-1.5 md:p-2 rounded-lg ${color} shrink-0`}>
-        <Icon className="h-3.5 w-3.5 md:h-4 md:w-4 text-white" />
+    <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/0 border border-white/10 backdrop-blur-sm hover:border-gold/20 transition-all duration-300">
+      <div className={`p-2 md:p-2.5 rounded-xl ${color} shadow-lg shrink-0`}>
+        <Icon className="h-4 w-4 md:h-5 md:w-5 text-white" />
       </div>
       <div className="min-w-0">
-        <p className="text-base md:text-lg font-bold truncate">{value}</p>
-        <p className="text-[10px] md:text-xs text-muted-foreground truncate">{label}</p>
+        <p className="text-lg md:text-xl font-bold truncate">{value}</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground/70 truncate">{label}</p>
       </div>
     </div>
   );
@@ -636,19 +638,24 @@ const DashboardPage = () => {
       >
       {/* Header */}
       <motion.div 
-        className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4"
+        className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4"
         variants={reduceMotion ? undefined : fadeInVariants}
       >
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold">Dashboard</h1>
-          <p className="text-xs md:text-sm text-muted-foreground">Statistici complete și analize</p>
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/10">
+            <BarChart3 className="h-6 w-6 md:h-7 md:w-7 text-gold" />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Dashboard</h1>
+            <p className="text-xs md:text-sm text-muted-foreground/70">Statistici complete și analize în timp real</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-muted-foreground text-[10px] md:text-xs px-2 py-0.5">
-            <Activity className="h-2.5 w-2.5 md:h-3 md:w-3 mr-1" />
-            Live
-          </Badge>
-          <Badge variant="secondary" className="text-[10px] md:text-xs px-2 py-0.5">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-[10px] md:text-xs text-emerald-600 font-medium">Live</span>
+          </div>
+          <Badge variant="secondary" className="text-[10px] md:text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10">
             {format(new Date(), isMobile ? 'dd MMM' : 'dd MMMM yyyy', { locale: ro })}
           </Badge>
         </div>
@@ -656,65 +663,65 @@ const DashboardPage = () => {
 
       {/* Quick Actions Card */}
       <motion.div variants={reduceMotion ? undefined : fadeInVariants}>
-        <Card className="border-gold/20 bg-gradient-to-br from-gold/5 to-transparent">
-          <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
-            <CardTitle className="text-base md:text-lg flex items-center gap-2">
-              <Activity className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-              Acțiuni Rapide
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            <div className="grid grid-cols-3 gap-2 md:gap-3">
-              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+        <div className="admin-glass-card overflow-hidden">
+          <div className="p-4 md:p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+                <Activity className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+              </div>
+              <h3 className="text-base md:text-lg font-semibold">Acțiuni Rapide</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/proprietati" 
-                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                  className="flex flex-col md:flex-row items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/10 transition-all group h-full"
                 >
-                  <div className="p-1.5 md:p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                    <Plus className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                  <div className="p-2 md:p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/30">
+                    <Plus className="h-4 w-4 md:h-5 md:w-5 text-white" />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Proprietate</p>
-                    <p className="hidden md:block text-xs text-muted-foreground">Proprietate nouă</p>
+                    <p className="text-[11px] md:text-sm font-semibold group-hover:text-emerald-500 transition-colors">Proprietate</p>
+                    <p className="hidden md:block text-xs text-muted-foreground/70">Adaugă proprietate nouă</p>
                   </div>
-                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/50 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" />
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/import-xml" 
-                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                  className="flex flex-col md:flex-row items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10 transition-all group h-full"
                 >
-                  <div className="p-1.5 md:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                    <FileSpreadsheet className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                  <div className="p-2 md:p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30">
+                    <FileSpreadsheet className="h-4 w-4 md:h-5 md:w-5 text-white" />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Import</p>
-                    <p className="hidden md:block text-xs text-muted-foreground">Import proprietăți</p>
+                    <p className="text-[11px] md:text-sm font-semibold group-hover:text-blue-500 transition-colors">Import</p>
+                    <p className="hidden md:block text-xs text-muted-foreground/70">Import din XML/Excel</p>
                   </div>
-                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/50 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.02 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
                 <Link 
                   to="/admin/comisioane" 
-                  className="flex flex-col md:flex-row items-center gap-2 md:gap-3 p-2 md:p-4 rounded-lg bg-card border border-border/50 hover:border-gold/40 hover:bg-gold/5 transition-all group h-full"
+                  className="flex flex-col md:flex-row items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl bg-gradient-to-br from-gold/10 to-gold/5 border border-gold/20 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/10 transition-all group h-full"
                 >
-                  <div className="p-1.5 md:p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-                    <Coins className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+                  <div className="p-2 md:p-3 rounded-xl bg-gradient-to-br from-gold to-yellow-600 shadow-lg shadow-gold/30">
+                    <Coins className="h-4 w-4 md:h-5 md:w-5 text-white" />
                   </div>
                   <div className="flex-1 text-center md:text-left">
-                    <p className="text-[10px] md:text-sm font-medium group-hover:text-gold transition-colors">Comisioane</p>
-                    <p className="hidden md:block text-xs text-muted-foreground">Gestionare</p>
+                    <p className="text-[11px] md:text-sm font-semibold group-hover:text-gold transition-colors">Comisioane</p>
+                    <p className="hidden md:block text-xs text-muted-foreground/70">Gestionare venituri</p>
                   </div>
-                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="hidden md:block h-4 w-4 text-muted-foreground/50 group-hover:text-gold group-hover:translate-x-1 transition-all" />
                 </Link>
               </motion.div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </motion.div>
 
       {/* Main Stats Grid - Row 1 */}
@@ -742,196 +749,206 @@ const DashboardPage = () => {
           />
         </motion.div>
         <motion.div variants={reduceMotion ? undefined : itemVariants}>
-          <Card className="relative overflow-hidden h-full">
-            <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
-              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">Comisioane Lună</CardTitle>
-              <div className="p-1.5 md:p-2 rounded-lg bg-gold/10 shrink-0">
-                <Euro className="h-3.5 w-3.5 md:h-4 md:w-4 text-gold" />
+          <div className="admin-glass-card relative overflow-hidden h-full group hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 md:w-28 h-20 md:h-28 bg-gradient-to-br from-gold/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500" />
+            <div className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs md:text-sm font-medium text-muted-foreground/80">Comisioane Lună</span>
+                <div className="p-2 md:p-2.5 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/5">
+                  <Euro className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+                </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
               {loadingCommissions ? (
-                <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
+                <AnimatedSkeleton className="h-7 md:h-9 w-24 md:w-28" />
               ) : (
                 <>
-                  <div className="text-lg md:text-2xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
+                  <div className="text-xl md:text-3xl font-bold">{(commissionsData?.currentMonthEUR || 0).toLocaleString()} €</div>
                   {commissionsData?.currentMonthRON && !isMobile ? (
-                    <p className="text-[10px] md:text-xs text-muted-foreground mt-1">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
+                    <p className="text-[10px] md:text-xs text-muted-foreground/70 mt-1.5">+ {commissionsData.currentMonthRON.toLocaleString()} RON</p>
                   ) : null}
                   {commissionsData?.monthlyGrowth !== undefined && (
-                    <div className={`text-[10px] md:text-xs mt-1.5 md:mt-2 flex items-center gap-1 ${commissionsData.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {commissionsData.monthlyGrowth >= 0 ? (
-                        <ArrowUpRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                    ) : (
-                      <ArrowDownRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                    )}
-                    {Math.abs(commissionsData.monthlyGrowth)}%
-                  </div>
-                )}
-                {/* Sparkline - only on desktop */}
-                {!isMobile && commissionsData?.currentMonthDailyTrend && commissionsData.currentMonthDailyTrend.length > 0 && (
-                  <div className="mt-3 h-[40px] cursor-pointer" title="Click pentru detalii">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={commissionsData.currentMonthDailyTrend} onClick={handleSparklineClick}>
-                        <defs>
-                          <linearGradient id="sparklineGradientMonth" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))', 
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                            fontSize: '11px',
-                            padding: '4px 8px'
-                          }}
-                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
-                          labelFormatter={(label) => `Ziua ${label}`}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="#10b981" 
-                          strokeWidth={1.5}
-                          fill="url(#sparklineGradientMonth)"
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+                    <div className={`text-[10px] md:text-xs mt-2 flex items-center gap-1.5 ${commissionsData.monthlyGrowth >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <span className={`p-1 rounded-full ${commissionsData.monthlyGrowth >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                        {commissionsData.monthlyGrowth >= 0 ? (
+                          <ArrowUpRight className="h-3 w-3" />
+                        ) : (
+                          <ArrowDownRight className="h-3 w-3" />
+                        )}
+                      </span>
+                      <span className="font-medium">{Math.abs(commissionsData.monthlyGrowth)}%</span>
+                    </div>
+                  )}
+                  {/* Sparkline - only on desktop */}
+                  {!isMobile && commissionsData?.currentMonthDailyTrend && commissionsData.currentMonthDailyTrend.length > 0 && (
+                    <div className="mt-4 h-[45px] cursor-pointer rounded-lg overflow-hidden" title="Click pentru detalii">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={commissionsData.currentMonthDailyTrend} onClick={handleSparklineClick}>
+                          <defs>
+                            <linearGradient id="sparklineGradientMonth" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))', 
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              fontSize: '11px',
+                              padding: '6px 10px',
+                              boxShadow: '0 10px 30px -10px rgba(0,0,0,0.3)'
+                            }}
+                            formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                            labelFormatter={(label) => `Ziua ${label}`}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#10b981" 
+                            strokeWidth={2}
+                            fill="url(#sparklineGradientMonth)"
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         </motion.div>
         <motion.div variants={reduceMotion ? undefined : itemVariants}>
-        <Card className="relative overflow-hidden h-full">
-          <div className="absolute top-0 right-0 w-16 md:w-24 h-16 md:h-24 bg-gold/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 md:p-6 md:pb-2">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-1">Medie/Zi</CardTitle>
-            <div className="p-1.5 md:p-2 rounded-lg bg-gold/10 shrink-0">
-              <Target className="h-3.5 w-3.5 md:h-4 md:w-4 text-gold" />
+          <div className="admin-glass-card relative overflow-hidden h-full group hover:scale-[1.02] transition-all duration-300">
+            <div className="absolute top-0 right-0 w-20 md:w-28 h-20 md:h-28 bg-gradient-to-br from-gold/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500" />
+            <div className="p-4 md:p-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs md:text-sm font-medium text-muted-foreground/80">Medie/Zi</span>
+                <div className="p-2 md:p-2.5 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/5">
+                  <Target className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+                </div>
+              </div>
+              {loadingCommissions ? (
+                <AnimatedSkeleton className="h-7 md:h-9 w-24 md:w-28" />
+              ) : (
+                <>
+                  <div className="text-xl md:text-3xl font-bold">{(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €</div>
+                  {!isMobile && (
+                    <p className="text-[10px] md:text-xs text-muted-foreground/70 mt-1.5">
+                      {commissionsData?.lastYearDailyAvgEUR ? `An trecut: ${commissionsData.lastYearDailyAvgEUR.toLocaleString()} €` : "Media zilnică YTD"}
+                    </p>
+                  )}
+                  {commissionsData?.dailyAvgGrowth !== undefined && commissionsData?.lastYearDailyAvgEUR > 0 && (
+                    <div className={`text-[10px] md:text-xs mt-2 flex items-center gap-1.5 ${commissionsData.dailyAvgGrowth >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <span className={`p-1 rounded-full ${commissionsData.dailyAvgGrowth >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                        {commissionsData.dailyAvgGrowth >= 0 ? (
+                          <ArrowUpRight className="h-3 w-3" />
+                        ) : (
+                          <ArrowDownRight className="h-3 w-3" />
+                        )}
+                      </span>
+                      <span className="font-medium">{Math.abs(commissionsData.dailyAvgGrowth)}%</span>
+                    </div>
+                  )}
+                  {/* Sparkline - only on desktop */}
+                  {!isMobile && commissionsData?.dailyTrend30 && commissionsData.dailyTrend30.length > 0 && (
+                    <div className="mt-4 h-[45px] cursor-pointer rounded-lg overflow-hidden" title="Click pentru detalii">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={commissionsData.dailyTrend30} onClick={handleSparklineClick}>
+                          <defs>
+                            <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#DAA520" stopOpacity={0.5}/>
+                              <stop offset="95%" stopColor="#DAA520" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))', 
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              fontSize: '11px',
+                              padding: '6px 10px',
+                              boxShadow: '0 10px 30px -10px rgba(0,0,0,0.3)'
+                            }}
+                            formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
+                            labelFormatter={(label) => label}
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#DAA520" 
+                            strokeWidth={2}
+                            fill="url(#sparklineGradient)"
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            {loadingCommissions ? (
-              <AnimatedSkeleton className="h-6 md:h-8 w-20 md:w-24" />
-            ) : (
-              <>
-                <div className="text-lg md:text-2xl font-bold">{(commissionsData?.dailyAvgEUR || 0).toLocaleString()} €</div>
-                {!isMobile && (
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
-                    {commissionsData?.lastYearDailyAvgEUR ? `An trecut: ${commissionsData.lastYearDailyAvgEUR.toLocaleString()} €` : "Media zilnică YTD"}
-                  </p>
-                )}
-                {commissionsData?.dailyAvgGrowth !== undefined && commissionsData?.lastYearDailyAvgEUR > 0 && (
-                  <div className={`text-[10px] md:text-xs mt-1.5 md:mt-2 flex items-center gap-1 ${commissionsData.dailyAvgGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {commissionsData.dailyAvgGrowth >= 0 ? (
-                      <ArrowUpRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                    ) : (
-                      <ArrowDownRight className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                    )}
-                    {Math.abs(commissionsData.dailyAvgGrowth)}%
-                  </div>
-                )}
-                {/* Sparkline - only on desktop */}
-                {!isMobile && commissionsData?.dailyTrend30 && commissionsData.dailyTrend30.length > 0 && (
-                  <div className="mt-3 h-[40px] cursor-pointer" title="Click pentru detalii">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={commissionsData.dailyTrend30} onClick={handleSparklineClick}>
-                        <defs>
-                          <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#DAA520" stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor="#DAA520" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))', 
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                            fontSize: '11px',
-                            padding: '4px 8px'
-                          }}
-                          formatter={(value: number) => [`${value.toLocaleString()} €`, '']}
-                          labelFormatter={(label) => label}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="#DAA520" 
-                          strokeWidth={1.5}
-                          fill="url(#sparklineGradient)"
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
+          </div>
         </motion.div>
       </motion.div>
 
       {/* Stats Row 2 - KPIs */}
-      <div className="grid grid-cols-2 gap-2 md:gap-4">
-        <Card>
-          <CardContent className="p-3 md:pt-6 md:p-6">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
+        <div className="admin-glass-card group hover:scale-[1.02] transition-all duration-300">
+          <div className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] md:text-sm text-muted-foreground truncate">Comision Mediu</p>
-                <p className="text-lg md:text-2xl font-bold">{(commissionsData?.avgEUR || 0).toLocaleString()} €</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground/70 truncate">Comision Mediu</p>
+                <p className="text-xl md:text-3xl font-bold mt-1">{(commissionsData?.avgEUR || 0).toLocaleString()} €</p>
               </div>
-              <div className="p-2 md:p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/20 shrink-0 ml-2">
-                <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+              <div className="p-2.5 md:p-3 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 shadow-lg shadow-yellow-500/10 shrink-0 ml-3">
+                <DollarSign className="h-5 w-5 md:h-6 md:w-6 text-yellow-500" />
               </div>
             </div>
-            <p className="text-[10px] md:text-xs text-muted-foreground mt-2 md:mt-3">Per tranzacție EUR</p>
-          </CardContent>
-        </Card>
+            <p className="text-[10px] md:text-xs text-muted-foreground/60 mt-3">Per tranzacție EUR</p>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-3 md:pt-6 md:p-6">
+        <div className="admin-glass-card group hover:scale-[1.02] transition-all duration-300">
+          <div className="p-4 md:p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-[10px] md:text-sm text-muted-foreground truncate">YTD Comisioane</p>
-                <p className="text-lg md:text-2xl font-bold">{(commissionsData?.ytdEUR || 0).toLocaleString()} €</p>
+                <p className="text-[10px] md:text-sm text-muted-foreground/70 truncate">YTD Comisioane</p>
+                <p className="text-xl md:text-3xl font-bold mt-1">{(commissionsData?.ytdEUR || 0).toLocaleString()} €</p>
               </div>
-              <div className="p-2 md:p-3 rounded-full bg-blue-100 dark:bg-blue-900/20 shrink-0 ml-2">
-                <BarChart3 className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+              <div className="p-2.5 md:p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 shadow-lg shadow-blue-500/10 shrink-0 ml-3">
+                <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
               </div>
             </div>
-            <p className="text-[10px] md:text-xs text-muted-foreground mt-2 md:mt-3">
+            <p className="text-[10px] md:text-xs text-muted-foreground/60 mt-3">
               + {(commissionsData?.ytdRON || 0).toLocaleString()} RON
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Charts Row 1 */}
       <div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
       >
         {/* Commission Trend Chart - 12 months */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
-            <CardTitle className="flex items-center gap-2 text-sm md:text-base">
-              <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-              {isMobile ? "Comisioane" : "Evoluție Comisioane (12 luni)"}
-            </CardTitle>
+        <div className="admin-glass-card lg:col-span-2">
+          <div className="p-4 md:p-6 pb-2 md:pb-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+                <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-gold" />
+              </div>
+              <h3 className="text-sm md:text-base font-semibold">
+                {isMobile ? "Comisioane" : "Evoluție Comisioane (12 luni)"}
+              </h3>
+            </div>
             {!isMobile && (
-              <CardDescription className="text-sm">
+              <p className="text-sm text-muted-foreground/70 ml-11">
                 Trend lunar al comisioanelor în EUR și număr tranzacții
-              </CardDescription>
+              </p>
             )}
-          </CardHeader>
-          <CardContent className="p-2 md:p-6 pt-0">
+          </div>
+          <div className="p-2 md:p-6 pt-0">
             <div className="h-[180px] md:h-[320px] w-full">
               {loadingCommissions ? (
                 <div className="h-full w-full flex items-end justify-around gap-1 md:gap-2 p-2 md:p-4">
@@ -1008,19 +1025,21 @@ const DashboardPage = () => {
                 </ResponsiveContainer>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Transaction Type Distribution */}
-        <Card>
-          <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
-            <CardTitle className="flex items-center gap-2 text-sm md:text-base">
-              <Layers className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-              Distribuție
-            </CardTitle>
-            {!isMobile && <CardDescription className="text-sm">Pe tip tranzacție</CardDescription>}
-          </CardHeader>
-          <CardContent className="p-2 md:p-6 pt-0">
+        <div className="admin-glass-card">
+          <div className="p-4 md:p-6 pb-2 md:pb-4">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20">
+                <Layers className="h-4 w-4 md:h-5 md:w-5 text-purple-500" />
+              </div>
+              <h3 className="text-sm md:text-base font-semibold">Distribuție</h3>
+            </div>
+            {!isMobile && <p className="text-sm text-muted-foreground/70 ml-11">Pe tip tranzacție</p>}
+          </div>
+          <div className="p-2 md:p-6 pt-0">
             <div className="h-[180px] md:h-[320px] w-full">
               {loadingCommissions ? (
                 <div className="h-full w-full flex items-center justify-center">
@@ -1047,7 +1066,8 @@ const DashboardPage = () => {
                         backgroundColor: 'hsl(var(--card))', 
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
-                        fontSize: isMobile ? '10px' : '12px'
+                        fontSize: isMobile ? '10px' : '12px',
+                        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.3)'
                       }}
                       formatter={(value: number) => [`${Math.round(value).toLocaleString()} €`, 'Valoare']}
                     />
@@ -1060,25 +1080,29 @@ const DashboardPage = () => {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
+                <div className="h-full flex items-center justify-center text-muted-foreground/70 text-xs md:text-sm">
                   Nu există date
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Charts Row 2 - Complex Breakdown */}
-      <Card>
-        <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
-          <CardTitle className="flex items-center gap-2 text-sm md:text-base">
-            <Building2 className="h-4 w-4 md:h-5 md:w-5 text-gold" />
-            {isMobile ? "Complexe" : "Apartamente pe Complex"}
-          </CardTitle>
-          {!isMobile && <CardDescription className="text-sm">Distribuție și rată de vânzare</CardDescription>}
-        </CardHeader>
-        <CardContent className="p-2 md:p-6 pt-0">
+      <div className="admin-glass-card">
+        <div className="p-4 md:p-6 pb-2 md:pb-4">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/20">
+              <Building2 className="h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
+            </div>
+            <h3 className="text-sm md:text-base font-semibold">
+              {isMobile ? "Complexe" : "Apartamente pe Complex"}
+            </h3>
+          </div>
+          {!isMobile && <p className="text-sm text-muted-foreground/70 ml-11">Distribuție și rată de vânzare</p>}
+        </div>
+        <div className="p-2 md:p-6 pt-0">
           <div className="h-[200px] md:h-[280px] w-full">
             {loadingComplexes ? (
               <div className="h-full w-full flex items-end justify-around gap-2 p-2 md:p-4">
@@ -1120,7 +1144,8 @@ const DashboardPage = () => {
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
-                      fontSize: isMobile ? '10px' : '12px'
+                      fontSize: isMobile ? '10px' : '12px',
+                      boxShadow: '0 10px 30px -10px rgba(0,0,0,0.3)'
                     }}
                     formatter={(value: number, key: string) => {
                       const labelMap: Record<string, string> = {
@@ -1138,28 +1163,28 @@ const DashboardPage = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground text-xs md:text-sm">
+              <div className="h-full flex items-center justify-center text-muted-foreground/70 text-xs md:text-sm">
                 Nu există complexe
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Bottom Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         {/* Properties Stats */}
-        <Card>
-          <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
-            <CardTitle className="text-sm md:text-base">{isMobile ? "Prețuri" : "Statistici Proprietăți"}</CardTitle>
-            <CardDescription className="text-[10px] md:text-sm">Prețuri și distribuție</CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+        <div className="admin-glass-card">
+          <div className="p-4 md:p-6 pb-2 md:pb-4">
+            <h3 className="text-sm md:text-base font-semibold">{isMobile ? "Prețuri" : "Statistici Proprietăți"}</h3>
+            <p className="text-[10px] md:text-sm text-muted-foreground/70">Prețuri și distribuție</p>
+          </div>
+          <div className="p-4 pt-0 md:p-6 md:pt-0">
             {loadingProperties ? (
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-2">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-2 rounded-lg bg-muted/50 space-y-2">
+                    <div key={i} className="p-2 rounded-xl bg-white/5 space-y-2">
                       <Skeleton className="h-5 w-12 mx-auto" />
                       <Skeleton className="h-3 w-8 mx-auto" />
                     </div>
@@ -1167,37 +1192,37 @@ const DashboardPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 md:space-y-4">
+              <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-1.5 md:p-2 rounded-lg bg-muted/50">
+                  <div className="p-2 md:p-3 rounded-xl bg-white/5 border border-white/10">
                     <p className="text-sm md:text-lg font-bold">{(propertiesData?.minPrice || 0).toLocaleString()}</p>
-                    <p className="text-[9px] md:text-xs text-muted-foreground">Min €</p>
+                    <p className="text-[9px] md:text-xs text-muted-foreground/70">Min €</p>
                   </div>
-                  <div className="p-1.5 md:p-2 rounded-lg bg-gold/10">
+                  <div className="p-2 md:p-3 rounded-xl bg-gold/10 border border-gold/20">
                     <p className="text-sm md:text-lg font-bold text-gold">{(propertiesData?.avgPrice || 0).toLocaleString()}</p>
-                    <p className="text-[9px] md:text-xs text-muted-foreground">Mediu €</p>
+                    <p className="text-[9px] md:text-xs text-muted-foreground/70">Mediu €</p>
                   </div>
-                  <div className="p-1.5 md:p-2 rounded-lg bg-muted/50">
+                  <div className="p-2 md:p-3 rounded-xl bg-white/5 border border-white/10">
                     <p className="text-sm md:text-lg font-bold">{(propertiesData?.maxPrice || 0).toLocaleString()}</p>
-                    <p className="text-[9px] md:text-xs text-muted-foreground">Max €</p>
+                    <p className="text-[9px] md:text-xs text-muted-foreground/70">Max €</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs md:text-sm">
-                  <span className="text-muted-foreground">Noi luna aceasta:</span>
-                  <Badge variant="secondary" className="text-[10px] md:text-xs">+{propertiesData?.newThisMonth || 0}</Badge>
+                  <span className="text-muted-foreground/70">Noi luna aceasta:</span>
+                  <Badge variant="secondary" className="text-[10px] md:text-xs bg-emerald-500/10 text-emerald-500 border-emerald-500/20">+{propertiesData?.newThisMonth || 0}</Badge>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Invoice Status */}
-        <Card>
-          <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
-            <CardTitle className="text-sm md:text-base">Status Facturi</CardTitle>
-            <CardDescription className="text-[10px] md:text-sm">Comisioane facturate</CardDescription>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+        <div className="admin-glass-card">
+          <div className="p-4 md:p-6 pb-2 md:pb-4">
+            <h3 className="text-sm md:text-base font-semibold">Status Facturi</h3>
+            <p className="text-[10px] md:text-sm text-muted-foreground/70">Comisioane facturate</p>
+          </div>
+          <div className="p-4 pt-0 md:p-6 md:pt-0">
             {loadingCommissions ? (
               <div className="space-y-4">
                 {[1, 2].map((i) => (
@@ -1211,41 +1236,41 @@ const DashboardPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="space-y-3 md:space-y-4">
-                <div className="flex items-center gap-3 md:gap-4">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
                   <div className="flex-1">
-                    <div className="flex justify-between text-xs md:text-sm mb-1.5 md:mb-2">
+                    <div className="flex justify-between text-xs md:text-sm mb-2">
                       <span>Cu factură</span>
                       <span className="font-medium">{commissionsData?.withInvoice || 0}</span>
                     </div>
                     <Progress 
                       value={commissionsData?.count ? ((commissionsData.withInvoice || 0) / commissionsData.count) * 100 : 0} 
-                      className="h-1.5 md:h-2"
+                      className="h-2"
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-4">
                   <div className="flex-1">
-                    <div className="flex justify-between text-xs md:text-sm mb-1.5 md:mb-2">
+                    <div className="flex justify-between text-xs md:text-sm mb-2">
                       <span>Fără factură</span>
                       <span className="font-medium">{commissionsData?.withoutInvoice || 0}</span>
                     </div>
                     <Progress 
                       value={commissionsData?.count ? ((commissionsData.withoutInvoice || 0) / commissionsData.count) * 100 : 0} 
-                      className="h-1.5 md:h-2 [&>div]:bg-red-500"
+                      className="h-2 [&>div]:bg-red-500"
                     />
                   </div>
                 </div>
-                <div className="pt-2 border-t">
+                <div className="pt-3 border-t border-white/10">
                   <div className="flex justify-between text-xs md:text-sm">
-                    <span className="text-muted-foreground">Total tranzacții:</span>
+                    <span className="text-muted-foreground/70">Total tranzacții:</span>
                     <span className="font-bold">{commissionsData?.count || 0}</span>
                   </div>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Day Details Dialog */}
