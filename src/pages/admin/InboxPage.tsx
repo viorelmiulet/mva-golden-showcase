@@ -19,7 +19,8 @@ import {
   Loader2,
   PenSquare,
   FileText,
-  Save
+  Save,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -490,46 +491,60 @@ const InboxPage = () => {
   const unreadCount = emails?.filter(e => !e.is_read).length || 0;
 
   return (
-    <div className="space-y-6">
-      {/* Modern Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 admin-glow">
-            <Inbox className="h-6 w-6 text-gold" />
+    <div className="space-y-6 animate-in fade-in-50 duration-500">
+      {/* Modern Glass Header */}
+      <div className="admin-glass-card rounded-2xl p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-gold/10 rounded-2xl blur-xl"></div>
+              <div className="relative p-4 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+                <Inbox className="h-7 w-7 text-gold" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
+                Inbox
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {unreadCount > 0 ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                    {unreadCount} email-uri necitite
+                  </span>
+                ) : 'Toate email-urile citite'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Inbox
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {unreadCount > 0 ? `${unreadCount} email-uri necitite` : 'Toate email-urile citite'}
-            </p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button 
+              onClick={handleOpenCompose}
+              className="bg-gradient-to-r from-gold via-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl shadow-lg shadow-gold/20 transition-all duration-300 hover:shadow-gold/40 hover:scale-[1.02]"
+            >
+              <PenSquare className="h-4 w-4 mr-2" />
+              Compune
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowDrafts(!showDrafts)}
+              className={cn(
+                "rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30 transition-all duration-300",
+                showDrafts && "bg-gold/10 border-gold/30"
+              )}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Ciorne {drafts && drafts.length > 0 && (
+                <Badge variant="secondary" className="ml-2 bg-gold/20 text-gold border-0">{drafts.length}</Badge>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => refetch()}
+              className="rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30 transition-all duration-300"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button 
-            onClick={handleOpenCompose}
-            className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl admin-glow"
-          >
-            <PenSquare className="h-4 w-4 mr-2" />
-            Compune
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setShowDrafts(!showDrafts)}
-            className="rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30"
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            Ciorne {drafts && drafts.length > 0 && `(${drafts.length})`}
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => refetch()}
-            className="rounded-xl border-white/10 hover:bg-white/5"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Reîncarcă
-          </Button>
         </div>
       </div>
 
@@ -582,125 +597,123 @@ const InboxPage = () => {
         </div>
       )}
 
-      {/* Filter Buttons */}
+      {/* Filter Pills */}
       <div className="flex gap-2 flex-wrap">
-        <Button 
-          variant={filter === 'all' ? 'default' : 'outline'} 
-          size="sm"
-          onClick={() => setFilter('all')}
-          className={cn(
-            "rounded-xl transition-all",
-            filter === 'all' 
-              ? "bg-gold text-black hover:bg-gold/90" 
-              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
-          )}
-        >
-          Toate
-        </Button>
-        <Button 
-          variant={filter === 'unread' ? 'default' : 'outline'} 
-          size="sm"
-          onClick={() => setFilter('unread')}
-          className={cn(
-            "rounded-xl transition-all",
-            filter === 'unread' 
-              ? "bg-gold text-black hover:bg-gold/90" 
-              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
-          )}
-        >
-          Necitite
-          {unreadCount > 0 && (
-            <Badge variant="secondary" className="ml-2 bg-white/10">{unreadCount}</Badge>
-          )}
-        </Button>
-        <Button 
-          variant={filter === 'starred' ? 'default' : 'outline'} 
-          size="sm"
-          onClick={() => setFilter('starred')}
-          className={cn(
-            "rounded-xl transition-all",
-            filter === 'starred' 
-              ? "bg-gold text-black hover:bg-gold/90" 
-              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
-          )}
-        >
-          Cu stea
-        </Button>
+        {[
+          { key: 'all', label: 'Toate', count: emails?.length || 0 },
+          { key: 'unread', label: 'Necitite', count: unreadCount },
+          { key: 'starred', label: 'Cu stea', icon: Star }
+        ].map((item) => (
+          <button
+            key={item.key}
+            onClick={() => setFilter(item.key as typeof filter)}
+            className={cn(
+              "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2",
+              filter === item.key 
+                ? "bg-gradient-to-r from-gold to-gold-light text-black shadow-lg shadow-gold/20" 
+                : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground border border-white/10"
+            )}
+          >
+            {item.icon && <item.icon className="h-3.5 w-3.5" />}
+            {item.label}
+            {item.count !== undefined && item.count > 0 && (
+              <span className={cn(
+                "px-1.5 py-0.5 rounded-md text-xs",
+                filter === item.key ? "bg-black/20" : "bg-white/10"
+              )}>
+                {item.count}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Email List */}
         <div className="lg:col-span-1 admin-glass-card rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-white/5">
-            <h3 className="text-sm font-medium text-muted-foreground">
+          <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Mail className="h-4 w-4 text-gold/60" />
               {emails?.length || 0} email-uri
             </h3>
           </div>
           <ScrollArea className="h-[600px]">
-            <div className="p-0">
+            <div className="p-2">
               {isLoading ? (
                 <div className="p-8 text-center text-muted-foreground">
-                  Se încarcă...
+                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gold/50" />
+                  <p>Se încarcă...</p>
                 </div>
               ) : emails?.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
-                  <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nu există email-uri</p>
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="h-8 w-8 opacity-30" />
+                  </div>
+                  <p className="font-medium">Nu există email-uri</p>
+                  <p className="text-xs mt-1 opacity-60">Inbox-ul tău este gol</p>
                 </div>
               ) : (
-                emails?.map((email) => (
-                  <div
-                    key={email.id}
-                    onClick={() => handleSelectEmail(email)}
-                    className={cn(
-                      "p-4 cursor-pointer hover:bg-white/5 transition-all border-b border-white/5 group",
-                      selectedEmail?.id === email.id && "bg-gold/10 border-l-2 border-l-gold",
-                      !email.is_read && "bg-white/[0.02]"
-                    )}
-                  >
-                    <div className="flex items-start gap-3">
-                      <button
-                        onClick={(e) => handleToggleStar(e, email)}
-                        className="mt-1 text-muted-foreground hover:text-yellow-500 transition-colors"
-                      >
-                        {email.is_starred ? (
-                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        ) : (
-                          <StarOff className="h-4 w-4" />
-                        )}
-                      </button>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          {!email.is_read ? (
-                            <Mail className="h-4 w-4 text-gold shrink-0" />
+                <div className="space-y-1">
+                  {emails?.map((email, index) => (
+                    <div
+                      key={email.id}
+                      onClick={() => handleSelectEmail(email)}
+                      className={cn(
+                        "p-3 cursor-pointer rounded-xl transition-all duration-200 group",
+                        selectedEmail?.id === email.id 
+                          ? "bg-gradient-to-r from-gold/15 to-gold/5 border border-gold/30 shadow-lg shadow-gold/10" 
+                          : "hover:bg-white/5 border border-transparent",
+                        !email.is_read && "bg-white/[0.03]"
+                      )}
+                      style={{ animationDelay: `${index * 30}ms` }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <button
+                          onClick={(e) => handleToggleStar(e, email)}
+                          className="mt-0.5 text-muted-foreground hover:text-yellow-500 transition-all hover:scale-110"
+                        >
+                          {email.is_starred ? (
+                            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                           ) : (
-                            <MailOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <StarOff className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                           )}
-                          <span className={cn(
-                            "font-medium truncate group-hover:text-gold transition-colors",
-                            !email.is_read && "font-semibold text-foreground"
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "w-2 h-2 rounded-full shrink-0",
+                              !email.is_read ? "bg-gold" : "bg-transparent"
+                            )} />
+                            <span className={cn(
+                              "font-medium truncate transition-colors text-sm",
+                              selectedEmail?.id === email.id ? "text-gold" : "group-hover:text-gold",
+                              !email.is_read && "font-semibold text-foreground"
+                            )}>
+                              {extractSenderName(email.sender)}
+                            </span>
+                          </div>
+                          <p className={cn(
+                            "text-sm truncate mt-1",
+                            !email.is_read ? "font-medium text-foreground/80" : "text-muted-foreground"
                           )}>
-                            {extractSenderName(email.sender)}
-                          </span>
-                        </div>
-                        <p className={cn(
-                          "text-sm truncate mt-1",
-                          !email.is_read ? "font-medium text-foreground/80" : "text-muted-foreground"
-                        )}>
-                          {email.subject || '(Fără subiect)'}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
-                          </span>
-                          {email.attachments && email.attachments.length > 0 && (
-                            <Paperclip className="h-3 w-3 text-muted-foreground" />
-                          )}
+                            {email.subject || '(Fără subiect)'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-xs text-muted-foreground/70">
+                              {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
+                            </span>
+                            {email.attachments && email.attachments.length > 0 && (
+                              <div className="flex items-center gap-1 text-muted-foreground/70">
+                                <Paperclip className="h-3 w-3" />
+                                <span className="text-xs">{email.attachments.length}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </ScrollArea>
@@ -710,9 +723,9 @@ const InboxPage = () => {
         <div className="lg:col-span-2 admin-glass-card rounded-2xl overflow-hidden">
           {selectedEmail ? (
             <>
-              <div className="p-4 border-b border-white/5">
+              <div className="p-5 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -721,12 +734,15 @@ const InboxPage = () => {
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center shrink-0">
+                      <Mail className="h-5 w-5 text-gold" />
+                    </div>
                     <div className="min-w-0">
                       <h3 className="text-lg font-semibold truncate">
                         {selectedEmail.subject || '(Fără subiect)'}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        De la: {selectedEmail.sender}
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        De la: <span className="text-foreground/80">{selectedEmail.sender}</span>
                       </p>
                       {selectedEmail.recipient && (
                         <p className="text-sm text-muted-foreground">
@@ -736,55 +752,58 @@ const InboxPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                    <span className="text-sm text-muted-foreground hidden sm:inline">
+                    <span className="text-xs text-muted-foreground hidden sm:inline px-2 py-1 rounded-lg bg-white/5">
                       {format(new Date(selectedEmail.received_at), 'dd MMMM yyyy, HH:mm', { locale: ro })}
                     </span>
                     <Button
-                      variant="default"
                       size="sm"
                       onClick={() => handleOpenReply(selectedEmail)}
-                      className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl"
+                      className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl shadow-lg shadow-gold/20"
                     >
                       <Reply className="h-4 w-4 mr-2" />
                       Răspunde
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-xl hover:bg-white/5"
-                      onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}
-                    >
-                      {selectedEmail.is_starred ? (
-                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      ) : (
-                        <StarOff className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-xl hover:bg-white/5"
-                      onClick={() => handleArchive(selectedEmail)}
-                    >
-                      <Archive className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive rounded-xl hover:bg-destructive/10"
-                      onClick={() => handleDelete(selectedEmail)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg hover:bg-white/10"
+                        onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}
+                      >
+                        {selectedEmail.is_starred ? (
+                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                        ) : (
+                          <StarOff className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg hover:bg-white/10"
+                        onClick={() => handleArchive(selectedEmail)}
+                      >
+                        <Archive className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDelete(selectedEmail)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
               <Separator className="bg-white/5" />
-              <div className="p-4">
+              <div className="p-5">
                 {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
-                  <div className="mb-4 p-3 bg-white/5 rounded-xl border border-white/10">
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Paperclip className="h-4 w-4 text-gold" />
+                  <div className="mb-4 p-4 bg-gradient-to-r from-white/5 to-transparent rounded-xl border border-white/10">
+                    <p className="text-sm font-medium mb-3 flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-gold/10">
+                        <Paperclip className="h-4 w-4 text-gold" />
+                      </div>
                       Atașamente ({selectedEmail.attachments.length})
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -796,13 +815,14 @@ const InboxPage = () => {
                             download={att.name}
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-sm transition-colors"
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-sm transition-all hover:scale-[1.02] border border-gold/20"
                           >
-                            <Paperclip className="h-3 w-3" />
-                            📥 {att.name} ({Math.round(att.size / 1024)} KB)
+                            <Paperclip className="h-3.5 w-3.5" />
+                            <span>{att.name}</span>
+                            <span className="text-xs opacity-70">({Math.round(att.size / 1024)} KB)</span>
                           </a>
                         ) : (
-                          <Badge key={idx} variant="secondary" className="opacity-60 bg-white/5">
+                          <Badge key={idx} variant="secondary" className="opacity-60 bg-white/5 border-white/10">
                             {att.name} ({Math.round(att.size / 1024)} KB) - nedisponibil
                           </Badge>
                         )
@@ -813,11 +833,11 @@ const InboxPage = () => {
                 <ScrollArea className="h-[400px]">
                   {selectedEmail.body_html ? (
                     <div 
-                      className="prose prose-sm max-w-none dark:prose-invert"
+                      className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-gold"
                       dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
                     />
                   ) : (
-                    <pre className="whitespace-pre-wrap font-sans text-sm">
+                    <pre className="whitespace-pre-wrap font-sans text-sm text-muted-foreground leading-relaxed">
                       {selectedEmail.body_plain || selectedEmail.stripped_text || 'Nu există conținut'}
                     </pre>
                   )}
@@ -827,10 +847,14 @@ const InboxPage = () => {
           ) : (
             <div className="h-[600px] flex items-center justify-center text-muted-foreground">
               <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-10 w-10 opacity-30" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-gold/5 rounded-3xl blur-2xl opacity-50"></div>
+                  <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mx-auto mb-6 border border-white/10">
+                    <Mail className="h-12 w-12 opacity-30" />
+                  </div>
                 </div>
-                <p>Selectează un email pentru a-l vizualiza</p>
+                <p className="font-medium text-foreground/60">Selectează un email</p>
+                <p className="text-sm mt-1 opacity-50">pentru a-l vizualiza</p>
               </div>
             </div>
           )}
@@ -838,23 +862,26 @@ const InboxPage = () => {
       </div>
 
       {/* Mailgun Webhook Instructions */}
-      <Card className="bg-muted/50">
-        <CardHeader>
-          <CardTitle className="text-sm">Configurare Mailgun Routes</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p>Pentru a primi email-uri, configurează un Route în Mailgun:</p>
-          <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+      <div className="admin-glass-card rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-white/5 flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5">
+            <Settings className="h-4 w-4 text-blue-400" />
+          </div>
+          <h3 className="text-sm font-medium">Configurare Mailgun Routes</h3>
+        </div>
+        <div className="p-4 space-y-3 text-sm">
+          <p className="text-muted-foreground">Pentru a primi email-uri, configurează un Route în Mailgun:</p>
+          <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
             <li>Mergi la Mailgun → Sending → Routes</li>
             <li>Click "Create route"</li>
-            <li>Expression Type: <code className="bg-background px-1 rounded">catch_all()</code></li>
+            <li>Expression Type: <code className="bg-white/5 px-2 py-0.5 rounded-md text-gold font-mono text-xs">catch_all()</code></li>
             <li>Actions → Forward → Store and notify:</li>
           </ol>
-          <code className="block p-2 bg-background rounded text-xs break-all">
+          <code className="block p-3 bg-white/5 rounded-xl text-xs break-all font-mono text-muted-foreground border border-white/10">
             https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/receive-mailgun-email
           </code>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Reply Dialog */}
       <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
