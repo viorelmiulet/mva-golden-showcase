@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import { 
   Users, 
   Eye, 
@@ -16,9 +17,9 @@ import {
   Monitor,
   Smartphone,
   Tablet,
-  ArrowUpRight,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  BarChart3
 } from "lucide-react";
 import {
   AreaChart,
@@ -37,6 +38,7 @@ import {
 } from "recharts";
 import { format, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -52,6 +54,19 @@ interface AnalyticsData {
   devices: { device: string; visitors: number }[];
   countries: { country: string; visitors: number }[];
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 const AnalyticsPage = () => {
   const [days, setDays] = useState("7");
@@ -74,13 +89,12 @@ const AnalyticsPage = () => {
       }
       
       const result = await response.json();
-      // Map topSources to sources for compatibility
       return {
         ...result,
         sources: result.topSources || []
       };
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   const formatDuration = (seconds: number) => {
@@ -103,35 +117,80 @@ const AnalyticsPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-destructive">Eroare la încărcarea datelor</CardTitle>
-            <CardDescription>
-              Nu am putut încărca datele de analytics. Verifică dacă cheia Plausible API este configurată corect.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => refetch()} variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Încearcă din nou
-            </Button>
-          </CardContent>
-        </Card>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-2xl border border-destructive/50 bg-destructive/5 p-6"
+        >
+          <h3 className="text-lg font-semibold text-destructive mb-2">Eroare la încărcarea datelor</h3>
+          <p className="text-muted-foreground mb-4">
+            Nu am putut încărca datele de analytics. Verifică dacă cheia Plausible API este configurată corect.
+          </p>
+          <Button onClick={() => refetch()} variant="outline" className="border-white/10">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Încearcă din nou
+          </Button>
+        </motion.div>
       </div>
     );
   }
 
+  const statsCards = [
+    { 
+      title: "Vizitatori Unici", 
+      value: data?.visitors?.toLocaleString() || 0, 
+      icon: Users,
+      gradient: "from-blue-500/20 to-cyan-500/20",
+      iconColor: "text-blue-400"
+    },
+    { 
+      title: "Vizualizări Pagini", 
+      value: data?.pageviews?.toLocaleString() || 0, 
+      subtitle: `${pageviewsPerVisit} pagini/vizită`,
+      icon: Eye,
+      gradient: "from-emerald-500/20 to-green-500/20",
+      iconColor: "text-emerald-400"
+    },
+    { 
+      title: "Durată Medie Sesiune", 
+      value: formatDuration(data?.sessionDuration || 0), 
+      icon: Clock,
+      gradient: "from-purple-500/20 to-violet-500/20",
+      iconColor: "text-purple-400"
+    },
+    { 
+      title: "Bounce Rate", 
+      value: `${data?.bounceRate || 0}%`, 
+      icon: TrendingUp,
+      gradient: "from-gold/20 to-amber-500/20",
+      iconColor: "text-gold"
+    },
+  ];
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics Trafic</h1>
-          <p className="text-muted-foreground">Date din Plausible Analytics</p>
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+              <BarChart3 className="h-6 w-6 text-gold" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Analytics Trafic</h1>
+            <p className="text-muted-foreground text-sm">Date din Plausible Analytics</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <Select value={days} onValueChange={setDays}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] bg-white/5 border-white/10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -146,10 +205,11 @@ const AnalyticsPage = () => {
             size="icon"
             onClick={() => refetch()}
             disabled={isFetching}
+            className="border-white/10 hover:bg-white/5"
           >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="border-white/10 hover:bg-white/5">
             <a 
               href="https://plausible.io/mvaimobiliare.ro" 
               target="_blank" 
@@ -160,86 +220,64 @@ const AnalyticsPage = () => {
             </a>
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Vizitatori Unici</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{data?.visitors?.toLocaleString() || 0}</div>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Vizualizări Pagini</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{data?.pageviews?.toLocaleString() || 0}</div>
-                <p className="text-xs text-muted-foreground">{pageviewsPerVisit} pagini/vizită</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Durată Medie Sesiune</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{formatDuration(data?.sessionDuration || 0)}</div>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="text-2xl font-bold">{data?.bounceRate || 0}%</div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statsCards.map((stat, index) => (
+          <motion.div
+            key={stat.title}
+            variants={itemVariants}
+            className="relative group"
+          >
+            <div className={cn(
+              "absolute inset-0 rounded-2xl bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity blur-xl",
+              stat.gradient
+            )} />
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 hover:border-white/20 transition-all">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-muted-foreground">{stat.title}</span>
+                <div className={cn("p-2 rounded-xl bg-white/5", stat.iconColor)}>
+                  <stat.icon className="h-4 w-4" />
+                </div>
+              </div>
+              {isLoading ? (
+                <Skeleton className="h-8 w-24" />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  {stat.subtitle && (
+                    <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
+                  )}
+                </>
+              )}
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Charts */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Prezentare</TabsTrigger>
-          <TabsTrigger value="traffic">Trafic</TabsTrigger>
-          <TabsTrigger value="pages">Pagini</TabsTrigger>
-        </TabsList>
+      <motion.div variants={itemVariants}>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="bg-white/5 border border-white/10">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
+              Prezentare
+            </TabsTrigger>
+            <TabsTrigger value="traffic" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
+              Trafic
+            </TabsTrigger>
+            <TabsTrigger value="pages" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
+              Pagini
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          {/* Daily Traffic Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Trafic Zilnic</CardTitle>
-              <CardDescription>Vizitatori și vizualizări în ultimele {days} zile</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <TabsContent value="overview" className="space-y-4">
+            {/* Daily Traffic Chart */}
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Trafic Zilnic</h3>
+                <p className="text-sm text-muted-foreground">Vizitatori și vizualizări în ultimele {days} zile</p>
+              </div>
               {isLoading ? (
                 <Skeleton className="h-[300px] w-full" />
               ) : (
@@ -255,18 +293,19 @@ const AnalyticsPage = () => {
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-white/10" />
                     <XAxis 
                       dataKey="date" 
                       tickFormatter={(value) => format(parseISO(value), 'dd MMM', { locale: ro })}
                       className="text-xs"
+                      stroke="#666"
                     />
-                    <YAxis className="text-xs" />
+                    <YAxis className="text-xs" stroke="#666" />
                     <Tooltip 
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-background border border-border p-3 rounded-lg shadow-lg">
+                            <div className="bg-background/95 backdrop-blur border border-white/10 p-3 rounded-lg shadow-lg">
                               <p className="font-medium">{format(parseISO(label), 'dd MMMM yyyy', { locale: ro })}</p>
                               <p className="text-gold">Vizitatori: {payload[0]?.value}</p>
                               <p className="text-emerald-500">Vizualizări: {payload[1]?.value}</p>
@@ -281,18 +320,16 @@ const AnalyticsPage = () => {
                   </AreaChart>
                 </ResponsiveContainer>
               )}
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Devices and Sources */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Devices */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Dispozitive</CardTitle>
-                <CardDescription>Distribuție pe tip de dispozitiv</CardDescription>
-              </CardHeader>
-              <CardContent>
+            {/* Devices and Sources */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Devices */}
+              <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">Dispozitive</h3>
+                  <p className="text-sm text-muted-foreground">Distribuție pe tip de dispozitiv</p>
+                </div>
                 {isLoading ? (
                   <Skeleton className="h-[200px] w-full" />
                 ) : (
@@ -301,30 +338,32 @@ const AnalyticsPage = () => {
                       const total = data.devices.reduce((acc, d) => acc + d.visitors, 0);
                       const percentage = total > 0 ? ((device.visitors / total) * 100).toFixed(1) : 0;
                       return (
-                        <div key={device.device} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {getDeviceIcon(device.device)}
-                            <span className="capitalize">{device.device}</span>
+                        <div key={device.device} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-gold/10 text-gold">
+                              {getDeviceIcon(device.device)}
+                            </div>
+                            <span className="capitalize font-medium">{device.device}</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <span className="text-muted-foreground">{device.visitors}</span>
-                            <Badge variant="secondary">{percentage}%</Badge>
+                            <Badge variant="secondary" className="bg-gold/10 text-gold border-0">
+                              {percentage}%
+                            </Badge>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Top Sources */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Surse Trafic</CardTitle>
-                <CardDescription>De unde vin vizitatorii</CardDescription>
-              </CardHeader>
-              <CardContent>
+              {/* Top Sources */}
+              <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">Surse Trafic</h3>
+                  <p className="text-sm text-muted-foreground">De unde vin vizitatorii</p>
+                </div>
                 {isLoading ? (
                   <Skeleton className="h-[200px] w-full" />
                 ) : (
@@ -334,56 +373,62 @@ const AnalyticsPage = () => {
                       const total = allSources.reduce((acc, s) => acc + s.visitors, 0);
                       const percentage = total > 0 ? ((source.visitors / total) * 100).toFixed(1) : 0;
                       return (
-                        <div key={source.source} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                            <span>{source.source || 'Direct'}</span>
+                        <div key={source.source} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                              <Globe className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">{source.source || 'Direct'}</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <span className="text-muted-foreground">{source.visitors}</span>
-                            <Badge variant="secondary">{percentage}%</Badge>
+                            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border-0">
+                              {percentage}%
+                            </Badge>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+              </div>
+            </div>
+          </TabsContent>
 
-        <TabsContent value="traffic" className="space-y-4">
-          {/* Countries */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Țări</CardTitle>
-              <CardDescription>Distribuție geografică a vizitatorilor</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <TabsContent value="traffic" className="space-y-4">
+            {/* Countries */}
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Țări</h3>
+                <p className="text-sm text-muted-foreground">Distribuție geografică a vizitatorilor</p>
+              </div>
               {isLoading ? (
                 <Skeleton className="h-[300px] w-full" />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={data?.countries || []} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="country" type="category" width={80} className="text-xs" />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-white/10" />
+                    <XAxis type="number" stroke="#666" />
+                    <YAxis dataKey="country" type="category" width={80} className="text-xs" stroke="#666" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }} 
+                    />
                     <Bar dataKey="visitors" fill="#DAA520" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Sources Pie Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Distribuție Surse</CardTitle>
-              <CardDescription>Vizualizare grafică a surselor de trafic</CardDescription>
-            </CardHeader>
-            <CardContent>
+            {/* Sources Pie Chart */}
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Distribuție Surse</h3>
+                <p className="text-sm text-muted-foreground">Vizualizare grafică a surselor de trafic</p>
+              </div>
               {isLoading ? (
                 <Skeleton className="h-[300px] w-full" />
               ) : (
@@ -409,18 +454,16 @@ const AnalyticsPage = () => {
                   </PieChart>
                 </ResponsiveContainer>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </TabsContent>
 
-        <TabsContent value="pages" className="space-y-4">
-          {/* Top Pages */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pagini Populare</CardTitle>
-              <CardDescription>Cele mai vizitate pagini de pe site</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <TabsContent value="pages" className="space-y-4">
+            {/* Top Pages */}
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Pagini Populare</h3>
+                <p className="text-sm text-muted-foreground">Cele mai vizitate pagini de pe site</p>
+              </div>
               {isLoading ? (
                 <Skeleton className="h-[400px] w-full" />
               ) : (
@@ -428,36 +471,27 @@ const AnalyticsPage = () => {
                   {data?.topPages?.map((page, index) => (
                     <div 
                       key={page.page} 
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-gold w-6">{index + 1}</span>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xl font-bold text-gold w-8">{index + 1}</span>
                         <div>
                           <p className="font-medium truncate max-w-[300px]">{page.page}</p>
                           <p className="text-sm text-muted-foreground">{page.pageviews} vizualizări</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge>{page.visitors} vizitatori</Badge>
-                        <Button variant="ghost" size="icon" asChild>
-                          <a 
-                            href={`https://mvaimobiliare.ro${page.page}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
+                      <Badge className="bg-gold/10 text-gold border-0">
+                        {page.visitors} vizitatori
+                      </Badge>
                     </div>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </motion.div>
+    </motion.div>
   );
 };
 

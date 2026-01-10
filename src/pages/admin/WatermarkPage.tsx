@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { 
   Upload, 
@@ -57,14 +57,27 @@ const POSITION_LABELS: Record<WatermarkPosition, string> = {
 
 const DEFAULT_WATERMARK = "/mva-watermark-exact.svg";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 export default function WatermarkPage() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [watermarkOpacity, setWatermarkOpacity] = useState([0.3]);
-  const [watermarkSize, setWatermarkSize] = useState([25]); // percentage of image width
+  const [watermarkSize, setWatermarkSize] = useState([25]);
   const [watermarkPosition, setWatermarkPosition] = useState<WatermarkPosition>("bottom-right");
   const [useTileMode, setUseTileMode] = useState(false);
-  const [tileRotation, setTileRotation] = useState([45]); // degrees for diagonal tiling
+  const [tileRotation, setTileRotation] = useState([45]);
   const [useCustomWatermark, setUseCustomWatermark] = useState(false);
   const [customWatermark, setCustomWatermark] = useState<string | null>(null);
   const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
@@ -514,23 +527,36 @@ export default function WatermarkPage() {
   const currentWatermarkSrc = useCustomWatermark && customWatermark ? customWatermark : DEFAULT_WATERMARK;
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-4 sm:space-y-6 p-2 sm:p-0"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex items-center gap-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+            <Stamp className="h-6 w-6 text-gold" />
+          </div>
+        </div>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">Watermark Imagini</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Adaugă watermark pe imagini și descarcă-le ca arhivă ZIP
           </p>
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Settings Card */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">Setări Watermark</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
+        <motion.div variants={itemVariants} className="lg:col-span-1">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
+            <div className="p-6 border-b border-white/5">
+              <h3 className="font-semibold text-base sm:text-lg">Setări Watermark</h3>
+            </div>
+            <div className="p-6 space-y-5">
             {/* Custom Watermark Section */}
             <div className="space-y-3 pb-4 border-b">
               <div className="flex items-center justify-between">
@@ -733,8 +759,9 @@ export default function WatermarkPage() {
                 {images.length} imagini • {processedCount} procesate
               </div>
             )}
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Preview Card */}
         {images.length > 0 && (
@@ -923,6 +950,6 @@ export default function WatermarkPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 }
