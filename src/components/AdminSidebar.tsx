@@ -75,8 +75,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
 
   const getNavCls = (isActive: boolean) =>
     isActive
-      ? "bg-gold/20 text-gold hover:bg-gold/30"
-      : "hover:bg-muted/50 text-muted-foreground hover:text-foreground";
+      ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold border-l-2 border-gold pl-[10px]"
+      : "text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent pl-[10px]";
 
   const handleNavClick = () => {
     if (onNavigate) {
@@ -87,8 +87,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   // For mobile sheet, render a simpler version with better scrolling
   if (isMobileSheet) {
     return (
-      <nav className="flex-1 overflow-y-auto overscroll-contain p-2 pb-8">
-        <div className="space-y-0.5">
+      <nav className="flex-1 overflow-y-auto overscroll-contain p-3 pb-8 admin-sidebar-modern">
+        <div className="space-y-1">
           {menuItems.map((item) => {
             const isActive = item.exact
               ? currentPath === item.url
@@ -99,9 +99,11 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                 to={item.url}
                 end={item.exact}
                 onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-manipulation active:scale-[0.98] ${getNavCls(isActive)}`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 touch-manipulation active:scale-[0.98] ${getNavCls(isActive)}`}
               >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <div className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}>
+                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
+                </div>
                 <span>{item.title}</span>
               </NavLink>
             );
@@ -116,20 +118,31 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   return (
     <Sidebar 
       className={`
-        ${collapsed ? "w-14" : "w-64"} 
-        bg-background/95 border-r border-gold/10
-        transition-all duration-200 shrink-0
+        ${collapsed ? "w-16" : "w-64"} 
+        admin-sidebar-modern
+        transition-all duration-300 ease-out shrink-0
         hidden md:flex
       `} 
       collapsible="icon"
     >
-      <SidebarContent className="bg-background/95 h-full">
-        <div className="p-2 border-b border-border/40 flex items-center justify-center">
+      <SidebarContent className="h-full bg-transparent">
+        {/* Logo/Toggle Area */}
+        <div className="p-3 border-b border-white/5 flex items-center justify-between">
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                <Layers className="h-4 w-4 text-gold" />
+              </div>
+              <span className="font-semibold text-sm bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                MVA Admin
+              </span>
+            </div>
+          )}
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={toggleSidebar}
-            className="w-full justify-center hover:bg-gold/10 hover:text-gold"
+            className={`h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors ${collapsed ? 'mx-auto' : ''}`}
             title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
           >
             {collapsed ? (
@@ -140,13 +153,15 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
           </Button>
         </div>
 
-        <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">
-          <SidebarGroupLabel className={collapsed ? "justify-center" : ""}>
-            {!collapsed && "Administrare"}
-          </SidebarGroupLabel>
+        <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] py-4 px-2">
+          {!collapsed && (
+            <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2 px-3">
+              Meniu Principal
+            </SidebarGroupLabel>
+          )}
 
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {menuItems.map((item) => {
                 const isActive = item.exact
                   ? currentPath === item.url
@@ -157,9 +172,23 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                       <NavLink
                         to={item.url}
                         end={item.exact}
-                        className={getNavCls(isActive)}
+                        className={`
+                          flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                          transition-all duration-200 group
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold ml-0' 
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
+                          }
+                          ${collapsed ? 'justify-center px-0' : ''}
+                        `}
+                        title={collapsed ? item.title : undefined}
                       >
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <div className={`
+                          p-1.5 rounded-md transition-colors
+                          ${isActive ? 'bg-gold/20' : 'bg-white/5 group-hover:bg-white/10'}
+                        `}>
+                          <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
+                        </div>
                         {!collapsed && <span>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
@@ -169,6 +198,15 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Footer */}
+        {!collapsed && (
+          <div className="p-3 border-t border-white/5">
+            <div className="text-[10px] text-muted-foreground/50 text-center">
+              © 2024 MVA Imobiliare
+            </div>
+          </div>
+        )}
       </SidebarContent>
     </Sidebar>
   );
