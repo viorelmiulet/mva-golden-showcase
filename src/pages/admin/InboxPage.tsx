@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Inbox,
   ChevronLeft,
+  ChevronRight,
   Paperclip,
   Reply,
   Send,
@@ -26,7 +27,9 @@ import {
   Check,
   X,
   Download,
-  ExternalLink
+  ExternalLink,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +93,7 @@ const InboxPage = () => {
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showDrafts, setShowDrafts] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const queryClient = useQueryClient();
@@ -588,22 +592,51 @@ const InboxPage = () => {
         {/* Sidebar */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-3 flex flex-col gap-4"
+          animate={{ opacity: 1, x: 0, width: sidebarCollapsed ? 48 : 'auto' }}
+          transition={{ duration: 0.2 }}
+          className={cn(
+            "flex flex-col gap-4 transition-all",
+            sidebarCollapsed ? "lg:col-span-1" : "lg:col-span-3"
+          )}
         >
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Caută email-uri..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
-            />
-          </div>
+          {/* Collapse Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={cn(
+              "border border-white/10 hover:bg-white/5 hover:border-gold/30",
+              sidebarCollapsed ? "w-10 h-10 p-0 mx-auto" : "w-full justify-start gap-2"
+            )}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-4 w-4" />
+                <span className="text-sm">Restrânge</span>
+              </>
+            )}
+          </Button>
+
+          {/* Search - hidden when collapsed */}
+          {!sidebarCollapsed && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Caută email-uri..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
+              />
+            </div>
+          )}
 
           {/* Filter Tabs */}
-          <div className="flex flex-col gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+          <div className={cn(
+            "flex flex-col gap-1 p-1 rounded-xl bg-white/5 border border-white/10",
+            sidebarCollapsed && "p-0.5"
+          )}>
             {[
               { key: 'all', label: 'Toate', count: emails?.length || 0, icon: Mail },
               { key: 'unread', label: 'Necitite', count: unreadCount, icon: Clock },
@@ -613,23 +646,38 @@ const InboxPage = () => {
                 key={item.key}
                 onClick={() => setFilter(item.key as typeof filter)}
                 className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  "flex items-center rounded-lg text-sm font-medium transition-all",
+                  sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
                   filter === item.key 
                     ? "bg-gradient-to-r from-gold/20 to-gold/5 text-gold border-l-2 border-gold" 
                     : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 )}
+                title={sidebarCollapsed ? item.label : undefined}
               >
-                <span className="flex items-center gap-2">
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </span>
-                {item.count > 0 && (
-                  <Badge variant="secondary" className={cn(
-                    "text-xs",
-                    filter === item.key ? "bg-gold/20 text-gold" : "bg-white/10"
-                  )}>
-                    {item.count}
-                  </Badge>
+                {sidebarCollapsed ? (
+                  <div className="relative">
+                    <item.icon className="h-4 w-4" />
+                    {item.count > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-gold text-black text-[9px] font-bold rounded-full flex items-center justify-center">
+                        {item.count > 9 ? '9+' : item.count}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <span className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </span>
+                    {item.count > 0 && (
+                      <Badge variant="secondary" className={cn(
+                        "text-xs",
+                        filter === item.key ? "bg-gold/20 text-gold" : "bg-white/10"
+                      )}>
+                        {item.count}
+                      </Badge>
+                    )}
+                  </>
                 )}
               </button>
             ))}
@@ -637,28 +685,43 @@ const InboxPage = () => {
 
           {/* Drafts */}
           <button
-            onClick={() => setShowDrafts(!showDrafts)}
+            onClick={() => !sidebarCollapsed && setShowDrafts(!showDrafts)}
             className={cn(
-              "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all border",
-              showDrafts 
+              "flex items-center rounded-xl text-sm font-medium transition-all border",
+              sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
+              showDrafts && !sidebarCollapsed
                 ? "bg-gold/10 border-gold/30 text-gold" 
                 : "bg-white/5 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10"
             )}
+            title={sidebarCollapsed ? "Ciorne" : undefined}
           >
-            <span className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Ciorne
-            </span>
-            {drafts && drafts.length > 0 && (
-              <Badge variant="secondary" className="bg-white/10 text-xs">
-                {drafts.length}
-              </Badge>
+            {sidebarCollapsed ? (
+              <div className="relative">
+                <FileText className="h-4 w-4" />
+                {drafts && drafts.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-white/20 text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {drafts.length}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <>
+                <span className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Ciorne
+                </span>
+                {drafts && drafts.length > 0 && (
+                  <Badge variant="secondary" className="bg-white/10 text-xs">
+                    {drafts.length}
+                  </Badge>
+                )}
+              </>
             )}
           </button>
 
-          {/* Drafts List */}
+          {/* Drafts List - hidden when collapsed */}
           <AnimatePresence>
-            {showDrafts && (
+            {showDrafts && !sidebarCollapsed && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -710,7 +773,10 @@ const InboxPage = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="lg:col-span-4 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
+          className={cn(
+            "rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col",
+            sidebarCollapsed ? "lg:col-span-5" : "lg:col-span-4"
+          )}
         >
           <div className="p-3 border-b border-white/5 flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium">
