@@ -13,6 +13,8 @@ interface EmailAttachment {
 
 interface ReplyEmailRequest {
   to: string;
+  cc?: string;
+  bcc?: string;
   subject: string;
   body: string;
   inReplyTo?: string;
@@ -26,7 +28,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { to, subject, body, inReplyTo, attachments }: ReplyEmailRequest = await req.json();
+    const { to, cc, bcc, subject, body, inReplyTo, attachments }: ReplyEmailRequest = await req.json();
 
     if (!to || !body) {
       return new Response(
@@ -52,6 +54,8 @@ Deno.serve(async (req) => {
 
     const result = await sendMailgunEmail({
       to,
+      cc: cc || undefined,
+      bcc: bcc || undefined,
       subject: subject || '(Fără subiect)',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
