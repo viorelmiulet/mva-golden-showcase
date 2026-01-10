@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
 import { FileText, Download, Loader2, BarChart3, Euro, Building2, CalendarCheck } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
 import jsPDF from "jspdf";
@@ -130,12 +130,24 @@ const getShortMonthName = (monthIndex: number): string => {
   return months[monthIndex];
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 const ReportsPage = () => {
   const [reportType, setReportType] = useState<string>("monthly");
   const [selectedMonth, setSelectedMonth] = useState<string>(format(new Date(), "yyyy-MM"));
   const [selectedYear, setSelectedYear] = useState<string>(format(new Date(), "yyyy"));
   const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
 
   // Get available months (last 12 months)
   const availableMonths = Array.from({ length: 12 }, (_, i) => {
@@ -377,175 +389,168 @@ const ReportsPage = () => {
       const filename = `raport-${reportType === "monthly" ? selectedMonth : selectedYear}.pdf`;
       doc.save(filename);
 
-      toast({
-        title: "Raport generat",
-        description: `Fișierul ${filename} a fost descărcat`,
-      });
+      toast.success(`Raport generat: ${filename}`);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast({
-        title: "Eroare",
-        description: "Nu s-a putut genera raportul PDF",
-        variant: "destructive",
-      });
+      toast.error("Nu s-a putut genera raportul PDF");
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Rapoarte</h1>
-        <p className="text-muted-foreground">Generează rapoarte PDF cu statistici</p>
-      </div>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex items-center gap-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+            <FileText className="h-6 w-6 text-gold" />
+          </div>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Rapoarte</h1>
+          <p className="text-muted-foreground text-sm">Generează rapoarte PDF cu statistici</p>
+        </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Configuration */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Configurare Raport
-            </CardTitle>
-            <CardDescription>Selectează tipul și perioada</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Tip Raport</Label>
-              <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Lunar</SelectItem>
-                  <SelectItem value="yearly">Anual</SelectItem>
-                </SelectContent>
-              </Select>
+        <motion.div variants={itemVariants} className="lg:col-span-1">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
+            <div className="p-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gold/10 text-gold">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Configurare Raport</h3>
+                  <p className="text-sm text-muted-foreground">Selectează tipul și perioada</p>
+                </div>
+              </div>
             </div>
-
-            {reportType === "monthly" ? (
+            <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label>Luna</Label>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger>
+                <Label className="text-sm">Tip Raport</Label>
+                <Select value={reportType} onValueChange={setReportType}>
+                  <SelectTrigger className="bg-white/5 border-white/10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableMonths.map(month => (
-                      <SelectItem key={month.value} value={month.value}>
-                        {month.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="monthly">Lunar</SelectItem>
+                    <SelectItem value="yearly">Anual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            ) : (
-              <div className="space-y-2">
-                <Label>An</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableYears.map(year => (
-                      <SelectItem key={year.value} value={year.value}>
-                        {year.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
-            <Button 
-              onClick={generatePDF} 
-              disabled={isLoading || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Se generează...
-                </>
+              {reportType === "monthly" ? (
+                <div className="space-y-2">
+                  <Label className="text-sm">Luna</Label>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableMonths.map(month => (
+                        <SelectItem key={month.value} value={month.value}>
+                          {month.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" />
-                  Descarcă PDF
-                </>
+                <div className="space-y-2">
+                  <Label className="text-sm">An</Label>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="bg-white/5 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map(year => (
+                        <SelectItem key={year.value} value={year.value}>
+                          {year.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               )}
-            </Button>
-          </CardContent>
-        </Card>
+
+              <Button 
+                onClick={generatePDF} 
+                disabled={isLoading || isGenerating}
+                className="w-full bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Se generează...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Descarcă PDF
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Preview */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Previzualizare Date
-            </CardTitle>
-            <CardDescription>
-              {reportType === "monthly" 
-                ? availableMonths.find(m => m.value === selectedMonth)?.label
-                : selectedYear}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center h-48">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : reportData ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Euro className="h-4 w-4" />
-                    <span className="text-xs">Comisioane EUR</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.totalEUR.toLocaleString()} €</p>
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
+            <div className="p-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+                  <BarChart3 className="h-5 w-5" />
                 </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Euro className="h-4 w-4" />
-                    <span className="text-xs">Comisioane RON</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.totalRON.toLocaleString()} RON</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-xs">Tranzacții</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.salesCount + reportData.rentCount}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <CalendarCheck className="h-4 w-4" />
-                    <span className="text-xs">Vizionări</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.viewingsTotal}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-xs">Proprietăți</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.propertiesCount}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                    <Building2 className="h-4 w-4" />
-                    <span className="text-xs">Complexe</span>
-                  </div>
-                  <p className="text-xl font-bold">{reportData.complexesCount}</p>
+                <div>
+                  <h3 className="font-semibold">Previzualizare Date</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {reportType === "monthly" 
+                      ? availableMonths.find(m => m.value === selectedMonth)?.label
+                      : selectedYear}
+                  </p>
                 </div>
               </div>
-            ) : null}
-          </CardContent>
-        </Card>
+            </div>
+            <div className="p-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-48">
+                  <Loader2 className="h-8 w-8 animate-spin text-gold/50" />
+                </div>
+              ) : reportData ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    { icon: Euro, label: "Comisioane EUR", value: `${reportData.totalEUR.toLocaleString()} €`, gradient: "from-gold/20 to-amber-500/20", iconColor: "text-gold" },
+                    { icon: Euro, label: "Comisioane RON", value: `${reportData.totalRON.toLocaleString()} RON`, gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
+                    { icon: Building2, label: "Tranzacții", value: reportData.salesCount + reportData.rentCount, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400" },
+                    { icon: CalendarCheck, label: "Vizionări", value: reportData.viewingsTotal, gradient: "from-purple-500/20 to-violet-500/20", iconColor: "text-purple-400" },
+                    { icon: Building2, label: "Proprietăți", value: reportData.propertiesCount, gradient: "from-orange-500/20 to-red-500/20", iconColor: "text-orange-400" },
+                    { icon: Building2, label: "Complexe", value: reportData.complexesCount, gradient: "from-pink-500/20 to-rose-500/20", iconColor: "text-pink-400" },
+                  ].map((stat, index) => (
+                    <div key={stat.label} className={`p-4 rounded-xl bg-gradient-to-br ${stat.gradient} border border-white/5 hover:border-white/10 transition-all`}>
+                      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                        <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
+                        <span className="text-xs">{stat.label}</span>
+                      </div>
+                      <p className="text-xl font-bold">{stat.value}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
