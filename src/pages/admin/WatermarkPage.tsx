@@ -15,7 +15,8 @@ import {
   X,
   Loader2,
   CheckCircle2,
-  Stamp
+  Stamp,
+  Grid3X3
 } from "lucide-react";
 import JSZip from "jszip";
 
@@ -58,6 +59,8 @@ export default function WatermarkPage() {
   const [watermarkOpacity, setWatermarkOpacity] = useState([0.3]);
   const [watermarkSize, setWatermarkSize] = useState([25]); // percentage of image width
   const [watermarkPosition, setWatermarkPosition] = useState<WatermarkPosition>("bottom-right");
+  const [useTileMode, setUseTileMode] = useState(false);
+  const [tileRotation, setTileRotation] = useState([45]); // degrees for diagonal tiling
   const [useCustomWatermark, setUseCustomWatermark] = useState(false);
   const [customWatermark, setCustomWatermark] = useState<string | null>(null);
   const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
@@ -176,7 +179,9 @@ export default function WatermarkPage() {
     opacity: number,
     sizePercent: number,
     watermarkSrc: string,
-    position: WatermarkPosition
+    position: WatermarkPosition,
+    tileMode: boolean,
+    rotation: number
   ): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -205,17 +210,58 @@ export default function WatermarkPage() {
           const wmWidth = (img.width * sizePercent) / 100;
           const wmHeight = (watermark.height / watermark.width) * wmWidth;
           
-          // Calculate position based on selected option
-          const { x, y } = calculateWatermarkPosition(
-            img.width,
-            img.height,
-            wmWidth,
-            wmHeight,
-            position
-          );
-          
           ctx.globalAlpha = opacity;
-          ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
+          
+          if (tileMode) {
+            // Tile mode - repeat watermark across entire image with rotation
+            const radians = (rotation * Math.PI) / 180;
+            
+            // Calculate spacing between tiles
+            const spacingX = wmWidth * 1.5;
+            const spacingY = wmHeight * 2;
+            
+            // Calculate the diagonal of the image for full coverage when rotated
+            const diagonal = Math.sqrt(img.width * img.width + img.height * img.height);
+            const tilesNeededX = Math.ceil(diagonal / spacingX) + 2;
+            const tilesNeededY = Math.ceil(diagonal / spacingY) + 2;
+            
+            // Save context state
+            ctx.save();
+            
+            // Move to center, rotate, then draw tiles
+            ctx.translate(img.width / 2, img.height / 2);
+            ctx.rotate(radians);
+            
+            // Draw tiles in a grid pattern covering the rotated area
+            const startX = -tilesNeededX * spacingX / 2;
+            const startY = -tilesNeededY * spacingY / 2;
+            
+            for (let row = 0; row < tilesNeededY; row++) {
+              for (let col = 0; col < tilesNeededX; col++) {
+                // Offset every other row for a staggered pattern
+                const offsetX = row % 2 === 0 ? 0 : spacingX / 2;
+                const x = startX + col * spacingX + offsetX;
+                const y = startY + row * spacingY;
+                
+                ctx.drawImage(watermark, x - wmWidth / 2, y - wmHeight / 2, wmWidth, wmHeight);
+              }
+            }
+            
+            // Restore context state
+            ctx.restore();
+          } else {
+            // Single watermark mode - position based on selection
+            const { x, y } = calculateWatermarkPosition(
+              img.width,
+              img.height,
+              wmWidth,
+              wmHeight,
+              position
+            );
+            
+            ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
+          }
+          
           ctx.globalAlpha = 1;
           
           canvas.toBlob(
@@ -261,7 +307,7 @@ export default function WatermarkPage() {
         ));
 
         try {
-          const watermarkedBlob = await applyWatermark(image.file, opacity, size, watermarkSrc, watermarkPosition);
+          const watermarkedBlob = await applyWatermark(image.file, opacity, size, watermarkSrc, watermarkPosition, useTileMode, tileRotation[0]);
           const watermarkedUrl = URL.createObjectURL(watermarkedBlob);
           
           setImages(prev => prev.map(img => 
@@ -282,7 +328,7 @@ export default function WatermarkPage() {
     } finally {
       setIsProcessing(false);
     }
-  }, [images, watermarkOpacity, watermarkSize, watermarkPosition, applyWatermark, useCustomWatermark, customWatermark]);
+  }, [images, watermarkOpacity, watermarkSize, watermarkPosition, useTileMode, tileRotation, applyWatermark, useCustomWatermark, customWatermark]);
 
   const downloadZip = useCallback(async () => {
     const processedImages = images.filter(img => img.watermarked);
@@ -428,32 +474,66 @@ export default function WatermarkPage() {
               />
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-sm">Poziție watermark</Label>
-              <div className="grid grid-cols-3 gap-1 p-2 bg-muted/50 rounded-lg">
-                {(["top-left", "top-center", "top-right", "center-left", "center", "center-right", "bottom-left", "bottom-center", "bottom-right"] as WatermarkPosition[]).map((pos) => (
-                  <button
-                    key={pos}
-                    onClick={() => setWatermarkPosition(pos)}
-                    className={`aspect-square rounded border-2 transition-all flex items-center justify-center ${
-                      watermarkPosition === pos 
-                        ? "border-gold bg-gold/20" 
-                        : "border-muted-foreground/20 hover:border-muted-foreground/40"
-                    }`}
-                    title={POSITION_LABELS[pos]}
-                  >
-                    <div 
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        watermarkPosition === pos ? "bg-gold" : "bg-muted-foreground/40"
-                      }`}
-                    />
-                  </button>
-                ))}
+            {/* Tile Mode Toggle */}
+            <div className="space-y-3 pb-3 border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Grid3X3 className="h-4 w-4 text-muted-foreground" />
+                  <Label className="text-sm font-medium">Mod repetat (tile)</Label>
+                </div>
+                <Switch
+                  checked={useTileMode}
+                  onCheckedChange={setUseTileMode}
+                />
               </div>
-              <p className="text-xs text-muted-foreground text-center">
-                {POSITION_LABELS[watermarkPosition]}
-              </p>
+              
+              {useTileMode && (
+                <div className="space-y-2 pl-6">
+                  <Label className="text-xs text-muted-foreground">Rotație: {tileRotation[0]}°</Label>
+                  <Slider
+                    value={tileRotation}
+                    onValueChange={setTileRotation}
+                    min={-45}
+                    max={45}
+                    step={5}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Watermark-ul va fi repetat pe toată imaginea
+                  </p>
+                </div>
+              )}
             </div>
+
+            {/* Position selector - only show when not in tile mode */}
+            {!useTileMode && (
+              <div className="space-y-3">
+                <Label className="text-sm">Poziție watermark</Label>
+                <div className="grid grid-cols-3 gap-1 p-2 bg-muted/50 rounded-lg">
+                  {(["top-left", "top-center", "top-right", "center-left", "center", "center-right", "bottom-left", "bottom-center", "bottom-right"] as WatermarkPosition[]).map((pos) => (
+                    <button
+                      key={pos}
+                      onClick={() => setWatermarkPosition(pos)}
+                      className={`aspect-square rounded border-2 transition-all flex items-center justify-center ${
+                        watermarkPosition === pos 
+                          ? "border-gold bg-gold/20" 
+                          : "border-muted-foreground/20 hover:border-muted-foreground/40"
+                      }`}
+                      title={POSITION_LABELS[pos]}
+                    >
+                      <div 
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          watermarkPosition === pos ? "bg-gold" : "bg-muted-foreground/40"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {POSITION_LABELS[watermarkPosition]}
+                </p>
+              </div>
+            )}
 
             <div className="pt-2 space-y-2">
               <Input
