@@ -491,26 +491,42 @@ const InboxPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Inbox className="h-8 w-8 text-primary" />
+      {/* Modern Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 admin-glow">
+            <Inbox className="h-6 w-6 text-gold" />
+          </div>
           <div>
-            <h1 className="text-2xl font-bold">Inbox</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              Inbox
+            </h1>
+            <p className="text-sm text-muted-foreground">
               {unreadCount > 0 ? `${unreadCount} email-uri necitite` : 'Toate email-urile citite'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleOpenCompose}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button 
+            onClick={handleOpenCompose}
+            className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl admin-glow"
+          >
             <PenSquare className="h-4 w-4 mr-2" />
             Compune
           </Button>
-          <Button variant="outline" onClick={() => setShowDrafts(!showDrafts)}>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowDrafts(!showDrafts)}
+            className="rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30"
+          >
             <FileText className="h-4 w-4 mr-2" />
             Ciorne {drafts && drafts.length > 0 && `(${drafts.length})`}
           </Button>
-          <Button variant="outline" onClick={() => refetch()}>
+          <Button 
+            variant="outline" 
+            onClick={() => refetch()}
+            className="rounded-xl border-white/10 hover:bg-white/5"
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Reîncarcă
           </Button>
@@ -519,28 +535,28 @@ const InboxPage = () => {
 
       {/* Drafts Panel */}
       {showDrafts && (
-        <Card>
-          <CardHeader className="py-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+        <div className="admin-glass-card rounded-2xl overflow-hidden">
+          <div className="p-4 border-b border-white/5">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <FileText className="h-4 w-4 text-gold" />
               Ciorne salvate ({drafts?.length || 0})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
+            </h3>
+          </div>
+          <div className="p-0">
             {!drafts || drafts.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">
+              <div className="p-6 text-center text-muted-foreground text-sm">
                 Nu ai ciorne salvate
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y divide-white/5">
                 {drafts.map((draft) => (
                   <div
                     key={draft.id}
                     onClick={() => handleLoadDraft(draft)}
-                    className="p-3 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between"
+                    className="p-4 cursor-pointer hover:bg-white/5 transition-colors flex items-center justify-between group"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate text-sm">
+                      <p className="font-medium truncate text-sm group-hover:text-gold transition-colors">
                         {draft.subject || '(Fără subiect)'}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
@@ -553,7 +569,7 @@ const InboxPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive hover:text-destructive shrink-0"
+                      className="text-destructive hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={(e) => handleDeleteDraft(e, draft.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -562,15 +578,22 @@ const InboxPage = () => {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      <div className="flex gap-2">
+      {/* Filter Buttons */}
+      <div className="flex gap-2 flex-wrap">
         <Button 
           variant={filter === 'all' ? 'default' : 'outline'} 
           size="sm"
           onClick={() => setFilter('all')}
+          className={cn(
+            "rounded-xl transition-all",
+            filter === 'all' 
+              ? "bg-gold text-black hover:bg-gold/90" 
+              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
+          )}
         >
           Toate
         </Button>
@@ -578,16 +601,28 @@ const InboxPage = () => {
           variant={filter === 'unread' ? 'default' : 'outline'} 
           size="sm"
           onClick={() => setFilter('unread')}
+          className={cn(
+            "rounded-xl transition-all",
+            filter === 'unread' 
+              ? "bg-gold text-black hover:bg-gold/90" 
+              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
+          )}
         >
           Necitite
           {unreadCount > 0 && (
-            <Badge variant="secondary" className="ml-2">{unreadCount}</Badge>
+            <Badge variant="secondary" className="ml-2 bg-white/10">{unreadCount}</Badge>
           )}
         </Button>
         <Button 
           variant={filter === 'starred' ? 'default' : 'outline'} 
           size="sm"
           onClick={() => setFilter('starred')}
+          className={cn(
+            "rounded-xl transition-all",
+            filter === 'starred' 
+              ? "bg-gold text-black hover:bg-gold/90" 
+              : "border-white/10 hover:bg-white/5 hover:border-gold/30"
+          )}
         >
           Cu stea
         </Button>
@@ -595,16 +630,16 @@ const InboxPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Email List */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="py-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <div className="lg:col-span-1 admin-glass-card rounded-2xl overflow-hidden">
+          <div className="p-4 border-b border-white/5">
+            <h3 className="text-sm font-medium text-muted-foreground">
               {emails?.length || 0} email-uri
-            </CardTitle>
-          </CardHeader>
+            </h3>
+          </div>
           <ScrollArea className="h-[600px]">
-            <CardContent className="p-0">
+            <div className="p-0">
               {isLoading ? (
-                <div className="p-4 text-center text-muted-foreground">
+                <div className="p-8 text-center text-muted-foreground">
                   Se încarcă...
                 </div>
               ) : emails?.length === 0 ? (
@@ -618,9 +653,9 @@ const InboxPage = () => {
                     key={email.id}
                     onClick={() => handleSelectEmail(email)}
                     className={cn(
-                      "p-4 cursor-pointer hover:bg-muted/50 transition-colors border-b",
-                      selectedEmail?.id === email.id && "bg-muted",
-                      !email.is_read && "bg-primary/5"
+                      "p-4 cursor-pointer hover:bg-white/5 transition-all border-b border-white/5 group",
+                      selectedEmail?.id === email.id && "bg-gold/10 border-l-2 border-l-gold",
+                      !email.is_read && "bg-white/[0.02]"
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -637,20 +672,20 @@ const InboxPage = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           {!email.is_read ? (
-                            <Mail className="h-4 w-4 text-primary shrink-0" />
+                            <Mail className="h-4 w-4 text-gold shrink-0" />
                           ) : (
                             <MailOpen className="h-4 w-4 text-muted-foreground shrink-0" />
                           )}
                           <span className={cn(
-                            "font-medium truncate",
-                            !email.is_read && "font-semibold"
+                            "font-medium truncate group-hover:text-gold transition-colors",
+                            !email.is_read && "font-semibold text-foreground"
                           )}>
                             {extractSenderName(email.sender)}
                           </span>
                         </div>
                         <p className={cn(
                           "text-sm truncate mt-1",
-                          !email.is_read ? "font-medium" : "text-muted-foreground"
+                          !email.is_read ? "font-medium text-foreground/80" : "text-muted-foreground"
                         )}>
                           {email.subject || '(Fără subiect)'}
                         </p>
@@ -667,29 +702,29 @@ const InboxPage = () => {
                   </div>
                 ))
               )}
-            </CardContent>
+            </div>
           </ScrollArea>
-        </Card>
+        </div>
 
         {/* Email Detail */}
-        <Card className="lg:col-span-2">
+        <div className="lg:col-span-2 admin-glass-card rounded-2xl overflow-hidden">
           {selectedEmail ? (
             <>
-              <CardHeader className="py-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
+              <div className="p-4 border-b border-white/5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2 min-w-0">
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="lg:hidden"
+                      className="lg:hidden shrink-0 rounded-xl hover:bg-white/5"
                       onClick={() => setSelectedEmail(null)}
                     >
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <div>
-                      <CardTitle className="text-lg">
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold truncate">
                         {selectedEmail.subject || '(Fără subiect)'}
-                      </CardTitle>
+                      </h3>
                       <p className="text-sm text-muted-foreground mt-1">
                         De la: {selectedEmail.sender}
                       </p>
@@ -700,7 +735,7 @@ const InboxPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                     <span className="text-sm text-muted-foreground hidden sm:inline">
                       {format(new Date(selectedEmail.received_at), 'dd MMMM yyyy, HH:mm', { locale: ro })}
                     </span>
@@ -708,6 +743,7 @@ const InboxPage = () => {
                       variant="default"
                       size="sm"
                       onClick={() => handleOpenReply(selectedEmail)}
+                      className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl"
                     >
                       <Reply className="h-4 w-4 mr-2" />
                       Răspunde
@@ -715,6 +751,7 @@ const InboxPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="rounded-xl hover:bg-white/5"
                       onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}
                     >
                       {selectedEmail.is_starred ? (
@@ -726,6 +763,7 @@ const InboxPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="rounded-xl hover:bg-white/5"
                       onClick={() => handleArchive(selectedEmail)}
                     >
                       <Archive className="h-4 w-4" />
@@ -733,20 +771,20 @@ const InboxPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive rounded-xl hover:bg-destructive/10"
                       onClick={() => handleDelete(selectedEmail)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              </CardHeader>
-              <Separator />
-              <CardContent className="py-4">
+              </div>
+              <Separator className="bg-white/5" />
+              <div className="p-4">
                 {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
-                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                  <div className="mb-4 p-3 bg-white/5 rounded-xl border border-white/10">
                     <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <Paperclip className="h-4 w-4" />
+                      <Paperclip className="h-4 w-4 text-gold" />
                       Atașamente ({selectedEmail.attachments.length})
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -758,13 +796,13 @@ const InboxPage = () => {
                             download={att.name}
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-sm transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-sm transition-colors"
                           >
                             <Paperclip className="h-3 w-3" />
                             📥 {att.name} ({Math.round(att.size / 1024)} KB)
                           </a>
                         ) : (
-                          <Badge key={idx} variant="secondary" className="opacity-60">
+                          <Badge key={idx} variant="secondary" className="opacity-60 bg-white/5">
                             {att.name} ({Math.round(att.size / 1024)} KB) - nedisponibil
                           </Badge>
                         )
@@ -784,17 +822,19 @@ const InboxPage = () => {
                     </pre>
                   )}
                 </ScrollArea>
-              </CardContent>
+              </div>
             </>
           ) : (
             <div className="h-[600px] flex items-center justify-center text-muted-foreground">
               <div className="text-center">
-                <Mail className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-10 w-10 opacity-30" />
+                </div>
                 <p>Selectează un email pentru a-l vizualiza</p>
               </div>
             </div>
           )}
-        </Card>
+        </div>
       </div>
 
       {/* Mailgun Webhook Instructions */}
