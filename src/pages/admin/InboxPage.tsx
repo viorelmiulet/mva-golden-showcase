@@ -68,6 +68,7 @@ const InboxPage = () => {
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
+  const [composeAttachments, setComposeAttachments] = useState<File[]>([]);
   
   const queryClient = useQueryClient();
 
@@ -145,13 +146,14 @@ const InboxPage = () => {
 
   // Compose new email mutation
   const sendEmailMutation = useMutation({
-    mutationFn: async ({ to, subject, body }: { 
+    mutationFn: async ({ to, subject, body, attachments }: { 
       to: string; 
       subject: string; 
-      body: string; 
+      body: string;
+      attachments: Array<{ filename: string; content: string; contentType: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, subject, body }
+        body: { to, subject, body, attachments }
       });
       if (error) throw error;
       return data;
@@ -162,6 +164,7 @@ const InboxPage = () => {
       setComposeTo("");
       setComposeSubject("");
       setComposeBody("");
+      setComposeAttachments([]);
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
@@ -225,19 +228,55 @@ const InboxPage = () => {
     setComposeTo("");
     setComposeSubject("");
     setComposeBody("");
+    setComposeAttachments([]);
     setComposeDialogOpen(true);
   };
 
-  const handleSendEmail = () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setComposeAttachments(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setComposeAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove the data:mime/type;base64, prefix
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleSendEmail = async () => {
     if (!composeTo || !composeBody.trim()) {
       toast.error('Completează destinatarul și mesajul');
       return;
     }
     
+    // Convert files to base64
+    const attachmentsData = await Promise.all(
+      composeAttachments.map(async (file) => ({
+        filename: file.name,
+        content: await fileToBase64(file),
+        contentType: file.type || 'application/octet-stream'
+      }))
+    );
+
     sendEmailMutation.mutate({
       to: composeTo,
       subject: composeSubject,
-      body: composeBody
+      body: composeBody,
+      attachments: attachmentsData
     });
   };
 
@@ -645,6 +684,40 @@ const InboxPage = () => {
                 placeholder="Scrie mesajul tău aici..."
                 className="min-h-[200px]"
               />
+            </div>
+
+            {/* Attachments */}
+            <div className="space-y-2">
+              <Label>Atașamente</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="flex-1"
+                />
+              </div>
+              {composeAttachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {composeAttachments.map((file, idx) => (
+                    <Badge 
+                      key={idx} 
+                      variant="secondary" 
+                      className="flex items-center gap-1 py-1 px-2"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      {file.name} ({Math.round(file.size / 1024)} KB)
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttachment(idx)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
