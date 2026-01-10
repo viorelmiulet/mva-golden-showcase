@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { 
   Upload, 
@@ -26,6 +27,29 @@ interface UploadedImage {
   status: "pending" | "processing" | "done";
 }
 
+type WatermarkPosition = 
+  | "top-left" 
+  | "top-center" 
+  | "top-right" 
+  | "center-left" 
+  | "center" 
+  | "center-right" 
+  | "bottom-left" 
+  | "bottom-center" 
+  | "bottom-right";
+
+const POSITION_LABELS: Record<WatermarkPosition, string> = {
+  "top-left": "Stânga sus",
+  "top-center": "Centru sus",
+  "top-right": "Dreapta sus",
+  "center-left": "Stânga",
+  "center": "Centru",
+  "center-right": "Dreapta",
+  "bottom-left": "Stânga jos",
+  "bottom-center": "Centru jos",
+  "bottom-right": "Dreapta jos",
+};
+
 const DEFAULT_WATERMARK = "/mva-watermark-exact.svg";
 
 export default function WatermarkPage() {
@@ -33,6 +57,7 @@ export default function WatermarkPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [watermarkOpacity, setWatermarkOpacity] = useState([0.3]);
   const [watermarkSize, setWatermarkSize] = useState([25]); // percentage of image width
+  const [watermarkPosition, setWatermarkPosition] = useState<WatermarkPosition>("bottom-right");
   const [useCustomWatermark, setUseCustomWatermark] = useState(false);
   const [customWatermark, setCustomWatermark] = useState<string | null>(null);
   const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
@@ -122,11 +147,36 @@ export default function WatermarkPage() {
     toast.info("Toate imaginile au fost șterse");
   }, [images]);
 
+  const calculateWatermarkPosition = useCallback((
+    imgWidth: number,
+    imgHeight: number,
+    wmWidth: number,
+    wmHeight: number,
+    position: WatermarkPosition
+  ): { x: number; y: number } => {
+    const padding = Math.min(imgWidth, imgHeight) * 0.03;
+    
+    const positions: Record<WatermarkPosition, { x: number; y: number }> = {
+      "top-left": { x: padding, y: padding },
+      "top-center": { x: (imgWidth - wmWidth) / 2, y: padding },
+      "top-right": { x: imgWidth - wmWidth - padding, y: padding },
+      "center-left": { x: padding, y: (imgHeight - wmHeight) / 2 },
+      "center": { x: (imgWidth - wmWidth) / 2, y: (imgHeight - wmHeight) / 2 },
+      "center-right": { x: imgWidth - wmWidth - padding, y: (imgHeight - wmHeight) / 2 },
+      "bottom-left": { x: padding, y: imgHeight - wmHeight - padding },
+      "bottom-center": { x: (imgWidth - wmWidth) / 2, y: imgHeight - wmHeight - padding },
+      "bottom-right": { x: imgWidth - wmWidth - padding, y: imgHeight - wmHeight - padding },
+    };
+    
+    return positions[position];
+  }, []);
+
   const applyWatermark = useCallback(async (
     imageFile: File,
     opacity: number,
     sizePercent: number,
-    watermarkSrc: string
+    watermarkSrc: string,
+    position: WatermarkPosition
   ): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -155,10 +205,14 @@ export default function WatermarkPage() {
           const wmWidth = (img.width * sizePercent) / 100;
           const wmHeight = (watermark.height / watermark.width) * wmWidth;
           
-          // Position watermark in bottom-right corner with padding
-          const padding = Math.min(img.width, img.height) * 0.03;
-          const x = img.width - wmWidth - padding;
-          const y = img.height - wmHeight - padding;
+          // Calculate position based on selected option
+          const { x, y } = calculateWatermarkPosition(
+            img.width,
+            img.height,
+            wmWidth,
+            wmHeight,
+            position
+          );
           
           ctx.globalAlpha = opacity;
           ctx.drawImage(watermark, x, y, wmWidth, wmHeight);
@@ -184,7 +238,7 @@ export default function WatermarkPage() {
       img.onerror = () => reject(new Error("Failed to load image"));
       img.src = URL.createObjectURL(imageFile);
     });
-  }, []);
+  }, [calculateWatermarkPosition]);
 
   const processImages = useCallback(async () => {
     if (images.length === 0) {
@@ -207,7 +261,7 @@ export default function WatermarkPage() {
         ));
 
         try {
-          const watermarkedBlob = await applyWatermark(image.file, opacity, size, watermarkSrc);
+          const watermarkedBlob = await applyWatermark(image.file, opacity, size, watermarkSrc, watermarkPosition);
           const watermarkedUrl = URL.createObjectURL(watermarkedBlob);
           
           setImages(prev => prev.map(img => 
@@ -228,7 +282,7 @@ export default function WatermarkPage() {
     } finally {
       setIsProcessing(false);
     }
-  }, [images, watermarkOpacity, watermarkSize, applyWatermark, useCustomWatermark, customWatermark]);
+  }, [images, watermarkOpacity, watermarkSize, watermarkPosition, applyWatermark, useCustomWatermark, customWatermark]);
 
   const downloadZip = useCallback(async () => {
     const processedImages = images.filter(img => img.watermarked);
@@ -372,6 +426,33 @@ export default function WatermarkPage() {
                 step={5}
                 className="w-full"
               />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm">Poziție watermark</Label>
+              <div className="grid grid-cols-3 gap-1 p-2 bg-muted/50 rounded-lg">
+                {(["top-left", "top-center", "top-right", "center-left", "center", "center-right", "bottom-left", "bottom-center", "bottom-right"] as WatermarkPosition[]).map((pos) => (
+                  <button
+                    key={pos}
+                    onClick={() => setWatermarkPosition(pos)}
+                    className={`aspect-square rounded border-2 transition-all flex items-center justify-center ${
+                      watermarkPosition === pos 
+                        ? "border-gold bg-gold/20" 
+                        : "border-muted-foreground/20 hover:border-muted-foreground/40"
+                    }`}
+                    title={POSITION_LABELS[pos]}
+                  >
+                    <div 
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        watermarkPosition === pos ? "bg-gold" : "bg-muted-foreground/40"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                {POSITION_LABELS[watermarkPosition]}
+              </p>
             </div>
 
             <div className="pt-2 space-y-2">
