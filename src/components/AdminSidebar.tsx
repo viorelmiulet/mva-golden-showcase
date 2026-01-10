@@ -22,6 +22,7 @@ import {
   History,
   Hotel,
   Chrome,
+  Stamp,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const menuItems = [
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
   { title: "Inventar", url: "/admin/inventar-presetat", icon: Package },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
+  { title: "Watermark", url: "/admin/watermark", icon: Stamp },
   { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Istoric", url: "/admin/istoric", icon: History },
