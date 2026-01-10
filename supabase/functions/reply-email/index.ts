@@ -5,12 +5,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface EmailAttachment {
+  filename: string;
+  content: string; // base64 encoded
+  contentType: string;
+}
+
 interface ReplyEmailRequest {
   to: string;
   subject: string;
   body: string;
   inReplyTo?: string;
   originalEmailId?: string;
+  attachments?: EmailAttachment[];
 }
 
 Deno.serve(async (req) => {
@@ -19,16 +26,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { to, subject, body, inReplyTo }: ReplyEmailRequest = await req.json();
+    const { to, subject, body, inReplyTo, attachments }: ReplyEmailRequest = await req.json();
 
-    if (!to || !subject || !body) {
+    if (!to || !body) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: to, subject, body' }),
+        JSON.stringify({ error: 'Missing required fields: to, body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Sending reply email to:', to);
+    console.log('Sending email to:', to, 'with', attachments?.length || 0, 'attachments');
 
     // Build custom headers for threading
     const customHeaders: Record<string, string> = {};
@@ -39,7 +46,7 @@ Deno.serve(async (req) => {
 
     const result = await sendMailgunEmail({
       to,
-      subject,
+      subject: subject || '(Fără subiect)',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
           ${body.split('\n').map(line => `<p style="margin: 0 0 10px 0;">${line || '&nbsp;'}</p>`).join('')}
@@ -52,13 +59,14 @@ Deno.serve(async (req) => {
         </div>
       `,
       customHeaders,
+      attachments: attachments || [],
     });
 
     if (!result.success) {
       throw new Error(result.error || 'Failed to send email');
     }
 
-    console.log('Reply sent successfully');
+    console.log('Email sent successfully');
 
     return new Response(
       JSON.stringify({ success: true, messageId: result.messageId }),
@@ -66,7 +74,7 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error sending reply:', error);
+    console.error('Error sending email:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
