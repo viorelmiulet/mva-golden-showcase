@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { 
   Upload, 
@@ -12,7 +13,8 @@ import {
   Image as ImageIcon,
   X,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Stamp
 } from "lucide-react";
 import JSZip from "jszip";
 
@@ -24,12 +26,18 @@ interface UploadedImage {
   status: "pending" | "processing" | "done";
 }
 
+const DEFAULT_WATERMARK = "/mva-watermark-exact.svg";
+
 export default function WatermarkPage() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [watermarkOpacity, setWatermarkOpacity] = useState([0.3]);
   const [watermarkSize, setWatermarkSize] = useState([25]); // percentage of image width
+  const [useCustomWatermark, setUseCustomWatermark] = useState(false);
+  const [customWatermark, setCustomWatermark] = useState<string | null>(null);
+  const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const watermarkInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -54,6 +62,41 @@ export default function WatermarkPage() {
       fileInputRef.current.value = "";
     }
   }, []);
+
+  const handleWatermarkSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selectați un fișier imagine pentru watermark");
+      return;
+    }
+
+    // Revoke previous custom watermark URL
+    if (customWatermark && customWatermark !== DEFAULT_WATERMARK) {
+      URL.revokeObjectURL(customWatermark);
+    }
+
+    const url = URL.createObjectURL(file);
+    setCustomWatermark(url);
+    setCustomWatermarkName(file.name);
+    setUseCustomWatermark(true);
+    toast.success("Watermark personalizat încărcat");
+
+    if (watermarkInputRef.current) {
+      watermarkInputRef.current.value = "";
+    }
+  }, [customWatermark]);
+
+  const clearCustomWatermark = useCallback(() => {
+    if (customWatermark && customWatermark !== DEFAULT_WATERMARK) {
+      URL.revokeObjectURL(customWatermark);
+    }
+    setCustomWatermark(null);
+    setCustomWatermarkName("");
+    setUseCustomWatermark(false);
+    toast.info("Watermark personalizat șters");
+  }, [customWatermark]);
 
   const removeImage = useCallback((id: string) => {
     setImages(prev => {
@@ -82,7 +125,8 @@ export default function WatermarkPage() {
   const applyWatermark = useCallback(async (
     imageFile: File,
     opacity: number,
-    sizePercent: number
+    sizePercent: number,
+    watermarkSrc: string
   ): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -134,7 +178,7 @@ export default function WatermarkPage() {
         };
         
         watermark.onerror = () => reject(new Error("Failed to load watermark"));
-        watermark.src = "/mva-watermark-exact.svg";
+        watermark.src = watermarkSrc;
       };
       
       img.onerror = () => reject(new Error("Failed to load image"));
@@ -147,6 +191,8 @@ export default function WatermarkPage() {
       toast.error("Adăugați imagini pentru a aplica watermark");
       return;
     }
+
+    const watermarkSrc = useCustomWatermark && customWatermark ? customWatermark : DEFAULT_WATERMARK;
 
     setIsProcessing(true);
     const opacity = watermarkOpacity[0];
@@ -161,7 +207,7 @@ export default function WatermarkPage() {
         ));
 
         try {
-          const watermarkedBlob = await applyWatermark(image.file, opacity, size);
+          const watermarkedBlob = await applyWatermark(image.file, opacity, size, watermarkSrc);
           const watermarkedUrl = URL.createObjectURL(watermarkedBlob);
           
           setImages(prev => prev.map(img => 
@@ -182,7 +228,7 @@ export default function WatermarkPage() {
     } finally {
       setIsProcessing(false);
     }
-  }, [images, watermarkOpacity, watermarkSize, applyWatermark]);
+  }, [images, watermarkOpacity, watermarkSize, applyWatermark, useCustomWatermark, customWatermark]);
 
   const downloadZip = useCallback(async () => {
     const processedImages = images.filter(img => img.watermarked);
@@ -227,6 +273,7 @@ export default function WatermarkPage() {
   }, [images]);
 
   const processedCount = images.filter(img => img.status === "done").length;
+  const currentWatermarkSrc = useCustomWatermark && customWatermark ? customWatermark : DEFAULT_WATERMARK;
 
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
@@ -234,7 +281,7 @@ export default function WatermarkPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground">Watermark Imagini</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Adaugă watermark MVA pe imagini și descarcă-le ca arhivă ZIP
+            Adaugă watermark pe imagini și descarcă-le ca arhivă ZIP
           </p>
         </div>
       </div>
@@ -246,6 +293,63 @@ export default function WatermarkPage() {
             <CardTitle className="text-base sm:text-lg">Setări Watermark</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            {/* Custom Watermark Section */}
+            <div className="space-y-3 pb-4 border-b">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Watermark personalizat</Label>
+                <Switch
+                  checked={useCustomWatermark}
+                  onCheckedChange={setUseCustomWatermark}
+                  disabled={!customWatermark}
+                />
+              </div>
+              
+              {/* Watermark Preview */}
+              <div className="flex items-center gap-3">
+                <div className="w-16 h-16 rounded-lg border bg-muted/50 flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={currentWatermarkSrc} 
+                    alt="Watermark preview" 
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">
+                    {useCustomWatermark && customWatermarkName ? customWatermarkName : "MVA Logo (implicit)"}
+                  </p>
+                  <div className="flex gap-1 mt-1">
+                    <Input
+                      ref={watermarkInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleWatermarkSelect}
+                      className="hidden"
+                      id="watermark-upload"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => watermarkInputRef.current?.click()}
+                      className="h-7 text-xs"
+                    >
+                      <Stamp className="h-3 w-3 mr-1" />
+                      Încarcă
+                    </Button>
+                    {customWatermark && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={clearCustomWatermark}
+                        className="h-7 text-xs text-destructive hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-3">
               <Label className="text-sm">Opacitate: {Math.round(watermarkOpacity[0] * 100)}%</Label>
               <Slider
