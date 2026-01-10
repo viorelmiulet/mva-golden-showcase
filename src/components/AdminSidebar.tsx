@@ -18,7 +18,6 @@ import {
   UserCheck,
   ScrollText,
   Package,
-  Smartphone,
   History,
   Hotel,
   Chrome,
@@ -58,7 +57,6 @@ const menuItems = [
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
   { title: "Setări", url: "/admin/setari", icon: Settings },
-  { title: "Instalează App", url: "/admin/instaleaza", icon: Smartphone },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
 ];
 
