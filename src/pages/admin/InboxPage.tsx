@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, isToday, isYesterday } from "date-fns";
 import { ro } from "date-fns/locale";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mail, 
-  MailOpen, 
   Star, 
   StarOff, 
   Trash2, 
@@ -20,13 +20,17 @@ import {
   PenSquare,
   FileText,
   Save,
-  Settings
+  Search,
+  MoreHorizontal,
+  Clock,
+  Check,
+  X,
+  Download,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +42,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -62,6 +72,7 @@ interface ReceivedEmail {
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [replyTo, setReplyTo] = useState("");
   const [replySubject, setReplySubject] = useState("");
@@ -117,7 +128,6 @@ const InboxPage = () => {
       if (!user) throw new Error('Nu ești autentificat');
 
       if (draft.id) {
-        // Update existing draft
         const { error } = await supabase
           .from('email_drafts')
           .update({
@@ -133,7 +143,6 @@ const InboxPage = () => {
         if (error) throw error;
         return { id: draft.id, silent: draft.silent };
       } else {
-        // Create new draft
         const { data, error } = await supabase
           .from('email_drafts')
           .insert({
@@ -164,9 +173,7 @@ const InboxPage = () => {
     }
   });
 
-  // Auto-save function
   const performAutoSave = useCallback(async () => {
-    // Only auto-save if there's content
     if (!composeTo && !composeSubject && !composeBody) return;
     
     saveDraftMutation.mutate({
@@ -176,23 +183,20 @@ const InboxPage = () => {
       bcc: composeBcc,
       subject: composeSubject,
       body: composeBody,
-      attachments: [], // Don't include attachments in auto-save (files can't be serialized)
-      silent: true // Don't show toast for auto-save
+      attachments: [],
+      silent: true
     });
   }, [composeTo, composeCc, composeBcc, composeSubject, composeBody, currentDraftId]);
 
-  // Auto-save effect - every 30 seconds when compose dialog is open
   useEffect(() => {
     if (composeDialogOpen) {
-      // Clear any existing interval
       if (autoSaveIntervalRef.current) {
         clearInterval(autoSaveIntervalRef.current);
       }
       
-      // Set up new interval
       autoSaveIntervalRef.current = setInterval(() => {
         performAutoSave();
-      }, 30000); // 30 seconds
+      }, 30000);
       
       return () => {
         if (autoSaveIntervalRef.current) {
@@ -200,7 +204,6 @@ const InboxPage = () => {
         }
       };
     } else {
-      // Clear interval when dialog closes
       if (autoSaveIntervalRef.current) {
         clearInterval(autoSaveIntervalRef.current);
         autoSaveIntervalRef.current = null;
@@ -208,7 +211,6 @@ const InboxPage = () => {
     }
   }, [composeDialogOpen, performAutoSave]);
 
-  // Delete draft mutation
   const deleteDraftMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -295,7 +297,6 @@ const InboxPage = () => {
     }
   });
 
-  // Compose new email mutation
   const sendEmailMutation = useMutation({
     mutationFn: async ({ to, cc, bcc, subject, body, attachments }: { 
       to: string;
@@ -314,18 +315,22 @@ const InboxPage = () => {
     onSuccess: () => {
       toast.success('Email-ul a fost trimis!');
       setComposeDialogOpen(false);
-      setComposeTo("");
-      setComposeCc("");
-      setComposeBcc("");
-      setComposeSubject("");
-      setComposeBody("");
-      setComposeAttachments([]);
-      setShowCcBcc(false);
+      resetComposeForm();
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
     }
   });
+
+  const resetComposeForm = () => {
+    setComposeTo("");
+    setComposeCc("");
+    setComposeBcc("");
+    setComposeSubject("");
+    setComposeBody("");
+    setComposeAttachments([]);
+    setShowCcBcc(false);
+  };
 
   const handleSelectEmail = async (email: ReceivedEmail) => {
     setSelectedEmail(email);
@@ -356,7 +361,6 @@ const InboxPage = () => {
   };
 
   const handleOpenReply = (email: ReceivedEmail) => {
-    // Extract email address from sender (could be "Name <email@domain.com>" format)
     const emailMatch = email.sender.match(/<([^>]+)>/) || [null, email.sender];
     const senderEmail = emailMatch[1] || email.sender;
     
@@ -381,13 +385,7 @@ const InboxPage = () => {
   };
 
   const handleOpenCompose = () => {
-    setComposeTo("");
-    setComposeCc("");
-    setComposeBcc("");
-    setComposeSubject("");
-    setComposeBody("");
-    setComposeAttachments([]);
-    setShowCcBcc(false);
+    resetComposeForm();
     setCurrentDraftId(null);
     setComposeDialogOpen(true);
   };
@@ -450,7 +448,6 @@ const InboxPage = () => {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove the data:mime/type;base64, prefix
         const base64 = result.split(',')[1];
         resolve(base64);
       };
@@ -464,7 +461,6 @@ const InboxPage = () => {
       return;
     }
     
-    // Convert files to base64
     const attachmentsData = await Promise.all(
       composeAttachments.map(async (file) => ({
         filename: file.name,
@@ -488,325 +484,448 @@ const InboxPage = () => {
     return match ? match[1].trim() : sender.split('@')[0];
   };
 
+  const extractSenderInitials = (sender: string) => {
+    const name = extractSenderName(sender);
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const formatEmailDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isToday(date)) {
+      return format(date, 'HH:mm');
+    }
+    if (isYesterday(date)) {
+      return 'Ieri';
+    }
+    return format(date, 'dd MMM', { locale: ro });
+  };
+
   const unreadCount = emails?.filter(e => !e.is_read).length || 0;
+  const starredCount = emails?.filter(e => e.is_starred).length || 0;
+
+  const filteredEmails = emails?.filter(email => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      email.sender.toLowerCase().includes(query) ||
+      email.subject?.toLowerCase().includes(query) ||
+      email.body_plain?.toLowerCase().includes(query)
+    );
+  });
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 }
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
-      {/* Modern Glass Header */}
-      <div className="admin-glass-card rounded-2xl p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-gold/10 rounded-2xl blur-xl"></div>
-              <div className="relative p-4 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-                <Inbox className="h-7 w-7 text-gold" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground/90 to-muted-foreground bg-clip-text text-transparent">
-                Inbox
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {unreadCount > 0 ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
-                    {unreadCount} email-uri necitite
-                  </span>
-                ) : 'Toate email-urile citite'}
-              </p>
+    <div className="h-[calc(100vh-120px)] flex flex-col gap-4">
+      {/* Top Bar */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+              <Inbox className="h-6 w-6 text-gold" />
             </div>
           </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <Button 
-              onClick={handleOpenCompose}
-              className="bg-gradient-to-r from-gold via-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl shadow-lg shadow-gold/20 transition-all duration-300 hover:shadow-gold/40 hover:scale-[1.02]"
-            >
-              <PenSquare className="h-4 w-4 mr-2" />
-              Compune
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowDrafts(!showDrafts)}
-              className={cn(
-                "rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30 transition-all duration-300",
-                showDrafts && "bg-gold/10 border-gold/30"
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Inbox</h1>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              {unreadCount > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                  {unreadCount} necitite
+                </span>
               )}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Ciorne {drafts && drafts.length > 0 && (
-                <Badge variant="secondary" className="ml-2 bg-gold/20 text-gold border-0">{drafts.length}</Badge>
+              {starredCount > 0 && (
+                <span className="flex items-center gap-1.5">
+                  <Star className="h-3 w-3 text-yellow-500" />
+                  {starredCount} cu stea
+                </span>
               )}
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => refetch()}
-              className="rounded-xl border-white/10 hover:bg-white/5 hover:border-gold/30 transition-all duration-300"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Drafts Panel */}
-      {showDrafts && (
-        <div className="admin-glass-card rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-white/5">
-            <h3 className="text-sm font-medium flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gold" />
-              Ciorne salvate ({drafts?.length || 0})
-            </h3>
-          </div>
-          <div className="p-0">
-            {!drafts || drafts.length === 0 ? (
-              <div className="p-6 text-center text-muted-foreground text-sm">
-                Nu ai ciorne salvate
-              </div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {drafts.map((draft) => (
-                  <div
-                    key={draft.id}
-                    onClick={() => handleLoadDraft(draft)}
-                    className="p-4 cursor-pointer hover:bg-white/5 transition-colors flex items-center justify-between group"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate text-sm group-hover:text-gold transition-colors">
-                        {draft.subject || '(Fără subiect)'}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        Către: {draft.recipient || '(niciun destinatar)'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(draft.updated_at), 'dd MMM yyyy, HH:mm', { locale: ro })}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => handleDeleteDraft(e, draft.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button 
+            onClick={handleOpenCompose}
+            className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25 transition-all"
+          >
+            <PenSquare className="h-4 w-4 mr-2" />
+            Compune
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => refetch()}
+            className="border-white/10 hover:bg-white/5"
+          >
+            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+          </Button>
         </div>
-      )}
+      </motion.div>
 
-      {/* Filter Pills */}
-      <div className="flex gap-2 flex-wrap">
-        {[
-          { key: 'all', label: 'Toate', count: emails?.length || 0 },
-          { key: 'unread', label: 'Necitite', count: unreadCount },
-          { key: 'starred', label: 'Cu stea', icon: Star }
-        ].map((item) => (
+      {/* Main Content */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0">
+        {/* Sidebar */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="lg:col-span-3 flex flex-col gap-4"
+        >
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Caută email-uri..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
+            />
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex flex-col gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+            {[
+              { key: 'all', label: 'Toate', count: emails?.length || 0, icon: Mail },
+              { key: 'unread', label: 'Necitite', count: unreadCount, icon: Clock },
+              { key: 'starred', label: 'Cu stea', count: starredCount, icon: Star }
+            ].map((item) => (
+              <button
+                key={item.key}
+                onClick={() => setFilter(item.key as typeof filter)}
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                  filter === item.key 
+                    ? "bg-gradient-to-r from-gold/20 to-gold/5 text-gold border-l-2 border-gold" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </span>
+                {item.count > 0 && (
+                  <Badge variant="secondary" className={cn(
+                    "text-xs",
+                    filter === item.key ? "bg-gold/20 text-gold" : "bg-white/10"
+                  )}>
+                    {item.count}
+                  </Badge>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Drafts */}
           <button
-            key={item.key}
-            onClick={() => setFilter(item.key as typeof filter)}
+            onClick={() => setShowDrafts(!showDrafts)}
             className={cn(
-              "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 flex items-center gap-2",
-              filter === item.key 
-                ? "bg-gradient-to-r from-gold to-gold-light text-black shadow-lg shadow-gold/20" 
-                : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground border border-white/10"
+              "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all border",
+              showDrafts 
+                ? "bg-gold/10 border-gold/30 text-gold" 
+                : "bg-white/5 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10"
             )}
           >
-            {item.icon && <item.icon className="h-3.5 w-3.5" />}
-            {item.label}
-            {item.count !== undefined && item.count > 0 && (
-              <span className={cn(
-                "px-1.5 py-0.5 rounded-md text-xs",
-                filter === item.key ? "bg-black/20" : "bg-white/10"
-              )}>
-                {item.count}
-              </span>
+            <span className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Ciorne
+            </span>
+            {drafts && drafts.length > 0 && (
+              <Badge variant="secondary" className="bg-white/10 text-xs">
+                {drafts.length}
+              </Badge>
             )}
           </button>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Email List */}
-        <div className="lg:col-span-1 admin-glass-card rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-white/5 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gold/60" />
-              {emails?.length || 0} email-uri
-            </h3>
-          </div>
-          <ScrollArea className="h-[600px]">
-            <div className="p-2">
-              {isLoading ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gold/50" />
-                  <p>Se încarcă...</p>
-                </div>
-              ) : emails?.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                    <Mail className="h-8 w-8 opacity-30" />
-                  </div>
-                  <p className="font-medium">Nu există email-uri</p>
-                  <p className="text-xs mt-1 opacity-60">Inbox-ul tău este gol</p>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  {emails?.map((email, index) => (
-                    <div
-                      key={email.id}
-                      onClick={() => handleSelectEmail(email)}
-                      className={cn(
-                        "p-3 cursor-pointer rounded-xl transition-all duration-200 group",
-                        selectedEmail?.id === email.id 
-                          ? "bg-gradient-to-r from-gold/15 to-gold/5 border border-gold/30 shadow-lg shadow-gold/10" 
-                          : "hover:bg-white/5 border border-transparent",
-                        !email.is_read && "bg-white/[0.03]"
-                      )}
-                      style={{ animationDelay: `${index * 30}ms` }}
-                    >
-                      <div className="flex items-start gap-3">
-                        <button
-                          onClick={(e) => handleToggleStar(e, email)}
-                          className="mt-0.5 text-muted-foreground hover:text-yellow-500 transition-all hover:scale-110"
+          {/* Drafts List */}
+          <AnimatePresence>
+            {showDrafts && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+                  {!drafts || drafts.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      Nu ai ciorne salvate
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-white/5">
+                      {drafts.map((draft) => (
+                        <div
+                          key={draft.id}
+                          onClick={() => handleLoadDraft(draft)}
+                          className="p-3 cursor-pointer hover:bg-white/5 transition-colors group"
                         >
-                          {email.is_starred ? (
-                            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                          ) : (
-                            <StarOff className="h-4 w-4 opacity-40 group-hover:opacity-100" />
-                          )}
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <div className={cn(
-                              "w-2 h-2 rounded-full shrink-0",
-                              !email.is_read ? "bg-gold" : "bg-transparent"
-                            )} />
-                            <span className={cn(
-                              "font-medium truncate transition-colors text-sm",
-                              selectedEmail?.id === email.id ? "text-gold" : "group-hover:text-gold",
-                              !email.is_read && "font-semibold text-foreground"
-                            )}>
-                              {extractSenderName(email.sender)}
-                            </span>
-                          </div>
-                          <p className={cn(
-                            "text-sm truncate mt-1",
-                            !email.is_read ? "font-medium text-foreground/80" : "text-muted-foreground"
-                          )}>
-                            {email.subject || '(Fără subiect)'}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <span className="text-xs text-muted-foreground/70">
-                              {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
-                            </span>
-                            {email.attachments && email.attachments.length > 0 && (
-                              <div className="flex items-center gap-1 text-muted-foreground/70">
-                                <Paperclip className="h-3 w-3" />
-                                <span className="text-xs">{email.attachments.length}</span>
-                              </div>
-                            )}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate group-hover:text-gold transition-colors">
+                                {draft.subject || '(Fără subiect)'}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {draft.recipient || '(niciun destinatar)'}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                              onClick={(e) => handleDeleteDraft(e, draft.id)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
                           </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-        {/* Email Detail */}
-        <div className="lg:col-span-2 admin-glass-card rounded-2xl overflow-hidden">
-          {selectedEmail ? (
-            <>
-              <div className="p-5 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="lg:hidden shrink-0 rounded-xl hover:bg-white/5"
-                      onClick={() => setSelectedEmail(null)}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center shrink-0">
-                      <Mail className="h-5 w-5 text-gold" />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-semibold truncate">
-                        {selectedEmail.subject || '(Fără subiect)'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        De la: <span className="text-foreground/80">{selectedEmail.sender}</span>
-                      </p>
-                      {selectedEmail.recipient && (
-                        <p className="text-sm text-muted-foreground">
-                          Către: {selectedEmail.recipient}
+        {/* Email List */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-4 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
+        >
+          <div className="p-3 border-b border-white/5 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">
+              {filteredEmails?.length || 0} email-uri
+            </span>
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="text-xs text-gold hover:underline"
+              >
+                Șterge căutarea
+              </button>
+            )}
+          </div>
+          <ScrollArea className="flex-1">
+            {isLoading ? (
+              <div className="p-8 text-center">
+                <Loader2 className="h-8 w-8 mx-auto animate-spin text-gold/50" />
+                <p className="text-sm text-muted-foreground mt-3">Se încarcă...</p>
+              </div>
+            ) : filteredEmails?.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-8 w-8 text-muted-foreground/30" />
+                </div>
+                <p className="font-medium text-muted-foreground">Nu există email-uri</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  {searchQuery ? "Încearcă altă căutare" : "Inbox-ul tău este gol"}
+                </p>
+              </div>
+            ) : (
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="divide-y divide-white/5"
+              >
+                {filteredEmails?.map((email) => (
+                  <motion.div
+                    key={email.id}
+                    variants={itemVariants}
+                    onClick={() => handleSelectEmail(email)}
+                    className={cn(
+                      "p-3 cursor-pointer transition-all relative group",
+                      selectedEmail?.id === email.id 
+                        ? "bg-gradient-to-r from-gold/10 to-transparent" 
+                        : "hover:bg-white/[0.03]",
+                      !email.is_read && "bg-white/[0.02]"
+                    )}
+                  >
+                    {/* Selection indicator */}
+                    {selectedEmail?.id === email.id && (
+                      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gold" />
+                    )}
+                    
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
+                        !email.is_read 
+                          ? "bg-gradient-to-br from-gold/30 to-gold/10 text-gold" 
+                          : "bg-white/10 text-muted-foreground"
+                      )}>
+                        {extractSenderInitials(email.sender)}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={cn(
+                            "font-medium text-sm truncate",
+                            !email.is_read ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {extractSenderName(email.sender)}
+                          </span>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {formatEmailDate(email.received_at)}
+                          </span>
+                        </div>
+                        
+                        <p className={cn(
+                          "text-sm truncate mt-0.5",
+                          !email.is_read ? "text-foreground/80 font-medium" : "text-muted-foreground"
+                        )}>
+                          {email.subject || '(Fără subiect)'}
                         </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                    <span className="text-xs text-muted-foreground hidden sm:inline px-2 py-1 rounded-lg bg-white/5">
-                      {format(new Date(selectedEmail.received_at), 'dd MMMM yyyy, HH:mm', { locale: ro })}
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenReply(selectedEmail)}
-                      className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl shadow-lg shadow-gold/20"
-                    >
-                      <Reply className="h-4 w-4 mr-2" />
-                      Răspunde
-                    </Button>
-                    <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg hover:bg-white/10"
-                        onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}
+                        
+                        <div className="flex items-center gap-2 mt-1.5">
+                          {!email.is_read && (
+                            <div className="w-2 h-2 rounded-full bg-gold" />
+                          )}
+                          {email.is_starred && (
+                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                          )}
+                          {email.attachments && email.attachments.length > 0 && (
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Paperclip className="h-3 w-3" />
+                              {email.attachments.length}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Quick star action */}
+                      <button
+                        onClick={(e) => handleToggleStar(e, email)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded-lg"
                       >
-                        {selectedEmail.is_starred ? (
+                        {email.is_starred ? (
                           <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                         ) : (
                           <StarOff className="h-4 w-4 text-muted-foreground" />
                         )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg hover:bg-white/10"
-                        onClick={() => handleArchive(selectedEmail)}
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </ScrollArea>
+        </motion.div>
+
+        {/* Email Detail */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="lg:col-span-5 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
+        >
+          <AnimatePresence mode="wait">
+            {selectedEmail ? (
+              <motion.div
+                key={selectedEmail.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col h-full"
+              >
+                {/* Header */}
+                <div className="p-4 border-b border-white/5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="lg:hidden shrink-0 h-8 w-8"
+                        onClick={() => setSelectedEmail(null)}
                       >
-                        <Archive className="h-4 w-4 text-muted-foreground" />
+                        <ChevronLeft className="h-4 w-4" />
                       </Button>
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold font-semibold shrink-0">
+                        {extractSenderInitials(selectedEmail.sender)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold truncate text-lg">
+                          {selectedEmail.subject || '(Fără subiect)'}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {extractSenderName(selectedEmail.sender)}
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-0.5">
+                          {format(new Date(selectedEmail.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro })}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(selectedEmail)}
+                        size="sm"
+                        onClick={() => handleOpenReply(selectedEmail)}
+                        className="bg-gradient-to-r from-gold to-gold-light text-black"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Reply className="h-4 w-4 mr-1" />
+                        Răspunde
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-card border-white/10">
+                          <DropdownMenuItem onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}>
+                            {selectedEmail.is_starred ? (
+                              <>
+                                <StarOff className="h-4 w-4 mr-2" />
+                                Elimină steaua
+                              </>
+                            ) : (
+                              <>
+                                <Star className="h-4 w-4 mr-2" />
+                                Adaugă stea
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleArchive(selectedEmail)}>
+                            <Archive className="h-4 w-4 mr-2" />
+                            Arhivează
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(selectedEmail)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Șterge
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
-              </div>
-              <Separator className="bg-white/5" />
-              <div className="p-5">
+
+                {/* Attachments */}
                 {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
-                  <div className="mb-4 p-4 bg-gradient-to-r from-white/5 to-transparent rounded-xl border border-white/10">
-                    <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-gold/10">
-                        <Paperclip className="h-4 w-4 text-gold" />
-                      </div>
-                      Atașamente ({selectedEmail.attachments.length})
-                    </p>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Paperclip className="h-4 w-4 text-muted-foreground" />
                       {selectedEmail.attachments.map((att: any, idx: number) => (
                         att.url ? (
                           <a 
@@ -815,122 +934,102 @@ const InboxPage = () => {
                             download={att.name}
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-sm transition-all hover:scale-[1.02] border border-gold/20"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-xs transition-colors border border-gold/20"
                           >
-                            <Paperclip className="h-3.5 w-3.5" />
-                            <span>{att.name}</span>
-                            <span className="text-xs opacity-70">({Math.round(att.size / 1024)} KB)</span>
+                            <Download className="h-3 w-3" />
+                            {att.name}
                           </a>
                         ) : (
-                          <Badge key={idx} variant="secondary" className="opacity-60 bg-white/5 border-white/10">
-                            {att.name} ({Math.round(att.size / 1024)} KB) - nedisponibil
-                          </Badge>
+                          <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/5 text-muted-foreground rounded-lg text-xs">
+                            {att.name} - nedisponibil
+                          </span>
                         )
                       ))}
                     </div>
                   </div>
                 )}
-                <ScrollArea className="h-[400px]">
+
+                {/* Body */}
+                <ScrollArea className="flex-1 p-4">
                   {selectedEmail.body_html ? (
                     <div 
-                      className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-gold"
+                      className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-gold"
                       dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
                     />
                   ) : (
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-muted-foreground leading-relaxed">
+                    <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/80 leading-relaxed">
                       {selectedEmail.body_plain || selectedEmail.stripped_text || 'Nu există conținut'}
                     </pre>
                   )}
                 </ScrollArea>
-              </div>
-            </>
-          ) : (
-            <div className="h-[600px] flex items-center justify-center text-muted-foreground">
-              <div className="text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-gold/5 rounded-3xl blur-2xl opacity-50"></div>
-                  <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mx-auto mb-6 border border-white/10">
-                    <Mail className="h-12 w-12 opacity-30" />
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 flex items-center justify-center"
+              >
+                <div className="text-center">
+                  <div className="relative inline-block">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-gold/5 rounded-3xl blur-2xl" />
+                    <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mx-auto border border-white/10">
+                      <Mail className="h-10 w-10 text-muted-foreground/30" />
+                    </div>
                   </div>
+                  <p className="mt-4 font-medium text-muted-foreground">Selectează un email</p>
+                  <p className="text-sm text-muted-foreground/60">pentru a-l vizualiza</p>
                 </div>
-                <p className="font-medium text-foreground/60">Selectează un email</p>
-                <p className="text-sm mt-1 opacity-50">pentru a-l vizualiza</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mailgun Webhook Instructions */}
-      <div className="admin-glass-card rounded-2xl overflow-hidden">
-        <div className="p-4 border-b border-white/5 flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5">
-            <Settings className="h-4 w-4 text-blue-400" />
-          </div>
-          <h3 className="text-sm font-medium">Configurare Mailgun Routes</h3>
-        </div>
-        <div className="p-4 space-y-3 text-sm">
-          <p className="text-muted-foreground">Pentru a primi email-uri, configurează un Route în Mailgun:</p>
-          <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>Mergi la Mailgun → Sending → Routes</li>
-            <li>Click "Create route"</li>
-            <li>Expression Type: <code className="bg-white/5 px-2 py-0.5 rounded-md text-gold font-mono text-xs">catch_all()</code></li>
-            <li>Actions → Forward → Store and notify:</li>
-          </ol>
-          <code className="block p-3 bg-white/5 rounded-xl text-xs break-all font-mono text-muted-foreground border border-white/10">
-            https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/receive-mailgun-email
-          </code>
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Reply Dialog */}
       <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-card border-white/10">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Reply className="h-5 w-5" />
+              <Reply className="h-5 w-5 text-gold" />
               Răspunde la email
             </DialogTitle>
-            <DialogDescription>
-              Trimite un răspuns către expeditor
-            </DialogDescription>
+            <DialogDescription>Trimite un răspuns către expeditor</DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="reply-to">Către</Label>
+              <Label>Către</Label>
               <Input
-                id="reply-to"
                 value={replyTo}
                 onChange={(e) => setReplyTo(e.target.value)}
                 placeholder="email@example.com"
+                className="bg-white/5 border-white/10"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="reply-subject">Subiect</Label>
+              <Label>Subiect</Label>
               <Input
-                id="reply-subject"
                 value={replySubject}
                 onChange={(e) => setReplySubject(e.target.value)}
                 placeholder="Re: Subiect"
+                className="bg-white/5 border-white/10"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="reply-body">Mesaj</Label>
+              <Label>Mesaj</Label>
               <Textarea
-                id="reply-body"
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
                 placeholder="Scrie răspunsul tău aici..."
-                className="min-h-[200px]"
+                className="min-h-[200px] bg-white/5 border-white/10"
               />
             </div>
             
             {selectedEmail && (
-              <div className="p-3 bg-muted rounded-lg text-sm">
-                <p className="font-medium text-muted-foreground mb-2">Email original:</p>
+              <div className="p-3 bg-white/5 rounded-xl text-sm border border-white/10">
+                <p className="font-medium text-muted-foreground mb-1">Email original:</p>
                 <p className="text-xs text-muted-foreground">
                   De la: {selectedEmail.sender}<br/>
                   Subiect: {selectedEmail.subject}
@@ -940,12 +1039,13 @@ const InboxPage = () => {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReplyDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setReplyDialogOpen(false)} className="border-white/10">
               Anulează
             </Button>
             <Button 
               onClick={handleSendReply}
               disabled={sendReplyMutation.isPending || !replyBody.trim()}
+              className="bg-gradient-to-r from-gold to-gold-light text-black"
             >
               {sendReplyMutation.isPending ? (
                 <>
@@ -963,20 +1063,20 @@ const InboxPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Compose New Email Dialog */}
+      {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-card border-white/10">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <PenSquare className="h-5 w-5" />
+              <PenSquare className="h-5 w-5 text-gold" />
               Email nou
             </DialogTitle>
             <DialogDescription className="flex items-center justify-between">
               <span>Compune și trimite un email nou</span>
               {lastAutoSave && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Save className="h-3 w-3" />
-                  Salvat automat la {format(lastAutoSave, 'HH:mm:ss')}
+                  <Check className="h-3 w-3 text-green-500" />
+                  Salvat la {format(lastAutoSave, 'HH:mm:ss')}
                 </span>
               )}
             </DialogDescription>
@@ -985,13 +1085,13 @@ const InboxPage = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="compose-to">Către</Label>
+                <Label>Către</Label>
                 {!showCcBcc && (
                   <Button 
                     type="button" 
                     variant="ghost" 
                     size="sm" 
-                    className="text-xs h-6"
+                    className="text-xs h-6 text-gold"
                     onClick={() => setShowCcBcc(true)}
                   >
                     CC/BCC
@@ -999,44 +1099,43 @@ const InboxPage = () => {
                 )}
               </div>
               <Input
-                id="compose-to"
                 value={composeTo}
                 onChange={(e) => setComposeTo(e.target.value)}
                 placeholder="email@example.com"
+                className="bg-white/5 border-white/10"
               />
             </div>
             
             {showCcBcc && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="compose-cc">CC</Label>
+                  <Label>CC</Label>
                   <Input
-                    id="compose-cc"
                     value={composeCc}
                     onChange={(e) => setComposeCc(e.target.value)}
-                    placeholder="cc@example.com (separă cu virgulă pentru mai mulți)"
+                    placeholder="cc@example.com"
+                    className="bg-white/5 border-white/10"
                   />
                 </div>
-                
                 <div className="space-y-2">
-                  <Label htmlFor="compose-bcc">BCC</Label>
+                  <Label>BCC</Label>
                   <Input
-                    id="compose-bcc"
                     value={composeBcc}
                     onChange={(e) => setComposeBcc(e.target.value)}
-                    placeholder="bcc@example.com (separă cu virgulă pentru mai mulți)"
+                    placeholder="bcc@example.com"
+                    className="bg-white/5 border-white/10"
                   />
                 </div>
               </>
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="compose-subject">Subiect</Label>
+              <Label>Subiect</Label>
               <Input
-                id="compose-subject"
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="Subiectul emailului"
+                className="bg-white/5 border-white/10"
               />
             </div>
             
@@ -1049,27 +1148,24 @@ const InboxPage = () => {
               />
             </div>
 
-            {/* Attachments */}
             <div className="space-y-2">
               <Label>Atașamente</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="flex-1"
-                />
-              </div>
+              <Input
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="bg-white/5 border-white/10"
+              />
               {composeAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {composeAttachments.map((file, idx) => (
                     <Badge 
                       key={idx} 
                       variant="secondary" 
-                      className="flex items-center gap-1 py-1 px-2"
+                      className="flex items-center gap-1 py-1 px-2 bg-white/5"
                     >
                       <Paperclip className="h-3 w-3" />
-                      {file.name} ({Math.round(file.size / 1024)} KB)
+                      {file.name}
                       <button
                         type="button"
                         onClick={() => handleRemoveAttachment(idx)}
@@ -1086,23 +1182,21 @@ const InboxPage = () => {
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" onClick={() => setComposeDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setComposeDialogOpen(false)} className="border-white/10">
                 Anulează
               </Button>
               <Button 
                 variant="secondary"
                 onClick={handleSaveDraft}
                 disabled={saveDraftMutation.isPending}
+                className="bg-white/5 hover:bg-white/10"
               >
                 {saveDraftMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Se salvează...
-                  </>
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    {currentDraftId ? 'Actualizează ciorna' : 'Salvează ciornă'}
+                    Salvează
                   </>
                 )}
               </Button>
@@ -1110,13 +1204,13 @@ const InboxPage = () => {
             <Button 
               onClick={async () => {
                 await handleSendEmail();
-                // Delete draft after successful send
                 if (currentDraftId) {
                   deleteDraftMutation.mutate(currentDraftId);
                   setCurrentDraftId(null);
                 }
               }}
               disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
+              className="bg-gradient-to-r from-gold to-gold-light text-black"
             >
               {sendEmailMutation.isPending ? (
                 <>
