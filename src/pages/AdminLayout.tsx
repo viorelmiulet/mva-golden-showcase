@@ -45,19 +45,31 @@ const AdminHeader = ({
   setIsMobileMenuOpen
 }: any) => {
   return (
-    <header className="h-14 md:h-16 border-b border-border/40 bg-background/95 backdrop-blur-md sticky top-0 z-30 flex items-center px-3 md:px-4 gap-2 md:gap-4 safe-area-inset-top">
+    <header className="admin-header-modern h-14 md:h-16 sticky top-0 z-30 flex items-center px-4 md:px-6 gap-3 md:gap-4 safe-area-inset-top">
       {/* Mobile Menu Button */}
       {isMobile && (
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="shrink-0 h-10 w-10 touch-manipulation active:scale-95">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="shrink-0 h-10 w-10 touch-manipulation active:scale-95 rounded-xl hover:bg-white/5"
+            >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[85vw] max-w-[320px] p-0 flex flex-col h-[100dvh] overflow-hidden">
-            <div className="flex items-center gap-2 p-4 border-b border-border/40 shrink-0">
-              <BarChart3 className="w-5 h-5 text-gold" />
-              <span className="font-semibold">Panou Admin</span>
+          <SheetContent 
+            side="left" 
+            className="w-[85vw] max-w-[320px] p-0 flex flex-col h-[100dvh] overflow-hidden bg-gradient-to-b from-background to-background/95 border-r border-white/10"
+          >
+            <div className="flex items-center gap-3 p-4 border-b border-white/5 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-gold" />
+              </div>
+              <div>
+                <span className="font-semibold text-sm">MVA Admin</span>
+                <p className="text-[10px] text-muted-foreground">Panou de control</p>
+              </div>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y">
               <AdminSidebar isMobileSheet onNavigate={() => setIsMobileMenuOpen(false)} />
@@ -66,14 +78,19 @@ const AdminHeader = ({
         </Sheet>
       )}
 
-      <div className="flex items-center gap-2 min-w-0">
-        <BarChart3 className="w-5 h-5 text-gold shrink-0" />
-        <h1 className="text-base md:text-lg font-semibold truncate">
-          <span className="text-foreground">Panou </span>
-          <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-            Admin
-          </span>
-        </h1>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="hidden md:flex w-9 h-9 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 items-center justify-center">
+          <BarChart3 className="w-4 h-4 text-gold" />
+        </div>
+        <div>
+          <h1 className="text-sm md:text-base font-semibold truncate">
+            <span className="text-foreground">Panou </span>
+            <span className="bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
+              Admin
+            </span>
+          </h1>
+          <p className="text-[10px] text-muted-foreground hidden md:block">Administrare & Statistici</p>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center gap-1">
@@ -173,7 +190,7 @@ const AdminHeader = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-10 w-10 touch-manipulation active:scale-95"
+            className="h-10 w-10 touch-manipulation active:scale-95 rounded-xl hover:bg-white/5"
             title="Înapoi la site"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -249,37 +266,48 @@ const AdminLayout = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background via-background to-secondary/10 p-4">
-        <Card className="w-full max-w-md border-gold/20">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-gold" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-background p-4 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 -left-32 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-gold/3 rounded-full blur-3xl" />
+        </div>
+        
+        <Card className="w-full max-w-md admin-glass-card border-0 relative z-10">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/5 rounded-2xl flex items-center justify-center mb-6 admin-glow">
+              <Lock className="w-7 h-7 text-gold" />
             </div>
-            <CardTitle className="text-xl">Panou Administrare</CardTitle>
+            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              Panou Admin
+            </CardTitle>
             <p className="text-muted-foreground text-sm mt-2">
-              Introduceți parola pentru acces
+              Introduceți parola pentru acces securizat
             </p>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+          <CardContent className="pt-4">
+            <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <Input
                   type="password"
-                  placeholder="Parolă"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="text-center text-lg tracking-widest"
+                  className="text-center text-lg tracking-[0.3em] h-12 bg-white/5 border-white/10 rounded-xl focus:border-gold/50 focus:ring-gold/20"
                   autoFocus
                 />
                 {error && (
-                  <p className="text-destructive text-sm mt-2 text-center">{error}</p>
+                  <p className="text-destructive text-sm mt-3 text-center">{error}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full bg-gold hover:bg-gold/90 text-black">
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-black font-semibold rounded-xl transition-all duration-300 admin-glow"
+              >
                 Autentificare
               </Button>
               <Link to="/" className="block">
-                <Button type="button" variant="ghost" className="w-full gap-2">
+                <Button type="button" variant="ghost" className="w-full gap-2 rounded-xl hover:bg-white/5">
                   <ArrowLeft className="w-4 h-4" />
                   Înapoi la site
                 </Button>
@@ -293,7 +321,7 @@ const AdminLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-b from-background via-background to-secondary/10">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-background/95">
         <AdminSidebar />
 
         <div className="flex-1 flex flex-col min-w-0">
@@ -318,7 +346,7 @@ const AdminLayout = () => {
           />
 
           {/* Main Content - fully responsive with safe area support */}
-          <main className="flex-1 p-3 md:p-6 overflow-x-hidden overflow-y-auto overscroll-contain">
+          <main className="flex-1 p-4 md:p-8 overflow-x-hidden overflow-y-auto overscroll-contain bg-gradient-to-br from-transparent to-black/5">
             <div className="max-w-7xl mx-auto pb-safe">
               <Outlet />
             </div>
