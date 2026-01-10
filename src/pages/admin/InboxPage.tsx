@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import RichTextEditor from "@/components/RichTextEditor";
 
 interface ReceivedEmail {
   id: string;
@@ -676,13 +677,11 @@ const InboxPage = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="compose-body">Mesaj</Label>
-              <Textarea
-                id="compose-body"
+              <Label>Mesaj</Label>
+              <RichTextEditor
                 value={composeBody}
-                onChange={(e) => setComposeBody(e.target.value)}
+                onChange={setComposeBody}
                 placeholder="Scrie mesajul tău aici..."
-                className="min-h-[200px]"
               />
             </div>
 

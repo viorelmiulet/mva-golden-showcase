@@ -44,12 +44,18 @@ Deno.serve(async (req) => {
       customHeaders['References'] = inReplyTo;
     }
 
+    // Check if body is already HTML (from rich text editor)
+    const isHtml = body.trim().startsWith('<');
+    const bodyHtml = isHtml 
+      ? body 
+      : body.split('\n').map(line => `<p style="margin: 0 0 10px 0;">${line || '&nbsp;'}</p>`).join('');
+
     const result = await sendMailgunEmail({
       to,
       subject: subject || '(Fără subiect)',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
-          ${body.split('\n').map(line => `<p style="margin: 0 0 10px 0;">${line || '&nbsp;'}</p>`).join('')}
+          ${bodyHtml}
           <br/>
           <p style="color: #666; font-size: 12px;">
             —<br/>
