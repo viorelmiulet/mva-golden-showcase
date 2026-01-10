@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -77,6 +77,8 @@ const InboxPage = () => {
   const [showCcBcc, setShowCcBcc] = useState(false);
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showDrafts, setShowDrafts] = useState(false);
+  const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const queryClient = useQueryClient();
 
@@ -108,6 +110,7 @@ const InboxPage = () => {
       subject: string;
       body: string;
       attachments: any[];
+      silent?: boolean;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Nu ești autentificat');
@@ -127,7 +130,7 @@ const InboxPage = () => {
           })
           .eq('id', draft.id);
         if (error) throw error;
-        return draft.id;
+        return { id: draft.id, silent: draft.silent };
       } else {
         // Create new draft
         const { data, error } = await supabase
@@ -144,18 +147,65 @@ const InboxPage = () => {
           .select('id')
           .single();
         if (error) throw error;
-        return data.id;
+        return { id: data.id, silent: draft.silent };
       }
     },
-    onSuccess: (draftId) => {
-      setCurrentDraftId(draftId);
+    onSuccess: (result) => {
+      setCurrentDraftId(result.id);
+      setLastAutoSave(new Date());
       queryClient.invalidateQueries({ queryKey: ['email-drafts'] });
-      toast.success('Ciornă salvată');
+      if (!result.silent) {
+        toast.success('Ciornă salvată');
+      }
     },
     onError: (error: any) => {
       toast.error(`Eroare la salvare: ${error.message}`);
     }
   });
+
+  // Auto-save function
+  const performAutoSave = useCallback(async () => {
+    // Only auto-save if there's content
+    if (!composeTo && !composeSubject && !composeBody) return;
+    
+    saveDraftMutation.mutate({
+      id: currentDraftId || undefined,
+      recipient: composeTo,
+      cc: composeCc,
+      bcc: composeBcc,
+      subject: composeSubject,
+      body: composeBody,
+      attachments: [], // Don't include attachments in auto-save (files can't be serialized)
+      silent: true // Don't show toast for auto-save
+    });
+  }, [composeTo, composeCc, composeBcc, composeSubject, composeBody, currentDraftId]);
+
+  // Auto-save effect - every 30 seconds when compose dialog is open
+  useEffect(() => {
+    if (composeDialogOpen) {
+      // Clear any existing interval
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+      }
+      
+      // Set up new interval
+      autoSaveIntervalRef.current = setInterval(() => {
+        performAutoSave();
+      }, 30000); // 30 seconds
+      
+      return () => {
+        if (autoSaveIntervalRef.current) {
+          clearInterval(autoSaveIntervalRef.current);
+        }
+      };
+    } else {
+      // Clear interval when dialog closes
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+        autoSaveIntervalRef.current = null;
+      }
+    }
+  }, [composeDialogOpen, performAutoSave]);
 
   // Delete draft mutation
   const deleteDraftMutation = useMutation({
@@ -854,8 +904,14 @@ const InboxPage = () => {
               <PenSquare className="h-5 w-5" />
               Email nou
             </DialogTitle>
-            <DialogDescription>
-              Compune și trimite un email nou
+            <DialogDescription className="flex items-center justify-between">
+              <span>Compune și trimite un email nou</span>
+              {lastAutoSave && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Save className="h-3 w-3" />
+                  Salvat automat la {format(lastAutoSave, 'HH:mm:ss')}
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
 
