@@ -233,15 +233,20 @@ const ContractsPage = () => {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div>
-        <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-5 w-5 md:h-6 md:w-6" />
-          Contracte
-        </h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          {isMobile ? "Swipe pentru a naviga între tipuri" : "Selectează tipul de contract pe care dorești să îl creezi"}
-        </p>
+    <div className="space-y-6 md:space-y-8">
+      {/* Modern Header */}
+      <div className="flex items-center gap-4">
+        <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 admin-glow">
+          <FileText className="h-6 w-6 text-gold" />
+        </div>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Contracte
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {isMobile ? "Swipe pentru a naviga între tipuri" : "Selectează tipul de contract pe care dorești să îl creezi"}
+          </p>
+        </div>
       </div>
 
       {/* Mobile Swipeable Card Carousel with Framer Motion */}
@@ -264,54 +269,54 @@ const ContractsPage = () => {
                 onDragEnd={handleDragEnd}
                 className="cursor-grab active:cursor-grabbing"
               >
-                <Card
-                  className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${currentContract.gradient} hover:border-gold/30 transition-all duration-300`}
+                <div
+                  className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-gold/30 transition-all duration-300"
                   onClick={() => setSelectedType(currentContract.id)}
                 >
-                  <CardContent className="p-4 space-y-3">
+                  <div className="p-5 space-y-4">
                     {/* Icons */}
-                    <div className="flex items-center gap-2">
-                      <div className={`p-2 rounded-xl ${currentContract.iconBg}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl ${currentContract.iconBg} group-hover:scale-110 transition-transform`}>
                         <currentContract.icon className={`h-5 w-5 ${currentContract.iconColor}`} />
                       </div>
                       <currentContract.secondaryIcon className="h-4 w-4 text-muted-foreground/50" />
                     </div>
 
                     {/* Title & Description */}
-                    <div className="space-y-1">
-                      <h2 className="text-lg font-semibold text-foreground">
+                    <div className="space-y-2">
+                      <h2 className="text-lg font-semibold text-foreground group-hover:text-gold transition-colors">
                         {currentContract.title}
                       </h2>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {currentContract.description}
                       </p>
                     </div>
 
-                    {/* Features - show on mobile carousel */}
-                    <ul className="space-y-1.5">
+                    {/* Features */}
+                    <ul className="space-y-2">
                       {currentContract.features.slice(0, 3).map((feature, index) => (
                         <li 
                           key={index} 
-                          className="flex items-center gap-2 text-xs text-muted-foreground"
+                          className="flex items-center gap-2 text-sm text-muted-foreground"
                         >
-                          <Check className="h-3 w-3 text-gold shrink-0" />
+                          <div className="w-5 h-5 rounded-full bg-gold/10 flex items-center justify-center">
+                            <Check className="h-3 w-3 text-gold" />
+                          </div>
                           {feature}
                         </li>
                       ))}
                     </ul>
 
                     {/* CTA */}
-                    <div>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="w-full bg-gold/20 text-gold hover:bg-gold/30 border border-gold/30"
-                      >
-                        Deschide Contract →
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl"
+                    >
+                      Deschide Contract →
+                    </Button>
+                  </div>
+                </div>
               </motion.div>
             </AnimatePresence>
 
@@ -388,28 +393,28 @@ const ContractsPage = () => {
         </div>
       ) : (
         /* Desktop Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
           {contractTypes.map((contract) => (
-            <Card
+            <div
               key={contract.id}
-              className={`group relative overflow-hidden border-border/50 bg-gradient-to-br ${contract.gradient} hover:border-gold/30 transition-all duration-300 cursor-pointer active:scale-[0.98]`}
+              className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-gold/30 transition-all duration-300 active:scale-[0.98]"
               onClick={() => setSelectedType(contract.id)}
             >
-              <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+              <div className="p-5 md:p-6 space-y-4">
                 {/* Icons */}
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 md:p-3 rounded-xl ${contract.iconBg}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 md:p-3 rounded-xl ${contract.iconBg} group-hover:scale-110 transition-transform`}>
                     <contract.icon className={`h-5 w-5 md:h-6 md:w-6 ${contract.iconColor}`} />
                   </div>
                   <contract.secondaryIcon className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground/50" />
                 </div>
 
                 {/* Title & Description */}
-                <div className="space-y-1 md:space-y-2">
+                <div className="space-y-2">
                   <h2 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-gold transition-colors">
                     {contract.title}
                   </h2>
-                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
                     {contract.description}
                   </p>
                 </div>
@@ -418,7 +423,9 @@ const ContractsPage = () => {
                 <ul className="space-y-2">
                   {contract.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check className="h-4 w-4 text-gold shrink-0" />
+                      <div className="w-5 h-5 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3 text-gold" />
+                      </div>
                       {feature}
                     </li>
                   ))}
@@ -431,8 +438,8 @@ const ContractsPage = () => {
                 >
                   Deschide →
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
