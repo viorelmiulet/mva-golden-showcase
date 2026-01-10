@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,8 @@ import {
   Loader2,
   CheckCircle2,
   Stamp,
-  Grid3X3
+  Grid3X3,
+  Eye
 } from "lucide-react";
 import JSZip from "jszip";
 
@@ -64,8 +65,11 @@ export default function WatermarkPage() {
   const [useCustomWatermark, setUseCustomWatermark] = useState(false);
   const [customWatermark, setCustomWatermark] = useState<string | null>(null);
   const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const watermarkInputRef = useRef<HTMLInputElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -285,6 +289,59 @@ export default function WatermarkPage() {
       img.src = URL.createObjectURL(imageFile);
     });
   }, [calculateWatermarkPosition]);
+
+  // Generate preview when settings change
+  const generatePreview = useCallback(async () => {
+    if (images.length === 0) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    setIsGeneratingPreview(true);
+    const watermarkSrc = useCustomWatermark && customWatermark ? customWatermark : DEFAULT_WATERMARK;
+    const firstImage = images[0];
+
+    try {
+      const previewBlob = await applyWatermark(
+        firstImage.file,
+        watermarkOpacity[0],
+        watermarkSize[0],
+        watermarkSrc,
+        watermarkPosition,
+        useTileMode,
+        tileRotation[0]
+      );
+      
+      // Revoke previous preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      
+      const newPreviewUrl = URL.createObjectURL(previewBlob);
+      setPreviewUrl(newPreviewUrl);
+    } catch (error) {
+      console.error("Error generating preview:", error);
+    } finally {
+      setIsGeneratingPreview(false);
+    }
+  }, [images, watermarkOpacity, watermarkSize, watermarkPosition, useTileMode, tileRotation, useCustomWatermark, customWatermark, applyWatermark, previewUrl]);
+
+  // Debounced preview generation
+  useEffect(() => {
+    if (images.length === 0) {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      generatePreview();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [watermarkOpacity, watermarkSize, watermarkPosition, useTileMode, tileRotation, useCustomWatermark, customWatermark, images.length]);
 
   const processImages = useCallback(async () => {
     if (images.length === 0) {
@@ -598,10 +655,46 @@ export default function WatermarkPage() {
           </CardContent>
         </Card>
 
+        {/* Preview Card */}
+        {images.length > 0 && (
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Eye className="h-4 w-4" />
+                  Previzualizare
+                </CardTitle>
+                {isGeneratingPreview && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt="Previzualizare watermark"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                    <p className="text-sm">Se generează previzualizarea...</p>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Previzualizare pe: {images[0]?.file.name}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Images Grid */}
-        <Card className="lg:col-span-2">
+        <Card className={images.length > 0 ? "lg:col-span-3" : "lg:col-span-2"}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">Imagini</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Imagini ({images.length})</CardTitle>
           </CardHeader>
           <CardContent>
             {images.length === 0 ? (
@@ -615,7 +708,7 @@ export default function WatermarkPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {images.map(image => (
                   <div 
                     key={image.id} 
@@ -630,31 +723,24 @@ export default function WatermarkPage() {
                     {/* Status overlay */}
                     {image.status === "processing" && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Loader2 className="h-6 w-6 text-white animate-spin" />
+                        <Loader2 className="h-4 w-4 text-white animate-spin" />
                       </div>
                     )}
                     
                     {image.status === "done" && (
-                      <div className="absolute top-2 left-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 drop-shadow-md" />
+                      <div className="absolute top-1 left-1">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 drop-shadow-md" />
                       </div>
                     )}
                     
                     {/* Remove button */}
                     <button
                       onClick={() => removeImage(image.id)}
-                      className="absolute top-2 right-2 p-1 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 p-0.5 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       disabled={isProcessing}
                     >
-                      <X className="h-4 w-4 text-white" />
+                      <X className="h-3 w-3 text-white" />
                     </button>
-                    
-                    {/* File name */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs truncate">
-                        {image.file.name}
-                      </p>
-                    </div>
                   </div>
                 ))}
               </div>
