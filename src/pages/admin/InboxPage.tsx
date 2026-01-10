@@ -67,9 +67,12 @@ const InboxPage = () => {
   // Compose new email state
   const [composeDialogOpen, setComposeDialogOpen] = useState(false);
   const [composeTo, setComposeTo] = useState("");
+  const [composeCc, setComposeCc] = useState("");
+  const [composeBcc, setComposeBcc] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
   const [composeAttachments, setComposeAttachments] = useState<File[]>([]);
+  const [showCcBcc, setShowCcBcc] = useState(false);
   
   const queryClient = useQueryClient();
 
@@ -147,14 +150,16 @@ const InboxPage = () => {
 
   // Compose new email mutation
   const sendEmailMutation = useMutation({
-    mutationFn: async ({ to, subject, body, attachments }: { 
-      to: string; 
+    mutationFn: async ({ to, cc, bcc, subject, body, attachments }: { 
+      to: string;
+      cc?: string;
+      bcc?: string;
       subject: string; 
       body: string;
       attachments: Array<{ filename: string; content: string; contentType: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, subject, body, attachments }
+        body: { to, cc, bcc, subject, body, attachments }
       });
       if (error) throw error;
       return data;
@@ -163,9 +168,12 @@ const InboxPage = () => {
       toast.success('Email-ul a fost trimis!');
       setComposeDialogOpen(false);
       setComposeTo("");
+      setComposeCc("");
+      setComposeBcc("");
       setComposeSubject("");
       setComposeBody("");
       setComposeAttachments([]);
+      setShowCcBcc(false);
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
@@ -227,9 +235,12 @@ const InboxPage = () => {
 
   const handleOpenCompose = () => {
     setComposeTo("");
+    setComposeCc("");
+    setComposeBcc("");
     setComposeSubject("");
     setComposeBody("");
     setComposeAttachments([]);
+    setShowCcBcc(false);
     setComposeDialogOpen(true);
   };
 
@@ -275,6 +286,8 @@ const InboxPage = () => {
 
     sendEmailMutation.mutate({
       to: composeTo,
+      cc: composeCc || undefined,
+      bcc: composeBcc || undefined,
       subject: composeSubject,
       body: composeBody,
       attachments: attachmentsData
@@ -657,7 +670,20 @@ const InboxPage = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="compose-to">Către</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="compose-to">Către</Label>
+                {!showCcBcc && (
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs h-6"
+                    onClick={() => setShowCcBcc(true)}
+                  >
+                    CC/BCC
+                  </Button>
+                )}
+              </div>
               <Input
                 id="compose-to"
                 value={composeTo}
@@ -665,6 +691,30 @@ const InboxPage = () => {
                 placeholder="email@example.com"
               />
             </div>
+            
+            {showCcBcc && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="compose-cc">CC</Label>
+                  <Input
+                    id="compose-cc"
+                    value={composeCc}
+                    onChange={(e) => setComposeCc(e.target.value)}
+                    placeholder="cc@example.com (separă cu virgulă pentru mai mulți)"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="compose-bcc">BCC</Label>
+                  <Input
+                    id="compose-bcc"
+                    value={composeBcc}
+                    onChange={(e) => setComposeBcc(e.target.value)}
+                    placeholder="bcc@example.com (separă cu virgulă pentru mai mulți)"
+                  />
+                </div>
+              </>
+            )}
             
             <div className="space-y-2">
               <Label htmlFor="compose-subject">Subiect</Label>

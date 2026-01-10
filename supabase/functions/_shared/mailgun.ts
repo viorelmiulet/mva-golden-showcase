@@ -5,6 +5,8 @@
 
 export interface MailgunEmailOptions {
   to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
   subject: string;
   html: string;
   from?: string;
@@ -25,6 +27,8 @@ export interface MailgunResponse {
 export const sendMailgunEmail = async (options: MailgunEmailOptions): Promise<MailgunResponse> => {
   const {
     to,
+    cc,
+    bcc,
     subject,
     html,
     from = "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
@@ -45,6 +49,18 @@ export const sendMailgunEmail = async (options: MailgunEmailOptions): Promise<Ma
   // Handle both string and array for 'to'
   const recipients = Array.isArray(to) ? to : [to];
   recipients.forEach((recipient) => formData.append("to", recipient));
+  
+  // Handle CC recipients
+  if (cc) {
+    const ccRecipients = Array.isArray(cc) ? cc : [cc];
+    ccRecipients.filter(r => r.trim()).forEach((recipient) => formData.append("cc", recipient));
+  }
+  
+  // Handle BCC recipients
+  if (bcc) {
+    const bccRecipients = Array.isArray(bcc) ? bcc : [bcc];
+    bccRecipients.filter(r => r.trim()).forEach((recipient) => formData.append("bcc", recipient));
+  }
   
   formData.append("subject", subject);
   formData.append("html", html);
