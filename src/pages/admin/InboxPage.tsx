@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -17,7 +17,9 @@ import {
   Reply,
   Send,
   Loader2,
-  PenSquare
+  PenSquare,
+  FileText,
+  Save
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,8 +75,102 @@ const InboxPage = () => {
   const [composeBody, setComposeBody] = useState("");
   const [composeAttachments, setComposeAttachments] = useState<File[]>([]);
   const [showCcBcc, setShowCcBcc] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
+  const [showDrafts, setShowDrafts] = useState(false);
   
   const queryClient = useQueryClient();
+
+  // Fetch drafts
+  const { data: drafts, refetch: refetchDrafts } = useQuery({
+    queryKey: ['email-drafts'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('email_drafts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Save draft mutation
+  const saveDraftMutation = useMutation({
+    mutationFn: async (draft: {
+      id?: string;
+      recipient: string;
+      cc: string;
+      bcc: string;
+      subject: string;
+      body: string;
+      attachments: any[];
+    }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Nu ești autentificat');
+
+      if (draft.id) {
+        // Update existing draft
+        const { error } = await supabase
+          .from('email_drafts')
+          .update({
+            recipient: draft.recipient,
+            cc: draft.cc,
+            bcc: draft.bcc,
+            subject: draft.subject,
+            body: draft.body,
+            attachments: draft.attachments,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', draft.id);
+        if (error) throw error;
+        return draft.id;
+      } else {
+        // Create new draft
+        const { data, error } = await supabase
+          .from('email_drafts')
+          .insert({
+            user_id: user.id,
+            recipient: draft.recipient,
+            cc: draft.cc,
+            bcc: draft.bcc,
+            subject: draft.subject,
+            body: draft.body,
+            attachments: draft.attachments
+          })
+          .select('id')
+          .single();
+        if (error) throw error;
+        return data.id;
+      }
+    },
+    onSuccess: (draftId) => {
+      setCurrentDraftId(draftId);
+      queryClient.invalidateQueries({ queryKey: ['email-drafts'] });
+      toast.success('Ciornă salvată');
+    },
+    onError: (error: any) => {
+      toast.error(`Eroare la salvare: ${error.message}`);
+    }
+  });
+
+  // Delete draft mutation
+  const deleteDraftMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('email_drafts')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-drafts'] });
+      toast.success('Ciornă ștearsă');
+    }
+  });
 
   const { data: emails, isLoading, refetch } = useQuery({
     queryKey: ['received-emails', filter],
@@ -241,7 +337,49 @@ const InboxPage = () => {
     setComposeBody("");
     setComposeAttachments([]);
     setShowCcBcc(false);
+    setCurrentDraftId(null);
     setComposeDialogOpen(true);
+  };
+
+  const handleSaveDraft = async () => {
+    const attachmentsData = await Promise.all(
+      composeAttachments.map(async (file) => ({
+        filename: file.name,
+        content: await fileToBase64(file),
+        contentType: file.type || 'application/octet-stream'
+      }))
+    );
+
+    saveDraftMutation.mutate({
+      id: currentDraftId || undefined,
+      recipient: composeTo,
+      cc: composeCc,
+      bcc: composeBcc,
+      subject: composeSubject,
+      body: composeBody,
+      attachments: attachmentsData
+    });
+  };
+
+  const handleLoadDraft = (draft: any) => {
+    setComposeTo(draft.recipient || "");
+    setComposeCc(draft.cc || "");
+    setComposeBcc(draft.bcc || "");
+    setComposeSubject(draft.subject || "");
+    setComposeBody(draft.body || "");
+    setComposeAttachments([]);
+    setCurrentDraftId(draft.id);
+    setShowCcBcc(!!(draft.cc || draft.bcc));
+    setShowDrafts(false);
+    setComposeDialogOpen(true);
+  };
+
+  const handleDeleteDraft = (e: React.MouseEvent, draftId: string) => {
+    e.stopPropagation();
+    deleteDraftMutation.mutate(draftId);
+    if (currentDraftId === draftId) {
+      setCurrentDraftId(null);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -318,12 +456,65 @@ const InboxPage = () => {
             <PenSquare className="h-4 w-4 mr-2" />
             Compune
           </Button>
+          <Button variant="outline" onClick={() => setShowDrafts(!showDrafts)}>
+            <FileText className="h-4 w-4 mr-2" />
+            Ciorne {drafts && drafts.length > 0 && `(${drafts.length})`}
+          </Button>
           <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Reîncarcă
           </Button>
         </div>
       </div>
+
+      {/* Drafts Panel */}
+      {showDrafts && (
+        <Card>
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Ciorne salvate ({drafts?.length || 0})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {!drafts || drafts.length === 0 ? (
+              <div className="p-4 text-center text-muted-foreground text-sm">
+                Nu ai ciorne salvate
+              </div>
+            ) : (
+              <div className="divide-y">
+                {drafts.map((draft) => (
+                  <div
+                    key={draft.id}
+                    onClick={() => handleLoadDraft(draft)}
+                    className="p-3 cursor-pointer hover:bg-muted/50 transition-colors flex items-center justify-between"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate text-sm">
+                        {draft.subject || '(Fără subiect)'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        Către: {draft.recipient || '(niciun destinatar)'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(draft.updated_at), 'dd MMM yyyy, HH:mm', { locale: ro })}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive shrink-0"
+                      onClick={(e) => handleDeleteDraft(e, draft.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex gap-2">
         <Button 
@@ -770,12 +961,38 @@ const InboxPage = () => {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setComposeDialogOpen(false)}>
-              Anulează
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button variant="outline" onClick={() => setComposeDialogOpen(false)}>
+                Anulează
+              </Button>
+              <Button 
+                variant="secondary"
+                onClick={handleSaveDraft}
+                disabled={saveDraftMutation.isPending}
+              >
+                {saveDraftMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Se salvează...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {currentDraftId ? 'Actualizează ciorna' : 'Salvează ciornă'}
+                  </>
+                )}
+              </Button>
+            </div>
             <Button 
-              onClick={handleSendEmail}
+              onClick={async () => {
+                await handleSendEmail();
+                // Delete draft after successful send
+                if (currentDraftId) {
+                  deleteDraftMutation.mutate(currentDraftId);
+                  setCurrentDraftId(null);
+                }
+              }}
               disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
             >
               {sendEmailMutation.isPending ? (

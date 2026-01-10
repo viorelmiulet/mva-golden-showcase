@@ -713,6 +713,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_drafts: {
+        Row: {
+          attachments: Json | null
+          bcc: string | null
+          body: string | null
+          cc: string | null
+          created_at: string
+          id: string
+          recipient: string | null
+          subject: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          bcc?: string | null
+          body?: string | null
+          cc?: string | null
+          created_at?: string
+          id?: string
+          recipient?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          bcc?: string | null
+          body?: string | null
+          cc?: string | null
+          created_at?: string
+          id?: string
+          recipient?: string | null
+          subject?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       exclusive_contracts: {
         Row: {
           agent_signature: string | null
