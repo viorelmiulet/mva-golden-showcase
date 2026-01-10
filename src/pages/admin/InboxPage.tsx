@@ -1,0 +1,380 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { ro } from "date-fns/locale";
+import { 
+  Mail, 
+  MailOpen, 
+  Star, 
+  StarOff, 
+  Trash2, 
+  Archive, 
+  RefreshCw,
+  Inbox,
+  ChevronLeft,
+  Paperclip
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+interface ReceivedEmail {
+  id: string;
+  sender: string;
+  recipient: string | null;
+  subject: string | null;
+  body_plain: string | null;
+  body_html: string | null;
+  stripped_text: string | null;
+  attachments: any[];
+  is_read: boolean;
+  is_starred: boolean;
+  is_archived: boolean;
+  received_at: string;
+  created_at: string;
+}
+
+const InboxPage = () => {
+  const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
+  const [filter, setFilter] = useState<'all' | 'unread' | 'starred'>('all');
+  const queryClient = useQueryClient();
+
+  const { data: emails, isLoading, refetch } = useQuery({
+    queryKey: ['received-emails', filter],
+    queryFn: async () => {
+      let query = supabase
+        .from('received_emails')
+        .select('*')
+        .eq('is_archived', false)
+        .order('received_at', { ascending: false });
+
+      if (filter === 'unread') {
+        query = query.eq('is_read', false);
+      } else if (filter === 'starred') {
+        query = query.eq('is_starred', true);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as ReceivedEmail[];
+    }
+  });
+
+  const updateEmailMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<ReceivedEmail> }) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update(updates)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+    }
+  });
+
+  const deleteEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      setSelectedEmail(null);
+      toast.success('Email șters');
+    }
+  });
+
+  const handleSelectEmail = async (email: ReceivedEmail) => {
+    setSelectedEmail(email);
+    if (!email.is_read) {
+      updateEmailMutation.mutate({ id: email.id, updates: { is_read: true } });
+    }
+  };
+
+  const handleToggleStar = (e: React.MouseEvent, email: ReceivedEmail) => {
+    e.stopPropagation();
+    updateEmailMutation.mutate({ 
+      id: email.id, 
+      updates: { is_starred: !email.is_starred } 
+    });
+  };
+
+  const handleArchive = (email: ReceivedEmail) => {
+    updateEmailMutation.mutate({ 
+      id: email.id, 
+      updates: { is_archived: true } 
+    });
+    setSelectedEmail(null);
+    toast.success('Email arhivat');
+  };
+
+  const handleDelete = (email: ReceivedEmail) => {
+    deleteEmailMutation.mutate(email.id);
+  };
+
+  const extractSenderName = (sender: string) => {
+    const match = sender.match(/^([^<]+)/);
+    return match ? match[1].trim() : sender.split('@')[0];
+  };
+
+  const unreadCount = emails?.filter(e => !e.is_read).length || 0;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Inbox className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold">Inbox</h1>
+            <p className="text-muted-foreground">
+              {unreadCount > 0 ? `${unreadCount} email-uri necitite` : 'Toate email-urile citite'}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" onClick={() => refetch()}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reîncarcă
+        </Button>
+      </div>
+
+      <div className="flex gap-2">
+        <Button 
+          variant={filter === 'all' ? 'default' : 'outline'} 
+          size="sm"
+          onClick={() => setFilter('all')}
+        >
+          Toate
+        </Button>
+        <Button 
+          variant={filter === 'unread' ? 'default' : 'outline'} 
+          size="sm"
+          onClick={() => setFilter('unread')}
+        >
+          Necitite
+          {unreadCount > 0 && (
+            <Badge variant="secondary" className="ml-2">{unreadCount}</Badge>
+          )}
+        </Button>
+        <Button 
+          variant={filter === 'starred' ? 'default' : 'outline'} 
+          size="sm"
+          onClick={() => setFilter('starred')}
+        >
+          Cu stea
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Email List */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="py-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {emails?.length || 0} email-uri
+            </CardTitle>
+          </CardHeader>
+          <ScrollArea className="h-[600px]">
+            <CardContent className="p-0">
+              {isLoading ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  Se încarcă...
+                </div>
+              ) : emails?.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Nu există email-uri</p>
+                </div>
+              ) : (
+                emails?.map((email) => (
+                  <div
+                    key={email.id}
+                    onClick={() => handleSelectEmail(email)}
+                    className={cn(
+                      "p-4 cursor-pointer hover:bg-muted/50 transition-colors border-b",
+                      selectedEmail?.id === email.id && "bg-muted",
+                      !email.is_read && "bg-primary/5"
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <button
+                        onClick={(e) => handleToggleStar(e, email)}
+                        className="mt-1 text-muted-foreground hover:text-yellow-500 transition-colors"
+                      >
+                        {email.is_starred ? (
+                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                        ) : (
+                          <StarOff className="h-4 w-4" />
+                        )}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          {!email.is_read ? (
+                            <Mail className="h-4 w-4 text-primary shrink-0" />
+                          ) : (
+                            <MailOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                          )}
+                          <span className={cn(
+                            "font-medium truncate",
+                            !email.is_read && "font-semibold"
+                          )}>
+                            {extractSenderName(email.sender)}
+                          </span>
+                        </div>
+                        <p className={cn(
+                          "text-sm truncate mt-1",
+                          !email.is_read ? "font-medium" : "text-muted-foreground"
+                        )}>
+                          {email.subject || '(Fără subiect)'}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
+                          </span>
+                          {email.attachments && email.attachments.length > 0 && (
+                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </ScrollArea>
+        </Card>
+
+        {/* Email Detail */}
+        <Card className="lg:col-span-2">
+          {selectedEmail ? (
+            <>
+              <CardHeader className="py-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="lg:hidden"
+                      onClick={() => setSelectedEmail(null)}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div>
+                      <CardTitle className="text-lg">
+                        {selectedEmail.subject || '(Fără subiect)'}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        De la: {selectedEmail.sender}
+                      </p>
+                      {selectedEmail.recipient && (
+                        <p className="text-sm text-muted-foreground">
+                          Către: {selectedEmail.recipient}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {format(new Date(selectedEmail.received_at), 'dd MMMM yyyy, HH:mm', { locale: ro })}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}
+                    >
+                      {selectedEmail.is_starred ? (
+                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                      ) : (
+                        <StarOff className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleArchive(selectedEmail)}
+                    >
+                      <Archive className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(selectedEmail)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <Separator />
+              <CardContent className="py-4">
+                {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
+                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Paperclip className="h-4 w-4" />
+                      Atașamente ({selectedEmail.attachments.length})
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedEmail.attachments.map((att: any, idx: number) => (
+                        <Badge key={idx} variant="secondary">
+                          {att.name} ({Math.round(att.size / 1024)} KB)
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <ScrollArea className="h-[400px]">
+                  {selectedEmail.body_html ? (
+                    <div 
+                      className="prose prose-sm max-w-none dark:prose-invert"
+                      dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
+                    />
+                  ) : (
+                    <pre className="whitespace-pre-wrap font-sans text-sm">
+                      {selectedEmail.body_plain || selectedEmail.stripped_text || 'Nu există conținut'}
+                    </pre>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </>
+          ) : (
+            <div className="h-[600px] flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <Mail className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <p>Selectează un email pentru a-l vizualiza</p>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Mailgun Webhook Instructions */}
+      <Card className="bg-muted/50">
+        <CardHeader>
+          <CardTitle className="text-sm">Configurare Mailgun Routes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <p>Pentru a primi email-uri, configurează un Route în Mailgun:</p>
+          <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+            <li>Mergi la Mailgun → Sending → Routes</li>
+            <li>Click "Create route"</li>
+            <li>Expression Type: <code className="bg-background px-1 rounded">catch_all()</code></li>
+            <li>Actions → Forward → Store and notify:</li>
+          </ol>
+          <code className="block p-2 bg-background rounded text-xs break-all">
+            https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/receive-mailgun-email
+          </code>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default InboxPage;

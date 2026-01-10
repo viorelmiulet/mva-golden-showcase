@@ -22,6 +22,7 @@ import {
   Hotel,
   Chrome,
   Stamp,
+  Inbox,
 } from "lucide-react";
 
 import {
@@ -39,6 +40,7 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
+  { title: "Inbox", url: "/admin/inbox", icon: Inbox },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },

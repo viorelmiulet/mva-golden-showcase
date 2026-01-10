@@ -977,6 +977,60 @@ export type Database = {
         }
         Relationships: []
       }
+      received_emails: {
+        Row: {
+          attachments: Json | null
+          body_html: string | null
+          body_plain: string | null
+          created_at: string
+          id: string
+          in_reply_to: string | null
+          is_archived: boolean | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          message_id: string | null
+          received_at: string
+          recipient: string | null
+          sender: string
+          stripped_text: string | null
+          subject: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          body_html?: string | null
+          body_plain?: string | null
+          created_at?: string
+          id?: string
+          in_reply_to?: string | null
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          message_id?: string | null
+          received_at?: string
+          recipient?: string | null
+          sender: string
+          stripped_text?: string | null
+          subject?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          body_html?: string | null
+          body_plain?: string | null
+          created_at?: string
+          id?: string
+          in_reply_to?: string | null
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          message_id?: string | null
+          received_at?: string
+          recipient?: string | null
+          sender?: string
+          stripped_text?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
       rental_availability: {
         Row: {
           booking_reference: string | null

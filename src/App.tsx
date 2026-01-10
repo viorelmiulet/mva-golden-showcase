@@ -76,6 +76,7 @@ const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
+const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 
@@ -136,6 +137,7 @@ const App = () => {
                 <Route path="regim-hotelier" element={<ShortTermRentalsPage />} />
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
+                <Route path="inbox" element={<InboxPage />} />
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
