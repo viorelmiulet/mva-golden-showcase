@@ -16,7 +16,8 @@ import {
   Paperclip,
   Reply,
   Send,
-  Loader2
+  Loader2,
+  PenSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,6 +62,13 @@ const InboxPage = () => {
   const [replyTo, setReplyTo] = useState("");
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
+  
+  // Compose new email state
+  const [composeDialogOpen, setComposeDialogOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  
   const queryClient = useQueryClient();
 
   const { data: emails, isLoading, refetch } = useQuery({
@@ -135,6 +143,31 @@ const InboxPage = () => {
     }
   });
 
+  // Compose new email mutation
+  const sendEmailMutation = useMutation({
+    mutationFn: async ({ to, subject, body }: { 
+      to: string; 
+      subject: string; 
+      body: string; 
+    }) => {
+      const { data, error } = await supabase.functions.invoke('reply-email', {
+        body: { to, subject, body }
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Email-ul a fost trimis!');
+      setComposeDialogOpen(false);
+      setComposeTo("");
+      setComposeSubject("");
+      setComposeBody("");
+    },
+    onError: (error: any) => {
+      toast.error(`Eroare la trimitere: ${error.message}`);
+    }
+  });
+
   const handleSelectEmail = async (email: ReceivedEmail) => {
     setSelectedEmail(email);
     if (!email.is_read) {
@@ -188,6 +221,26 @@ const InboxPage = () => {
     });
   };
 
+  const handleOpenCompose = () => {
+    setComposeTo("");
+    setComposeSubject("");
+    setComposeBody("");
+    setComposeDialogOpen(true);
+  };
+
+  const handleSendEmail = () => {
+    if (!composeTo || !composeBody.trim()) {
+      toast.error('Completează destinatarul și mesajul');
+      return;
+    }
+    
+    sendEmailMutation.mutate({
+      to: composeTo,
+      subject: composeSubject,
+      body: composeBody
+    });
+  };
+
   const extractSenderName = (sender: string) => {
     const match = sender.match(/^([^<]+)/);
     return match ? match[1].trim() : sender.split('@')[0];
@@ -207,10 +260,16 @@ const InboxPage = () => {
             </p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Reîncarcă
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleOpenCompose}>
+            <PenSquare className="h-4 w-4 mr-2" />
+            Compune
+          </Button>
+          <Button variant="outline" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Reîncarcă
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-2">
@@ -528,6 +587,76 @@ const InboxPage = () => {
               disabled={sendReplyMutation.isPending || !replyBody.trim()}
             >
               {sendReplyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Se trimite...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Trimite
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Compose New Email Dialog */}
+      <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <PenSquare className="h-5 w-5" />
+              Email nou
+            </DialogTitle>
+            <DialogDescription>
+              Compune și trimite un email nou
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="compose-to">Către</Label>
+              <Input
+                id="compose-to"
+                value={composeTo}
+                onChange={(e) => setComposeTo(e.target.value)}
+                placeholder="email@example.com"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="compose-subject">Subiect</Label>
+              <Input
+                id="compose-subject"
+                value={composeSubject}
+                onChange={(e) => setComposeSubject(e.target.value)}
+                placeholder="Subiectul emailului"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="compose-body">Mesaj</Label>
+              <Textarea
+                id="compose-body"
+                value={composeBody}
+                onChange={(e) => setComposeBody(e.target.value)}
+                placeholder="Scrie mesajul tău aici..."
+                className="min-h-[200px]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setComposeDialogOpen(false)}>
+              Anulează
+            </Button>
+            <Button 
+              onClick={handleSendEmail}
+              disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
+            >
+              {sendEmailMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Se trimite...
