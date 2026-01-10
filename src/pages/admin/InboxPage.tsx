@@ -402,12 +402,13 @@ const InboxPage = () => {
                           <a 
                             key={idx} 
                             href={att.url} 
+                            download={att.name}
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-md text-sm transition-colors"
                           >
                             <Paperclip className="h-3 w-3" />
-                            {att.name} ({Math.round(att.size / 1024)} KB)
+                            📥 {att.name} ({Math.round(att.size / 1024)} KB)
                           </a>
                         ) : (
                           <Badge key={idx} variant="secondary" className="opacity-60">
