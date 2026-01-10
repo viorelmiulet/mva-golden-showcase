@@ -67,12 +67,13 @@ export default function WatermarkPage() {
   const [customWatermarkName, setCustomWatermarkName] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const watermarkInputRef = useRef<HTMLInputElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const addImages = useCallback((files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith("image/"));
     
     if (imageFiles.length === 0) {
@@ -89,11 +90,46 @@ export default function WatermarkPage() {
 
     setImages(prev => [...prev, ...newImages]);
     toast.success(`${imageFiles.length} imagini adăugate`);
+  }, []);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    addImages(files);
     
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  }, [addImages]);
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
   }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set dragging to false if we're leaving the drop zone entirely
+    if (e.currentTarget === e.target) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    addImages(files);
+  }, [addImages]);
 
   const handleWatermarkSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -691,24 +727,58 @@ export default function WatermarkPage() {
           </Card>
         )}
 
-        {/* Images Grid */}
-        <Card className={images.length > 0 ? "lg:col-span-3" : "lg:col-span-2"}>
+        {/* Images Grid with Drag & Drop */}
+        <Card 
+          className={`${images.length > 0 ? "lg:col-span-3" : "lg:col-span-2"} ${isDragging ? "ring-2 ring-gold ring-offset-2" : ""}`}
+          ref={dropZoneRef}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="text-base sm:text-lg">Imagini ({images.length})</CardTitle>
           </CardHeader>
           <CardContent>
             {images.length === 0 ? (
               <div 
-                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center cursor-pointer hover:border-gold/50 transition-colors"
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                  isDragging 
+                    ? "border-gold bg-gold/10 scale-[1.02]" 
+                    : "border-muted-foreground/25 hover:border-gold/50"
+                }`}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-                <p className="text-muted-foreground text-sm">
-                  Click pentru a adăuga imagini sau drag & drop
-                </p>
+                <div className={`transition-transform ${isDragging ? "scale-110" : ""}`}>
+                  <Upload className={`h-12 w-12 mx-auto mb-3 transition-colors ${isDragging ? "text-gold" : "text-muted-foreground/50"}`} />
+                  <p className={`text-sm font-medium ${isDragging ? "text-gold" : "text-muted-foreground"}`}>
+                    {isDragging ? "Eliberați pentru a încărca" : "Trageți imagini aici"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    sau click pentru a selecta
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+              <div className="space-y-3">
+                {/* Add more images drop zone */}
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all ${
+                    isDragging 
+                      ? "border-gold bg-gold/10" 
+                      : "border-muted-foreground/20 hover:border-gold/40"
+                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Upload className={`h-4 w-4 ${isDragging ? "text-gold" : "text-muted-foreground"}`} />
+                    <span className={`text-sm ${isDragging ? "text-gold font-medium" : "text-muted-foreground"}`}>
+                      {isDragging ? "Eliberați pentru a adăuga" : "Adaugă mai multe imagini"}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {images.map(image => (
                   <div 
                     key={image.id} 
@@ -743,6 +813,7 @@ export default function WatermarkPage() {
                     </button>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </CardContent>
