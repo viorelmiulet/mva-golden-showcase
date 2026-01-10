@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +14,45 @@ interface SendSignatureLinkRequest {
   recipientName: string;
   propertyAddress: string;
 }
+
+const sendMailgunEmail = async (
+  to: string[],
+  subject: string,
+  html: string,
+  from: string = "MVA Imobiliare <noreply@mvaimobiliare.ro>"
+) => {
+  const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+  const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
+
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+    throw new Error("Mailgun credentials not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("from", from);
+  to.forEach((recipient) => formData.append("to", recipient));
+  formData.append("subject", subject);
+  formData.append("html", html);
+
+  const response = await fetch(
+    `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Mailgun error:", errorText);
+    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+};
 
 const getContractTypeLabel = (contractType: string): string => {
   switch (contractType) {
@@ -197,11 +233,10 @@ const handler = async (req: Request): Promise<Response> => {
     const partyLabel = getPartyLabel(contractType, partyType);
 
     // Send email with signature link
-    const emailResponse = await resend.emails.send({
-      from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-      to: [recipientEmail],
-      subject: `Semnătură Contract ${contractTypeLabel} - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
-      html: `
+    const emailResponse = await sendMailgunEmail(
+      [recipientEmail],
+      `Semnătură Contract ${contractTypeLabel} - ${(propertyAddress || "Proprietate").replace(/[\n\r]/g, ' ').trim()}`,
+      `
         <!DOCTYPE html>
         <html>
         <head>
@@ -259,10 +294,10 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
         </body>
         </html>
-      `,
-    });
+      `
+    );
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Email sent successfully via Mailgun:", emailResponse);
 
     return new Response(
       JSON.stringify({ 

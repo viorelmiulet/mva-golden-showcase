@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,6 +40,45 @@ interface SignatureData {
   signature_data: string | null;
   signer_name: string | null;
 }
+
+const sendMailgunEmail = async (
+  to: string[],
+  subject: string,
+  html: string,
+  from: string = "MVA Imobiliare <noreply@mvaimobiliare.ro>"
+) => {
+  const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+  const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
+
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+    throw new Error("Mailgun credentials not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("from", from);
+  to.forEach((recipient) => formData.append("to", recipient));
+  formData.append("subject", subject);
+  formData.append("html", html);
+
+  const response = await fetch(
+    `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Mailgun error:", errorText);
+    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -134,16 +170,11 @@ serve(async (req) => {
       inventoryCount: inventory.length
     });
 
-    // Generate PDF using jsPDF-like approach via HTML
-    // Since we can't use jsPDF in Deno directly, we'll create a simple HTML-based PDF
-    // For now, we'll store metadata and let the frontend know to regenerate
-
     // Mark contract as fully signed and ready for PDF regeneration
     const { error: updateError } = await supabase
       .from('contracts')
       .update({ 
         pdf_generated: true,
-        // Store a flag that the contract needs PDF regeneration
       })
       .eq('id', contractId);
 
@@ -209,12 +240,11 @@ serve(async (req) => {
 
     // Send email notification to admin
     try {
-      const emailResponse = await resend.emails.send({
-        from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-        to: ["contact@mvaimobiliare.ro"],
-        subject: `✓ Contract Complet Semnat - ${propertyAddress}`,
-        html: completionHtml,
-      });
+      const emailResponse = await sendMailgunEmail(
+        ["contact@mvaimobiliare.ro"],
+        `✓ Contract Complet Semnat - ${propertyAddress}`,
+        completionHtml
+      );
       console.log("Completion notification sent:", emailResponse);
     } catch (emailErr) {
       console.error("Error sending completion email:", emailErr);

@@ -1,12 +1,48 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const sendMailgunEmail = async (
+  to: string[],
+  subject: string,
+  html: string,
+  from: string = "MVA Imobiliare <noreply@mvaimobiliare.ro>"
+) => {
+  const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+  const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
+
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+    throw new Error("Mailgun credentials not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("from", from);
+  to.forEach((recipient) => formData.append("to", recipient));
+  formData.append("subject", subject);
+  formData.append("html", html);
+
+  const response = await fetch(
+    `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Mailgun error:", errorText);
+    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
 };
 
 const formatDate = (dateStr: string) => {
@@ -106,11 +142,10 @@ const handler = async (req: Request): Promise<Response> => {
       const daysUntilCheckIn = Math.ceil((checkInDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       try {
-        await resend.emails.send({
-          from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-          to: [booking.guest_email],
-          subject: `⏰ Reminder: Check-in în ${daysUntilCheckIn} ${daysUntilCheckIn === 1 ? 'zi' : 'zile'} - ${rental.title}`,
-          html: `
+        await sendMailgunEmail(
+          [booking.guest_email],
+          `⏰ Reminder: Check-in în ${daysUntilCheckIn} ${daysUntilCheckIn === 1 ? 'zi' : 'zile'} - ${rental.title}`,
+          `
             <!DOCTYPE html>
             <html>
             <head>
@@ -225,8 +260,8 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
             </body>
             </html>
-          `,
-        });
+          `
+        );
 
         // Update booking to mark reminder as sent
         await supabase
