@@ -1,7 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +24,54 @@ interface CollaborationFormData {
   }>;
 }
 
+const sendMailgunEmail = async (
+  to: string[],
+  subject: string,
+  html: string,
+  from: string = "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
+  attachments: Array<{ name: string; data: string; type: string }> = []
+) => {
+  const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+  const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
+
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+    throw new Error("Mailgun credentials not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("from", from);
+  to.forEach((recipient) => formData.append("to", recipient));
+  formData.append("subject", subject);
+  formData.append("html", html);
+
+  // Add attachments
+  for (const attachment of attachments) {
+    const base64Data = attachment.data.split(',')[1] || attachment.data;
+    const binaryData = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+    const blob = new Blob([binaryData], { type: attachment.type });
+    formData.append("attachment", blob, attachment.name);
+  }
+
+  const response = await fetch(
+    `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Mailgun error:", errorText);
+    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+};
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("=== COLLABORATION EMAIL FUNCTION CALLED ===");
   console.log("Method:", req.method);
@@ -40,15 +85,6 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     console.log("Processing POST request...");
-    
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    console.log("Resend API Key exists:", !!resendApiKey);
-    
-    if (!resendApiKey) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
-    
-    const resend = new Resend(resendApiKey);
     
     const requestBody = await req.text();
     console.log("Request body received, length:", requestBody.length);
@@ -64,19 +100,19 @@ const handler = async (req: Request): Promise<Response> => {
       imagesCount: formData.images?.length || 0
     });
 
-    // Prepare attachments from base64 images for Resend
+    // Prepare attachments from base64 images
     const attachments = formData.images?.map(image => ({
-      content: image.data.split(',')[1], // Remove data:image/jpeg;base64, prefix
-      filename: image.name,
+      name: image.name,
+      data: image.data,
+      type: image.type
     })) || [];
 
     console.log("Sending collaboration email with", attachments.length, "attachments");
 
-    const emailResponse = await resend.emails.send({
-      from: "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
-      to: ["mvaperfectbusiness@gmail.com"],
-      subject: `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`,
-      html: `
+    const emailResponse = await sendMailgunEmail(
+      ["mvaperfectbusiness@gmail.com"],
+      `Propunere Colaborare - ${formData.tipProprietate} pentru ${formData.tipTranzactie} în ${formData.adresa}`,
+      `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #DAA520;">Propunere de Colaborare Nouă</h2>
           
@@ -120,10 +156,11 @@ const handler = async (req: Request): Promise<Response> => {
           </p>
         </div>
       `,
-      attachments: attachments
-    });
+      "MVA IMOBILIARE <noreply@mvaimobiliare.ro>",
+      attachments
+    );
 
-    console.log("Collaboration email sent successfully via Resend:", emailResponse);
+    console.log("Collaboration email sent successfully via Mailgun:", emailResponse);
     
     return new Response(JSON.stringify({ 
       success: true, 

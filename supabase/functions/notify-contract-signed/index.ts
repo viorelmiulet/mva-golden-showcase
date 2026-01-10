@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +11,45 @@ interface NotifyContractSignedRequest {
   contractType: "inchiriere" | "comodat" | "exclusiv" | "intermediere";
   signerPartyType: string;
 }
+
+const sendMailgunEmail = async (
+  to: string[],
+  subject: string,
+  html: string,
+  from: string = "MVA Imobiliare <noreply@mvaimobiliare.ro>"
+) => {
+  const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
+  const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
+
+  if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+    throw new Error("Mailgun credentials not configured");
+  }
+
+  const formData = new FormData();
+  formData.append("from", from);
+  to.forEach((recipient) => formData.append("to", recipient));
+  formData.append("subject", subject);
+  formData.append("html", html);
+
+  const response = await fetch(
+    `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`api:${MAILGUN_API_KEY}`)}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Mailgun error:", errorText);
+    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+  }
+
+  return await response.json();
+};
 
 const handler = async (req: Request): Promise<Response> => {
   console.log("notify-contract-signed function called");
@@ -246,12 +282,11 @@ const handler = async (req: Request): Promise<Response> => {
       `;
 
       try {
-        const emailResponse = await resend.emails.send({
-          from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-          to: ["contact@mvaimobiliare.ro"],
-          subject: `✓ ${contractLabel} Complet Semnat - ${propertyAddress}`,
-          html: completionHtml,
-        });
+        const emailResponse = await sendMailgunEmail(
+          ["contact@mvaimobiliare.ro"],
+          `✓ ${contractLabel} Complet Semnat - ${propertyAddress}`,
+          completionHtml
+        );
         console.log("Completion notification sent:", emailResponse);
       } catch (emailErr) {
         console.error("Error sending completion email:", emailErr);
@@ -315,12 +350,11 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     try {
-      const emailResponse = await resend.emails.send({
-        from: "MVA Imobiliare <noreply@mvaimobiliare.ro>",
-        to: ["contact@mvaimobiliare.ro"],
-        subject: `📝 ${contractLabel} Semnat Parțial - ${signerName} (${signerLabel})`,
-        html: partialSignHtml,
-      });
+      const emailResponse = await sendMailgunEmail(
+        ["contact@mvaimobiliare.ro"],
+        `📝 ${contractLabel} Semnat Parțial - ${signerName} (${signerLabel})`,
+        partialSignHtml
+      );
       console.log("Partial sign notification sent:", emailResponse);
     } catch (emailErr) {
       console.error("Error sending partial sign email:", emailErr);
