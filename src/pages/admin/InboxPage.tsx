@@ -36,6 +36,13 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
 import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem, EmailAutocomplete } from "@/components/inbox";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -735,34 +742,54 @@ const InboxPage = () => {
 
         {/* Mobile Filter Bar - Only show in list view on mobile */}
         {mobileView === 'list' && (
-          <div className="lg:hidden flex items-center gap-1 shrink-0 flex-wrap">
-            {[
-              { key: 'all', label: 'Toate', icon: Mail },
-              { key: 'unread', label: 'Necitite', icon: null },
-              { key: 'starred', label: 'Stea', icon: Star },
-              { key: 'archived', label: 'Arhivă', icon: Archive }
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived')}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
-                  filter === item.key 
-                    ? "bg-gold/20 text-gold border border-gold/30" 
-                    : "bg-white/5 text-muted-foreground border border-white/10"
-                )}
-              >
-                {item.icon && <item.icon className="h-2.5 w-2.5" />}
-                {item.key === 'unread' && unreadCount > 0 && (
-                  <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
-                )}
-                {item.key === 'archived' && archivedCount > 0 && (
-                  <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
-                )}
-                <span>{item.label}</span>
-              </button>
-            ))}
+          <div className="lg:hidden flex flex-col gap-2 shrink-0">
+            <div className="flex items-center gap-1 flex-wrap">
+              {[
+                { key: 'all', label: 'Toate', icon: Mail },
+                { key: 'unread', label: 'Necitite', icon: null },
+                { key: 'starred', label: 'Stea', icon: Star },
+                { key: 'archived', label: 'Arhivă', icon: Archive }
+              ].map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived')}
+                  className={cn(
+                    "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
+                    filter === item.key 
+                      ? "bg-gold/20 text-gold border border-gold/30" 
+                      : "bg-white/5 text-muted-foreground border border-white/10"
+                  )}
+                >
+                  {item.icon && <item.icon className="h-2.5 w-2.5" />}
+                  {item.key === 'unread' && unreadCount > 0 && (
+                    <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  )}
+                  {item.key === 'archived' && archivedCount > 0 && (
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
+                  )}
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
             
+            {/* Mobile Recipient Filter */}
+            {emailAddresses && emailAddresses.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Select value={recipientFilter} onValueChange={setRecipientFilter}>
+                  <SelectTrigger className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50 flex-1">
+                    <SelectValue placeholder="Toate adresele" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate adresele</SelectItem>
+                    {emailAddresses.map((addr) => (
+                      <SelectItem key={addr.email} value={addr.email}>
+                        {addr.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {/* Drafts button on mobile - opens dialog */}
             <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
               <button
