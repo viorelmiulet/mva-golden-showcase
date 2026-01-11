@@ -99,11 +99,17 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-b from-background to-secondary/20 border-t border-gold/10">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+    <footer className="relative overflow-hidden border-t border-gold/20">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-section">
+        <div className="absolute top-10 right-20 w-64 h-64 bg-gold/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 left-20 w-48 h-48 bg-gold/3 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
         
         {/* Main Footer Content */}
-        <div className="py-8 sm:py-12 lg:py-16">
+        <div className="py-10 sm:py-14 lg:py-20">
           <div className="max-w-6xl mx-auto">
             <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-12">
               
@@ -169,7 +175,7 @@ const Footer = () => {
                       href={facebookUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
+                      className="w-12 h-12 sm:w-11 sm:h-11 glass rounded-xl flex items-center justify-center hover:bg-gold/10 transition-all duration-300 group border border-gold/20 hover:border-gold/50 touch-manipulation hover:scale-110 hover:-translate-y-1"
                       title="Pagina noastră Facebook"
                     >
                       <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -182,7 +188,7 @@ const Footer = () => {
                     href={`https://wa.me/${phoneNumber.replace(/^0/, '40')}`}
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
+                    className="w-12 h-12 sm:w-11 sm:h-11 glass rounded-xl flex items-center justify-center hover:bg-gold/10 transition-all duration-300 group border border-gold/20 hover:border-gold/50 touch-manipulation hover:scale-110 hover:-translate-y-1"
                     title="WhatsApp"
                   >
                     <svg className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -194,7 +200,7 @@ const Footer = () => {
                   {deferredPrompt && !isInstalled && (
                     <button
                       onClick={handleInstall}
-                      className="w-11 h-11 sm:w-10 sm:h-10 bg-gold/10 rounded-xl flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
+                      className="w-12 h-12 sm:w-11 sm:h-11 glass rounded-xl flex items-center justify-center hover:bg-gold/10 transition-all duration-300 group border border-gold/20 hover:border-gold/50 touch-manipulation hover:scale-110 hover:-translate-y-1"
                       title={language === 'ro' ? 'Instalează Aplicația' : 'Install App'}
                     >
                       <Download className="w-5 h-5 text-gold group-hover:text-gold-light transition-colors" />
@@ -206,8 +212,8 @@ const Footer = () => {
               {/* Quick Links */}
               <div className="text-center">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center">
-                  <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
-                  {language === 'ro' ? 'Navigare' : 'Navigation'}
+                  <span className="w-2 h-2 bg-gradient-gold rounded-full mr-3 glow-gold"></span>
+                  <span className="text-gradient-gold">{language === 'ro' ? 'Navigare' : 'Navigation'}</span>
                 </h3>
                 <ul className="space-y-2 sm:space-y-3">
                   {quickLinks.map((link) => (
@@ -215,14 +221,14 @@ const Footer = () => {
                       {link.type === 'link' ? (
                         <Link
                           to={link.id}
-                          className="text-muted-foreground hover:text-gold transition-colors text-sm duration-200 inline-block"
+                          className="text-muted-foreground hover:text-gold transition-all duration-300 text-sm inline-block hover:translate-x-1"
                         >
                           {link.name}
                         </Link>
                       ) : (
                         <button 
                           onClick={() => handleNavigation(link)} 
-                          className="text-muted-foreground hover:text-gold transition-colors text-sm duration-200 inline-block"
+                          className="text-muted-foreground hover:text-gold transition-all duration-300 text-sm inline-block hover:translate-x-1"
                         >
                           {link.name}
                         </button>
@@ -235,13 +241,13 @@ const Footer = () => {
               {/* Services */}
               <div className="text-center md:text-left">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center justify-center md:justify-start">
-                  <span className="w-2 h-2 bg-gold rounded-full mr-3"></span>
-                  {t.services.title}
+                  <span className="w-2 h-2 bg-gradient-gold rounded-full mr-3 glow-gold"></span>
+                  <span className="text-gradient-gold">{t.services.title}</span>
                 </h3>
                 <ul className="space-y-2 sm:space-y-3">
                   {services.map((service, index) => (
                     <li key={index}>
-                      <span className="text-muted-foreground text-sm block">
+                      <span className="text-muted-foreground text-sm block hover:text-foreground transition-colors">
                         {service}
                       </span>
                     </li>
@@ -284,7 +290,7 @@ const Footer = () => {
                 
                 <button 
                   onClick={scrollToTop}
-                  className="w-10 h-10 sm:w-8 sm:h-8 bg-gold/10 rounded-lg flex items-center justify-center hover:bg-gold/20 transition-colors group border border-gold/20 hover:border-gold/40 touch-manipulation"
+                  className="w-10 h-10 sm:w-9 sm:h-9 glass rounded-xl flex items-center justify-center hover:bg-gold/10 transition-all duration-300 group border border-gold/20 hover:border-gold/50 touch-manipulation hover:scale-110 hover:-translate-y-1 glow-gold"
                   title={language === 'ro' ? 'Înapoi sus' : 'Back to top'}
                 >
                   <ArrowUp className="w-4 h-4 text-gold group-hover:text-gold-light transition-colors" />

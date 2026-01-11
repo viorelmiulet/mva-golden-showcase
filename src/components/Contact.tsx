@@ -143,11 +143,12 @@ const Contact = () => {
   ]
 
   return (
-    <section id="contact" className="relative py-12 sm:py-16 lg:py-24 overflow-hidden">
+    <section id="contact" className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
       {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-background to-gold/5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(218,165,32,0.1),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(218,165,32,0.05),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-gradient-section">
+        <div className="absolute top-20 right-20 w-80 h-80 bg-gold/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-10 left-10 w-64 h-64 bg-gold/3 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-gold/4 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }}></div>
       </div>
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
@@ -157,7 +158,7 @@ const Contact = () => {
           <div className="text-center mb-12 sm:mb-16 lg:mb-20 animate-fade-in">
             <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
               <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/30 px-4 py-1.5 text-xs sm:text-sm font-semibold">
+              <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
                 {language === 'ro' ? 'Hai să vorbim' : "Let's talk"}
               </Badge>
               <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
@@ -165,7 +166,7 @@ const Contact = () => {
             
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
               <span className="text-foreground">{t.contact?.title || 'Contactează-ne'} </span>
-              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent animate-pulse">
+              <span className="text-gradient-gold">
                 {language === 'ro' ? 'Astăzi' : 'Today'}
               </span>
             </h2>
@@ -185,9 +186,9 @@ const Contact = () => {
                 {contactInfo.map((item, index) => {
                   const Icon = item.icon
                   const content = (
-                    <div className="relative overflow-hidden flex items-start space-x-3 sm:space-x-4 p-4 sm:p-5 lg:p-6 rounded-xl lg:rounded-2xl bg-card backdrop-blur-sm border border-gold/10 hover:border-gold/30 transition-all duration-500 group touch-manipulation hover:shadow-[0_8px_30px_rgb(218,165,32,0.12)] hover:-translate-y-1">
+                    <div className="card-modern border-glow flex items-start space-x-3 sm:space-x-4 p-4 sm:p-5 lg:p-6 rounded-xl lg:rounded-2xl group touch-manipulation">
                       {/* Hover Effect Background */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-gold/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl lg:rounded-2xl"></div>
                       
                       <div className="relative flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-gold/20 via-gold/10 to-gold-dark/20 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gold group-hover:text-gold-light transition-colors" />
@@ -217,7 +218,7 @@ const Contact = () => {
               </div>
 
               {/* WhatsApp CTA - Enhanced */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-gold/15 via-gold/8 to-gold/15 rounded-xl lg:rounded-2xl p-5 sm:p-6 lg:p-8 border-2 border-gold/30 shadow-[0_8px_30px_rgb(218,165,32,0.15)] hover:shadow-[0_12px_40px_rgb(218,165,32,0.25)] transition-all duration-500 hover:-translate-y-1">
+              <div className="card-modern border-glow glow-gold rounded-xl lg:rounded-2xl p-5 sm:p-6 lg:p-8">
                 {/* Decorative Elements */}
                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
@@ -250,7 +251,7 @@ const Contact = () => {
 
             {/* Contact Form - Enhanced */}
             <div className="lg:col-span-3">
-              <Card className="relative overflow-hidden border-0 bg-card backdrop-blur-sm shadow-2xl hover:shadow-[0_20px_60px_rgb(218,165,32,0.15)] transition-all duration-500">
+              <Card className="card-modern border-glow border-0">
                 {/* Decorative Background Elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-gold/10 to-transparent rounded-full blur-3xl -z-10"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-gold/10 to-transparent rounded-full blur-3xl -z-10"></div>

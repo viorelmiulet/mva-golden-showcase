@@ -160,25 +160,36 @@ const Properties = () => {
   )
 
   return (
-    <section id="proprietati" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-background to-secondary/20">
+    <section id="proprietati" className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-section">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/3 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
       {/* Structured Data */}
       <script 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(propertiesStructuredData) }}
       />
       
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
+        <div className="max-w-7xl mx-auto">
           
           {/* Header */}
           <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
-              <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-              Proiecte Exclusive
-            </Badge>
+            <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
+              <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
+              <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
+                <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                Proiecte Exclusive
+              </Badge>
+              <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
+            </div>
             
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8 text-foreground">
-              Proprietăți
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+              <span className="text-foreground">Descoperă </span>
+              <span className="text-gradient-gold">Proprietățile</span>
             </h1>
             
             <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
@@ -192,7 +203,7 @@ const Properties = () => {
                 <Button 
                   variant="luxury" 
                   size="lg" 
-                  className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto"
+                  className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer"
                 >
                   Vezi toate proprietățile
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -218,16 +229,17 @@ const Properties = () => {
 
             {/* CTA Section */}
           <footer className="text-center">
-            <div className="glass rounded-2xl lg:rounded-3xl p-6 sm:p-8 border border-gold/30 max-w-4xl mx-auto">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
-                Vrei să Explorezi Mai Mult?
+            <div className="card-modern border-glow rounded-2xl lg:rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">
+                <span className="text-foreground">Vrei să </span>
+                <span className="text-gradient-gold">Explorezi Mai Mult?</span>
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
                 Vezi toate proprietățile disponibile și descoperă oferta noastră premium.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/proprietati">
-                  <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto">
+                  <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer">
                     Toate proprietățile
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
