@@ -632,9 +632,8 @@ const DashboardPage = () => {
       )}
       <motion.div 
         className="space-y-4 md:space-y-6"
-        initial={reduceMotion ? undefined : "hidden"}
-        animate={reduceMotion ? undefined : "visible"}
-        variants={reduceMotion ? undefined : containerVariants}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
       >
       {/* Header */}
       <motion.div 
