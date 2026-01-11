@@ -166,11 +166,12 @@ serve(async (req) => {
     const webhooks = JSON.parse(settings.value);
     const results: Record<string, boolean> = {};
     const siteUrl = Deno.env.get('SITE_URL') || 'https://mvaimobiliare.ro';
+    
+    // Get custom hashtags from settings or use default
+    const customHashtags = webhooks.hashtags || '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
 
     // Generate simple content for Zapier
     const generateContent = (platform: string, prop: PropertyData): string => {
-      const hashtags = '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
-
       const price = prop.price_min 
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
         : 'Preț la cerere';
@@ -191,7 +192,7 @@ ${details}
 
 👉 Detalii: ${propertyUrl}
 
-${hashtags}`;
+${customHashtags}`;
     };
 
     // Send to each configured webhook
