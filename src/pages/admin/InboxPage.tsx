@@ -923,16 +923,16 @@ const InboxPage = () => {
 
       {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-lg">
-          <DialogHeader className="shrink-0">
-            <DialogTitle className="flex items-center gap-2">
-              <PenSquare className="h-5 w-5 text-gold" />
+        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-lg p-4 sm:p-6 gap-3 sm:gap-4">
+          <DialogHeader className="shrink-0 space-y-1">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <PenSquare className="h-4 w-4 sm:h-5 sm:w-5 text-gold" />
               Email nou
             </DialogTitle>
-            <DialogDescription className="flex items-center justify-between">
+            <DialogDescription className="flex items-center justify-between text-xs sm:text-sm">
               <span>Compune și trimite un email nou</span>
               {lastAutoSave && (
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
                   <Check className="h-3 w-3 text-green-500" />
                   Salvat la {format(lastAutoSave, 'HH:mm:ss')}
                 </span>
@@ -940,16 +940,16 @@ const InboxPage = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 overflow-y-auto flex-1 min-h-0">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-3 sm:gap-4 flex-1 min-h-0 overflow-hidden">
+            <div className="space-y-1 sm:space-y-2 shrink-0">
               <div className="flex items-center justify-between">
-                <Label>Către</Label>
+                <Label className="text-xs sm:text-sm">Către</Label>
                 {!showCcBcc && (
                   <Button 
                     type="button" 
                     variant="ghost" 
                     size="sm" 
-                    className="text-xs h-6 text-gold"
+                    className="text-[10px] sm:text-xs h-5 sm:h-6 text-gold px-2"
                     onClick={() => setShowCcBcc(true)}
                   >
                     CC/BCC
@@ -964,65 +964,61 @@ const InboxPage = () => {
             </div>
             
             {showCcBcc && (
-              <>
-                <div className="space-y-2">
-                  <Label>CC</Label>
+              <div className="flex gap-2 shrink-0">
+                <div className="flex-1 space-y-1">
+                  <Label className="text-xs sm:text-sm">CC</Label>
                   <Input
                     value={composeCc}
                     onChange={(e) => setComposeCc(e.target.value)}
                     placeholder="cc@example.com"
-                    className="bg-white/5 border-white/10"
+                    className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>BCC</Label>
+                <div className="flex-1 space-y-1">
+                  <Label className="text-xs sm:text-sm">BCC</Label>
                   <Input
                     value={composeBcc}
                     onChange={(e) => setComposeBcc(e.target.value)}
                     placeholder="bcc@example.com"
-                    className="bg-white/5 border-white/10"
+                    className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
                   />
                 </div>
-              </>
+              </div>
             )}
             
-            <div className="space-y-2">
-              <Label>Subiect</Label>
+            <div className="space-y-1 sm:space-y-2 shrink-0">
+              <Label className="text-xs sm:text-sm">Subiect</Label>
               <Input
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="Subiectul emailului"
-                className="bg-white/5 border-white/10"
+                className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label>Mesaj</Label>
-              <RichTextEditor
-                value={composeBody}
-                onChange={setComposeBody}
-                placeholder="Scrie mesajul tău aici..."
-              />
+            <div className="flex-1 min-h-0 flex flex-col space-y-1 sm:space-y-2 overflow-hidden">
+              <Label className="text-xs sm:text-sm shrink-0">Mesaj</Label>
+              <div className="flex-1 min-h-0 overflow-hidden [&_.border]:border-white/10 [&_.bg-background]:bg-white/5">
+                <RichTextEditor
+                  value={composeBody}
+                  onChange={setComposeBody}
+                  placeholder="Scrie mesajul tău aici..."
+                  className="h-full flex flex-col [&>div:last-child]:flex-1 [&>div:last-child]:overflow-y-auto [&_.ProseMirror]:min-h-[60px] sm:[&_.ProseMirror]:min-h-[100px]"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Atașamente</Label>
-              <Input
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className="bg-white/5 border-white/10"
-              />
-              {composeAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+            {composeAttachments.length > 0 && (
+              <div className="shrink-0">
+                <div className="flex flex-wrap gap-1.5">
                   {composeAttachments.map((file, idx) => (
                     <Badge 
                       key={idx} 
                       variant="secondary" 
-                      className="flex items-center gap-1 py-1 px-2 bg-white/5"
+                      className="flex items-center gap-1 py-0.5 px-2 bg-white/5 text-xs"
                     >
                       <Paperclip className="h-3 w-3" />
-                      {file.name}
+                      <span className="max-w-[100px] truncate">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAttachment(idx)}
@@ -1033,52 +1029,83 @@ const InboxPage = () => {
                     </Badge>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4 border-t border-white/10">
-            <Button variant="outline" onClick={() => setComposeDialogOpen(false)} className="border-white/10 w-full sm:w-auto">
-              Anulează
-            </Button>
-            <Button 
-              variant="secondary"
-              onClick={handleSaveDraft}
-              disabled={saveDraftMutation.isPending}
-              className="bg-white/5 hover:bg-white/10 w-full sm:w-auto"
-            >
-              {saveDraftMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvează ciornă
-                </>
-              )}
-            </Button>
-            <Button 
-              onClick={async () => {
-                await handleSendEmail();
-                if (currentDraftId) {
-                  deleteDraftMutation.mutate(currentDraftId);
-                  setCurrentDraftId(null);
-                }
-              }}
-              disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
-              className="bg-gradient-to-r from-gold to-gold-light text-black w-full sm:w-auto"
-            >
-              {sendEmailMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Se trimite...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Trimite email
-                </>
-              )}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-3 border-t border-white/10 shrink-0">
+            <div className="flex gap-2 w-full sm:w-auto order-2 sm:order-1">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setComposeDialogOpen(false)} 
+                className="border-white/10 flex-1 sm:flex-none h-9"
+              >
+                Anulează
+              </Button>
+              <label className="flex-1 sm:flex-none">
+                <Input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  size="sm"
+                  className="border-white/10 w-full h-9"
+                  asChild
+                >
+                  <span>
+                    <Paperclip className="h-4 w-4 mr-1.5" />
+                    Atașează
+                  </span>
+                </Button>
+              </label>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleSaveDraft}
+                disabled={saveDraftMutation.isPending}
+                className="bg-white/5 hover:bg-white/10 flex-1 sm:flex-none h-9"
+              >
+                {saveDraftMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-1.5" />
+                    Salvează ciornă
+                  </>
+                )}
+              </Button>
+              <Button 
+                size="sm"
+                onClick={async () => {
+                  await handleSendEmail();
+                  if (currentDraftId) {
+                    deleteDraftMutation.mutate(currentDraftId);
+                    setCurrentDraftId(null);
+                  }
+                }}
+                disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
+                className="bg-gradient-to-r from-gold to-gold-light text-black flex-1 sm:flex-none h-9"
+              >
+                {sendEmailMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    Se trimite...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-1.5" />
+                    Trimite email
+                  </>
+                )}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
