@@ -155,7 +155,7 @@ serve(async (req) => {
 
     const webhooks = JSON.parse(settings.value);
     const results: Record<string, boolean> = {};
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://mva-imobiliare.ro';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://mvaimobiliare.ro';
 
     // Generate content for each platform
     const generateContent = (platform: string, prop: PropertyData): string => {
