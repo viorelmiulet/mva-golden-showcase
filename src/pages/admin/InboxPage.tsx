@@ -68,7 +68,7 @@ interface ReceivedEmail {
 
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived'>('all');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived' | 'sent'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [replyTo, setReplyTo] = useState("");
@@ -254,6 +254,33 @@ const InboxPage = () => {
   const { data: emails, isLoading, refetch } = useQuery({
     queryKey: ['received-emails', filter, recipientFilter],
     queryFn: async () => {
+      // If filter is 'sent', query sent_emails table instead
+      if (filter === 'sent') {
+        const { data, error } = await supabase
+          .from('sent_emails')
+          .select('*')
+          .order('sent_at', { ascending: false });
+        if (error) throw error;
+        
+        // Map sent_emails to ReceivedEmail format for display
+        return (data || []).map((email: any) => ({
+          id: email.id,
+          sender: email.from_address,
+          recipient: email.recipient,
+          subject: email.subject,
+          body_plain: email.body_plain,
+          body_html: email.body_html,
+          stripped_text: email.body_plain,
+          message_id: email.message_id,
+          attachments: email.attachments || [],
+          is_read: true,
+          is_starred: false,
+          is_archived: false,
+          received_at: email.sent_at,
+          created_at: email.created_at
+        })) as ReceivedEmail[];
+      }
+
       let query = supabase
         .from('received_emails')
         .select('*')
@@ -294,7 +321,20 @@ const InboxPage = () => {
     }
   });
 
+  // Query for sent emails count
+  const { data: sentEmails } = useQuery({
+    queryKey: ['sent-emails-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sent_emails')
+        .select('id');
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const archivedCount = archivedEmails?.length || 0;
+  const sentCount = sentEmails?.length || 0;
 
   // Pull to refresh for mobile
   const pullToRefresh = usePullToRefresh({
@@ -729,6 +769,7 @@ const InboxPage = () => {
             unreadCount={unreadCount}
             starredCount={starredCount}
             archivedCount={archivedCount}
+            sentCount={sentCount}
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
             showDrafts={showDrafts}
@@ -747,14 +788,15 @@ const InboxPage = () => {
           <div className="lg:hidden flex flex-col gap-2 shrink-0">
             <div className="flex items-center gap-1 flex-wrap">
               {[
-                { key: 'all', label: 'Toate', icon: Mail },
+                { key: 'all', label: 'Primite', icon: Mail },
                 { key: 'unread', label: 'Necitite', icon: null },
                 { key: 'starred', label: 'Stea', icon: Star },
+                { key: 'sent', label: 'Trimise', icon: Send },
                 { key: 'archived', label: 'Arhivă', icon: Archive }
               ].map((item) => (
                 <button
                   key={item.key}
-                  onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived')}
+                  onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived' | 'sent')}
                   className={cn(
                     "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
                     filter === item.key 
@@ -765,6 +807,9 @@ const InboxPage = () => {
                   {item.icon && <item.icon className="h-2.5 w-2.5" />}
                   {item.key === 'unread' && unreadCount > 0 && (
                     <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  )}
+                  {item.key === 'sent' && sentCount > 0 && (
+                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{sentCount > 9 ? '9+' : sentCount}</span>
                   )}
                   {item.key === 'archived' && archivedCount > 0 && (
                     <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
