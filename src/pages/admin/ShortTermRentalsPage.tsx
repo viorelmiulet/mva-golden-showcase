@@ -700,35 +700,47 @@ const ShortTermRentalsPage = () => {
       className="space-y-6"
     >
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/40 to-orange-600/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-600/5 border border-amber-500/20">
-              <Home className="h-6 w-6 text-amber-500" />
+      <motion.div variants={itemVariants} className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="relative shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/40 to-orange-600/10 rounded-xl blur-xl" />
+            <div className="relative p-2.5 md:p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-600/5 border border-amber-500/20">
+              <Home className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
             </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Regim Hotelier</h1>
-            <p className="text-muted-foreground text-sm">Gestionează închirieri pe termen scurt</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Regim Hotelier</h1>
+            <p className="text-muted-foreground text-xs md:text-sm truncate">Gestionează închirieri pe termen scurt</p>
           </div>
+          <Button 
+            size="sm"
+            className="shrink-0 md:hidden"
+            onClick={() => { setEditingRental(emptyRental); setIsDialogOpen(true); }}
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+          <Button 
+            className="shrink-0 hidden md:flex"
+            onClick={() => { setEditingRental(emptyRental); setIsDialogOpen(true); }}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Adaugă proprietate
+          </Button>
         </div>
-        <Button onClick={() => { setEditingRental(emptyRental); setIsDialogOpen(true); }}>
-          <Plus className="w-4 h-4 mr-2" />
-          Adaugă proprietate
-        </Button>
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <Tabs defaultValue="properties" className="space-y-4">
-          <TabsList className="flex-wrap bg-muted/50 backdrop-blur-sm">
-            <TabsTrigger value="properties">Proprietăți</TabsTrigger>
-            <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
-            <TabsTrigger value="import-airbnb">Import Airbnb</TabsTrigger>
-            <TabsTrigger value="import-booking">Import Booking</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
+            <TabsList className="inline-flex w-max bg-muted/50 backdrop-blur-sm">
+              <TabsTrigger value="properties" className="text-xs md:text-sm whitespace-nowrap">Proprietăți</TabsTrigger>
+              <TabsTrigger value="bookings" className="text-xs md:text-sm whitespace-nowrap">Rezervări ({bookings.length})</TabsTrigger>
+              <TabsTrigger value="calendar" className="text-xs md:text-sm whitespace-nowrap">Calendar</TabsTrigger>
+              <TabsTrigger value="ical" className="text-xs md:text-sm whitespace-nowrap">iCal</TabsTrigger>
+              <TabsTrigger value="import-airbnb" className="text-xs md:text-sm whitespace-nowrap">Airbnb</TabsTrigger>
+              <TabsTrigger value="import-booking" className="text-xs md:text-sm whitespace-nowrap">Booking</TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="properties" className="space-y-4">
           {isLoading ? (
@@ -808,99 +820,184 @@ const ShortTermRentalsPage = () => {
         </TabsContent>
 
         <TabsContent value="bookings">
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Proprietate</TableHead>
-                  <TableHead>Oaspete</TableHead>
-                  <TableHead>Check-in</TableHead>
-                  <TableHead>Check-out</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Plată</TableHead>
-                  <TableHead>Acțiuni</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bookings.map(booking => (
-                  <TableRow key={booking.id}>
-                    <TableCell>{booking.short_term_rentals?.title || "-"}</TableCell>
-                    <TableCell>
-                      <div>{booking.guest_name}</div>
-                      <div className="text-sm text-muted-foreground">{booking.guest_phone}</div>
-                    </TableCell>
-                    <TableCell>{format(new Date(booking.check_in), "PP", { locale: ro })}</TableCell>
-                    <TableCell>{format(new Date(booking.check_out), "PP", { locale: ro })}</TableCell>
-                    <TableCell className="font-bold">{booking.total_price} {booking.currency}</TableCell>
-                    <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                    <TableCell>{getPaymentBadge(booking.payment_status)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setEditingBooking(booking);
-                            setManualBooking({
-                              guest_name: booking.guest_name,
-                              guest_phone: booking.guest_phone,
-                              guest_email: booking.guest_email || "",
-                              check_in: booking.check_in,
-                              check_out: booking.check_out,
-                              num_guests: booking.num_guests,
-                              total_price: booking.total_price,
-                              notes: booking.notes || "",
-                            });
-                            setIsManualBookingOpen(true);
-                          }}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => updateBookingMutation.mutate({ id: booking.id, status: "confirmed" })}
-                        >
-                          Confirmă
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => updateBookingMutation.mutate({ id: booking.id, payment_status: "paid" })}
-                        >
-                          Plătit
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          disabled={deleteBookingMutation.isPending}
-                          onClick={() => {
-                            if (confirm("Ești sigur că vrei să ștergi această rezervare? Datele vor fi deblocate automat din calendar.")) {
-                              deleteBookingMutation.mutate(booking);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+          {/* Mobile view - cards */}
+          <div className="md:hidden space-y-3">
+            {bookings.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  Nu există rezervări
+                </CardContent>
+              </Card>
+            ) : (
+              bookings.map(booking => (
+                <Card key={booking.id} className="overflow-hidden">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{booking.short_term_rentals?.title || "-"}</p>
+                        <p className="text-base font-semibold">{booking.guest_name}</p>
+                        <p className="text-xs text-muted-foreground">{booking.guest_phone}</p>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {bookings.length === 0 && (
+                      <div className="text-right shrink-0">
+                        <p className="font-bold text-gold">{booking.total_price} {booking.currency}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 text-xs">
+                      <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>{format(new Date(booking.check_in), "dd.MM.yy")} → {format(new Date(booking.check_out), "dd.MM.yy")}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(booking.status)}
+                      {getPaymentBadge(booking.payment_status)}
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setEditingBooking(booking);
+                          setManualBooking({
+                            guest_name: booking.guest_name,
+                            guest_phone: booking.guest_phone,
+                            guest_email: booking.guest_email || "",
+                            check_in: booking.check_in,
+                            check_out: booking.check_out,
+                            num_guests: booking.num_guests,
+                            total_price: booking.total_price,
+                            notes: booking.notes || "",
+                          });
+                          setIsManualBookingOpen(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Editează
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => updateBookingMutation.mutate({ id: booking.id, payment_status: "paid" })}
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        disabled={deleteBookingMutation.isPending}
+                        onClick={() => {
+                          if (confirm("Ștergi rezervarea? Datele vor fi deblocate.")) {
+                            deleteBookingMutation.mutate(booking);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Desktop view - table */}
+          <Card className="hidden md:block overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      Nu există rezervări
-                    </TableCell>
+                    <TableHead>Proprietate</TableHead>
+                    <TableHead>Oaspete</TableHead>
+                    <TableHead>Check-in</TableHead>
+                    <TableHead>Check-out</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Plată</TableHead>
+                    <TableHead>Acțiuni</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {bookings.map(booking => (
+                    <TableRow key={booking.id}>
+                      <TableCell className="max-w-[150px] truncate">{booking.short_term_rentals?.title || "-"}</TableCell>
+                      <TableCell>
+                        <div className="truncate max-w-[120px]">{booking.guest_name}</div>
+                        <div className="text-sm text-muted-foreground">{booking.guest_phone}</div>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">{format(new Date(booking.check_in), "PP", { locale: ro })}</TableCell>
+                      <TableCell className="whitespace-nowrap">{format(new Date(booking.check_out), "PP", { locale: ro })}</TableCell>
+                      <TableCell className="font-bold whitespace-nowrap">{booking.total_price} {booking.currency}</TableCell>
+                      <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                      <TableCell>{getPaymentBadge(booking.payment_status)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setEditingBooking(booking);
+                              setManualBooking({
+                                guest_name: booking.guest_name,
+                                guest_phone: booking.guest_phone,
+                                guest_email: booking.guest_email || "",
+                                check_in: booking.check_in,
+                                check_out: booking.check_out,
+                                num_guests: booking.num_guests,
+                                total_price: booking.total_price,
+                                notes: booking.notes || "",
+                              });
+                              setIsManualBookingOpen(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => updateBookingMutation.mutate({ id: booking.id, status: "confirmed" })}
+                          >
+                            Confirmă
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => updateBookingMutation.mutate({ id: booking.id, payment_status: "paid" })}
+                          >
+                            Plătit
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            disabled={deleteBookingMutation.isPending}
+                            onClick={() => {
+                              if (confirm("Ești sigur că vrei să ștergi această rezervare? Datele vor fi deblocate automat din calendar.")) {
+                                deleteBookingMutation.mutate(booking);
+                              }
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {bookings.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        Nu există rezervări
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="ical">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1059,12 +1156,12 @@ const ShortTermRentalsPage = () => {
                   
                   <div>
                     <Label>Proprietate</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                       {rentals.map(rental => (
                         <Button
                           key={rental.id}
                           variant={selectedRentalForIcal?.id === rental.id ? "default" : "outline"}
-                          className="justify-start text-left h-auto py-2"
+                          className="justify-start text-left h-auto py-2 text-xs sm:text-sm"
                           onClick={() => setSelectedRentalForIcal(rental)}
                           size="sm"
                         >
@@ -1146,7 +1243,7 @@ const ShortTermRentalsPage = () => {
         </TabsContent>
 
         <TabsContent value="import-airbnb">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1650,7 +1747,7 @@ const ShortTermRentalsPage = () => {
         </TabsContent>
 
         <TabsContent value="calendar">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Selectează proprietatea</CardTitle>
@@ -1800,14 +1897,14 @@ const ShortTermRentalsPage = () => {
           });
         }
       }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingBooking ? "Editează rezervarea" : "Adaugă rezervare manuală"}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">{editingBooking ? "Editează rezervarea" : "Adaugă rezervare manuală"}</DialogTitle>
             {selectedRentalForCalendar && !editingBooking && (
-              <p className="text-sm text-muted-foreground">{selectedRentalForCalendar.title}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{selectedRentalForCalendar.title}</p>
             )}
             {editingBooking && (
-              <p className="text-sm text-muted-foreground">{editingBooking.short_term_rentals?.title}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{editingBooking.short_term_rentals?.title}</p>
             )}
           </DialogHeader>
 
@@ -1956,16 +2053,16 @@ const ShortTermRentalsPage = () => {
 
       {/* Add/Edit Property Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">
               {editingRental?.id ? "Editează proprietatea" : "Adaugă proprietate nouă"}
             </DialogTitle>
           </DialogHeader>
 
           {editingRental && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="col-span-2">
                   <Label>Titlu *</Label>
                   <Input
