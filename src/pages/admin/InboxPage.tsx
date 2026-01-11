@@ -18,7 +18,8 @@ import {
   Check,
   X,
   Archive,
-  FileText
+  FileText,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -444,6 +445,23 @@ const InboxPage = () => {
     }
   });
 
+  // Empty trash - delete all emails permanently
+  const emptyTrashMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from('received_emails')
+        .delete()
+        .eq('is_deleted', true);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      setSelectedEmail(null);
+      toast.success('Coșul de gunoi a fost golit');
+    }
+  });
+
   const deleteSentEmailMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -840,6 +858,26 @@ const InboxPage = () => {
         </div>
         
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          {filter === 'trash' && trashCount > 0 && (
+            <Button 
+              onClick={() => {
+                if (confirm('Ești sigur că vrei să ștergi definitiv toate emailurile din coș?')) {
+                  emptyTrashMutation.mutate();
+                }
+              }}
+              size="sm"
+              variant="destructive"
+              disabled={emptyTrashMutation.isPending}
+              className="flex-1 sm:flex-none"
+            >
+              {emptyTrashMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-2" />
+              )}
+              Golește coșul
+            </Button>
+          )}
           <Button 
             onClick={handleOpenCompose}
             size="sm"
