@@ -30,6 +30,8 @@ interface WebhookPayload {
 }
 
 serve(async (req) => {
+  console.log('social-auto-post: Request received');
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -39,10 +41,12 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { propertyId, action } = await req.json();
+    const body = await req.json();
+    const { propertyId, action } = body;
+    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId);
 
     if (action === 'test') {
-      // Test webhook connectivity
+      // Test webhook connectivity by actually sending a test request
       const { data: settings } = await supabase
         .from('site_settings')
         .select('value')
@@ -50,14 +54,71 @@ serve(async (req) => {
         .single();
 
       if (!settings?.value) {
+        console.log('social-auto-post: No webhooks configured');
         return new Response(
           JSON.stringify({ success: false, error: 'No webhooks configured' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
+      const webhooks = JSON.parse(settings.value);
+      console.log('social-auto-post: Webhooks config:', JSON.stringify(webhooks));
+      
+      if (!webhooks.enabled) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Auto-posting is disabled' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const testResults: Record<string, { success: boolean; status?: number; error?: string }> = {};
+      
+      // Actually test each configured webhook
+      for (const [platform, webhookUrl] of Object.entries(webhooks)) {
+        if (platform === 'enabled' || !webhookUrl || typeof webhookUrl !== 'string') continue;
+        
+        console.log(`social-auto-post: Testing ${platform} webhook: ${webhookUrl}`);
+        
+        try {
+          const testPayload = {
+            test: true,
+            platform,
+            message: 'Test de conexiune de la MVA Imobiliare',
+            timestamp: new Date().toISOString(),
+            source: 'mva-imobiliare-test'
+          };
+          
+          const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(testPayload),
+          });
+          
+          testResults[platform] = { 
+            success: response.ok, 
+            status: response.status 
+          };
+          console.log(`social-auto-post: ${platform} test result: ${response.status}`);
+        } catch (error) {
+          console.error(`social-auto-post: ${platform} test error:`, error);
+          testResults[platform] = { 
+            success: false, 
+            error: error.message 
+          };
+        }
+      }
+
+      const allSuccess = Object.values(testResults).every(r => r.success);
+      const configuredPlatforms = Object.keys(testResults);
+      
       return new Response(
-        JSON.stringify({ success: true, message: 'Webhooks are configured' }),
+        JSON.stringify({ 
+          success: allSuccess || configuredPlatforms.length === 0, 
+          message: configuredPlatforms.length > 0 
+            ? `Testat: ${configuredPlatforms.join(', ')}` 
+            : 'Niciun webhook configurat',
+          results: testResults 
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -128,9 +189,13 @@ serve(async (req) => {
     };
 
     // Send to each configured webhook
+    console.log('social-auto-post: Sending to webhooks...');
+    
     for (const [platform, webhookUrl] of Object.entries(webhooks)) {
-      if (!webhookUrl || typeof webhookUrl !== 'string') continue;
+      if (platform === 'enabled' || !webhookUrl || typeof webhookUrl !== 'string') continue;
 
+      console.log(`social-auto-post: Sending to ${platform}: ${webhookUrl}`);
+      
       const content = generateContent(platform, property);
       const payload: WebhookPayload = {
         property: {
@@ -153,6 +218,8 @@ serve(async (req) => {
         timestamp: new Date().toISOString(),
       };
 
+      console.log(`social-auto-post: Payload for ${platform}:`, JSON.stringify(payload).substring(0, 500));
+
       try {
         const response = await fetch(webhookUrl, {
           method: 'POST',
@@ -160,10 +227,11 @@ serve(async (req) => {
           body: JSON.stringify(payload),
         });
 
+        const responseText = await response.text();
         results[platform] = response.ok;
-        console.log(`Webhook ${platform}: ${response.ok ? 'success' : 'failed'}`);
+        console.log(`social-auto-post: ${platform} response: ${response.status} - ${responseText.substring(0, 200)}`);
       } catch (error) {
-        console.error(`Webhook ${platform} error:`, error);
+        console.error(`social-auto-post: ${platform} error:`, error);
         results[platform] = false;
       }
     }
