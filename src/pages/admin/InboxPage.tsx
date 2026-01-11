@@ -373,6 +373,22 @@ const InboxPage = () => {
     }
   });
 
+  const deleteSentEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('sent_emails')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['sent-emails-count'] });
+      setSelectedEmail(null);
+      toast.success('Email trimis șters');
+    }
+  });
+
   const archiveEmailMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -537,7 +553,11 @@ const InboxPage = () => {
 
   const handleDelete = () => {
     if (!selectedEmail) return;
-    deleteEmailMutation.mutate(selectedEmail.id);
+    if (filter === 'sent') {
+      deleteSentEmailMutation.mutate(selectedEmail.id);
+    } else {
+      deleteEmailMutation.mutate(selectedEmail.id);
+    }
   };
 
   const handleOpenReply = () => {
@@ -979,7 +999,7 @@ const InboxPage = () => {
                       isSelected={selectedEmail?.id === email.id}
                       onSelect={() => handleSelectEmail(email)}
                       onToggleStar={(e) => handleToggleStar(e, email)}
-                      onDelete={() => deleteEmailMutation.mutate(email.id)}
+                      onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : deleteEmailMutation.mutate(email.id)}
                       onArchive={() => archiveEmailMutation.mutate(email.id)}
                       extractSenderName={extractSenderName}
                       extractSenderInitials={extractSenderInitials}
