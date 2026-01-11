@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
 import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem, EmailAutocomplete } from "@/components/inbox";
+import EmailListSkeleton from "@/components/skeletons/EmailListSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
@@ -979,10 +980,7 @@ const InboxPage = () => {
               progress={pullToRefresh.progress}
             />
             {(isLoading || !emails) && !pullToRefresh.isRefreshing ? (
-              <div className="p-6 md:p-8 text-center">
-                <Loader2 className="h-6 w-6 md:h-8 md:w-8 mx-auto animate-spin text-gold/50" />
-                <p className="text-xs md:text-sm text-muted-foreground mt-2 md:mt-3">Se încarcă...</p>
-              </div>
+              <EmailListSkeleton count={6} />
             ) : filteredEmails && filteredEmails.length === 0 ? (
               <div className="p-6 md:p-8 text-center">
                 <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
