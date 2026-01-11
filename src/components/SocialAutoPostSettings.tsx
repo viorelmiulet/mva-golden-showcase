@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar, Mail } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -24,8 +24,6 @@ interface WebhookSettings {
   scheduled?: boolean;
   scheduleInterval?: string; // 'hourly' | 'every_3_hours' | 'every_6_hours' | 'daily'
   lastScheduledRun?: string;
-  emailNotifications?: boolean;
-  notificationEmail?: string;
 }
 
 interface AuditLog {
@@ -49,8 +47,6 @@ export const SocialAutoPostSettings = () => {
     enabled: false,
     scheduled: false,
     scheduleInterval: "daily",
-    emailNotifications: false,
-    notificationEmail: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -349,41 +345,6 @@ export const SocialAutoPostSettings = () => {
               Când este activată, funcția va trimite automat proprietățile adăugate de la ultima rulare către toate webhook-urile configurate.
             </AlertDescription>
           </Alert>
-        </div>
-
-        {/* Email Notifications Section */}
-        <div className="p-4 border rounded-lg space-y-4 bg-muted/30">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-sm flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Notificări Email
-            </h4>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="emailNotifications" className="text-sm">Activ</Label>
-              <Switch
-                id="emailNotifications"
-                checked={settings.emailNotifications || false}
-                onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
-              />
-            </div>
-          </div>
-          
-          <p className="text-sm text-muted-foreground">
-            Primește notificări email când proprietățile sunt trimise automat către Zapier.
-          </p>
-          
-          <div className="flex items-center gap-3">
-            <Label htmlFor="notificationEmail" className="text-sm whitespace-nowrap">Email:</Label>
-            <Input
-              id="notificationEmail"
-              type="email"
-              placeholder="email@exemplu.com"
-              value={settings.notificationEmail || ''}
-              onChange={(e) => setSettings({ ...settings, notificationEmail: e.target.value })}
-              disabled={!settings.emailNotifications}
-              className="flex-1"
-            />
-          </div>
         </div>
 
         <div className="flex gap-3 pt-4 border-t">

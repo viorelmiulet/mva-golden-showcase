@@ -6,11 +6,6 @@ interface PostContent {
   platform: string;
 }
 
-interface BulkPostContent {
-  texts: Record<string, string>;
-  imageUrls?: string[];
-}
-
 interface WebhookSettings {
   facebook?: string;
   instagram?: string;
@@ -56,7 +51,6 @@ export const postToSocialMedia = async (content: PostContent): Promise<boolean> 
       },
       mode: "no-cors",
       body: JSON.stringify({
-        message: content.text,
         text: content.text,
         images: content.imageUrls || [],
         platform: content.platform,
@@ -71,78 +65,6 @@ export const postToSocialMedia = async (content: PostContent): Promise<boolean> 
   } catch (error) {
     console.error('Error posting to social media:', error);
     return false;
-  }
-};
-
-export const postBulkToZapier = async (
-  content: BulkPostContent, 
-  onProgress?: (platform: string, index: number, total: number) => void
-): Promise<Record<string, boolean>> => {
-  const results: Record<string, boolean> = {};
-  
-  try {
-    const { data: settings } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'social_webhooks')
-      .single();
-
-    if (!settings?.value) {
-      console.log('No social webhooks configured');
-      return results;
-    }
-
-    const webhookSettings: WebhookSettings = JSON.parse(settings.value);
-    
-    if (!webhookSettings.enabled) {
-      console.log('Social posting is disabled');
-      return results;
-    }
-
-    const platforms = ['facebook', 'instagram', 'linkedin', 'twitter'] as const;
-    const activePlatforms = platforms.filter(p => 
-      webhookSettings[p] && content.texts[p]?.trim()
-    );
-
-    let index = 0;
-    for (const platform of activePlatforms) {
-      const webhookUrl = webhookSettings[platform];
-      if (!webhookUrl) continue;
-
-      try {
-        onProgress?.(platform, index + 1, activePlatforms.length);
-        
-        await fetch(webhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          mode: "no-cors",
-          body: JSON.stringify({
-            message: content.texts[platform],
-            text: content.texts[platform],
-            images: content.imageUrls || [],
-            platform,
-            timestamp: new Date().toISOString(),
-            source: "marketing-ai-bulk",
-            triggered_from: window.location.origin,
-          }),
-        });
-
-        results[platform] = true;
-        console.log(`Bulk posted to ${platform} webhook`);
-      } catch (error) {
-        console.error(`Error posting to ${platform}:`, error);
-        results[platform] = false;
-      }
-
-      index++;
-    }
-
-    return results;
-  } catch (error) {
-    console.error('Error in bulk posting:', error);
-    return results;
   }
 };
 

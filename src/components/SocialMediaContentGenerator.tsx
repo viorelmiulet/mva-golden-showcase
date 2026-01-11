@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap, Save, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -13,8 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
-import { postToSocialMedia, getConfiguredPlatforms, postBulkToZapier } from "@/lib/socialDirectPost";
+import { postToSocialMedia, getConfiguredPlatforms } from "@/lib/socialDirectPost";
 
 interface GalleryImage {
   name: string;
@@ -99,15 +98,7 @@ export const SocialMediaContentGenerator = () => {
     twitter: "",
     tiktok: ""
   });
-  const [generatedImages, setGeneratedImages] = useState<Record<Platform, string>>({
-    facebook: "",
-    instagram: "",
-    linkedin: "",
-    twitter: "",
-    tiktok: ""
-  });
   const [isGeneratingText, setIsGeneratingText] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState<Platform | null>(null);
   const [isLoadingProperties, setIsLoadingProperties] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [configuredPlatforms, setConfiguredPlatforms] = useState<string[]>([]);
@@ -117,14 +108,6 @@ export const SocialMediaContentGenerator = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
-  const [isBulkSending, setIsBulkSending] = useState(false);
-  const [bulkProgress, setBulkProgress] = useState<{ platform: string; current: number; total: number } | null>(null);
-  const [bulkSendDialogOpen, setBulkSendDialogOpen] = useState(false);
-  const [selectedImagesForBulk, setSelectedImagesForBulk] = useState<string[]>([]);
-  const [isSavingToGallery, setIsSavingToGallery] = useState<Platform | null>(null);
-  const [isSavingAllToGallery, setIsSavingAllToGallery] = useState(false);
-  const [previewPlatform, setPreviewPlatform] = useState<Platform>("facebook");
-  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -226,73 +209,7 @@ export const SocialMediaContentGenerator = () => {
       console.error('Error posting:', error);
       toast.error("Eroare la postare");
     } finally {
-    setIsPosting(false);
-    }
-  };
-
-  const sendAllToZapier = async () => {
-    const hasContent = Object.values(generatedTexts).some(text => text.trim());
-    if (!hasContent) {
-      toast.error("Nu există conținut generat pentru trimitere");
-      return;
-    }
-
-    if (configuredPlatforms.length === 0) {
-      toast.error("Nu ai configurat niciun webhook. Mergi la setările Social Media.");
-      return;
-    }
-
-    setIsBulkSending(true);
-    setBulkProgress({ platform: '', current: 0, total: configuredPlatforms.length });
-
-    try {
-      const results = await postBulkToZapier(
-        {
-          texts: generatedTexts,
-          imageUrls: selectedImagesForBulk,
-        },
-        (platform, current, total) => {
-          setBulkProgress({ platform, current, total });
-        }
-      );
-
-      const successPlatforms = Object.entries(results)
-        .filter(([_, success]) => success)
-        .map(([platform]) => platforms.find(p => p.id === platform)?.name || platform);
-      
-      const failedPlatforms = Object.entries(results)
-        .filter(([_, success]) => !success)
-        .map(([platform]) => platforms.find(p => p.id === platform)?.name || platform);
-
-      if (successPlatforms.length > 0) {
-        toast.success(`Trimis cu succes către: ${successPlatforms.join(', ')}`);
-      }
-      if (failedPlatforms.length > 0) {
-        toast.error(`Eroare la: ${failedPlatforms.join(', ')}`);
-      }
-
-      setBulkSendDialogOpen(false);
-      setSelectedImagesForBulk([]);
-    } catch (error) {
-      console.error('Error sending to Zapier:', error);
-      toast.error("Eroare la trimitere");
-    } finally {
-      setIsBulkSending(false);
-      setBulkProgress(null);
-    }
-  };
-
-  const toggleBulkImage = (url: string) => {
-    if (selectedImagesForBulk.includes(url)) {
-      setSelectedImagesForBulk(selectedImagesForBulk.filter(u => u !== url));
-    } else {
-      setSelectedImagesForBulk([...selectedImagesForBulk, url]);
-    }
-  };
-
-  const loadGalleryForBulk = async () => {
-    if (galleryImages.length === 0) {
-      await loadGalleryImages();
+      setIsPosting(false);
     }
   };
 
@@ -427,182 +344,8 @@ export const SocialMediaContentGenerator = () => {
     }
   };
 
-  const getImagePromptForPlatform = (platform: Platform, propertyData: any | null) => {
-    const aspectRatios: Record<Platform, string> = {
-      facebook: "1200x630 (Facebook landscape)",
-      instagram: "1080x1080 (Instagram square)",
-      linkedin: "1200x627 (LinkedIn landscape)",
-      twitter: "1600x900 (Twitter landscape)",
-      tiktok: "1080x1920 (TikTok vertical/portrait)"
-    };
-
-    const baseInfo = propertyData 
-      ? `Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'excellent location'}.`
-      : "Professional real estate agency promotional image for MVA IMOBILIARE.";
-
-    return `Create a professional real estate promotional image with a COMPLETE SCENE (NO WHITE BACKGROUND). 
-      ${baseInfo}
-      Style: Bright, modern, contemporary real estate photography with full environment and context.
-      Include: Beautiful interior or exterior view with complete surroundings, professional composition.
-      The entire image should be filled with content - show the property in its environment.
-      NO WHITE OR PLAIN BACKGROUNDS - fill the entire frame with realistic real estate photography.
-      Aspect ratio: ${aspectRatios[platform]}.
-      High quality, ultra realistic, professional photography.
-      DO NOT include the words "luxury" or "lux" in any form.
-      
-      CRITICAL - MVA LOGO PLACEMENT:
-      Include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner.
-      Logo: Golden hexagonal badge with "M" letter, "MVA" text below, "IMOBILIARE" below that.
-      Golden color (#D4AF37 to #F4E4A6 gradient) with subtle glow.
-      Size: approximately 15-20% of the image height.
-      
-      CRITICAL - TEXT OVERLAY (Romanian):
-      Include overlay banner at bottom with:
-      "Telefon: 0767.941.512"
-      "Email: contact@mvaimobiliare.ro"
-      "Web: mvaimobiliare.ro"
-      Clear typography, good contrast, perfectly legible.`;
-  };
-
-  const generateImage = async (platform: Platform) => {
-    setIsGeneratingImage(platform);
-    try {
-      const isGeneric = !selectedProperty || selectedProperty === 'generic';
-      const propertyData = isGeneric 
-        ? null
-        : properties.find(p => p.id === selectedProperty);
-
-      const imagePrompt = getImagePromptForPlatform(platform, propertyData);
-
-      const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
-        body: { 
-          type: 'image',
-          customPrompt: imagePrompt,
-          propertyData: propertyData ? {
-            title: propertyData.title,
-            location: propertyData.location,
-            rooms: propertyData.rooms
-          } : null
-        }
-      });
-
-      if (error) throw error;
-      
-      setGeneratedImages(prev => ({
-        ...prev,
-        [platform]: data.image
-      }));
-      
-      // Auto-add to bulk selection
-      if (data.image && !selectedImagesForBulk.includes(data.image)) {
-        setSelectedImagesForBulk(prev => [...prev, data.image]);
-      }
-      
-      toast.success(`Imagine pentru ${platforms.find(p => p.id === platform)?.name} generată!`);
-    } catch (error) {
-      console.error('Error generating image:', error);
-      toast.error('Eroare la generarea imaginii');
-    } finally {
-      setIsGeneratingImage(null);
-    }
-  };
-
-  const downloadImage = (imageUrl: string, platformName: string) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `mva-${platformName.toLowerCase()}-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('Imagine descărcată!');
-  };
-
-  const saveImageToGallery = async (imageUrl: string, platform: Platform) => {
-    setIsSavingToGallery(platform);
-    try {
-      // Fetch the image and convert to blob
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      
-      // Generate unique filename
-      const timestamp = Date.now();
-      const filename = `social-${platform}-${timestamp}.png`;
-      
-      const { error } = await supabase.storage
-        .from('virtual-staging')
-        .upload(`generated-images/${filename}`, blob, {
-          contentType: 'image/png',
-          upsert: false
-        });
-
-      if (error) throw error;
-      
-      toast.success(`Imaginea pentru ${platforms.find(p => p.id === platform)?.name} a fost salvată în galerie!`);
-      
-      // Reload gallery images
-      loadGalleryImages();
-    } catch (error) {
-      console.error('Error saving image to gallery:', error);
-      toast.error('Eroare la salvarea imaginii în galerie');
-    } finally {
-      setIsSavingToGallery(null);
-    }
-  };
-
-  const saveAllImagesToGallery = async () => {
-    const platformsWithImages = platforms.filter(p => generatedImages[p.id]);
-    if (platformsWithImages.length === 0) {
-      toast.error('Nu există imagini de salvat');
-      return;
-    }
-
-    setIsSavingAllToGallery(true);
-    let savedCount = 0;
-
-    try {
-      toast.info(`Salvez ${platformsWithImages.length} imagini în galerie...`);
-
-      for (const platform of platformsWithImages) {
-        try {
-          const imageUrl = generatedImages[platform.id];
-          const response = await fetch(imageUrl);
-          const blob = await response.blob();
-          
-          const timestamp = Date.now();
-          const filename = `social-${platform.id}-${timestamp}.png`;
-          
-          const { error } = await supabase.storage
-            .from('virtual-staging')
-            .upload(`generated-images/${filename}`, blob, {
-              contentType: 'image/png',
-              upsert: false
-            });
-
-          if (!error) {
-            savedCount++;
-          }
-        } catch (err) {
-          console.error(`Error saving ${platform.id} image:`, err);
-        }
-      }
-
-      if (savedCount > 0) {
-        toast.success(`${savedCount} imagini salvate în galerie!`);
-        loadGalleryImages();
-      } else {
-        toast.error('Nu s-a putut salva nicio imagine');
-      }
-    } catch (error) {
-      console.error('Error saving images:', error);
-      toast.error('Eroare la salvarea imaginilor');
-    } finally {
-      setIsSavingAllToGallery(false);
-    }
-  };
-
   const currentPlatform = platforms.find(p => p.id === selectedPlatform)!;
   const currentText = generatedTexts[selectedPlatform];
-  const currentImage = generatedImages[selectedPlatform];
 
   return (
     <Card className="border-border/50 bg-gradient-to-br from-card to-card/80">
@@ -650,311 +393,23 @@ export const SocialMediaContentGenerator = () => {
         </div>
 
         {/* Generate All Button */}
-        <div className="flex gap-3">
-          <Button
-            onClick={generateAllPlatforms}
-            disabled={isGeneratingText}
-            className="flex-1 bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
-          >
-            {isGeneratingText ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Generare în curs...
-              </>
-            ) : (
-              <>
-                <Wand2 className="h-4 w-4 mr-2" />
-                Generează pentru Toate Platformele
-              </>
-            )}
-          </Button>
-
-          {/* Save All to Gallery Button */}
-          <Button
-            variant="outline"
-            onClick={saveAllImagesToGallery}
-            disabled={isSavingAllToGallery || !Object.values(generatedImages).some(img => img)}
-            className="gap-2"
-          >
-            {isSavingAllToGallery ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Salvare...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Salvează în Galerie
-              </>
-            )}
-          </Button>
-
-          {/* Send All to Zapier Button */}
-          <Dialog open={bulkSendDialogOpen} onOpenChange={(open) => {
-            setBulkSendDialogOpen(open);
-            if (open) loadGalleryForBulk();
-          }}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                disabled={!Object.values(generatedTexts).some(t => t.trim()) || configuredPlatforms.length === 0}
-                className="gap-2 border-gold/50 hover:bg-gold/10"
-              >
-                <Zap className="h-4 w-4 text-gold" />
-                Trimite la Zapier
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-gold" />
-                  Trimite Tot la Zapier
-                </DialogTitle>
-                <DialogDescription>
-                  Preview și trimitere conținut pentru toate platformele
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
-                {/* Left: Platform Selection & Images */}
-                <div className="space-y-4">
-                  {/* Content Summary */}
-                  <div className="space-y-2">
-                    <Label>Platforme ({configuredPlatforms.length} configurate):</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {platforms.map((platform) => {
-                        const hasContent = generatedTexts[platform.id]?.trim();
-                        const isConfigured = configuredPlatforms.includes(platform.id);
-                        return (
-                          <div 
-                            key={platform.id}
-                            className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
-                              previewPlatform === platform.id
-                                ? 'bg-primary/10 border-primary ring-2 ring-primary/20'
-                                : hasContent && isConfigured 
-                                  ? 'bg-green-500/10 border-green-500/30 hover:border-green-500/50' 
-                                  : 'bg-muted/30 border-muted hover:border-muted-foreground/30'
-                            }`}
-                            onClick={() => setPreviewPlatform(platform.id)}
-                          >
-                            <platform.icon className={`h-4 w-4 ${platform.color}`} />
-                            <span className="text-sm flex-1">{platform.name}</span>
-                            {hasContent && isConfigured ? (
-                              <Check className="h-4 w-4 text-green-500" />
-                            ) : !isConfigured ? (
-                              <Badge variant="outline" className="text-xs">fără webhook</Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-xs">fără text</Badge>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Image Selection */}
-                  <div className="space-y-3">
-                    <Label className="flex items-center gap-2">
-                      <ImagePlus className="h-4 w-4" />
-                      Imagini de inclus ({selectedImagesForBulk.length} selectate)
-                    </Label>
-                    
-                    {isLoadingGallery ? (
-                      <div className="flex items-center justify-center py-4">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      </div>
-                    ) : galleryImages.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        Nu există imagini în galerie.
-                      </p>
-                    ) : (
-                      <ScrollArea className="h-32 rounded-lg border p-2">
-                        <div className="grid grid-cols-4 gap-2">
-                          {galleryImages.map((img) => (
-                            <div 
-                              key={img.name}
-                              className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                                selectedImagesForBulk.includes(img.url) 
-                                  ? 'border-gold ring-2 ring-gold/20' 
-                                  : 'border-transparent hover:border-muted-foreground/30'
-                              }`}
-                              onClick={() => toggleBulkImage(img.url)}
-                            >
-                              <img 
-                                src={img.url} 
-                                alt={img.name}
-                                className="w-full h-14 object-cover"
-                              />
-                              {selectedImagesForBulk.includes(img.url) && (
-                                <div className="absolute top-1 right-1 bg-gold text-gold-foreground rounded-full p-0.5">
-                                  <Check className="h-3 w-3" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    )}
-                  </div>
-
-                  {/* Progress */}
-                  {bulkProgress && (
-                    <div className="space-y-2 p-3 rounded-lg bg-gold/10 border border-gold/30">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>Trimitere în curs...</span>
-                        <span className="font-medium">{bulkProgress.current}/{bulkProgress.total}</span>
-                      </div>
-                      <Progress value={(bulkProgress.current / bulkProgress.total) * 100} className="h-2" />
-                      {bulkProgress.platform && (
-                        <p className="text-xs text-muted-foreground">
-                          Se trimite către {platforms.find(p => p.id === bulkProgress.platform)?.name}...
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: Post Preview */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-2">
-                      <Eye className="h-4 w-4" />
-                      Preview Postare
-                    </Label>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => {
-                          const currentIdx = platforms.findIndex(p => p.id === previewPlatform);
-                          const prevIdx = currentIdx > 0 ? currentIdx - 1 : platforms.length - 1;
-                          setPreviewPlatform(platforms[prevIdx].id);
-                        }}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <span className="text-xs font-medium px-2">
-                        {platforms.find(p => p.id === previewPlatform)?.name}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => {
-                          const currentIdx = platforms.findIndex(p => p.id === previewPlatform);
-                          const nextIdx = currentIdx < platforms.length - 1 ? currentIdx + 1 : 0;
-                          setPreviewPlatform(platforms[nextIdx].id);
-                        }}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Social Media Post Preview */}
-                  <div className="rounded-xl border bg-card overflow-hidden">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 p-3 border-b bg-muted/30">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-primary/20 flex items-center justify-center">
-                        {(() => {
-                          const PlatformIcon = platforms.find(p => p.id === previewPlatform)?.icon || Facebook;
-                          return <PlatformIcon className={`h-5 w-5 ${platforms.find(p => p.id === previewPlatform)?.color}`} />;
-                        })()}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">MVA IMOBILIARE</p>
-                        <p className="text-xs text-muted-foreground">Acum</p>
-                      </div>
-                    </div>
-
-                    {/* Image Preview */}
-                    {selectedImagesForBulk.length > 0 ? (
-                      <div className="relative aspect-video bg-muted">
-                        <img 
-                          src={selectedImagesForBulk[0]} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover"
-                        />
-                        {selectedImagesForBulk.length > 1 && (
-                          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-                            +{selectedImagesForBulk.length - 1} imagini
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="aspect-video bg-muted/50 flex items-center justify-center">
-                        <div className="text-center text-muted-foreground">
-                          <ImageIcon className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                          <p className="text-xs">Nicio imagine selectată</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Text Preview */}
-                    <div className="p-3 space-y-2">
-                      {generatedTexts[previewPlatform] ? (
-                        <p className="text-sm whitespace-pre-wrap line-clamp-6">
-                          {generatedTexts[previewPlatform]}
-                        </p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">
-                          Niciun text generat pentru {platforms.find(p => p.id === previewPlatform)?.name}
-                        </p>
-                      )}
-                      
-                      {/* Character count */}
-                      {generatedTexts[previewPlatform] && (
-                        <p className={`text-xs ${
-                          generatedTexts[previewPlatform].length > (platforms.find(p => p.id === previewPlatform)?.maxLength || 500)
-                            ? 'text-destructive'
-                            : 'text-muted-foreground'
-                        }`}>
-                          {generatedTexts[previewPlatform].length} / {platforms.find(p => p.id === previewPlatform)?.maxLength} caractere
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Engagement Preview */}
-                    <div className="p-3 border-t flex items-center justify-between text-muted-foreground">
-                      <div className="flex items-center gap-4 text-xs">
-                        <span>👍 Like</span>
-                        <span>💬 Comment</span>
-                        <span>↗️ Share</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {platforms.find(p => p.id === previewPlatform)?.aspectRatio}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter className="mt-4">
-                <Button variant="outline" onClick={() => setBulkSendDialogOpen(false)} disabled={isBulkSending}>
-                  Anulează
-                </Button>
-                <Button 
-                  onClick={sendAllToZapier}
-                  disabled={isBulkSending || !Object.values(generatedTexts).some(t => t.trim())}
-                  className="bg-gradient-to-r from-gold to-primary gap-2"
-                >
-                  {isBulkSending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Se trimite...
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-4 w-4" />
-                      Trimite Tot ({configuredPlatforms.filter(p => generatedTexts[p as Platform]?.trim()).length} platforme)
-                    </>
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Button
+          onClick={generateAllPlatforms}
+          disabled={isGeneratingText}
+          className="w-full bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
+        >
+          {isGeneratingText ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Generare în curs...
+            </>
+          ) : (
+            <>
+              <Wand2 className="h-4 w-4 mr-2" />
+              Generează pentru Toate Platformele
+            </>
+          )}
+        </Button>
 
         {/* Platform Tabs */}
         <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
@@ -1214,110 +669,6 @@ export const SocialMediaContentGenerator = () => {
                     )}
                   </div>
                 </div>
-              </div>
-
-              {/* Image Generation */}
-              <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4" />
-                    Imagine pentru {platform.name}
-                  </label>
-                  <Button
-                    onClick={() => generateImage(platform.id)}
-                    disabled={isGeneratingImage !== null}
-                    size="sm"
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    {isGeneratingImage === platform.id ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Generare...
-                      </>
-                    ) : (
-                      <>
-                        <ImageIcon className="h-4 w-4" />
-                        Generează Imagine
-                      </>
-                    )}
-                  </Button>
-                </div>
-                
-                <p className="text-xs text-muted-foreground">
-                  Format recomandat: {platform.aspectRatio}
-                </p>
-
-                {generatedImages[platform.id] && (
-                  <div className="space-y-3">
-                    <div className="relative rounded-lg overflow-hidden border bg-background">
-                      <img
-                        src={generatedImages[platform.id]}
-                        alt={`Generated for ${platform.name}`}
-                        className="w-full h-auto max-h-64 object-contain"
-                      />
-                      <Badge className="absolute top-2 right-2 bg-green-500/90">
-                        <Check className="h-3 w-3 mr-1" />
-                        Generată
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => downloadImage(generatedImages[platform.id], platform.name)}
-                        className="gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Descarcă
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => saveImageToGallery(generatedImages[platform.id], platform.id)}
-                        disabled={isSavingToGallery !== null}
-                        className="gap-2"
-                      >
-                        {isSavingToGallery === platform.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Salvare...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4" />
-                            Salvează în Galerie
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (!selectedImagesForBulk.includes(generatedImages[platform.id])) {
-                            setSelectedImagesForBulk(prev => [...prev, generatedImages[platform.id]]);
-                            toast.success('Imagine adăugată pentru trimitere Zapier');
-                          } else {
-                            toast.info('Imaginea este deja selectată');
-                          }
-                        }}
-                        className="gap-2"
-                      >
-                        <Zap className="h-4 w-4 text-gold" />
-                        Adaugă la Zapier
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {!generatedImages[platform.id] && (
-                  <div className="h-32 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Apasă "Generează Imagine" pentru a crea</p>
-                    </div>
-                  </div>
-                )}
               </div>
             </TabsContent>
           ))}
