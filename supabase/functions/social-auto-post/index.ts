@@ -169,11 +169,7 @@ serve(async (req) => {
 
     // Generate simple content for Zapier
     const generateContent = (platform: string, prop: PropertyData): string => {
-      const hashtags = platform === 'instagram' 
-        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta #apartamentnoi #militariresidence #imobiliarebucuresti #casanoua #apartament2camere #apartament3camere #vanzareapartament #proprietatebucuresti'
-        : platform === 'facebook'
-        ? '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi'
-        : '#RealEstate #Investment #Property #Bucharest #Apartment #RealEstateInvestment #HomeForSale #MVAImobiliare';
+      const hashtags = '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
 
       const price = prop.price_min 
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
