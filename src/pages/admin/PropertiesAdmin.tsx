@@ -26,6 +26,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
@@ -52,6 +53,8 @@ const PropertiesAdmin = () => {
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
   const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
+  const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
+  const [isBulkSending, setIsBulkSending] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -266,6 +269,71 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const togglePropertySelection = (propertyId: string) => {
+    setSelectedProperties(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(propertyId)) {
+        newSet.delete(propertyId);
+      } else {
+        newSet.add(propertyId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (!properties) return;
+    if (selectedProperties.size === properties.length) {
+      setSelectedProperties(new Set());
+    } else {
+      setSelectedProperties(new Set(properties.map(p => p.id)));
+    }
+  };
+
+  const sendSelectedToZapier = async () => {
+    if (selectedProperties.size === 0) {
+      toast({
+        title: "Atenție",
+        description: "Selectează cel puțin o proprietate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsBulkSending(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const propertyId of selectedProperties) {
+      try {
+        const success = await triggerSocialAutoPost(propertyId);
+        if (success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsBulkSending(false);
+    setSelectedProperties(new Set());
+
+    if (successCount > 0) {
+      toast({
+        title: "Succes!",
+        description: `${successCount} proprietăți trimise către Zapier${failCount > 0 ? `, ${failCount} au eșuat` : ''}`,
+      });
+    } else {
+      toast({
+        title: "Eroare",
+        description: "Nu s-au putut trimite proprietățile către Zapier",
+        variant: "destructive",
+      });
+    }
+  };
+
   const addProperty = async () => {
     if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
       toast({
@@ -390,6 +458,34 @@ const PropertiesAdmin = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          {/* Bulk Actions Bar */}
+          {properties && properties.length > 0 && (
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/30 border border-border/30">
+              <Checkbox
+                id="select-all"
+                checked={properties.length > 0 && selectedProperties.size === properties.length}
+                onCheckedChange={toggleSelectAll}
+              />
+              <Label htmlFor="select-all" className="text-sm cursor-pointer">
+                Selectează toate ({selectedProperties.size}/{properties.length})
+              </Label>
+              {selectedProperties.size > 0 && (
+                <Button
+                  size="sm"
+                  onClick={sendSelectedToZapier}
+                  disabled={isBulkSending}
+                  className="ml-auto bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs md:text-sm"
+                >
+                  {isBulkSending ? (
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  ) : (
+                    <Send className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  Trimite {selectedProperties.size} către Zapier
+                </Button>
+              )}
+            </div>
+          )}
           {propertiesLoading ? (
             <div className="text-center py-6 md:py-8">
               <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-gold" />
@@ -400,10 +496,16 @@ const PropertiesAdmin = () => {
               {properties.map((property: any) => (
                 <Card
                   key={property.id}
-                  className="border-border/30 hover:border-gold/30 transition-colors"
+                  className={`border-border/30 hover:border-gold/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
                 >
                   <CardContent className="p-3 md:p-4">
                     <div className="flex gap-3 md:gap-4">
+                      <div className="flex items-center shrink-0">
+                        <Checkbox
+                          checked={selectedProperties.has(property.id)}
+                          onCheckedChange={() => togglePropertySelection(property.id)}
+                        />
+                      </div>
                       {property.images?.[0] && (
                         <img
                           src={property.images[0]}
