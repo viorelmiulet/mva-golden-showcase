@@ -170,7 +170,6 @@ const popupHtml = `<!DOCTYPE html>
     <div class="menu-grid">
       <div class="menu-item" data-url="/admin/vizionari"><span class="icon">📅</span><span class="label">Vizionări</span></div>
       <div class="menu-item" data-url="/admin/clienti"><span class="icon">👤</span><span class="label">Clienți CRM</span></div>
-      <div class="menu-item" data-url="/admin/utilizatori"><span class="icon">👥</span><span class="label">Utilizatori</span></div>
     </div>
     <div class="section-title">📄 Documente</div>
     <div class="menu-grid">
