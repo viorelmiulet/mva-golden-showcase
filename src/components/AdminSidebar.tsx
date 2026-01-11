@@ -128,6 +128,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
       return data || [];
     },
     refetchInterval: 30000,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale to ensure refetch on invalidation
   });
 
   // Request notification permission on first user interaction
