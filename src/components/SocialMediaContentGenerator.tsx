@@ -99,7 +99,15 @@ export const SocialMediaContentGenerator = () => {
     twitter: "",
     tiktok: ""
   });
+  const [generatedImages, setGeneratedImages] = useState<Record<Platform, string>>({
+    facebook: "",
+    instagram: "",
+    linkedin: "",
+    twitter: "",
+    tiktok: ""
+  });
   const [isGeneratingText, setIsGeneratingText] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState<Platform | null>(null);
   const [isLoadingProperties, setIsLoadingProperties] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [configuredPlatforms, setConfiguredPlatforms] = useState<string[]>([]);
@@ -415,8 +423,99 @@ export const SocialMediaContentGenerator = () => {
     }
   };
 
+  const getImagePromptForPlatform = (platform: Platform, propertyData: any | null) => {
+    const aspectRatios: Record<Platform, string> = {
+      facebook: "1200x630 (Facebook landscape)",
+      instagram: "1080x1080 (Instagram square)",
+      linkedin: "1200x627 (LinkedIn landscape)",
+      twitter: "1600x900 (Twitter landscape)",
+      tiktok: "1080x1920 (TikTok vertical/portrait)"
+    };
+
+    const baseInfo = propertyData 
+      ? `Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'excellent location'}.`
+      : "Professional real estate agency promotional image for MVA IMOBILIARE.";
+
+    return `Create a professional real estate promotional image with a COMPLETE SCENE (NO WHITE BACKGROUND). 
+      ${baseInfo}
+      Style: Bright, modern, contemporary real estate photography with full environment and context.
+      Include: Beautiful interior or exterior view with complete surroundings, professional composition.
+      The entire image should be filled with content - show the property in its environment.
+      NO WHITE OR PLAIN BACKGROUNDS - fill the entire frame with realistic real estate photography.
+      Aspect ratio: ${aspectRatios[platform]}.
+      High quality, ultra realistic, professional photography.
+      DO NOT include the words "luxury" or "lux" in any form.
+      
+      CRITICAL - MVA LOGO PLACEMENT:
+      Include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner.
+      Logo: Golden hexagonal badge with "M" letter, "MVA" text below, "IMOBILIARE" below that.
+      Golden color (#D4AF37 to #F4E4A6 gradient) with subtle glow.
+      Size: approximately 15-20% of the image height.
+      
+      CRITICAL - TEXT OVERLAY (Romanian):
+      Include overlay banner at bottom with:
+      "Telefon: 0767.941.512"
+      "Email: contact@mvaimobiliare.ro"
+      "Web: mvaimobiliare.ro"
+      Clear typography, good contrast, perfectly legible.`;
+  };
+
+  const generateImage = async (platform: Platform) => {
+    setIsGeneratingImage(platform);
+    try {
+      const isGeneric = !selectedProperty || selectedProperty === 'generic';
+      const propertyData = isGeneric 
+        ? null
+        : properties.find(p => p.id === selectedProperty);
+
+      const imagePrompt = getImagePromptForPlatform(platform, propertyData);
+
+      const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
+        body: { 
+          type: 'image',
+          customPrompt: imagePrompt,
+          propertyData: propertyData ? {
+            title: propertyData.title,
+            location: propertyData.location,
+            rooms: propertyData.rooms
+          } : null
+        }
+      });
+
+      if (error) throw error;
+      
+      setGeneratedImages(prev => ({
+        ...prev,
+        [platform]: data.image
+      }));
+      
+      // Auto-add to bulk selection
+      if (data.image && !selectedImagesForBulk.includes(data.image)) {
+        setSelectedImagesForBulk(prev => [...prev, data.image]);
+      }
+      
+      toast.success(`Imagine pentru ${platforms.find(p => p.id === platform)?.name} generată!`);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Eroare la generarea imaginii');
+    } finally {
+      setIsGeneratingImage(null);
+    }
+  };
+
+  const downloadImage = (imageUrl: string, platformName: string) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `mva-${platformName.toLowerCase()}-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Imagine descărcată!');
+  };
+
   const currentPlatform = platforms.find(p => p.id === selectedPlatform)!;
   const currentText = generatedTexts[selectedPlatform];
+  const currentImage = generatedImages[selectedPlatform];
 
   return (
     <Card className="border-border/50 bg-gradient-to-br from-card to-card/80">
@@ -908,6 +1007,91 @@ export const SocialMediaContentGenerator = () => {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Image Generation */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Imagine pentru {platform.name}
+                  </label>
+                  <Button
+                    onClick={() => generateImage(platform.id)}
+                    disabled={isGeneratingImage !== null}
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    {isGeneratingImage === platform.id ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generare...
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon className="h-4 w-4" />
+                        Generează Imagine
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                <p className="text-xs text-muted-foreground">
+                  Format recomandat: {platform.aspectRatio}
+                </p>
+
+                {generatedImages[platform.id] && (
+                  <div className="space-y-3">
+                    <div className="relative rounded-lg overflow-hidden border bg-background">
+                      <img
+                        src={generatedImages[platform.id]}
+                        alt={`Generated for ${platform.name}`}
+                        className="w-full h-auto max-h-64 object-contain"
+                      />
+                      <Badge className="absolute top-2 right-2 bg-green-500/90">
+                        <Check className="h-3 w-3 mr-1" />
+                        Generată
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadImage(generatedImages[platform.id], platform.name)}
+                        className="gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Descarcă
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!selectedImagesForBulk.includes(generatedImages[platform.id])) {
+                            setSelectedImagesForBulk(prev => [...prev, generatedImages[platform.id]]);
+                            toast.success('Imagine adăugată pentru trimitere Zapier');
+                          } else {
+                            toast.info('Imaginea este deja selectată');
+                          }
+                        }}
+                        className="gap-2"
+                      >
+                        <Zap className="h-4 w-4 text-gold" />
+                        Adaugă la Zapier
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {!generatedImages[platform.id] && (
+                  <div className="h-32 border-2 border-dashed rounded-lg flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Apasă "Generează Imagine" pentru a crea</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
           ))}
