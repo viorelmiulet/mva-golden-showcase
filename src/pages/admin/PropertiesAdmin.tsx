@@ -55,6 +55,7 @@ const PropertiesAdmin = () => {
   const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -300,9 +301,12 @@ const PropertiesAdmin = () => {
       return;
     }
 
+    const total = selectedProperties.size;
     setIsBulkSending(true);
+    setBulkProgress({ current: 0, total });
     let successCount = 0;
     let failCount = 0;
+    let current = 0;
 
     for (const propertyId of selectedProperties) {
       try {
@@ -315,9 +319,12 @@ const PropertiesAdmin = () => {
       } catch {
         failCount++;
       }
+      current++;
+      setBulkProgress({ current, total });
     }
 
     setIsBulkSending(false);
+    setBulkProgress({ current: 0, total: 0 });
     setSelectedProperties(new Set());
 
     if (successCount > 0) {
@@ -470,19 +477,34 @@ const PropertiesAdmin = () => {
                 Selectează toate ({selectedProperties.size}/{properties.length})
               </Label>
               {selectedProperties.size > 0 && (
-                <Button
-                  size="sm"
-                  onClick={sendSelectedToZapier}
-                  disabled={isBulkSending}
-                  className="ml-auto bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs md:text-sm"
-                >
-                  {isBulkSending ? (
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  ) : (
-                    <Send className="w-3.5 h-3.5 mr-1.5" />
+                <div className="ml-auto flex items-center gap-3">
+                  {isBulkSending && bulkProgress.total > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-blue-500 transition-all duration-300"
+                          style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {bulkProgress.current}/{bulkProgress.total}
+                      </span>
+                    </div>
                   )}
-                  Trimite {selectedProperties.size} către Zapier
-                </Button>
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToZapier}
+                    disabled={isBulkSending}
+                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs md:text-sm"
+                  >
+                    {isBulkSending ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    {isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}
+                  </Button>
+                </div>
               )}
             </div>
           )}
