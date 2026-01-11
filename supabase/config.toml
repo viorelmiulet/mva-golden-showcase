@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.generate-sitemap-images]
 verify_jwt = false
+
+[functions.social-auto-post]
+verify_jwt = false

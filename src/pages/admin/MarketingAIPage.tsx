@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { SocialMediaContentGenerator } from "@/components/SocialMediaContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
+import { SocialAutoPostSettings } from "@/components/SocialAutoPostSettings";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,6 +47,11 @@ const MarketingAIPage = () => {
       {/* Image Generator */}
       <motion.div variants={itemVariants}>
         <FurnishedImageGenerator />
+      </motion.div>
+
+      {/* Auto-Posting Settings */}
+      <motion.div variants={itemVariants}>
+        <SocialAutoPostSettings />
       </motion.div>
     </motion.div>
   );

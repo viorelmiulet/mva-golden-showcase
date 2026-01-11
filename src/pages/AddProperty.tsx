@@ -8,12 +8,15 @@ import {
   Plus, 
   Search, 
   Loader2,
-  ArrowLeft
+  ArrowLeft,
+  Share2
 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
+import { triggerSocialAutoPost } from "@/lib/socialAutoPost"
+import { toast as sonnerToast } from "sonner"
 
 interface ScrapedProperty {
   title: string
@@ -55,7 +58,7 @@ const AddProperty = () => {
 
       if (data.success) {
         // Add the scraped property to database
-        const { error: insertError } = await supabase
+        const { data: insertedData, error: insertError } = await supabase
           .from('catalog_offers')
           .insert({
             title: data.property.title,
@@ -70,6 +73,8 @@ const AddProperty = () => {
             features: data.property.features,
             availability_status: 'available'
           })
+          .select('id')
+          .single()
 
         if (insertError) throw insertError
 
@@ -77,6 +82,16 @@ const AddProperty = () => {
           title: "Succes!",
           description: "Proprietatea a fost adăugată cu succes"
         })
+
+        // Trigger social auto-post if enabled
+        if (insertedData?.id) {
+          const autoPosted = await triggerSocialAutoPost(insertedData.id)
+          if (autoPosted) {
+            sonnerToast.success('Proprietatea a fost postată pe rețelele sociale!', {
+              icon: <Share2 className="w-4 h-4" />
+            })
+          }
+        }
 
         // Refresh the properties list
         queryClient.invalidateQueries({ queryKey: ['catalog_offers'] })
