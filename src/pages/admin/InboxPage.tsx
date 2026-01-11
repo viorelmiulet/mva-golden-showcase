@@ -368,14 +368,15 @@ const InboxPage = () => {
   const isMobile = useIsMobile();
 
   const sendReplyMutation = useMutation({
-    mutationFn: async ({ to, subject, body, inReplyTo }: { 
+    mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress }: { 
       to: string; 
       subject: string; 
       body: string; 
       inReplyTo?: string;
+      replyFromAddress?: string;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, subject, body, inReplyTo }
+        body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress }
       });
       if (error) throw error;
       return data;
@@ -430,7 +431,7 @@ const InboxPage = () => {
       attachments: Array<{ filename: string; content: string; contentType: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, cc, bcc, subject, body, attachments }
+        body: { to, cc, bcc, subject, body, attachments, isReply: false }
       });
       if (error) throw error;
       
@@ -520,7 +521,8 @@ const InboxPage = () => {
       to: replyTo,
       subject: replySubject,
       body: replyBody,
-      inReplyTo: selectedEmail?.message_id || undefined
+      inReplyTo: selectedEmail?.message_id || undefined,
+      replyFromAddress: selectedEmail?.recipient || undefined
     });
   };
 

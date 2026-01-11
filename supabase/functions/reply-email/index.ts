@@ -21,6 +21,8 @@ interface ReplyEmailRequest {
   inReplyTo?: string;
   originalEmailId?: string;
   attachments?: EmailAttachment[];
+  isReply?: boolean; // true = reply to existing email, false = new compose
+  replyFromAddress?: string; // the recipient address from the original email
 }
 
 Deno.serve(async (req) => {
@@ -29,7 +31,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { to, cc, bcc, subject, body, inReplyTo, attachments }: ReplyEmailRequest = await req.json();
+    const { to, cc, bcc, subject, body, inReplyTo, attachments, isReply, replyFromAddress }: ReplyEmailRequest = await req.json();
 
     if (!to || !body) {
       return new Response(
@@ -39,10 +41,23 @@ Deno.serve(async (req) => {
     }
 
     console.log('Sending email to:', to, 'with', attachments?.length || 0, 'attachments');
+    console.log('Is reply:', isReply, 'Reply from address:', replyFromAddress);
 
-    // Get email sender settings from database
-    const fromAddress = await getFromAddressForFunction('reply');
-    console.log('Using from address:', fromAddress);
+    // Determine the from address:
+    // - If it's a reply AND we have the original recipient address, use that
+    // - Otherwise, use contact@mvaimobiliare.ro for new emails
+    let fromAddress: string;
+    
+    if (isReply && replyFromAddress) {
+      // Extract just the email if it's in format "Name <email>"
+      const emailMatch = replyFromAddress.match(/<([^>]+)>/);
+      fromAddress = `MVA Imobiliare <${emailMatch ? emailMatch[1] : replyFromAddress}>`;
+      console.log('Reply mode - using original recipient address:', fromAddress);
+    } else {
+      // New email - always use contact address
+      fromAddress = await getFromAddressForFunction('contact');
+      console.log('Compose mode - using contact address:', fromAddress);
+    }
 
     // Build custom headers for threading
     const customHeaders: Record<string, string> = {};
