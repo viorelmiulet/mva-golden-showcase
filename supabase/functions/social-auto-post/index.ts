@@ -170,14 +170,16 @@ serve(async (req) => {
     // Generate simple content for Zapier
     const generateContent = (platform: string, prop: PropertyData): string => {
       const hashtags = platform === 'instagram' 
-        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta'
+        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta #apartamentnoi #militariresidence #imobiliarebucuresti #casanoua #apartament2camere #apartament3camere #vanzareapartament #proprietatebucuresti'
         : platform === 'facebook'
-        ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
-        : '#RealEstate #Investment #Property';
+        ? '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi'
+        : '#RealEstate #Investment #Property #Bucharest #Apartment #RealEstateInvestment #HomeForSale #MVAImobiliare';
 
       const price = prop.price_min 
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
         : 'Preț la cerere';
+
+      const propertyUrl = `${siteUrl}/proprietati/${prop.id}`;
 
       return `${prop.title}
 
@@ -185,6 +187,8 @@ serve(async (req) => {
 📍 Militari Residence
 📞 0767.941.512
 🌐 mvaimobiliare.ro
+
+👉 Detalii: ${propertyUrl}
 
 ${hashtags}`;
     };
