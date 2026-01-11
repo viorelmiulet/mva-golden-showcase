@@ -302,8 +302,25 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
       setSelectedEmail(null);
       toast.success('Email arhivat');
+    }
+  });
+
+  const unarchiveEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_archived: false })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      setSelectedEmail(null);
+      toast.success('Email restaurat din arhivă');
     }
   });
 
@@ -776,7 +793,13 @@ const InboxPage = () => {
               }
             }}
             onArchive={handleArchive}
+            onUnarchive={() => {
+              if (selectedEmail) {
+                unarchiveEmailMutation.mutate(selectedEmail.id);
+              }
+            }}
             onDelete={handleDelete}
+            isArchived={filter === 'archived'}
             extractSenderName={extractSenderName}
             extractSenderInitials={extractSenderInitials}
           />

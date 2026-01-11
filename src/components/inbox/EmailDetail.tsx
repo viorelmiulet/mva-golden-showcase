@@ -7,6 +7,7 @@ import {
   StarOff, 
   Trash2, 
   Archive, 
+  ArchiveRestore,
   ChevronLeft,
   Paperclip,
   Reply,
@@ -42,7 +43,9 @@ interface EmailDetailProps {
   onReply: () => void;
   onToggleStar: () => void;
   onArchive: () => void;
+  onUnarchive?: () => void;
   onDelete: () => void;
+  isArchived?: boolean;
   extractSenderName: (sender: string) => string;
   extractSenderInitials: (sender: string) => string;
 }
@@ -53,7 +56,9 @@ export const EmailDetail = ({
   onReply,
   onToggleStar,
   onArchive,
+  onUnarchive,
   onDelete,
+  isArchived = false,
   extractSenderName,
   extractSenderInitials,
 }: EmailDetailProps) => {
@@ -132,10 +137,17 @@ export const EmailDetail = ({
                           </>
                         )}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onArchive}>
-                        <Archive className="h-4 w-4 mr-2" />
-                        Arhivează
-                      </DropdownMenuItem>
+                      {isArchived ? (
+                        <DropdownMenuItem onClick={onUnarchive}>
+                          <ArchiveRestore className="h-4 w-4 mr-2" />
+                          Restaurează din arhivă
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={onArchive}>
+                          <Archive className="h-4 w-4 mr-2" />
+                          Arhivează
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem 
                         onClick={onDelete}
                         className="text-destructive focus:text-destructive"
