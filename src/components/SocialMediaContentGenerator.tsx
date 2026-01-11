@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { postToSocialMedia, getConfiguredPlatforms } from "@/lib/socialDirectPost";
+import { Progress } from "@/components/ui/progress";
+import { postToSocialMedia, getConfiguredPlatforms, postBulkToZapier } from "@/lib/socialDirectPost";
 
 interface GalleryImage {
   name: string;
@@ -108,6 +109,10 @@ export const SocialMediaContentGenerator = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [isBulkSending, setIsBulkSending] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ platform: string; current: number; total: number } | null>(null);
+  const [bulkSendDialogOpen, setBulkSendDialogOpen] = useState(false);
+  const [selectedImagesForBulk, setSelectedImagesForBulk] = useState<string[]>([]);
 
   useEffect(() => {
     loadProperties();
@@ -209,7 +214,73 @@ export const SocialMediaContentGenerator = () => {
       console.error('Error posting:', error);
       toast.error("Eroare la postare");
     } finally {
-      setIsPosting(false);
+    setIsPosting(false);
+    }
+  };
+
+  const sendAllToZapier = async () => {
+    const hasContent = Object.values(generatedTexts).some(text => text.trim());
+    if (!hasContent) {
+      toast.error("Nu există conținut generat pentru trimitere");
+      return;
+    }
+
+    if (configuredPlatforms.length === 0) {
+      toast.error("Nu ai configurat niciun webhook. Mergi la setările Social Media.");
+      return;
+    }
+
+    setIsBulkSending(true);
+    setBulkProgress({ platform: '', current: 0, total: configuredPlatforms.length });
+
+    try {
+      const results = await postBulkToZapier(
+        {
+          texts: generatedTexts,
+          imageUrls: selectedImagesForBulk,
+        },
+        (platform, current, total) => {
+          setBulkProgress({ platform, current, total });
+        }
+      );
+
+      const successPlatforms = Object.entries(results)
+        .filter(([_, success]) => success)
+        .map(([platform]) => platforms.find(p => p.id === platform)?.name || platform);
+      
+      const failedPlatforms = Object.entries(results)
+        .filter(([_, success]) => !success)
+        .map(([platform]) => platforms.find(p => p.id === platform)?.name || platform);
+
+      if (successPlatforms.length > 0) {
+        toast.success(`Trimis cu succes către: ${successPlatforms.join(', ')}`);
+      }
+      if (failedPlatforms.length > 0) {
+        toast.error(`Eroare la: ${failedPlatforms.join(', ')}`);
+      }
+
+      setBulkSendDialogOpen(false);
+      setSelectedImagesForBulk([]);
+    } catch (error) {
+      console.error('Error sending to Zapier:', error);
+      toast.error("Eroare la trimitere");
+    } finally {
+      setIsBulkSending(false);
+      setBulkProgress(null);
+    }
+  };
+
+  const toggleBulkImage = (url: string) => {
+    if (selectedImagesForBulk.includes(url)) {
+      setSelectedImagesForBulk(selectedImagesForBulk.filter(u => u !== url));
+    } else {
+      setSelectedImagesForBulk([...selectedImagesForBulk, url]);
+    }
+  };
+
+  const loadGalleryForBulk = async () => {
+    if (galleryImages.length === 0) {
+      await loadGalleryImages();
     }
   };
 
@@ -393,23 +464,191 @@ export const SocialMediaContentGenerator = () => {
         </div>
 
         {/* Generate All Button */}
-        <Button
-          onClick={generateAllPlatforms}
-          disabled={isGeneratingText}
-          className="w-full bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
-        >
-          {isGeneratingText ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Generare în curs...
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4 mr-2" />
-              Generează pentru Toate Platformele
-            </>
-          )}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={generateAllPlatforms}
+            disabled={isGeneratingText}
+            className="flex-1 bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
+          >
+            {isGeneratingText ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Generare în curs...
+              </>
+            ) : (
+              <>
+                <Wand2 className="h-4 w-4 mr-2" />
+                Generează pentru Toate Platformele
+              </>
+            )}
+          </Button>
+
+          {/* Send All to Zapier Button */}
+          <Dialog open={bulkSendDialogOpen} onOpenChange={(open) => {
+            setBulkSendDialogOpen(open);
+            if (open) loadGalleryForBulk();
+          }}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                disabled={!Object.values(generatedTexts).some(t => t.trim()) || configuredPlatforms.length === 0}
+                className="gap-2 border-gold/50 hover:bg-gold/10"
+              >
+                <Zap className="h-4 w-4 text-gold" />
+                Trimite la Zapier
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-gold" />
+                  Trimite Tot la Zapier
+                </DialogTitle>
+                <DialogDescription>
+                  Trimite conținutul generat pentru toate platformele către webhook-urile configurate
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {/* Content Summary */}
+                <div className="space-y-2">
+                  <Label>Conținut de trimis:</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {platforms.map((platform) => {
+                      const hasContent = generatedTexts[platform.id]?.trim();
+                      const isConfigured = configuredPlatforms.includes(platform.id);
+                      return (
+                        <div 
+                          key={platform.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg border ${
+                            hasContent && isConfigured 
+                              ? 'bg-green-500/10 border-green-500/30' 
+                              : 'bg-muted/30 border-muted'
+                          }`}
+                        >
+                          <platform.icon className={`h-4 w-4 ${platform.color}`} />
+                          <span className="text-sm flex-1">{platform.name}</span>
+                          {hasContent && isConfigured ? (
+                            <Check className="h-4 w-4 text-green-500" />
+                          ) : !isConfigured ? (
+                            <Badge variant="outline" className="text-xs">fără webhook</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-xs">fără text</Badge>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Image Selection */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <ImagePlus className="h-4 w-4" />
+                    Imagini de inclus ({selectedImagesForBulk.length} selectate)
+                  </Label>
+                  
+                  {isLoadingGallery ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    </div>
+                  ) : galleryImages.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Nu există imagini în galerie. Generează imagini mai întâi.
+                    </p>
+                  ) : (
+                    <ScrollArea className="h-40 rounded-lg border p-2">
+                      <div className="grid grid-cols-4 gap-2">
+                        {galleryImages.map((img) => (
+                          <div 
+                            key={img.name}
+                            className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                              selectedImagesForBulk.includes(img.url) 
+                                ? 'border-gold ring-2 ring-gold/20' 
+                                : 'border-transparent hover:border-muted-foreground/30'
+                            }`}
+                            onClick={() => toggleBulkImage(img.url)}
+                          >
+                            <img 
+                              src={img.url} 
+                              alt={img.name}
+                              className="w-full h-16 object-cover"
+                            />
+                            {selectedImagesForBulk.includes(img.url) && (
+                              <div className="absolute top-1 right-1 bg-gold text-gold-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+
+                  {/* Selected Images Preview */}
+                  {selectedImagesForBulk.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedImagesForBulk.map((url, i) => (
+                        <div key={i} className="relative group">
+                          <img 
+                            src={url} 
+                            alt={`Selected ${i + 1}`}
+                            className="h-10 w-10 object-cover rounded-lg border"
+                          />
+                          <button 
+                            onClick={() => toggleBulkImage(url)}
+                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress */}
+                {bulkProgress && (
+                  <div className="space-y-2 p-3 rounded-lg bg-gold/10 border border-gold/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Trimitere în curs...</span>
+                      <span className="font-medium">{bulkProgress.current}/{bulkProgress.total}</span>
+                    </div>
+                    <Progress value={(bulkProgress.current / bulkProgress.total) * 100} className="h-2" />
+                    {bulkProgress.platform && (
+                      <p className="text-xs text-muted-foreground">
+                        Se trimite către {platforms.find(p => p.id === bulkProgress.platform)?.name}...
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setBulkSendDialogOpen(false)} disabled={isBulkSending}>
+                  Anulează
+                </Button>
+                <Button 
+                  onClick={sendAllToZapier}
+                  disabled={isBulkSending || !Object.values(generatedTexts).some(t => t.trim())}
+                  className="bg-gradient-to-r from-gold to-primary gap-2"
+                >
+                  {isBulkSending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Se trimite...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4" />
+                      Trimite Tot
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         {/* Platform Tabs */}
         <Tabs value={selectedPlatform} onValueChange={(v) => setSelectedPlatform(v as Platform)}>
