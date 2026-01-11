@@ -207,13 +207,13 @@ const SettingsPage = () => {
         <div className="flex items-center gap-4">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/10">
               <Settings className="h-6 w-6 text-gold" />
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Setări Generale</h1>
-            <p className="text-muted-foreground text-sm">Configurări pentru site și informații de contact</p>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Setări Generale</h1>
+            <p className="text-muted-foreground/70 text-sm">Configurări pentru site și informații de contact</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -254,7 +254,7 @@ const SettingsPage = () => {
             className="relative group"
           >
             <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-50 transition-opacity blur-xl`} />
-            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
               <div className="p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-xl bg-white/5 ${section.iconColor}`}>
@@ -300,7 +300,7 @@ const SettingsPage = () => {
         {/* Preview */}
         <motion.div variants={itemVariants} className="relative group">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
-          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
             <div className="p-6 border-b border-white/5">
               <h3 className="font-semibold">Previzualizare</h3>
               <p className="text-sm text-muted-foreground">Cum vor apărea informațiile pe site</p>
