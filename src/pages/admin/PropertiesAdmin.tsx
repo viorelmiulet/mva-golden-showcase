@@ -10,18 +10,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Plus,
   Loader2,
   Trash2,
   Home,
-  MapPin,
   Euro,
   Ruler,
-  Images,
   Edit,
   Save,
-  CheckCircle,
-  AlertTriangle,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,9 +25,7 @@ import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicato
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
-  const [propertyIds, setPropertyIds] = useState(Array(5).fill(""));
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStates, setLoadingStates] = useState(Array(5).fill(false));
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
@@ -42,119 +35,13 @@ const PropertiesAdmin = () => {
 
   // Pull to refresh
   const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['all-properties'] });
+    await queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
   }, [queryClient]);
 
   const { containerRef, pullDistance, isRefreshing, progress } = usePullToRefresh({
     onRefresh: handleRefresh,
     disabled: !isMobile,
   });
-
-  const scrapeProperty = async (propertyId: string, index: number) => {
-    if (!propertyId.trim()) {
-      toast({
-        title: "Eroare",
-        description: "Te rog să introduci un ID valid",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const url = `https://web.immoflux.ro/publicproperty/p${propertyId.trim()}`;
-    setLoadingStates((prev) => prev.map((state, i) => (i === index ? true : state)));
-
-    try {
-      const { data, error } = await supabase.functions.invoke("scrape-property", {
-        body: { url },
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        const insertData = {
-          title: data.property.title,
-          description: data.property.description,
-          location: data.property.location,
-          images: data.property.images,
-          price_min: data.property.price_min,
-          price_max: data.property.price_max,
-          currency: data.property.currency,
-          surface_min: data.property.surface_min || 0,
-          surface_max: data.property.surface_max || 0,
-          rooms: data.property.rooms,
-          features: data.property.features,
-          availability_status: "available",
-        };
-
-        const { data: adminInsertData, error: adminInsertError } =
-          await supabase.functions.invoke("admin-offers", {
-            body: { action: "insert_offer", offer: insertData },
-          });
-
-        if (adminInsertError) throw adminInsertError;
-        if (!adminInsertData?.success)
-          throw new Error(adminInsertData?.error || "Insert failed");
-
-        toast({
-          title: "Succes!",
-          description: `Proprietatea ${index + 1} (ID: ${propertyId}) a fost adăugată`,
-        });
-
-        setPropertyIds((prev) => prev.map((id, i) => (i === index ? "" : id)));
-        queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
-      } else {
-        throw new Error(data?.error || "Eroare la preluarea datelor");
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: `ID ${propertyId}: ${error.message || "Nu am putut prelua datele"}`,
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingStates((prev) => prev.map((state, i) => (i === index ? false : state)));
-    }
-  };
-
-  const scrapeAllProperties = async () => {
-    const validIds = propertyIds.filter((id) => id && typeof id === 'string' && id.trim() !== "");
-
-    if (validIds.length === 0) {
-      toast({
-        title: "Eroare",
-        description: "Te rog să introduci cel puțin un ID valid",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const promises = validIds.map((propertyId, index) => {
-        return scrapeProperty(propertyId, index);
-      });
-
-      await Promise.all(promises);
-
-      toast({
-        title: "Procesare completă!",
-        description: `Am procesat ${validIds.length} proprietăți`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: "Eroare la procesarea proprietăților",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updatePropertyId = (index: number, value: string) => {
-    setPropertyIds((prev) => prev.map((id, i) => (i === index ? value : id)));
-  };
 
   const { data: properties, isLoading: propertiesLoading } = useQuery({
     queryKey: ["catalog_offers"],
@@ -320,62 +207,6 @@ const PropertiesAdmin = () => {
         />
       )}
       <div className="space-y-4 md:space-y-8">
-      {/* Scrape Properties Section */}
-      <Card className="glass border-gold/20">
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-            <Plus className="w-4 h-4 md:w-5 md:h-5 text-gold" />
-            Adaugă Proprietăți
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 md:space-y-4 p-4 pt-0 md:p-6 md:pt-0">
-          <div className="grid gap-2 md:gap-3">
-            {propertyIds.slice(0, 3).map((id, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder={`ID ${index + 1}`}
-                  value={id}
-                  onChange={(e) => updatePropertyId(index, e.target.value)}
-                  className="flex-1 h-9 md:h-10 text-sm"
-                />
-                <Button
-                  onClick={() => scrapeProperty(id, index)}
-                  disabled={loadingStates[index] || !id.trim()}
-                  size="sm"
-                  variant="outline"
-                  className="border-gold/30 h-9 md:h-10 w-9 md:w-10 p-0"
-                >
-                  {loadingStates[index] ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          <Button
-            onClick={scrapeAllProperties}
-            disabled={isLoading}
-            className="w-full h-9 md:h-10 text-sm"
-            variant="luxury"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Se procesează...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Adaugă Toate
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
       {/* Properties List */}
       <Card className="glass border-gold/20">
         <CardHeader className="p-4 md:p-6">
