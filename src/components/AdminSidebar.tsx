@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Home,
   Upload,
@@ -56,6 +57,43 @@ const menuItems = [
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
 ];
 
+// Animation variants
+const sidebarVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const menuItemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+};
+
+const iconHoverVariants = {
+  rest: { scale: 1, rotate: 0 },
+  hover: { 
+    scale: 1.15, 
+    rotate: [0, -5, 5, 0],
+    transition: { 
+      rotate: { duration: 0.4 },
+      scale: { type: "spring" as const, stiffness: 400, damping: 17 }
+    }
+  },
+};
+
 interface AdminSidebarProps {
   isMobileSheet?: boolean;
   onNavigate?: () => void;
@@ -82,27 +120,43 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   if (isMobileSheet) {
     return (
       <nav className="flex-1 overflow-y-auto overscroll-contain p-3 pb-8 admin-sidebar-modern">
-        <div className="space-y-1">
-          {menuItems.map((item) => {
+        <motion.div 
+          className="space-y-1"
+          variants={sidebarVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {menuItems.map((item, index) => {
             const isActive = item.exact
               ? currentPath === item.url
               : currentPath.startsWith(item.url);
             return (
-              <NavLink
+              <motion.div
                 key={item.title}
-                to={item.url}
-                end={item.exact}
-                onClick={handleNavClick}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 touch-manipulation active:scale-[0.98] ${getNavCls(isActive)}`}
+                variants={menuItemVariants}
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <div className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}>
-                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
-                </div>
-                <span>{item.title}</span>
-              </NavLink>
+                <NavLink
+                  to={item.url}
+                  end={item.exact}
+                  onClick={handleNavClick}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 touch-manipulation ${getNavCls(isActive)}`}
+                >
+                  <motion.div 
+                    className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}
+                    variants={iconHoverVariants}
+                    initial="rest"
+                    whileHover="hover"
+                  >
+                    <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
+                  </motion.div>
+                  <span>{item.title}</span>
+                </NavLink>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
         {/* Safe area padding for iOS */}
         <div className="h-safe-area-inset-bottom" />
       </nav>
@@ -123,28 +177,47 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
         {/* Logo/Toggle Area */}
         <div className="p-3 border-b border-white/5 flex items-center justify-between">
           {!collapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+            <motion.div 
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
                 <Layers className="h-4 w-4 text-gold" />
-              </div>
+              </motion.div>
               <span className="font-semibold text-sm bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                 MVA Admin
               </span>
-            </div>
+            </motion.div>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className={`h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors ${collapsed ? 'mx-auto' : ''}`}
-            title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {collapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
-          </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className={`h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors ${collapsed ? 'mx-auto' : ''}`}
+              title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+            >
+              <motion.div
+                animate={{ rotate: collapsed ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {collapsed ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4" />
+                )}
+              </motion.div>
+            </Button>
+          </motion.div>
         </div>
 
         <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] py-4 px-2">
@@ -156,50 +229,76 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
 
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {menuItems.map((item) => {
-                const isActive = item.exact
-                  ? currentPath === item.url
-                  : currentPath.startsWith(item.url);
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        end={item.exact}
-                        className={`
-                          flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
-                          transition-all duration-200 group
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold ml-0' 
-                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
-                          }
-                          ${collapsed ? 'justify-center px-0' : ''}
-                        `}
-                        title={collapsed ? item.title : undefined}
-                      >
-                        <div className={`
-                          p-1.5 rounded-md transition-colors
-                          ${isActive ? 'bg-gold/20' : 'bg-white/5 group-hover:bg-white/10'}
-                        `}>
-                          <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
-                        </div>
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              <motion.div
+                variants={sidebarVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {menuItems.map((item, index) => {
+                  const isActive = item.exact
+                    ? currentPath === item.url
+                    : currentPath.startsWith(item.url);
+                  return (
+                    <motion.div
+                      key={item.title}
+                      variants={menuItemVariants}
+                    >
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <motion.div
+                            whileHover={{ x: collapsed ? 0 : 4 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <NavLink
+                              to={item.url}
+                              end={item.exact}
+                              className={`
+                                flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                                transition-all duration-200 group
+                                ${isActive 
+                                  ? 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold ml-0' 
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
+                                }
+                                ${collapsed ? 'justify-center px-0' : ''}
+                              `}
+                              title={collapsed ? item.title : undefined}
+                            >
+                              <motion.div 
+                                className={`
+                                  p-1.5 rounded-md transition-colors
+                                  ${isActive ? 'bg-gold/20' : 'bg-white/5 group-hover:bg-white/10'}
+                                `}
+                                variants={iconHoverVariants}
+                                initial="rest"
+                                whileHover="hover"
+                              >
+                                <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
+                              </motion.div>
+                              {!collapsed && <span>{item.title}</span>}
+                            </NavLink>
+                          </motion.div>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Footer */}
         {!collapsed && (
-          <div className="p-3 border-t border-white/5">
+          <motion.div 
+            className="p-3 border-t border-white/5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             <div className="text-[10px] text-muted-foreground/50 text-center">
               © 2024 MVA Imobiliare
             </div>
-          </div>
+          </motion.div>
         )}
       </SidebarContent>
     </Sidebar>
