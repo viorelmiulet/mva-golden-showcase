@@ -92,8 +92,8 @@ serve(async (req) => {
       );
 
     } else if (type === 'image') {
-      // Generate promotional image using Gemini Image Preview
-      const imagePrompt = propertyData
+      // Use custom prompt if provided, otherwise use default
+      const imagePrompt = customPrompt || (propertyData
         ? `Create a professional real estate promotional image for Facebook with a COMPLETE SCENE (NO WHITE BACKGROUND). 
            Modern ${propertyData.rooms || '2'}-room apartment in ${propertyData.location || 'excellent location'}.
            Style: Bright, modern, contemporary real estate photography with full environment and context.
@@ -122,11 +122,6 @@ serve(async (req) => {
            Line 1: "Telefon: 0767.941.512"
            Line 2: "Email: contact@mvaimobiliare.ro"
            Line 3: "Web: mvaimobiliare.ro"
-           
-           SPELLING RULES FOR ROMANIAN:
-           - "Telefon" (NOT "Telefono" or "Telephone")
-           - Use the EXACT email and phone number provided above
-           - The word "Web:" is correct (short for Website)
            
            Make the text overlay:
            - Clear, professional typography
@@ -161,16 +156,11 @@ serve(async (req) => {
            Line 2: "Email: contact@mvaimobiliare.ro"
            Line 3: "Web: mvaimobiliare.ro"
            
-           SPELLING RULES FOR ROMANIAN:
-           - "Telefon" (NOT "Telefono" or "Telephone")
-           - Use the EXACT email and phone number provided above
-           - The word "Web:" is correct (short for Website)
-           
            Make the text overlay:
            - Clear, professional typography
            - Good contrast against the background (white text on semi-transparent dark overlay OR dark text on semi-transparent light overlay)
            - Positioned at the bottom of the image
-           - All text MUST be perfectly legible and correctly spelled in Romanian`;
+           - All text MUST be perfectly legible and correctly spelled in Romanian`);
 
       const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
