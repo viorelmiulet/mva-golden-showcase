@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -205,6 +206,48 @@ serve(async (req) => {
       .eq('key', 'social_webhooks');
 
     console.log(`scheduled-social-post: Completed. Posted ${totalPosted} properties`);
+
+    // Send email notification if enabled
+    if (settings.emailNotifications && settings.notificationEmail && totalPosted > 0) {
+      try {
+        const resendApiKey = Deno.env.get('RESEND_API_KEY');
+        if (resendApiKey) {
+          const resend = new Resend(resendApiKey);
+          
+          const propertyList = allResults.map(r => {
+            const platformResults = Object.entries(r.results || {})
+              .map(([platform, success]) => `${platform}: ${success ? '✅' : '❌'}`)
+              .join(', ');
+            return `• ${r.title} - ${platformResults}`;
+          }).join('\n');
+
+          await resend.emails.send({
+            from: 'MVA Imobiliare <noreply@mvaimobiliare.ro>',
+            to: [settings.notificationEmail],
+            subject: `📢 ${totalPosted} proprietăți trimise către Zapier`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #D4AF37;">🏠 Notificare Trimitere Automată</h2>
+                <p>Au fost trimise <strong>${totalPosted} proprietăți</strong> către webhook-urile Zapier configurate.</p>
+                
+                <h3 style="color: #333;">Detalii:</h3>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                  <pre style="margin: 0; white-space: pre-wrap; font-size: 14px;">${propertyList}</pre>
+                </div>
+                
+                <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                  Acest email a fost trimis automat de sistemul MVA Imobiliare.<br>
+                  Data: ${new Date().toLocaleString('ro-RO')}
+                </p>
+              </div>
+            `,
+          });
+          console.log('scheduled-social-post: Email notification sent');
+        }
+      } catch (emailError) {
+        console.error('scheduled-social-post: Error sending email notification:', emailError);
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
