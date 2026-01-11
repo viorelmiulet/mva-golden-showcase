@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, StarOff, Paperclip } from "lucide-react";
+import { Star, StarOff, Paperclip, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Email {
@@ -17,6 +17,7 @@ interface EmailListItemProps {
   isSelected: boolean;
   onSelect: () => void;
   onToggleStar: (e: React.MouseEvent) => void;
+  onDelete: (e: React.MouseEvent) => void;
   extractSenderName: (sender: string) => string;
   extractSenderInitials: (sender: string) => string;
   formatEmailDate: (date: string) => string;
@@ -27,6 +28,7 @@ export const EmailListItem = ({
   isSelected,
   onSelect,
   onToggleStar,
+  onDelete,
   extractSenderName,
   extractSenderInitials,
   formatEmailDate,
@@ -98,20 +100,33 @@ export const EmailListItem = ({
           </div>
         </div>
         
-        {/* Quick star action - always visible on mobile */}
-        <button
-          onClick={onToggleStar}
-          className={cn(
-            "transition-opacity p-1 md:p-1.5 hover:bg-white/10 rounded-lg",
-            "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-          )}
-        >
-          {email.is_starred ? (
-            <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-          ) : (
-            <StarOff className="h-4 w-4 text-muted-foreground" />
-          )}
-        </button>
+        {/* Quick actions - always visible on mobile */}
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={onDelete}
+            className={cn(
+              "transition-opacity p-1 md:p-1.5 hover:bg-red-500/20 rounded-lg",
+              "opacity-100 md:opacity-0 md:group-hover:opacity-100"
+            )}
+            title="Șterge"
+          >
+            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-400" />
+          </button>
+          <button
+            onClick={onToggleStar}
+            className={cn(
+              "transition-opacity p-1 md:p-1.5 hover:bg-white/10 rounded-lg",
+              "opacity-100 md:opacity-0 md:group-hover:opacity-100"
+            )}
+            title={email.is_starred ? "Elimină steluța" : "Adaugă steluță"}
+          >
+            {email.is_starred ? (
+              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+            ) : (
+              <StarOff className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+        </div>
       </div>
     </motion.div>
   );

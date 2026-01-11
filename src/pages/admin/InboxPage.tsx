@@ -1028,6 +1028,10 @@ const InboxPage = () => {
                       isSelected={selectedEmail?.id === email.id}
                       onSelect={() => handleSelectEmail(email)}
                       onToggleStar={(e) => handleToggleStar(e, email)}
+                      onDelete={(e) => {
+                        e.stopPropagation();
+                        filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : deleteEmailMutation.mutate(email.id);
+                      }}
                       extractSenderName={extractSenderName}
                       extractSenderInitials={extractSenderInitials}
                       formatEmailDate={formatEmailDate}

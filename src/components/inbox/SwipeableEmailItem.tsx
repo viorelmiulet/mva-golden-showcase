@@ -154,6 +154,10 @@ export const SwipeableEmailItem = ({
           isSelected={isSelected}
           onSelect={onSelect}
           onToggleStar={onToggleStar}
+          onDelete={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
           extractSenderName={extractSenderName}
           extractSenderInitials={extractSenderInitials}
           formatEmailDate={formatEmailDate}
