@@ -368,6 +368,7 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
     }
   });
 
@@ -381,6 +382,7 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
       setSelectedEmail(null);
       toast.success('Email șters');
     }
