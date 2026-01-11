@@ -315,7 +315,9 @@ const InboxPage = () => {
       }
       console.log('[InboxPage] Fetched received emails:', data?.length, data);
       return data as ReceivedEmail[];
-    }
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh
+    gcTime: 1000 * 60 * 30, // 30 minutes - keep in cache
   });
 
   // Query for archived count
