@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap, Save } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -121,6 +121,8 @@ export const SocialMediaContentGenerator = () => {
   const [bulkProgress, setBulkProgress] = useState<{ platform: string; current: number; total: number } | null>(null);
   const [bulkSendDialogOpen, setBulkSendDialogOpen] = useState(false);
   const [selectedImagesForBulk, setSelectedImagesForBulk] = useState<string[]>([]);
+  const [isSavingToGallery, setIsSavingToGallery] = useState<Platform | null>(null);
+  const [isSavingAllToGallery, setIsSavingAllToGallery] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -513,6 +515,89 @@ export const SocialMediaContentGenerator = () => {
     toast.success('Imagine descărcată!');
   };
 
+  const saveImageToGallery = async (imageUrl: string, platform: Platform) => {
+    setIsSavingToGallery(platform);
+    try {
+      // Fetch the image and convert to blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const filename = `social-${platform}-${timestamp}.png`;
+      
+      const { error } = await supabase.storage
+        .from('virtual-staging')
+        .upload(`generated-images/${filename}`, blob, {
+          contentType: 'image/png',
+          upsert: false
+        });
+
+      if (error) throw error;
+      
+      toast.success(`Imaginea pentru ${platforms.find(p => p.id === platform)?.name} a fost salvată în galerie!`);
+      
+      // Reload gallery images
+      loadGalleryImages();
+    } catch (error) {
+      console.error('Error saving image to gallery:', error);
+      toast.error('Eroare la salvarea imaginii în galerie');
+    } finally {
+      setIsSavingToGallery(null);
+    }
+  };
+
+  const saveAllImagesToGallery = async () => {
+    const platformsWithImages = platforms.filter(p => generatedImages[p.id]);
+    if (platformsWithImages.length === 0) {
+      toast.error('Nu există imagini de salvat');
+      return;
+    }
+
+    setIsSavingAllToGallery(true);
+    let savedCount = 0;
+
+    try {
+      toast.info(`Salvez ${platformsWithImages.length} imagini în galerie...`);
+
+      for (const platform of platformsWithImages) {
+        try {
+          const imageUrl = generatedImages[platform.id];
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          
+          const timestamp = Date.now();
+          const filename = `social-${platform.id}-${timestamp}.png`;
+          
+          const { error } = await supabase.storage
+            .from('virtual-staging')
+            .upload(`generated-images/${filename}`, blob, {
+              contentType: 'image/png',
+              upsert: false
+            });
+
+          if (!error) {
+            savedCount++;
+          }
+        } catch (err) {
+          console.error(`Error saving ${platform.id} image:`, err);
+        }
+      }
+
+      if (savedCount > 0) {
+        toast.success(`${savedCount} imagini salvate în galerie!`);
+        loadGalleryImages();
+      } else {
+        toast.error('Nu s-a putut salva nicio imagine');
+      }
+    } catch (error) {
+      console.error('Error saving images:', error);
+      toast.error('Eroare la salvarea imaginilor');
+    } finally {
+      setIsSavingAllToGallery(false);
+    }
+  };
+
   const currentPlatform = platforms.find(p => p.id === selectedPlatform)!;
   const currentText = generatedTexts[selectedPlatform];
   const currentImage = generatedImages[selectedPlatform];
@@ -578,6 +663,26 @@ export const SocialMediaContentGenerator = () => {
               <>
                 <Wand2 className="h-4 w-4 mr-2" />
                 Generează pentru Toate Platformele
+              </>
+            )}
+          </Button>
+
+          {/* Save All to Gallery Button */}
+          <Button
+            variant="outline"
+            onClick={saveAllImagesToGallery}
+            disabled={isSavingAllToGallery || !Object.values(generatedImages).some(img => img)}
+            className="gap-2"
+          >
+            {isSavingAllToGallery ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Salvare...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Salvează în Galerie
               </>
             )}
           </Button>
@@ -1054,7 +1159,7 @@ export const SocialMediaContentGenerator = () => {
                         Generată
                       </Badge>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -1063,6 +1168,25 @@ export const SocialMediaContentGenerator = () => {
                       >
                         <Download className="h-4 w-4" />
                         Descarcă
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => saveImageToGallery(generatedImages[platform.id], platform.id)}
+                        disabled={isSavingToGallery !== null}
+                        className="gap-2"
+                      >
+                        {isSavingToGallery === platform.id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Salvare...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4" />
+                            Salvează în Galerie
+                          </>
+                        )}
                       </Button>
                       <Button
                         variant="outline"
