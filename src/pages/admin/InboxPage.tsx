@@ -1043,25 +1043,15 @@ const InboxPage = () => {
               >
                 Anulează
               </Button>
-              <label className="flex-1 sm:flex-none">
+              <label className="flex-1 sm:flex-none cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-white/10 bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
                 <Input
                   type="file"
                   multiple
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <Button 
-                  type="button"
-                  variant="outline" 
-                  size="sm"
-                  className="border-white/10 w-full h-9"
-                  asChild
-                >
-                  <span>
-                    <Paperclip className="h-4 w-4 mr-1.5" />
-                    Atașează
-                  </span>
-                </Button>
+                <Paperclip className="h-4 w-4" />
+                <span>Atașează</span>
               </label>
             </div>
             <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
