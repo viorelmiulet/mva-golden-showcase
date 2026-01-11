@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,12 +43,26 @@ import {
   AlertCircle,
   Search,
   RefreshCw,
+  CalendarCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface ViewingAppointment {
   id: string;
@@ -182,58 +197,81 @@ const ViewingAppointmentsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Programări Vizionări</h1>
-          <p className="text-muted-foreground mt-1">Gestionează cererile de vizionare</p>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/10">
+              <CalendarCheck className="h-6 w-6 text-gold" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Programări Vizionări</h1>
+            <p className="text-muted-foreground/70 text-sm">Gestionează cererile de vizionare</p>
+          </div>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
+        <Button onClick={() => refetch()} variant="outline" className="border-white/10 hover:bg-white/5">
           <RefreshCw className="w-4 h-4 mr-2" />
           Actualizează
         </Button>
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <AlertCircle className="w-6 h-6 text-yellow-600" />
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="relative group">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 hover:border-yellow-500/30 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                <AlertCircle className="w-6 h-6 text-yellow-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground/70">În așteptare</p>
+                <p className="text-2xl font-bold">{pendingCount}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">În așteptare</p>
-              <p className="text-2xl font-bold">{pendingCount}</p>
+          </div>
+        </div>
+        <div className="relative group">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 hover:border-emerald-500/30 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <CheckCircle className="w-6 h-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground/70">Confirmate</p>
+                <p className="text-2xl font-bold">{confirmedCount}</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+          </div>
+        </div>
+        <div className="relative group">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 hover:border-blue-500/30 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                <Calendar className="w-6 h-6 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground/70">Azi</p>
+                <p className="text-2xl font-bold">{todayCount}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Confirmate</p>
-              <p className="text-2xl font-bold">{confirmedCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Azi</p>
-              <p className="text-2xl font-bold">{todayCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
+      <motion.div variants={itemVariants}>
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-4 backdrop-blur-sm">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -241,14 +279,14 @@ const ViewingAppointmentsPage = () => {
                 placeholder="Caută după nume, telefon sau proprietate..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px] bg-white/5 border-white/10">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover/95 backdrop-blur-xl border-white/10">
                 <SelectItem value="all">Toate</SelectItem>
                 <SelectItem value="pending">În așteptare</SelectItem>
                 <SelectItem value="confirmed">Confirmate</SelectItem>
@@ -257,15 +295,16 @@ const ViewingAppointmentsPage = () => {
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </motion.div>
 
       {/* Appointments */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista programărilor ({filteredAppointments?.length || 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <motion.div variants={itemVariants}>
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
+          <div className="p-6 border-b border-white/5">
+            <h3 className="text-lg font-semibold">Lista programărilor ({filteredAppointments?.length || 0})</h3>
+          </div>
+          <div className="p-6">
           {filteredAppointments && filteredAppointments.length > 0 ? (
             isMobile ? (
               /* Mobile Card View */
@@ -469,9 +508,9 @@ const ViewingAppointmentsPage = () => {
               <p className="text-muted-foreground">Nu există programări</p>
             </div>
           )}
-        </CardContent>
-      </Card>
-
+          </div>
+        </div>
+      </motion.div>
 
       {/* Edit Dialog */}
       <Dialog open={!!editingAppointment} onOpenChange={(open) => !open && setEditingAppointment(null)}>
@@ -534,7 +573,7 @@ const ViewingAppointmentsPage = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 
