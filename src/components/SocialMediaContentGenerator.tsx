@@ -4,10 +4,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2 } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { postToSocialMedia, getConfiguredPlatforms } from "@/lib/socialDirectPost";
 
 type Platform = "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
 
@@ -88,10 +92,67 @@ export const SocialMediaContentGenerator = () => {
   });
   const [isGeneratingText, setIsGeneratingText] = useState(false);
   const [isLoadingProperties, setIsLoadingProperties] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [configuredPlatforms, setConfiguredPlatforms] = useState<string[]>([]);
+  const [postDialogOpen, setPostDialogOpen] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState("");
 
   useEffect(() => {
     loadProperties();
+    loadConfiguredPlatforms();
   }, []);
+
+  const loadConfiguredPlatforms = async () => {
+    const platforms = await getConfiguredPlatforms();
+    setConfiguredPlatforms(platforms);
+  };
+
+  const addImageUrl = () => {
+    if (newImageUrl.trim() && !imageUrls.includes(newImageUrl.trim())) {
+      setImageUrls([...imageUrls, newImageUrl.trim()]);
+      setNewImageUrl("");
+    }
+  };
+
+  const removeImageUrl = (url: string) => {
+    setImageUrls(imageUrls.filter(u => u !== url));
+  };
+
+  const postToWebhook = async () => {
+    const text = generatedTexts[selectedPlatform];
+    if (!text.trim()) {
+      toast.error("Nu există text pentru postare");
+      return;
+    }
+
+    if (!configuredPlatforms.includes(selectedPlatform)) {
+      toast.error(`Webhook-ul pentru ${platforms.find(p => p.id === selectedPlatform)?.name} nu este configurat`);
+      return;
+    }
+
+    setIsPosting(true);
+    try {
+      const success = await postToSocialMedia({
+        text,
+        imageUrls,
+        platform: selectedPlatform
+      });
+
+      if (success) {
+        toast.success(`Conținut trimis către ${platforms.find(p => p.id === selectedPlatform)?.name}!`);
+        setPostDialogOpen(false);
+        setImageUrls([]);
+      } else {
+        toast.error("Nu s-a putut posta conținutul");
+      }
+    } catch (error) {
+      console.error('Error posting:', error);
+      toast.error("Eroare la postare");
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   const loadProperties = async () => {
     setIsLoadingProperties(true);
@@ -362,19 +423,120 @@ export const SocialMediaContentGenerator = () => {
                     placeholder={`Textul pentru ${platform.name} va apărea aici...`}
                     className="resize-none bg-background"
                   />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="text-xs text-muted-foreground">
                       {generatedTexts[platform.id].length} / {platform.maxLength} caractere
                     </span>
                     {generatedTexts[platform.id] && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(generatedTexts[platform.id], platform.name)}
-                      >
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copiază
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(generatedTexts[platform.id], platform.name)}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiază
+                        </Button>
+                        
+                        <Dialog open={postDialogOpen && selectedPlatform === platform.id} onOpenChange={setPostDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              disabled={!configuredPlatforms.includes(platform.id)}
+                              className="bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
+                              onClick={() => setSelectedPlatform(platform.id)}
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              Postează
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle className="flex items-center gap-2">
+                                <platform.icon className={`h-5 w-5 ${platform.color}`} />
+                                Postează pe {platform.name}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Trimite conținutul către webhook-ul configurat pentru {platform.name}
+                              </DialogDescription>
+                            </DialogHeader>
+                            
+                            <div className="space-y-4">
+                              {/* Text Preview */}
+                              <div className="space-y-2">
+                                <Label>Text</Label>
+                                <div className="p-3 rounded-lg bg-muted/50 text-sm max-h-32 overflow-y-auto">
+                                  {generatedTexts[platform.id]}
+                                </div>
+                              </div>
+                              
+                              {/* Image URLs */}
+                              <div className="space-y-2">
+                                <Label className="flex items-center gap-2">
+                                  <ImagePlus className="h-4 w-4" />
+                                  Imagini (URL-uri)
+                                </Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    value={newImageUrl}
+                                    onChange={(e) => setNewImageUrl(e.target.value)}
+                                    placeholder="https://example.com/image.jpg"
+                                    onKeyDown={(e) => e.key === 'Enter' && addImageUrl()}
+                                  />
+                                  <Button variant="outline" onClick={addImageUrl}>
+                                    Adaugă
+                                  </Button>
+                                </div>
+                                
+                                {imageUrls.length > 0 && (
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    {imageUrls.map((url, i) => (
+                                      <Badge key={i} variant="secondary" className="flex items-center gap-1">
+                                        <span className="max-w-[150px] truncate text-xs">{url}</span>
+                                        <button 
+                                          onClick={() => removeImageUrl(url)}
+                                          className="ml-1 hover:text-destructive"
+                                        >
+                                          ×
+                                        </button>
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setPostDialogOpen(false)}>
+                                Anulează
+                              </Button>
+                              <Button 
+                                onClick={postToWebhook}
+                                disabled={isPosting}
+                                className="bg-gradient-to-r from-primary to-gold"
+                              >
+                                {isPosting ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                    Se trimite...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="h-4 w-4 mr-2" />
+                                    Trimite
+                                  </>
+                                )}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        
+                        {!configuredPlatforms.includes(platform.id) && (
+                          <span className="text-xs text-muted-foreground">
+                            (webhook neconfigurat)
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
