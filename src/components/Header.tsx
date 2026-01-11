@@ -119,7 +119,7 @@ const Header = () => {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
       isScrolled 
-        ? 'glass-strong border-b border-gold/20' 
+        ? 'glass-strong border-b border-gold/20 shadow-glass' 
         : 'bg-transparent'
     }`}>
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
@@ -233,7 +233,7 @@ const Header = () => {
                 <Link 
                   key={item.id}
                   to={item.id}
-                  className={`px-3 py-2 transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm ${
+                  className={`relative px-3 py-2 transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm group ${
                     location.pathname === item.id 
                       ? 'text-gold bg-gold/10' 
                       : 'text-foreground hover:text-gold'
@@ -241,14 +241,18 @@ const Header = () => {
                   {...prefetchProps}
                 >
                   {item.name}
+                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-gold transition-all duration-300 ${
+                    location.pathname === item.id ? 'w-1/2' : 'w-0 group-hover:w-1/3'
+                  }`}></span>
                 </Link>
               ) : (
                 <button 
                   key={item.id}
                   onClick={() => handleNavigation(item)} 
-                  className="px-3 py-2 text-foreground hover:text-gold transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm"
+                  className="relative px-3 py-2 text-foreground hover:text-gold transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm group"
                 >
                   {item.name}
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-gold transition-all duration-300 group-hover:w-1/3"></span>
                 </button>
               )
             })}
@@ -300,7 +304,7 @@ const Header = () => {
               </>
             ) : null}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-              <Button variant="luxury" size="sm" className="shadow-lg shadow-gold/20 text-xs">
+              <Button variant="luxury" size="sm" className="glow-gold shimmer text-xs">
                 <WhatsAppIcon className="w-3 h-3 mr-2" />
                 {t.common.whatsapp}
               </Button>
