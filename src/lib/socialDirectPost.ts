@@ -56,6 +56,7 @@ export const postToSocialMedia = async (content: PostContent): Promise<boolean> 
       },
       mode: "no-cors",
       body: JSON.stringify({
+        message: content.text,
         text: content.text,
         images: content.imageUrls || [],
         platform: content.platform,
@@ -118,6 +119,7 @@ export const postBulkToZapier = async (
           },
           mode: "no-cors",
           body: JSON.stringify({
+            message: content.texts[platform],
             text: content.texts[platform],
             images: content.imageUrls || [],
             platform,
