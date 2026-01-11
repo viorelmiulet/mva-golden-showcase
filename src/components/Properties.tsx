@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
+import ScrollReveal from "@/components/ScrollReveal"
 
 const Properties = () => {
   // Fetch 12 random offers from catalog_offers (exclude apartments from residential complexes)
@@ -177,76 +178,82 @@ const Properties = () => {
         <div className="max-w-7xl mx-auto">
           
           {/* Header */}
-          <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
-              <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
-              <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
-                <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                Proiecte Exclusive
-              </Badge>
-              <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
-              <span className="text-foreground">Descoperă </span>
-              <span className="text-gradient-gold">Proprietățile</span>
-            </h1>
-            
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-              Descoperă selecția noastră de apartamente și case din București și împrejurimi, 
-              cu finisaje moderne și prețuri competitive.
-            </p>
-            
-            {/* Navigation CTAs */}
-            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Link to="/proprietati">
-                <Button 
-                  variant="luxury" 
-                  size="lg" 
-                  className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer"
-                >
-                  Vezi toate proprietățile
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            </div>
-          </header>
-
-          {/* Properties Grid */}
-          <div className="mb-12 sm:mb-16">
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          <ScrollReveal>
+            <header className="text-center mb-12 sm:mb-16 lg:mb-20">
+              <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
+                <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
+                <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                  Proiecte Exclusive
+                </Badge>
+                <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
               </div>
-            ) : randomOffers.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Nu sunt disponibile proprietăți momentan.</p>
-              </div>
-            ) : (
-              renderOffers(randomOffers)
-            )}
-          </div>
-
-            {/* CTA Section */}
-          <footer className="text-center">
-            <div className="card-modern border-glow rounded-2xl lg:rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">
-                <span className="text-foreground">Vrei să </span>
-                <span className="text-gradient-gold">Explorezi Mai Mult?</span>
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
-                Vezi toate proprietățile disponibile și descoperă oferta noastră premium.
+              
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+                <span className="text-foreground">Descoperă </span>
+                <span className="text-gradient-gold">Proprietățile</span>
+              </h1>
+              
+              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+                Descoperă selecția noastră de apartamente și case din București și împrejurimi, 
+                cu finisaje moderne și prețuri competitive.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              
+              {/* Navigation CTAs */}
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link to="/proprietati">
-                  <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer">
-                    Toate proprietățile
+                  <Button 
+                    variant="luxury" 
+                    size="lg" 
+                    className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer"
+                  >
+                    Vezi toate proprietățile
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
+            </header>
+          </ScrollReveal>
+
+          {/* Properties Grid */}
+          <ScrollReveal delay={0.2}>
+            <div className="mb-12 sm:mb-16">
+              {isLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-gold" />
+                </div>
+              ) : randomOffers.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Nu sunt disponibile proprietăți momentan.</p>
+                </div>
+              ) : (
+                renderOffers(randomOffers)
+              )}
             </div>
-          </footer>
+          </ScrollReveal>
+
+          {/* CTA Section */}
+          <ScrollReveal delay={0.3}>
+            <footer className="text-center">
+              <div className="card-modern border-glow rounded-2xl lg:rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">
+                  <span className="text-foreground">Vrei să </span>
+                  <span className="text-gradient-gold">Explorezi Mai Mult?</span>
+                </h2>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
+                  Vezi toate proprietățile disponibile și descoperă oferta noastră premium.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                  <Link to="/proprietati">
+                    <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer">
+                      Toate proprietățile
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </footer>
+          </ScrollReveal>
         </div>
       </div>
     </section>

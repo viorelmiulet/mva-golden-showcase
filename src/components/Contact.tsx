@@ -17,6 +17,7 @@ import {
   Send
 } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
+import ScrollReveal from "@/components/ScrollReveal"
 
 const Contact = () => {
   const { data: settings } = useSiteSettings();
@@ -155,33 +156,35 @@ const Contact = () => {
         <div className="max-w-6xl mx-auto">
           
           {/* Header with Animation */}
-          <div className="text-center mb-12 sm:mb-16 lg:mb-20 animate-fade-in">
-            <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
-              <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
-              <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
-                {language === 'ro' ? 'Hai să vorbim' : "Let's talk"}
-              </Badge>
-              <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
+          <ScrollReveal>
+            <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+              <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
+                <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
+                <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
+                  {language === 'ro' ? 'Hai să vorbim' : "Let's talk"}
+                </Badge>
+                <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
+              </div>
+              
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+                <span className="text-foreground">{t.contact?.title || 'Contactează-ne'} </span>
+                <span className="text-gradient-gold">
+                  {language === 'ro' ? 'Astăzi' : 'Today'}
+                </span>
+              </h2>
+              
+              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+                {language === 'ro' 
+                  ? 'Suntem aici să răspundem la întrebările tale despre complexele rezidențiale și să te ghidăm către apartamentul perfect pentru tine.'
+                  : 'We are here to answer your questions about residential complexes and guide you to the perfect apartment for you.'}
+              </p>
             </div>
-            
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
-              <span className="text-foreground">{t.contact?.title || 'Contactează-ne'} </span>
-              <span className="text-gradient-gold">
-                {language === 'ro' ? 'Astăzi' : 'Today'}
-              </span>
-            </h2>
-            
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-              {language === 'ro' 
-                ? 'Suntem aici să răspundem la întrebările tale despre complexele rezidențiale și să te ghidăm către apartamentul perfect pentru tine.'
-                : 'We are here to answer your questions about residential complexes and guide you to the perfect apartment for you.'}
-            </p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 items-start">
             
             {/* Contact Information */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+            <ScrollReveal direction="left" className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
               <div className="space-y-3 sm:space-y-4 lg:space-y-6">
                 {contactInfo.map((item, index) => {
                   const Icon = item.icon
@@ -247,10 +250,10 @@ const Contact = () => {
                   </a>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Contact Form - Enhanced */}
-            <div className="lg:col-span-3">
+            <ScrollReveal direction="right" delay={0.2} className="lg:col-span-3">
               <Card className="card-modern border-glow border-0">
                 {/* Decorative Background Elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-gold/10 to-transparent rounded-full blur-3xl -z-10"></div>
@@ -372,7 +375,7 @@ const Contact = () => {
                   </form>
                 </CardContent>
               </Card>
-            </div>
+            </ScrollReveal>
           </div>
 
           {/* Google Maps */}
