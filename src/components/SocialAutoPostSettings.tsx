@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
 
 interface WebhookSettings {
   facebook?: string;
@@ -28,6 +30,22 @@ export const SocialAutoPostSettings = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+
+  // Fetch properties for manual send
+  const { data: properties } = useQuery({
+    queryKey: ['properties-for-webhook'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('catalog_offers')
+        .select('id, title, location')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    }
+  });
 
   useEffect(() => {
     loadSettings();
@@ -108,6 +126,44 @@ export const SocialAutoPostSettings = () => {
       toast.error(`Eroare: ${error.message || 'Eroare la testare'}`);
     } finally {
       setIsTesting(false);
+    }
+  };
+
+  const sendPropertyToWebhook = async () => {
+    if (!selectedPropertyId) {
+      toast.error('Selectează o proprietate');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      console.log('Sending property to webhook:', selectedPropertyId);
+      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+        body: { propertyId: selectedPropertyId }
+      });
+
+      console.log('Send response:', data, error);
+
+      if (error) throw error;
+
+      if (data.success) {
+        const successPlatforms = Object.entries(data.results || {})
+          .filter(([_, success]) => success)
+          .map(([platform]) => platform);
+        
+        if (successPlatforms.length > 0) {
+          toast.success(`Trimis cu succes către: ${successPlatforms.join(', ')}`);
+        } else {
+          toast.warning('Niciun webhook nu a răspuns cu succes');
+        }
+      } else {
+        toast.error(data.error || 'Eroare la trimitere');
+      }
+    } catch (error: any) {
+      console.error('Send error:', error);
+      toast.error(`Eroare: ${error.message || 'Eroare la trimitere'}`);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -208,6 +264,39 @@ export const SocialAutoPostSettings = () => {
             <TestTube className="h-4 w-4" />
             {isTesting ? 'Se testează...' : 'Testează Conexiunea'}
           </Button>
+        </div>
+
+        {/* Manual Send Section */}
+        <div className="p-4 border rounded-lg space-y-3">
+          <h4 className="font-medium text-sm flex items-center gap-2">
+            <Send className="h-4 w-4" />
+            Trimite Manual o Proprietate
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            Selectează o proprietate existentă pentru a o trimite către webhook-uri
+          </p>
+          <div className="flex gap-3">
+            <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selectează o proprietate..." />
+              </SelectTrigger>
+              <SelectContent>
+                {properties?.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.title} {property.location ? `- ${property.location}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={sendPropertyToWebhook} 
+              disabled={isSending || !selectedPropertyId}
+              className="gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSending ? 'Se trimite...' : 'Trimite'}
+            </Button>
+          </div>
         </div>
 
         <div className="p-4 bg-muted/50 rounded-lg space-y-2">
