@@ -168,13 +168,13 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
         ${collapsed ? "w-16" : "w-64"} 
         admin-sidebar-modern
         transition-all duration-300 ease-out shrink-0
-        hidden md:flex
+        hidden md:flex flex-col
       `} 
       collapsible="icon"
     >
       <SidebarContent className="h-full bg-transparent">
         {/* Logo/Toggle Area */}
-        <div className="p-3 border-b border-white/5 flex items-center justify-between">
+        <div className={`p-3 border-b border-white/5 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
           {!collapsed && (
             <motion.div 
               className="flex items-center gap-2"
@@ -202,7 +202,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className={`h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors ${collapsed ? 'mx-auto' : ''}`}
+              className="h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors"
               title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
             >
               <motion.div
@@ -219,7 +219,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
           </motion.div>
         </div>
 
-        <SidebarGroup className="flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] py-4 px-2">
+        <SidebarGroup className={`flex-1 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] py-4 ${collapsed ? 'px-1' : 'px-2'}`}>
           {!collapsed && (
             <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mb-2 px-3">
               Meniu Principal
@@ -252,20 +252,26 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                               to={item.url}
                               end={item.exact}
                               className={`
-                                flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+                                flex items-center rounded-lg text-sm font-medium
                                 transition-all duration-200 group
+                                ${collapsed 
+                                  ? 'justify-center p-2 mx-auto w-10 h-10' 
+                                  : 'gap-3 px-3 py-2'
+                                }
                                 ${isActive 
-                                  ? 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold ml-0' 
+                                  ? collapsed 
+                                    ? 'bg-gold/20 text-gold' 
+                                    : 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold' 
                                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
                                 }
-                                ${collapsed ? 'justify-center px-0' : ''}
+                                ${collapsed ? '' : 'ml-0'}
                               `}
                               title={collapsed ? item.title : undefined}
                             >
                               <motion.div 
                                 className={`
-                                  p-1.5 rounded-md transition-colors
-                                  ${isActive ? 'bg-gold/20' : 'bg-white/5 group-hover:bg-white/10'}
+                                  ${collapsed ? '' : 'p-1.5'} rounded-md transition-colors
+                                  ${isActive && !collapsed ? 'bg-gold/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
                                 `}
                                 variants={iconHoverVariants}
                                 initial="rest"
