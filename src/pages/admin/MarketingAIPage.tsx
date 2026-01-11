@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import { FacebookContentGenerator } from "@/components/FacebookContentGenerator";
+import { SocialMediaContentGenerator } from "@/components/SocialMediaContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
 
 const containerVariants = {
@@ -38,13 +38,14 @@ const MarketingAIPage = () => {
         </div>
       </motion.div>
 
-      {/* Content */}
+      {/* Social Media Content Generator */}
+      <motion.div variants={itemVariants}>
+        <SocialMediaContentGenerator />
+      </motion.div>
+
+      {/* Image Generator */}
       <motion.div variants={itemVariants}>
         <FurnishedImageGenerator />
-      </motion.div>
-      
-      <motion.div variants={itemVariants}>
-        <FacebookContentGenerator />
       </motion.div>
     </motion.div>
   );

@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, propertyData } = await req.json();
+    const { type, propertyData, customPrompt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -22,8 +22,8 @@ serve(async (req) => {
     console.log('Generating content for type:', type);
 
     if (type === 'text') {
-      // Generate promotional text using Gemini Flash
-      const textPrompt = propertyData 
+      // Use custom prompt if provided, otherwise use default Facebook prompt
+      const textPrompt = customPrompt || (propertyData 
         ? `Creează un text promoțional FOARTE DETALIAT și captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Proprietate: ${propertyData.title || 'Proprietate exclusivă'}
            Locație: ${propertyData.location || 'Locație excelentă'}
@@ -43,16 +43,6 @@ serve(async (req) => {
            - În limba română
            - NU folosi cuvintele "lux" sau "luxury"
            
-           Structura textului (FIECARE SECȚIUNE TREBUIE SĂ FIE FOARTE DETALIATĂ):
-           1. 🏠 Introducere captivantă despre proprietate (3-4 paragrafe)
-           2. ✨ Descriere AMĂNUNȚITĂ a caracteristicilor principale și a fiecărei camere
-           3. 📍 Avantajele locației, zonei și vecinătății (transportul, facilitățile din apropiere)
-           4. 💎 Informații detaliate despre facilități, dotări și finisaje
-           5. 🔑 Informații despre investiție și oportunitate
-           6. 🎯 Call-to-action puternic
-           
-           IMPORTANT: Folosește emoticoane frecvent pentru a face textul mai atractiv și ușor de citit!
-           
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
            📧 contact@mvaimobiliare.ro
@@ -60,31 +50,17 @@ serve(async (req) => {
         : `Creează un text promoțional FOARTE DETALIAT și captivant pentru Facebook pentru agenția imobiliară MVA IMOBILIARE. 
            Textul trebuie să:
            - Fie EXTREM DE LUNG și DETALIAT (minim 1200-1500 caractere pentru conținutul principal)
-           - Să folosească MULTE emoticoane relevante pe tot parcursul textului (🏠 🌟 ✨ 🔑 💎 🏡 🤝 💼 📊 📈 ⭐ 🎯 👨‍💼 👩‍💼 etc.)
+           - Să folosească MULTE emoticoane relevante pe tot parcursul textului
            - Prezinte în detaliu TOATE serviciile și avantajele agenției
            - Fie profesional, atractiv și FOARTE cuprinzător
-           - Să descrie EXTENSIV experiența și expertiza echipei
-           - Să prezinte portofoliul și realizările în detaliu
-           - Să evidențieze CE NE FACE SPECIALI față de competiție
            - Să includă call-to-action puternic
-           - Fie optimizat pentru Facebook
            - Fie în limba română
            - NU folosi cuvintele "lux" sau "luxury"
-           
-           Structura textului (FIECARE SECȚIUNE TREBUIE SĂ FIE FOARTE DETALIATĂ):
-           1. 🏠 Introducere captivantă despre MVA IMOBILIARE (3-4 paragrafe)
-           2. ✨ Servicii oferite în DETALIU AMPLU (vânzări, închirieri, consultanță, etc.)
-           3. 💎 Avantajele de a colabora cu noi - FIECARE AVANTAJ EXPLICAT
-           4. 👨‍💼 Experiența și profesionalismul echipei - POVEȘTI DE SUCCES
-           5. 📊 Rezultate și realizări concrete
-           6. 🎯 Call-to-action puternic
-           
-           IMPORTANT: Folosește emoticoane frecvent pentru a face textul mai atractiv și ușor de citit!
            
            La final adaugă OBLIGATORIU pe linii separate:
            📞 0767.941.512
            📧 contact@mvaimobiliare.ro
-           🌐 mvaimobiliare.ro`;
+           🌐 mvaimobiliare.ro`);
 
       const textResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
