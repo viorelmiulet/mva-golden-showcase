@@ -8,18 +8,31 @@ import {
   PanelLeftOpen,
   Search,
   X,
-  Archive
+  Archive,
+  AtSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Draft {
   id: string;
   subject: string | null;
   recipient: string | null;
   updated_at: string;
+}
+
+interface EmailAddress {
+  email: string;
+  label: string;
 }
 
 interface InboxSidebarProps {
@@ -38,6 +51,9 @@ interface InboxSidebarProps {
   drafts: Draft[] | undefined;
   onLoadDraft: (draft: Draft) => void;
   onDeleteDraft: (e: React.MouseEvent, draftId: string) => void;
+  recipientFilter: string;
+  setRecipientFilter: (recipient: string) => void;
+  emailAddresses: EmailAddress[];
 }
 
 export const InboxSidebar = ({
@@ -56,6 +72,9 @@ export const InboxSidebar = ({
   drafts,
   onLoadDraft,
   onDeleteDraft,
+  recipientFilter,
+  setRecipientFilter,
+  emailAddresses,
 }: InboxSidebarProps) => {
   const filterItems = [
     { key: 'all' as const, label: 'Toate', count: emailsCount, icon: Mail },
@@ -153,6 +172,29 @@ export const InboxSidebar = ({
           </button>
         ))}
       </div>
+
+      {/* Recipient Filter */}
+      {!collapsed && emailAddresses.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+            <AtSign className="h-3 w-3" />
+            <span>Filtru destinatar</span>
+          </div>
+          <Select value={recipientFilter} onValueChange={setRecipientFilter}>
+            <SelectTrigger className="w-full bg-white/5 border-white/10 focus:border-gold/50">
+              <SelectValue placeholder="Toate adresele" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toate adresele</SelectItem>
+              {emailAddresses.map((addr) => (
+                <SelectItem key={addr.email} value={addr.email}>
+                  {addr.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Drafts Button */}
       <button
