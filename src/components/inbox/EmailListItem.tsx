@@ -43,7 +43,7 @@ export const EmailListItem = ({
         isSelected 
           ? "bg-gradient-to-r from-gold/10 to-transparent" 
           : "hover:bg-white/[0.03]",
-        !email.is_read && "bg-white/[0.02]"
+        !email.is_read && "bg-gold/[0.04] border-l-2 border-gold"
       )}
     >
       {/* Selection indicator */}
