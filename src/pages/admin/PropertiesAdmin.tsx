@@ -18,7 +18,9 @@ import {
   Edit,
   Save,
   Plus,
+  Send,
 } from "lucide-react";
+import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -49,6 +51,7 @@ const PropertiesAdmin = () => {
   });
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
+  const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -236,6 +239,33 @@ const PropertiesAdmin = () => {
     setAddImages([]);
   };
 
+  const sendToZapier = async (propertyId: string) => {
+    setSendingToZapier(propertyId);
+    try {
+      const success = await triggerSocialAutoPost(propertyId);
+      if (success) {
+        toast({
+          title: "Succes!",
+          description: "Proprietatea a fost trimisă către Zapier",
+        });
+      } else {
+        toast({
+          title: "Atenție",
+          description: "Webhook-urile nu sunt configurate sau sunt dezactivate",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error?.message || "Nu am putut trimite către Zapier",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingToZapier(null);
+    }
+  };
+
   const addProperty = async () => {
     if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
       toast({
@@ -401,6 +431,20 @@ const PropertiesAdmin = () => {
                         </div>
                       </div>
                       <div className="flex flex-col md:flex-row gap-1.5 md:gap-2 items-end md:items-start shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendToZapier(property.id)}
+                          disabled={sendingToZapier === property.id}
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                          title="Trimite către Zapier"
+                        >
+                          {sendingToZapier === property.id ? (
+                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-400" />
+                          ) : (
+                            <Send className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+                          )}
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
