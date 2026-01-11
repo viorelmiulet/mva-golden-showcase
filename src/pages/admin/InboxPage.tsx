@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/RichTextEditor";
-import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem } from "@/components/inbox";
+import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem, EmailAutocomplete } from "@/components/inbox";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
@@ -349,6 +349,36 @@ const InboxPage = () => {
     }
   });
 
+  const saveEmailContactMutation = useMutation({
+    mutationFn: async (email: string) => {
+      // Extract just the email if format is "Name <email@domain.com>"
+      const cleanEmail = email.includes('<') 
+        ? email.match(/<(.+)>/)?.[1]?.toLowerCase() || email.toLowerCase()
+        : email.toLowerCase();
+      
+      const { error } = await supabase
+        .from('email_contacts')
+        .upsert({ 
+          email: cleanEmail,
+          last_used_at: new Date().toISOString(),
+          use_count: 1
+        }, { 
+          onConflict: 'email',
+          ignoreDuplicates: false
+        });
+      
+      if (error) {
+        // If upsert fails, try to update the existing record
+        await supabase
+          .from('email_contacts')
+          .update({ 
+            last_used_at: new Date().toISOString()
+          })
+          .eq('email', cleanEmail);
+      }
+    }
+  });
+
   const sendEmailMutation = useMutation({
     mutationFn: async ({ to, cc, bcc, subject, body, attachments }: { 
       to: string;
@@ -362,12 +392,19 @@ const InboxPage = () => {
         body: { to, cc, bcc, subject, body, attachments }
       });
       if (error) throw error;
+      
+      // Save email contacts
+      saveEmailContactMutation.mutate(to);
+      if (cc) saveEmailContactMutation.mutate(cc);
+      if (bcc) saveEmailContactMutation.mutate(bcc);
+      
       return data;
     },
     onSuccess: () => {
       toast.success('Email-ul a fost trimis!');
       setComposeDialogOpen(false);
       resetComposeForm();
+      queryClient.invalidateQueries({ queryKey: ['email-contacts'] });
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
@@ -919,11 +956,10 @@ const InboxPage = () => {
                   </Button>
                 )}
               </div>
-              <Input
+              <EmailAutocomplete
                 value={composeTo}
-                onChange={(e) => setComposeTo(e.target.value)}
+                onChange={setComposeTo}
                 placeholder="email@example.com"
-                className="bg-white/5 border-white/10"
               />
             </div>
             
