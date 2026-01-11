@@ -4,14 +4,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import { postToSocialMedia, getConfiguredPlatforms } from "@/lib/socialDirectPost";
+
+interface GalleryImage {
+  name: string;
+  url: string;
+  createdAt: string;
+}
 
 type Platform = "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
 
@@ -97,15 +105,66 @@ export const SocialMediaContentGenerator = () => {
   const [postDialogOpen, setPostDialogOpen] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [isLoadingGallery, setIsLoadingGallery] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
 
   useEffect(() => {
     loadProperties();
     loadConfiguredPlatforms();
   }, []);
 
+  useEffect(() => {
+    if (postDialogOpen) {
+      loadGalleryImages();
+    }
+  }, [postDialogOpen]);
+
   const loadConfiguredPlatforms = async () => {
     const platforms = await getConfiguredPlatforms();
     setConfiguredPlatforms(platforms);
+  };
+
+  const loadGalleryImages = async () => {
+    setIsLoadingGallery(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from('virtual-staging')
+        .list('generated-images', {
+          limit: 50,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+
+      if (error) throw error;
+
+      const images = await Promise.all(
+        (data || []).map(async (file) => {
+          const { data: urlData } = supabase.storage
+            .from('virtual-staging')
+            .getPublicUrl(`generated-images/${file.name}`);
+          
+          return {
+            name: file.name,
+            url: urlData.publicUrl,
+            createdAt: file.created_at || new Date().toISOString()
+          };
+        })
+      );
+
+      setGalleryImages(images);
+    } catch (error) {
+      console.error('Error loading gallery images:', error);
+    } finally {
+      setIsLoadingGallery(false);
+    }
+  };
+
+  const toggleGalleryImage = (url: string) => {
+    if (imageUrls.includes(url)) {
+      setImageUrls(imageUrls.filter(u => u !== url));
+    } else {
+      setImageUrls([...imageUrls, url]);
+    }
   };
 
   const addImageUrl = () => {
@@ -470,37 +529,107 @@ export const SocialMediaContentGenerator = () => {
                                 </div>
                               </div>
                               
-                              {/* Image URLs */}
-                              <div className="space-y-2">
-                                <Label className="flex items-center gap-2">
-                                  <ImagePlus className="h-4 w-4" />
-                                  Imagini (URL-uri)
-                                </Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    value={newImageUrl}
-                                    onChange={(e) => setNewImageUrl(e.target.value)}
-                                    placeholder="https://example.com/image.jpg"
-                                    onKeyDown={(e) => e.key === 'Enter' && addImageUrl()}
-                                  />
-                                  <Button variant="outline" onClick={addImageUrl}>
-                                    Adaugă
+                              {/* Image Selection */}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <Label className="flex items-center gap-2">
+                                    <ImagePlus className="h-4 w-4" />
+                                    Imagini ({imageUrls.length} selectate)
+                                  </Label>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => setShowGallery(!showGallery)}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-2" />
+                                    {showGallery ? 'Ascunde Galeria' : 'Arată Galeria'}
                                   </Button>
                                 </div>
                                 
+                                {/* Gallery Images */}
+                                {showGallery && (
+                                  <div className="space-y-2">
+                                    <p className="text-xs text-muted-foreground">
+                                      Selectează imagini din galeria generată:
+                                    </p>
+                                    {isLoadingGallery ? (
+                                      <div className="flex items-center justify-center py-4">
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                      </div>
+                                    ) : galleryImages.length === 0 ? (
+                                      <p className="text-sm text-muted-foreground text-center py-4">
+                                        Nu există imagini în galerie. Generează imagini mai întâi.
+                                      </p>
+                                    ) : (
+                                      <ScrollArea className="h-48 rounded-lg border p-2">
+                                        <div className="grid grid-cols-3 gap-2">
+                                          {galleryImages.map((img) => (
+                                            <div 
+                                              key={img.name}
+                                              className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                                                imageUrls.includes(img.url) 
+                                                  ? 'border-primary ring-2 ring-primary/20' 
+                                                  : 'border-transparent hover:border-muted-foreground/30'
+                                              }`}
+                                              onClick={() => toggleGalleryImage(img.url)}
+                                            >
+                                              <img 
+                                                src={img.url} 
+                                                alt={img.name}
+                                                className="w-full h-20 object-cover"
+                                              />
+                                              {imageUrls.includes(img.url) && (
+                                                <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                                  <Check className="h-3 w-3" />
+                                                </div>
+                                              )}
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </ScrollArea>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Manual URL Input */}
+                                <div className="space-y-2">
+                                  <p className="text-xs text-muted-foreground">
+                                    Sau adaugă URL manual:
+                                  </p>
+                                  <div className="flex gap-2">
+                                    <Input
+                                      value={newImageUrl}
+                                      onChange={(e) => setNewImageUrl(e.target.value)}
+                                      placeholder="https://example.com/image.jpg"
+                                      onKeyDown={(e) => e.key === 'Enter' && addImageUrl()}
+                                    />
+                                    <Button variant="outline" size="sm" onClick={addImageUrl}>
+                                      Adaugă
+                                    </Button>
+                                  </div>
+                                </div>
+                                
+                                {/* Selected Images */}
                                 {imageUrls.length > 0 && (
-                                  <div className="flex flex-wrap gap-2 mt-2">
-                                    {imageUrls.map((url, i) => (
-                                      <Badge key={i} variant="secondary" className="flex items-center gap-1">
-                                        <span className="max-w-[150px] truncate text-xs">{url}</span>
-                                        <button 
-                                          onClick={() => removeImageUrl(url)}
-                                          className="ml-1 hover:text-destructive"
-                                        >
-                                          ×
-                                        </button>
-                                      </Badge>
-                                    ))}
+                                  <div className="space-y-2">
+                                    <p className="text-xs font-medium">Imagini selectate:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {imageUrls.map((url, i) => (
+                                        <div key={i} className="relative group">
+                                          <img 
+                                            src={url} 
+                                            alt={`Selected ${i + 1}`}
+                                            className="h-12 w-12 object-cover rounded-lg border"
+                                          />
+                                          <button 
+                                            onClick={() => removeImageUrl(url)}
+                                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                          >
+                                            ×
+                                          </button>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 )}
                               </div>
