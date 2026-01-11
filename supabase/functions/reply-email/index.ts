@@ -1,4 +1,5 @@
 import { sendMailgunEmail } from '../_shared/mailgun.ts';
+import { getFromAddressForFunction } from '../_shared/emailSettings.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,6 +40,10 @@ Deno.serve(async (req) => {
 
     console.log('Sending email to:', to, 'with', attachments?.length || 0, 'attachments');
 
+    // Get email sender settings from database
+    const fromAddress = await getFromAddressForFunction('reply');
+    console.log('Using from address:', fromAddress);
+
     // Build custom headers for threading
     const customHeaders: Record<string, string> = {};
     if (inReplyTo) {
@@ -57,6 +62,7 @@ Deno.serve(async (req) => {
       cc: cc || undefined,
       bcc: bcc || undefined,
       subject: subject || '(Fără subiect)',
+      from: fromAddress,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px;">
           ${bodyHtml}

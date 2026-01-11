@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getFromAddressForFunction } from '../_shared/emailSettings.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,7 +17,7 @@ const sendMailgunEmail = async (
   to: string[],
   subject: string,
   html: string,
-  from: string = "MVA Imobiliare <noreply@mvaimobiliare.ro>"
+  from: string
 ) => {
   const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
   const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
@@ -74,6 +75,10 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    // Get email sender settings from database
+    const fromAddress = await getFromAddressForFunction('contracts');
+    console.log("Using from address:", fromAddress);
 
     let propertyAddress = "";
     let signerName = "";
@@ -285,7 +290,8 @@ const handler = async (req: Request): Promise<Response> => {
         const emailResponse = await sendMailgunEmail(
           ["contact@mvaimobiliare.ro"],
           `✓ ${contractLabel} Complet Semnat - ${propertyAddress}`,
-          completionHtml
+          completionHtml,
+          fromAddress
         );
         console.log("Completion notification sent:", emailResponse);
       } catch (emailErr) {
@@ -353,7 +359,8 @@ const handler = async (req: Request): Promise<Response> => {
       const emailResponse = await sendMailgunEmail(
         ["contact@mvaimobiliare.ro"],
         `📝 ${contractLabel} Semnat Parțial - ${signerName} (${signerLabel})`,
-        partialSignHtml
+        partialSignHtml,
+        fromAddress
       );
       console.log("Partial sign notification sent:", emailResponse);
     } catch (emailErr) {
