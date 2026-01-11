@@ -1085,6 +1085,7 @@ export type Database = {
           id: string
           in_reply_to: string | null
           is_archived: boolean | null
+          is_deleted: boolean | null
           is_read: boolean | null
           is_starred: boolean | null
           message_id: string | null
@@ -1102,6 +1103,7 @@ export type Database = {
           id?: string
           in_reply_to?: string | null
           is_archived?: boolean | null
+          is_deleted?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
           message_id?: string | null
@@ -1119,6 +1121,7 @@ export type Database = {
           id?: string
           in_reply_to?: string | null
           is_archived?: boolean | null
+          is_deleted?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
           message_id?: string | null
@@ -1300,6 +1303,7 @@ export type Database = {
           from_address: string
           id: string
           in_reply_to: string | null
+          is_deleted: boolean | null
           message_id: string | null
           recipient: string
           sent_at: string
@@ -1315,6 +1319,7 @@ export type Database = {
           from_address: string
           id?: string
           in_reply_to?: string | null
+          is_deleted?: boolean | null
           message_id?: string | null
           recipient: string
           sent_at?: string
@@ -1330,6 +1335,7 @@ export type Database = {
           from_address?: string
           id?: string
           in_reply_to?: string | null
+          is_deleted?: boolean | null
           message_id?: string | null
           recipient?: string
           sent_at?: string
