@@ -701,29 +701,29 @@ const InboxPage = () => {
 
         {/* Mobile Filter Bar - Only show in list view on mobile */}
         {mobileView === 'list' && (
-          <div className="lg:hidden flex items-center gap-1.5 shrink-0 overflow-x-auto pb-1 -mb-1">
+          <div className="lg:hidden flex items-center gap-1 shrink-0 flex-wrap">
             {[
               { key: 'all', label: 'Toate', icon: Mail },
               { key: 'unread', label: 'Necitite', icon: null },
-              { key: 'starred', label: 'Cu stea', icon: Star },
-              { key: 'archived', label: 'Arhivate', icon: Archive }
+              { key: 'starred', label: 'Stea', icon: Star },
+              { key: 'archived', label: 'Arhivă', icon: Archive }
             ].map((item) => (
               <button
                 key={item.key}
                 onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived')}
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0",
+                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
                   filter === item.key 
                     ? "bg-gold/20 text-gold border border-gold/30" 
                     : "bg-white/5 text-muted-foreground border border-white/10"
                 )}
               >
-                {item.icon && <item.icon className="h-3 w-3" />}
+                {item.icon && <item.icon className="h-2.5 w-2.5" />}
                 {item.key === 'unread' && unreadCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-gold text-black text-[10px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                  <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
                 )}
                 {item.key === 'archived' && archivedCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
+                  <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
                 )}
                 <span>{item.label}</span>
               </button>
@@ -733,15 +733,15 @@ const InboxPage = () => {
             <button
               onClick={() => setShowDrafts(!showDrafts)}
               className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0",
+                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
                 showDrafts 
                   ? "bg-gold/20 text-gold border border-gold/30" 
                   : "bg-white/5 text-muted-foreground border border-white/10"
               )}
             >
-              <FileText className="h-3 w-3" />
+              <FileText className="h-2.5 w-2.5" />
               {drafts && drafts.length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
+                <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
               )}
               <span>Ciorne</span>
             </button>
