@@ -785,7 +785,7 @@ const InboxPage = () => {
 
       {/* Reply Dialog */}
       <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-card border-white/10">
+        <DialogContent className="sm:max-w-[600px] bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Reply className="h-5 w-5 text-gold" />
