@@ -40,21 +40,30 @@ const About = () => {
   ];
 
   return (
-    <section id="despre" className="py-12 sm:py-16 lg:py-24 bg-gradient-to-b from-secondary/20 to-background" itemScope itemType="https://schema.org/AboutPage">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+    <section id="despre" className="relative py-16 sm:py-20 lg:py-28 overflow-hidden" itemScope itemType="https://schema.org/AboutPage">
+      {/* Background decorations */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background" />
+      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-gradient-radial from-gold/5 to-transparent rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-1/3 right-0 w-[300px] h-[300px] bg-gradient-radial from-gold/5 to-transparent rounded-full blur-3xl translate-x-1/2" />
+      
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
         <article className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4 sm:mb-6 text-xs sm:text-sm">
-              {language === 'ro' ? 'Despre MVA Imobiliare' : 'About MVA Real Estate'}
-            </Badge>
+          <header className="text-center mb-14 sm:mb-18 lg:mb-24">
+            <div className="inline-flex items-center justify-center mb-6 sm:mb-8">
+              <div className="h-px w-8 sm:w-16 bg-gradient-to-r from-transparent to-gold/40 mr-4"></div>
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/30 px-4 py-1.5 text-xs sm:text-sm font-medium">
+                {language === 'ro' ? 'Despre MVA Imobiliare' : 'About MVA Real Estate'}
+              </Badge>
+              <div className="h-px w-8 sm:w-16 bg-gradient-to-l from-transparent to-gold/40 ml-4"></div>
+            </div>
             
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8" itemProp="headline">
-              <span className="text-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8 lg:mb-10 tracking-tight" itemProp="headline">
+              <span className="text-foreground drop-shadow-lg">
                 {language === 'ro' ? 'Partenerii ' : 'Your Trusted '}
               </span>
-              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+              <span className="text-gradient-gold">
                 {language === 'ro' ? 'Tăi de Încredere' : 'Partners'}
               </span>
             </h1>
@@ -67,27 +76,27 @@ const About = () => {
           </header>
 
           {/* Achievements Grid */}
-          <div className="grid-responsive-3 mb-12 sm:mb-16 lg:mb-20">
+          <div className="grid-responsive-3 mb-14 sm:mb-18 lg:mb-24">
             {achievements.map((achievement, index) => {
               const Icon = achievement.icon
               return (
-                <Card key={index} className="card-responsive border-0 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 group text-center">
-                  <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-gold to-gold-dark rounded-xl lg:rounded-2xl mb-3 sm:mb-4 lg:mb-6 group-hover:scale-110 transition-transform">
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-primary-foreground" />
+                <div key={index} className="card-modern p-6 sm:p-8 lg:p-10 text-center group border-glow">
+                  <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-gold/20 via-gold/10 to-gold-dark/20 rounded-2xl lg:rounded-3xl mb-4 sm:mb-6 lg:mb-8 group-hover:scale-110 transition-all duration-300 border border-gold/20">
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-gold" />
                   </div>
                   
-                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gold mb-1 sm:mb-2">
+                  <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gradient-gold mb-2 sm:mb-3">
                     {achievement.number}
                   </div>
                   
-                  <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground mb-1 sm:mb-2">
+                  <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground mb-2 sm:mb-3">
                     {achievement.label}
                   </h2>
                   
                   <p className="text-xs sm:text-sm lg:text-base text-muted-foreground leading-relaxed">
                     {achievement.description}
                   </p>
-                </Card>
+                </div>
               )
             })}
           </div>

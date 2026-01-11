@@ -34,13 +34,17 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden" itemScope itemType="https://schema.org/WebPageElement">
-      {/* Liquid Glass Background - Optimized for LCP */}
+      {/* Modern Glass Background - Optimized for LCP */}
       <div className="absolute inset-0">
+        {/* Animated gradient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-radial from-gold/10 via-gold/5 to-transparent rounded-full blur-3xl animate-float opacity-60" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-radial from-gold/8 via-transparent to-transparent rounded-full blur-3xl animate-float opacity-40" style={{ animationDelay: '3s' }} />
+        
         <div className="absolute inset-0 z-10" style={{ background: 'var(--gradient-hero-glass)' }}></div>
         <img 
           src={heroProperty} 
           alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului cu finisaje de lux și facilități complete" 
-          className="w-full h-full object-cover scale-110 animate-fade-in"
+          className="w-full h-full object-cover scale-105 animate-fade-in"
           loading="eager"
           fetchPriority="high"
           decoding="async"
@@ -48,8 +52,9 @@ const Hero = () => {
           width={1920}
           height={1080}
         />
-        <div className="absolute inset-0 backdrop-blur-[2px] z-5"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent z-10"></div>
+        <div className="absolute inset-0 backdrop-blur-[1px] z-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60 z-10"></div>
       </div>
 
       {/* Content Grid */}
@@ -59,16 +64,16 @@ const Hero = () => {
           {/* Left Column - Main Content */}
           <header className="space-y-4 sm:space-y-6 lg:space-y-8 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
             <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight" itemProp="headline">
-                <span className="block text-foreground mb-1 sm:mb-2">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight" itemProp="headline">
+                <span className="block text-foreground mb-1 sm:mb-2 drop-shadow-lg">
                   {language === 'ro' ? 'Soluții Imobiliare' : 'Real Estate Solutions'}
                 </span>
-                <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                <span className="block text-gradient-gold drop-shadow-lg">
                   {language === 'ro' ? 'Complete' : 'Complete'}
                 </span>
               </h1>
               
-              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0 px-2 sm:px-0" itemProp="description">
+              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground/90 leading-relaxed max-w-lg mx-auto lg:mx-0 px-2 sm:px-0 backdrop-blur-sm" itemProp="description">
                 {language === 'ro' 
                   ? 'Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. Investiții sigure cu finisaje premium și locații strategice.'
                   : 'Discover the most selective real estate projects in western Bucharest. Safe investments with premium finishes and strategic locations.'}
@@ -106,48 +111,48 @@ const Hero = () => {
           </header>
 
           {/* Right Column - Stats Cards */}
-          <aside className="grid grid-cols-2 gap-2 xs:gap-3 sm:gap-4 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie proprietăți' : 'Key property statistics'}>
-            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
+          <aside className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-5 lg:gap-6 mt-6 lg:mt-0 px-2 sm:px-0 max-w-md mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie proprietăți' : 'Key property statistics'}>
+            <div className="stats-card group touch-manipulation h-full aspect-square flex flex-col justify-center p-4 sm:p-5 glow-gold">
+              <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-gold mb-2">
                 {isLoading ? "..." : stats?.propertiesCount || 0}
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">
+              <div className="text-[11px] xs:text-xs text-muted-foreground mb-0.5">
                 {language === 'ro' ? 'Proprietăți listate' : 'Listed properties'}
               </div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">
+              <div className="text-[11px] xs:text-xs text-foreground/80 font-medium">
                 {language === 'ro' ? 'Apartamente disponibile' : 'Available apartments'}
               </div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">
+            <div className="stats-card group touch-manipulation h-full aspect-square flex flex-col justify-center p-4 sm:p-5 glow-gold" style={{ animationDelay: '0.1s' }}>
+              <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-gold mb-2">
                 {isLoading ? "..." : stats?.projectsCount || 0}
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">
+              <div className="text-[11px] xs:text-xs text-muted-foreground mb-0.5">
                 {language === 'ro' ? 'Complexe disponibile' : 'Available complexes'}
               </div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">Chiajna, Ilfov</div>
+              <div className="text-[11px] xs:text-xs text-foreground/80 font-medium">Chiajna, Ilfov</div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gold mb-1 drop-shadow-lg">1-3</div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">
+            <div className="stats-card group touch-manipulation h-full aspect-square flex flex-col justify-center p-4 sm:p-5 glow-gold" style={{ animationDelay: '0.2s' }}>
+              <div className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-gold mb-2">1-3</div>
+              <div className="text-[11px] xs:text-xs text-muted-foreground mb-0.5">
                 {language === 'ro' ? 'Camere disponibile' : 'Rooms available'}
               </div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">30-75 mp</div>
+              <div className="text-[11px] xs:text-xs text-foreground/80 font-medium">30-75 mp</div>
             </div>
             
-            <div className="card-responsive group touch-manipulation h-full aspect-square flex flex-col justify-center p-3 sm:p-4">
-              <div className="flex items-center mb-1">
-                <MapPin className="w-3 h-3 text-gold mr-1 drop-shadow-lg" />
-                <div className="text-[10px] xs:text-xs text-gold font-semibold drop-shadow-lg">
+            <div className="stats-card group touch-manipulation h-full aspect-square flex flex-col justify-center p-4 sm:p-5 glow-gold" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-center mb-2">
+                <MapPin className="w-4 h-4 text-gold mr-1.5" />
+                <div className="text-xs xs:text-sm text-gradient-gold font-bold">
                   {language === 'ro' ? 'Vest București' : 'West Bucharest'}
                 </div>
               </div>
-              <div className="text-[10px] xs:text-xs text-muted-foreground">
+              <div className="text-[11px] xs:text-xs text-muted-foreground mb-0.5">
                 {language === 'ro' ? 'Locație strategică' : 'Strategic location'}
               </div>
-              <div className="text-[10px] xs:text-xs text-foreground font-medium">
+              <div className="text-[11px] xs:text-xs text-foreground/80 font-medium">
                 {language === 'ro' ? 'Acces facil la centru' : 'Easy access to center'}
               </div>
             </div>

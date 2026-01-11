@@ -82,15 +82,19 @@ const Services = () => {
   ];
 
   return (
-    <section id="servicii" className="py-12 sm:py-16 lg:py-24 bg-background" itemScope itemType="https://schema.org/Service">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+    <section id="servicii" className="relative py-16 sm:py-20 lg:py-28 overflow-hidden" itemScope itemType="https://schema.org/Service">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary/5 via-background to-secondary/5" />
+      <div className="absolute bottom-0 left-1/2 w-[600px] h-[600px] bg-gradient-radial from-gold/5 to-transparent rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+      
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
         <article className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8" itemProp="name">
-              <span className="text-foreground">{language === 'ro' ? 'Servicii ' : 'Complete '}</span>
-              <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+          <header className="text-center mb-14 sm:mb-18 lg:mb-24">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8 tracking-tight" itemProp="name">
+              <span className="text-foreground drop-shadow-lg">{language === 'ro' ? 'Servicii ' : 'Complete '}</span>
+              <span className="text-gradient-gold">
                 {language === 'ro' ? 'Complete' : 'Services'}
               </span>
             </h1>
@@ -108,73 +112,71 @@ const Services = () => {
               const Icon = service.icon
               
               return (
-                <Card 
+                <div 
                   key={index} 
-                  className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl ${
+                  className={`card-modern group relative overflow-hidden p-6 sm:p-7 lg:p-8 ${
                     service.highlight 
-                      ? 'border-gold/30 bg-gradient-to-br from-gold/5 to-gold-dark/5 hover:border-gold/50' 
-                      : 'border-border/30 bg-card/30 hover:border-gold/30'
-                  } backdrop-blur-sm hover:bg-card/60`}
+                      ? 'border-gold/30 bg-gradient-to-br from-gold/8 to-gold-dark/5' 
+                      : ''
+                  } border-glow`}
                 >
                     {service.highlight && (
                       <div className="absolute top-4 right-4">
-                        <Badge variant="secondary" className="bg-gold text-primary-foreground text-xs">
+                        <Badge variant="secondary" className="bg-gradient-to-r from-gold to-gold-dark text-primary-foreground text-xs font-medium shadow-lg">
                           {language === 'ro' ? 'Specializare' : 'Specialty'}
                         </Badge>
                       </div>
                     )}
                     
-                    <CardContent className="p-4 sm:p-6 lg:p-8">
-                      <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-                        {/* Icon */}
-                        <div className={`inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl ${
-                          service.highlight 
-                            ? 'bg-gradient-to-br from-gold to-gold-dark' 
-                            : 'bg-gradient-to-br from-gold/20 to-gold-dark/20'
-                        } group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${
-                            service.highlight ? 'text-primary-foreground' : 'text-gold'
-                          }`} />
-                        </div>
-                        
-                        {/* Title */}
-                        <h2 className={`text-base sm:text-lg lg:text-xl font-bold leading-tight ${
-                          service.highlight ? 'text-gold' : 'text-foreground'
-                        } group-hover:text-gold transition-colors`}>
-                          {service.title}
-                        </h2>
-                        
-                        {/* Description */}
-                        <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm lg:text-base">
-                          {service.description}
-                        </p>
-                        
-                        {/* Hover Arrow */}
-                        <div className="flex items-center text-gold opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                          <span className="text-sm font-medium mr-2">{language === 'ro' ? 'Află mai multe' : 'Learn more'}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </div>
+                    <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+                      {/* Icon */}
+                      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl ${
+                        service.highlight 
+                          ? 'bg-gradient-to-br from-gold to-gold-dark shadow-lg' 
+                          : 'bg-gradient-to-br from-gold/15 to-gold-dark/15 border border-gold/20'
+                      } group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${
+                          service.highlight ? 'text-primary-foreground' : 'text-gold'
+                        }`} />
                       </div>
-                    </CardContent>
-                </Card>
+                      
+                      {/* Title */}
+                      <h2 className={`text-base sm:text-lg lg:text-xl font-bold leading-tight ${
+                        service.highlight ? 'text-gradient-gold' : 'text-foreground group-hover:text-gold'
+                      } transition-colors`}>
+                        {service.title}
+                      </h2>
+                      
+                      {/* Description */}
+                      <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                        {service.description}
+                      </p>
+                      
+                      {/* Hover Arrow */}
+                      <div className="flex items-center text-gold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                        <span className="text-sm font-medium mr-2">{language === 'ro' ? 'Află mai multe' : 'Learn more'}</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                </div>
               )
             })}
           </div>
 
           {/* CTA Section */}
-          <footer className="mt-12 sm:mt-16 lg:mt-20 text-center px-2 sm:px-0">
-            <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-gold/20">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3 sm:mb-4">
+          <footer className="mt-14 sm:mt-18 lg:mt-24 text-center px-2 sm:px-0">
+            <div className="card-modern p-8 sm:p-10 lg:p-12 border-gold/20 glow-gold shimmer">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-5">
                 {language === 'ro' ? 'Pregătit să îți găsești apartamentul perfect?' : 'Ready to find your perfect apartment?'}
               </h2>
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-2xl mx-auto px-2">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
                 {language === 'ro' 
                   ? 'Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem să te ajutăm să găsești proprietatea ideală.'
                   : 'Contact us today for a free consultation and discover how we can help you find the ideal property.'}
               </p>
               <a href="tel:0767941512" aria-label={language === 'ro' ? 'Sună la MVA Imobiliare' : 'Call MVA Real Estate'}>
-                <button className="inline-flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-gold text-primary-foreground rounded-lg text-sm sm:text-base font-medium hover:bg-gold-dark transition-colors touch-manipulation min-h-[44px]">
-                  <Phone className="mr-2 w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                <button className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-gold to-gold-dark text-primary-foreground rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 touch-manipulation min-h-[44px] group">
+                  <Phone className="mr-2 w-5 h-5 flex-shrink-0 group-hover:rotate-12 transition-transform" aria-hidden="true" />
                   <span>0767 941 512</span>
                 </button>
               </a>
