@@ -24,6 +24,7 @@ interface WebhookSettings {
   scheduled?: boolean;
   scheduleInterval?: string; // 'hourly' | 'every_3_hours' | 'every_6_hours' | 'daily'
   lastScheduledRun?: string;
+  hashtags?: string;
 }
 
 interface AuditLog {
@@ -47,6 +48,7 @@ export const SocialAutoPostSettings = () => {
     enabled: false,
     scheduled: false,
     scheduleInterval: "daily",
+    hashtags: "#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -345,6 +347,22 @@ export const SocialAutoPostSettings = () => {
               Când este activată, funcția va trimite automat proprietățile adăugate de la ultima rulare către toate webhook-urile configurate.
             </AlertDescription>
           </Alert>
+        </div>
+
+        {/* Hashtags Section */}
+        <div className="p-4 border rounded-lg space-y-3 bg-muted/30">
+          <h4 className="font-medium text-sm flex items-center gap-2">
+            # Hashtag-uri
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            Hashtag-urile care vor fi incluse în fiecare postare trimisă către Zapier.
+          </p>
+          <textarea
+            value={settings.hashtags || ''}
+            onChange={(e) => setSettings({ ...settings, hashtags: e.target.value })}
+            className="w-full min-h-[80px] p-3 rounded-md border bg-background text-sm resize-y"
+            placeholder="#imobiliare #apartament #bucuresti..."
+          />
         </div>
 
         <div className="flex gap-3 pt-4 border-t">
