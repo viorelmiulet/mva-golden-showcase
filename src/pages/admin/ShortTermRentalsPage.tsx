@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, addDays, eachDayOfInterval, startOfMonth, endOfMonth, differenceInDays } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -41,8 +42,22 @@ import {
   XCircle,
   Settings2,
   ExternalLink,
-  Loader2
+  Loader2,
+  Home
 } from "lucide-react";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface ShortTermRental {
   id: string;
@@ -678,24 +693,42 @@ const ShortTermRentalsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Regim Hotelier</h1>
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/40 to-orange-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-600/5 border border-amber-500/20">
+              <Home className="h-6 w-6 text-amber-500" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Regim Hotelier</h1>
+            <p className="text-muted-foreground text-sm">Gestionează închirieri pe termen scurt</p>
+          </div>
+        </div>
         <Button onClick={() => { setEditingRental(emptyRental); setIsDialogOpen(true); }}>
           <Plus className="w-4 h-4 mr-2" />
           Adaugă proprietate
         </Button>
-      </div>
+      </motion.div>
 
-      <Tabs defaultValue="properties">
-        <TabsList className="flex-wrap">
-          <TabsTrigger value="properties">Proprietăți</TabsTrigger>
-          <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
-          <TabsTrigger value="import-airbnb">Import Airbnb</TabsTrigger>
-          <TabsTrigger value="import-booking">Import Booking</TabsTrigger>
-        </TabsList>
+      <motion.div variants={itemVariants}>
+        <Tabs defaultValue="properties" className="space-y-4">
+          <TabsList className="flex-wrap bg-muted/50 backdrop-blur-sm">
+            <TabsTrigger value="properties">Proprietăți</TabsTrigger>
+            <TabsTrigger value="bookings">Rezervări ({bookings.length})</TabsTrigger>
+            <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="ical">Sincronizare iCal</TabsTrigger>
+            <TabsTrigger value="import-airbnb">Import Airbnb</TabsTrigger>
+            <TabsTrigger value="import-booking">Import Booking</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="properties" className="space-y-4">
           {isLoading ? (
@@ -2161,7 +2194,8 @@ const ShortTermRentalsPage = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
