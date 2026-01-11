@@ -22,6 +22,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Email {
   id: string;
@@ -81,14 +86,21 @@ export const EmailDetail = ({
             <div className="p-3 md:p-4 border-b border-white/5">
               <div className="flex items-start justify-between gap-2 md:gap-4">
                 <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="shrink-0 h-8 w-8"
-                    onClick={onClose}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="shrink-0 h-8 w-8"
+                        onClick={onClose}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p>Înapoi la listă</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold font-semibold shrink-0 text-sm md:text-base">
                     {extractSenderInitials(email.sender)}
                   </div>
