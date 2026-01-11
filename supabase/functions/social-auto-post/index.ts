@@ -35,6 +35,8 @@ interface WebhookPayload {
   rooms: string;
   surface: string;
   hashtags: string;
+  website: string;
+  phone: string;
 }
 
 serve(async (req) => {
@@ -249,6 +251,8 @@ serve(async (req) => {
         rooms: roomsFormatted,
         surface: surfaceFormatted,
         hashtags: hashtags,
+        website: 'https://mvaimobiliare.ro',
+        phone: '0767.941.512',
       };
 
       console.log(`social-auto-post: Payload for ${platform}:`, JSON.stringify(payload).substring(0, 500));
