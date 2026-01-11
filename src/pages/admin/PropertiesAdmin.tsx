@@ -17,6 +17,7 @@ import {
   Ruler,
   Edit,
   Save,
+  Plus,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,6 +31,22 @@ const PropertiesAdmin = () => {
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addForm, setAddForm] = useState({
+    title: "",
+    description: "",
+    location: "",
+    price_min: "",
+    price_max: "",
+    surface_min: "",
+    surface_max: "",
+    rooms: "1",
+    project_name: "",
+    features: "",
+    amenities: "",
+    images: "",
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -197,6 +214,85 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const resetAddForm = () => {
+    setAddForm({
+      title: "",
+      description: "",
+      location: "",
+      price_min: "",
+      price_max: "",
+      surface_min: "",
+      surface_max: "",
+      rooms: "1",
+      project_name: "",
+      features: "",
+      amenities: "",
+      images: "",
+    });
+  };
+
+  const addProperty = async () => {
+    if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
+      toast({
+        title: "Eroare",
+        description: "Completează câmpurile obligatorii: Titlu, Locație, Preț, Camere",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const offer = {
+        title: addForm.title,
+        description: addForm.description || null,
+        location: addForm.location,
+        price_min: parseInt(addForm.price_min) || 0,
+        price_max: parseInt(addForm.price_max) || parseInt(addForm.price_min) || 0,
+        surface_min: parseInt(addForm.surface_min) || null,
+        surface_max: parseInt(addForm.surface_max) || parseInt(addForm.surface_min) || null,
+        rooms: parseInt(addForm.rooms) || 1,
+        project_name: addForm.project_name || null,
+        features: addForm.features
+          ? addForm.features.split(",").map((f: string) => f.trim()).filter(Boolean)
+          : [],
+        amenities: addForm.amenities
+          ? addForm.amenities.split(",").map((a: string) => a.trim()).filter(Boolean)
+          : [],
+        images: addForm.images
+          ? addForm.images.split(",").map((i: string) => i.trim()).filter(Boolean)
+          : [],
+        currency: "EUR",
+        availability_status: "available",
+        source: "manual",
+      };
+
+      const { data, error } = await supabase.functions.invoke("admin-offers", {
+        body: { action: "insert_offer", offer },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Insert failed");
+
+      toast({
+        title: "Succes!",
+        description: "Proprietatea a fost adăugată",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+      setShowAddDialog(false);
+      resetAddForm();
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut adăuga proprietatea",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   return (
     <div ref={containerRef}>
       {isMobile && (
@@ -215,6 +311,15 @@ const PropertiesAdmin = () => {
               <Home className="w-4 h-4 md:w-5 md:h-5 text-gold" />
               Proprietăți ({properties?.length || 0})
             </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => setShowAddDialog(true)}
+                className="bg-gold hover:bg-gold/90 text-black h-8 text-xs md:text-sm"
+              >
+                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                Adaugă Manual
+              </Button>
             {properties && properties.length > 0 && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -248,6 +353,7 @@ const PropertiesAdmin = () => {
                 </AlertDialogContent>
               </AlertDialog>
             )}
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
@@ -460,6 +566,144 @@ const PropertiesAdmin = () => {
                   <>
                     <Save className="w-4 h-4 mr-2" />
                     Salvează
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Property Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Adaugă Proprietate Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Titlu *</Label>
+                <Input
+                  value={addForm.title}
+                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                  placeholder="Ex: Apartament 2 camere central"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Descriere</Label>
+                <Textarea
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                  rows={3}
+                  placeholder="Descriere detaliată a proprietății..."
+                />
+              </div>
+              <div>
+                <Label>Locație *</Label>
+                <Input
+                  value={addForm.location}
+                  onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
+                  placeholder="Ex: București, Sector 1"
+                />
+              </div>
+              <div>
+                <Label>Nume Proiect</Label>
+                <Input
+                  value={addForm.project_name}
+                  onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
+                  placeholder="Ex: Residence Park"
+                />
+              </div>
+              <div>
+                <Label>Preț Min (€) *</Label>
+                <Input
+                  type="number"
+                  value={addForm.price_min}
+                  onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
+                  placeholder="85000"
+                />
+              </div>
+              <div>
+                <Label>Preț Max (€)</Label>
+                <Input
+                  type="number"
+                  value={addForm.price_max}
+                  onChange={(e) => setAddForm({ ...addForm, price_max: e.target.value })}
+                  placeholder="90000"
+                />
+              </div>
+              <div>
+                <Label>Suprafață Min (mp)</Label>
+                <Input
+                  type="number"
+                  value={addForm.surface_min}
+                  onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
+                  placeholder="55"
+                />
+              </div>
+              <div>
+                <Label>Suprafață Max (mp)</Label>
+                <Input
+                  type="number"
+                  value={addForm.surface_max}
+                  onChange={(e) => setAddForm({ ...addForm, surface_max: e.target.value })}
+                  placeholder="60"
+                />
+              </div>
+              <div>
+                <Label>Camere *</Label>
+                <Input
+                  type="number"
+                  value={addForm.rooms}
+                  onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
+                  placeholder="2"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>URL-uri Imagini (separate prin virgulă)</Label>
+                <Textarea
+                  value={addForm.images}
+                  onChange={(e) => setAddForm({ ...addForm, images: e.target.value })}
+                  rows={2}
+                  placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Facilități (separate prin virgulă)</Label>
+                <Input
+                  value={addForm.features}
+                  onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
+                  placeholder="Balcon, Parcare, Centrală proprie"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Amenajări (separate prin virgulă)</Label>
+                <Input
+                  value={addForm.amenities}
+                  onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
+                  placeholder="Lift, Pază, Interfon"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                Anulează
+              </Button>
+              <Button
+                onClick={addProperty}
+                disabled={isAdding}
+                className="bg-gold hover:bg-gold/90 text-black"
+              >
+                {isAdding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Se adaugă...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adaugă Proprietate
                   </>
                 )}
               </Button>
