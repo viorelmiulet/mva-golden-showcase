@@ -729,22 +729,80 @@ const InboxPage = () => {
               </button>
             ))}
             
-            {/* Drafts button on mobile */}
-            <button
-              onClick={() => setShowDrafts(!showDrafts)}
-              className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
-                showDrafts 
-                  ? "bg-gold/20 text-gold border border-gold/30" 
-                  : "bg-white/5 text-muted-foreground border border-white/10"
-              )}
-            >
-              <FileText className="h-2.5 w-2.5" />
-              {drafts && drafts.length > 0 && (
-                <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
-              )}
-              <span>Ciorne</span>
-            </button>
+            {/* Drafts button on mobile - opens dialog */}
+            <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
+              <button
+                onClick={() => setShowDrafts(true)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
+                  showDrafts 
+                    ? "bg-gold/20 text-gold border border-gold/30" 
+                    : "bg-white/5 text-muted-foreground border border-white/10"
+                )}
+              >
+                <FileText className="h-2.5 w-2.5" />
+                {drafts && drafts.length > 0 && (
+                  <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
+                )}
+                <span>Ciorne</span>
+              </button>
+              <DialogContent className="max-w-md bg-background border-white/10">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-gold" />
+                    Ciorne ({drafts?.length || 0})
+                  </DialogTitle>
+                  <DialogDescription>
+                    Selectează o ciornă pentru a o încărca
+                  </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[60vh]">
+                  {drafts && drafts.length > 0 ? (
+                    <div className="space-y-2">
+                      {drafts.map((draft: any) => (
+                        <div
+                          key={draft.id}
+                          className="p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <button
+                              onClick={() => {
+                                handleLoadDraft(draft);
+                                setShowDrafts(false);
+                              }}
+                              className="flex-1 text-left"
+                            >
+                              <p className="text-sm font-medium truncate">
+                                {draft.subject || "(Fără subiect)"}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                Către: {draft.recipient || "(Fără destinatar)"}
+                              </p>
+                              <p className="text-xs text-muted-foreground/60 mt-1">
+                                {format(new Date(draft.updated_at), "d MMM, HH:mm", { locale: ro })}
+                              </p>
+                            </button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => handleDeleteDraft(e, draft.id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center">
+                      <FileText className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Nu ai ciorne salvate</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
