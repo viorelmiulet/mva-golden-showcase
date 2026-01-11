@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getFromAddressForFunction } from '../_shared/emailSettings.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,7 +18,7 @@ const sendMailgunEmail = async (
   to: string[],
   subject: string,
   html: string,
-  from: string = "MVA IMOBILIARE <noreply@mvaimobiliare.ro>"
+  from: string
 ) => {
   const MAILGUN_API_KEY = Deno.env.get("MAILGUN_API_KEY");
   const MAILGUN_DOMAIN = Deno.env.get("MAILGUN_DOMAIN");
@@ -72,6 +73,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { nume, prenume, email, telefon, mesaj }: ContactFormData = JSON.parse(requestBody);
     console.log("Parsed form data:", { nume, prenume, email, telefon });
 
+    // Get email sender settings from database
+    const fromAddress = await getFromAddressForFunction('contact');
+    console.log("Using from address:", fromAddress);
+
     console.log("Sending contact email from:", email);
 
     const emailResponse = await sendMailgunEmail(
@@ -101,7 +106,8 @@ const handler = async (req: Request): Promise<Response> => {
             Acest email a fost trimis prin formularul de contact de pe website-ul MVA IMOBILIARE.
           </p>
         </div>
-      `
+      `,
+      fromAddress
     );
 
     console.log("Email sent successfully via Mailgun:", emailResponse);
