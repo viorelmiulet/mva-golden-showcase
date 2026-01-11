@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
-import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe, RefreshCw } from "lucide-react";
+import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe, RefreshCw, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface SiteSettings {
@@ -21,6 +22,15 @@ interface SiteSettings {
   websiteUrl: string;
   aboutText: string;
   footerText: string;
+}
+
+interface EmailFunctionSetting {
+  id: string;
+  function_name: string;
+  function_label: string;
+  from_email: string;
+  from_name: string | null;
+  is_active: boolean;
 }
 
 const defaultSettings: SiteSettings = {
@@ -52,6 +62,8 @@ const itemVariants = {
 const SettingsPage = () => {
   const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
   const [hasChanges, setHasChanges] = useState(false);
+  const [emailSettings, setEmailSettings] = useState<EmailFunctionSetting[]>([]);
+  const [hasEmailChanges, setHasEmailChanges] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: dbSettings, isLoading } = useQuery({
@@ -72,11 +84,31 @@ const SettingsPage = () => {
     }
   });
 
+  // Fetch email function settings
+  const { data: dbEmailSettings, isLoading: isLoadingEmail } = useQuery({
+    queryKey: ['email_function_settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('email_function_settings')
+        .select('*')
+        .order('function_label');
+      
+      if (error) throw error;
+      return data as EmailFunctionSetting[];
+    }
+  });
+
   useEffect(() => {
     if (dbSettings) {
       setSettings({ ...defaultSettings, ...dbSettings });
     }
   }, [dbSettings]);
+
+  useEffect(() => {
+    if (dbEmailSettings) {
+      setEmailSettings(dbEmailSettings);
+    }
+  }, [dbEmailSettings]);
 
   const saveMutation = useMutation({
     mutationFn: async (newSettings: SiteSettings) => {
@@ -108,13 +140,52 @@ const SettingsPage = () => {
     }
   });
 
+  // Save email function settings mutation
+  const saveEmailSettingsMutation = useMutation({
+    mutationFn: async (settings: EmailFunctionSetting[]) => {
+      for (const setting of settings) {
+        const { error } = await supabase
+          .from('email_function_settings')
+          .update({
+            from_email: setting.from_email,
+            from_name: setting.from_name,
+            is_active: setting.is_active,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', setting.id);
+        
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email_function_settings'] });
+      setHasEmailChanges(false);
+      toast.success("Setări email salvate cu succes!");
+    },
+    onError: (error) => {
+      console.error('Error saving email settings:', error);
+      toast.error("Nu s-au putut salva setările email");
+    }
+  });
+
   const handleChange = (field: keyof SiteSettings, value: string) => {
     setSettings(prev => ({ ...prev, [field]: value }));
     setHasChanges(true);
   };
 
+  const handleEmailSettingChange = (id: string, field: keyof EmailFunctionSetting, value: string | boolean) => {
+    setEmailSettings(prev => prev.map(s => 
+      s.id === id ? { ...s, [field]: value } : s
+    ));
+    setHasEmailChanges(true);
+  };
+
   const handleSave = () => {
     saveMutation.mutate(settings);
+  };
+
+  const handleSaveEmailSettings = () => {
+    saveEmailSettingsMutation.mutate(emailSettings);
   };
 
   const handleReset = () => {
@@ -124,6 +195,13 @@ const SettingsPage = () => {
       setSettings(defaultSettings);
     }
     setHasChanges(false);
+  };
+
+  const handleResetEmailSettings = () => {
+    if (dbEmailSettings) {
+      setEmailSettings(dbEmailSettings);
+    }
+    setHasEmailChanges(false);
   };
 
   if (isLoading) {
@@ -296,6 +374,111 @@ const SettingsPage = () => {
             </div>
           </motion.div>
         ))}
+
+        {/* Email Function Settings */}
+        <motion.div variants={itemVariants} className="relative group lg:col-span-2">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/5 text-orange-400">
+                  <Send className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Configurare Email pe Funcție</h3>
+                  <p className="text-sm text-muted-foreground">Setează adresa de email de unde se trimite pentru fiecare funcție</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleResetEmailSettings} 
+                  disabled={!hasEmailChanges}
+                  className="border-white/10 hover:bg-white/5"
+                >
+                  <RefreshCw className="mr-2 h-3 w-3" />
+                  Resetare
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={handleSaveEmailSettings} 
+                  disabled={saveEmailSettingsMutation.isPending || !hasEmailChanges}
+                  className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                >
+                  {saveEmailSettingsMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-3 w-3" />
+                      Salvează
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="p-6">
+              {isLoadingEmail ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-20 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {emailSettings.map((setting) => (
+                    <div 
+                      key={setting.id} 
+                      className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                            <Mail className="h-5 w-5 text-gold" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{setting.function_label}</h4>
+                            <p className="text-xs text-muted-foreground">{setting.function_name}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`active-${setting.id}`} className="text-sm text-muted-foreground">
+                            Activ
+                          </Label>
+                          <Switch
+                            id={`active-${setting.id}`}
+                            checked={setting.is_active}
+                            onCheckedChange={(checked) => handleEmailSettingChange(setting.id, 'is_active', checked)}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">Email Expeditor</Label>
+                          <Input
+                            value={setting.from_email}
+                            onChange={(e) => handleEmailSettingChange(setting.id, 'from_email', e.target.value)}
+                            placeholder="noreply@domeniu.ro"
+                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-muted-foreground">Nume Expeditor</Label>
+                          <Input
+                            value={setting.from_name || ''}
+                            onChange={(e) => handleEmailSettingChange(setting.id, 'from_name', e.target.value)}
+                            placeholder="Nume Companie"
+                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
 
         {/* Preview */}
         <motion.div variants={itemVariants} className="relative group">
