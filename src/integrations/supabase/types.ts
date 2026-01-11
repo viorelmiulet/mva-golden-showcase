@@ -713,6 +713,33 @@ export type Database = {
         }
         Relationships: []
       }
+      email_contacts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          last_used_at: string
+          name: string | null
+          use_count: number
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          last_used_at?: string
+          name?: string | null
+          use_count?: number
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          last_used_at?: string
+          name?: string | null
+          use_count?: number
+        }
+        Relationships: []
+      }
       email_drafts: {
         Row: {
           attachments: Json | null
