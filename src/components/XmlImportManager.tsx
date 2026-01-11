@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X } from 'lucide-react';
+import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X, Plus, CheckCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { XmlFieldMappingDialog } from './XmlFieldMappingDialog';
@@ -32,6 +32,12 @@ const WebsiteScrapingManager = () => {
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  
+  // ID scraping state
+  const [propertyIds, setPropertyIds] = useState(Array(3).fill(""));
+  const [isScrapingLoading, setIsScrapingLoading] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(Array(3).fill(false));
+  
   const { 
     importXmlFeed,
     analyzeXmlStructure,
@@ -223,11 +229,175 @@ const WebsiteScrapingManager = () => {
     }
   };
 
+  // ID Scraping functions
+  const scrapeProperty = async (propertyId: string, index: number) => {
+    if (!propertyId.trim()) {
+      toast({
+        title: "Eroare",
+        description: "Te rog să introduci un ID valid",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const url = `https://web.immoflux.ro/publicproperty/p${propertyId.trim()}`;
+    setLoadingStates((prev) => prev.map((state, i) => (i === index ? true : state)));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("scrape-property", {
+        body: { url },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        const insertData = {
+          title: data.property.title,
+          description: data.property.description,
+          location: data.property.location,
+          images: data.property.images,
+          price_min: data.property.price_min,
+          price_max: data.property.price_max,
+          currency: data.property.currency,
+          surface_min: data.property.surface_min || 0,
+          surface_max: data.property.surface_max || 0,
+          rooms: data.property.rooms,
+          features: data.property.features,
+          availability_status: "available",
+        };
+
+        const { data: adminInsertData, error: adminInsertError } =
+          await supabase.functions.invoke("admin-offers", {
+            body: { action: "insert_offer", offer: insertData },
+          });
+
+        if (adminInsertError) throw adminInsertError;
+        if (!adminInsertData?.success)
+          throw new Error(adminInsertData?.error || "Insert failed");
+
+        toast({
+          title: "Succes!",
+          description: `Proprietatea ${index + 1} (ID: ${propertyId}) a fost adăugată`,
+        });
+
+        setPropertyIds((prev) => prev.map((id, i) => (i === index ? "" : id)));
+        queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+      } else {
+        throw new Error(data?.error || "Eroare la preluarea datelor");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: `ID ${propertyId}: ${error.message || "Nu am putut prelua datele"}`,
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingStates((prev) => prev.map((state, i) => (i === index ? false : state)));
+    }
+  };
+
+  const scrapeAllProperties = async () => {
+    const validIds = propertyIds.filter((id) => id && typeof id === 'string' && id.trim() !== "");
+
+    if (validIds.length === 0) {
+      toast({
+        title: "Eroare",
+        description: "Te rog să introduci cel puțin un ID valid",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsScrapingLoading(true);
+
+    try {
+      const promises = validIds.map((propertyId, index) => {
+        return scrapeProperty(propertyId, index);
+      });
+
+      await Promise.all(promises);
+
+      toast({
+        title: "Procesare completă!",
+        description: `Am procesat ${validIds.length} proprietăți`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: "Eroare la procesarea proprietăților",
+        variant: "destructive",
+      });
+    } finally {
+      setIsScrapingLoading(false);
+    }
+  };
+
+  const updatePropertyId = (index: number, value: string) => {
+    setPropertyIds((prev) => prev.map((id, i) => (i === index ? value : id)));
+  };
+
   // Get saved mapping for current URL
   const currentSourceMapping = xmlSources.find(s => s.url === xmlUrl)?.last_mapping;
 
   return (
     <div className="space-y-6">
+      {/* ID Scraping Section */}
+      <Card className="border-gold/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Plus className="h-4 w-4 text-gold" />
+            Adaugă Proprietăți via ID
+          </CardTitle>
+          <CardDescription>
+            Importă proprietăți rapid folosind ID-ul din Immoflux
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-2">
+            {propertyIds.map((id, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder={`ID ${index + 1}`}
+                  value={id}
+                  onChange={(e) => updatePropertyId(index, e.target.value)}
+                  className="flex-1 h-9 text-sm"
+                />
+                <Button
+                  onClick={() => scrapeProperty(id, index)}
+                  disabled={loadingStates[index] || !id.trim()}
+                  size="sm"
+                  variant="outline"
+                  className="border-gold/30 h-9 w-9 p-0"
+                >
+                  {loadingStates[index] ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            onClick={scrapeAllProperties}
+            disabled={isScrapingLoading}
+            className="w-full h-9 text-sm bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold"
+          >
+            {isScrapingLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Se procesează...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Adaugă Toate
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
       {/* XML Sources History */}
       {xmlSources.length > 0 && (
         <Card>
