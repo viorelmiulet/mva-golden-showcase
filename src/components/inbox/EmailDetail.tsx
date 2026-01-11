@@ -84,7 +84,7 @@ export const EmailDetail = ({
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="md:hidden shrink-0 h-8 w-8"
+                    className="shrink-0 h-8 w-8"
                     onClick={onClose}
                   >
                     <ChevronLeft className="h-5 w-5" />
