@@ -100,24 +100,18 @@ export const EmailListItem = ({
           </div>
         </div>
         
-        {/* Quick actions - always visible on mobile */}
-        <div className="flex items-center gap-0.5">
+        {/* Quick actions - always visible */}
+        <div className="flex items-center gap-0.5 shrink-0">
           <button
             onClick={onDelete}
-            className={cn(
-              "transition-opacity p-1 md:p-1.5 hover:bg-red-500/20 rounded-lg",
-              "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-            )}
+            className="p-1 md:p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
             title="Șterge"
           >
             <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-400" />
           </button>
           <button
             onClick={onToggleStar}
-            className={cn(
-              "transition-opacity p-1 md:p-1.5 hover:bg-white/10 rounded-lg",
-              "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-            )}
+            className="p-1 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors"
             title={email.is_starred ? "Elimină steluța" : "Adaugă steluță"}
           >
             {email.is_starred ? (
