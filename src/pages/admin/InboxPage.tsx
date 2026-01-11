@@ -82,6 +82,7 @@ const InboxPage = () => {
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
+  const [recipientFilter, setRecipientFilter] = useState<string>('all');
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -218,8 +219,33 @@ const InboxPage = () => {
     }
   });
 
+  // Fetch email addresses from settings
+  const { data: emailAddresses } = useQuery({
+    queryKey: ['email-function-settings-addresses'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('email_function_settings')
+        .select('from_email, function_label')
+        .eq('is_active', true);
+      if (error) throw error;
+      
+      // Get unique emails
+      const uniqueEmails = new Map<string, string>();
+      data?.forEach(item => {
+        if (!uniqueEmails.has(item.from_email)) {
+          uniqueEmails.set(item.from_email, item.function_label);
+        }
+      });
+      
+      return Array.from(uniqueEmails.entries()).map(([email, label]) => ({
+        email,
+        label: `${label} (${email})`
+      }));
+    }
+  });
+
   const { data: emails, isLoading, refetch } = useQuery({
-    queryKey: ['received-emails', filter],
+    queryKey: ['received-emails', filter, recipientFilter],
     queryFn: async () => {
       let query = supabase
         .from('received_emails')
@@ -235,6 +261,11 @@ const InboxPage = () => {
         } else if (filter === 'starred') {
           query = query.eq('is_starred', true);
         }
+      }
+
+      // Apply recipient filter
+      if (recipientFilter && recipientFilter !== 'all') {
+        query = query.ilike('recipient', `%${recipientFilter}%`);
       }
 
       const { data, error } = await query;
@@ -696,6 +727,9 @@ const InboxPage = () => {
             drafts={drafts}
             onLoadDraft={handleLoadDraft}
             onDeleteDraft={handleDeleteDraft}
+            recipientFilter={recipientFilter}
+            setRecipientFilter={setRecipientFilter}
+            emailAddresses={emailAddresses || []}
           />
         </div>
 
