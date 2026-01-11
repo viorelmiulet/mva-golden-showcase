@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -46,6 +47,19 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
 interface AuditLog {
   id: string;
   created_at: string;
@@ -62,17 +76,17 @@ interface AuditLog {
 }
 
 const actionTypeLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  create: { label: "Creare", color: "bg-green-500/20 text-green-400", icon: <Plus className="h-3 w-3" /> },
-  update: { label: "Modificare", color: "bg-blue-500/20 text-blue-400", icon: <Pencil className="h-3 w-3" /> },
-  delete: { label: "Ștergere", color: "bg-red-500/20 text-red-400", icon: <Trash2 className="h-3 w-3" /> },
-  view: { label: "Vizualizare", color: "bg-gray-500/20 text-gray-400", icon: <Eye className="h-3 w-3" /> },
-  export: { label: "Export", color: "bg-purple-500/20 text-purple-400", icon: <Download className="h-3 w-3" /> },
-  import: { label: "Import", color: "bg-orange-500/20 text-orange-400", icon: <Upload className="h-3 w-3" /> },
-  login: { label: "Autentificare", color: "bg-emerald-500/20 text-emerald-400", icon: <LogIn className="h-3 w-3" /> },
-  logout: { label: "Deconectare", color: "bg-yellow-500/20 text-yellow-400", icon: <LogOut className="h-3 w-3" /> },
-  generate_pdf: { label: "Generare PDF", color: "bg-indigo-500/20 text-indigo-400", icon: <FileText className="h-3 w-3" /> },
-  send_email: { label: "Trimitere Email", color: "bg-cyan-500/20 text-cyan-400", icon: <Mail className="h-3 w-3" /> },
-  sign_contract: { label: "Semnare Contract", color: "bg-gold/20 text-gold", icon: <FileText className="h-3 w-3" /> },
+  create: { label: "Creare", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: <Plus className="h-3 w-3" /> },
+  update: { label: "Modificare", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: <Pencil className="h-3 w-3" /> },
+  delete: { label: "Ștergere", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: <Trash2 className="h-3 w-3" /> },
+  view: { label: "Vizualizare", color: "bg-gray-500/20 text-gray-400 border-gray-500/30", icon: <Eye className="h-3 w-3" /> },
+  export: { label: "Export", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", icon: <Download className="h-3 w-3" /> },
+  import: { label: "Import", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: <Upload className="h-3 w-3" /> },
+  login: { label: "Autentificare", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: <LogIn className="h-3 w-3" /> },
+  logout: { label: "Deconectare", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: <LogOut className="h-3 w-3" /> },
+  generate_pdf: { label: "Generare PDF", color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30", icon: <FileText className="h-3 w-3" /> },
+  send_email: { label: "Trimitere Email", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30", icon: <Mail className="h-3 w-3" /> },
+  sign_contract: { label: "Semnare Contract", color: "bg-gold/20 text-gold border-gold/30", icon: <FileText className="h-3 w-3" /> },
 };
 
 const tableNameLabels: Record<string, string> = {
@@ -156,12 +170,12 @@ const AuditLogsPage = () => {
             Vezi
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-card/95 backdrop-blur-xl border-border/50">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh]">
-            <pre className="text-xs bg-muted p-4 rounded-lg overflow-auto">
+            <pre className="text-xs bg-muted/50 p-4 rounded-lg overflow-auto">
               {JSON.stringify(data, null, 2)}
             </pre>
           </ScrollArea>
@@ -171,150 +185,169 @@ const AuditLogsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <History className="h-8 w-8 text-gold" />
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6"
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+              <History className="h-6 w-6 text-gold" />
+            </div>
+          </div>
           <div>
-            <h1 className="text-2xl font-bold">Istoric Activități</h1>
-            <p className="text-muted-foreground">Toate acțiunile efectuate în panoul de administrare</p>
+            <h1 className="text-2xl font-bold text-foreground">Istoric Activități</h1>
+            <p className="text-muted-foreground text-sm">Toate acțiunile efectuate în panoul de administrare</p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => refetch()}>
+        <Button variant="outline" onClick={() => refetch()} className="bg-card/50 backdrop-blur-sm border-border/50">
           <RefreshCw className="h-4 w-4 mr-2" />
           Reîmprospătează
         </Button>
-      </div>
+      </motion.div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Filtre</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Caută după email sau titlu..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      {/* Filters */}
+      <motion.div variants={itemVariants}>
+        <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg">Filtre</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Caută după email sau titlu..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/50 border-border/50"
+                />
+              </div>
+              <Select value={actionFilter} onValueChange={setActionFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-background/50 border-border/50">
+                  <SelectValue placeholder="Tip acțiune" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover/95 backdrop-blur-xl">
+                  <SelectItem value="all">Toate acțiunile</SelectItem>
+                  <SelectItem value="create">Creare</SelectItem>
+                  <SelectItem value="update">Modificare</SelectItem>
+                  <SelectItem value="delete">Ștergere</SelectItem>
+                  <SelectItem value="export">Export</SelectItem>
+                  <SelectItem value="import">Import</SelectItem>
+                  <SelectItem value="login">Autentificare</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={tableFilter} onValueChange={setTableFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-background/50 border-border/50">
+                  <SelectValue placeholder="Tabel" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover/95 backdrop-blur-xl">
+                  <SelectItem value="all">Toate tabelele</SelectItem>
+                  <SelectItem value="catalog_offers">Proprietăți</SelectItem>
+                  <SelectItem value="contracts">Contracte</SelectItem>
+                  <SelectItem value="clients">Clienți</SelectItem>
+                  <SelectItem value="commissions">Comisioane</SelectItem>
+                  <SelectItem value="viewing_appointments">Vizionări</SelectItem>
+                  <SelectItem value="complexes">Complexe</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Tip acțiune" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toate acțiunile</SelectItem>
-                <SelectItem value="create">Creare</SelectItem>
-                <SelectItem value="update">Modificare</SelectItem>
-                <SelectItem value="delete">Ștergere</SelectItem>
-                <SelectItem value="export">Export</SelectItem>
-                <SelectItem value="import">Import</SelectItem>
-                <SelectItem value="login">Autentificare</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={tableFilter} onValueChange={setTableFilter}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Tabel" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toate tabelele</SelectItem>
-                <SelectItem value="catalog_offers">Proprietăți</SelectItem>
-                <SelectItem value="contracts">Contracte</SelectItem>
-                <SelectItem value="clients">Clienți</SelectItem>
-                <SelectItem value="commissions">Comisioane</SelectItem>
-                <SelectItem value="viewing_appointments">Vizionări</SelectItem>
-                <SelectItem value="complexes">Complexe</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
-            </div>
-          ) : logs && logs.length > 0 ? (
-            <>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Utilizator</TableHead>
-                      <TableHead>Acțiune</TableHead>
-                      <TableHead>Tabel</TableHead>
-                      <TableHead>Înregistrare</TableHead>
-                      <TableHead>Date Vechi</TableHead>
-                      <TableHead>Date Noi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {logs.map((log) => (
-                      <TableRow key={log.id}>
-                        <TableCell className="whitespace-nowrap text-sm">
-                          {formatDate(log.created_at)}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {log.user_email || "-"}
-                        </TableCell>
-                        <TableCell>
-                          {getActionBadge(log.action_type)}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {getTableLabel(log.table_name)}
-                        </TableCell>
-                        <TableCell className="max-w-[200px] truncate text-sm">
-                          {log.record_title || log.record_id || "-"}
-                        </TableCell>
-                        <TableCell>
-                          <JsonViewer data={log.old_data} title="Date anterioare" />
-                        </TableCell>
-                        <TableCell>
-                          <JsonViewer data={log.new_data} title="Date noi" />
-                        </TableCell>
+      {/* Table */}
+      <motion.div variants={itemVariants}>
+        <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+          <CardContent className="p-0">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+              </div>
+            ) : logs && logs.length > 0 ? (
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border/50">
+                        <TableHead>Data</TableHead>
+                        <TableHead>Utilizator</TableHead>
+                        <TableHead>Acțiune</TableHead>
+                        <TableHead>Tabel</TableHead>
+                        <TableHead>Înregistrare</TableHead>
+                        <TableHead>Date Vechi</TableHead>
+                        <TableHead>Date Noi</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {logs.map((log) => (
+                        <TableRow key={log.id} className="border-border/30">
+                          <TableCell className="whitespace-nowrap text-sm">
+                            {formatDate(log.created_at)}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {log.user_email || "-"}
+                          </TableCell>
+                          <TableCell>
+                            {getActionBadge(log.action_type)}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {getTableLabel(log.table_name)}
+                          </TableCell>
+                          <TableCell className="max-w-[200px] truncate text-sm">
+                            {log.record_title || log.record_id || "-"}
+                          </TableCell>
+                          <TableCell>
+                            <JsonViewer data={log.old_data} title="Date anterioare" />
+                          </TableCell>
+                          <TableCell>
+                            <JsonViewer data={log.new_data} title="Date noi" />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="flex items-center justify-between p-4 border-t border-border/50">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="bg-card/50"
+                  >
+                    Pagina anterioară
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Pagina {page + 1}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={logs.length < pageSize}
+                    className="bg-card/50"
+                  >
+                    Pagina următoare
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <History className="h-12 w-12 mb-4 opacity-50" />
+                <p>Nu există înregistrări în istoric</p>
+                <p className="text-sm">Acțiunile vor fi înregistrate automat</p>
               </div>
-              <div className="flex items-center justify-between p-4 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                >
-                  Pagina anterioară
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  Pagina {page + 1}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={logs.length < pageSize}
-                >
-                  Pagina următoare
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <History className="h-12 w-12 mb-4 opacity-50" />
-              <p>Nu există înregistrări în istoric</p>
-              <p className="text-sm">Acțiunile vor fi înregistrate automat</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 

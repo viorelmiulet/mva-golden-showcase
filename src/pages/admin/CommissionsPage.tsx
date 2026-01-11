@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as XLSX from "xlsx";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,6 +89,19 @@ import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } f
 import { MobileFilterSort } from "@/components/admin/MobileFilterSort";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface Commission {
   id: string;
@@ -460,7 +474,12 @@ const CommissionsPage = () => {
   }
 
   return (
-    <div ref={containerRef}>
+    <motion.div 
+      ref={containerRef}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {isMobile && (
         <PullToRefreshIndicator 
           pullDistance={pullDistance} 
@@ -470,10 +489,18 @@ const CommissionsPage = () => {
       )}
       <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Comisioane</h1>
-          <p className="text-muted-foreground text-sm">Gestionează comisioanele</p>
+      <motion.div variants={itemVariants} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+              <Euro className="h-6 w-6 text-gold" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Comisioane</h1>
+            <p className="text-muted-foreground text-sm">Gestionează comisioanele</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportExcel} size="sm" className="flex-1 sm:flex-none">
@@ -696,7 +723,7 @@ const CommissionsPage = () => {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -1453,7 +1480,7 @@ const CommissionsPage = () => {
         </DialogContent>
       </Dialog>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
