@@ -64,7 +64,8 @@ const BusinessCardGenerator = () => {
   const [backSvg, setBackSvg] = useState<string>("");
   const [savedCards, setSavedCards] = useState<SavedBusinessCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [logoType, setLogoType] = useState<"default" | "none">("default");
+  // Logo type is always "default" - MVA logo standard
+  const logoType = "default" as const;
   const [customColors, setCustomColors] = useState<CustomColors>({
     primary: "#D4AF37",
     secondary: "#FFD700",
@@ -765,89 +766,7 @@ const BusinessCardGenerator = () => {
                 </div>
               </div>
 
-              <div className="border-t pt-4 space-y-4">
-                <h3 className="font-semibold text-sm">Text Marketing (partea din dreapta)</h3>
-                <div>
-                  <Label htmlFor="marketingText">Text Marketing (linia 1)</Label>
-                  <Input
-                    id="marketingText"
-                    value={cardData.marketingText}
-                    onChange={(e) => setCardData(prev => ({ ...prev, marketingText: e.target.value }))}
-                    placeholder="ex: Vânzări apartamente direct"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="marketingTextLine2">Text Marketing (linia 2)</Label>
-                  <Input
-                    id="marketingTextLine2"
-                    value={cardData.marketingTextLine2}
-                    onChange={(e) => setCardData(prev => ({ ...prev, marketingTextLine2: e.target.value }))}
-                    placeholder="ex: de la dezvoltator"
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <Label htmlFor="tagline">Slogan (pe spatele cărții)</Label>
-                <Input
-                  id="tagline"
-                  value={cardData.tagline}
-                  onChange={(e) => setCardData(prev => ({ ...prev, tagline: e.target.value }))}
-                  placeholder="ex: Excelență în imobiliare"
-                />
-              </div>
-
-              {/* Selectare Tip Logo */}
-              <div className="space-y-3 border-t pt-4 bg-gold/5 -mx-6 px-6 py-4 rounded-lg">
-                <Label className="text-base font-semibold">
-                  Tip Logo pe Carte de Vizită
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Alege ce logo va apărea pe cartea de vizită
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant={logoType === "default" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setLogoType("default");
-                      toast.success("Logo MVA Imobiliare selectat!");
-                    }}
-                    className="h-auto py-4 flex flex-col gap-1.5"
-                  >
-                    <span className="text-sm font-semibold">Logo MVA</span>
-                    <span className="text-xs opacity-70">Design default</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={logoType === "none" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setLogoType("none");
-                      toast.success("Carte fără logo selectată!");
-                    }}
-                    className="h-auto py-4 flex flex-col gap-1.5"
-                  >
-                    <span className="text-sm font-semibold">Fără Logo</span>
-                    <span className="text-xs opacity-70">Minimalist</span>
-                  </Button>
-                </div>
-                {logoType === "default" && (
-                  <div className="bg-gold/10 border border-gold/30 rounded-lg p-3">
-                    <p className="text-xs text-gold">
-                      ✓ Logo-ul MVA Imobiliare va fi afișat pe carte
-                    </p>
-                  </div>
-                )}
-                {logoType === "none" && (
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                    <p className="text-xs text-blue-600">
-                      ✓ Cartea va fi generată fără logo (design minimalist)
-                    </p>
-                  </div>
-                )}
-              </div>
+              {/* Valori standard pentru marketing, tagline și logo - nu se mai afișează în generator */}
 
               {/* Culori Personalizate */}
               <div className="space-y-4 border-t pt-4">
