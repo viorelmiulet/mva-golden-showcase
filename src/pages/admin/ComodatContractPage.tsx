@@ -7,13 +7,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { Upload, FileText, Download, Loader2, User, Home, Calendar, Sparkles, Mail } from "lucide-react";
+import { Upload, FileText, Download, Loader2, User, Home, Calendar, Sparkles, Mail, Handshake } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface PersonData {
   nume: string;
@@ -614,18 +628,28 @@ const ComodatContractPage = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <FileText className="h-6 w-6" />
-          Contract de Comodat
-        </h1>
-        <p className="text-muted-foreground">
-          Generează un contract de comodat (împrumut de folosință gratuită)
-        </p>
-      </div>
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {/* Modern Header */}
+      <motion.div variants={itemVariants} className="flex items-center gap-4">
+        <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 shadow-lg shadow-emerald-500/10">
+          <Handshake className="h-6 w-6 text-emerald-400" />
+        </div>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Contract de Comodat
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Generează un contract de comodat (împrumut de folosință gratuită)
+          </p>
+        </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <PersonForm
           title="Comodant (Proprietar)"
           data={contractData.comodant}
@@ -651,7 +675,7 @@ const ComodatContractPage = () => {
           fileInputRef={fileInputComodatarRef}
           icon={User}
         />
-      </div>
+      </motion.div>
 
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-4">
@@ -838,7 +862,7 @@ const ComodatContractPage = () => {
           defaultName={`${contractData.comodatar.prenume} ${contractData.comodatar.nume}`.trim()}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 
