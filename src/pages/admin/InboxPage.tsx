@@ -36,6 +36,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/RichTextEditor";
 import { InboxSidebar, EmailListItem, EmailDetail } from "@/components/inbox";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
 interface ReceivedEmail {
   id: string;
@@ -231,6 +233,15 @@ const InboxPage = () => {
       if (error) throw error;
       return data as ReceivedEmail[];
     }
+  });
+
+  // Pull to refresh for mobile
+  const pullToRefresh = usePullToRefresh({
+    onRefresh: async () => {
+      await refetch();
+      toast.success('Email-uri actualizate');
+    },
+    disabled: mobileView === 'detail'
   });
 
   const updateEmailMutation = useMutation({
@@ -643,8 +654,16 @@ const InboxPage = () => {
               </button>
             )}
           </div>
-          <ScrollArea className="flex-1">
-            {isLoading ? (
+          <div 
+            ref={pullToRefresh.containerRef}
+            className="flex-1 overflow-y-auto"
+          >
+            <PullToRefreshIndicator 
+              pullDistance={pullToRefresh.pullDistance}
+              isRefreshing={pullToRefresh.isRefreshing}
+              progress={pullToRefresh.progress}
+            />
+            {isLoading && !pullToRefresh.isRefreshing ? (
               <div className="p-6 md:p-8 text-center">
                 <Loader2 className="h-6 w-6 md:h-8 md:w-8 mx-auto animate-spin text-gold/50" />
                 <p className="text-xs md:text-sm text-muted-foreground mt-2 md:mt-3">Se încarcă...</p>
@@ -683,7 +702,7 @@ const InboxPage = () => {
                 ))}
               </motion.div>
             )}
-          </ScrollArea>
+          </div>
         </motion.div>
 
         {/* Email Detail - Full width on mobile when detail view */}
