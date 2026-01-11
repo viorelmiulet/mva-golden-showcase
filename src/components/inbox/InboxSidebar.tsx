@@ -7,7 +7,8 @@ import {
   PanelLeftClose, 
   PanelLeftOpen,
   Search,
-  X
+  X,
+  Archive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,13 +23,14 @@ interface Draft {
 }
 
 interface InboxSidebarProps {
-  filter: 'all' | 'unread' | 'starred';
-  setFilter: (filter: 'all' | 'unread' | 'starred') => void;
+  filter: 'all' | 'unread' | 'starred' | 'archived';
+  setFilter: (filter: 'all' | 'unread' | 'starred' | 'archived') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   emailsCount: number;
   unreadCount: number;
   starredCount: number;
+  archivedCount: number;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   showDrafts: boolean;
@@ -46,6 +48,7 @@ export const InboxSidebar = ({
   emailsCount,
   unreadCount,
   starredCount,
+  archivedCount,
   collapsed,
   setCollapsed,
   showDrafts,
@@ -57,7 +60,8 @@ export const InboxSidebar = ({
   const filterItems = [
     { key: 'all' as const, label: 'Toate', count: emailsCount, icon: Mail },
     { key: 'unread' as const, label: 'Necitite', count: unreadCount, icon: Clock },
-    { key: 'starred' as const, label: 'Cu stea', count: starredCount, icon: Star }
+    { key: 'starred' as const, label: 'Cu stea', count: starredCount, icon: Star },
+    { key: 'archived' as const, label: 'Arhivate', count: archivedCount, icon: Archive }
   ];
 
   return (

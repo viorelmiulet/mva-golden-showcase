@@ -59,7 +59,7 @@ interface ReceivedEmail {
 
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'starred'>('all');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [replyTo, setReplyTo] = useState("");
@@ -221,13 +221,17 @@ const InboxPage = () => {
       let query = supabase
         .from('received_emails')
         .select('*')
-        .eq('is_archived', false)
         .order('received_at', { ascending: false });
 
-      if (filter === 'unread') {
-        query = query.eq('is_read', false);
-      } else if (filter === 'starred') {
-        query = query.eq('is_starred', true);
+      if (filter === 'archived') {
+        query = query.eq('is_archived', true);
+      } else {
+        query = query.eq('is_archived', false);
+        if (filter === 'unread') {
+          query = query.eq('is_read', false);
+        } else if (filter === 'starred') {
+          query = query.eq('is_starred', true);
+        }
       }
 
       const { data, error } = await query;
@@ -235,6 +239,21 @@ const InboxPage = () => {
       return data as ReceivedEmail[];
     }
   });
+
+  // Query for archived count
+  const { data: archivedEmails } = useQuery({
+    queryKey: ['received-emails-archived-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('received_emails')
+        .select('id')
+        .eq('is_archived', true);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const archivedCount = archivedEmails?.length || 0;
 
   // Pull to refresh for mobile
   const pullToRefresh = usePullToRefresh({
@@ -612,6 +631,7 @@ const InboxPage = () => {
             emailsCount={emails?.length || 0}
             unreadCount={unreadCount}
             starredCount={starredCount}
+            archivedCount={archivedCount}
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
             showDrafts={showDrafts}
