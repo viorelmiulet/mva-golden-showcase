@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Facebook, Sparkles } from "lucide-react";
+import { Facebook } from "lucide-react";
 import { FacebookContentGenerator } from "@/components/FacebookContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
 
