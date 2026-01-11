@@ -167,35 +167,21 @@ serve(async (req) => {
     const results: Record<string, boolean> = {};
     const siteUrl = Deno.env.get('SITE_URL') || 'https://mvaimobiliare.ro';
 
-    // Generate content for each platform
+    // Generate simple content for Zapier
     const generateContent = (platform: string, prop: PropertyData): string => {
-      const price = prop.price_min 
-        ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
-        : 'Preț la cerere';
-      
-      const surface = prop.surface_min 
-        ? `${prop.surface_min} mp` 
-        : '';
-      
-      const rooms = prop.rooms 
-        ? `${prop.rooms} camere` 
-        : '';
+      const hashtags = platform === 'instagram' 
+        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta'
+        : platform === 'facebook'
+        ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
+        : '#RealEstate #Investment #Property';
 
-      const details = [rooms, surface].filter(Boolean).join(' • ');
+      return `${prop.title}
 
-      switch (platform) {
-        case 'facebook':
-          return `${prop.title}\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n${prop.description?.substring(0, 200) || ''}\n\n👉 Detalii: ${siteUrl}/proprietati/${prop.id}\n\n#imobiliare #apartament #bucuresti #MVAImobiliare`;
-        
-        case 'instagram':
-          return `${prop.title}\n\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n\n${prop.description?.substring(0, 300) || ''}\n\n👉 Link in bio!\n\n#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevaznare #locuinta`;
-        
-        case 'linkedin':
-          return `${prop.title}\n\n📍 Locație: ${prop.location || 'București'}\n💼 Preț: ${price}\n${details ? `📊 ${details}\n` : ''}\n\nContactați-ne pentru detalii și programarea unei vizionări.\n\n${siteUrl}/proprietati/${prop.id}\n\n#RealEstate #Investment #Property`;
-        
-        default:
-          return `${prop.title} - ${price} - ${prop.location || 'București'}`;
-      }
+📍 Militari Residence
+📞 0767.941.512
+🌐 mvaimobiliare.ro
+
+${hashtags}`;
     };
 
     // Send to each configured webhook
