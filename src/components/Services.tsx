@@ -11,6 +11,7 @@ import {
   Phone 
 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import ScrollReveal from "@/components/ScrollReveal"
 
 const Services = () => {
   const { language } = useLanguage();
@@ -91,20 +92,22 @@ const Services = () => {
         <article className="max-w-6xl mx-auto">
           
           {/* Header */}
-          <header className="text-center mb-14 sm:mb-18 lg:mb-24">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8 tracking-tight" itemProp="name">
-              <span className="text-foreground drop-shadow-lg">{language === 'ro' ? 'Servicii ' : 'Complete '}</span>
-              <span className="text-gradient-gold">
-                {language === 'ro' ? 'Complete' : 'Services'}
-              </span>
-            </h1>
-            
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0" itemProp="description">
-              {language === 'ro'
-                ? 'Oferim o gamă completă de servicii imobiliare premium, adaptate perfect pentru complexele rezidențiale moderne din vestul capitalei.'
-                : 'We offer a complete range of premium real estate services, perfectly tailored for modern residential complexes in the western capital.'}
-            </p>
-          </header>
+          <ScrollReveal>
+            <header className="text-center mb-14 sm:mb-18 lg:mb-24">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 sm:mb-8 tracking-tight" itemProp="name">
+                <span className="text-foreground drop-shadow-lg">{language === 'ro' ? 'Servicii ' : 'Complete '}</span>
+                <span className="text-gradient-gold">
+                  {language === 'ro' ? 'Complete' : 'Services'}
+                </span>
+              </h1>
+              
+              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0" itemProp="description">
+                {language === 'ro'
+                  ? 'Oferim o gamă completă de servicii imobiliare premium, adaptate perfect pentru complexele rezidențiale moderne din vestul capitalei.'
+                  : 'We offer a complete range of premium real estate services, perfectly tailored for modern residential complexes in the western capital.'}
+              </p>
+            </header>
+          </ScrollReveal>
 
           {/* Services Grid */}
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 px-2 sm:px-0">
@@ -112,76 +115,79 @@ const Services = () => {
               const Icon = service.icon
               
               return (
-                <div 
-                  key={index} 
-                  className={`card-modern group relative overflow-hidden p-6 sm:p-7 lg:p-8 ${
-                    service.highlight 
-                      ? 'border-gold/30 bg-gradient-to-br from-gold/8 to-gold-dark/5' 
-                      : ''
-                  } border-glow`}
-                >
-                    {service.highlight && (
-                      <div className="absolute top-4 right-4">
-                        <Badge variant="secondary" className="bg-gradient-to-r from-gold to-gold-dark text-primary-foreground text-xs font-medium shadow-lg">
-                          {language === 'ro' ? 'Specializare' : 'Specialty'}
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-                      {/* Icon */}
-                      <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl ${
-                        service.highlight 
-                          ? 'bg-gradient-to-br from-gold to-gold-dark shadow-lg' 
-                          : 'bg-gradient-to-br from-gold/15 to-gold-dark/15 border border-gold/20'
-                      } group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                        <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${
-                          service.highlight ? 'text-primary-foreground' : 'text-gold'
-                        }`} />
-                      </div>
+                <ScrollReveal key={index} delay={index * 0.1} direction="up">
+                  <div 
+                    className={`card-modern group relative overflow-hidden p-6 sm:p-7 lg:p-8 h-full ${
+                      service.highlight 
+                        ? 'border-gold/30 bg-gradient-to-br from-gold/8 to-gold-dark/5' 
+                        : ''
+                    } border-glow`}
+                  >
+                      {service.highlight && (
+                        <div className="absolute top-4 right-4">
+                          <Badge variant="secondary" className="bg-gradient-to-r from-gold to-gold-dark text-primary-foreground text-xs font-medium shadow-lg">
+                            {language === 'ro' ? 'Specializare' : 'Specialty'}
+                          </Badge>
+                        </div>
+                      )}
                       
-                      {/* Title */}
-                      <h2 className={`text-base sm:text-lg lg:text-xl font-bold leading-tight ${
-                        service.highlight ? 'text-gradient-gold' : 'text-foreground group-hover:text-gold'
-                      } transition-colors`}>
-                        {service.title}
-                      </h2>
-                      
-                      {/* Description */}
-                      <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                        {service.description}
-                      </p>
-                      
-                      {/* Hover Arrow */}
-                      <div className="flex items-center text-gold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                        <span className="text-sm font-medium mr-2">{language === 'ro' ? 'Află mai multe' : 'Learn more'}</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+                        {/* Icon */}
+                        <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-2xl ${
+                          service.highlight 
+                            ? 'bg-gradient-to-br from-gold to-gold-dark shadow-lg' 
+                            : 'bg-gradient-to-br from-gold/15 to-gold-dark/15 border border-gold/20'
+                        } group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                          <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${
+                            service.highlight ? 'text-primary-foreground' : 'text-gold'
+                          }`} />
+                        </div>
+                        
+                        {/* Title */}
+                        <h2 className={`text-base sm:text-lg lg:text-xl font-bold leading-tight ${
+                          service.highlight ? 'text-gradient-gold' : 'text-foreground group-hover:text-gold'
+                        } transition-colors`}>
+                          {service.title}
+                        </h2>
+                        
+                        {/* Description */}
+                        <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                          {service.description}
+                        </p>
+                        
+                        {/* Hover Arrow */}
+                        <div className="flex items-center text-gold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                          <span className="text-sm font-medium mr-2">{language === 'ro' ? 'Află mai multe' : 'Learn more'}</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
-                    </div>
-                </div>
+                  </div>
+                </ScrollReveal>
               )
             })}
           </div>
 
           {/* CTA Section */}
-          <footer className="mt-14 sm:mt-18 lg:mt-24 text-center px-2 sm:px-0">
-            <div className="card-modern p-8 sm:p-10 lg:p-12 border-gold/20 glow-gold shimmer">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-5">
-                {language === 'ro' ? 'Pregătit să îți găsești apartamentul perfect?' : 'Ready to find your perfect apartment?'}
-              </h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
-                {language === 'ro' 
-                  ? 'Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem să te ajutăm să găsești proprietatea ideală.'
-                  : 'Contact us today for a free consultation and discover how we can help you find the ideal property.'}
-              </p>
-              <a href="tel:0767941512" aria-label={language === 'ro' ? 'Sună la MVA Imobiliare' : 'Call MVA Real Estate'}>
-                <button className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-gold to-gold-dark text-primary-foreground rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 touch-manipulation min-h-[44px] group">
-                  <Phone className="mr-2 w-5 h-5 flex-shrink-0 group-hover:rotate-12 transition-transform" aria-hidden="true" />
-                  <span>0767 941 512</span>
-                </button>
-              </a>
-            </div>
-          </footer>
+          <ScrollReveal delay={0.3}>
+            <footer className="mt-14 sm:mt-18 lg:mt-24 text-center px-2 sm:px-0">
+              <div className="card-modern p-8 sm:p-10 lg:p-12 border-gold/20 glow-gold shimmer">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-5">
+                  {language === 'ro' ? 'Pregătit să îți găsești apartamentul perfect?' : 'Ready to find your perfect apartment?'}
+                </h2>
+                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
+                  {language === 'ro' 
+                    ? 'Contactează-ne astăzi pentru o consultație gratuită și descoperă cum putem să te ajutăm să găsești proprietatea ideală.'
+                    : 'Contact us today for a free consultation and discover how we can help you find the ideal property.'}
+                </p>
+                <a href="tel:0767941512" aria-label={language === 'ro' ? 'Sună la MVA Imobiliare' : 'Call MVA Real Estate'}>
+                  <button className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-gold to-gold-dark text-primary-foreground rounded-xl text-sm sm:text-base font-semibold hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 touch-manipulation min-h-[44px] group">
+                    <Phone className="mr-2 w-5 h-5 flex-shrink-0 group-hover:rotate-12 transition-transform" aria-hidden="true" />
+                    <span>0767 941 512</span>
+                  </button>
+                </a>
+              </div>
+            </footer>
+          </ScrollReveal>
         </article>
       </div>
     </section>
