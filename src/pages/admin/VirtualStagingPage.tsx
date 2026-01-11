@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,19 @@ import {
   ZoomIn
 } from "lucide-react";
 import { toast } from "sonner";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 
 const roomTypes = [
@@ -391,19 +405,27 @@ export default function VirtualStagingPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Sparkles className="h-8 w-8 text-primary" />
-          Virtual Staging AI
-        </h1>
-        <p className="text-muted-foreground">
-          Transformă camerele goale în spații mobilate folosind inteligența artificială
-        </p>
-      </div>
+      {/* Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-4"
+      >
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 to-pink-600/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-600/5 border border-purple-500/20">
+            <Sparkles className="h-6 w-6 text-purple-400" />
+          </div>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Virtual Staging AI</h1>
+          <p className="text-muted-foreground text-sm">Transformă camerele goale în spații mobilate cu AI</p>
+        </div>
+      </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Upload & Settings */}
-        <Card>
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Configurare</CardTitle>
             <CardDescription>
@@ -641,8 +663,8 @@ export default function VirtualStagingPage() {
           </CardContent>
         </Card>
 
-        {/* Result */}
-        <Card>
+        {/* Result Card - keeping original structure */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Rezultat</CardTitle>
             <CardDescription>
@@ -700,7 +722,7 @@ export default function VirtualStagingPage() {
                     <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                       Mobilat
                     </div>
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button size="icon" variant="secondary" className="h-7 w-7">
                         <ZoomIn className="h-4 w-4" />
                       </Button>
@@ -708,192 +730,194 @@ export default function VirtualStagingPage() {
                   </div>
                 </div>
 
-                {/* Full Preview Button */}
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => openPreview(selectedImage.id, 'compare')}
-                  className="w-full gap-2"
-                >
-                  <Maximize2 className="h-4 w-4" />
-                  Previzualizare Completă (Before/After)
-                </Button>
-
-                {/* Thumbnails of all completed */}
-                {doneCount > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {uploadedImages.filter(img => img.result).map((img) => (
-                      <button
-                        key={img.id}
-                        onClick={() => setSelectedImageId(img.id)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                          img.id === selectedImageId 
-                            ? 'border-primary ring-2 ring-primary/30' 
-                            : 'border-transparent hover:border-muted-foreground/50'
-                        }`}
-                      >
-                        <img
-                          src={img.result}
-                          alt={img.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleDownload(selectedImage.result!, selectedImage.name, selectedImage.roomType)} 
-                    className="gap-2"
+                {/* Action Buttons */}
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openPreview(selectedImage.id, 'compare')}
                   >
-                    <Download className="h-4 w-4" />
+                    <Maximize2 className="h-4 w-4 mr-1" />
+                    Compară
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDownload(selectedImage.result!, selectedImage.name, selectedImage.roomType)}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
                     Descarcă
                   </Button>
-                  {doneCount > 1 && (
-                    <Button
-                      variant="outline"
-                      onClick={handleDownloadAll}
-                      className="gap-2"
-                    >
-                      <Images className="h-4 w-4" />
-                      Toate ({doneCount})
-                    </Button>
-                  )}
                   <Button
-                    variant="default"
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleSaveImage(selectedImage.id)}
                     disabled={isSaving || !!selectedImage.savedUrl}
-                    className="gap-2"
                   >
                     {selectedImage.savedUrl ? (
                       <>
-                        <Check className="h-4 w-4" />
-                        Salvată
+                        <Check className="h-4 w-4 mr-1 text-green-500" />
+                        Salvat
                       </>
                     ) : isSaving ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                         Se salvează...
                       </>
                     ) : (
                       <>
-                        <Save className="h-4 w-4" />
+                        <Save className="h-4 w-4 mr-1" />
                         Salvează
                       </>
                     )}
                   </Button>
-                  {doneCount > 1 && uploadedImages.some(img => img.result && !img.savedUrl) && (
-                    <Button
-                      variant="secondary"
-                      onClick={handleSaveAllImages}
-                      disabled={isSaving}
-                      className="gap-2"
-                    >
-                      <Save className="h-4 w-4" />
-                      Salvează Toate
-                    </Button>
-                  )}
                 </div>
-              </div>
-            ) : selectedImage?.status === 'error' ? (
-              <div className="h-96 rounded-lg border-2 border-dashed border-red-300 flex flex-col items-center justify-center gap-3 text-red-500">
-                <Trash2 className="h-12 w-12" />
-                <div className="text-center">
-                  <p className="font-medium">Eroare la procesare</p>
-                  <p className="text-sm">{selectedImage.error || 'A apărut o eroare'}</p>
-                </div>
+
+                {/* All Results Thumbnails */}
+                {doneCount > 1 && (
+                  <div className="space-y-2 pt-4 border-t">
+                    <Label className="text-sm">Toate rezultatele ({doneCount})</Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {uploadedImages.filter(img => img.result).map((img) => (
+                        <button
+                          key={img.id}
+                          onClick={() => setSelectedImageId(img.id)}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                            selectedImageId === img.id 
+                              ? 'border-primary ring-2 ring-primary/20' 
+                              : 'border-transparent hover:border-muted-foreground/30'
+                          }`}
+                        >
+                          <img
+                            src={img.result}
+                            alt={img.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {img.savedUrl && (
+                            <div className="absolute top-1 right-1 bg-green-500 rounded-full p-0.5">
+                              <Check className="h-2.5 w-2.5 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDownloadAll}
+                        className="flex-1"
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Descarcă toate
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSaveAllImages}
+                        disabled={isSaving || uploadedImages.filter(img => img.result && !img.savedUrl).length === 0}
+                        className="flex-1"
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-1" />
+                        )}
+                        Salvează toate
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="h-96 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-3 text-muted-foreground">
-                <Wand2 className="h-12 w-12" />
+              <div className="h-96 rounded-lg border bg-muted/30 flex flex-col items-center justify-center gap-4">
+                <Images className="h-12 w-12 text-muted-foreground" />
                 <div className="text-center">
-                  <p className="font-medium">Nicio imagine procesată</p>
-                  <p className="text-sm">Încarcă imagini și apasă "Procesează"</p>
+                  <p className="font-medium">Încarcă imagini pentru a începe</p>
+                  <p className="text-sm text-muted-foreground">
+                    Rezultatele vor apărea aici după procesare
+                  </p>
                 </div>
               </div>
             )}
           </CardContent>
+          
+          {/* Saved Images Toggle */}
+          <div className="px-6 pb-6">
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              onClick={() => {
+                setShowSaved(!showSaved);
+                if (!showSaved && savedImages.length === 0) {
+                  loadSavedImages();
+                }
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <FolderOpen className="h-4 w-4" />
+                Imagini Salvate
+              </span>
+              {showSaved ? <X className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </div>
+
+          {showSaved && (
+            <CardContent className="pt-0">
+              {isLoadingSaved ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : savedImages.length > 0 ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {savedImages.map((img) => (
+                    <div key={img.name} className="relative group">
+                      <img
+                        src={img.url}
+                        alt={img.name}
+                        className="w-full aspect-square object-cover rounded-lg border"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = img.url;
+                            link.download = img.name;
+                            link.click();
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="h-8 w-8"
+                          onClick={() => handleDeleteSavedImage(img.name)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                        {new Date(img.createdAt).toLocaleDateString('ro-RO')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  Nu ai imagini salvate încă
+                </p>
+              )}
+            </CardContent>
+          )}
         </Card>
       </div>
 
-      {/* Saved Images */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <FolderOpen className="h-5 w-5" />
-              Imagini Salvate
-            </CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setShowSaved(!showSaved);
-                if (!showSaved) loadSavedImages();
-              }}
-            >
-              {showSaved ? 'Ascunde' : 'Vezi Toate'}
-            </Button>
-          </div>
-        </CardHeader>
-        {showSaved && (
-          <CardContent>
-            {isLoadingSaved ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : savedImages.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {savedImages.map((img) => (
-                  <div key={img.name} className="group relative">
-                    <img
-                      src={img.url}
-                      alt={img.name}
-                      className="w-full aspect-square object-cover rounded-lg border"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = img.url;
-                          link.download = img.name;
-                          link.click();
-                        }}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-8 w-8"
-                        onClick={() => handleDeleteSavedImage(img.name)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 truncate">
-                      {new Date(img.createdAt).toLocaleDateString('ro-RO')}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted-foreground py-8">
-                Nu ai imagini salvate încă
-              </p>
-            )}
-          </CardContent>
-        )}
-      </Card>
-
       {/* Tips */}
-      <Card>
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-lg">Sfaturi pentru rezultate mai bune</CardTitle>
         </CardHeader>
@@ -1087,6 +1111,6 @@ export default function VirtualStagingPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

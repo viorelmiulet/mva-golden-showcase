@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2 } from "lucide-react";
@@ -15,6 +16,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface ProjectStats {
   id: string;
@@ -155,10 +169,19 @@ const ComplexesOverview = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <Building2 className="h-12 w-12 mx-auto animate-pulse text-primary" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-4"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-blue-600/10 rounded-full blur-xl" />
+            <div className="relative p-4 rounded-full bg-gradient-to-br from-primary/20 to-blue-600/5 border border-primary/20">
+              <Building2 className="h-12 w-12 animate-pulse text-primary" />
+            </div>
+          </div>
           <p className="text-muted-foreground">Se încarcă ansamblurile...</p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -172,93 +195,116 @@ const ComplexesOverview = () => {
           progress={progress} 
         />
       )}
-      <div className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-8">
-      {/* Header Section */}
-      <div className="text-center space-y-2 md:space-y-4">
-        <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Selectează un complex
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-lg">
-          Gestionează proprietățile din fiecare complex
-        </p>
-      </div>
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        <Card className="border-primary/20 hover:border-primary/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Complexe
-            </CardTitle>
-            <Building2 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-3xl font-bold">{totals.complexes}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-500/20 hover:border-blue-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Proprietăți
-            </CardTitle>
-            <Home className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-3xl font-bold text-blue-500">{totals.properties}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-green-500/20 hover:border-green-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Disponibile
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-3xl font-bold text-green-500">{totals.available}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/20 hover:border-red-500/40 transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Vândute
-            </CardTitle>
-            <XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
-          </CardHeader>
-          <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-3xl font-bold text-red-500">{totals.sold}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Projects Section */}
-      <div className="space-y-3 md:space-y-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
-          <div>
-            <h2 className="text-lg md:text-2xl font-bold">Complexe</h2>
-            <p className="text-muted-foreground text-sm">{totals.complexes} complexe active</p>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-8"
+      >
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-blue-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-600/5 border border-primary/20">
+              <Building2 className="h-6 w-6 text-primary" />
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setImportDialogOpen(true)} variant="outline" size="sm" className="flex-1 md:flex-none">
-              <FileSpreadsheet className="mr-1.5 h-4 w-4" />
-              <span className="hidden sm:inline">Import</span>
-            </Button>
-            <Link to="/admin/complexe/add" className="flex-1 md:flex-none">
-              <Button size="sm" className="w-full">
-                <Plus className="mr-1.5 h-4 w-4" />
-                <span className="hidden sm:inline">Adaugă</span> Complex
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Complexe Rezidențiale</h1>
+            <p className="text-muted-foreground text-sm">Gestionează proprietățile din fiecare complex</p>
+          </div>
+        </motion.div>
+
+        {/* Statistics Cards */}
+        <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Complexe
+              </CardTitle>
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Building2 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold">{totals.complexes}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-blue-500/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Proprietăți
+              </CardTitle>
+              <div className="p-1.5 rounded-lg bg-blue-500/10">
+                <Home className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-blue-500">{totals.properties}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-green-500/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Disponibile
+              </CardTitle>
+              <div className="p-1.5 rounded-lg bg-green-500/10">
+                <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-green-500">{totals.available}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-red-500/40 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 md:pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Vândute
+              </CardTitle>
+              <div className="p-1.5 rounded-lg bg-red-500/10">
+                <XCircle className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-3xl font-bold text-red-500">{totals.sold}</div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Projects Section */}
+        <motion.div variants={itemVariants} className="space-y-3 md:space-y-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+            <div>
+              <h2 className="text-lg md:text-2xl font-bold">Toate Complexele</h2>
+              <p className="text-muted-foreground text-sm">{totals.complexes} complexe active</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setImportDialogOpen(true)} variant="outline" size="sm" className="flex-1 md:flex-none">
+                <FileSpreadsheet className="mr-1.5 h-4 w-4" />
+                <span className="hidden sm:inline">Import</span>
               </Button>
+              <Link to="/admin/complexe/add" className="flex-1 md:flex-none">
+                <Button size="sm" className="w-full">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  <span className="hidden sm:inline">Adaugă</span> Complex
+                </Button>
             </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {projectsStats?.map(project => (
-            <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-              {/* Project Image */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {projectsStats?.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Card className="overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg hover:border-primary/30 transition-all group">
+                  {/* Project Image */}
               <div className="relative h-32 md:h-48 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
                 {project.main_image ? (
                   <img
@@ -334,14 +380,15 @@ const ComplexesOverview = () => {
                     <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
-      </div>
+          </div>
+        </motion.div>
 
-      {/* Import Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        {/* Import Dialog */}
+        <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Import Complexe din Excel sau PDF</DialogTitle>
@@ -350,24 +397,24 @@ const ComplexesOverview = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-            <AlertDialogDescription>
-              Sigur doriți să ștergeți acest ansamblu rezidențial? Toate proprietățile asociate vor fi de asemenea șterse. Această acțiune nu poate fi anulată.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Șterge
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      </div>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+              <AlertDialogDescription>
+                Sigur doriți să ștergeți acest ansamblu rezidențial? Toate proprietățile asociate vor fi de asemenea șterse. Această acțiune nu poate fi anulată.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anulează</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Șterge
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </motion.div>
     </div>
   );
 };
