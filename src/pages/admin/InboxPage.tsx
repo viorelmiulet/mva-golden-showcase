@@ -75,7 +75,8 @@ const InboxPage = () => {
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showDrafts, setShowDrafts] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const queryClient = useQueryClient();
@@ -321,9 +322,15 @@ const InboxPage = () => {
 
   const handleSelectEmail = async (email: ReceivedEmail) => {
     setSelectedEmail(email);
+    setMobileView('detail');
     if (!email.is_read) {
       updateEmailMutation.mutate({ id: email.id, updates: { is_read: true } });
     }
+  };
+
+  const handleBackToList = () => {
+    setMobileView('list');
+    setSelectedEmail(null);
   };
 
   const handleToggleStar = (e: React.MouseEvent, email: ReceivedEmail) => {
@@ -507,31 +514,34 @@ const InboxPage = () => {
   });
 
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col gap-4">
+    <div className="h-[calc(100vh-120px)] flex flex-col gap-2 md:gap-4">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        className={cn(
+          "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4",
+          mobileView === 'detail' && "hidden md:flex"
+        )}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-              <Inbox className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-xl md:rounded-2xl blur-xl" />
+            <div className="relative p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
+              <Inbox className="h-5 w-5 md:h-6 md:w-6 text-gold" />
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Inbox</h1>
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Inbox</h1>
+            <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground">
               {unreadCount > 0 && (
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                <span className="flex items-center gap-1 md:gap-1.5">
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gold animate-pulse" />
                   {unreadCount} necitite
                 </span>
               )}
               {starredCount > 0 && (
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1 md:gap-1.5">
                   <Star className="h-3 w-3 text-yellow-500" />
                   {starredCount} cu stea
                 </span>
@@ -543,49 +553,84 @@ const InboxPage = () => {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button 
             onClick={handleOpenCompose}
-            className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25 transition-all"
+            size="sm"
+            className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25 transition-all flex-1 sm:flex-none"
           >
             <PenSquare className="h-4 w-4 mr-2" />
-            Compune
+            <span className="hidden xs:inline">Compune</span>
+            <span className="xs:hidden">Nou</span>
           </Button>
           <Button 
             variant="outline" 
             size="icon"
             onClick={() => refetch()}
-            className="border-white/10 hover:bg-white/5"
+            className="border-white/10 hover:bg-white/5 h-8 w-8 md:h-10 md:w-10"
           >
             <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
           </Button>
         </div>
       </motion.div>
 
-      {/* Main Content - Three Column Layout */}
-      <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
-        {/* Sidebar */}
-        <InboxSidebar
-          filter={filter}
-          setFilter={setFilter}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          emailsCount={emails?.length || 0}
-          unreadCount={unreadCount}
-          starredCount={starredCount}
-          collapsed={sidebarCollapsed}
-          setCollapsed={setSidebarCollapsed}
-          showDrafts={showDrafts}
-          setShowDrafts={setShowDrafts}
-          drafts={drafts}
-          onLoadDraft={handleLoadDraft}
-          onDeleteDraft={handleDeleteDraft}
-        />
+      {/* Main Content - Responsive Layout */}
+      <div className="flex-1 flex gap-2 md:gap-4 min-h-0 overflow-hidden">
+        {/* Sidebar - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <InboxSidebar
+            filter={filter}
+            setFilter={setFilter}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            emailsCount={emails?.length || 0}
+            unreadCount={unreadCount}
+            starredCount={starredCount}
+            collapsed={sidebarCollapsed}
+            setCollapsed={setSidebarCollapsed}
+            showDrafts={showDrafts}
+            setShowDrafts={setShowDrafts}
+            drafts={drafts}
+            onLoadDraft={handleLoadDraft}
+            onDeleteDraft={handleDeleteDraft}
+          />
+        </div>
 
-        {/* Email List */}
+        {/* Mobile Filter Bar */}
+        <div className={cn(
+          "lg:hidden flex items-center gap-2 absolute top-0 left-0 right-0 z-10 p-2 bg-background/95 backdrop-blur-sm border-b border-white/10",
+          mobileView === 'detail' ? "hidden" : "flex",
+          "relative"
+        )}>
+          {['all', 'unread', 'starred'].map((filterKey) => (
+            <button
+              key={filterKey}
+              onClick={() => setFilter(filterKey as 'all' | 'unread' | 'starred')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+                filter === filterKey 
+                  ? "bg-gold/20 text-gold border border-gold/30" 
+                  : "bg-white/5 text-muted-foreground border border-white/10"
+              )}
+            >
+              {filterKey === 'all' && <Mail className="h-3 w-3" />}
+              {filterKey === 'unread' && <Badge variant="secondary" className="h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-gold text-black">{unreadCount}</Badge>}
+              {filterKey === 'starred' && <Star className="h-3 w-3" />}
+              <span className="capitalize">
+                {filterKey === 'all' ? 'Toate' : filterKey === 'unread' ? 'Necitite' : 'Cu stea'}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Email List - Full width on mobile when list view */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-80 shrink-0 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
+          className={cn(
+            "rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col",
+            "w-full md:w-80 md:shrink-0",
+            mobileView === 'detail' && "hidden md:flex"
+          )}
         >
-          <div className="p-3 border-b border-white/5 flex items-center justify-between">
+          <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium">
               {filteredEmails?.length || 0} email-uri
             </span>
@@ -600,16 +645,16 @@ const InboxPage = () => {
           </div>
           <ScrollArea className="flex-1">
             {isLoading ? (
-              <div className="p-8 text-center">
-                <Loader2 className="h-8 w-8 mx-auto animate-spin text-gold/50" />
-                <p className="text-sm text-muted-foreground mt-3">Se încarcă...</p>
+              <div className="p-6 md:p-8 text-center">
+                <Loader2 className="h-6 w-6 md:h-8 md:w-8 mx-auto animate-spin text-gold/50" />
+                <p className="text-xs md:text-sm text-muted-foreground mt-2 md:mt-3">Se încarcă...</p>
               </div>
             ) : filteredEmails?.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-muted-foreground/30" />
+              <div className="p-6 md:p-8 text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                  <Mail className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/30" />
                 </div>
-                <p className="font-medium text-muted-foreground">Nu există email-uri</p>
+                <p className="font-medium text-sm md:text-base text-muted-foreground">Nu există email-uri</p>
                 <p className="text-xs text-muted-foreground/60 mt-1">
                   {searchQuery ? "Încearcă altă căutare" : "Inbox-ul tău este gol"}
                 </p>
@@ -620,7 +665,7 @@ const InboxPage = () => {
                 animate="visible"
                 variants={{
                   hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+                  visible: { opacity: 1, transition: { staggerChildren: 0.03 } }
                 }}
                 className="divide-y divide-white/5"
               >
@@ -641,24 +686,29 @@ const InboxPage = () => {
           </ScrollArea>
         </motion.div>
 
-        {/* Email Detail */}
-        <EmailDetail
-          email={selectedEmail}
-          onClose={() => setSelectedEmail(null)}
-          onReply={handleOpenReply}
-          onToggleStar={() => {
-            if (selectedEmail) {
-              updateEmailMutation.mutate({ 
-                id: selectedEmail.id, 
-                updates: { is_starred: !selectedEmail.is_starred } 
-              });
-            }
-          }}
-          onArchive={handleArchive}
-          onDelete={handleDelete}
-          extractSenderName={extractSenderName}
-          extractSenderInitials={extractSenderInitials}
-        />
+        {/* Email Detail - Full width on mobile when detail view */}
+        <div className={cn(
+          "flex-1 min-w-0",
+          mobileView === 'list' && "hidden md:block"
+        )}>
+          <EmailDetail
+            email={selectedEmail}
+            onClose={handleBackToList}
+            onReply={handleOpenReply}
+            onToggleStar={() => {
+              if (selectedEmail) {
+                updateEmailMutation.mutate({ 
+                  id: selectedEmail.id, 
+                  updates: { is_starred: !selectedEmail.is_starred } 
+                });
+              }
+            }}
+            onArchive={handleArchive}
+            onDelete={handleDelete}
+            extractSenderName={extractSenderName}
+            extractSenderInitials={extractSenderInitials}
+          />
+        </div>
       </div>
 
       {/* Reply Dialog */}
