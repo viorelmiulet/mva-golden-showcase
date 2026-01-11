@@ -27,6 +27,14 @@ interface WebhookPayload {
   propertyUrl: string;
   imageUrl?: string;
   timestamp: string;
+  // Additional fields for easier Zapier integration
+  title: string;
+  description: string;
+  location: string;
+  price: string;
+  rooms: string;
+  surface: string;
+  hashtags: string;
 }
 
 serve(async (req) => {
@@ -197,6 +205,23 @@ serve(async (req) => {
       console.log(`social-auto-post: Sending to ${platform}: ${webhookUrl}`);
       
       const content = generateContent(platform, property);
+      
+      // Format price for easy access
+      const priceFormatted = property.price_min 
+        ? `${property.price_min.toLocaleString('ro-RO')} ${property.currency || 'EUR'}`
+        : 'Preț la cerere';
+      
+      // Format rooms and surface
+      const roomsFormatted = property.rooms ? `${property.rooms} camere` : '';
+      const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
+      
+      // Generate hashtags based on platform
+      const hashtags = platform === 'instagram' 
+        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta'
+        : platform === 'facebook'
+        ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
+        : '#RealEstate #Investment #Property';
+
       const payload: WebhookPayload = {
         property: {
           id: property.id,
@@ -216,6 +241,14 @@ serve(async (req) => {
         propertyUrl: `${siteUrl}/proprietati/${property.id}`,
         imageUrl: property.images?.[0] || undefined,
         timestamp: new Date().toISOString(),
+        // Easy access fields for Zapier
+        title: property.title,
+        description: property.description || '',
+        location: property.location || 'București',
+        price: priceFormatted,
+        rooms: roomsFormatted,
+        surface: surfaceFormatted,
+        hashtags: hashtags,
       };
 
       console.log(`social-auto-post: Payload for ${platform}:`, JSON.stringify(payload).substring(0, 500));
