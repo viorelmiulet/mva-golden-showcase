@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap, Save } from "lucide-react";
+import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy, Facebook, Instagram, Linkedin, Twitter, Share2, Send, ImagePlus, Check, FolderOpen, Zap, Save, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +123,8 @@ export const SocialMediaContentGenerator = () => {
   const [selectedImagesForBulk, setSelectedImagesForBulk] = useState<string[]>([]);
   const [isSavingToGallery, setIsSavingToGallery] = useState<Platform | null>(null);
   const [isSavingAllToGallery, setIsSavingAllToGallery] = useState(false);
+  const [previewPlatform, setPreviewPlatform] = useState<Platform>("facebook");
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -702,133 +704,233 @@ export const SocialMediaContentGenerator = () => {
                 Trimite la Zapier
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-gold" />
                   Trimite Tot la Zapier
                 </DialogTitle>
                 <DialogDescription>
-                  Trimite conținutul generat pentru toate platformele către webhook-urile configurate
+                  Preview și trimitere conținut pentru toate platformele
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-4">
-                {/* Content Summary */}
-                <div className="space-y-2">
-                  <Label>Conținut de trimis:</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {platforms.map((platform) => {
-                      const hasContent = generatedTexts[platform.id]?.trim();
-                      const isConfigured = configuredPlatforms.includes(platform.id);
-                      return (
-                        <div 
-                          key={platform.id}
-                          className={`flex items-center gap-2 p-2 rounded-lg border ${
-                            hasContent && isConfigured 
-                              ? 'bg-green-500/10 border-green-500/30' 
-                              : 'bg-muted/30 border-muted'
-                          }`}
-                        >
-                          <platform.icon className={`h-4 w-4 ${platform.color}`} />
-                          <span className="text-sm flex-1">{platform.name}</span>
-                          {hasContent && isConfigured ? (
-                            <Check className="h-4 w-4 text-green-500" />
-                          ) : !isConfigured ? (
-                            <Badge variant="outline" className="text-xs">fără webhook</Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-xs">fără text</Badge>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Image Selection */}
-                <div className="space-y-3">
-                  <Label className="flex items-center gap-2">
-                    <ImagePlus className="h-4 w-4" />
-                    Imagini de inclus ({selectedImagesForBulk.length} selectate)
-                  </Label>
-                  
-                  {isLoadingGallery ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    </div>
-                  ) : galleryImages.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Nu există imagini în galerie. Generează imagini mai întâi.
-                    </p>
-                  ) : (
-                    <ScrollArea className="h-40 rounded-lg border p-2">
-                      <div className="grid grid-cols-4 gap-2">
-                        {galleryImages.map((img) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                {/* Left: Platform Selection & Images */}
+                <div className="space-y-4">
+                  {/* Content Summary */}
+                  <div className="space-y-2">
+                    <Label>Platforme ({configuredPlatforms.length} configurate):</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {platforms.map((platform) => {
+                        const hasContent = generatedTexts[platform.id]?.trim();
+                        const isConfigured = configuredPlatforms.includes(platform.id);
+                        return (
                           <div 
-                            key={img.name}
-                            className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                              selectedImagesForBulk.includes(img.url) 
-                                ? 'border-gold ring-2 ring-gold/20' 
-                                : 'border-transparent hover:border-muted-foreground/30'
+                            key={platform.id}
+                            className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                              previewPlatform === platform.id
+                                ? 'bg-primary/10 border-primary ring-2 ring-primary/20'
+                                : hasContent && isConfigured 
+                                  ? 'bg-green-500/10 border-green-500/30 hover:border-green-500/50' 
+                                  : 'bg-muted/30 border-muted hover:border-muted-foreground/30'
                             }`}
-                            onClick={() => toggleBulkImage(img.url)}
+                            onClick={() => setPreviewPlatform(platform.id)}
                           >
-                            <img 
-                              src={img.url} 
-                              alt={img.name}
-                              className="w-full h-16 object-cover"
-                            />
-                            {selectedImagesForBulk.includes(img.url) && (
-                              <div className="absolute top-1 right-1 bg-gold text-gold-foreground rounded-full p-0.5">
-                                <Check className="h-3 w-3" />
-                              </div>
+                            <platform.icon className={`h-4 w-4 ${platform.color}`} />
+                            <span className="text-sm flex-1">{platform.name}</span>
+                            {hasContent && isConfigured ? (
+                              <Check className="h-4 w-4 text-green-500" />
+                            ) : !isConfigured ? (
+                              <Badge variant="outline" className="text-xs">fără webhook</Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs">fără text</Badge>
                             )}
                           </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  )}
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                  {/* Selected Images Preview */}
-                  {selectedImagesForBulk.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {selectedImagesForBulk.map((url, i) => (
-                        <div key={i} className="relative group">
-                          <img 
-                            src={url} 
-                            alt={`Selected ${i + 1}`}
-                            className="h-10 w-10 object-cover rounded-lg border"
-                          />
-                          <button 
-                            onClick={() => toggleBulkImage(url)}
-                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            ×
-                          </button>
+                  {/* Image Selection */}
+                  <div className="space-y-3">
+                    <Label className="flex items-center gap-2">
+                      <ImagePlus className="h-4 w-4" />
+                      Imagini de inclus ({selectedImagesForBulk.length} selectate)
+                    </Label>
+                    
+                    {isLoadingGallery ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      </div>
+                    ) : galleryImages.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Nu există imagini în galerie.
+                      </p>
+                    ) : (
+                      <ScrollArea className="h-32 rounded-lg border p-2">
+                        <div className="grid grid-cols-4 gap-2">
+                          {galleryImages.map((img) => (
+                            <div 
+                              key={img.name}
+                              className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                                selectedImagesForBulk.includes(img.url) 
+                                  ? 'border-gold ring-2 ring-gold/20' 
+                                  : 'border-transparent hover:border-muted-foreground/30'
+                              }`}
+                              onClick={() => toggleBulkImage(img.url)}
+                            >
+                              <img 
+                                src={img.url} 
+                                alt={img.name}
+                                className="w-full h-14 object-cover"
+                              />
+                              {selectedImagesForBulk.includes(img.url) && (
+                                <div className="absolute top-1 right-1 bg-gold text-gold-foreground rounded-full p-0.5">
+                                  <Check className="h-3 w-3" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </ScrollArea>
+                    )}
+                  </div>
+
+                  {/* Progress */}
+                  {bulkProgress && (
+                    <div className="space-y-2 p-3 rounded-lg bg-gold/10 border border-gold/30">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Trimitere în curs...</span>
+                        <span className="font-medium">{bulkProgress.current}/{bulkProgress.total}</span>
+                      </div>
+                      <Progress value={(bulkProgress.current / bulkProgress.total) * 100} className="h-2" />
+                      {bulkProgress.platform && (
+                        <p className="text-xs text-muted-foreground">
+                          Se trimite către {platforms.find(p => p.id === bulkProgress.platform)?.name}...
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
 
-                {/* Progress */}
-                {bulkProgress && (
-                  <div className="space-y-2 p-3 rounded-lg bg-gold/10 border border-gold/30">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>Trimitere în curs...</span>
-                      <span className="font-medium">{bulkProgress.current}/{bulkProgress.total}</span>
+                {/* Right: Post Preview */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      Preview Postare
+                    </Label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => {
+                          const currentIdx = platforms.findIndex(p => p.id === previewPlatform);
+                          const prevIdx = currentIdx > 0 ? currentIdx - 1 : platforms.length - 1;
+                          setPreviewPlatform(platforms[prevIdx].id);
+                        }}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-xs font-medium px-2">
+                        {platforms.find(p => p.id === previewPlatform)?.name}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => {
+                          const currentIdx = platforms.findIndex(p => p.id === previewPlatform);
+                          const nextIdx = currentIdx < platforms.length - 1 ? currentIdx + 1 : 0;
+                          setPreviewPlatform(platforms[nextIdx].id);
+                        }}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Progress value={(bulkProgress.current / bulkProgress.total) * 100} className="h-2" />
-                    {bulkProgress.platform && (
-                      <p className="text-xs text-muted-foreground">
-                        Se trimite către {platforms.find(p => p.id === bulkProgress.platform)?.name}...
-                      </p>
-                    )}
                   </div>
-                )}
+
+                  {/* Social Media Post Preview */}
+                  <div className="rounded-xl border bg-card overflow-hidden">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 p-3 border-b bg-muted/30">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-primary/20 flex items-center justify-center">
+                        {(() => {
+                          const PlatformIcon = platforms.find(p => p.id === previewPlatform)?.icon || Facebook;
+                          return <PlatformIcon className={`h-5 w-5 ${platforms.find(p => p.id === previewPlatform)?.color}`} />;
+                        })()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">MVA IMOBILIARE</p>
+                        <p className="text-xs text-muted-foreground">Acum</p>
+                      </div>
+                    </div>
+
+                    {/* Image Preview */}
+                    {selectedImagesForBulk.length > 0 ? (
+                      <div className="relative aspect-video bg-muted">
+                        <img 
+                          src={selectedImagesForBulk[0]} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                        {selectedImagesForBulk.length > 1 && (
+                          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                            +{selectedImagesForBulk.length - 1} imagini
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-muted/50 flex items-center justify-center">
+                        <div className="text-center text-muted-foreground">
+                          <ImageIcon className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                          <p className="text-xs">Nicio imagine selectată</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Text Preview */}
+                    <div className="p-3 space-y-2">
+                      {generatedTexts[previewPlatform] ? (
+                        <p className="text-sm whitespace-pre-wrap line-clamp-6">
+                          {generatedTexts[previewPlatform]}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">
+                          Niciun text generat pentru {platforms.find(p => p.id === previewPlatform)?.name}
+                        </p>
+                      )}
+                      
+                      {/* Character count */}
+                      {generatedTexts[previewPlatform] && (
+                        <p className={`text-xs ${
+                          generatedTexts[previewPlatform].length > (platforms.find(p => p.id === previewPlatform)?.maxLength || 500)
+                            ? 'text-destructive'
+                            : 'text-muted-foreground'
+                        }`}>
+                          {generatedTexts[previewPlatform].length} / {platforms.find(p => p.id === previewPlatform)?.maxLength} caractere
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Engagement Preview */}
+                    <div className="p-3 border-t flex items-center justify-between text-muted-foreground">
+                      <div className="flex items-center gap-4 text-xs">
+                        <span>👍 Like</span>
+                        <span>💬 Comment</span>
+                        <span>↗️ Share</span>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {platforms.find(p => p.id === previewPlatform)?.aspectRatio}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <DialogFooter>
+              <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setBulkSendDialogOpen(false)} disabled={isBulkSending}>
                   Anulează
                 </Button>
@@ -845,7 +947,7 @@ export const SocialMediaContentGenerator = () => {
                   ) : (
                     <>
                       <Zap className="h-4 w-4" />
-                      Trimite Tot
+                      Trimite Tot ({configuredPlatforms.filter(p => generatedTexts[p as Platform]?.trim()).length} platforme)
                     </>
                   )}
                 </Button>
