@@ -41,7 +41,7 @@ const ReportsPage = lazy(() => import("./pages/admin/ReportsPage"));
 const SettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
 const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
 const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
-const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
+const MarketingAIPage = lazy(() => import("./pages/admin/MarketingAIPage"));
 
 const ViewingAppointmentsPage = lazy(() => import("./pages/admin/ViewingAppointmentsPage"));
 const CommissionsPage = lazy(() => import("./pages/admin/CommissionsPage"));
@@ -125,7 +125,7 @@ const App = () => {
                 <Route path="rapoarte" element={<ReportsPage />} />
                 <Route path="setari" element={<SettingsPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
-                <Route path="facebook" element={<FacebookPage />} />
+                <Route path="marketing-ai" element={<MarketingAIPage />} />
                 <Route path="clienti" element={<ClientsAdminPage />} />
                 <Route path="virtual-staging" element={<VirtualStagingPage />} />
                 <Route path="contracte" element={<ContractsPage />} />

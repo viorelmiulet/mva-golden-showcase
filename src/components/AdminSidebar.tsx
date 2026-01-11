@@ -49,7 +49,7 @@ const menuItems = [
   { title: "Watermark", url: "/admin/watermark", icon: Stamp },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
-  { title: "Facebook", url: "/admin/facebook", icon: Share2 },
+  { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
 ];
