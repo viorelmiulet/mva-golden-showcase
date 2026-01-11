@@ -976,12 +976,12 @@ const InboxPage = () => {
               isRefreshing={pullToRefresh.isRefreshing}
               progress={pullToRefresh.progress}
             />
-            {isLoading && !pullToRefresh.isRefreshing ? (
+            {(isLoading || !emails) && !pullToRefresh.isRefreshing ? (
               <div className="p-6 md:p-8 text-center">
                 <Loader2 className="h-6 w-6 md:h-8 md:w-8 mx-auto animate-spin text-gold/50" />
                 <p className="text-xs md:text-sm text-muted-foreground mt-2 md:mt-3">Se încarcă...</p>
               </div>
-            ) : filteredEmails?.length === 0 ? (
+            ) : filteredEmails && filteredEmails.length === 0 ? (
               <div className="p-6 md:p-8 text-center">
                 <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
                   <Mail className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/30" />
