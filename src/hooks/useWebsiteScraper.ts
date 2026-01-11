@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { triggerSocialAutoPost } from '@/lib/socialAutoPost';
 
 export interface ScrapeResult {
   success: boolean;
@@ -186,6 +187,16 @@ export const useWebsiteScraper = () => {
           title: "Import XML Reușit",
           description: data.message,
         });
+        
+        // Trigger social auto-post for imported properties
+        if (data.properties && Array.isArray(data.properties)) {
+          for (const property of data.properties) {
+            if (property.id) {
+              await triggerSocialAutoPost(property.id);
+            }
+          }
+        }
+        
         return data;
       } else {
         throw new Error(data?.error || 'Import XML eșuat');
@@ -227,6 +238,16 @@ export const useWebsiteScraper = () => {
           title: "Import XML cu Mapare Reușit",
           description: data.message,
         });
+        
+        // Trigger social auto-post for imported properties
+        if (data.properties && Array.isArray(data.properties)) {
+          for (const property of data.properties) {
+            if (property.id) {
+              await triggerSocialAutoPost(property.id);
+            }
+          }
+        }
+        
         return data;
       } else {
         throw new Error(data?.error || 'Import XML cu mapare eșuat');

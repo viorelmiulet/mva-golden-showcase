@@ -14,6 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
+import { triggerSocialAutoPost } from '@/lib/socialAutoPost';
 
 interface XmlSource {
   id: string;
@@ -274,6 +275,11 @@ const WebsiteScrapingManager = () => {
         if (adminInsertError) throw adminInsertError;
         if (!adminInsertData?.success)
           throw new Error(adminInsertData?.error || "Insert failed");
+
+        // Trigger social auto-post for the new property
+        if (adminInsertData?.data?.id) {
+          await triggerSocialAutoPost(adminInsertData.data.id);
+        }
 
         toast({
           title: "Succes!",
