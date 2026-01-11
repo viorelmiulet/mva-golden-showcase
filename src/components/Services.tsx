@@ -170,7 +170,7 @@ const Services = () => {
           {/* CTA Section */}
           <ScrollReveal delay={0.3}>
             <footer className="mt-14 sm:mt-18 lg:mt-24 text-center px-2 sm:px-0">
-              <div className="card-modern p-8 sm:p-10 lg:p-12 border-gold/20 glow-gold shimmer">
+              <div className="card-modern p-8 sm:p-10 lg:p-12 border-gold/20 glow-gold">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-5">
                   {language === 'ro' ? 'Pregătit să îți găsești apartamentul perfect?' : 'Ready to find your perfect apartment?'}
                 </h2>
