@@ -923,7 +923,7 @@ const InboxPage = () => {
 
       {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-lg">
           <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <PenSquare className="h-5 w-5 text-gold" />
@@ -940,7 +940,7 @@ const InboxPage = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 overflow-y-auto flex-1 pr-1">
+          <div className="space-y-4 overflow-y-auto flex-1 min-h-0">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Către</Label>
