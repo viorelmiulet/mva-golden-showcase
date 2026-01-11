@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Home,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 import {
   Sidebar,
@@ -104,6 +106,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = !isMobileSheet && state === "collapsed";
+  const { playNotificationSound } = useNotificationSound();
+  const previousUnreadCountRef = useRef<number | null>(null);
 
   // Fetch unread email count
   const { data: unreadCount = 0 } = useQuery({
@@ -120,6 +124,22 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  // Play notification sound when new emails arrive
+  useEffect(() => {
+    // Skip the first render (initial load)
+    if (previousUnreadCountRef.current === null) {
+      previousUnreadCountRef.current = unreadCount;
+      return;
+    }
+
+    // Play sound only if count increased (new email received)
+    if (unreadCount > previousUnreadCountRef.current) {
+      playNotificationSound();
+    }
+
+    previousUnreadCountRef.current = unreadCount;
+  }, [unreadCount, playNotificationSound]);
 
   const getNavCls = (isActive: boolean) =>
     isActive
