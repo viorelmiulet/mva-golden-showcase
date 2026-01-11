@@ -63,13 +63,14 @@ interface ReceivedEmail {
   is_read: boolean;
   is_starred: boolean;
   is_archived: boolean;
+  is_deleted: boolean;
   received_at: string;
   created_at: string;
 }
 
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived' | 'sent'>('all');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash'>('all');
   const [searchQuery, setSearchQuery] = useState("");
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [replyTo, setReplyTo] = useState("");
@@ -293,10 +294,12 @@ const InboxPage = () => {
         .select('*')
         .order('received_at', { ascending: false });
 
-      if (filter === 'archived') {
-        query = query.eq('is_archived', true);
+      if (filter === 'trash') {
+        query = query.eq('is_deleted', true);
+      } else if (filter === 'archived') {
+        query = query.eq('is_archived', true).eq('is_deleted', false);
       } else {
-        query = query.eq('is_archived', false);
+        query = query.eq('is_archived', false).eq('is_deleted', false);
         if (filter === 'unread') {
           query = query.eq('is_read', false);
         } else if (filter === 'starred') {
@@ -346,8 +349,22 @@ const InboxPage = () => {
     }
   });
 
+  // Query for trash count
+  const { data: trashEmails } = useQuery({
+    queryKey: ['received-emails-trash-count'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('received_emails')
+        .select('id')
+        .eq('is_deleted', true);
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const archivedCount = archivedEmails?.length || 0;
   const sentCount = sentEmails?.length || 0;
+  const trashCount = trashEmails?.length || 0;
 
   // Pull to refresh for mobile
   const pullToRefresh = usePullToRefresh({
@@ -373,6 +390,26 @@ const InboxPage = () => {
     }
   });
 
+  // Soft delete - move to trash
+  const moveToTrashMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_deleted: true })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      setSelectedEmail(null);
+      toast.success('Email mutat în coșul de gunoi');
+    }
+  });
+
+  // Permanent delete
   const deleteEmailMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -383,10 +420,27 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      setSelectedEmail(null);
+      toast.success('Email șters definitiv');
+    }
+  });
+
+  // Restore from trash
+  const restoreFromTrashMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_deleted: false })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
       queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmail(null);
-      toast.success('Email șters');
+      toast.success('Email restaurat');
     }
   });
 
@@ -574,9 +628,18 @@ const InboxPage = () => {
     if (!selectedEmail) return;
     if (filter === 'sent') {
       deleteSentEmailMutation.mutate(selectedEmail.id);
-    } else {
+    } else if (filter === 'trash') {
+      // Permanent delete from trash
       deleteEmailMutation.mutate(selectedEmail.id);
+    } else {
+      // Move to trash
+      moveToTrashMutation.mutate(selectedEmail.id);
     }
+  };
+
+  const handleRestore = () => {
+    if (!selectedEmail) return;
+    restoreFromTrashMutation.mutate(selectedEmail.id);
   };
 
   const handleOpenReply = () => {
@@ -811,6 +874,7 @@ const InboxPage = () => {
             starredCount={starredCount}
             archivedCount={archivedCount}
             sentCount={sentCount}
+            trashCount={trashCount}
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
             showDrafts={showDrafts}
@@ -1015,8 +1079,8 @@ const InboxPage = () => {
                       isSelected={selectedEmail?.id === email.id}
                       onSelect={() => handleSelectEmail(email)}
                       onToggleStar={(e) => handleToggleStar(e, email)}
-                      onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : deleteEmailMutation.mutate(email.id)}
-                      onArchive={() => archiveEmailMutation.mutate(email.id)}
+                      onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : filter === 'trash' ? deleteEmailMutation.mutate(email.id) : moveToTrashMutation.mutate(email.id)}
+                      onArchive={() => filter === 'trash' ? restoreFromTrashMutation.mutate(email.id) : archiveEmailMutation.mutate(email.id)}
                       extractSenderName={extractSenderName}
                       extractSenderInitials={extractSenderInitials}
                       formatEmailDate={formatEmailDate}
@@ -1030,11 +1094,22 @@ const InboxPage = () => {
                       onToggleStar={(e) => handleToggleStar(e, email)}
                       onDelete={(e) => {
                         e.stopPropagation();
-                        filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : deleteEmailMutation.mutate(email.id);
+                        if (filter === 'sent') {
+                          deleteSentEmailMutation.mutate(email.id);
+                        } else if (filter === 'trash') {
+                          deleteEmailMutation.mutate(email.id);
+                        } else {
+                          moveToTrashMutation.mutate(email.id);
+                        }
                       }}
+                      onRestore={filter === 'trash' ? (e) => {
+                        e.stopPropagation();
+                        restoreFromTrashMutation.mutate(email.id);
+                      } : undefined}
                       extractSenderName={extractSenderName}
                       extractSenderInitials={extractSenderInitials}
                       formatEmailDate={formatEmailDate}
+                      isTrashView={filter === 'trash'}
                     />
                   )
                 ))}
