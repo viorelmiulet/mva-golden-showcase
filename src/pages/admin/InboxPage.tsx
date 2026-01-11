@@ -254,13 +254,19 @@ const InboxPage = () => {
   const { data: emails, isLoading, refetch } = useQuery({
     queryKey: ['received-emails', filter, recipientFilter],
     queryFn: async () => {
+      console.log('[InboxPage] Fetching emails with filter:', filter, 'recipientFilter:', recipientFilter);
+      
       // If filter is 'sent', query sent_emails table instead
       if (filter === 'sent') {
         const { data, error } = await supabase
           .from('sent_emails')
           .select('*')
           .order('sent_at', { ascending: false });
-        if (error) throw error;
+        if (error) {
+          console.error('[InboxPage] Error fetching sent emails:', error);
+          throw error;
+        }
+        console.log('[InboxPage] Fetched sent emails:', data?.length);
         
         // Map sent_emails to ReceivedEmail format for display
         return (data || []).map((email: any) => ({
@@ -303,7 +309,11 @@ const InboxPage = () => {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('[InboxPage] Error fetching received emails:', error);
+        throw error;
+      }
+      console.log('[InboxPage] Fetched received emails:', data?.length, data);
       return data as ReceivedEmail[];
     }
   });
@@ -718,8 +728,10 @@ const InboxPage = () => {
     );
   });
 
+  console.log('[InboxPage] Render state - isMobile:', isMobile, 'mobileView:', mobileView, 'emails:', emails?.length, 'filteredEmails:', filteredEmails?.length, 'isLoading:', isLoading);
+
   return (
-    <div className="h-[calc(100vh-120px)] flex flex-col gap-2 md:gap-4">
+    <div className="h-[calc(100vh-180px)] md:h-[calc(100vh-120px)] flex flex-col gap-2 md:gap-4">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -957,7 +969,7 @@ const InboxPage = () => {
           </div>
           <div 
             ref={pullToRefresh.containerRef}
-            className="flex-1 overflow-y-auto"
+            className="flex-1 overflow-y-auto min-h-[200px]"
           >
             <PullToRefreshIndicator 
               pullDistance={pullToRefresh.pullDistance}
