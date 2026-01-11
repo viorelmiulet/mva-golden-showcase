@@ -863,7 +863,7 @@ const InboxPage = () => {
 
       {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-card border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <PenSquare className="h-5 w-5 text-gold" />
