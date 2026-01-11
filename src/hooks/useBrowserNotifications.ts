@@ -1,5 +1,10 @@
 import { useEffect, useCallback, useState } from 'react';
 
+export interface EmailPreview {
+  sender: string;
+  subject: string | null;
+}
+
 export const useBrowserNotifications = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
 
@@ -65,17 +70,39 @@ export const useBrowserNotifications = () => {
     }
   }, []);
 
-  const showNewEmailNotification = useCallback((count: number) => {
-    const title = count === 1 
-      ? 'Email nou primit' 
-      : `${count} emailuri noi primite`;
-    
-    const body = count === 1
-      ? 'Aveți un email nou în inbox'
-      : `Aveți ${count} emailuri noi în inbox`;
+  const extractSenderName = (sender: string): string => {
+    // Extract name from "Name <email@example.com>" format
+    const match = sender.match(/^([^<]+)</);
+    if (match) {
+      return match[1].trim();
+    }
+    // If no name, extract email username
+    const emailMatch = sender.match(/([^@]+)@/);
+    return emailMatch ? emailMatch[1] : sender;
+  };
 
+  const showNewEmailNotification = useCallback((emails: EmailPreview[]) => {
+    if (emails.length === 0) return null;
+
+    if (emails.length === 1) {
+      const email = emails[0];
+      const senderName = extractSenderName(email.sender);
+      return showNotification(`📧 ${senderName}`, {
+        body: email.subject || '(Fără subiect)',
+        tag: 'mva-new-email',
+        requireInteraction: false,
+      });
+    }
+
+    // Multiple emails
+    const title = `📧 ${emails.length} emailuri noi`;
+    const body = emails
+      .slice(0, 3)
+      .map(e => `${extractSenderName(e.sender)}: ${e.subject || '(Fără subiect)'}`)
+      .join('\n');
+    
     return showNotification(title, {
-      body,
+      body: emails.length > 3 ? `${body}\n...și încă ${emails.length - 3}` : body,
       tag: 'mva-new-email',
       requireInteraction: false,
     });

@@ -110,6 +110,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const { playNotificationSound } = useNotificationSound();
   const { requestPermission, showNewEmailNotification, permission } = useBrowserNotifications();
   const previousUnreadCountRef = useRef<number | null>(null);
+  const lastCheckedAtRef = useRef<string | null>(null);
   const hasRequestedPermissionRef = useRef(false);
 
   // Fetch unread email count
@@ -146,14 +147,28 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
     // Skip the first render (initial load)
     if (previousUnreadCountRef.current === null) {
       previousUnreadCountRef.current = unreadCount;
+      lastCheckedAtRef.current = new Date().toISOString();
       return;
     }
 
     // Notify only if count increased (new email received)
     if (unreadCount > previousUnreadCountRef.current) {
-      const newEmailCount = unreadCount - previousUnreadCountRef.current;
-      playNotificationSound();
-      showNewEmailNotification(newEmailCount);
+      const fetchNewEmails = async () => {
+        const { data: newEmails } = await supabase
+          .from('received_emails')
+          .select('sender, subject')
+          .eq('is_read', false)
+          .eq('is_archived', false)
+          .order('received_at', { ascending: false })
+          .limit(unreadCount - (previousUnreadCountRef.current || 0));
+
+        if (newEmails && newEmails.length > 0) {
+          playNotificationSound();
+          showNewEmailNotification(newEmails);
+        }
+      };
+      
+      fetchNewEmails();
     }
 
     previousUnreadCountRef.current = unreadCount;
