@@ -3,33 +3,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isYesterday } from "date-fns";
 import { ro } from "date-fns/locale";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  Mail, 
-  Star, 
-  StarOff, 
-  Trash2, 
-  Archive, 
-  RefreshCw,
   Inbox,
-  ChevronLeft,
-  ChevronRight,
-  Paperclip,
-  Reply,
-  Send,
+  RefreshCw,
   Loader2,
   PenSquare,
-  FileText,
+  Reply,
+  Send,
   Save,
-  Search,
-  MoreHorizontal,
-  Clock,
+  Paperclip,
+  Star,
+  Mail,
   Check,
-  X,
-  Download,
-  ExternalLink,
-  PanelLeftClose,
-  PanelLeftOpen
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,15 +32,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/RichTextEditor";
+import { InboxSidebar, EmailListItem, EmailDetail } from "@/components/inbox";
 
 interface ReceivedEmail {
   id: string;
@@ -81,7 +63,7 @@ const InboxPage = () => {
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
   
-  // Compose new email state
+  // Compose state
   const [composeDialogOpen, setComposeDialogOpen] = useState(false);
   const [composeTo, setComposeTo] = useState("");
   const [composeCc, setComposeCc] = useState("");
@@ -334,6 +316,7 @@ const InboxPage = () => {
     setComposeBody("");
     setComposeAttachments([]);
     setShowCcBcc(false);
+    setCurrentDraftId(null);
   };
 
   const handleSelectEmail = async (email: ReceivedEmail) => {
@@ -351,25 +334,28 @@ const InboxPage = () => {
     });
   };
 
-  const handleArchive = (email: ReceivedEmail) => {
+  const handleArchive = () => {
+    if (!selectedEmail) return;
     updateEmailMutation.mutate({ 
-      id: email.id, 
+      id: selectedEmail.id, 
       updates: { is_archived: true } 
     });
     setSelectedEmail(null);
     toast.success('Email arhivat');
   };
 
-  const handleDelete = (email: ReceivedEmail) => {
-    deleteEmailMutation.mutate(email.id);
+  const handleDelete = () => {
+    if (!selectedEmail) return;
+    deleteEmailMutation.mutate(selectedEmail.id);
   };
 
-  const handleOpenReply = (email: ReceivedEmail) => {
-    const emailMatch = email.sender.match(/<([^>]+)>/) || [null, email.sender];
-    const senderEmail = emailMatch[1] || email.sender;
+  const handleOpenReply = () => {
+    if (!selectedEmail) return;
+    const emailMatch = selectedEmail.sender.match(/<([^>]+)>/) || [null, selectedEmail.sender];
+    const senderEmail = emailMatch[1] || selectedEmail.sender;
     
     setReplyTo(senderEmail);
-    setReplySubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject || ''}`);
+    setReplySubject(selectedEmail.subject?.startsWith('Re:') ? selectedEmail.subject : `Re: ${selectedEmail.subject || ''}`);
     setReplyBody("");
     setReplyDialogOpen(true);
   };
@@ -390,7 +376,6 @@ const InboxPage = () => {
 
   const handleOpenCompose = () => {
     resetComposeForm();
-    setCurrentDraftId(null);
     setComposeDialogOpen(true);
   };
 
@@ -521,22 +506,9 @@ const InboxPage = () => {
     );
   });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-  };
-
   return (
     <div className="h-[calc(100vh-120px)] flex flex-col gap-4">
-      {/* Top Bar */}
+      {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -587,196 +559,31 @@ const InboxPage = () => {
         </div>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0">
+      {/* Main Content - Three Column Layout */}
+      <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
         {/* Sidebar */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0, width: sidebarCollapsed ? 48 : 'auto' }}
-          transition={{ duration: 0.2 }}
-          className={cn(
-            "flex flex-col gap-4 transition-all",
-            sidebarCollapsed ? "lg:col-span-1" : "lg:col-span-3"
-          )}
-        >
-          {/* Collapse Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={cn(
-              "border border-white/10 hover:bg-white/5 hover:border-gold/30",
-              sidebarCollapsed ? "w-10 h-10 p-0 mx-auto" : "w-full justify-start gap-2"
-            )}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeftOpen className="h-4 w-4" />
-            ) : (
-              <>
-                <PanelLeftClose className="h-4 w-4" />
-                <span className="text-sm">Restrânge</span>
-              </>
-            )}
-          </Button>
-
-          {/* Search - hidden when collapsed */}
-          {!sidebarCollapsed && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Caută email-uri..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
-              />
-            </div>
-          )}
-
-          {/* Filter Tabs */}
-          <div className={cn(
-            "flex flex-col gap-1 p-1 rounded-xl bg-white/5 border border-white/10",
-            sidebarCollapsed && "p-0.5"
-          )}>
-            {[
-              { key: 'all', label: 'Toate', count: emails?.length || 0, icon: Mail },
-              { key: 'unread', label: 'Necitite', count: unreadCount, icon: Clock },
-              { key: 'starred', label: 'Cu stea', count: starredCount, icon: Star }
-            ].map((item) => (
-              <button
-                key={item.key}
-                onClick={() => setFilter(item.key as typeof filter)}
-                className={cn(
-                  "flex items-center rounded-lg text-sm font-medium transition-all",
-                  sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
-                  filter === item.key 
-                    ? "bg-gradient-to-r from-gold/20 to-gold/5 text-gold border-l-2 border-gold" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                )}
-                title={sidebarCollapsed ? item.label : undefined}
-              >
-                {sidebarCollapsed ? (
-                  <div className="relative">
-                    <item.icon className="h-4 w-4" />
-                    {item.count > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-gold text-black text-[9px] font-bold rounded-full flex items-center justify-center">
-                        {item.count > 9 ? '9+' : item.count}
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <>
-                    <span className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      {item.label}
-                    </span>
-                    {item.count > 0 && (
-                      <Badge variant="secondary" className={cn(
-                        "text-xs",
-                        filter === item.key ? "bg-gold/20 text-gold" : "bg-white/10"
-                      )}>
-                        {item.count}
-                      </Badge>
-                    )}
-                  </>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Drafts */}
-          <button
-            onClick={() => !sidebarCollapsed && setShowDrafts(!showDrafts)}
-            className={cn(
-              "flex items-center rounded-xl text-sm font-medium transition-all border",
-              sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
-              showDrafts && !sidebarCollapsed
-                ? "bg-gold/10 border-gold/30 text-gold" 
-                : "bg-white/5 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10"
-            )}
-            title={sidebarCollapsed ? "Ciorne" : undefined}
-          >
-            {sidebarCollapsed ? (
-              <div className="relative">
-                <FileText className="h-4 w-4" />
-                {drafts && drafts.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-white/20 text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {drafts.length}
-                  </span>
-                )}
-              </div>
-            ) : (
-              <>
-                <span className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Ciorne
-                </span>
-                {drafts && drafts.length > 0 && (
-                  <Badge variant="secondary" className="bg-white/10 text-xs">
-                    {drafts.length}
-                  </Badge>
-                )}
-              </>
-            )}
-          </button>
-
-          {/* Drafts List - hidden when collapsed */}
-          <AnimatePresence>
-            {showDrafts && !sidebarCollapsed && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-                  {!drafts || drafts.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                      Nu ai ciorne salvate
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-white/5">
-                      {drafts.map((draft) => (
-                        <div
-                          key={draft.id}
-                          onClick={() => handleLoadDraft(draft)}
-                          className="p-3 cursor-pointer hover:bg-white/5 transition-colors group"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate group-hover:text-gold transition-colors">
-                                {draft.subject || '(Fără subiect)'}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {draft.recipient || '(niciun destinatar)'}
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
-                              onClick={(e) => handleDeleteDraft(e, draft.id)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        <InboxSidebar
+          filter={filter}
+          setFilter={setFilter}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          emailsCount={emails?.length || 0}
+          unreadCount={unreadCount}
+          starredCount={starredCount}
+          collapsed={sidebarCollapsed}
+          setCollapsed={setSidebarCollapsed}
+          showDrafts={showDrafts}
+          setShowDrafts={setShowDrafts}
+          drafts={drafts}
+          onLoadDraft={handleLoadDraft}
+          onDeleteDraft={handleDeleteDraft}
+        />
 
         {/* Email List */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col",
-            sidebarCollapsed ? "lg:col-span-5" : "lg:col-span-4"
-          )}
+          className="w-80 shrink-0 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
         >
           <div className="p-3 border-b border-white/5 flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium">
@@ -809,89 +616,25 @@ const InboxPage = () => {
               </div>
             ) : (
               <motion.div 
-                variants={containerVariants}
                 initial="hidden"
                 animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+                }}
                 className="divide-y divide-white/5"
               >
                 {filteredEmails?.map((email) => (
-                  <motion.div
+                  <EmailListItem
                     key={email.id}
-                    variants={itemVariants}
-                    onClick={() => handleSelectEmail(email)}
-                    className={cn(
-                      "p-3 cursor-pointer transition-all relative group",
-                      selectedEmail?.id === email.id 
-                        ? "bg-gradient-to-r from-gold/10 to-transparent" 
-                        : "hover:bg-white/[0.03]",
-                      !email.is_read && "bg-white/[0.02]"
-                    )}
-                  >
-                    {/* Selection indicator */}
-                    {selectedEmail?.id === email.id && (
-                      <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gold" />
-                    )}
-                    
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
-                        !email.is_read 
-                          ? "bg-gradient-to-br from-gold/30 to-gold/10 text-gold" 
-                          : "bg-white/10 text-muted-foreground"
-                      )}>
-                        {extractSenderInitials(email.sender)}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className={cn(
-                            "font-medium text-sm truncate",
-                            !email.is_read ? "text-foreground" : "text-muted-foreground"
-                          )}>
-                            {extractSenderName(email.sender)}
-                          </span>
-                          <span className="text-xs text-muted-foreground shrink-0">
-                            {formatEmailDate(email.received_at)}
-                          </span>
-                        </div>
-                        
-                        <p className={cn(
-                          "text-sm truncate mt-0.5",
-                          !email.is_read ? "text-foreground/80 font-medium" : "text-muted-foreground"
-                        )}>
-                          {email.subject || '(Fără subiect)'}
-                        </p>
-                        
-                        <div className="flex items-center gap-2 mt-1.5">
-                          {!email.is_read && (
-                            <div className="w-2 h-2 rounded-full bg-gold" />
-                          )}
-                          {email.is_starred && (
-                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                          )}
-                          {email.attachments && email.attachments.length > 0 && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Paperclip className="h-3 w-3" />
-                              {email.attachments.length}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Quick star action */}
-                      <button
-                        onClick={(e) => handleToggleStar(e, email)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-white/10 rounded-lg"
-                      >
-                        {email.is_starred ? (
-                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                        ) : (
-                          <StarOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                    </div>
-                  </motion.div>
+                    email={email}
+                    isSelected={selectedEmail?.id === email.id}
+                    onSelect={() => handleSelectEmail(email)}
+                    onToggleStar={(e) => handleToggleStar(e, email)}
+                    extractSenderName={extractSenderName}
+                    extractSenderInitials={extractSenderInitials}
+                    formatEmailDate={formatEmailDate}
+                  />
                 ))}
               </motion.div>
             )}
@@ -899,156 +642,23 @@ const InboxPage = () => {
         </motion.div>
 
         {/* Email Detail */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-5 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col"
-        >
-          <AnimatePresence mode="wait">
-            {selectedEmail ? (
-              <motion.div
-                key={selectedEmail.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col h-full"
-              >
-                {/* Header */}
-                <div className="p-4 border-b border-white/5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="lg:hidden shrink-0 h-8 w-8"
-                        onClick={() => setSelectedEmail(null)}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold font-semibold shrink-0">
-                        {extractSenderInitials(selectedEmail.sender)}
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold truncate text-lg">
-                          {selectedEmail.subject || '(Fără subiect)'}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {extractSenderName(selectedEmail.sender)}
-                        </p>
-                        <p className="text-xs text-muted-foreground/60 mt-0.5">
-                          {format(new Date(selectedEmail.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro })}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        onClick={() => handleOpenReply(selectedEmail)}
-                        className="bg-gradient-to-r from-gold to-gold-light text-black"
-                      >
-                        <Reply className="h-4 w-4 mr-1" />
-                        Răspunde
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-card border-white/10">
-                          <DropdownMenuItem onClick={() => handleToggleStar({ stopPropagation: () => {} } as any, selectedEmail)}>
-                            {selectedEmail.is_starred ? (
-                              <>
-                                <StarOff className="h-4 w-4 mr-2" />
-                                Elimină steaua
-                              </>
-                            ) : (
-                              <>
-                                <Star className="h-4 w-4 mr-2" />
-                                Adaugă stea
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleArchive(selectedEmail)}>
-                            <Archive className="h-4 w-4 mr-2" />
-                            Arhivează
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(selectedEmail)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Șterge
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Attachments */}
-                {selectedEmail.attachments && selectedEmail.attachments.length > 0 && (
-                  <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02]">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Paperclip className="h-4 w-4 text-muted-foreground" />
-                      {selectedEmail.attachments.map((att: any, idx: number) => (
-                        att.url ? (
-                          <a 
-                            key={idx} 
-                            href={att.url} 
-                            download={att.name}
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-xs transition-colors border border-gold/20"
-                          >
-                            <Download className="h-3 w-3" />
-                            {att.name}
-                          </a>
-                        ) : (
-                          <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/5 text-muted-foreground rounded-lg text-xs">
-                            {att.name} - nedisponibil
-                          </span>
-                        )
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Body */}
-                <ScrollArea className="flex-1 p-4">
-                  {selectedEmail.body_html ? (
-                    <div 
-                      className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-gold"
-                      dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
-                    />
-                  ) : (
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-foreground/80 leading-relaxed">
-                      {selectedEmail.body_plain || selectedEmail.stripped_text || 'Nu există conținut'}
-                    </pre>
-                  )}
-                </ScrollArea>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 flex items-center justify-center"
-              >
-                <div className="text-center">
-                  <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gold/30 to-gold/5 rounded-3xl blur-2xl" />
-                    <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mx-auto border border-white/10">
-                      <Mail className="h-10 w-10 text-muted-foreground/30" />
-                    </div>
-                  </div>
-                  <p className="mt-4 font-medium text-muted-foreground">Selectează un email</p>
-                  <p className="text-sm text-muted-foreground/60">pentru a-l vizualiza</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        <EmailDetail
+          email={selectedEmail}
+          onClose={() => setSelectedEmail(null)}
+          onReply={handleOpenReply}
+          onToggleStar={() => {
+            if (selectedEmail) {
+              updateEmailMutation.mutate({ 
+                id: selectedEmail.id, 
+                updates: { is_starred: !selectedEmail.is_starred } 
+              });
+            }
+          }}
+          onArchive={handleArchive}
+          onDelete={handleDelete}
+          extractSenderName={extractSenderName}
+          extractSenderInitials={extractSenderInitials}
+        />
       </div>
 
       {/* Reply Dialog */}
@@ -1237,7 +847,7 @@ const InboxPage = () => {
                         onClick={() => handleRemoveAttachment(idx)}
                         className="ml-1 hover:text-destructive"
                       >
-                        ×
+                        <X className="h-3 w-3" />
                       </button>
                     </Badge>
                   ))}
