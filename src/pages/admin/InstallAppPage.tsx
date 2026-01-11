@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
+import { motion } from "framer-motion";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, Smartphone, Monitor, Share, MoreVertical, Plus, CheckCircle2, ArrowDown } from 'lucide-react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -52,231 +66,263 @@ const InstallAppPage = () => {
 
   if (isInstalled) {
     return (
-      <div className="container max-w-2xl mx-auto py-8 px-4">
-        <Card className="border-green-500/30 bg-green-500/5">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
-            </div>
-            <CardTitle className="text-2xl text-green-500">Aplicația este instalată!</CardTitle>
-            <CardDescription>
-              MVA Admin este deja instalat pe dispozitivul tău. O poți găsi pe ecranul principal.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="container max-w-2xl mx-auto py-8 px-4"
+      >
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-br from-green-500/20 to-green-600/5 border-green-500/30 backdrop-blur-xl">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-green-500" />
+              </div>
+              <CardTitle className="text-2xl text-green-500">Aplicația este instalată!</CardTitle>
+              <CardDescription>
+                MVA Admin este deja instalat pe dispozitivul tău. O poți găsi pe ecranul principal.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="container max-w-2xl mx-auto py-8 px-4 space-y-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="container max-w-2xl mx-auto py-8 px-4 space-y-6"
+    >
       {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+      <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-primary/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+            <Download className="h-6 w-6 text-primary" />
+          </div>
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Instalează MVA Admin</h1>
+          <p className="text-muted-foreground text-sm">Adaugă aplicația pe telefonul tău pentru acces rapid</p>
+        </div>
+      </motion.div>
+
+      {/* App Preview */}
+      <motion.div variants={itemVariants} className="text-center">
+        <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border border-border/50 flex items-center justify-center shadow-2xl">
           <img 
             src="/mva-logo-luxury.svg" 
             alt="MVA Admin" 
             className="w-12 h-12"
           />
         </div>
-        <h1 className="text-3xl font-bold">Instalează MVA Admin</h1>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          Adaugă aplicația pe telefonul tău pentru acces rapid la panoul de administrare
-        </p>
-      </div>
+      </motion.div>
 
       {/* Direct Install Button (Chrome/Edge) */}
       {deferredPrompt && (
-        <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="pt-6">
-            <Button 
-              onClick={handleInstall} 
-              className="w-full h-14 text-lg"
-              variant="luxury"
-            >
-              <Download className="w-5 h-5 mr-2" />
-              Instalează Acum
-            </Button>
-          </CardContent>
-        </Card>
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 backdrop-blur-xl">
+            <CardContent className="pt-6">
+              <Button 
+                onClick={handleInstall} 
+                className="w-full h-14 text-lg"
+                variant="luxury"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Instalează Acum
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {/* iOS Instructions */}
       {isIOS && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5" />
-              Instrucțiuni pentru iPhone/iPad
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">1</span>
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5 text-primary" />
+                Instrucțiuni pentru iPhone/iPad
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">1</span>
+                </div>
+                <div>
+                  <p className="font-medium">Apasă pe butonul Share</p>
+                  <p className="text-sm text-muted-foreground">
+                    Găsește iconița <Share className="w-4 h-4 inline mx-1" /> în bara de jos a Safari
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Apasă pe butonul Share</p>
-                <p className="text-sm text-muted-foreground">
-                  Găsește iconița <Share className="w-4 h-4 inline mx-1" /> în bara de jos a Safari
+
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">2</span>
+                </div>
+                <div>
+                  <p className="font-medium">Derulează și selectează "Add to Home Screen"</p>
+                  <p className="text-sm text-muted-foreground">
+                    Caută opțiunea <Plus className="w-4 h-4 inline mx-1" /> Add to Home Screen
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">3</span>
+                </div>
+                <div>
+                  <p className="font-medium">Confirmă instalarea</p>
+                  <p className="text-sm text-muted-foreground">
+                    Apasă "Add" în colțul din dreapta sus
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  <strong>Important:</strong> Asigură-te că folosești Safari. Alte browsere nu suportă instalarea PWA pe iOS.
                 </p>
               </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">2</span>
-              </div>
-              <div>
-                <p className="font-medium">Derulează și selectează "Add to Home Screen"</p>
-                <p className="text-sm text-muted-foreground">
-                  Caută opțiunea <Plus className="w-4 h-4 inline mx-1" /> Add to Home Screen
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">3</span>
-              </div>
-              <div>
-                <p className="font-medium">Confirmă instalarea</p>
-                <p className="text-sm text-muted-foreground">
-                  Apasă "Add" în colțul din dreapta sus
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-              <p className="text-sm text-amber-600 dark:text-amber-400">
-                <strong>Important:</strong> Asigură-te că folosești Safari. Alte browsere nu suportă instalarea PWA pe iOS.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {/* Android Instructions */}
       {isAndroid && !deferredPrompt && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5" />
-              Instrucțiuni pentru Android
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">1</span>
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5 text-primary" />
+                Instrucțiuni pentru Android
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">1</span>
+                </div>
+                <div>
+                  <p className="font-medium">Deschide meniul browserului</p>
+                  <p className="text-sm text-muted-foreground">
+                    Apasă pe <MoreVertical className="w-4 h-4 inline mx-1" /> în colțul din dreapta sus
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Deschide meniul browserului</p>
-                <p className="text-sm text-muted-foreground">
-                  Apasă pe <MoreVertical className="w-4 h-4 inline mx-1" /> în colțul din dreapta sus
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">2</span>
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">2</span>
+                </div>
+                <div>
+                  <p className="font-medium">Selectează "Install app" sau "Add to Home screen"</p>
+                  <p className="text-sm text-muted-foreground">
+                    Opțiunea poate varia în funcție de browser
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Selectează "Install app" sau "Add to Home screen"</p>
-                <p className="text-sm text-muted-foreground">
-                  Opțiunea poate varia în funcție de browser
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="font-bold text-primary">3</span>
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-bold text-primary">3</span>
+                </div>
+                <div>
+                  <p className="font-medium">Confirmă instalarea</p>
+                  <p className="text-sm text-muted-foreground">
+                    Apasă "Install" în dialogul care apare
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Confirmă instalarea</p>
-                <p className="text-sm text-muted-foreground">
-                  Apasă "Install" în dialogul care apare
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {/* Desktop Instructions */}
       {!isIOS && !isAndroid && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Monitor className="w-5 h-5" />
-              Instrucțiuni pentru Desktop
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {deferredPrompt ? (
-              <p className="text-muted-foreground">
-                Folosește butonul de mai sus pentru a instala aplicația.
-              </p>
-            ) : (
-              <>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="font-bold text-primary">1</span>
+        <motion.div variants={itemVariants}>
+          <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Monitor className="w-5 h-5 text-primary" />
+                Instrucțiuni pentru Desktop
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {deferredPrompt ? (
+                <p className="text-muted-foreground">
+                  Folosește butonul de mai sus pentru a instala aplicația.
+                </p>
+              ) : (
+                <>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <span className="font-bold text-primary">1</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Caută iconița de instalare în bara de adrese</p>
+                      <p className="text-sm text-muted-foreground">
+                        În Chrome/Edge, vei vedea o iconiță <Download className="w-4 h-4 inline mx-1" /> în dreapta barei de adrese
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Caută iconița de instalare în bara de adrese</p>
-                    <p className="text-sm text-muted-foreground">
-                      În Chrome/Edge, vei vedea o iconiță <Download className="w-4 h-4 inline mx-1" /> în dreapta barei de adrese
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="font-bold text-primary">2</span>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <span className="font-bold text-primary">2</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Click pe iconiță și confirmă instalarea</p>
+                      <p className="text-sm text-muted-foreground">
+                        Apasă "Install" în dialogul care apare
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Click pe iconiță și confirmă instalarea</p>
-                    <p className="text-sm text-muted-foreground">
-                      Apasă "Install" în dialogul care apare
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {/* Benefits */}
-      <Card>
-        <CardHeader>
-          <CardTitle>De ce să instalezi aplicația?</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-3">
-            <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
-              <span>Acces rapid direct de pe ecranul principal</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
-              <span>Funcționează și offline (pentru pagini vizitate anterior)</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
-              <span>Experiență fullscreen fără bara browserului</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
-              <span>Încărcare mai rapidă după prima vizită</span>
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
-    </div>
+      <motion.div variants={itemVariants}>
+        <Card className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border-border/50">
+          <CardHeader>
+            <CardTitle>De ce să instalezi aplicația?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>Acces rapid direct de pe ecranul principal</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>Funcționează și offline (pentru pagini vizitate anterior)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>Experiență fullscreen fără bara browserului</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>Încărcare mai rapidă după prima vizită</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 
