@@ -21,6 +21,8 @@ import {
   Stamp,
   Inbox,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 import {
   Sidebar,
@@ -34,6 +36,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
@@ -102,6 +105,22 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const currentPath = location.pathname;
   const collapsed = !isMobileSheet && state === "collapsed";
 
+  // Fetch unread email count
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unread-emails-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('received_emails')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .eq('is_archived', false);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   const getNavCls = (isActive: boolean) =>
     isActive
       ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold border-l-2 border-gold pl-[10px]"
@@ -127,6 +146,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
             const isActive = item.exact
               ? currentPath === item.url
               : currentPath.startsWith(item.url);
+            const showBadge = item.title === "Inbox" && unreadCount > 0;
             return (
               <motion.div
                 key={item.title}
@@ -140,14 +160,23 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                   onClick={handleNavClick}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 touch-manipulation ${getNavCls(isActive)}`}
                 >
-                  <motion.div 
-                    className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}
-                    variants={iconHoverVariants}
-                    initial="rest"
-                    whileHover="hover"
-                  >
-                    <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
-                  </motion.div>
+                  <div className="relative">
+                    <motion.div 
+                      className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}
+                      variants={iconHoverVariants}
+                      initial="rest"
+                      whileHover="hover"
+                    >
+                      <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
+                    </motion.div>
+                    {showBadge && (
+                      <Badge 
+                        className="absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-gold text-black border-0 flex items-center justify-center"
+                      >
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Badge>
+                    )}
+                  </div>
                   <span>{item.title}</span>
                 </NavLink>
               </motion.div>
@@ -235,6 +264,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                   const isActive = item.exact
                     ? currentPath === item.url
                     : currentPath.startsWith(item.url);
+                  const showBadge = item.title === "Inbox" && unreadCount > 0;
                   return (
                     <motion.div
                       key={item.title}
@@ -266,17 +296,26 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                               `}
                               title={collapsed ? item.title : undefined}
                             >
-                              <motion.div 
-                                className={`
-                                  ${collapsed ? '' : 'p-1.5'} rounded-md transition-colors
-                                  ${isActive && !collapsed ? 'bg-gold/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
-                                `}
-                                variants={iconHoverVariants}
-                                initial="rest"
-                                whileHover="hover"
-                              >
-                                <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
-                              </motion.div>
+                              <div className="relative">
+                                <motion.div 
+                                  className={`
+                                    ${collapsed ? '' : 'p-1.5'} rounded-md transition-colors
+                                    ${isActive && !collapsed ? 'bg-gold/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
+                                  `}
+                                  variants={iconHoverVariants}
+                                  initial="rest"
+                                  whileHover="hover"
+                                >
+                                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
+                                </motion.div>
+                                {showBadge && (
+                                  <Badge 
+                                    className={`absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-gold text-black border-0 flex items-center justify-center ${collapsed ? '-top-1 -right-1 h-3.5 min-w-3.5 text-[9px]' : ''}`}
+                                  >
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                  </Badge>
+                                )}
+                              </div>
                               {!collapsed && <span>{item.title}</span>}
                             </NavLink>
                           </motion.div>
