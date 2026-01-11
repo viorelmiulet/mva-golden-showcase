@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  Users,
   Euro,
   LayoutDashboard,
   FileText,
@@ -44,7 +43,7 @@ const menuItems = [
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
   { title: "Regim Hotelier", url: "/admin/regim-hotelier", icon: Hotel },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
-  { title: "Utilizatori", url: "/admin/utilizatori", icon: Users },
+  
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
   { title: "Inventar", url: "/admin/inventar-presetat", icon: Package },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },

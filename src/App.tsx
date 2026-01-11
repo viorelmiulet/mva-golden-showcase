@@ -43,7 +43,7 @@ const ProjectsAdminPage = lazy(() => import("./pages/admin/ProjectsAdminPage"));
 const XmlImportPage = lazy(() => import("./pages/admin/XmlImportPage"));
 const BusinessCardsPage = lazy(() => import("./pages/admin/BusinessCardsPage"));
 const FacebookPage = lazy(() => import("./pages/admin/FacebookPage"));
-const UsersAdminPage = lazy(() => import("./pages/admin/UsersAdminPage"));
+
 const ViewingAppointmentsPage = lazy(() => import("./pages/admin/ViewingAppointmentsPage"));
 const CommissionsPage = lazy(() => import("./pages/admin/CommissionsPage"));
 const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
@@ -120,7 +120,7 @@ const App = () => {
                 <Route path="complexe/:id" element={<ComplexDetailAdmin />} />
                 <Route path="complexe/:id/edit" element={<EditComplex />} />
                 <Route path="import" element={<XmlImportPage />} />
-                <Route path="utilizatori" element={<UsersAdminPage />} />
+                
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
