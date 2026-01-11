@@ -47,7 +47,6 @@ const menuItems = [
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Watermark", url: "/admin/watermark", icon: Stamp },
-  { title: "Import XML", url: "/admin/import", icon: Upload },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Facebook", url: "/admin/facebook", icon: Share2 },
