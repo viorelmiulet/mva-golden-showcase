@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +38,7 @@ import {
 } from "@/components/ui/select";
 import { useClients } from "@/hooks/useClients";
 import { supabase } from "@/integrations/supabase/client";
-import { UserPlus, Edit, Trash2, Search, Sparkles, Home, MapPin, Euro, Maximize2, Loader2, Phone, Mail, FileText } from "lucide-react";
+import { UserPlus, Edit, Trash2, Search, Sparkles, Home, MapPin, Euro, Maximize2, Loader2, Phone, Mail, FileText, Users } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
@@ -243,19 +244,42 @@ export default function ClientsAdminPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Clienți CRM</h1>
-          <p className="text-muted-foreground">Gestionează baza de date cu clienți</p>
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Modern Header */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/40 to-blue-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/5 border border-cyan-500/20">
+              <Users className="h-6 w-6 text-cyan-400" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Clienți CRM</h1>
+            <p className="text-muted-foreground text-sm">Gestionează baza de date cu clienți</p>
+          </div>
         </div>
         <Button onClick={() => handleOpenDialog()} className="gap-2">
           <UserPlus className="h-4 w-4" />
           Client Nou
         </Button>
-      </div>
+      </motion.div>
 
-      <Card>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -409,7 +433,8 @@ export default function ClientsAdminPage() {
             </Table>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Client Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -694,6 +719,6 @@ export default function ClientsAdminPage() {
           </div>
         </SheetContent>
       </Sheet>
-    </div>
+    </motion.div>
   );
 }
