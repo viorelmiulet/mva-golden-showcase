@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, BarChart3, Lock, LogOut, Settings, Eye, EyeOff, Menu, X } from "lucide-react";
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AdminPWAInstallBanner from "@/components/AdminPWAInstallBanner";
+import { motion, AnimatePresence } from "framer-motion";
 
 const DEFAULT_PASSWORD = "123456";
 
@@ -213,6 +214,7 @@ const AdminLayout = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_auth");
@@ -347,9 +349,21 @@ const AdminLayout = () => {
 
           {/* Main Content - fully responsive with safe area support */}
           <main className="flex-1 p-4 md:p-8 overflow-x-hidden overflow-y-auto overscroll-contain bg-gradient-to-br from-transparent to-black/5">
-            <div className="max-w-7xl mx-auto pb-safe">
-              <Outlet />
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ 
+                  duration: 0.25, 
+                  ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
+                }}
+                className="max-w-7xl mx-auto pb-safe"
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
           </main>
 
           {/* PWA Install Banner for Admin */}
