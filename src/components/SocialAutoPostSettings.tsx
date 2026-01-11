@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -21,6 +21,9 @@ interface WebhookSettings {
   linkedin?: string;
   twitter?: string;
   enabled: boolean;
+  scheduled?: boolean;
+  scheduleInterval?: string; // 'hourly' | 'every_3_hours' | 'every_6_hours' | 'daily'
+  lastScheduledRun?: string;
 }
 
 interface AuditLog {
@@ -42,6 +45,8 @@ export const SocialAutoPostSettings = () => {
     linkedin: "",
     twitter: "",
     enabled: false,
+    scheduled: false,
+    scheduleInterval: "daily",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -284,6 +289,62 @@ export const SocialAutoPostSettings = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Scheduled Posting Section */}
+        <div className="p-4 border rounded-lg space-y-4 bg-muted/30">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Programare Trimitere Automată
+            </h4>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="scheduled" className="text-sm">Activ</Label>
+              <Switch
+                id="scheduled"
+                checked={settings.scheduled || false}
+                onCheckedChange={(checked) => setSettings({ ...settings, scheduled: checked })}
+              />
+            </div>
+          </div>
+          
+          <p className="text-sm text-muted-foreground">
+            Trimite automat proprietățile noi către Zapier la un interval prestabilit.
+          </p>
+          
+          <div className="flex items-center gap-3">
+            <Label htmlFor="interval" className="text-sm whitespace-nowrap">Interval:</Label>
+            <Select 
+              value={settings.scheduleInterval || 'daily'} 
+              onValueChange={(value) => setSettings({ ...settings, scheduleInterval: value })}
+              disabled={!settings.scheduled}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hourly">La fiecare oră</SelectItem>
+                <SelectItem value="every_3_hours">La fiecare 3 ore</SelectItem>
+                <SelectItem value="every_6_hours">La fiecare 6 ore</SelectItem>
+                <SelectItem value="every_12_hours">La fiecare 12 ore</SelectItem>
+                <SelectItem value="daily">O dată pe zi (10:00)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {settings.lastScheduledRun && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              Ultima rulare: {format(new Date(settings.lastScheduledRun), "d MMM yyyy, HH:mm", { locale: ro })}
+            </p>
+          )}
+          
+          <Alert className="bg-blue-500/10 border-blue-500/30">
+            <Info className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-sm">
+              Când este activată, funcția va trimite automat proprietățile adăugate de la ultima rulare către toate webhook-urile configurate.
+            </AlertDescription>
+          </Alert>
         </div>
 
         <div className="flex gap-3 pt-4 border-t">
