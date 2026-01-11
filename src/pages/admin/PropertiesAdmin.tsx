@@ -18,6 +18,9 @@ import {
   Edit,
   Save,
   Plus,
+  Upload,
+  X,
+  ImageIcon,
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -45,8 +48,9 @@ const PropertiesAdmin = () => {
     project_name: "",
     features: "",
     amenities: "",
-    images: "",
   });
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -227,8 +231,70 @@ const PropertiesAdmin = () => {
       project_name: "",
       features: "",
       amenities: "",
-      images: "",
     });
+    setUploadedImages([]);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    const newImageUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `properties/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("property-images")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          toast({
+            title: "Eroare la upload",
+            description: `Nu am putut încărca ${file.name}`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("property-images")
+          .getPublicUrl(filePath);
+
+        if (urlData?.publicUrl) {
+          newImageUrls.push(urlData.publicUrl);
+        }
+      }
+
+      if (newImageUrls.length > 0) {
+        setUploadedImages((prev) => [...prev, ...newImageUrls]);
+        toast({
+          title: "Succes!",
+          description: `${newImageUrls.length} imagin${newImageUrls.length === 1 ? "e încărcată" : "i încărcate"}`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Eroare la încărcarea imaginilor",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImages(false);
+      if (e.target) {
+        e.target.value = "";
+      }
+    }
+  };
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const addProperty = async () => {
@@ -259,9 +325,7 @@ const PropertiesAdmin = () => {
         amenities: addForm.amenities
           ? addForm.amenities.split(",").map((a: string) => a.trim()).filter(Boolean)
           : [],
-        images: addForm.images
-          ? addForm.images.split(",").map((i: string) => i.trim()).filter(Boolean)
-          : [],
+        images: uploadedImages,
         currency: "EUR",
         availability_status: "available",
         source: "manual",
@@ -661,13 +725,71 @@ const PropertiesAdmin = () => {
                 />
               </div>
               <div className="col-span-2">
-                <Label>URL-uri Imagini (separate prin virgulă)</Label>
-                <Textarea
-                  value={addForm.images}
-                  onChange={(e) => setAddForm({ ...addForm, images: e.target.value })}
-                  rows={2}
-                  placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-                />
+                <Label>Imagini Proprietate</Label>
+                <div className="space-y-3">
+                  {/* Upload button */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      id="property-images-upload"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById("property-images-upload")?.click()}
+                      disabled={isUploadingImages}
+                      className="border-gold/30"
+                    >
+                      {isUploadingImages ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Se încarcă...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Încarcă Imagini
+                        </>
+                      )}
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      {uploadedImages.length} imagin{uploadedImages.length === 1 ? "e selectată" : "i selectate"}
+                    </span>
+                  </div>
+
+                  {/* Uploaded images preview */}
+                  {uploadedImages.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {uploadedImages.map((url, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded-lg border border-border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeUploadedImage(index)}
+                            className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {uploadedImages.length === 0 && (
+                    <div className="border-2 border-dashed border-border rounded-lg p-4 text-center text-muted-foreground">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nicio imagine încărcată</p>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="col-span-2">
                 <Label>Facilități (separate prin virgulă)</Label>
