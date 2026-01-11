@@ -369,6 +369,7 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
     }
   });
 
@@ -383,6 +384,7 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmail(null);
       toast.success('Email șters');
     }
@@ -415,6 +417,7 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmail(null);
       toast.success('Email arhivat');
     }
@@ -431,6 +434,7 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmail(null);
       toast.success('Email restaurat din arhivă');
     }
