@@ -205,7 +205,7 @@ const Properties = () => {
                   <Button 
                     variant="luxury" 
                     size="lg" 
-                    className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer"
+                    className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold"
                   >
                     Vezi toate proprietățile
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -245,7 +245,7 @@ const Properties = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   <Link to="/proprietati">
-                    <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold shimmer">
+                    <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold">
                       Toate proprietățile
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>

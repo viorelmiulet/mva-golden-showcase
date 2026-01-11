@@ -304,7 +304,7 @@ const Header = () => {
               </>
             ) : null}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-              <Button variant="luxury" size="sm" className="glow-gold shimmer text-xs">
+              <Button variant="luxury" size="sm" className="glow-gold text-xs">
                 <WhatsAppIcon className="w-3 h-3 mr-2" />
                 {t.common.whatsapp}
               </Button>
