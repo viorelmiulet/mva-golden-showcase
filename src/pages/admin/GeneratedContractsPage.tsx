@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -971,15 +972,29 @@ const GeneratedContractsPage = () => {
   ];
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <motion.div 
+      className="space-y-4 md:space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {/* Header - Mobile optimized */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-gold shrink-0" />
-          <h1 className="text-lg md:text-xl font-semibold text-foreground">Contracte Generate</h1>
-          <Badge variant="secondary" className="rounded-full text-xs">
-            {rentalContracts.length + exclusiveContracts.length + comodatContracts.length}
-          </Badge>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-amber-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-amber-600/5 border border-gold/20">
+              <FileText className="h-6 w-6 text-gold" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Contracte Generate</h1>
+            <p className="text-muted-foreground text-sm">{rentalContracts.length + exclusiveContracts.length + comodatContracts.length} contracte în total</p>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -1077,10 +1092,15 @@ const GeneratedContractsPage = () => {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Contract Type Tabs - Desktop only */}
-      <div className="hidden md:flex items-center gap-4 border-b border-border/50 pb-4 overflow-x-auto">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="hidden md:flex items-center gap-4 border-b border-border/50 pb-4 overflow-x-auto"
+      >
         {tabOptions.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -1098,7 +1118,7 @@ const GeneratedContractsPage = () => {
             </button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Status Filter - Desktop only */}
       <div className="hidden md:flex items-center gap-2">
@@ -1234,7 +1254,7 @@ const GeneratedContractsPage = () => {
         onDownload={handleDownloadFromPreview}
         isLoading={previewLoading}
       />
-    </div>
+    </motion.div>
   );
 };
 
