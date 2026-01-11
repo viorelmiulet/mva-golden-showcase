@@ -19,7 +19,11 @@ import {
   X,
   Archive,
   FileText,
-  Trash2
+  Trash2,
+  CheckSquare,
+  Square,
+  MailOpen,
+  RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +82,10 @@ const InboxPage = () => {
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
   
+  // Multi-select state
+  const [selectedEmailIds, setSelectedEmailIds] = useState<Set<string>>(new Set());
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  
   // Compose state
   const [composeDialogOpen, setComposeDialogOpen] = useState(false);
   const [composeTo, setComposeTo] = useState("");
@@ -97,6 +105,12 @@ const InboxPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const queryClient = useQueryClient();
+
+  // Clear selection when filter changes
+  useEffect(() => {
+    setSelectedEmailIds(new Set());
+    setIsMultiSelectMode(false);
+  }, [filter]);
 
   // Fetch drafts
   const { data: drafts, refetch: refetchDrafts } = useQuery({
@@ -461,6 +475,122 @@ const InboxPage = () => {
       toast.success('Coșul de gunoi a fost golit');
     }
   });
+
+  // Bulk mutations
+  const bulkMarkAsReadMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_read: true })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
+      setSelectedEmailIds(new Set());
+      setIsMultiSelectMode(false);
+      toast.success('Emailurile au fost marcate ca citite');
+    }
+  });
+
+  const bulkArchiveMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_archived: true })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
+      setSelectedEmailIds(new Set());
+      setIsMultiSelectMode(false);
+      toast.success('Emailurile au fost arhivate');
+    }
+  });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_deleted: true })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
+      setSelectedEmailIds(new Set());
+      setIsMultiSelectMode(false);
+      toast.success('Emailurile au fost mutate în coș');
+    }
+  });
+
+  const bulkPermanentDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .delete()
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      setSelectedEmailIds(new Set());
+      setIsMultiSelectMode(false);
+      toast.success('Emailurile au fost șterse definitiv');
+    }
+  });
+
+  const bulkRestoreMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_deleted: false })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
+      setSelectedEmailIds(new Set());
+      setIsMultiSelectMode(false);
+      toast.success('Emailurile au fost restaurate');
+    }
+  });
+
+  // Toggle email selection
+  const toggleEmailSelection = (emailId: string) => {
+    setSelectedEmailIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(emailId)) {
+        newSet.delete(emailId);
+      } else {
+        newSet.add(emailId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select all visible emails
+  const selectAllEmails = () => {
+    if (filteredEmails) {
+      setSelectedEmailIds(new Set(filteredEmails.map(e => e.id)));
+    }
+  };
+
+  // Deselect all emails
+  const deselectAllEmails = () => {
+    setSelectedEmailIds(new Set());
+    setIsMultiSelectMode(false);
+  };
 
   const deleteSentEmailMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -1065,10 +1195,122 @@ const InboxPage = () => {
             mobileView === 'detail' && "hidden lg:flex"
           )}
         >
+          {/* Bulk action bar */}
+          {isMultiSelectMode && selectedEmailIds.size > 0 && filter !== 'sent' && (
+            <div className="p-2 md:p-3 border-b border-white/5 bg-gold/10 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={deselectAllEmails}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" />
+                  <span className="hidden sm:inline">Anulează</span>
+                </button>
+                <span className="text-xs font-medium text-gold">
+                  {selectedEmailIds.size} selectate
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {filter !== 'trash' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkMarkAsReadMutation.isPending}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <MailOpen className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Citit</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkArchiveMutation.isPending}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <Archive className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Arhivează</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkDeleteMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkDeleteMutation.isPending}
+                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Șterge</span>
+                    </Button>
+                  </>
+                )}
+                {filter === 'trash' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkRestoreMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkRestoreMutation.isPending}
+                      className="h-7 px-2 text-xs text-green-400 hover:text-green-400"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Restaurează</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        if (confirm('Ești sigur că vrei să ștergi definitiv aceste emailuri?')) {
+                          bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
+                        }
+                      }}
+                      disabled={bulkPermanentDeleteMutation.isPending}
+                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Șterge definitiv</span>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          
           <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">
-              {filteredEmails?.length || 0} email-uri
-            </span>
+            <div className="flex items-center gap-2">
+              {filter !== 'sent' && filteredEmails && filteredEmails.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (isMultiSelectMode) {
+                      if (selectedEmailIds.size === filteredEmails.length) {
+                        deselectAllEmails();
+                      } else {
+                        selectAllEmails();
+                      }
+                    } else {
+                      setIsMultiSelectMode(true);
+                    }
+                  }}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-colors",
+                    isMultiSelectMode 
+                      ? "bg-gold/20 text-gold" 
+                      : "hover:bg-white/10 text-muted-foreground"
+                  )}
+                  title={isMultiSelectMode ? "Selectează tot" : "Mod selectare"}
+                >
+                  {isMultiSelectMode && selectedEmailIds.size === filteredEmails?.length ? (
+                    <CheckSquare className="h-4 w-4" />
+                  ) : (
+                    <Square className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+              <span className="text-xs text-muted-foreground font-medium">
+                {filteredEmails?.length || 0} email-uri
+              </span>
+            </div>
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery("")}
@@ -1148,6 +1390,12 @@ const InboxPage = () => {
                       extractSenderInitials={extractSenderInitials}
                       formatEmailDate={formatEmailDate}
                       isTrashView={filter === 'trash'}
+                      isMultiSelectMode={isMultiSelectMode && filter !== 'sent'}
+                      isChecked={selectedEmailIds.has(email.id)}
+                      onToggleCheck={(e) => {
+                        e.stopPropagation();
+                        toggleEmailSelection(email.id);
+                      }}
                     />
                   )
                 ))}
