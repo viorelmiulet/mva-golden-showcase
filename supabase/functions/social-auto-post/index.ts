@@ -175,13 +175,13 @@ serve(async (req) => {
 
       switch (platform) {
         case 'facebook':
-          return `🏠 PROPRIETATE NOUĂ!\n\n${prop.title}\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n${prop.description?.substring(0, 200) || ''}\n\n👉 Detalii: ${siteUrl}/proprietati/${prop.id}\n\n#imobiliare #apartament #bucuresti #MVAImobiliare`;
+          return `${prop.title}\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n${prop.description?.substring(0, 200) || ''}\n\n👉 Detalii: ${siteUrl}/proprietati/${prop.id}\n\n#imobiliare #apartament #bucuresti #MVAImobiliare`;
         
         case 'instagram':
-          return `🏠 PROPRIETATE NOUĂ!\n\n${prop.title}\n\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n\n${prop.description?.substring(0, 300) || ''}\n\n👉 Link in bio!\n\n#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevaznare #locuinta`;
+          return `${prop.title}\n\n📍 ${prop.location || 'București'}\n💰 ${price}\n${details ? `📐 ${details}\n` : ''}\n\n${prop.description?.substring(0, 300) || ''}\n\n👉 Link in bio!\n\n#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevaznare #locuinta`;
         
         case 'linkedin':
-          return `🏢 Nouă Oportunitate Imobiliară\n\n${prop.title}\n\n📍 Locație: ${prop.location || 'București'}\n💼 Preț: ${price}\n${details ? `📊 ${details}\n` : ''}\n\nContactați-ne pentru detalii și programarea unei vizionări.\n\n${siteUrl}/proprietati/${prop.id}\n\n#RealEstate #Investment #Property`;
+          return `${prop.title}\n\n📍 Locație: ${prop.location || 'București'}\n💼 Preț: ${price}\n${details ? `📊 ${details}\n` : ''}\n\nContactați-ne pentru detalii și programarea unei vizionări.\n\n${siteUrl}/proprietati/${prop.id}\n\n#RealEstate #Investment #Property`;
         
         default:
           return `${prop.title} - ${price} - ${prop.location || 'București'}`;
