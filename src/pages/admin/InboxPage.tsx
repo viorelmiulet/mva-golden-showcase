@@ -16,7 +16,9 @@ import {
   Star,
   Mail,
   Check,
-  X
+  X,
+  Archive,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -699,28 +701,50 @@ const InboxPage = () => {
 
         {/* Mobile Filter Bar - Only show in list view on mobile */}
         {mobileView === 'list' && (
-          <div className="lg:hidden flex items-center gap-2 shrink-0">
-            {['all', 'unread', 'starred'].map((filterKey) => (
+          <div className="lg:hidden flex items-center gap-1.5 shrink-0 overflow-x-auto pb-1 -mb-1">
+            {[
+              { key: 'all', label: 'Toate', icon: Mail },
+              { key: 'unread', label: 'Necitite', icon: null },
+              { key: 'starred', label: 'Cu stea', icon: Star },
+              { key: 'archived', label: 'Arhivate', icon: Archive }
+            ].map((item) => (
               <button
-                key={filterKey}
-                onClick={() => setFilter(filterKey as 'all' | 'unread' | 'starred')}
+                key={item.key}
+                onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived')}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                  filter === filterKey 
+                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0",
+                  filter === item.key 
                     ? "bg-gold/20 text-gold border border-gold/30" 
                     : "bg-white/5 text-muted-foreground border border-white/10"
                 )}
               >
-                {filterKey === 'all' && <Mail className="h-3 w-3" />}
-                {filterKey === 'unread' && unreadCount > 0 && (
+                {item.icon && <item.icon className="h-3 w-3" />}
+                {item.key === 'unread' && unreadCount > 0 && (
                   <span className="w-4 h-4 rounded-full bg-gold text-black text-[10px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
                 )}
-                {filterKey === 'starred' && <Star className="h-3 w-3" />}
-                <span>
-                  {filterKey === 'all' ? 'Toate' : filterKey === 'unread' ? 'Necitite' : 'Cu stea'}
-                </span>
+                {item.key === 'archived' && archivedCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
+                )}
+                <span>{item.label}</span>
               </button>
             ))}
+            
+            {/* Drafts button on mobile */}
+            <button
+              onClick={() => setShowDrafts(!showDrafts)}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0",
+                showDrafts 
+                  ? "bg-gold/20 text-gold border border-gold/30" 
+                  : "bg-white/5 text-muted-foreground border border-white/10"
+              )}
+            >
+              <FileText className="h-3 w-3" />
+              {drafts && drafts.length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
+              )}
+              <span>Ciorne</span>
+            </button>
           </div>
         )}
 
