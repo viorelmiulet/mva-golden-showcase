@@ -1623,6 +1623,7 @@ export type Database = {
         Returns: boolean
       }
       notify_google_sitemap: { Args: never; Returns: undefined }
+      trigger_scheduled_social_post: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "agent" | "visitor"
