@@ -1,3 +1,4 @@
+// Admin Layout with authentication and sidebar navigation
 import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
