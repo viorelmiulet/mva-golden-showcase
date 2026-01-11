@@ -35,7 +35,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/RichTextEditor";
-import { InboxSidebar, EmailListItem, EmailDetail } from "@/components/inbox";
+import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem } from "@/components/inbox";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 
@@ -271,6 +272,23 @@ const InboxPage = () => {
       toast.success('Email șters');
     }
   });
+
+  const archiveEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_archived: true })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      setSelectedEmail(null);
+      toast.success('Email arhivat');
+    }
+  });
+
+  const isMobile = useIsMobile();
 
   const sendReplyMutation = useMutation({
     mutationFn: async ({ to, subject, body, inReplyTo }: { 
@@ -689,16 +707,31 @@ const InboxPage = () => {
                 className="divide-y divide-white/5"
               >
                 {filteredEmails?.map((email) => (
-                  <EmailListItem
-                    key={email.id}
-                    email={email}
-                    isSelected={selectedEmail?.id === email.id}
-                    onSelect={() => handleSelectEmail(email)}
-                    onToggleStar={(e) => handleToggleStar(e, email)}
-                    extractSenderName={extractSenderName}
-                    extractSenderInitials={extractSenderInitials}
-                    formatEmailDate={formatEmailDate}
-                  />
+                  isMobile ? (
+                    <SwipeableEmailItem
+                      key={email.id}
+                      email={email}
+                      isSelected={selectedEmail?.id === email.id}
+                      onSelect={() => handleSelectEmail(email)}
+                      onToggleStar={(e) => handleToggleStar(e, email)}
+                      onDelete={() => deleteEmailMutation.mutate(email.id)}
+                      onArchive={() => archiveEmailMutation.mutate(email.id)}
+                      extractSenderName={extractSenderName}
+                      extractSenderInitials={extractSenderInitials}
+                      formatEmailDate={formatEmailDate}
+                    />
+                  ) : (
+                    <EmailListItem
+                      key={email.id}
+                      email={email}
+                      isSelected={selectedEmail?.id === email.id}
+                      onSelect={() => handleSelectEmail(email)}
+                      onToggleStar={(e) => handleToggleStar(e, email)}
+                      extractSenderName={extractSenderName}
+                      extractSenderInitials={extractSenderInitials}
+                      formatEmailDate={formatEmailDate}
+                    />
+                  )
                 ))}
               </motion.div>
             )}
