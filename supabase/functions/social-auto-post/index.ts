@@ -251,7 +251,7 @@ serve(async (req) => {
         rooms: roomsFormatted,
         surface: surfaceFormatted,
         hashtags: hashtags,
-        website: 'https://mvaimobiliare.ro',
+        website: 'mvaimobiliare.ro',
         phone: '0767.941.512',
       };
 
