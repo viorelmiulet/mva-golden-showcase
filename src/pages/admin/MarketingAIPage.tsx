@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Facebook } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { FacebookContentGenerator } from "@/components/FacebookContentGenerator";
 import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
 
@@ -16,7 +16,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
-const FacebookPage = () => {
+const MarketingAIPage = () => {
   return (
     <motion.div 
       variants={containerVariants}
@@ -27,14 +27,14 @@ const FacebookPage = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-4">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 to-blue-600/10 rounded-2xl blur-xl" />
-          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/5 border border-blue-500/20">
-            <Facebook className="h-6 w-6 text-blue-400" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-gold/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-gold/5 border border-primary/20">
+            <Sparkles className="h-6 w-6 text-primary" />
           </div>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Social Media & AI</h1>
-          <p className="text-muted-foreground text-sm">Generează conținut și imagini cu AI</p>
+          <h1 className="text-2xl font-bold text-foreground">Marketing AI</h1>
+          <p className="text-muted-foreground text-sm">Generează conținut și imagini cu inteligență artificială</p>
         </div>
       </motion.div>
 
@@ -50,4 +50,4 @@ const FacebookPage = () => {
   );
 };
 
-export default FacebookPage;
+export default MarketingAIPage;
