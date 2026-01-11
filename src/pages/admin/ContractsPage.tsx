@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Handshake, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Home, Key, Building2, Users, FileText, Check, Handshake, Search, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -14,8 +14,9 @@ const ExclusiveRepresentationPage = lazy(() => import("./ExclusiveRepresentation
 const GeneratedContractsPage = lazy(() => import("./GeneratedContractsPage"));
 const ComodatContractPage = lazy(() => import("./ComodatContractPage"));
 const IntermediationContractPage = lazy(() => import("./IntermediationContractPage"));
+const InventoryPresetsPage = lazy(() => import("./InventoryPresetsPage"));
 
-type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "comodat" | "intermediere";
+type ContractType = "selection" | "inchiriere" | "reprezentare-exclusiva" | "comodat" | "intermediere" | "inventar";
 
 const contractTypes = [
   {
@@ -85,6 +86,23 @@ const contractTypes = [
     gradient: "from-purple-500/20 to-violet-600/20",
     iconBg: "bg-purple-500/20",
     iconColor: "text-purple-400",
+  },
+  {
+    id: "inventar" as const,
+    title: "Inventar Presetat",
+    shortTitle: "Inventar",
+    description: "Gestionează lista standard de articole pentru inventar",
+    icon: Package,
+    secondaryIcon: FileText,
+    features: [
+      "Articole standard",
+      "Stare și locație",
+      "Cantități predefinite",
+      "Ordine personalizabilă",
+    ],
+    gradient: "from-amber-500/20 to-yellow-600/20",
+    iconBg: "bg-amber-500/20",
+    iconColor: "text-amber-400",
   },
 ];
 
@@ -227,6 +245,7 @@ const ContractsPage = () => {
           {selectedType === "comodat" && <ComodatContractPage />}
           {selectedType === "intermediere" && <IntermediationContractPage />}
           {selectedType === "reprezentare-exclusiva" && <ExclusiveRepresentationPage />}
+          {selectedType === "inventar" && <InventoryPresetsPage />}
         </Suspense>
       </div>
     );

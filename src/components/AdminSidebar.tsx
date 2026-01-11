@@ -45,7 +45,6 @@ const menuItems = [
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
-  { title: "Inventar", url: "/admin/inventar-presetat", icon: Package },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Watermark", url: "/admin/watermark", icon: Stamp },
   { title: "Import XML", url: "/admin/import", icon: Upload },
