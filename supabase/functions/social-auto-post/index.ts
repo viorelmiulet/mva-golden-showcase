@@ -175,8 +175,13 @@ serve(async (req) => {
         ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
         : '#RealEstate #Investment #Property';
 
+      const price = prop.price_min 
+        ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
+        : 'Preț la cerere';
+
       return `${prop.title}
 
+💰 ${price}
 📍 Militari Residence
 📞 0767.941.512
 🌐 mvaimobiliare.ro
