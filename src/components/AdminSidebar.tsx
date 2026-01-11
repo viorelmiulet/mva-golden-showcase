@@ -109,24 +109,25 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const collapsed = !isMobileSheet && state === "collapsed";
   const { playNotificationSound } = useNotificationSound();
   const { requestPermission, showNewEmailNotification, permission } = useBrowserNotifications();
-  const previousUnreadCountRef = useRef<number | null>(null);
-  const lastCheckedAtRef = useRef<string | null>(null);
+  const notifiedEmailIdsRef = useRef<Set<string>>(new Set());
+  const isInitialLoadRef = useRef(true);
   const hasRequestedPermissionRef = useRef(false);
 
-  // Fetch unread email count
-  const { data: unreadCount = 0 } = useQuery({
-    queryKey: ['unread-emails-count'],
+  // Fetch unread emails with IDs to track which ones we've notified about
+  const { data: unreadEmails = [] } = useQuery({
+    queryKey: ['unread-emails-for-notifications'],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('received_emails')
-        .select('*', { count: 'exact', head: true })
+        .select('id, sender, subject')
         .eq('is_read', false)
-        .eq('is_archived', false);
+        .eq('is_archived', false)
+        .order('received_at', { ascending: false });
       
       if (error) throw error;
-      return count || 0;
+      return data || [];
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
   // Request notification permission on first user interaction
@@ -142,37 +143,38 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
     }
   }, [permission, requestPermission]);
 
-  // Play notification sound and show browser notification when new emails arrive
+  // Play notification sound and show browser notification only for truly new emails
   useEffect(() => {
-    // Skip the first render (initial load)
-    if (previousUnreadCountRef.current === null) {
-      previousUnreadCountRef.current = unreadCount;
-      lastCheckedAtRef.current = new Date().toISOString();
+    // Skip the first render (initial load) - just record existing emails
+    if (isInitialLoadRef.current) {
+      unreadEmails.forEach(email => notifiedEmailIdsRef.current.add(email.id));
+      isInitialLoadRef.current = false;
       return;
     }
 
-    // Notify only if count increased (new email received)
-    if (unreadCount > previousUnreadCountRef.current) {
-      const fetchNewEmails = async () => {
-        const { data: newEmails } = await supabase
-          .from('received_emails')
-          .select('sender, subject')
-          .eq('is_read', false)
-          .eq('is_archived', false)
-          .order('received_at', { ascending: false })
-          .limit(unreadCount - (previousUnreadCountRef.current || 0));
-
-        if (newEmails && newEmails.length > 0) {
-          playNotificationSound();
-          showNewEmailNotification(newEmails);
-        }
-      };
+    // Find emails we haven't notified about yet
+    const newEmails = unreadEmails.filter(email => !notifiedEmailIdsRef.current.has(email.id));
+    
+    if (newEmails.length > 0) {
+      // Mark these as notified
+      newEmails.forEach(email => notifiedEmailIdsRef.current.add(email.id));
       
-      fetchNewEmails();
+      // Play sound and show notification
+      playNotificationSound();
+      showNewEmailNotification(newEmails.map(e => ({ sender: e.sender, subject: e.subject })));
     }
 
-    previousUnreadCountRef.current = unreadCount;
-  }, [unreadCount, playNotificationSound, showNewEmailNotification]);
+    // Clean up notified IDs that are no longer in unread list (they were read/archived)
+    const currentUnreadIds = new Set(unreadEmails.map(e => e.id));
+    notifiedEmailIdsRef.current.forEach(id => {
+      if (!currentUnreadIds.has(id)) {
+        notifiedEmailIdsRef.current.delete(id);
+      }
+    });
+  }, [unreadEmails, playNotificationSound, showNewEmailNotification]);
+
+  // Derive unread count from the emails data
+  const unreadCount = unreadEmails.length;
 
   const getNavCls = (isActive: boolean) =>
     isActive
