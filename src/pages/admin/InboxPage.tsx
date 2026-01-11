@@ -863,8 +863,8 @@ const InboxPage = () => {
 
       {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-card border-white/10">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl bg-card border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+          <DialogHeader className="shrink-0">
             <DialogTitle className="flex items-center gap-2">
               <PenSquare className="h-5 w-5 text-gold" />
               Email nou
@@ -880,7 +880,7 @@ const InboxPage = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Către</Label>
@@ -978,27 +978,25 @@ const InboxPage = () => {
             </div>
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button variant="outline" onClick={() => setComposeDialogOpen(false)} className="border-white/10">
-                Anulează
-              </Button>
-              <Button 
-                variant="secondary"
-                onClick={handleSaveDraft}
-                disabled={saveDraftMutation.isPending}
-                className="bg-white/5 hover:bg-white/10"
-              >
-                {saveDraftMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Salvează
-                  </>
-                )}
-              </Button>
-            </div>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 pt-4 border-t border-white/10">
+            <Button variant="outline" onClick={() => setComposeDialogOpen(false)} className="border-white/10 w-full sm:w-auto">
+              Anulează
+            </Button>
+            <Button 
+              variant="secondary"
+              onClick={handleSaveDraft}
+              disabled={saveDraftMutation.isPending}
+              className="bg-white/5 hover:bg-white/10 w-full sm:w-auto"
+            >
+              {saveDraftMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Salvează ciornă
+                </>
+              )}
+            </Button>
             <Button 
               onClick={async () => {
                 await handleSendEmail();
@@ -1008,7 +1006,7 @@ const InboxPage = () => {
                 }
               }}
               disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
-              className="bg-gradient-to-r from-gold to-gold-light text-black"
+              className="bg-gradient-to-r from-gold to-gold-light text-black w-full sm:w-auto"
             >
               {sendEmailMutation.isPending ? (
                 <>
@@ -1018,7 +1016,7 @@ const InboxPage = () => {
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  Trimite
+                  Trimite email
                 </>
               )}
             </Button>
