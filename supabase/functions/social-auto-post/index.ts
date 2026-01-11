@@ -179,11 +179,16 @@ serve(async (req) => {
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
         : 'Preț la cerere';
 
+      const rooms = prop.rooms ? `🛏️ ${prop.rooms} camere` : '';
+      const surface = prop.surface_min ? `📐 ${prop.surface_min} mp` : '';
+      const details = [rooms, surface].filter(Boolean).join('\n');
+
       const propertyUrl = `${siteUrl}/proprietati/${prop.id}`;
 
       return `${prop.title}
 
 💰 ${price}
+${details}
 📍 Militari Residence
 📞 0767.941.512
 🌐 mvaimobiliare.ro
