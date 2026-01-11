@@ -404,7 +404,12 @@ export default function VirtualStagingPage() {
   const hasResults = uploadedImages.some(img => img.result);
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
