@@ -1289,6 +1289,54 @@ export type Database = {
           },
         ]
       }
+      sent_emails: {
+        Row: {
+          attachments: Json | null
+          bcc: string | null
+          body_html: string | null
+          body_plain: string | null
+          cc: string | null
+          created_at: string
+          from_address: string
+          id: string
+          in_reply_to: string | null
+          message_id: string | null
+          recipient: string
+          sent_at: string
+          subject: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          bcc?: string | null
+          body_html?: string | null
+          body_plain?: string | null
+          cc?: string | null
+          created_at?: string
+          from_address: string
+          id?: string
+          in_reply_to?: string | null
+          message_id?: string | null
+          recipient: string
+          sent_at?: string
+          subject?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          bcc?: string | null
+          body_html?: string | null
+          body_plain?: string | null
+          cc?: string | null
+          created_at?: string
+          from_address?: string
+          id?: string
+          in_reply_to?: string | null
+          message_id?: string | null
+          recipient?: string
+          sent_at?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       short_term_rentals: {
         Row: {
           address: string | null

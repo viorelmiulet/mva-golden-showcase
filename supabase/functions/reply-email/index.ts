@@ -1,5 +1,6 @@
 import { sendMailgunEmail } from '../_shared/mailgun.ts';
 import { getFromAddressForFunction } from '../_shared/emailSettings.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -72,23 +73,25 @@ Deno.serve(async (req) => {
       ? body 
       : body.split('\n').map(line => `<p style="margin: 0 0 10px 0;">${line || '&nbsp;'}</p>`).join('');
 
+    const fullHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px;">
+        ${bodyHtml}
+        <br/>
+        <p style="color: #666; font-size: 12px;">
+          —<br/>
+          MVA Imobiliare<br/>
+          <a href="https://mvaimobiliare.ro" style="color: #C6A052;">mvaimobiliare.ro</a>
+        </p>
+      </div>
+    `;
+
     const result = await sendMailgunEmail({
       to,
       cc: cc || undefined,
       bcc: bcc || undefined,
       subject: subject || '(Fără subiect)',
       from: fromAddress,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px;">
-          ${bodyHtml}
-          <br/>
-          <p style="color: #666; font-size: 12px;">
-            —<br/>
-            MVA Imobiliare<br/>
-            <a href="https://mvaimobiliare.ro" style="color: #C6A052;">mvaimobiliare.ro</a>
-          </p>
-        </div>
-      `,
+      html: fullHtml,
       customHeaders,
       attachments: attachments || [],
     });
@@ -97,7 +100,39 @@ Deno.serve(async (req) => {
       throw new Error(result.error || 'Failed to send email');
     }
 
-    console.log('Email sent successfully');
+    console.log('Email sent successfully, saving to sent_emails...');
+
+    // Save sent email to database
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { error: insertError } = await supabase
+        .from('sent_emails')
+        .insert({
+          recipient: to,
+          cc: cc || null,
+          bcc: bcc || null,
+          subject: subject || '(Fără subiect)',
+          body_html: fullHtml,
+          body_plain: body,
+          from_address: fromAddress,
+          message_id: result.messageId || null,
+          in_reply_to: inReplyTo || null,
+          attachments: attachments || [],
+          sent_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('Error saving sent email:', insertError);
+      } else {
+        console.log('Sent email saved to database');
+      }
+    } catch (saveError) {
+      console.error('Error saving sent email:', saveError);
+      // Don't fail the request if saving fails
+    }
 
     return new Response(
       JSON.stringify({ success: true, messageId: result.messageId }),

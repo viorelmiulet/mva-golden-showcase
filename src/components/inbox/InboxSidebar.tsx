@@ -9,7 +9,8 @@ import {
   Search,
   X,
   Archive,
-  AtSign
+  AtSign,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,14 +37,15 @@ interface EmailAddress {
 }
 
 interface InboxSidebarProps {
-  filter: 'all' | 'unread' | 'starred' | 'archived';
-  setFilter: (filter: 'all' | 'unread' | 'starred' | 'archived') => void;
+  filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent';
+  setFilter: (filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   emailsCount: number;
   unreadCount: number;
   starredCount: number;
   archivedCount: number;
+  sentCount: number;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   showDrafts: boolean;
@@ -65,6 +67,7 @@ export const InboxSidebar = ({
   unreadCount,
   starredCount,
   archivedCount,
+  sentCount,
   collapsed,
   setCollapsed,
   showDrafts,
@@ -77,9 +80,10 @@ export const InboxSidebar = ({
   emailAddresses,
 }: InboxSidebarProps) => {
   const filterItems = [
-    { key: 'all' as const, label: 'Toate', count: emailsCount, icon: Mail },
+    { key: 'all' as const, label: 'Primite', count: emailsCount, icon: Mail },
     { key: 'unread' as const, label: 'Necitite', count: unreadCount, icon: Clock },
     { key: 'starred' as const, label: 'Cu stea', count: starredCount, icon: Star },
+    { key: 'sent' as const, label: 'Trimise', count: sentCount, icon: Send },
     { key: 'archived' as const, label: 'Arhivate', count: archivedCount, icon: Archive }
   ];
 
