@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, StarOff, Paperclip, Trash2 } from "lucide-react";
+import { Star, StarOff, Paperclip, Trash2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Email {
@@ -8,6 +8,7 @@ interface Email {
   subject: string | null;
   is_read: boolean;
   is_starred: boolean;
+  is_deleted?: boolean;
   attachments: any[];
   received_at: string;
 }
@@ -18,9 +19,11 @@ interface EmailListItemProps {
   onSelect: () => void;
   onToggleStar: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  onRestore?: (e: React.MouseEvent) => void;
   extractSenderName: (sender: string) => string;
   extractSenderInitials: (sender: string) => string;
   formatEmailDate: (date: string) => string;
+  isTrashView?: boolean;
 }
 
 export const EmailListItem = ({
@@ -29,9 +32,11 @@ export const EmailListItem = ({
   onSelect,
   onToggleStar,
   onDelete,
+  onRestore,
   extractSenderName,
   extractSenderInitials,
   formatEmailDate,
+  isTrashView = false,
 }: EmailListItemProps) => {
   return (
     <motion.div
@@ -102,24 +107,35 @@ export const EmailListItem = ({
         
         {/* Quick actions - always visible */}
         <div className="flex items-center gap-0.5 shrink-0">
+          {isTrashView && onRestore && (
+            <button
+              onClick={onRestore}
+              className="p-1 md:p-1.5 hover:bg-green-500/20 rounded-lg transition-colors"
+              title="Restaurează"
+            >
+              <RotateCcw className="h-4 w-4 text-muted-foreground hover:text-green-400" />
+            </button>
+          )}
           <button
             onClick={onDelete}
             className="p-1 md:p-1.5 hover:bg-red-500/20 rounded-lg transition-colors"
-            title="Șterge"
+            title={isTrashView ? "Șterge definitiv" : "Șterge"}
           >
             <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-400" />
           </button>
-          <button
-            onClick={onToggleStar}
-            className="p-1 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-            title={email.is_starred ? "Elimină steluța" : "Adaugă steluță"}
-          >
-            {email.is_starred ? (
-              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-            ) : (
-              <StarOff className="h-4 w-4 text-muted-foreground" />
-            )}
-          </button>
+          {!isTrashView && (
+            <button
+              onClick={onToggleStar}
+              className="p-1 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+              title={email.is_starred ? "Elimină steluța" : "Adaugă steluță"}
+            >
+              {email.is_starred ? (
+                <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+              ) : (
+                <StarOff className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

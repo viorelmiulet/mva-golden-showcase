@@ -10,7 +10,8 @@ import {
   X,
   Archive,
   AtSign,
-  Send
+  Send,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,8 +38,8 @@ interface EmailAddress {
 }
 
 interface InboxSidebarProps {
-  filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent';
-  setFilter: (filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent') => void;
+  filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash';
+  setFilter: (filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   emailsCount: number;
@@ -46,6 +47,7 @@ interface InboxSidebarProps {
   starredCount: number;
   archivedCount: number;
   sentCount: number;
+  trashCount: number;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   showDrafts: boolean;
@@ -68,6 +70,7 @@ export const InboxSidebar = ({
   starredCount,
   archivedCount,
   sentCount,
+  trashCount,
   collapsed,
   setCollapsed,
   showDrafts,
@@ -84,7 +87,8 @@ export const InboxSidebar = ({
     { key: 'unread' as const, label: 'Necitite', count: unreadCount, icon: Clock },
     { key: 'starred' as const, label: 'Cu stea', count: starredCount, icon: Star },
     { key: 'sent' as const, label: 'Trimise', count: sentCount, icon: Send },
-    { key: 'archived' as const, label: 'Arhivate', count: archivedCount, icon: Archive }
+    { key: 'archived' as const, label: 'Arhivate', count: archivedCount, icon: Archive },
+    { key: 'trash' as const, label: 'Coș de gunoi', count: trashCount, icon: Trash2 }
   ];
 
   return (
