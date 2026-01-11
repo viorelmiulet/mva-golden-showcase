@@ -73,20 +73,39 @@ export const SocialAutoPostSettings = () => {
   const testWebhooks = async () => {
     setIsTesting(true);
     try {
+      console.log('Testing webhooks...');
       const { data, error } = await supabase.functions.invoke('social-auto-post', {
         body: { action: 'test' }
       });
 
+      console.log('Test response:', data, error);
+
       if (error) throw error;
       
       if (data.success) {
-        toast.success('Webhook-urile sunt configurate corect!');
+        if (data.results && Object.keys(data.results).length > 0) {
+          const successPlatforms = Object.entries(data.results)
+            .filter(([_, result]: [string, any]) => result.success)
+            .map(([platform]) => platform);
+          const failedPlatforms = Object.entries(data.results)
+            .filter(([_, result]: [string, any]) => !result.success)
+            .map(([platform]) => platform);
+          
+          if (failedPlatforms.length > 0) {
+            toast.error(`Eroare la: ${failedPlatforms.join(', ')}`);
+          }
+          if (successPlatforms.length > 0) {
+            toast.success(`Funcționează: ${successPlatforms.join(', ')}`);
+          }
+        } else {
+          toast.success(data.message || 'Webhook-urile sunt configurate!');
+        }
       } else {
         toast.error(data.error || 'Eroare la testare');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Test error:', error);
-      toast.error('Eroare la testare');
+      toast.error(`Eroare: ${error.message || 'Eroare la testare'}`);
     } finally {
       setIsTesting(false);
     }
