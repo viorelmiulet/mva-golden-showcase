@@ -25,6 +25,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { useBrowserNotifications } from "@/hooks/useBrowserNotifications";
 
 import {
   Sidebar,
@@ -107,7 +108,9 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
   const currentPath = location.pathname;
   const collapsed = !isMobileSheet && state === "collapsed";
   const { playNotificationSound } = useNotificationSound();
+  const { requestPermission, showNewEmailNotification, permission } = useBrowserNotifications();
   const previousUnreadCountRef = useRef<number | null>(null);
+  const hasRequestedPermissionRef = useRef(false);
 
   // Fetch unread email count
   const { data: unreadCount = 0 } = useQuery({
@@ -125,7 +128,20 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
-  // Play notification sound when new emails arrive
+  // Request notification permission on first user interaction
+  useEffect(() => {
+    if (permission === 'default' && !hasRequestedPermissionRef.current) {
+      const handleInteraction = () => {
+        hasRequestedPermissionRef.current = true;
+        requestPermission();
+        document.removeEventListener('click', handleInteraction);
+      };
+      document.addEventListener('click', handleInteraction);
+      return () => document.removeEventListener('click', handleInteraction);
+    }
+  }, [permission, requestPermission]);
+
+  // Play notification sound and show browser notification when new emails arrive
   useEffect(() => {
     // Skip the first render (initial load)
     if (previousUnreadCountRef.current === null) {
@@ -133,13 +149,15 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
       return;
     }
 
-    // Play sound only if count increased (new email received)
+    // Notify only if count increased (new email received)
     if (unreadCount > previousUnreadCountRef.current) {
+      const newEmailCount = unreadCount - previousUnreadCountRef.current;
       playNotificationSound();
+      showNewEmailNotification(newEmailCount);
     }
 
     previousUnreadCountRef.current = unreadCount;
-  }, [unreadCount, playNotificationSound]);
+  }, [unreadCount, playNotificationSound, showNewEmailNotification]);
 
   const getNavCls = (isActive: boolean) =>
     isActive
