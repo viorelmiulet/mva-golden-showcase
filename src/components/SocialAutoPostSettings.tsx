@@ -8,9 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ro } from "date-fns/locale";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WebhookSettings {
   facebook?: string;
@@ -20,7 +23,19 @@ interface WebhookSettings {
   enabled: boolean;
 }
 
+interface AuditLog {
+  id: string;
+  created_at: string;
+  record_title: string | null;
+  metadata: {
+    results?: Record<string, boolean>;
+    webhooks?: string[];
+    error?: string;
+  } | null;
+}
+
 export const SocialAutoPostSettings = () => {
+  const queryClient = useQueryClient();
   const [settings, setSettings] = useState<WebhookSettings>({
     facebook: "",
     instagram: "",
@@ -44,6 +59,21 @@ export const SocialAutoPostSettings = () => {
         .limit(50);
       if (error) throw error;
       return data;
+    }
+  });
+
+  // Fetch posting history
+  const { data: postingHistory, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ['social-post-history'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('id, created_at, record_title, metadata')
+        .eq('action_type', 'social_auto_post')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data as AuditLog[];
     }
   });
 
@@ -156,6 +186,8 @@ export const SocialAutoPostSettings = () => {
         } else {
           toast.warning('Niciun webhook nu a răspuns cu succes');
         }
+        // Refresh history after sending
+        queryClient.invalidateQueries({ queryKey: ['social-post-history'] });
       } else {
         toast.error(data.error || 'Eroare la trimitere');
       }
@@ -165,6 +197,10 @@ export const SocialAutoPostSettings = () => {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const refreshHistory = () => {
+    queryClient.invalidateQueries({ queryKey: ['social-post-history'] });
   };
 
   const platforms = [
@@ -297,6 +333,90 @@ export const SocialAutoPostSettings = () => {
               {isSending ? 'Se trimite...' : 'Trimite'}
             </Button>
           </div>
+        </div>
+
+        {/* Posting History */}
+        <div className="p-4 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Istoric Postări
+            </h4>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={refreshHistory}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {isLoadingHistory ? (
+            <p className="text-sm text-muted-foreground">Se încarcă...</p>
+          ) : postingHistory && postingHistory.length > 0 ? (
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-2">
+                {postingHistory.map((log) => {
+                  const results = log.metadata?.results || {};
+                  const successPlatforms = Object.entries(results)
+                    .filter(([_, success]) => success)
+                    .map(([platform]) => platform);
+                  const failedPlatforms = Object.entries(results)
+                    .filter(([_, success]) => !success)
+                    .map(([platform]) => platform);
+                  const hasError = log.metadata?.error;
+                  
+                  return (
+                    <div 
+                      key={log.id} 
+                      className="p-3 rounded-lg bg-muted/50 text-sm space-y-1"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-medium truncate flex-1">
+                          {log.record_title || 'Proprietate necunoscută'}
+                        </span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {format(new Date(log.created_at), "d MMM, HH:mm", { locale: ro })}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {successPlatforms.map((platform) => (
+                          <Badge 
+                            key={platform} 
+                            variant="outline" 
+                            className="text-green-600 border-green-600 gap-1 text-xs"
+                          >
+                            <CheckCircle className="h-3 w-3" />
+                            {platform}
+                          </Badge>
+                        ))}
+                        {failedPlatforms.map((platform) => (
+                          <Badge 
+                            key={platform} 
+                            variant="outline" 
+                            className="text-red-600 border-red-600 gap-1 text-xs"
+                          >
+                            <XCircle className="h-3 w-3" />
+                            {platform}
+                          </Badge>
+                        ))}
+                        {hasError && (
+                          <Badge variant="destructive" className="text-xs">
+                            Eroare: {log.metadata?.error}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Nu există postări înregistrate încă.
+            </p>
+          )}
         </div>
 
         <div className="p-4 bg-muted/50 rounded-lg space-y-2">
