@@ -572,9 +572,9 @@ const InboxPage = () => {
       </motion.div>
 
       {/* Main Content - Responsive Layout */}
-      <div className="flex-1 flex gap-2 md:gap-4 min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row gap-2 md:gap-4 min-h-0 overflow-hidden">
         {/* Sidebar - Hidden on mobile */}
-        <div className="hidden lg:block">
+        <div className="hidden lg:block shrink-0">
           <InboxSidebar
             filter={filter}
             setFilter={setFilter}
@@ -593,32 +593,32 @@ const InboxPage = () => {
           />
         </div>
 
-        {/* Mobile Filter Bar */}
-        <div className={cn(
-          "lg:hidden flex items-center gap-2 absolute top-0 left-0 right-0 z-10 p-2 bg-background/95 backdrop-blur-sm border-b border-white/10",
-          mobileView === 'detail' ? "hidden" : "flex",
-          "relative"
-        )}>
-          {['all', 'unread', 'starred'].map((filterKey) => (
-            <button
-              key={filterKey}
-              onClick={() => setFilter(filterKey as 'all' | 'unread' | 'starred')}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-                filter === filterKey 
-                  ? "bg-gold/20 text-gold border border-gold/30" 
-                  : "bg-white/5 text-muted-foreground border border-white/10"
-              )}
-            >
-              {filterKey === 'all' && <Mail className="h-3 w-3" />}
-              {filterKey === 'unread' && <Badge variant="secondary" className="h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-gold text-black">{unreadCount}</Badge>}
-              {filterKey === 'starred' && <Star className="h-3 w-3" />}
-              <span className="capitalize">
-                {filterKey === 'all' ? 'Toate' : filterKey === 'unread' ? 'Necitite' : 'Cu stea'}
-              </span>
-            </button>
-          ))}
-        </div>
+        {/* Mobile Filter Bar - Only show in list view on mobile */}
+        {mobileView === 'list' && (
+          <div className="lg:hidden flex items-center gap-2 shrink-0">
+            {['all', 'unread', 'starred'].map((filterKey) => (
+              <button
+                key={filterKey}
+                onClick={() => setFilter(filterKey as 'all' | 'unread' | 'starred')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+                  filter === filterKey 
+                    ? "bg-gold/20 text-gold border border-gold/30" 
+                    : "bg-white/5 text-muted-foreground border border-white/10"
+                )}
+              >
+                {filterKey === 'all' && <Mail className="h-3 w-3" />}
+                {filterKey === 'unread' && unreadCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-gold text-black text-[10px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                )}
+                {filterKey === 'starred' && <Star className="h-3 w-3" />}
+                <span>
+                  {filterKey === 'all' ? 'Toate' : filterKey === 'unread' ? 'Necitite' : 'Cu stea'}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Email List - Full width on mobile when list view */}
         <motion.div 
@@ -626,8 +626,8 @@ const InboxPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col",
-            "w-full md:w-80 md:shrink-0",
-            mobileView === 'detail' && "hidden md:flex"
+            "flex-1 lg:w-80 lg:flex-none lg:shrink-0",
+            mobileView === 'detail' && "hidden lg:flex"
           )}
         >
           <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
@@ -688,8 +688,8 @@ const InboxPage = () => {
 
         {/* Email Detail - Full width on mobile when detail view */}
         <div className={cn(
-          "flex-1 min-w-0",
-          mobileView === 'list' && "hidden md:block"
+          "flex-1 min-w-0 min-h-0",
+          mobileView === 'list' && "hidden lg:block"
         )}>
           <EmailDetail
             email={selectedEmail}
