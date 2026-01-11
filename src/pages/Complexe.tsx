@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Building2, Home, MapPin, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -18,6 +19,7 @@ const Complexe = () => {
   const { trackComplex } = usePlausible();
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
   const { t, language } = useLanguage();
+  
   
   const { data: projects, isLoading } = useQuery({
     queryKey: ['public-projects'],
@@ -134,16 +136,27 @@ const Complexe = () => {
         </script>
       </Helmet>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Background Decorations */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 -left-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-gold-400/15 to-gold-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+        </div>
+
         <Header />
         
-        <main className="container mx-auto px-4 py-16 md:py-24">
+        <main className="container mx-auto px-4 py-16 md:py-24 relative z-10">
           {/* Breadcrumbs */}
           <Breadcrumbs items={[{ label: t.complexes?.title || 'Complexe Rezidențiale' }]} />
 
           {/* Hero Section */}
           <div className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent px-2">
+            <Badge className="glass px-4 py-1.5 text-sm font-medium border-primary/20 mb-4">
+              <Building2 className="h-4 w-4 mr-2" />
+              {projects?.length || 0} {language === 'ro' ? 'Complexe Disponibile' : 'Available Complexes'}
+            </Badge>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gradient-gold drop-shadow-lg px-2">
               {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
@@ -169,7 +182,7 @@ const Complexe = () => {
                     className="group"
                     onClick={() => trackComplex('click_details', project.id, project.name)}
                   >
-                    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/50 h-full">
+                    <Card className="card-modern overflow-hidden h-full border-glow">
                       {/* Project Image */}
                       <div className="relative h-48 md:h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
                         {project.main_image ? (
@@ -186,13 +199,13 @@ const Complexe = () => {
                             <Building2 className="h-24 w-24 text-primary/20" />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                         
                         {/* Favorite Button */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute top-3 right-3 bg-background/80 hover:bg-background backdrop-blur-sm z-10"
+                          className="absolute top-3 right-3 glass hover:bg-background/90 backdrop-blur-sm z-10 glow-gold"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -208,6 +221,13 @@ const Complexe = () => {
                             }`} 
                           />
                         </Button>
+
+                        {/* Recommended Badge */}
+                        {project.is_recommended && (
+                          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold border-0 glow-gold">
+                            ⭐ Recomandat
+                          </Badge>
+                        )}
                         
                         {/* Project Name Overlay */}
                         <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-3 md:right-4">
@@ -220,7 +240,7 @@ const Complexe = () => {
                       <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                         {/* Location */}
                         <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base">
-                          <MapPin className="h-4 w-4 flex-shrink-0" />
+                          <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
                           <span className="truncate">{project.location}</span>
                         </div>
 
@@ -232,27 +252,27 @@ const Complexe = () => {
                         )}
 
                         {/* Details Grid */}
-                        <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t">
+                        <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t border-primary/10">
                           {project.price_range && (
-                            <div>
+                            <div className="glass-hover p-2 rounded-lg">
                               <p className="text-xs text-muted-foreground">{t.properties?.price || 'Preț'}</p>
-                              <p className="font-semibold text-sm md:text-base truncate">{project.price_range}</p>
+                              <p className="font-semibold text-sm md:text-base truncate text-gradient-gold">{project.price_range}</p>
                             </div>
                           )}
                           {project.surface_range && (
-                            <div>
+                            <div className="glass-hover p-2 rounded-lg">
                               <p className="text-xs text-muted-foreground">{language === 'ro' ? 'Suprafață' : 'Surface'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.surface_range}</p>
                             </div>
                           )}
                           {project.rooms_range && (
-                            <div>
+                            <div className="glass-hover p-2 rounded-lg">
                               <p className="text-xs text-muted-foreground">{t.properties?.rooms || 'Camere'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.rooms_range}</p>
                             </div>
                           )}
                           {project.completion_date && (
-                            <div>
+                            <div className="glass-hover p-2 rounded-lg">
                               <p className="text-xs text-muted-foreground">{t.complexes?.completionDate || 'Finalizare'}</p>
                               <p className="font-semibold text-sm md:text-base truncate">{project.completion_date}</p>
                             </div>
@@ -261,29 +281,29 @@ const Complexe = () => {
 
                         {/* Statistics Section */}
                         {stats.total > 0 && (
-                          <div className="pt-3 md:pt-4 border-t space-y-2 md:space-y-3">
+                          <div className="pt-3 md:pt-4 border-t border-primary/10 space-y-2 md:space-y-3">
                             <div className="flex items-center justify-between text-xs md:text-sm">
                               <span className="font-semibold">{language === 'ro' ? 'Disponibilitate' : 'Availability'}</span>
                               <span className="text-muted-foreground">{stats.available} {language === 'ro' ? 'din' : 'of'} {stats.total}</span>
                             </div>
                             {/* Dual bar chart */}
-                            <div className="flex gap-1 h-3 md:h-4 rounded-full overflow-hidden bg-muted/20">
+                            <div className="flex gap-1 h-3 md:h-4 rounded-full overflow-hidden glass">
                               <div 
-                                className="bg-green-500 transition-all duration-300" 
+                                className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
                                 style={{ width: `${stats.percentage}%` }}
                               />
                               <div 
-                                className="bg-red-500 transition-all duration-300" 
+                                className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-300" 
                                 style={{ width: `${100 - stats.percentage}%` }}
                               />
                             </div>
                             <div className="flex items-center justify-center gap-4 md:gap-6 text-[10px] md:text-xs">
                               <div className="flex items-center gap-1.5 md:gap-2">
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500 flex-shrink-0"></div>
+                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex-shrink-0"></div>
                                 <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
                               <div className="flex items-center gap-1.5 md:gap-2">
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500 flex-shrink-0"></div>
+                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-red-400 to-red-600 flex-shrink-0"></div>
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
@@ -292,7 +312,7 @@ const Complexe = () => {
 
                         {/* Call to Action */}
                         <div className="pt-3 md:pt-4">
-                          <div className="flex items-center justify-between text-primary group-hover:text-primary/80 transition-colors">
+                          <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
                             <span className="font-semibold text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}
                             </span>

@@ -348,10 +348,17 @@ const ComplexDetail = () => {
         </script>
       </Helmet>
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Background Decorations */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 -left-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-gold-400/15 to-gold-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+        </div>
+
         <Header />
         
-        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24">
+        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24 relative z-10">
           {/* Breadcrumbs */}
           <Breadcrumbs 
             items={[
@@ -362,7 +369,7 @@ const ComplexDetail = () => {
 
           {/* Back Button */}
           <Link to="/complexe" className="inline-block mb-4 sm:mb-6 md:mb-8">
-            <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8 sm:h-9">
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8 sm:h-9 glass hover:bg-primary/10">
               <ArrowLeft className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Înapoi la complexe
             </Button>
@@ -372,22 +379,26 @@ const ComplexDetail = () => {
           <div className="mb-6 sm:mb-8 md:mb-12 space-y-4 sm:space-y-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 sm:gap-6">
               <div className="space-y-2 sm:space-y-4">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                <Badge className="glass px-4 py-1.5 text-sm font-medium border-primary/20 mb-2">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Complex Rezidențial Premium
+                </Badge>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gradient-gold drop-shadow-lg">
                   {project.name}
                 </h1>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-primary" />
                   <span className="text-sm sm:text-base md:text-lg">{project.location}</span>
                 </div>
               </div>
               
               {/* Quick Stats */}
               <div className="flex gap-2 sm:gap-4">
-                <Card className="p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial">
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">{properties?.length || 0}</div>
+                <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial glow-gold">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gradient-gold">{properties?.length || 0}</div>
                   <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Apartamente</div>
                 </Card>
-                <Card className="p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial">
+                <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial border-green-500/30">
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-500">
                     {properties?.filter(p => p.availability_status === 'available').length || 0}
                   </div>
@@ -397,7 +408,7 @@ const ComplexDetail = () => {
             </div>
 
             {project.main_image && (
-              <div className="rounded-lg overflow-hidden shadow-2xl">
+              <div className="rounded-xl overflow-hidden shadow-2xl border-glow">
                 <OptimizedPropertyImage
                   src={project.main_image}
                   alt={`${project.name} - complex rezidențial în ${project.location || 'București'} cu apartamente moderne, finisaje premium și facilități complete`}
@@ -411,7 +422,7 @@ const ComplexDetail = () => {
             )}
 
             {project.description && (
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl glass p-4 rounded-xl">
                 {project.description}
               </p>
             )}
@@ -473,11 +484,11 @@ const ComplexDetail = () => {
           </div>
 
           {/* Filters and Sorting Controls */}
-          <div className="mb-4 sm:mb-6 md:mb-8 bg-card p-3 sm:p-4 rounded-lg border space-y-3 sm:space-y-4">
+          <div className="mb-4 sm:mb-6 md:mb-8 card-modern p-3 sm:p-4 rounded-xl space-y-3 sm:space-y-4">
             {/* Filters Row */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-muted-foreground" />
+                <Home className="h-4 w-4 text-primary" />
                 <span className="text-xs sm:text-sm font-medium">Filtre:</span>
               </div>
               
@@ -538,15 +549,15 @@ const ComplexDetail = () => {
               )}
 
               {/* Results count */}
-              <Badge variant="secondary" className="ml-auto text-xs">
+              <Badge className="ml-auto text-xs glass border-primary/20">
                 {filteredProperties.length} / {properties?.length || 0} apartamente
               </Badge>
             </div>
 
             {/* Sorting Row */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-2 border-t">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-2 border-t border-primary/10">
               <div className="flex items-center gap-2 sm:gap-3">
-                <ArrowUpDown className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <ArrowUpDown className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 <span className="text-xs sm:text-sm font-medium">Sortare:</span>
               </div>
               <Select value={sortBy} onValueChange={setSortBy}>
@@ -578,15 +589,15 @@ const ComplexDetail = () => {
                   <button
                     key={building}
                     onClick={() => setSelectedBuilding(building)}
-                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex-1 sm:flex-none justify-center ${
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex-1 sm:flex-none justify-center ${
                       isSelected
-                        ? 'bg-primary/20 border-2 border-primary text-primary'
-                        : 'bg-card border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                        ? 'glass bg-primary/20 border-2 border-primary text-primary glow-gold'
+                        : 'glass-hover border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span>{building.toUpperCase()}</span>
-                    <span className="text-xs sm:text-sm opacity-70">({totalInBuilding})</span>
+                    <Badge variant="secondary" className="text-xs">{totalInBuilding}</Badge>
                   </button>
                 );
               })}
@@ -608,10 +619,10 @@ const ComplexDetail = () => {
                 {/* Floors within this building */}
                 {sortedFloorsInBuilding.map((floor) => (
                   <div key={`${building}-${floor}`} className="mb-6 sm:mb-8 md:mb-10">
-                    <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 bg-gradient-to-r from-primary/10 to-transparent border-l-4 border-primary/60 rounded-lg">
+                    <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 glass rounded-xl border-l-4 border-primary/60">
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
-                        {floor.toUpperCase()}
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs md:text-sm">
+                        <span className="text-gradient-gold">{floor.toUpperCase()}</span>
+                        <Badge className="text-[10px] sm:text-xs md:text-sm glass border-primary/20">
                           {floorsInBuilding[floor]?.length} {floorsInBuilding[floor]?.length === 1 ? 'apartament' : 'apartamente'}
                         </Badge>
                       </h3>
@@ -642,8 +653,8 @@ const ComplexDetail = () => {
                             key={apt.id}
                             className={`relative overflow-hidden transition-all duration-300 ${
                               isAvailable 
-                                ? 'hover:shadow-xl hover:border-primary/50 border-2' 
-                                : 'opacity-60 border border-muted'
+                                ? 'card-modern hover:shadow-xl border-glow' 
+                                : 'opacity-60 glass border border-muted'
                             }`}
                           >
                             <CardContent className="p-2.5 sm:p-3 md:p-4 pt-6 sm:pt-7 md:pt-8 space-y-2 sm:space-y-3">
@@ -651,7 +662,7 @@ const ComplexDetail = () => {
                               <div className="flex items-start justify-between gap-1">
                                 <div className="flex items-center gap-1 sm:gap-2">
                                   <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                                  <span className="text-sm sm:text-base md:text-xl font-bold">Ap. {aptNumber}</span>
+                                  <span className="text-sm sm:text-base md:text-xl font-bold text-gradient-gold">Ap. {aptNumber}</span>
                                 </div>
                                 <Badge 
                                   variant={
@@ -680,7 +691,7 @@ const ComplexDetail = () => {
                               </div>
 
                               {/* Apartment Type */}
-                              <div className="py-1.5 sm:py-2 px-2 sm:px-3 bg-primary/10 rounded-md text-center">
+                              <div className="py-1.5 sm:py-2 px-2 sm:px-3 glass rounded-lg text-center">
                                 <span className="font-semibold text-[10px] sm:text-xs md:text-sm">{tipApt}</span>
                               </div>
 
@@ -698,17 +709,17 @@ const ComplexDetail = () => {
 
                               {/* Prices - Hidden for RENEW RESIDENCE and Eurocasa Residence */}
                               {project.name?.toUpperCase() !== "RENEW RESIDENCE" && !project.name?.toUpperCase().includes("EUROCASA") && (
-                                <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t">
-                                  <div className="flex items-center justify-between">
+                                <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t border-primary/10">
+                                  <div className="flex items-center justify-between glass-hover p-1.5 rounded">
                                     <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
-                                    <div className="flex items-center gap-0.5 font-bold text-green-600 text-[10px] sm:text-xs md:text-sm">
+                                    <div className="flex items-center gap-0.5 font-bold text-green-500 text-[10px] sm:text-xs md:text-sm">
                                       <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                       {priceCash?.toLocaleString()}
                                     </div>
                                   </div>
-                                  <div className="flex items-center justify-between">
+                                  <div className="flex items-center justify-between glass-hover p-1.5 rounded">
                                     <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Credit:</span>
-                                    <div className="flex items-center gap-0.5 font-bold text-blue-600 text-[10px] sm:text-xs md:text-sm">
+                                    <div className="flex items-center gap-0.5 font-bold text-blue-500 text-[10px] sm:text-xs md:text-sm">
                                       <Euro className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                       {priceCredit?.toLocaleString()}
                                     </div>
@@ -727,7 +738,7 @@ const ComplexDetail = () => {
                                       <Button 
                                         size="sm" 
                                         variant="default"
-                                        className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm bg-primary hover:bg-primary/90"
+                                        className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 glow-gold"
                                       >
                                         <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
                                         Vizionare
@@ -740,7 +751,7 @@ const ComplexDetail = () => {
                                   <Button 
                                     size="sm" 
                                     variant="outline"
-                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
+                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
                                     onClick={() => {
                                       setSelectedFloorPlan(apt.floor_plan);
                                       setFloorPlanOpen(true);
@@ -760,7 +771,7 @@ const ComplexDetail = () => {
                                   <Button 
                                     size="sm" 
                                     variant="secondary"
-                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm"
+                                    className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover"
                                     onClick={() => setEditingApartment(apt)}
                                   >
                                     <Edit className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
@@ -780,9 +791,9 @@ const ComplexDetail = () => {
           })}
 
               {properties?.length === 0 && (
-                <div className="text-center py-16">
-                  <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Nu există apartamente disponibile</h3>
+                <div className="text-center py-16 card-modern rounded-xl">
+                  <Home className="h-16 w-16 mx-auto text-primary/40 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2 text-gradient-gold">Nu există apartamente disponibile</h3>
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
@@ -793,9 +804,9 @@ const ComplexDetail = () => {
 
       {/* Floor Plan Dialog */}
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-3 sm:p-6">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-3 sm:p-6 glass">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between text-sm sm:text-base">
+            <DialogTitle className="flex items-center justify-between text-sm sm:text-base text-gradient-gold">
               Schiță Apartament
             </DialogTitle>
           </DialogHeader>
@@ -806,7 +817,7 @@ const ComplexDetail = () => {
                 alt="Schiță apartament" 
               />
               <Button 
-                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 glow-gold"
                 onClick={() => {
                   const link = document.createElement('a');
                   link.href = selectedFloorPlan;
