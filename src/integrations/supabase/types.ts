@@ -779,6 +779,39 @@ export type Database = {
         }
         Relationships: []
       }
+      email_function_settings: {
+        Row: {
+          created_at: string
+          from_email: string
+          from_name: string | null
+          function_label: string
+          function_name: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_email: string
+          from_name?: string | null
+          function_label: string
+          function_name: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_email?: string
+          from_name?: string | null
+          function_label?: string
+          function_name?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exclusive_contracts: {
         Row: {
           agent_signature: string | null
