@@ -466,37 +466,37 @@ export const ApartmentImageGallery = ({
           
           <div className="w-full h-full flex flex-col relative z-10">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 z-10">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0 z-50 bg-gradient-to-b from-black/70 via-black/40 to-transparent">
               {/* Title & Counter - Left */}
-              <div className="text-white">
-                <h3 className="font-semibold text-base sm:text-lg">
+              <div className="text-white min-w-0 flex-1 pr-2">
+                <h3 className="font-semibold text-sm sm:text-lg truncate">
                   {title}
                 </h3>
-                <p className="text-sm text-white/70">
+                <p className="text-xs sm:text-sm text-white/70">
                   {currentIndex + 1} / {validImages.length}
                 </p>
               </div>
               
               {/* Controls - Right */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                 {/* Grid View Toggle */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsGridView(!isGridView)}
                   className={cn(
-                    "text-white h-10 w-10 rounded-md border transition-colors",
+                    "text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border transition-colors",
                     isGridView 
                       ? "border-gold bg-gold/10 text-gold" 
                       : "border-white/30 hover:bg-white/10"
                   )}
                 >
-                  <Grid3X3 className="w-5 h-5" />
+                  <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
                 
-                {/* Zoom Controls */}
+                {/* Zoom Controls - Hidden on mobile */}
                 {!isGridView && (
-                  <>
+                  <div className="hidden sm:flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -515,10 +515,10 @@ export const ApartmentImageGallery = ({
                     >
                       <ZoomIn className="w-5 h-5" />
                     </Button>
-                  </>
+                  </div>
                 )}
 
-                {/* Download Button */}
+                {/* Download Button - Hidden on mobile */}
                 {!isGridView && (
                   <Button
                     variant="ghost"
@@ -532,19 +532,19 @@ export const ApartmentImageGallery = ({
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="text-white hover:bg-white/10 h-10 w-10"
+                    className="hidden sm:flex text-white hover:bg-white/10 h-10 w-10"
                     title="Descarcă imaginea"
                   >
                     <Download className="w-5 h-5" />
                   </Button>
                 )}
                 
-                {/* Close Button */}
+                {/* Close Button - Always visible and prominent */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsLightboxOpen(false)}
-                  className="text-white hover:bg-white/10 h-10 w-10"
+                  className="text-white hover:bg-white/10 h-10 w-10 sm:h-10 sm:w-10 bg-black/40 sm:bg-transparent rounded-full ml-1"
                 >
                   <X className="w-6 h-6" />
                 </Button>
