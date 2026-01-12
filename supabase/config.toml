@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.scheduled-social-post]
 verify_jwt = false
+
+[functions.marketing-webhook]
+verify_jwt = false
