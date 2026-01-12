@@ -585,25 +585,25 @@ export const ApartmentImageGallery = ({
               <>
                 <div 
                   ref={imageRef}
-                  className="flex-1 flex items-center justify-center px-8 relative"
+                  className="flex-1 flex items-center justify-center px-16 relative"
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  <OptimizedGalleryImage
-                    key={currentIndex}
-                    src={validImages[currentIndex]}
-                    width={imageSizes.lightbox}
-                    quality={90}
-                    sizes="100vw"
-                    alt={`${title} - Imagine ${currentIndex + 1}`}
-                    className="max-w-[90vw] max-h-[75vh] object-contain select-none animate-fade-in"
-                    style={{ 
-                      transform: `scale(${zoomLevel})`,
-                      transition: 'transform 0.3s ease-out'
-                    }}
-                    priority={true}
-                  />
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <img
+                      key={currentIndex}
+                      src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
+                      alt={`${title} - Imagine ${currentIndex + 1}`}
+                      className="max-w-full max-h-[70vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      style={{ 
+                        transform: `scale(${zoomLevel})`,
+                        transition: 'transform 0.3s ease-out'
+                      }}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
 
                   {/* Navigation Arrows */}
                   {validImages.length > 1 && (
