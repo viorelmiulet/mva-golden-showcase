@@ -20,6 +20,7 @@ import {
   Plus,
   Send,
   Instagram,
+  Facebook,
 } from "lucide-react";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -55,6 +56,7 @@ const PropertiesAdmin = () => {
   const [editImages, setEditImages] = useState<string[]>([]);
   const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
   const [sendingToInstagram, setSendingToInstagram] = useState<string | null>(null);
+  const [sendingToFacebook, setSendingToFacebook] = useState<string | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
@@ -296,6 +298,33 @@ const PropertiesAdmin = () => {
       });
     } finally {
       setSendingToInstagram(null);
+    }
+  };
+
+  const sendToFacebook = async (propertyId: string) => {
+    setSendingToFacebook(propertyId);
+    try {
+      const success = await triggerSocialAutoPost(propertyId, 'facebook');
+      if (success) {
+        toast({
+          title: "Succes!",
+          description: "Proprietatea a fost trimisă către Facebook via Zapier",
+        });
+      } else {
+        toast({
+          title: "Atenție",
+          description: "Webhook-ul Facebook nu este configurat sau este dezactivat",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error?.message || "Nu am putut trimite către Facebook",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingToFacebook(null);
     }
   };
 
@@ -596,6 +625,20 @@ const PropertiesAdmin = () => {
                             <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-400" />
                           ) : (
                             <Send className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendToFacebook(property.id)}
+                          disabled={sendingToFacebook === property.id}
+                          className="border-blue-600/30 hover:bg-blue-600/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                          title="Publică pe Facebook"
+                        >
+                          {sendingToFacebook === property.id ? (
+                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-600" />
+                          ) : (
+                            <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600" />
                           )}
                         </Button>
                         <Button

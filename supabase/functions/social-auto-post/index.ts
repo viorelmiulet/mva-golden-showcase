@@ -52,8 +52,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { propertyId, action } = body;
-    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId);
+    const { propertyId, action, platform } = body;
+    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'Platform:', platform);
 
     if (action === 'test') {
       // Test webhook connectivity by actually sending a test request
@@ -198,12 +198,19 @@ ${customHashtags}`;
     // Send to each configured webhook
     console.log('social-auto-post: Sending to webhooks...');
     
-    for (const [platform, webhookUrl] of Object.entries(webhooks)) {
-      if (platform === 'enabled' || !webhookUrl || typeof webhookUrl !== 'string') continue;
+    // Filter by platform if specified
+    const platformsToSend = platform && platform !== 'all' 
+      ? [[platform, webhooks[platform]]] 
+      : Object.entries(webhooks);
+    
+    for (const [platformName, webhookUrl] of platformsToSend) {
+      if (platformName === 'enabled' || platformName === 'scheduled' || platformName === 'scheduleInterval' || 
+          platformName === 'lastScheduledRun' || platformName === 'hashtags' || 
+          !webhookUrl || typeof webhookUrl !== 'string') continue;
 
-      console.log(`social-auto-post: Sending to ${platform}: ${webhookUrl}`);
+      console.log(`social-auto-post: Sending to ${platformName}: ${webhookUrl}`);
       
-      const content = generateContent(platform, property);
+      const content = generateContent(platformName, property);
       
       // Format price for easy access
       const priceFormatted = property.price_min 
@@ -215,9 +222,9 @@ ${customHashtags}`;
       const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
       
       // Generate hashtags based on platform
-      const hashtags = platform === 'instagram' 
+      const hashtags = platformName === 'instagram' 
         ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta'
-        : platform === 'facebook'
+        : platformName === 'facebook'
         ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
         : '#RealEstate #Investment #Property';
 
@@ -235,7 +242,7 @@ ${customHashtags}`;
           description: property.description,
           currency: property.currency,
         },
-        platform,
+        platform: platformName,
         content,
         propertyUrl: `${siteUrl}/proprietati/${property.id}`,
         imageUrl: property.images?.[0] || undefined,
@@ -252,21 +259,21 @@ ${customHashtags}`;
         phone: '0767.941.512',
       };
 
-      console.log(`social-auto-post: Payload for ${platform}:`, JSON.stringify(payload).substring(0, 500));
+      console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
 
       try {
-        const response = await fetch(webhookUrl, {
+        const response = await fetch(webhookUrl as string, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
 
         const responseText = await response.text();
-        results[platform] = response.ok;
-        console.log(`social-auto-post: ${platform} response: ${response.status} - ${responseText.substring(0, 200)}`);
+        results[platformName] = response.ok;
+        console.log(`social-auto-post: ${platformName} response: ${response.status} - ${responseText.substring(0, 200)}`);
       } catch (error) {
-        console.error(`social-auto-post: ${platform} error:`, error);
-        results[platform] = false;
+        console.error(`social-auto-post: ${platformName} error:`, error);
+        results[platformName] = false;
       }
     }
 
