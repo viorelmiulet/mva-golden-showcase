@@ -19,6 +19,7 @@ import {
   Save,
   Plus,
   Send,
+  Instagram,
 } from "lucide-react";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -53,6 +54,7 @@ const PropertiesAdmin = () => {
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
   const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
+  const [sendingToInstagram, setSendingToInstagram] = useState<string | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
@@ -267,6 +269,33 @@ const PropertiesAdmin = () => {
       });
     } finally {
       setSendingToZapier(null);
+    }
+  };
+
+  const sendToInstagram = async (propertyId: string) => {
+    setSendingToInstagram(propertyId);
+    try {
+      const success = await triggerSocialAutoPost(propertyId, 'instagram');
+      if (success) {
+        toast({
+          title: "Succes!",
+          description: "Proprietatea a fost trimisă către Instagram via Zapier",
+        });
+      } else {
+        toast({
+          title: "Atenție",
+          description: "Webhook-ul Instagram nu este configurat sau este dezactivat",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error?.message || "Nu am putut trimite către Instagram",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingToInstagram(null);
     }
   };
 
@@ -567,6 +596,20 @@ const PropertiesAdmin = () => {
                             <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-400" />
                           ) : (
                             <Send className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendToInstagram(property.id)}
+                          disabled={sendingToInstagram === property.id}
+                          className="border-pink-500/30 hover:bg-pink-500/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                          title="Publică pe Instagram"
+                        >
+                          {sendingToInstagram === property.id ? (
+                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-pink-400" />
+                          ) : (
+                            <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4 text-pink-400" />
                           )}
                         </Button>
                         <Button

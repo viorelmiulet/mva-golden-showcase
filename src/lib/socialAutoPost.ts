@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const triggerSocialAutoPost = async (propertyId: string): Promise<boolean> => {
+export const triggerSocialAutoPost = async (propertyId: string, platform?: 'facebook' | 'instagram' | 'all'): Promise<boolean> => {
   try {
     // Check if auto-posting is enabled
     const { data: settings } = await supabase
@@ -21,9 +21,9 @@ export const triggerSocialAutoPost = async (propertyId: string): Promise<boolean
       return false;
     }
 
-    // Trigger the edge function
+    // Trigger the edge function with platform parameter
     const { data, error } = await supabase.functions.invoke('social-auto-post', {
-      body: { propertyId }
+      body: { propertyId, platform: platform || 'all' }
     });
 
     if (error) {
