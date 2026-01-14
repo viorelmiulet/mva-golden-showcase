@@ -232,12 +232,17 @@ ${customHashtags}`;
       const roomsFormatted = property.rooms ? `${property.rooms} camere` : '';
       const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
       
-      // Generate hashtags based on platform
+      // Generate hashtags based on platform - shorter for Instagram
       const hashtags = platformName === 'instagram' 
-        ? '#imobiliare #apartament #bucuresti #proprietate #investitie #acasa #realestate #MVAImobiliare #apartamentdevanzare #locuinta'
-        : platformName === 'facebook'
         ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
+        : platformName === 'facebook'
+        ? '#imobiliare #apartament #bucuresti #MVAImobiliare #apartamentdevanzare #proprietate'
         : '#RealEstate #Investment #Property';
+
+      // For Instagram: use short/no description to avoid caption too long error
+      const shortDescription = platformName === 'instagram' 
+        ? '' 
+        : (property.description || '').substring(0, 500);
 
       const payload: WebhookPayload = {
         property: {
@@ -250,7 +255,7 @@ ${customHashtags}`;
           surface_min: property.surface_min,
           surface_max: property.surface_max,
           images: property.images,
-          description: property.description,
+          description: shortDescription,
           currency: property.currency,
         },
         platform: platformName,
@@ -260,8 +265,8 @@ ${customHashtags}`;
         timestamp: new Date().toISOString(),
         // Easy access fields for Zapier
         title: property.title,
-        description: property.description || '',
-        location: property.location || 'București',
+        description: shortDescription,
+        location: 'Militari Residence',
         price: priceFormatted,
         rooms: roomsFormatted,
         surface: surfaceFormatted,
