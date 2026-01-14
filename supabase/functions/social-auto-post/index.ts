@@ -37,6 +37,8 @@ interface WebhookPayload {
   hashtags: string;
   website: string;
   phone: string;
+  // Instagram-specific field - SHORT caption ready to use
+  instagram_caption: string;
 }
 
 serve(async (req) => {
@@ -244,6 +246,14 @@ ${customHashtags}`;
         ? '' 
         : (property.description || '').substring(0, 500);
 
+      // Create Instagram-specific short caption (max 300 chars to be safe)
+      const instagramCaption = `${property.title}
+💰 ${priceFormatted}${roomsFormatted ? ` | ${roomsFormatted}` : ''}${surfaceFormatted ? ` | ${surfaceFormatted}` : ''}
+📍 Militari Residence
+📞 0767.941.512
+
+#imobiliare #apartament #bucuresti #MVAImobiliare`;
+
       const payload: WebhookPayload = {
         property: {
           id: property.id,
@@ -273,6 +283,8 @@ ${customHashtags}`;
         hashtags: hashtags,
         website: 'mvaimobiliare.ro',
         phone: '0767.941.512',
+        // Instagram-specific - USE THIS FOR INSTAGRAM CAPTION
+        instagram_caption: instagramCaption,
       };
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
