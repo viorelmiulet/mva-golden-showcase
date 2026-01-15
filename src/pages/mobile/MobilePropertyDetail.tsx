@@ -311,49 +311,72 @@ const MobilePropertyDetail = () => {
 
       {/* Fullscreen gallery modal */}
       {showGallery && (
-        <div className="fixed inset-0 z-[100] bg-background">
-          <div className="absolute top-4 right-4 z-10">
+        <div className="fixed inset-0 z-[100] bg-background flex flex-col">
+          {/* Top bar with close button */}
+          <div className="flex-shrink-0 h-14 flex items-center justify-between px-4 border-b border-border/20">
+            <span className="text-sm text-muted-foreground">
+              {currentImageIndex + 1} / {images.length}
+            </span>
             <Button
               variant="ghost"
               size="icon"
+              className="h-10 w-10"
               onClick={() => setShowGallery(false)}
             >
               <X className="w-6 h-6" />
             </Button>
           </div>
-          <div className="h-full flex items-center justify-center">
+          
+          {/* Image container - takes remaining space */}
+          <div className="flex-1 flex items-center justify-center px-2 py-4 overflow-hidden">
             <img
               src={images[currentImageIndex]}
               alt={property.title}
-              className="max-w-full max-h-full object-contain"
+              className="max-w-[90vw] max-h-[60vh] w-auto h-auto object-contain rounded-lg"
             />
           </div>
+          
+          {/* Navigation arrows */}
           {images.length > 1 && (
             <>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur flex items-center justify-center"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-5 h-5 text-white" />
               </button>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur flex items-center justify-center"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-5 h-5 text-white" />
               </button>
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
+            </>
+          )}
+          
+          {/* Thumbnail strip at bottom */}
+          {images.length > 1 && (
+            <div className="flex-shrink-0 py-3 pb-6 px-2 border-t border-border/20">
+              <div className="flex gap-1.5 justify-center overflow-x-auto">
+                {images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      index === currentImageIndex ? 'bg-gold' : 'bg-foreground/30'
+                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex 
+                        ? 'border-gold ring-1 ring-gold' 
+                        : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
-                  />
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
                 ))}
               </div>
-            </>
+            </div>
           )}
         </div>
       )}

@@ -709,43 +709,46 @@ const PropertyDetail = () => {
             </article>
 
             {/* Mortgage Calculator Section */}
-            <section className="mt-12" aria-label="Calculator credit">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+            <section className="mt-8 sm:mt-12" aria-label="Calculator credit">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
                 Estimează Rata Lunară
               </h2>
               <MortgageCalculator defaultPrice={property.price_min} />
             </section>
 
             {/* Contact Section */}
-            <Card className="mt-12 border-gold/20">
-              <CardContent className="p-8 text-center">
-                <h2 className="text-2xl font-bold mb-4">Interesat de această proprietate?</h2>
-                <p className="text-muted-foreground mb-6">
+            <Card className="mt-8 sm:mt-12 border-gold/20">
+              <CardContent className="p-4 sm:p-6 md:p-8 text-center">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Interesat de această proprietate?</h2>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
                   Contactează-ne pentru mai multe informații sau pentru a programa o vizionare.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4">
                   <Button
                     variant="luxury"
-                    size="lg"
+                    size="default"
+                    className="w-full sm:w-auto"
                     onClick={contactWhatsApp}
                   >
-                    <WhatsAppIcon className="w-5 h-5 mr-2" />
+                    <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     WhatsApp
                   </Button>
                   <Button
                     variant="luxuryOutline"
-                    size="lg"
+                    size="default"
+                    className="w-full sm:w-auto"
                     onClick={() => window.location.href = "tel:+40767941512"}
                   >
-                    <Phone className="w-5 h-5 mr-2" />
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Sună acum
                   </Button>
                   <Button
                     variant="outline"
-                    size="lg"
+                    size="default"
+                    className="w-full sm:w-auto"
                     onClick={() => window.location.href = "mailto:contact@mvaimobiliare.ro"}
                   >
-                    <Mail className="w-5 h-5 mr-2" />
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Email
                   </Button>
                 </div>
@@ -754,11 +757,11 @@ const PropertyDetail = () => {
 
             {/* Similar Properties Section */}
             {similarProperties.length > 0 && (
-              <section className="mt-12" aria-label="Proprietăți similare">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+              <section className="mt-8 sm:mt-12" aria-label="Proprietăți similare">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
                   Proprietăți Similare
                 </h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
                   {similarProperties.map((prop) => (
                     <Link 
                       key={prop.id} 
@@ -779,28 +782,28 @@ const PropertyDetail = () => {
                               />
                             ) : (
                               <div className="w-full h-full bg-muted flex items-center justify-center">
-                                <Home className="w-12 h-12 text-muted-foreground" />
+                                <Home className="w-8 h-8 sm:w-12 sm:h-12 text-muted-foreground" />
                               </div>
                             )}
                             {prop.availability_status === "available" && (
-                              <Badge className="absolute top-2 left-2 bg-green-600 text-white text-[10px]">
+                              <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-green-600 text-white text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5">
                                 Disponibil
                               </Badge>
                             )}
                           </div>
-                          <CardContent className="p-3 sm:p-4">
-                            <h3 className="font-semibold text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-gold transition-colors">
+                          <CardContent className="p-2 sm:p-3 md:p-4">
+                            <h3 className="font-semibold text-xs sm:text-sm md:text-base line-clamp-2 mb-1 sm:mb-2 group-hover:text-gold transition-colors">
                               {prop.title}
                             </h3>
-                            <div className="flex items-center text-muted-foreground text-xs sm:text-sm mb-2">
-                              <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                            <div className="flex items-center text-muted-foreground text-[10px] sm:text-xs mb-1 sm:mb-2">
+                              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1 text-gold flex-shrink-0" />
                               <span className="truncate">{prop.location}</span>
                             </div>
-                            <div className="flex items-center justify-between text-xs sm:text-sm">
-                              <span className="font-bold text-gold">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-[10px] sm:text-xs gap-0.5 sm:gap-0">
+                              <span className="font-bold text-gold text-xs sm:text-sm">
                                 €{prop.price_min?.toLocaleString("de-DE")}
                               </span>
-                              <div className="flex items-center gap-2 text-muted-foreground">
+                              <div className="flex items-center gap-1 sm:gap-2 text-muted-foreground">
                                 <span>{prop.surface_min} mp</span>
                                 <span>•</span>
                                 <span>{prop.rooms} cam</span>
