@@ -647,7 +647,7 @@ export const ApartmentImageGallery = ({
                   
                   {/* Image container - centered */}
                   <div 
-                    className="flex items-center justify-center w-full h-full"
+                    className="flex items-center justify-start sm:justify-center w-full h-full pl-2 sm:pl-0"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
