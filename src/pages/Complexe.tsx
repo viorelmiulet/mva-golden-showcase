@@ -146,20 +146,20 @@ const Complexe = () => {
 
         <Header />
         
-        <main className="container mx-auto px-4 py-16 md:py-24 relative z-10">
+        <main className="container mx-auto px-3 sm:px-4 py-16 sm:py-20 md:py-24 relative z-10">
           {/* Breadcrumbs */}
           <Breadcrumbs items={[{ label: t.complexes?.title || 'Complexe Rezidențiale' }]} />
 
           {/* Hero Section */}
-          <div className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16">
-            <Badge className="glass px-4 py-1.5 text-sm font-medium border-primary/20 mb-4">
-              <Building2 className="h-4 w-4 mr-2" />
+          <div className="text-center space-y-3 sm:space-y-4 md:space-y-6 mb-8 sm:mb-12 md:mb-16">
+            <Badge className="glass px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium border-primary/20 mb-2 sm:mb-4">
+              <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               {projects?.length || 0} {language === 'ro' ? 'Complexe Disponibile' : 'Available Complexes'}
             </Badge>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gradient-gold drop-shadow-lg px-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gradient-gold drop-shadow-lg px-2">
               {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
               {t.complexes?.subtitle || 'Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi'}
             </p>
           </div>
@@ -168,7 +168,7 @@ const Complexe = () => {
           {isLoading ? (
             <ComplexGridSkeleton count={6} />
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {projects
               ?.slice()
               .sort((a, b) => a.name.localeCompare(b.name, 'ro', { numeric: true, sensitivity: 'base' }))
@@ -184,7 +184,7 @@ const Complexe = () => {
                   >
                     <Card className="card-modern overflow-hidden h-full border-glow">
                       {/* Project Image */}
-                      <div className="relative h-48 md:h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
+                      <div className="relative h-40 sm:h-48 md:h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
                         {project.main_image ? (
                           <img
                             src={project.main_image}
@@ -205,7 +205,7 @@ const Complexe = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute top-3 right-3 glass hover:bg-background/90 backdrop-blur-sm z-10 glow-gold"
+                          className="absolute top-2 right-2 sm:top-3 sm:right-3 glass hover:bg-background/90 backdrop-blur-sm z-10 glow-gold h-8 w-8 sm:h-10 sm:w-10"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -214,7 +214,7 @@ const Complexe = () => {
                           }}
                         >
                           <Heart 
-                            className={`h-5 w-5 transition-colors ${
+                            className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
                               isFavorite(project.id, 'complex') 
                                 ? 'fill-red-500 text-red-500' 
                                 : 'text-muted-foreground'
@@ -224,23 +224,23 @@ const Complexe = () => {
 
                         {/* Recommended Badge */}
                         {project.is_recommended && (
-                          <Badge className="absolute top-3 left-3 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold border-0 glow-gold">
+                          <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold border-0 glow-gold text-[10px] sm:text-xs">
                             ⭐ Recomandat
                           </Badge>
                         )}
                         
                         {/* Project Name Overlay */}
-                        <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-3 md:right-4">
-                          <h2 className="text-xl md:text-2xl font-bold text-white drop-shadow-lg">
+                        <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">
+                          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white drop-shadow-lg line-clamp-1">
                             {project.name}
                           </h2>
                         </div>
                       </div>
 
-                      <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+                      <CardContent className="p-3 sm:p-4 md:p-6 space-y-2.5 sm:space-y-3 md:space-y-4">
                         {/* Location */}
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base">
-                          <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground text-xs sm:text-sm md:text-base">
+                          <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-primary" />
                           <span className="truncate">{project.location}</span>
                         </div>
 
@@ -252,42 +252,42 @@ const Complexe = () => {
                         )}
 
                         {/* Details Grid */}
-                        <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t border-primary/10">
+                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 pt-2.5 sm:pt-3 md:pt-4 border-t border-primary/10">
                           {project.price_range && (
-                            <div className="glass-hover p-2 rounded-lg">
-                              <p className="text-xs text-muted-foreground">{t.properties?.price || 'Preț'}</p>
-                              <p className="font-semibold text-sm md:text-base truncate text-gradient-gold">{project.price_range}</p>
+                            <div className="glass-hover p-1.5 sm:p-2 rounded-lg">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{t.properties?.price || 'Preț'}</p>
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate text-gradient-gold">{project.price_range}</p>
                             </div>
                           )}
                           {project.surface_range && (
-                            <div className="glass-hover p-2 rounded-lg">
-                              <p className="text-xs text-muted-foreground">{language === 'ro' ? 'Suprafață' : 'Surface'}</p>
-                              <p className="font-semibold text-sm md:text-base truncate">{project.surface_range}</p>
+                            <div className="glass-hover p-1.5 sm:p-2 rounded-lg">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{language === 'ro' ? 'Suprafață' : 'Surface'}</p>
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate">{project.surface_range}</p>
                             </div>
                           )}
                           {project.rooms_range && (
-                            <div className="glass-hover p-2 rounded-lg">
-                              <p className="text-xs text-muted-foreground">{t.properties?.rooms || 'Camere'}</p>
-                              <p className="font-semibold text-sm md:text-base truncate">{project.rooms_range}</p>
+                            <div className="glass-hover p-1.5 sm:p-2 rounded-lg">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{t.properties?.rooms || 'Camere'}</p>
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate">{project.rooms_range}</p>
                             </div>
                           )}
                           {project.completion_date && (
-                            <div className="glass-hover p-2 rounded-lg">
-                              <p className="text-xs text-muted-foreground">{t.complexes?.completionDate || 'Finalizare'}</p>
-                              <p className="font-semibold text-sm md:text-base truncate">{project.completion_date}</p>
+                            <div className="glass-hover p-1.5 sm:p-2 rounded-lg">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground">{t.complexes?.completionDate || 'Finalizare'}</p>
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate">{project.completion_date}</p>
                             </div>
                           )}
                         </div>
 
                         {/* Statistics Section */}
                         {stats.total > 0 && (
-                          <div className="pt-3 md:pt-4 border-t border-primary/10 space-y-2 md:space-y-3">
-                            <div className="flex items-center justify-between text-xs md:text-sm">
+                          <div className="pt-2.5 sm:pt-3 md:pt-4 border-t border-primary/10 space-y-1.5 sm:space-y-2 md:space-y-3">
+                            <div className="flex items-center justify-between text-[10px] sm:text-xs md:text-sm">
                               <span className="font-semibold">{language === 'ro' ? 'Disponibilitate' : 'Availability'}</span>
                               <span className="text-muted-foreground">{stats.available} {language === 'ro' ? 'din' : 'of'} {stats.total}</span>
                             </div>
                             {/* Dual bar chart */}
-                            <div className="flex gap-1 h-3 md:h-4 rounded-full overflow-hidden glass">
+                            <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-full overflow-hidden glass">
                               <div 
                                 className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
                                 style={{ width: `${stats.percentage}%` }}
@@ -297,13 +297,13 @@ const Complexe = () => {
                                 style={{ width: `${100 - stats.percentage}%` }}
                               />
                             </div>
-                            <div className="flex items-center justify-center gap-4 md:gap-6 text-[10px] md:text-xs">
-                              <div className="flex items-center gap-1.5 md:gap-2">
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex-shrink-0"></div>
+                            <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 text-[9px] sm:text-[10px] md:text-xs">
+                              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex-shrink-0"></div>
                                 <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
-                              <div className="flex items-center gap-1.5 md:gap-2">
-                                <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-red-400 to-red-600 flex-shrink-0"></div>
+                              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-red-400 to-red-600 flex-shrink-0"></div>
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
@@ -311,12 +311,12 @@ const Complexe = () => {
                         )}
 
                         {/* Call to Action */}
-                        <div className="pt-3 md:pt-4">
+                        <div className="pt-2.5 sm:pt-3 md:pt-4">
                           <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
-                            <span className="font-semibold text-sm md:text-base">
+                            <span className="font-semibold text-xs sm:text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}
                             </span>
-                            <Home className="h-4 w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform flex-shrink-0" />
+                            <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 group-hover:translate-x-2 transition-transform flex-shrink-0" />
                           </div>
                         </div>
                       </CardContent>
