@@ -502,19 +502,14 @@ export const ApartmentImageGallery = ({
               
               {/* Controls - Right */}
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-                {/* Grid View Toggle */}
+                {/* Close Button */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsGridView(!isGridView)}
-                  className={cn(
-                    "text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border transition-colors",
-                    isGridView 
-                      ? "border-gold bg-gold/10 text-gold" 
-                      : "border-white/30 hover:bg-white/10"
-                  )}
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border border-white/30 hover:bg-white/10"
                 >
-                  <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
                 
                 {/* Zoom Controls - Hidden on mobile */}
@@ -562,15 +557,6 @@ export const ApartmentImageGallery = ({
                   </Button>
                 )}
                 
-                {/* Close Button - same style as grid button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsLightboxOpen(false)}
-                  className="text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border border-white/30 hover:bg-white/10 ml-0.5"
-                >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
               </div>
             </div>
 
