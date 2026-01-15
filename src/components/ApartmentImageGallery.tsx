@@ -604,27 +604,27 @@ export const ApartmentImageGallery = ({
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-1 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
+                        className="absolute left-0.5 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-7 w-7 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
                       >
-                        <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" />
+                        <ChevronLeft className="w-4 h-4 sm:w-8 sm:h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
+                        className="absolute right-0.5 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-7 w-7 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
                       >
-                        <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" />
+                        <ChevronRight className="w-4 h-4 sm:w-8 sm:h-8" />
                       </Button>
                     </>
                   )}
                   
-                  <div className="relative flex items-center justify-center w-full h-full px-2">
+                  <div className="relative flex items-center justify-start sm:justify-center w-full h-full pl-1 pr-2 sm:px-2">
                     <img
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-[calc(100vw-100px)] sm:max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-[calc(100vw-60px)] sm:max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
