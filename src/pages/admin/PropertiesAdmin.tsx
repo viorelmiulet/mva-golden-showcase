@@ -579,7 +579,115 @@ const PropertiesAdmin = () => {
                   className={`border-border/30 hover:border-gold/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
                 >
                   <CardContent className="p-3 md:p-4">
-                    <div className="flex gap-3 md:gap-4">
+                    {/* Mobile Layout */}
+                    <div className="md:hidden space-y-3">
+                      {/* Header row: checkbox + image + title */}
+                      <div className="flex gap-3">
+                        <div className="flex items-start pt-1">
+                          <Checkbox
+                            checked={selectedProperties.has(property.id)}
+                            onCheckedChange={() => togglePropertySelection(property.id)}
+                          />
+                        </div>
+                        {property.images?.[0] && (
+                          <img
+                            src={property.images[0]}
+                            alt={property.title}
+                            className="w-20 h-20 object-cover rounded-lg shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm leading-tight line-clamp-2 mb-2">
+                            {property.title}
+                          </h3>
+                          <div className="flex flex-wrap gap-1">
+                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
+                              <Euro className="w-2.5 h-2.5 mr-0.5" />
+                              €{property.price_min?.toLocaleString()}
+                            </Badge>
+                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
+                              <Ruler className="w-2.5 h-2.5 mr-0.5" />
+                              {property.surface_min}mp
+                            </Badge>
+                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
+                              <Home className="w-2.5 h-2.5 mr-0.5" />
+                              {property.rooms}cam
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Actions row */}
+                      <div className="flex gap-2 justify-end border-t border-border/20 pt-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendToFacebook(property.id)}
+                          disabled={sendingToFacebook === property.id}
+                          className="border-blue-600/30 hover:bg-blue-600/10 h-8 px-3 text-xs"
+                        >
+                          {sendingToFacebook === property.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                          ) : (
+                            <Facebook className="w-3.5 h-3.5 text-blue-600" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => sendToInstagram(property.id)}
+                          disabled={sendingToInstagram === property.id}
+                          className="border-pink-500/30 hover:bg-pink-500/10 h-8 px-3 text-xs"
+                        >
+                          {sendingToInstagram === property.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-pink-400" />
+                          ) : (
+                            <Instagram className="w-3.5 h-3.5 text-pink-400" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditModal(property)}
+                          className="border-gold/30 h-8 px-3 text-xs"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-destructive/30 hover:bg-destructive/10 h-8 px-3 text-xs"
+                            >
+                              {deletingId === property.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Ștergi această proprietate?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteProperty(property.id)}
+                              >
+                                Șterge
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden md:flex gap-4">
                       <div className="flex items-center shrink-0">
                         <Checkbox
                           checked={selectedProperties.has(property.id)}
@@ -590,41 +698,41 @@ const PropertiesAdmin = () => {
                         <img
                           src={property.images[0]}
                           alt={property.title}
-                          className="w-16 h-16 md:w-24 md:h-24 object-cover rounded-lg shrink-0"
+                          className="w-24 h-24 object-cover rounded-lg shrink-0"
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm md:text-lg mb-1.5 md:mb-2 line-clamp-2">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
                           {property.title}
                         </h3>
-                        <div className="flex flex-wrap gap-1 md:gap-2 text-xs md:text-sm text-muted-foreground">
-                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
-                            <Euro className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Euro className="w-3 h-3 mr-0.5" />
                             €{property.price_min?.toLocaleString()}
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
-                            <Ruler className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Ruler className="w-3 h-3 mr-0.5" />
                             {property.surface_min}mp
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10 text-[10px] md:text-xs px-1.5 py-0.5">
-                            <Home className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Home className="w-3 h-3 mr-0.5" />
                             {property.rooms}cam
                           </Badge>
                         </div>
                       </div>
-                      <div className="flex flex-col md:flex-row gap-1.5 md:gap-2 items-end md:items-start shrink-0">
+                      <div className="flex flex-row gap-2 items-start shrink-0">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => sendToFacebook(property.id)}
                           disabled={sendingToFacebook === property.id}
-                          className="border-blue-600/30 hover:bg-blue-600/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                          className="border-blue-600/30 hover:bg-blue-600/10 h-8 w-8 p-0"
                           title="Publică pe Facebook"
                         >
                           {sendingToFacebook === property.id ? (
-                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-600" />
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                           ) : (
-                            <Facebook className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600" />
+                            <Facebook className="w-4 h-4 text-blue-600" />
                           )}
                         </Button>
                         <Button
@@ -632,34 +740,34 @@ const PropertiesAdmin = () => {
                           variant="outline"
                           onClick={() => sendToInstagram(property.id)}
                           disabled={sendingToInstagram === property.id}
-                          className="border-pink-500/30 hover:bg-pink-500/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                          className="border-pink-500/30 hover:bg-pink-500/10 h-8 w-8 p-0"
                           title="Publică pe Instagram"
                         >
                           {sendingToInstagram === property.id ? (
-                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-pink-400" />
+                            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
                           ) : (
-                            <Instagram className="w-3.5 h-3.5 md:w-4 md:h-4 text-pink-400" />
+                            <Instagram className="w-4 h-4 text-pink-400" />
                           )}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30 h-7 w-7 md:h-8 md:w-8 p-0"
+                          className="border-gold/30 h-8 w-8 p-0"
                         >
-                          <Edit className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                          <Edit className="w-4 h-4" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-7 w-7 md:h-8 md:w-8 p-0"
+                              className="border-destructive/30 hover:bg-destructive/10 h-8 w-8 p-0"
                             >
                               {deletingId === property.id ? (
-                                <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
-                                <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                <Trash2 className="w-4 h-4" />
                               )}
                             </Button>
                           </AlertDialogTrigger>
