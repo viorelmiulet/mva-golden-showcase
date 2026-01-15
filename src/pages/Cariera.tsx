@@ -187,47 +187,47 @@ const Cariera = () => {
       <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
         <Header />
 
-        <main className="container mx-auto px-4 pt-24 pb-20" role="main">
+        <main className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 md:pb-20" role="main">
           <Breadcrumbs items={[{ label: t.career.heroTitle }]} />
           {/* Hero Section */}
-          <header className="max-w-4xl mx-auto text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold/20 mb-6">
-              <Briefcase className="w-4 h-4 text-gold" />
-              <span className="text-sm text-gold">{t.career.badge}</span>
+          <header className="max-w-4xl mx-auto text-center mb-8 sm:mb-12 md:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-gold/20 mb-4 sm:mb-6">
+              <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold" />
+              <span className="text-xs sm:text-sm text-gold">{t.career.badge}</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-cinzel font-bold mb-6 bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-cinzel font-bold mb-4 sm:mb-6 bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent px-2">
               {t.career.heroTitle}
             </h1>
 
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4 sm:px-2">
               {t.career.heroSubtitle}
             </p>
           </header>
 
           {/* Benefits Section */}
-          <section className="max-w-6xl mx-auto mb-16">
-            <div className="grid md:grid-cols-3 gap-6">
+          <section className="max-w-6xl mx-auto mb-8 sm:mb-12 md:mb-16">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {t.career.benefitsList.map((benefit, index) => (
-                <div key={index} className="card-responsive text-center">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-gold" />
+                <div key={index} className="card-responsive text-center p-4 sm:p-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-full bg-gold/10 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                  <p className="text-muted-foreground">{benefit.description}</p>
+                  <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
                 </div>
               ))}
             </div>
           </section>
 
           {/* Application Form */}
-          <section className="max-w-3xl mx-auto">
-            <article className="card-responsive">
-              <header className="text-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-cinzel font-bold mb-3">
+          <section className="max-w-3xl mx-auto px-2 sm:px-0">
+            <article className="card-responsive p-4 sm:p-6 md:p-8">
+              <header className="text-center mb-6 sm:mb-8">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-cinzel font-bold mb-2 sm:mb-3">
                   {t.career.formTitle}
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {t.career.formSubtitle}
                 </p>
               </header>

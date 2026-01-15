@@ -369,18 +369,18 @@ const RegimHotelier = () => {
 
       <Header />
       
-      <main className="min-h-screen pt-20 pb-12">
-        <section className="py-12 sm:py-16 bg-gradient-to-br from-background to-muted">
-          <div className="container mx-auto px-4">
+      <main className="min-h-screen pt-16 sm:pt-20 pb-8 sm:pb-12">
+        <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-background to-muted">
+          <div className="container mx-auto px-3 sm:px-4">
             <Breadcrumbs items={[{ label: language === "ro" ? "Regim Hotelier" : "Short-Term Rentals" }]} />
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-4">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-3 sm:mb-4 text-xs sm:text-sm">
                 {language === "ro" ? "Regim Hotelier" : "Short-Term Rentals"}
               </Badge>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
                 {language === "ro" ? "Închirieri pe Termen Scurt" : "Short-Term Rentals"}
               </h1>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2">
                 {language === "ro" 
                   ? "Apartamente complet utilate pentru sejururi confortabile în București"
                   : "Fully equipped apartments for comfortable stays in Bucharest"
@@ -389,20 +389,20 @@ const RegimHotelier = () => {
             </div>
 
             {isLoading ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {[1, 2, 3].map((i) => (
                   <Card key={i} className="animate-pulse">
-                    <div className="h-48 bg-muted" />
-                    <CardContent className="p-4">
-                      <div className="h-6 bg-muted rounded mb-2" />
+                    <div className="h-40 sm:h-48 bg-muted" />
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="h-5 sm:h-6 bg-muted rounded mb-2" />
                       <div className="h-4 bg-muted rounded w-2/3" />
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : rentals.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">
+              <div className="text-center py-8 sm:py-12">
+                <p className="text-muted-foreground text-sm sm:text-lg">
                   {language === "ro" 
                     ? "Nu există proprietăți disponibile momentan"
                     : "No properties available at the moment"
@@ -410,14 +410,14 @@ const RegimHotelier = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {rentals.map((rental) => (
                   <Card 
                     key={rental.id} 
                     className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
                     onClick={() => setSelectedRental(rental)}
                   >
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-40 sm:h-48 overflow-hidden">
                       {rental.images?.[0] ? (
                         <img 
                           src={rental.images[0]} 
@@ -428,48 +428,48 @@ const RegimHotelier = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Bed className="w-12 h-12 text-muted-foreground" />
+                          <Bed className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground" />
                         </div>
                       )}
                       {rental.is_featured && (
-                        <Badge className="absolute top-3 left-3 bg-gold text-white">
+                        <Badge className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-gold text-white text-xs">
                           <Star className="w-3 h-3 mr-1" />
                           {language === "ro" ? "Recomandat" : "Featured"}
                         </Badge>
                       )}
                     </div>
                     
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-lg mb-2 line-clamp-1">{rental.title}</h3>
+                    <CardContent className="p-3 sm:p-4">
+                      <h3 className="font-semibold text-base sm:text-lg mb-1.5 sm:mb-2 line-clamp-1">{rental.title}</h3>
                       
                       {rental.location && (
-                        <div className="flex items-center text-muted-foreground text-sm mb-3">
-                          <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <div className="flex items-center text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3">
+                          <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                           <span className="line-clamp-1">{rental.location}</span>
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                         <span className="flex items-center">
-                          <Bed className="w-4 h-4 mr-1" />
+                          <Bed className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
                           {rental.rooms} {language === "ro" ? "cam" : "rooms"}
                         </span>
                         <span className="flex items-center">
-                          <Bath className="w-4 h-4 mr-1" />
+                          <Bath className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
                           {rental.bathrooms}
                         </span>
                         <span className="flex items-center">
-                          <Users className="w-4 h-4 mr-1" />
+                          <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
                           {rental.max_guests}
                         </span>
                       </div>
                       
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-2xl font-bold text-gold">
+                          <span className="text-xl sm:text-2xl font-bold text-gold">
                             {rental.base_price} {rental.currency}
                           </span>
-                          <span className="text-muted-foreground text-sm">
+                          <span className="text-muted-foreground text-xs sm:text-sm">
                             /{language === "ro" ? "noapte" : "night"}
                           </span>
                         </div>
