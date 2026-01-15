@@ -37,6 +37,8 @@ interface WebhookPayload {
   hashtags: string;
   website: string;
   phone: string;
+  // FACEBOOK REQUIRED FIELD - Use this for Facebook Pages "message"
+  message: string;
   // Instagram-specific field - SHORT caption ready to use
   instagram_caption: string;
   // TikTok-specific field - SHORT caption ready to use
@@ -45,6 +47,10 @@ interface WebhookPayload {
   google_caption: string;
   // Media field for Instagram/TikTok/Google Business (required by Zapier)
   media: string;
+  // Alternative media fields for different Zapier actions
+  media_url: string;
+  image_url: string;
+  photo_url: string;
   // URL for Google Business "Learn More" button
   url: string;
 }
@@ -279,6 +285,9 @@ Contactați-ne pentru vizionare:
 📞 0767.941.512
 🌐 mvaimobiliare.ro`;
 
+      // Get the first image URL - REQUIRED for Instagram
+      const firstImageUrl = property.images?.[0] || '';
+      
       const payload: WebhookPayload = {
         property: {
           id: property.id,
@@ -296,7 +305,7 @@ Contactați-ne pentru vizionare:
         platform: platformName,
         content,
         propertyUrl: `${siteUrl}/proprietati/${property.id}`,
-        imageUrl: property.images?.[0] || undefined,
+        imageUrl: firstImageUrl,
         timestamp: new Date().toISOString(),
         // Easy access fields for Zapier
         title: property.title,
@@ -308,6 +317,8 @@ Contactați-ne pentru vizionare:
         hashtags: hashtags,
         website: 'mvaimobiliare.ro',
         phone: '0767.941.512',
+        // FACEBOOK REQUIRED FIELD - Use "message" in Zapier Facebook Pages action
+        message: content,
         // Instagram-specific - USE THIS FOR INSTAGRAM CAPTION
         instagram_caption: instagramCaption,
         // TikTok-specific - USE THIS FOR TIKTOK CAPTION
@@ -315,7 +326,11 @@ Contactați-ne pentru vizionare:
         // Google Business-specific - USE THIS FOR GOOGLE MY BUSINESS
         google_caption: googleCaption,
         // Media field for Instagram/TikTok/Google Business (required by Zapier)
-        media: property.images?.[0] || '',
+        // IMPORTANT: All these fields contain the same image URL for Zapier compatibility
+        media: firstImageUrl,
+        media_url: firstImageUrl,
+        image_url: firstImageUrl,
+        photo_url: firstImageUrl,
         // URL for Google Business "Learn More" button
         url: `${siteUrl}/proprietati/${property.id}`,
       };
