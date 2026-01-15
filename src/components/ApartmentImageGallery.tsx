@@ -152,6 +152,7 @@ export const ApartmentImageGallery = ({
   const [zoomLevel, setZoomLevel] = useState(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
   const [imageLoaded, setImageLoaded] = useState<Record<number, boolean>>({});
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
@@ -252,14 +253,26 @@ export const ApartmentImageGallery = ({
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
+    setSwipeOffset(0);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    const currentTouch = e.targetTouches[0].clientX;
+    setTouchEnd(currentTouch);
+    
+    // Calculate swipe offset for visual feedback
+    if (touchStart !== null) {
+      const offset = currentTouch - touchStart;
+      // Limit offset to prevent excessive movement
+      setSwipeOffset(Math.max(-100, Math.min(100, offset)));
+    }
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd) {
+      setSwipeOffset(0);
+      return;
+    }
     
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
@@ -270,6 +283,9 @@ export const ApartmentImageGallery = ({
     } else if (isRightSwipe) {
       goToPrevious();
     }
+    
+    // Reset swipe offset
+    setSwipeOffset(0);
   };
 
   if (validImages.length === 0) {
@@ -546,12 +562,12 @@ export const ApartmentImageGallery = ({
                   </Button>
                 )}
                 
-                {/* Close Button - Always visible and prominent */}
+                {/* Close Button - Always visible and prominent on mobile */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsLightboxOpen(false)}
-                  className="text-white hover:bg-white/10 h-10 w-10 sm:h-10 sm:w-10 bg-black/40 sm:bg-transparent rounded-full ml-1"
+                  className="text-white hover:bg-white/10 h-10 w-10 bg-black/60 rounded-full ml-2 flex-shrink-0"
                 >
                   <X className="w-6 h-6" />
                 </Button>
@@ -597,6 +613,16 @@ export const ApartmentImageGallery = ({
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
+                  {/* Floating Close Button for mobile - easy access */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsLightboxOpen(false)}
+                    className="absolute top-4 right-4 sm:hidden text-white h-10 w-10 bg-black/70 rounded-full z-30 shadow-lg"
+                  >
+                    <X className="w-6 h-6" />
+                  </Button>
+
                   {/* Navigation Arrows - fixed position on sides */}
                   {validImages.length > 1 && (
                     <>
@@ -619,8 +645,14 @@ export const ApartmentImageGallery = ({
                     </>
                   )}
                   
-                  {/* Image container with padding for arrows */}
-                  <div className="relative flex items-center justify-center w-full h-full px-12 sm:px-16">
+                  {/* Image container with padding for arrows and swipe animation */}
+                  <div 
+                    className="relative flex items-center justify-center w-full h-full px-12 sm:px-16"
+                    style={{
+                      transform: `translateX(${swipeOffset}px)`,
+                      transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
+                    }}
+                  >
                     <img
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
@@ -634,6 +666,15 @@ export const ApartmentImageGallery = ({
                       decoding="async"
                     />
                   </div>
+                  
+                  {/* Swipe indicator on mobile */}
+                  {validImages.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:hidden flex items-center gap-2 text-white/60 text-xs bg-black/40 px-3 py-1 rounded-full">
+                      <ChevronLeft className="w-3 h-3" />
+                      <span>Swipe pentru navigare</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </div>
+                  )}
                 </div>
 
                 {/* Bottom Thumbnail Strip */}
