@@ -592,39 +592,40 @@ export const ApartmentImageGallery = ({
               <>
                 <div 
                   ref={imageRef}
-                  className="flex-1 flex items-center justify-center px-12 sm:px-16 relative overflow-hidden min-h-0"
+                  className="flex-1 flex items-center justify-center relative overflow-hidden min-h-0"
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  {/* Navigation Arrows - positioned outside image area on mobile */}
+                  {/* Navigation Arrows - fixed position on sides */}
                   {validImages.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-0.5 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-7 w-7 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 flex-shrink-0"
                       >
-                        <ChevronLeft className="w-4 h-4 sm:w-8 sm:h-8" />
+                        <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-0.5 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-7 w-7 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 flex-shrink-0"
                       >
-                        <ChevronRight className="w-4 h-4 sm:w-8 sm:h-8" />
+                        <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" />
                       </Button>
                     </>
                   )}
                   
-                  <div className="relative flex items-center justify-start sm:justify-center w-full h-full pl-1 pr-2 sm:px-2">
+                  {/* Image container with padding for arrows */}
+                  <div className="relative flex items-center justify-center w-full h-full px-12 sm:px-16">
                     <img
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-[calc(100vw-60px)] sm:max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full max-h-[60vh] sm:max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
