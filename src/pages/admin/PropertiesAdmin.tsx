@@ -616,20 +616,6 @@ const PropertiesAdmin = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => sendToZapier(property.id)}
-                          disabled={sendingToZapier === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-7 w-7 md:h-8 md:w-8 p-0"
-                          title="Trimite către Zapier"
-                        >
-                          {sendingToZapier === property.id ? (
-                            <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-blue-400" />
-                          ) : (
-                            <Send className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
                           onClick={() => sendToFacebook(property.id)}
                           disabled={sendingToFacebook === property.id}
                           className="border-blue-600/30 hover:bg-blue-600/10 h-7 w-7 md:h-8 md:w-8 p-0"
