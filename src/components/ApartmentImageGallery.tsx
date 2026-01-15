@@ -619,12 +619,12 @@ export const ApartmentImageGallery = ({
                     </>
                   )}
                   
-                  <div className="relative flex items-center justify-center w-full h-full">
+                  <div className="relative flex items-center justify-center w-full h-full px-2">
                     <img
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-[calc(100vw-100px)] sm:max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
