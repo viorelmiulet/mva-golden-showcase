@@ -39,6 +39,8 @@ interface WebhookPayload {
   phone: string;
   // Instagram-specific field - SHORT caption ready to use
   instagram_caption: string;
+  // Media field for Instagram Business (required by Zapier)
+  media: string;
 }
 
 serve(async (req) => {
@@ -285,6 +287,8 @@ ${customHashtags}`;
         phone: '0767.941.512',
         // Instagram-specific - USE THIS FOR INSTAGRAM CAPTION
         instagram_caption: instagramCaption,
+        // Media field for Instagram Business (required by Zapier)
+        media: property.images?.[0] || '',
       };
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
