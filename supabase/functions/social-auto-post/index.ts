@@ -265,6 +265,7 @@ ${customHashtags}`;
 💰 ${priceFormatted}${roomsFormatted ? ` | ${roomsFormatted}` : ''}${surfaceFormatted ? ` | ${surfaceFormatted}` : ''}
 📍 Militari Residence
 📞 0767.941.512
+🌐 mvaimobiliare.ro
 
 #imobiliare #apartament #bucuresti #MVAImobiliare`;
 
@@ -272,6 +273,7 @@ ${customHashtags}`;
       const tiktokCaption = `🏠 ${property.title}
 💰 ${priceFormatted}
 📍 Militari Residence
+🌐 mvaimobiliare.ro
 
 #imobiliare #apartament #bucuresti #realestate #fyp #foryou`;
 
