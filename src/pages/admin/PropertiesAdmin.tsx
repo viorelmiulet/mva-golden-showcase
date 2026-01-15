@@ -579,56 +579,76 @@ const PropertiesAdmin = () => {
                   className={`border-border/30 hover:border-gold/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
                 >
                   <CardContent className="p-3 md:p-4">
-                    {/* Mobile Layout */}
-                    <div className="md:hidden space-y-3">
-                      {/* Header row: checkbox + image + title */}
-                      <div className="flex gap-3">
-                        <div className="flex items-start pt-1">
-                          <Checkbox
-                            checked={selectedProperties.has(property.id)}
-                            onCheckedChange={() => togglePropertySelection(property.id)}
-                          />
-                        </div>
-                        {property.images?.[0] && (
+                    {/* Mobile Layout - Card Style */}
+                    <div className="md:hidden">
+                      {/* Full-width image with checkbox overlay */}
+                      <div className="relative -mx-3 -mt-3 mb-3">
+                        {property.images?.[0] ? (
                           <img
                             src={property.images[0]}
                             alt={property.title}
-                            className="w-20 h-20 object-cover rounded-lg shrink-0"
+                            className="w-full h-40 object-cover rounded-t-lg"
                           />
+                        ) : (
+                          <div className="w-full h-40 bg-muted/30 rounded-t-lg flex items-center justify-center">
+                            <Home className="w-12 h-12 text-muted-foreground/30" />
+                          </div>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm leading-tight line-clamp-2 mb-2">
-                            {property.title}
-                          </h3>
-                          <div className="flex flex-wrap gap-1">
-                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
-                              <Euro className="w-2.5 h-2.5 mr-0.5" />
-                              €{property.price_min?.toLocaleString()}
-                            </Badge>
-                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
-                              <Ruler className="w-2.5 h-2.5 mr-0.5" />
-                              {property.surface_min}mp
-                            </Badge>
-                            <Badge variant="secondary" className="bg-gold/10 text-[10px] px-1.5 py-0.5">
-                              <Home className="w-2.5 h-2.5 mr-0.5" />
-                              {property.rooms}cam
-                            </Badge>
+                        {/* Checkbox overlay */}
+                        <div className="absolute top-2 left-2">
+                          <div className="bg-background/90 backdrop-blur-sm rounded-md p-1.5 shadow-sm">
+                            <Checkbox
+                              checked={selectedProperties.has(property.id)}
+                              onCheckedChange={() => togglePropertySelection(property.id)}
+                            />
                           </div>
                         </div>
+                        {/* Price badge overlay */}
+                        <div className="absolute bottom-2 right-2">
+                          <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                            €{property.price_min?.toLocaleString()}
+                          </Badge>
+                        </div>
                       </div>
-                      {/* Actions row */}
-                      <div className="flex gap-2 justify-end border-t border-border/20 pt-2">
+
+                      {/* Content */}
+                      <div className="space-y-2.5">
+                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                          {property.title}
+                        </h3>
+                        
+                        {/* Property details */}
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Ruler className="w-3.5 h-3.5" />
+                            {property.surface_min} mp
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Home className="w-3.5 h-3.5" />
+                            {property.rooms} camere
+                          </span>
+                        </div>
+                        
+                        {property.location && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            📍 {property.location}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Action buttons - full width grid */}
+                      <div className="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-border/20">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => sendToFacebook(property.id)}
                           disabled={sendingToFacebook === property.id}
-                          className="border-blue-600/30 hover:bg-blue-600/10 h-8 px-3 text-xs"
+                          className="border-blue-600/30 hover:bg-blue-600/10 h-10 w-full"
                         >
                           {sendingToFacebook === property.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                           ) : (
-                            <Facebook className="w-3.5 h-3.5 text-blue-600" />
+                            <Facebook className="w-4 h-4 text-blue-600" />
                           )}
                         </Button>
                         <Button
@@ -636,33 +656,33 @@ const PropertiesAdmin = () => {
                           variant="outline"
                           onClick={() => sendToInstagram(property.id)}
                           disabled={sendingToInstagram === property.id}
-                          className="border-pink-500/30 hover:bg-pink-500/10 h-8 px-3 text-xs"
+                          className="border-pink-500/30 hover:bg-pink-500/10 h-10 w-full"
                         >
                           {sendingToInstagram === property.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-pink-400" />
+                            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
                           ) : (
-                            <Instagram className="w-3.5 h-3.5 text-pink-400" />
+                            <Instagram className="w-4 h-4 text-pink-400" />
                           )}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30 h-8 px-3 text-xs"
+                          className="border-gold/30 hover:bg-gold/10 h-10 w-full"
                         >
-                          <Edit className="w-3.5 h-3.5" />
+                          <Edit className="w-4 h-4 text-gold" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-8 px-3 text-xs"
+                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-full"
                             >
                               {deletingId === property.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin text-destructive" />
                               ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-4 h-4 text-destructive" />
                               )}
                             </Button>
                           </AlertDialogTrigger>
