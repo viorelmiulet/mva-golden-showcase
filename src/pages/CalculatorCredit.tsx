@@ -37,55 +37,55 @@ const CalculatorIpotecar = () => {
       <div className="min-h-screen bg-background">
         <Header />
 
-        <main className="pt-24 pb-16">
-          <div className="container mx-auto px-4">
+        <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
+          <div className="container mx-auto px-3 sm:px-4">
             {/* Breadcrumbs */}
             <Breadcrumbs items={[{ label: t.nav?.calculator || 'Calculator Credit' }]} />
 
             {/* Hero Section */}
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-4">
-                <Calculator className="h-8 w-8 text-primary" />
+            <div className="text-center mb-8 sm:mb-12">
+              <div className="inline-flex items-center justify-center p-2.5 sm:p-3 rounded-full bg-primary/10 mb-3 sm:mb-4">
+                <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Calculator Credit</h1>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 px-2">Calculator Credit</h1>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
                 Estimează rapid rata lunară pentru creditul tău imobiliar. Ajustează parametrii
                 pentru a vedea cum influențează avansul și perioada de creditare rata lunară.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
               {/* Calculator */}
               <MortgageCalculator defaultPrice={100000} />
 
               {/* Info Section */}
-              <div className="space-y-6">
-                <div className="bg-card border border-border rounded-xl p-6">
-                  <h2 className="text-xl font-semibold mb-4">De ce să alegi MVA Imobiliare?</h2>
-                  <ul className="space-y-3">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
+                  <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">De ce să alegi MVA Imobiliare?</h2>
+                  <ul className="space-y-2 sm:space-y-3">
                     {benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                        <span className="text-muted-foreground">{benefit}</span>
+                      <li key={index} className="flex items-start gap-2 sm:gap-3">
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 shrink-0 mt-0.5" />
+                        <span className="text-sm sm:text-base text-muted-foreground">{benefit}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-2">Ai nevoie de ajutor?</h3>
-                  <p className="text-muted-foreground text-sm mb-4">
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold mb-2">Ai nevoie de ajutor?</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
                     Consultanții noștri îți pot oferi o evaluare personalizată și te pot ghida în
                     alegerea celei mai bune opțiuni de creditare.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button asChild className="flex-1">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <Button asChild className="flex-1 h-10 sm:h-11 text-sm">
                       <a href="tel:+40767941512">
                         <Phone className="h-4 w-4 mr-2" />
                         Sună-ne
                       </a>
                     </Button>
-                    <Button asChild variant="outline" className="flex-1">
+                    <Button asChild variant="outline" className="flex-1 h-10 sm:h-11 text-sm">
                       <a
                         href="https://wa.me/40767941512?text=Bună! Aș dori mai multe informații despre creditele imobiliare."
                         target="_blank"
@@ -98,9 +98,9 @@ const CalculatorIpotecar = () => {
                   </div>
                 </div>
 
-                <div className="bg-muted/30 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold mb-3">Sfaturi pentru credit</h3>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
+                <div className="bg-muted/30 rounded-xl p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Sfaturi pentru credit</h3>
+                  <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-muted-foreground">
                     <li>• Un avans mai mare reduce rata lunară și dobânda totală</li>
                     <li>• Perioada mai scurtă = dobândă totală mai mică</li>
                     <li>• Compară ofertele de la mai multe bănci</li>
