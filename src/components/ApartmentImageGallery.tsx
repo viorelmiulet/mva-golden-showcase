@@ -451,11 +451,17 @@ export const ApartmentImageGallery = ({
       {/* Lightbox - Fullscreen */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent 
-          className="fixed inset-0 max-w-none w-full h-full p-0 m-0 translate-x-0 translate-y-0 left-0 top-0 bg-black border-none rounded-none [&>button]:hidden overflow-hidden z-[100]" 
-          style={{ transform: 'none' }}
+          hideCloseButton
+          className="fixed inset-0 max-w-none w-screen h-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none overflow-hidden z-[100]"
+          style={{ 
+            transform: 'none', 
+            left: 0, 
+            top: 0, 
+            translate: 'none',
+            maxHeight: '100dvh'
+          }}
           aria-describedby={undefined}
         >
-          {/* Blurred Background */}
           {/* Blurred Background */}
           <div 
             className="absolute inset-0 bg-cover bg-center scale-110 transition-all duration-500 ease-out"
@@ -465,7 +471,7 @@ export const ApartmentImageGallery = ({
             }}
           />
           
-          <div className="w-full h-full flex flex-col relative z-10">
+          <div className="w-full h-full h-[100dvh] flex flex-col relative z-10">
             {/* Header */}
             <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0 z-50 bg-gradient-to-b from-black/70 via-black/40 to-transparent">
               {/* Title & Counter - Left */}
