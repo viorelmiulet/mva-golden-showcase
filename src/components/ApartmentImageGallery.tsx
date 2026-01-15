@@ -645,9 +645,9 @@ export const ApartmentImageGallery = ({
                     </>
                   )}
                   
-                  {/* Image container with swipe animation */}
+                  {/* Image container - centered */}
                   <div 
-                    className="relative flex items-center justify-center w-full h-full px-4 sm:px-16 py-16 sm:py-4"
+                    className="flex items-center justify-center w-full h-full"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -657,7 +657,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-[calc(100vw-2rem)] sm:max-w-full max-h-[calc(100vh-14rem)] sm:max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-[92vw] sm:max-w-[85vw] max-h-[55vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
