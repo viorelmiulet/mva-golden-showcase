@@ -562,14 +562,14 @@ export const ApartmentImageGallery = ({
                   </Button>
                 )}
                 
-                {/* Close Button - Always visible and prominent on mobile */}
+                {/* Close Button - same style as grid button */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsLightboxOpen(false)}
-                  className="text-white hover:bg-white/10 h-10 w-10 bg-black/60 rounded-full ml-2 flex-shrink-0"
+                  className="text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border border-white/30 hover:bg-white/10 ml-0.5"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
             </div>
@@ -606,17 +606,6 @@ export const ApartmentImageGallery = ({
             ) : (
               /* Single Image View */
               <>
-                {/* Floating Close Button for mobile - FIXED POSITION, ALWAYS VISIBLE */}
-                <div className="sm:hidden fixed top-20 right-4 z-[100]">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsLightboxOpen(false)}
-                    className="text-white h-14 w-14 bg-red-600 hover:bg-red-700 rounded-full shadow-2xl border-2 border-white"
-                  >
-                    <X className="w-8 h-8" />
-                  </Button>
-                </div>
 
                 <div 
                   ref={imageRef}
