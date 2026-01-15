@@ -592,7 +592,7 @@ export const ApartmentImageGallery = ({
               <>
                 <div 
                   ref={imageRef}
-                  className="flex-1 flex items-center justify-center px-16 relative"
+                  className="flex-1 flex items-center justify-center px-2 sm:px-16 relative overflow-hidden"
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
@@ -602,7 +602,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-full max-h-[70vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full max-h-[60vh] sm:max-h-[70vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
@@ -619,17 +619,17 @@ export const ApartmentImageGallery = ({
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
+                        className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30 sm:bg-transparent"
                       >
-                        <ChevronLeft className="w-8 h-8" />
+                        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-12 w-12 rounded-full"
+                        className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30 sm:bg-transparent"
                       >
-                        <ChevronRight className="w-8 h-8" />
+                        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
                       </Button>
                     </>
                   )}
@@ -637,8 +637,8 @@ export const ApartmentImageGallery = ({
 
                 {/* Bottom Thumbnail Strip */}
                 {validImages.length > 1 && (
-                  <div className="flex-shrink-0 py-6 pb-12 px-4">
-                    <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
+                  <div className="flex-shrink-0 py-3 sm:py-6 pb-6 sm:pb-12 px-2 sm:px-4 bg-gradient-to-t from-black/50 to-transparent">
+                    <div className="flex gap-1.5 sm:gap-2 justify-center overflow-x-auto max-w-full pb-1">
                       {validImages.map((img, idx) => (
                         <button
                           key={idx}
@@ -647,7 +647,7 @@ export const ApartmentImageGallery = ({
                             setZoomLevel(1);
                           }}
                           className={cn(
-                            "flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
+                            "flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
                             currentIndex === idx
                               ? "border-gold scale-105"
                               : "border-transparent opacity-70 hover:opacity-100"
