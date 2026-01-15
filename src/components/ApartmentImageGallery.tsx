@@ -606,23 +606,25 @@ export const ApartmentImageGallery = ({
             ) : (
               /* Single Image View */
               <>
-                <div 
-                  ref={imageRef}
-                  className="flex-1 flex items-center justify-center relative overflow-hidden min-h-0"
-                  onTouchStart={onTouchStart}
-                  onTouchMove={onTouchMove}
-                  onTouchEnd={onTouchEnd}
-                >
-                  {/* Floating Close Button for mobile - easy access */}
+                {/* Floating Close Button for mobile - FIXED POSITION, ALWAYS VISIBLE */}
+                <div className="sm:hidden fixed top-20 right-4 z-[100]">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsLightboxOpen(false)}
-                    className="absolute top-4 right-4 sm:hidden text-white h-10 w-10 bg-black/70 rounded-full z-30 shadow-lg"
+                    className="text-white h-14 w-14 bg-red-600 hover:bg-red-700 rounded-full shadow-2xl border-2 border-white"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-8 h-8" />
                   </Button>
+                </div>
 
+                <div 
+                  ref={imageRef}
+                  className="flex-1 flex items-center justify-center relative overflow-hidden"
+                  onTouchStart={onTouchStart}
+                  onTouchMove={onTouchMove}
+                  onTouchEnd={onTouchEnd}
+                >
                   {/* Navigation Arrows - hidden on mobile, only visible on desktop */}
                   {validImages.length > 1 && (
                     <>
@@ -645,9 +647,9 @@ export const ApartmentImageGallery = ({
                     </>
                   )}
                   
-                  {/* Image container - centered */}
+                  {/* Image container */}
                   <div 
-                    className="flex items-center justify-start sm:justify-center w-full h-full pl-2 sm:pl-0"
+                    className="flex items-center justify-center w-full h-full px-4 pt-20 pb-4 sm:px-16 sm:pt-4"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -657,7 +659,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-[92vw] sm:max-w-[85vw] max-h-[55vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-[90vw] sm:max-w-[85vw] max-h-[40vh] sm:max-h-[70vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
