@@ -41,8 +41,12 @@ interface WebhookPayload {
   instagram_caption: string;
   // TikTok-specific field - SHORT caption ready to use
   tiktok_caption: string;
-  // Media field for Instagram/TikTok Business (required by Zapier)
+  // Google Business-specific field - Professional caption for GMB
+  google_caption: string;
+  // Media field for Instagram/TikTok/Google Business (required by Zapier)
   media: string;
+  // URL for Google Business "Learn More" button
+  url: string;
 }
 
 serve(async (req) => {
@@ -265,6 +269,16 @@ ${customHashtags}`;
 
 #imobiliare #apartament #bucuresti #realestate #fyp #foryou`;
 
+      // Create Google Business-specific caption (professional, informative)
+      const googleCaption = `${property.title}
+
+💰 Preț: ${priceFormatted}${roomsFormatted ? `\n🛏️ ${roomsFormatted}` : ''}${surfaceFormatted ? `\n📐 ${surfaceFormatted}` : ''}
+📍 Locație: Militari Residence, București
+
+Contactați-ne pentru vizionare:
+📞 0767.941.512
+🌐 mvaimobiliare.ro`;
+
       const payload: WebhookPayload = {
         property: {
           id: property.id,
@@ -298,8 +312,12 @@ ${customHashtags}`;
         instagram_caption: instagramCaption,
         // TikTok-specific - USE THIS FOR TIKTOK CAPTION
         tiktok_caption: tiktokCaption,
-        // Media field for Instagram/TikTok Business (required by Zapier)
+        // Google Business-specific - USE THIS FOR GOOGLE MY BUSINESS
+        google_caption: googleCaption,
+        // Media field for Instagram/TikTok/Google Business (required by Zapier)
         media: property.images?.[0] || '',
+        // URL for Google Business "Learn More" button
+        url: `${siteUrl}/proprietati/${property.id}`,
       };
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
