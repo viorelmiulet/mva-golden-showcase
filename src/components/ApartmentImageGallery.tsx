@@ -359,7 +359,8 @@ export const ApartmentImageGallery = ({
             {validImages.length > 4 && (
               <button
                 onClick={() => {
-                  setIsGridView(true);
+                  setCurrentIndex(4);
+                  setIsGridView(false);
                   setIsLightboxOpen(true);
                 }}
                 className="relative aspect-[4/3] rounded-lg overflow-hidden group"
@@ -451,7 +452,8 @@ export const ApartmentImageGallery = ({
               {validImages.length > 5 && (
                 <button
                   onClick={() => {
-                    setIsGridView(true);
+                    setCurrentIndex(5);
+                    setIsGridView(false);
                     setIsLightboxOpen(true);
                   }}
                   className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80 transition-colors"
