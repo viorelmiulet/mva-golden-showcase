@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface WebhookSettings {
   facebook?: string;
   instagram?: string;
+  tiktok?: string;
   linkedin?: string;
   twitter?: string;
   enabled: boolean;
@@ -213,6 +214,7 @@ export const SocialAutoPostSettings = () => {
   const platforms = [
     { id: 'facebook', label: 'Facebook', icon: Facebook, color: 'text-blue-500' },
     { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'text-pink-500' },
+    { id: 'tiktok', label: 'TikTok', icon: Instagram, color: 'text-foreground' },
     { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-blue-700' },
     { id: 'twitter', label: 'Twitter/X', icon: Twitter, color: 'text-foreground' },
   ];

@@ -39,7 +39,9 @@ interface WebhookPayload {
   phone: string;
   // Instagram-specific field - SHORT caption ready to use
   instagram_caption: string;
-  // Media field for Instagram Business (required by Zapier)
+  // TikTok-specific field - SHORT caption ready to use
+  tiktok_caption: string;
+  // Media field for Instagram/TikTok Business (required by Zapier)
   media: string;
 }
 
@@ -243,8 +245,8 @@ ${customHashtags}`;
         ? '#imobiliare #apartament #bucuresti #MVAImobiliare #apartamentdevanzare #proprietate'
         : '#RealEstate #Investment #Property';
 
-      // For Instagram: use short/no description to avoid caption too long error
-      const shortDescription = platformName === 'instagram' 
+      // For Instagram/TikTok: use short/no description to avoid caption too long error
+      const shortDescription = (platformName === 'instagram' || platformName === 'tiktok')
         ? '' 
         : (property.description || '').substring(0, 500);
 
@@ -255,6 +257,13 @@ ${customHashtags}`;
 📞 0767.941.512
 
 #imobiliare #apartament #bucuresti #MVAImobiliare`;
+
+      // Create TikTok-specific short caption (trending style, max 150 chars)
+      const tiktokCaption = `🏠 ${property.title}
+💰 ${priceFormatted}
+📍 Militari Residence
+
+#imobiliare #apartament #bucuresti #realestate #fyp #foryou`;
 
       const payload: WebhookPayload = {
         property: {
@@ -287,7 +296,9 @@ ${customHashtags}`;
         phone: '0767.941.512',
         // Instagram-specific - USE THIS FOR INSTAGRAM CAPTION
         instagram_caption: instagramCaption,
-        // Media field for Instagram Business (required by Zapier)
+        // TikTok-specific - USE THIS FOR TIKTOK CAPTION
+        tiktok_caption: tiktokCaption,
+        // Media field for Instagram/TikTok Business (required by Zapier)
         media: property.images?.[0] || '',
       };
 
