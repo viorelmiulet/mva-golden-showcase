@@ -623,31 +623,31 @@ export const ApartmentImageGallery = ({
                     <X className="w-6 h-6" />
                   </Button>
 
-                  {/* Navigation Arrows - fixed position on sides */}
+                  {/* Navigation Arrows - hidden on mobile, only visible on desktop */}
                   {validImages.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 flex-shrink-0"
+                        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60 z-20"
                       >
-                        <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" />
+                        <ChevronLeft className="w-8 h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-8 w-8 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 flex-shrink-0"
+                        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60 z-20"
                       >
-                        <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" />
+                        <ChevronRight className="w-8 h-8" />
                       </Button>
                     </>
                   )}
                   
-                  {/* Image container with padding for arrows and swipe animation */}
+                  {/* Image container with swipe animation - no padding on mobile */}
                   <div 
-                    className="relative flex items-center justify-center w-full h-full px-12 sm:px-16"
+                    className="relative flex items-center justify-center w-full h-full px-2 sm:px-16"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -657,7 +657,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-full max-h-[60vh] sm:max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full max-h-[50vh] sm:max-h-full w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
