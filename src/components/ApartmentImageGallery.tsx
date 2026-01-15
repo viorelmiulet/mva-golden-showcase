@@ -63,9 +63,12 @@ const OptimizedGalleryImage = ({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
+      {/* Blur placeholder with gradient */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-muted animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted-foreground/20 animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+        </div>
       )}
       {isInView && (
         <picture>
@@ -84,8 +87,8 @@ const OptimizedGalleryImage = ({
             alt={alt}
             className={cn(
               className, 
-              'transition-opacity duration-300',
-              isLoaded ? 'opacity-100' : 'opacity-0'
+              'transition-all duration-500 ease-out',
+              isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
             )}
             style={style}
             loading={priority ? "eager" : "lazy"}
@@ -158,11 +161,50 @@ export const ApartmentImageGallery = ({
   const imageRef = useRef<HTMLDivElement>(null);
   const mainImageRef = useRef<HTMLDivElement>(null);
   const { imageSizes, screenSize } = useResponsiveImageSize();
+  const preloadedImages = useRef<Set<string>>(new Set());
 
   // Minimum swipe distance
   const minSwipeDistance = 50;
 
   const validImages = images?.filter(img => img && img.trim() !== '') || [];
+
+  // Preload adjacent images for faster navigation
+  useEffect(() => {
+    if (!isLightboxOpen || validImages.length === 0) return;
+
+    const imagesToPreload = [
+      validImages[(currentIndex + 1) % validImages.length],
+      validImages[(currentIndex - 1 + validImages.length) % validImages.length],
+      validImages[(currentIndex + 2) % validImages.length],
+    ].filter(img => img && !preloadedImages.current.has(img));
+
+    imagesToPreload.forEach(src => {
+      if (src) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = getOptimizedImageUrl(src, imageSizes.lightbox, 90);
+        document.head.appendChild(link);
+        preloadedImages.current.add(src);
+        
+        // Also load via Image constructor for caching
+        const img = new Image();
+        img.src = getOptimizedImageUrl(src, imageSizes.lightbox, 90);
+      }
+    });
+  }, [currentIndex, isLightboxOpen, validImages, imageSizes.lightbox]);
+
+  // Preload first 4 images on mount
+  useEffect(() => {
+    const firstImages = validImages.slice(0, 4);
+    firstImages.forEach(src => {
+      if (src && !preloadedImages.current.has(src)) {
+        const img = new Image();
+        img.src = getOptimizedImageUrl(src, imageSizes.main, 85);
+        preloadedImages.current.add(src);
+      }
+    });
+  }, [validImages, imageSizes.main]);
 
   useEffect(() => {
     if (!isLightboxOpen) {
