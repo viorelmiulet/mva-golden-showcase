@@ -23,7 +23,10 @@ import {
   CheckSquare,
   Square,
   MailOpen,
-  RotateCcw
+  RotateCcw,
+  SlidersHorizontal,
+  Calendar,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,6 +76,14 @@ interface ReceivedEmail {
   created_at: string;
 }
 
+// Advanced search filters interface
+interface AdvancedFilters {
+  senderSearch: string;
+  dateFrom: string;
+  dateTo: string;
+  hasAttachments: boolean | null; // null = don't filter, true = with attachments, false = without
+}
+
 const InboxPage = () => {
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash'>('all');
@@ -81,6 +92,15 @@ const InboxPage = () => {
   const [replyTo, setReplyTo] = useState("");
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
+  
+  // Advanced search filters
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+    senderSearch: '',
+    dateFrom: '',
+    dateTo: '',
+    hasAttachments: null
+  });
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   
   // Multi-select state
   const [selectedEmailIds, setSelectedEmailIds] = useState<Set<string>>(new Set());
@@ -105,6 +125,24 @@ const InboxPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const queryClient = useQueryClient();
+
+  // Count active advanced filters
+  const activeAdvancedFiltersCount = [
+    advancedFilters.senderSearch,
+    advancedFilters.dateFrom,
+    advancedFilters.dateTo,
+    advancedFilters.hasAttachments !== null
+  ].filter(Boolean).length;
+
+  // Clear all advanced filters
+  const clearAdvancedFilters = () => {
+    setAdvancedFilters({
+      senderSearch: '',
+      dateFrom: '',
+      dateTo: '',
+      hasAttachments: null
+    });
+  };
 
   // Clear selection when filter changes
   useEffect(() => {
@@ -939,13 +977,57 @@ const InboxPage = () => {
   const starredCount = emails?.filter(e => e.is_starred).length || 0;
 
   const filteredEmails = emails?.filter(email => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      email.sender.toLowerCase().includes(query) ||
-      email.subject?.toLowerCase().includes(query) ||
-      email.body_plain?.toLowerCase().includes(query)
-    );
+    // Basic text search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesBasic = (
+        email.sender.toLowerCase().includes(query) ||
+        email.subject?.toLowerCase().includes(query) ||
+        email.body_plain?.toLowerCase().includes(query)
+      );
+      if (!matchesBasic) return false;
+    }
+
+    // Advanced filter: Sender search
+    if (advancedFilters.senderSearch) {
+      const senderQuery = advancedFilters.senderSearch.toLowerCase();
+      if (!email.sender.toLowerCase().includes(senderQuery)) {
+        return false;
+      }
+    }
+
+    // Advanced filter: Date from
+    if (advancedFilters.dateFrom) {
+      const emailDate = new Date(email.received_at);
+      const fromDate = new Date(advancedFilters.dateFrom);
+      fromDate.setHours(0, 0, 0, 0);
+      if (emailDate < fromDate) {
+        return false;
+      }
+    }
+
+    // Advanced filter: Date to
+    if (advancedFilters.dateTo) {
+      const emailDate = new Date(email.received_at);
+      const toDate = new Date(advancedFilters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      if (emailDate > toDate) {
+        return false;
+      }
+    }
+
+    // Advanced filter: Has attachments
+    if (advancedFilters.hasAttachments !== null) {
+      const hasAttachments = email.attachments && email.attachments.length > 0;
+      if (advancedFilters.hasAttachments && !hasAttachments) {
+        return false;
+      }
+      if (!advancedFilters.hasAttachments && hasAttachments) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   console.log('[InboxPage] Render state - isMobile:', isMobile, 'mobileView:', mobileView, 'emails:', emails?.length, 'filteredEmails:', filteredEmails?.length, 'isLoading:', isLoading);
@@ -1053,6 +1135,12 @@ const InboxPage = () => {
             recipientFilter={recipientFilter}
             setRecipientFilter={setRecipientFilter}
             emailAddresses={emailAddresses || []}
+            advancedFilters={advancedFilters}
+            setAdvancedFilters={setAdvancedFilters}
+            showAdvancedSearch={showAdvancedSearch}
+            setShowAdvancedSearch={setShowAdvancedSearch}
+            activeAdvancedFiltersCount={activeAdvancedFiltersCount}
+            clearAdvancedFilters={clearAdvancedFilters}
           />
         </div>
 
@@ -1164,7 +1252,114 @@ const InboxPage = () => {
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
+
+              {/* Advanced Search Button for Mobile */}
+              <button
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
+                  showAdvancedSearch || activeAdvancedFiltersCount > 0
+                    ? "bg-gold/20 text-gold border border-gold/30" 
+                    : "bg-white/5 text-muted-foreground border border-white/10"
+                )}
+              >
+                <SlidersHorizontal className="h-2.5 w-2.5" />
+                {activeAdvancedFiltersCount > 0 && (
+                  <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">
+                    {activeAdvancedFiltersCount}
+                  </span>
+                )}
+                <span>Filtre</span>
+              </button>
             </div>
+
+            {/* Mobile Advanced Search Panel */}
+            {showAdvancedSearch && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-2 rounded-lg border border-white/10 bg-white/5 space-y-2"
+              >
+                {/* Sender filter */}
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <User className="h-2.5 w-2.5" />
+                    Expeditor
+                  </Label>
+                  <Input
+                    placeholder="Caută după expeditor..."
+                    value={advancedFilters.senderSearch}
+                    onChange={(e) => setAdvancedFilters({...advancedFilters, senderSearch: e.target.value})}
+                    className="h-7 text-xs bg-white/5 border-white/10 focus:border-gold/50"
+                  />
+                </div>
+
+                {/* Date range filter */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-2.5 w-2.5" />
+                      De la
+                    </Label>
+                    <Input
+                      type="date"
+                      value={advancedFilters.dateFrom}
+                      onChange={(e) => setAdvancedFilters({...advancedFilters, dateFrom: e.target.value})}
+                      className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-muted-foreground">Până la</Label>
+                    <Input
+                      type="date"
+                      value={advancedFilters.dateTo}
+                      onChange={(e) => setAdvancedFilters({...advancedFilters, dateTo: e.target.value})}
+                      className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50"
+                    />
+                  </div>
+                </div>
+
+                {/* Attachments filter */}
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Paperclip className="h-2.5 w-2.5" />
+                    Atașamente
+                  </Label>
+                  <Select
+                    value={advancedFilters.hasAttachments === null ? 'all' : advancedFilters.hasAttachments ? 'with' : 'without'}
+                    onValueChange={(value) => {
+                      setAdvancedFilters({
+                        ...advancedFilters,
+                        hasAttachments: value === 'all' ? null : value === 'with'
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="h-7 text-xs bg-white/5 border-white/10 focus:border-gold/50">
+                      <SelectValue placeholder="Toate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toate</SelectItem>
+                      <SelectItem value="with">Cu atașamente</SelectItem>
+                      <SelectItem value="without">Fără atașamente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Clear filters button */}
+                {activeAdvancedFiltersCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAdvancedFilters}
+                    className="w-full h-7 text-[10px] text-muted-foreground hover:text-destructive border border-white/10"
+                  >
+                    <X className="h-2.5 w-2.5 mr-1" />
+                    Șterge filtrele ({activeAdvancedFiltersCount})
+                  </Button>
+                )}
+              </motion.div>
+            )}
             
             {/* Mobile Recipient Filter */}
             {emailAddresses && emailAddresses.length > 0 && (

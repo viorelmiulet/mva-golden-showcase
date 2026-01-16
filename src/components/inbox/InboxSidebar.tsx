@@ -11,11 +11,16 @@ import {
   Archive,
   AtSign,
   Send,
-  Trash2
+  Trash2,
+  SlidersHorizontal,
+  Calendar,
+  Paperclip,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -24,6 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Draft {
   id: string;
@@ -35,6 +45,13 @@ interface Draft {
 interface EmailAddress {
   email: string;
   label: string;
+}
+
+interface AdvancedFilters {
+  senderSearch: string;
+  dateFrom: string;
+  dateTo: string;
+  hasAttachments: boolean | null;
 }
 
 interface InboxSidebarProps {
@@ -58,6 +75,13 @@ interface InboxSidebarProps {
   recipientFilter: string;
   setRecipientFilter: (recipient: string) => void;
   emailAddresses: EmailAddress[];
+  // Advanced search props
+  advancedFilters?: AdvancedFilters;
+  setAdvancedFilters?: (filters: AdvancedFilters) => void;
+  showAdvancedSearch?: boolean;
+  setShowAdvancedSearch?: (show: boolean) => void;
+  activeAdvancedFiltersCount?: number;
+  clearAdvancedFilters?: () => void;
 }
 
 export const InboxSidebar = ({
@@ -81,6 +105,12 @@ export const InboxSidebar = ({
   recipientFilter,
   setRecipientFilter,
   emailAddresses,
+  advancedFilters,
+  setAdvancedFilters,
+  showAdvancedSearch = false,
+  setShowAdvancedSearch,
+  activeAdvancedFiltersCount = 0,
+  clearAdvancedFilters,
 }: InboxSidebarProps) => {
   const filterItems = [
     { key: 'all' as const, label: 'Primite', count: emailsCount, icon: Mail },
@@ -90,6 +120,15 @@ export const InboxSidebar = ({
     { key: 'archived' as const, label: 'Arhivate', count: archivedCount, icon: Archive },
     { key: 'trash' as const, label: 'Coș de gunoi', count: trashCount, icon: Trash2 }
   ];
+
+  const handleAdvancedFilterChange = (key: keyof AdvancedFilters, value: string | boolean | null) => {
+    if (advancedFilters && setAdvancedFilters) {
+      setAdvancedFilters({
+        ...advancedFilters,
+        [key]: value
+      });
+    }
+  };
 
   return (
     <motion.div 
@@ -132,6 +171,124 @@ export const InboxSidebar = ({
             className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
           />
         </div>
+      )}
+
+      {/* Advanced Search Toggle */}
+      {!collapsed && setShowAdvancedSearch && (
+        <Collapsible open={showAdvancedSearch} onOpenChange={setShowAdvancedSearch}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "w-full justify-between border border-white/10 hover:bg-white/5",
+                showAdvancedSearch && "bg-gold/10 border-gold/30 text-gold",
+                activeAdvancedFiltersCount > 0 && "border-gold/50"
+              )}
+            >
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4" />
+                Căutare avansată
+              </span>
+              {activeAdvancedFiltersCount > 0 && (
+                <Badge variant="secondary" className="bg-gold/20 text-gold text-xs">
+                  {activeAdvancedFiltersCount}
+                </Badge>
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-2 p-3 rounded-xl border border-white/10 bg-white/5 space-y-3"
+            >
+              {/* Sender filter */}
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <User className="h-3 w-3" />
+                  Expeditor
+                </Label>
+                <Input
+                  placeholder="Caută după expeditor..."
+                  value={advancedFilters?.senderSearch || ''}
+                  onChange={(e) => handleAdvancedFilterChange('senderSearch', e.target.value)}
+                  className="h-8 text-sm bg-white/5 border-white/10 focus:border-gold/50"
+                />
+              </div>
+
+              {/* Date range filter */}
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="h-3 w-3" />
+                  Interval dată
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground/60">De la</span>
+                    <Input
+                      type="date"
+                      value={advancedFilters?.dateFrom || ''}
+                      onChange={(e) => handleAdvancedFilterChange('dateFrom', e.target.value)}
+                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-gold/50"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground/60">Până la</span>
+                    <Input
+                      type="date"
+                      value={advancedFilters?.dateTo || ''}
+                      onChange={(e) => handleAdvancedFilterChange('dateTo', e.target.value)}
+                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-gold/50"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Attachments filter */}
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Paperclip className="h-3 w-3" />
+                  Atașamente
+                </Label>
+                <Select
+                  value={advancedFilters?.hasAttachments === null ? 'all' : advancedFilters?.hasAttachments ? 'with' : 'without'}
+                  onValueChange={(value) => {
+                    if (value === 'all') {
+                      handleAdvancedFilterChange('hasAttachments', null);
+                    } else if (value === 'with') {
+                      handleAdvancedFilterChange('hasAttachments', true);
+                    } else {
+                      handleAdvancedFilterChange('hasAttachments', false);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-sm bg-white/5 border-white/10 focus:border-gold/50">
+                    <SelectValue placeholder="Toate" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate</SelectItem>
+                    <SelectItem value="with">Cu atașamente</SelectItem>
+                    <SelectItem value="without">Fără atașamente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Clear filters button */}
+              {activeAdvancedFiltersCount > 0 && clearAdvancedFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAdvancedFilters}
+                  className="w-full h-8 text-xs text-muted-foreground hover:text-destructive border border-white/10"
+                >
+                  <X className="h-3 w-3 mr-1.5" />
+                  Șterge filtrele ({activeAdvancedFiltersCount})
+                </Button>
+              )}
+            </motion.div>
+          </CollapsibleContent>
+        </Collapsible>
       )}
 
       {/* Filter Tabs */}
