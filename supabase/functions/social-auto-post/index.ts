@@ -67,6 +67,17 @@ interface WebhookPayload {
   image_8?: string;
   image_9?: string;
   image_10?: string;
+  // INSTAGRAM CAROUSEL - Fields for multi-image carousel posts
+  instagram_carousel: {
+    enabled: boolean;
+    images: string[];
+    images_count: number;
+    caption: string;
+  };
+  // Comma-separated image URLs for carousel (easier for some Zapier integrations)
+  carousel_images_csv: string;
+  // JSON string of carousel images for advanced Zapier use
+  carousel_images_json: string;
 }
 
 serve(async (req) => {
@@ -364,6 +375,17 @@ Contactați-ne pentru vizionare:
         image_8: allImages[7] || undefined,
         image_9: allImages[8] || undefined,
         image_10: allImages[9] || undefined,
+        // INSTAGRAM CAROUSEL - Structured data for carousel posts
+        instagram_carousel: {
+          enabled: allImages.length > 1,
+          images: allImages.slice(0, 10), // Instagram allows max 10 images in carousel
+          images_count: Math.min(allImages.length, 10),
+          caption: instagramCaption,
+        },
+        // Comma-separated image URLs for easier Zapier mapping
+        carousel_images_csv: allImages.slice(0, 10).join(','),
+        // JSON string for advanced Zapier use cases
+        carousel_images_json: JSON.stringify(allImages.slice(0, 10)),
       };
 
       console.log(`social-auto-post: Payload for ${platformName} with ${allImages.length} images:`, JSON.stringify(payload).substring(0, 500));
