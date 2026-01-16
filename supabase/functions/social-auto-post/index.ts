@@ -51,6 +51,8 @@ interface WebhookPayload {
   media_url: string;
   image_url: string;
   photo_url: string;
+  // FACEBOOK PAGES REQUIRED FIELD - "Photo" (source)
+  photo: string;
   // URL for Google Business "Learn More" button
   url: string;
   // ALL IMAGES - Array of all property images
@@ -359,6 +361,8 @@ Contactați-ne pentru vizionare:
         media_url: firstImageUrl,
         image_url: firstImageUrl,
         photo_url: firstImageUrl,
+        // FACEBOOK PAGES REQUIRED FIELD - Use "photo" for Photo (source) in Zapier
+        photo: firstImageUrl,
         // URL for Google Business "Learn More" button
         url: `${siteUrl}/proprietati/${property.id}`,
         // ALL IMAGES - Use these for multiple image posts
