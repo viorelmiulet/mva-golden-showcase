@@ -10,20 +10,84 @@ import {
   ListOrdered,
   Link as LinkIcon,
   Undo,
-  Redo
+  Redo,
+  GripHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
   className?: string;
+  resizable?: boolean;
+  minHeight?: number;
+  maxHeight?: number;
 }
 
-const RichTextEditor = ({ value, onChange, placeholder, className }: RichTextEditorProps) => {
+const RichTextEditor = ({ 
+  value, 
+  onChange, 
+  placeholder, 
+  className, 
+  resizable = true, 
+  minHeight = 150,
+  maxHeight = 500 
+}: RichTextEditorProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [editorHeight, setEditorHeight] = useState(minHeight);
+  const [isResizing, setIsResizing] = useState(false);
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    startYRef.current = e.clientY;
+    startHeightRef.current = editorHeight;
+  }, [editorHeight]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    startYRef.current = e.touches[0].clientY;
+    startHeightRef.current = editorHeight;
+  }, [editorHeight]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - startYRef.current;
+      const newHeight = Math.max(minHeight, Math.min(maxHeight, startHeightRef.current + deltaY));
+      setEditorHeight(newHeight);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const deltaY = e.touches[0].clientY - startYRef.current;
+      const newHeight = Math.max(minHeight, Math.min(maxHeight, startHeightRef.current + deltaY));
+      setEditorHeight(newHeight);
+    };
+
+    const handleEnd = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleEnd);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleEnd);
+    };
+  }, [isResizing, minHeight, maxHeight]);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -38,7 +102,7 @@ const RichTextEditor = ({ value, onChange, placeholder, className }: RichTextEdi
     content: value,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[150px] p-3',
+        class: 'prose prose-sm max-w-none focus:outline-none p-3',
       },
     },
     onUpdate: ({ editor }) => {
@@ -64,9 +128,12 @@ const RichTextEditor = ({ value, onChange, placeholder, className }: RichTextEdi
   };
 
   return (
-    <div className={cn("border rounded-md overflow-hidden bg-background", className)}>
+    <div 
+      ref={containerRef}
+      className={cn("border rounded-md overflow-hidden bg-background flex flex-col", className)}
+    >
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/50">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/50 shrink-0">
         <Button
           type="button"
           variant="ghost"
@@ -152,11 +219,31 @@ const RichTextEditor = ({ value, onChange, placeholder, className }: RichTextEdi
         </Button>
       </div>
       
-      {/* Editor Content */}
-      <EditorContent 
-        editor={editor} 
-        className="[&_.ProseMirror]:min-h-[150px] [&_.ProseMirror]:p-3 [&_.ProseMirror]:focus:outline-none [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none"
-      />
+      {/* Editor Content with dynamic height */}
+      <div 
+        className="overflow-y-auto"
+        style={{ height: resizable ? `${editorHeight}px` : 'auto', minHeight: `${minHeight}px` }}
+      >
+        <EditorContent 
+          editor={editor} 
+          className="h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:p-3 [&_.ProseMirror]:focus:outline-none [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none"
+        />
+      </div>
+
+      {/* Resize Handle */}
+      {resizable && (
+        <div 
+          className={cn(
+            "flex items-center justify-center py-1 border-t cursor-ns-resize transition-colors shrink-0",
+            "hover:bg-muted/50 active:bg-muted",
+            isResizing && "bg-muted"
+          )}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+        >
+          <GripHorizontal className="h-4 w-4 text-muted-foreground" />
+        </div>
+      )}
     </div>
   );
 };
