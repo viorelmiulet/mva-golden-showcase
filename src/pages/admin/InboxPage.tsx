@@ -1473,7 +1473,7 @@ const InboxPage = () => {
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
                 placeholder="Scrie răspunsul tău aici..."
-                className="min-h-[200px] bg-white/5 border-white/10"
+                className="min-h-[200px] max-h-[60vh] resize-y bg-white/5 border-white/10"
               />
             </div>
             
