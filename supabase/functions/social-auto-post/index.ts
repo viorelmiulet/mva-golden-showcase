@@ -53,6 +53,20 @@ interface WebhookPayload {
   photo_url: string;
   // URL for Google Business "Learn More" button
   url: string;
+  // ALL IMAGES - Array of all property images
+  all_images: string[];
+  images_count: number;
+  // Individual image URLs for easy Zapier access (up to 10 images)
+  image_1?: string;
+  image_2?: string;
+  image_3?: string;
+  image_4?: string;
+  image_5?: string;
+  image_6?: string;
+  image_7?: string;
+  image_8?: string;
+  image_9?: string;
+  image_10?: string;
 }
 
 serve(async (req) => {
@@ -287,8 +301,9 @@ Contactați-ne pentru vizionare:
 📞 0767.941.512
 🌐 mvaimobiliare.ro`;
 
-      // Get the first image URL - REQUIRED for Instagram
-      const firstImageUrl = property.images?.[0] || '';
+      // Get all images and first image URL - REQUIRED for Instagram
+      const allImages = property.images || [];
+      const firstImageUrl = allImages[0] || '';
       
       const payload: WebhookPayload = {
         property: {
@@ -335,9 +350,23 @@ Contactați-ne pentru vizionare:
         photo_url: firstImageUrl,
         // URL for Google Business "Learn More" button
         url: `${siteUrl}/proprietati/${property.id}`,
+        // ALL IMAGES - Use these for multiple image posts
+        all_images: allImages,
+        images_count: allImages.length,
+        // Individual image URLs for easy Zapier access (up to 10)
+        image_1: allImages[0] || undefined,
+        image_2: allImages[1] || undefined,
+        image_3: allImages[2] || undefined,
+        image_4: allImages[3] || undefined,
+        image_5: allImages[4] || undefined,
+        image_6: allImages[5] || undefined,
+        image_7: allImages[6] || undefined,
+        image_8: allImages[7] || undefined,
+        image_9: allImages[8] || undefined,
+        image_10: allImages[9] || undefined,
       };
 
-      console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
+      console.log(`social-auto-post: Payload for ${platformName} with ${allImages.length} images:`, JSON.stringify(payload).substring(0, 500));
 
       try {
         const response = await fetch(webhookUrl as string, {
