@@ -13,10 +13,10 @@ import {
   Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useOptimizedImage } from "@/hooks/useOptimizedImage";
+
 import { getOptimizedImageUrl } from "@/lib/imageOptimization";
 
-// Optimized image component using the centralized hook
+// Simplified gallery image component - always renders, uses native lazy loading
 interface OptimizedGalleryImageProps {
   src: string;
   alt: string;
@@ -40,64 +40,62 @@ const OptimizedGalleryImage = ({
   quality = 80,
   sizes = '100vw'
 }: OptimizedGalleryImageProps) => {
-  const {
-    optimizedSrc,
-    srcSet,
-    isLoaded,
-    isInView,
-    isSupabaseImage,
-    containerRef,
-    imgRef,
-    handleLoad: hookHandleLoad,
-    handleError,
-  } = useOptimizedImage({
-    src,
-    width,
-    quality,
-    priority,
-  });
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  
+  // Check if image is from Supabase storage
+  const isSupabaseImage = src?.includes('supabase.co/storage') ?? false;
+  
+  // Use the original URL directly - no transformations that might break
+  // The getOptimizedImageUrl was causing issues with Supabase render endpoint
+  const optimizedSrc = src || '';
 
   const handleImageLoad = () => {
-    hookHandleLoad();
+    setIsLoaded(true);
     onLoad?.();
   };
 
+  const handleError = () => {
+    setHasError(true);
+    console.warn('Image failed to load:', src);
+  };
+
+  if (!src) {
+    return (
+      <div className="relative w-full h-full overflow-hidden bg-muted flex items-center justify-center">
+        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
       {/* Blur placeholder with gradient */}
-      {!isLoaded && (
+      {!isLoaded && !hasError && (
         <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted-foreground/20 animate-pulse">
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
         </div>
       )}
-      {isInView && (
-        <picture>
-          {isSupabaseImage && srcSet && (
-            <source
-              type="image/webp"
-              srcSet={srcSet}
-              sizes={sizes}
-            />
+      
+      {hasError ? (
+        <div className="absolute inset-0 bg-muted flex items-center justify-center">
+          <ImageIcon className="w-8 h-8 text-muted-foreground" />
+        </div>
+      ) : (
+        <img
+          src={optimizedSrc}
+          alt={alt}
+          className={cn(
+            className, 
+            'transition-all duration-500 ease-out',
+            isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
           )}
-          <img
-            ref={imgRef}
-            src={optimizedSrc}
-            srcSet={isSupabaseImage ? srcSet : undefined}
-            sizes={sizes}
-            alt={alt}
-            className={cn(
-              className, 
-              'transition-all duration-500 ease-out',
-              isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
-            )}
-            style={style}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            fetchPriority={priority ? "high" : "auto"}
-            onLoad={handleImageLoad}
-            onError={handleError}
-          />
-        </picture>
+          style={style}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          onLoad={handleImageLoad}
+          onError={handleError}
+        />
       )}
     </div>
   );
