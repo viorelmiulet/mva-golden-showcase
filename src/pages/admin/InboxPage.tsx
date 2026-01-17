@@ -1464,8 +1464,8 @@ ${originalBody}`;
         {/* Desktop: Resizable Panels */}
         <div className="hidden lg:flex flex-1 min-h-0">
           <ResizablePanelGroup direction="horizontal" className="min-h-0">
-            {/* Email List Panel - Resizable */}
-            <ResizablePanel defaultSize={30} minSize={15} maxSize={50}>
+            {/* Email List Panel - Collapsible */}
+            <ResizablePanel defaultSize={30} minSize={0} maxSize={50} collapsible collapsedSize={0}>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
