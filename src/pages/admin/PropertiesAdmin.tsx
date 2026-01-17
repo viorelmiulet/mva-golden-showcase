@@ -865,7 +865,7 @@ const PropertiesAdmin = () => {
                 />
               </div>
               <div>
-                <Label>Preț Min (€)</Label>
+                <Label>Preț (€)</Label>
                 <Input
                   type="number"
                   value={editForm.price_min || ""}
@@ -976,7 +976,7 @@ const PropertiesAdmin = () => {
                 />
               </div>
               <div>
-                <Label>Preț Min (€) *</Label>
+                <Label>Preț (€) *</Label>
                 <Input
                   type="number"
                   value={addForm.price_min}
