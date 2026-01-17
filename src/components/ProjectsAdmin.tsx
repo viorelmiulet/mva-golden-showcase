@@ -22,11 +22,14 @@ import {
   X,
   Upload,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  Share2,
+  Loader2
 } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ExcelApartmentImporter } from "./ExcelApartmentImporter"
 import { ApartmentStatusManager } from "./ApartmentStatusManager"
+import { triggerProjectSocialAutoPost } from "@/lib/socialAutoPost"
 
 interface PropertyGroup {
   rooms: number
@@ -56,6 +59,7 @@ const ProjectsAdmin = () => {
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false)
   const [newProjectForm, setNewProjectForm] = useState<any>({})
   const [isCreatingProject, setIsCreatingProject] = useState(false)
+  const [postingToSocial, setPostingToSocial] = useState<string | null>(null)
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -451,6 +455,34 @@ const ProjectsAdmin = () => {
     }
   }
 
+  const handleShareToSocial = async (projectId: string, projectName: string) => {
+    setPostingToSocial(projectId)
+    try {
+      const success = await triggerProjectSocialAutoPost(projectId, 'all')
+      
+      if (success) {
+        toast({
+          title: "Succes!",
+          description: `"${projectName}" a fost trimis către Zapier`
+        })
+      } else {
+        toast({
+          title: "Atenție",
+          description: "Nu s-a putut trimite către Zapier. Verificați configurarea webhook-urilor.",
+          variant: "destructive"
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut trimite către social media",
+        variant: "destructive"
+      })
+    } finally {
+      setPostingToSocial(null)
+    }
+  }
+
   const handlePropertyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, propertyId: string) => {
     const files = e.target.files
     if (!files || files.length === 0) return
@@ -672,6 +704,19 @@ const ProjectsAdmin = () => {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleShareToSocial(project.id, project.name)}
+                        disabled={postingToSocial === project.id}
+                        className="border-blue-500/30 hover:bg-blue-500/10 text-blue-500"
+                      >
+                        {postingToSocial === project.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Share2 className="w-4 h-4" />
+                        )}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
