@@ -20,8 +20,23 @@ interface PropertyData {
   currency?: string;
 }
 
+interface ProjectData {
+  id: string;
+  name: string;
+  location?: string;
+  description?: string;
+  main_image?: string;
+  price_range?: string;
+  surface_range?: string;
+  rooms_range?: string;
+  developer?: string;
+  status?: string;
+}
+
 interface WebhookPayload {
-  property: PropertyData;
+  property?: PropertyData;
+  project?: ProjectData;
+  type: 'property' | 'project';
   platform: string;
   content: string;
   propertyUrl: string;
@@ -95,8 +110,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { propertyId, action, platform } = body;
-    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'Platform:', platform);
+    const { propertyId, projectId, action, platform, type } = body;
+    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'ProjectId:', projectId, 'Platform:', platform, 'Type:', type);
 
     if (action === 'test') {
       // Test webhook connectivity by actually sending a test request
@@ -176,19 +191,44 @@ serve(async (req) => {
       );
     }
 
-    // Get property data
-    const { data: property, error: propertyError } = await supabase
-      .from('catalog_offers')
-      .select('*')
-      .eq('id', propertyId)
-      .single();
+    // Determine if we're posting a property or a project
+    const isProject = type === 'project' || projectId;
+    
+    let property: any = null;
+    let project: any = null;
 
-    if (propertyError || !property) {
-      console.error('Property not found:', propertyError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Property not found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (isProject) {
+      // Get project data
+      const { data: projectData, error: projectError } = await supabase
+        .from('real_estate_projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (projectError || !projectData) {
+        console.error('Project not found:', projectError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Project not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      project = projectData;
+    } else {
+      // Get property data
+      const { data: propertyData, error: propertyError } = await supabase
+        .from('catalog_offers')
+        .select('*')
+        .eq('id', propertyId)
+        .single();
+
+      if (propertyError || !propertyData) {
+        console.error('Property not found:', propertyError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Property not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      property = propertyData;
     }
 
     // Get webhook settings
@@ -213,8 +253,8 @@ serve(async (req) => {
     // Get custom hashtags from settings or use default
     const customHashtags = webhooks.hashtags || '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
 
-    // Generate content in exact format requested
-    const generateContent = (platform: string, prop: PropertyData): string => {
+    // Generate content for properties
+    const generatePropertyContent = (platform: string, prop: any): string => {
       const price = prop.price_min 
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
         : 'Preț la cerere';
@@ -224,7 +264,6 @@ serve(async (req) => {
       const location = prop.location || 'Militari Residence';
       const propertyUrl = `${siteUrl}/proprietati/${prop.id}`;
 
-      // Format: Title, Price, Rooms, Surface, Location, Phone, Website, Link, Hashtags
       return `${prop.title}
 
 💰 ${price}
@@ -238,6 +277,35 @@ serve(async (req) => {
 👉 Detalii: ${propertyUrl}
 
 ${customHashtags}`;
+    };
+
+    // Generate content for projects/complexes
+    const generateProjectContent = (platform: string, proj: any): string => {
+      const location = proj.location || 'București';
+      const projectUrl = `${siteUrl}/complexe/${proj.id}`;
+      const priceRange = proj.price_range || 'Preț la cerere';
+      const surfaceRange = proj.surface_range || '';
+      const roomsRange = proj.rooms_range || '';
+      
+      // Project-specific hashtags
+      const projectName = proj.name?.toLowerCase().replace(/\s+/g, '') || '';
+      const projectHashtags = `#imobiliare #ansamblrezidential #bucuresti #MVAImobiliare #${projectName} #apartamentnoi #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #dezvoltatorimobiliar`;
+
+      return `🏗️ ${proj.name}
+
+📍 ${location}
+💰 ${priceRange}
+${surfaceRange ? `📐 ${surfaceRange}` : ''}
+${roomsRange ? `🛏 ${roomsRange}` : ''}
+
+${proj.description ? proj.description.substring(0, 200) + (proj.description.length > 200 ? '...' : '') : ''}
+
+📞 0767.941.512
+🌐 mvaimobiliare.ro
+
+👉 Detalii: ${projectUrl}
+
+${projectHashtags}`;
     };
 
     // Send to each configured webhook
@@ -255,29 +323,90 @@ ${customHashtags}`;
 
       console.log(`social-auto-post: Sending to ${platformName}: ${webhookUrl}`);
       
-      const content = generateContent(platformName, property);
+      let payload: WebhookPayload;
       
-      // Format price for easy access
-      const priceFormatted = property.price_min 
-        ? `${property.price_min.toLocaleString('ro-RO')} ${property.currency || 'EUR'}`
-        : 'Preț la cerere';
-      
-      // Format rooms and surface
-      const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
-      const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
-      const locationFormatted = property.location || 'Militari Residence';
-      const propertyUrl = `${siteUrl}/proprietati/${property.id}`;
-      
-      // Generate hashtags based on platform
-      const hashtags = customHashtags;
+      if (isProject && project) {
+        // Generate project payload
+        const content = generateProjectContent(platformName, project);
+        const projectUrl = `${siteUrl}/complexe/${project.id}`;
+        const projectImage = project.main_image || '';
+        
+        const projectName = project.name?.toLowerCase().replace(/\s+/g, '') || '';
+        const projectHashtags = `#imobiliare #ansamblrezidential #bucuresti #MVAImobiliare #${projectName} #apartamentnoi #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #dezvoltatorimobiliar`;
+        
+        const projectCaption = content;
 
-      // For Instagram/TikTok: use short/no description to avoid caption too long error
-      const shortDescription = (platformName === 'instagram' || platformName === 'tiktok')
-        ? '' 
-        : (property.description || '').substring(0, 500);
+        payload = {
+          type: 'project',
+          project: {
+            id: project.id,
+            name: project.name,
+            location: project.location,
+            description: project.description?.substring(0, 500) || '',
+            main_image: project.main_image,
+            price_range: project.price_range,
+            surface_range: project.surface_range,
+            rooms_range: project.rooms_range,
+            developer: project.developer,
+            status: project.status,
+          },
+          platform: platformName,
+          content,
+          propertyUrl: projectUrl,
+          imageUrl: projectImage,
+          timestamp: new Date().toISOString(),
+          // Easy access fields for Zapier
+          title: project.name,
+          description: project.description?.substring(0, 500) || '',
+          location: project.location || 'București',
+          price: project.price_range || 'Preț la cerere',
+          rooms: project.rooms_range || '',
+          surface: project.surface_range || '',
+          hashtags: projectHashtags,
+          website: 'mvaimobiliare.ro',
+          phone: '0767.941.512',
+          message: content,
+          instagram_caption: projectCaption,
+          tiktok_caption: projectCaption,
+          google_caption: content.replace(projectHashtags, '').trim(),
+          media: projectImage,
+          media_url: projectImage,
+          image_url: projectImage,
+          photo_url: projectImage,
+          photo: projectImage,
+          url: projectUrl,
+          all_images: projectImage ? [projectImage] : [],
+          images_count: projectImage ? 1 : 0,
+          image_1: projectImage || undefined,
+          instagram_carousel: {
+            enabled: false,
+            images: projectImage ? [projectImage] : [],
+            images_count: projectImage ? 1 : 0,
+            caption: projectCaption,
+          },
+          carousel_images_csv: projectImage || '',
+          carousel_images_json: JSON.stringify(projectImage ? [projectImage] : []),
+        };
+      } else {
+        // Generate property payload (existing logic)
+        const content = generatePropertyContent(platformName, property);
+        
+        const priceFormatted = property.price_min 
+          ? `${property.price_min.toLocaleString('ro-RO')} ${property.currency || 'EUR'}`
+          : 'Preț la cerere';
+        
+        const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
+        const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
+        const locationFormatted = property.location || 'Militari Residence';
+        const propertyUrl = `${siteUrl}/proprietati/${property.id}`;
+        
+        const hashtags = customHashtags;
 
-      // Create Instagram-specific caption - same format as Facebook
-      const instagramCaption = `${property.title}
+        const shortDescription = (platformName === 'instagram' || platformName === 'tiktok')
+          ? '' 
+          : (property.description || '').substring(0, 500);
+
+        const instagramCaption = `${property.title}
 
 💰 ${priceFormatted}
 🛏 ${roomsFormatted}
@@ -291,23 +420,9 @@ ${customHashtags}`;
 
 ${hashtags}`;
 
-      // Create TikTok-specific caption - same format
-      const tiktokCaption = `${property.title}
+        const tiktokCaption = instagramCaption;
 
-💰 ${priceFormatted}
-🛏 ${roomsFormatted}
-📐 ${surfaceFormatted}
-📍 ${locationFormatted}
-
-📞 0767.941.512
-🌐 mvaimobiliare.ro
-
-👉 Detalii: ${propertyUrl}
-
-${hashtags}`;
-
-      // Create Google Business-specific caption - same format
-      const googleCaption = `${property.title}
+        const googleCaption = `${property.title}
 
 💰 ${priceFormatted}
 🛏 ${roomsFormatted}
@@ -319,85 +434,72 @@ ${hashtags}`;
 
 👉 Detalii: ${propertyUrl}`;
 
-      // Get all images and first image URL - REQUIRED for Instagram
-      const allImages = property.images || [];
-      const firstImageUrl = allImages[0] || '';
-      
-      const payload: WebhookPayload = {
-        property: {
-          id: property.id,
+        const allImages = property.images || [];
+        const firstImageUrl = allImages[0] || '';
+        
+        payload = {
+          type: 'property',
+          property: {
+            id: property.id,
+            title: property.title,
+            location: property.location,
+            price_min: property.price_min,
+            price_max: property.price_max,
+            rooms: property.rooms,
+            surface_min: property.surface_min,
+            surface_max: property.surface_max,
+            images: property.images,
+            description: shortDescription,
+            currency: property.currency,
+          },
+          platform: platformName,
+          content,
+          propertyUrl,
+          imageUrl: firstImageUrl,
+          timestamp: new Date().toISOString(),
           title: property.title,
-          location: property.location,
-          price_min: property.price_min,
-          price_max: property.price_max,
-          rooms: property.rooms,
-          surface_min: property.surface_min,
-          surface_max: property.surface_max,
-          images: property.images,
           description: shortDescription,
-          currency: property.currency,
-        },
-        platform: platformName,
-        content,
-        propertyUrl: `${siteUrl}/proprietati/${property.id}`,
-        imageUrl: firstImageUrl,
-        timestamp: new Date().toISOString(),
-        // Easy access fields for Zapier
-        title: property.title,
-        description: shortDescription,
-        location: locationFormatted,
-        price: priceFormatted,
-        rooms: roomsFormatted,
-        surface: surfaceFormatted,
-        hashtags: hashtags,
-        website: 'mvaimobiliare.ro',
-        phone: '0767.941.512',
-        // FACEBOOK REQUIRED FIELD - Use "message" in Zapier Facebook Pages action
-        message: content,
-        // Instagram-specific - USE THIS FOR INSTAGRAM CAPTION
-        instagram_caption: instagramCaption,
-        // TikTok-specific - USE THIS FOR TIKTOK CAPTION
-        tiktok_caption: tiktokCaption,
-        // Google Business-specific - USE THIS FOR GOOGLE MY BUSINESS
-        google_caption: googleCaption,
-        // Media field for Instagram/TikTok/Google Business (required by Zapier)
-        // IMPORTANT: All these fields contain the same image URL for Zapier compatibility
-        media: firstImageUrl,
-        media_url: firstImageUrl,
-        image_url: firstImageUrl,
-        photo_url: firstImageUrl,
-        // FACEBOOK PAGES REQUIRED FIELD - Use "photo" for Photo (source) in Zapier
-        photo: firstImageUrl,
-        // URL for Google Business "Learn More" button
-        url: `${siteUrl}/proprietati/${property.id}`,
-        // ALL IMAGES - Use these for multiple image posts
-        all_images: allImages,
-        images_count: allImages.length,
-        // Individual image URLs for easy Zapier access (up to 10)
-        image_1: allImages[0] || undefined,
-        image_2: allImages[1] || undefined,
-        image_3: allImages[2] || undefined,
-        image_4: allImages[3] || undefined,
-        image_5: allImages[4] || undefined,
-        image_6: allImages[5] || undefined,
-        image_7: allImages[6] || undefined,
-        image_8: allImages[7] || undefined,
-        image_9: allImages[8] || undefined,
-        image_10: allImages[9] || undefined,
-        // INSTAGRAM CAROUSEL - Structured data for carousel posts
-        instagram_carousel: {
-          enabled: allImages.length > 1,
-          images: allImages.slice(0, 10), // Instagram allows max 10 images in carousel
-          images_count: Math.min(allImages.length, 10),
-          caption: instagramCaption,
-        },
-        // Comma-separated image URLs for easier Zapier mapping
-        carousel_images_csv: allImages.slice(0, 10).join(','),
-        // JSON string for advanced Zapier use cases
-        carousel_images_json: JSON.stringify(allImages.slice(0, 10)),
-      };
+          location: locationFormatted,
+          price: priceFormatted,
+          rooms: roomsFormatted,
+          surface: surfaceFormatted,
+          hashtags: hashtags,
+          website: 'mvaimobiliare.ro',
+          phone: '0767.941.512',
+          message: content,
+          instagram_caption: instagramCaption,
+          tiktok_caption: tiktokCaption,
+          google_caption: googleCaption,
+          media: firstImageUrl,
+          media_url: firstImageUrl,
+          image_url: firstImageUrl,
+          photo_url: firstImageUrl,
+          photo: firstImageUrl,
+          url: propertyUrl,
+          all_images: allImages,
+          images_count: allImages.length,
+          image_1: allImages[0] || undefined,
+          image_2: allImages[1] || undefined,
+          image_3: allImages[2] || undefined,
+          image_4: allImages[3] || undefined,
+          image_5: allImages[4] || undefined,
+          image_6: allImages[5] || undefined,
+          image_7: allImages[6] || undefined,
+          image_8: allImages[7] || undefined,
+          image_9: allImages[8] || undefined,
+          image_10: allImages[9] || undefined,
+          instagram_carousel: {
+            enabled: allImages.length > 1,
+            images: allImages.slice(0, 10),
+            images_count: Math.min(allImages.length, 10),
+            caption: instagramCaption,
+          },
+          carousel_images_csv: allImages.slice(0, 10).join(','),
+          carousel_images_json: JSON.stringify(allImages.slice(0, 10)),
+        };
+      }
 
-      console.log(`social-auto-post: Payload for ${platformName} with ${allImages.length} images:`, JSON.stringify(payload).substring(0, 500));
+      console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
 
       try {
         const response = await fetch(webhookUrl as string, {
@@ -418,9 +520,9 @@ ${hashtags}`;
     // Log the auto-post attempt
     await supabase.from('audit_logs').insert({
       action_type: 'social_auto_post',
-      record_id: propertyId,
-      record_title: property.title,
-      metadata: { results, webhooks: Object.keys(webhooks) },
+      record_id: isProject ? projectId : propertyId,
+      record_title: isProject ? project?.name : property?.title,
+      metadata: { type: isProject ? 'project' : 'property', results, webhooks: Object.keys(webhooks) },
     });
 
     return new Response(
