@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2 } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2, Facebook, Instagram } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
@@ -48,6 +48,8 @@ const ComplexesOverview = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [postingToSocial, setPostingToSocial] = useState<string | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [projectToShare, setProjectToShare] = useState<{ id: string; name: string } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -129,15 +131,26 @@ const ComplexesOverview = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleShareToSocial = async (projectId: string, projectName: string) => {
-    setPostingToSocial(projectId);
+  const openShareDialog = (projectId: string, projectName: string) => {
+    setProjectToShare({ id: projectId, name: projectName });
+    setShareDialogOpen(true);
+  };
+
+  const handleShareToSocial = async (platform: 'facebook' | 'instagram' | 'all') => {
+    if (!projectToShare) return;
+    
+    setShareDialogOpen(false);
+    setPostingToSocial(projectToShare.id);
+    
     try {
-      const success = await triggerProjectSocialAutoPost(projectId, 'all');
+      const success = await triggerProjectSocialAutoPost(projectToShare.id, platform);
+      
+      const platformName = platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : 'toate platformele';
       
       if (success) {
         toast({
           title: "Succes!",
-          description: `"${projectName}" a fost trimis către Zapier`
+          description: `"${projectToShare.name}" a fost trimis către ${platformName}`
         });
       } else {
         toast({
@@ -154,6 +167,7 @@ const ComplexesOverview = () => {
       });
     } finally {
       setPostingToSocial(null);
+      setProjectToShare(null);
     }
   };
 
@@ -404,7 +418,7 @@ const ComplexesOverview = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleShareToSocial(project.id, project.name)}
+                    onClick={() => openShareDialog(project.id, project.name)}
                     disabled={postingToSocial === project.id}
                     className="border-blue-500/30 hover:bg-blue-500/10 text-blue-500 hover:text-blue-600 h-8 md:h-9 w-8 md:w-9 p-0"
                     title="Trimite către Zapier"
@@ -415,7 +429,7 @@ const ComplexesOverview = () => {
                       <Share2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     )}
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline" 
                     size="sm"
                     onClick={() => handleDeleteClick(project.id)}
@@ -458,6 +472,46 @@ const ComplexesOverview = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Platform Selection Dialog */}
+        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Selectează platforma</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Trimite "{projectToShare?.name}" către:
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                <Button
+                  variant="outline"
+                  className="justify-start gap-3 h-12"
+                  onClick={() => handleShareToSocial('facebook')}
+                >
+                  <Facebook className="h-5 w-5 text-blue-600" />
+                  <span>Facebook</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start gap-3 h-12"
+                  onClick={() => handleShareToSocial('instagram')}
+                >
+                  <Instagram className="h-5 w-5 text-pink-600" />
+                  <span>Instagram</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start gap-3 h-12"
+                  onClick={() => handleShareToSocial('all')}
+                >
+                  <Share2 className="h-5 w-5 text-primary" />
+                  <span>Toate platformele</span>
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </motion.div>
     </div>
   );
