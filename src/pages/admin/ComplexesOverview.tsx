@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2 } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
@@ -16,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
+import { triggerProjectSocialAutoPost } from "@/lib/socialAutoPost";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -46,6 +47,7 @@ const ComplexesOverview = () => {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [postingToSocial, setPostingToSocial] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -125,6 +127,34 @@ const ComplexesOverview = () => {
   const handleDeleteClick = (projectId: string) => {
     setProjectToDelete(projectId);
     setDeleteDialogOpen(true);
+  };
+
+  const handleShareToSocial = async (projectId: string, projectName: string) => {
+    setPostingToSocial(projectId);
+    try {
+      const success = await triggerProjectSocialAutoPost(projectId, 'all');
+      
+      if (success) {
+        toast({
+          title: "Succes!",
+          description: `"${projectName}" a fost trimis către Zapier`
+        });
+      } else {
+        toast({
+          title: "Atenție",
+          description: "Nu s-a putut trimite către Zapier. Verificați configurarea webhook-urilor.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut trimite către social media",
+        variant: "destructive"
+      });
+    } finally {
+      setPostingToSocial(null);
+    }
   };
 
   const confirmDelete = async () => {
@@ -371,6 +401,20 @@ const ComplexesOverview = () => {
                       Detalii
                     </Button>
                   </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleShareToSocial(project.id, project.name)}
+                    disabled={postingToSocial === project.id}
+                    className="border-blue-500/30 hover:bg-blue-500/10 text-blue-500 hover:text-blue-600 h-8 md:h-9 w-8 md:w-9 p-0"
+                    title="Trimite către Zapier"
+                  >
+                    {postingToSocial === project.id ? (
+                      <Loader2 className="h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
+                    ) : (
+                      <Share2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                    )}
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
