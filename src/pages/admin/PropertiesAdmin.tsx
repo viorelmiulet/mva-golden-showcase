@@ -181,36 +181,38 @@ const PropertiesAdmin = () => {
 
     setIsUpdating(true);
     try {
-      const { error } = await supabase
-        .from("catalog_offers")
-        .update({
-          title: editForm.title,
-          description: editForm.description,
-          location: editForm.location,
-          price_min: parseInt(editForm.price_min) || 0,
-          price_max: parseInt(editForm.price_max) || 0,
-          surface_min: parseInt(editForm.surface_min) || 0,
-          surface_max: parseInt(editForm.surface_max) || 0,
-          rooms: parseInt(editForm.rooms) || 1,
-          project_name: editForm.project_name,
-          features: editForm.features
-            ? editForm.features
-                .split(",")
-                .map((f: string) => f.trim())
-                .filter(Boolean)
-            : [],
-          amenities: editForm.amenities
-            ? editForm.amenities
-                .split(",")
-                .map((a: string) => a.trim())
-                .filter(Boolean)
-            : [],
-          images: editImages,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingProperty.id);
+      const updateData = {
+        title: editForm.title,
+        description: editForm.description,
+        location: editForm.location,
+        price_min: parseInt(editForm.price_min) || 0,
+        price_max: parseInt(editForm.price_max) || 0,
+        surface_min: parseInt(editForm.surface_min) || 0,
+        surface_max: parseInt(editForm.surface_max) || 0,
+        rooms: parseInt(editForm.rooms) || 1,
+        project_name: editForm.project_name,
+        features: editForm.features
+          ? editForm.features
+              .split(",")
+              .map((f: string) => f.trim())
+              .filter(Boolean)
+          : [],
+        amenities: editForm.amenities
+          ? editForm.amenities
+              .split(",")
+              .map((a: string) => a.trim())
+              .filter(Boolean)
+          : [],
+        images: editImages,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase.functions.invoke("admin-offers", {
+        body: { action: "update_offer", id: editingProperty.id, data: updateData },
+      });
 
       if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Update failed");
 
       toast({
         title: "Succes!",

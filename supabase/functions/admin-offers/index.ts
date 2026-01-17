@@ -102,6 +102,38 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    if (action === 'update_offer') {
+      const id = body?.id as string | null;
+      const data = body?.data as Record<string, unknown> | null;
+      
+      if (!id || !data) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required fields: id, data' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('[admin-offers] Updating offer', { id });
+
+      const { error } = await supabase
+        .from('catalog_offers')
+        .update(data)
+        .eq('id', id);
+
+      if (error) {
+        console.error('[admin-offers] Update error', error);
+        return new Response(
+          JSON.stringify({ success: false, error: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Offer updated successfully', id }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (action === 'update_status') {
       const id = (body?.id || url.searchParams.get('id')) as string | null;
       const status = (body?.availability_status || url.searchParams.get('availability_status')) as string | null;
@@ -143,7 +175,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer" | "insert_offer" | "update_status".' }),
+      JSON.stringify({ success: false, error: 'Invalid action. Use action="delete_offer" | "insert_offer" | "update_offer" | "update_status".' }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (e) {
