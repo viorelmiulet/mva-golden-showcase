@@ -213,34 +213,25 @@ serve(async (req) => {
     // Get custom hashtags from settings or use default
     const customHashtags = webhooks.hashtags || '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
 
-    // Generate simple content for Zapier - shorter for Instagram
+    // Generate content in exact format requested
     const generateContent = (platform: string, prop: PropertyData): string => {
       const price = prop.price_min 
         ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
         : 'Preț la cerere';
 
-      const rooms = prop.rooms ? `${prop.rooms} camere` : '';
+      const rooms = prop.rooms ? `${prop.rooms} ${prop.rooms === 1 ? 'cameră' : 'camere'}` : '';
       const surface = prop.surface_min ? `${prop.surface_min} mp` : '';
+      const location = prop.location || 'Militari Residence';
       const propertyUrl = `${siteUrl}/proprietati/${prop.id}`;
 
-      // Instagram: max 2200 chars, keep it short
-      if (platform === 'instagram') {
-        const shortHashtags = '#imobiliare #apartament #bucuresti #MVAImobiliare';
-        return `${prop.title}
-💰 ${price}${rooms ? ` | ${rooms}` : ''}${surface ? ` | ${surface}` : ''}
-📍 Militari Residence
-📞 0767.941.512
-
-${shortHashtags}`;
-      }
-
-      // Facebook and others: full content
-      const details = [rooms ? `🛏️ ${rooms}` : '', surface ? `📐 ${surface}` : ''].filter(Boolean).join('\n');
+      // Format: Title, Price, Rooms, Surface, Location, Phone, Website, Link, Hashtags
       return `${prop.title}
 
 💰 ${price}
-${details}
-📍 Militari Residence
+🛏 ${rooms}
+📐 ${surface}
+📍 ${location}
+
 📞 0767.941.512
 🌐 mvaimobiliare.ro
 
@@ -272,47 +263,61 @@ ${customHashtags}`;
         : 'Preț la cerere';
       
       // Format rooms and surface
-      const roomsFormatted = property.rooms ? `${property.rooms} camere` : '';
+      const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
       const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
+      const locationFormatted = property.location || 'Militari Residence';
+      const propertyUrl = `${siteUrl}/proprietati/${property.id}`;
       
-      // Generate hashtags based on platform - shorter for Instagram
-      const hashtags = platformName === 'instagram' 
-        ? '#imobiliare #apartament #bucuresti #MVAImobiliare'
-        : platformName === 'facebook'
-        ? '#imobiliare #apartament #bucuresti #MVAImobiliare #apartamentdevanzare #proprietate'
-        : '#RealEstate #Investment #Property';
+      // Generate hashtags based on platform
+      const hashtags = customHashtags;
 
       // For Instagram/TikTok: use short/no description to avoid caption too long error
       const shortDescription = (platformName === 'instagram' || platformName === 'tiktok')
         ? '' 
         : (property.description || '').substring(0, 500);
 
-      // Create Instagram-specific short caption (max 300 chars to be safe)
+      // Create Instagram-specific caption - same format as Facebook
       const instagramCaption = `${property.title}
-💰 ${priceFormatted}${roomsFormatted ? ` | ${roomsFormatted}` : ''}${surfaceFormatted ? ` | ${surfaceFormatted}` : ''}
-📍 Militari Residence
+
+💰 ${priceFormatted}
+🛏 ${roomsFormatted}
+📐 ${surfaceFormatted}
+📍 ${locationFormatted}
+
 📞 0767.941.512
 🌐 mvaimobiliare.ro
 
-#imobiliare #apartament #bucuresti #MVAImobiliare`;
+👉 Detalii: ${propertyUrl}
 
-      // Create TikTok-specific short caption (trending style, max 150 chars)
-      const tiktokCaption = `🏠 ${property.title}
+${hashtags}`;
+
+      // Create TikTok-specific caption - same format
+      const tiktokCaption = `${property.title}
+
 💰 ${priceFormatted}
-📍 Militari Residence
+🛏 ${roomsFormatted}
+📐 ${surfaceFormatted}
+📍 ${locationFormatted}
+
+📞 0767.941.512
 🌐 mvaimobiliare.ro
 
-#imobiliare #apartament #bucuresti #realestate #fyp #foryou`;
+👉 Detalii: ${propertyUrl}
 
-      // Create Google Business-specific caption (professional, informative)
+${hashtags}`;
+
+      // Create Google Business-specific caption - same format
       const googleCaption = `${property.title}
 
-💰 Preț: ${priceFormatted}${roomsFormatted ? `\n🛏️ ${roomsFormatted}` : ''}${surfaceFormatted ? `\n📐 ${surfaceFormatted}` : ''}
-📍 Locație: Militari Residence, București
+💰 ${priceFormatted}
+🛏 ${roomsFormatted}
+📐 ${surfaceFormatted}
+📍 ${locationFormatted}
 
-Contactați-ne pentru vizionare:
 📞 0767.941.512
-🌐 mvaimobiliare.ro`;
+🌐 mvaimobiliare.ro
+
+👉 Detalii: ${propertyUrl}`;
 
       // Get all images and first image URL - REQUIRED for Instagram
       const allImages = property.images || [];
@@ -340,7 +345,7 @@ Contactați-ne pentru vizionare:
         // Easy access fields for Zapier
         title: property.title,
         description: shortDescription,
-        location: 'Militari Residence',
+        location: locationFormatted,
         price: priceFormatted,
         rooms: roomsFormatted,
         surface: surfaceFormatted,
