@@ -399,7 +399,7 @@ ${projectHashtags}`;
           carousel_images_json: JSON.stringify(projectImage ? [projectImage] : []),
         };
       } else {
-        // Generate property payload (existing logic)
+        // Generate property payload - SINGLE IMAGE + MILITARI RESIDENCE
         const content = generatePropertyContent(platformName, property);
         
         const priceFormatted = property.price_min 
@@ -408,7 +408,8 @@ ${projectHashtags}`;
         
         const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
         const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
-        const locationFormatted = property.location || 'Militari Residence';
+        // Fixed location: Militari Residence
+        const locationFormatted = 'Militari Residence';
         const propertyUrl = `${siteUrl}/proprietati/${property.id}`;
         
         const hashtags = customHashtags;
@@ -445,6 +446,7 @@ ${hashtags}`;
 
 👉 Detalii: ${propertyUrl}`;
 
+        // SINGLE IMAGE ONLY
         const allImages = property.images || [];
         const firstImageUrl = allImages[0] || '';
         
@@ -453,18 +455,18 @@ ${hashtags}`;
           property: {
             id: property.id,
             title: property.title,
-            location: property.location,
+            location: locationFormatted,
             price_min: property.price_min,
             price_max: property.price_max,
             rooms: property.rooms,
             surface_min: property.surface_min,
             surface_max: property.surface_max,
-            images: property.images,
+            images: firstImageUrl ? [firstImageUrl] : [],
             description: shortDescription,
             currency: property.currency,
           },
           platform: platformName,
-          content,
+          content: content.replace(property.location || 'Militari Residence', locationFormatted),
           propertyUrl,
           imageUrl: firstImageUrl,
           timestamp: new Date().toISOString(),
@@ -477,36 +479,29 @@ ${hashtags}`;
           hashtags: hashtags,
           website: 'mvaimobiliare.ro',
           phone: '0767.941.512',
-          message: content,
+          message: content.replace(property.location || 'Militari Residence', locationFormatted),
           instagram_caption: instagramCaption,
           tiktok_caption: tiktokCaption,
           google_caption: googleCaption,
+          // SINGLE IMAGE ONLY
           media: firstImageUrl,
           media_url: firstImageUrl,
           image_url: firstImageUrl,
           photo_url: firstImageUrl,
           photo: firstImageUrl,
           url: propertyUrl,
-          all_images: allImages,
-          images_count: allImages.length,
-          image_1: allImages[0] || undefined,
-          image_2: allImages[1] || undefined,
-          image_3: allImages[2] || undefined,
-          image_4: allImages[3] || undefined,
-          image_5: allImages[4] || undefined,
-          image_6: allImages[5] || undefined,
-          image_7: allImages[6] || undefined,
-          image_8: allImages[7] || undefined,
-          image_9: allImages[8] || undefined,
-          image_10: allImages[9] || undefined,
+          // Only single image
+          all_images: firstImageUrl ? [firstImageUrl] : [],
+          images_count: firstImageUrl ? 1 : 0,
+          image_1: firstImageUrl || undefined,
           instagram_carousel: {
-            enabled: allImages.length > 1,
-            images: allImages.slice(0, 10),
-            images_count: Math.min(allImages.length, 10),
+            enabled: false,
+            images: firstImageUrl ? [firstImageUrl] : [],
+            images_count: firstImageUrl ? 1 : 0,
             caption: instagramCaption,
           },
-          carousel_images_csv: allImages.slice(0, 10).join(','),
-          carousel_images_json: JSON.stringify(allImages.slice(0, 10)),
+          carousel_images_csv: firstImageUrl || '',
+          carousel_images_json: JSON.stringify(firstImageUrl ? [firstImageUrl] : []),
         };
       }
 
