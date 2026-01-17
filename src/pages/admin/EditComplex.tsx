@@ -197,31 +197,31 @@ const EditComplex = () => {
       // Upload new image if selected
       const imageUrl = await uploadImage();
 
-      // Update the complex and return the updated row
-      const { data: updatedData, error } = await supabase
-        .from('real_estate_projects')
-        .update({
-          name: formData.name.trim(),
-          location: formData.location.trim(),
-          description: formData.description.trim() || null,
-          developer: formData.developer.trim() || null,
-          price_range: formData.price_range.trim() || null,
-          surface_range: formData.surface_range.trim() || null,
-          rooms_range: formData.rooms_range.trim() || null,
-          completion_date: formData.completion_date.trim() || null,
-          status: formData.status,
-          main_image: imageUrl,
-          videos: videos,
-        } as any)
-        .eq('id', id)
-        .select();
+      // Use edge function to update the complex (bypasses RLS)
+      const { data: response, error } = await supabase.functions.invoke('admin-complexes', {
+        body: {
+          action: 'update_complex',
+          id: id,
+          data: {
+            name: formData.name.trim(),
+            location: formData.location.trim(),
+            description: formData.description.trim() || null,
+            developer: formData.developer.trim() || null,
+            price_range: formData.price_range.trim() || null,
+            surface_range: formData.surface_range.trim() || null,
+            rooms_range: formData.rooms_range.trim() || null,
+            completion_date: formData.completion_date.trim() || null,
+            status: formData.status,
+            main_image: imageUrl,
+            videos: videos,
+          }
+        }
+      });
 
       if (error) throw error;
-
-      // Check if any rows were actually updated
-      if (!updatedData || updatedData.length === 0) {
-        toast.error("Nu s-a putut actualiza complexul. Verifică permisiunile.");
-        return;
+      
+      if (!response?.success) {
+        throw new Error(response?.error || "Nu s-a putut actualiza complexul");
       }
 
       // Invalidate all related queries to refresh the data
@@ -233,9 +233,9 @@ const EditComplex = () => {
 
       toast.success("Complexul a fost actualizat cu succes!");
       navigate(`/admin/complexe/${id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating complex:', error);
-      toast.error("Eroare la actualizarea complexului");
+      toast.error(error.message || "Eroare la actualizarea complexului");
     } finally {
       setIsLoading(false);
     }
