@@ -873,30 +873,12 @@ const PropertiesAdmin = () => {
                 />
               </div>
               <div>
-                <Label>Preț Max (€)</Label>
-                <Input
-                  type="number"
-                  value={editForm.price_max || ""}
-                  onChange={(e) => setEditForm({ ...editForm, price_max: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Suprafață Min (mp)</Label>
+                <Label>Suprafață (mp)</Label>
                 <Input
                   type="number"
                   value={editForm.surface_min || ""}
                   onChange={(e) =>
                     setEditForm({ ...editForm, surface_min: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Suprafață Max (mp)</Label>
-                <Input
-                  type="number"
-                  value={editForm.surface_max || ""}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, surface_max: e.target.value })
                   }
                 />
               </div>
