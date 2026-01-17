@@ -28,7 +28,9 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Calendar,
-  User
+  User,
+  PanelLeftClose,
+  PanelLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -133,8 +135,10 @@ const InboxPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
   const [recipientFilter, setRecipientFilter] = useState<string>('all');
+  const [emailListCollapsed, setEmailListCollapsed] = useState(false);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emailListPanelRef = useRef<any>(null);
   
   const queryClient = useQueryClient();
 
@@ -1465,7 +1469,16 @@ ${originalBody}`;
         <div className="hidden lg:flex flex-1 min-h-0">
           <ResizablePanelGroup direction="horizontal" className="min-h-0">
             {/* Email List Panel - Collapsible */}
-            <ResizablePanel defaultSize={30} minSize={0} maxSize={50} collapsible collapsedSize={0}>
+            <ResizablePanel 
+              ref={emailListPanelRef}
+              defaultSize={30} 
+              minSize={0} 
+              maxSize={50} 
+              collapsible 
+              collapsedSize={0}
+              onCollapse={() => setEmailListCollapsed(true)}
+              onExpand={() => setEmailListCollapsed(false)}
+            >
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1681,8 +1694,31 @@ ${originalBody}`;
               </motion.div>
             </ResizablePanel>
 
-            {/* Resizable Handle */}
-            <ResizableHandle withHandle className="mx-2 bg-white/10 hover:bg-gold/30 transition-colors" />
+            {/* Resizable Handle with Toggle Button */}
+            <div className="flex flex-col items-center justify-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (emailListPanelRef.current) {
+                    if (emailListCollapsed) {
+                      emailListPanelRef.current.expand();
+                    } else {
+                      emailListPanelRef.current.collapse();
+                    }
+                  }
+                }}
+                className="h-8 w-8 rounded-full bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 transition-all z-10"
+                title={emailListCollapsed ? "Extinde lista" : "Restrânge lista"}
+              >
+                {emailListCollapsed ? (
+                  <PanelLeft className="h-4 w-4 text-gold" />
+                ) : (
+                  <PanelLeftClose className="h-4 w-4 text-muted-foreground" />
+                )}
+              </Button>
+              <ResizableHandle withHandle className="flex-1 bg-white/10 hover:bg-gold/30 transition-colors" />
+            </div>
 
             {/* Email Detail Panel - Resizable */}
             <ResizablePanel defaultSize={70} minSize={40}>
