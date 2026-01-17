@@ -10,6 +10,7 @@ import {
   Loader2,
   PenSquare,
   Reply,
+  Forward,
   Send,
   Save,
   Paperclip,
@@ -92,6 +93,16 @@ const InboxPage = () => {
   const [replyTo, setReplyTo] = useState("");
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
+  
+  // Forward state
+  const [forwardDialogOpen, setForwardDialogOpen] = useState(false);
+  const [forwardTo, setForwardTo] = useState("");
+  const [forwardCc, setForwardCc] = useState("");
+  const [forwardBcc, setForwardBcc] = useState("");
+  const [forwardSubject, setForwardSubject] = useState("");
+  const [forwardBody, setForwardBody] = useState("");
+  const [forwardAttachments, setForwardAttachments] = useState<File[]>([]);
+  const [showForwardCcBcc, setShowForwardCcBcc] = useState(false);
   
   // Advanced search filters
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -854,6 +865,75 @@ const InboxPage = () => {
     });
   };
 
+  const handleOpenForward = () => {
+    if (!selectedEmail) return;
+    
+    // Build forwarded content with original email info
+    const originalDate = format(new Date(selectedEmail.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
+    const originalBody = selectedEmail.body_plain || selectedEmail.stripped_text || '';
+    
+    const forwardedContent = `
+
+---------- Mesaj redirecționat ----------
+De la: ${selectedEmail.sender}
+Data: ${originalDate}
+Subiect: ${selectedEmail.subject || '(Fără subiect)'}
+
+${originalBody}`;
+    
+    setForwardTo("");
+    setForwardCc("");
+    setForwardBcc("");
+    setForwardSubject(selectedEmail.subject?.startsWith('Fwd:') ? selectedEmail.subject : `Fwd: ${selectedEmail.subject || ''}`);
+    setForwardBody(forwardedContent);
+    setForwardAttachments([]);
+    setShowForwardCcBcc(false);
+    setForwardDialogOpen(true);
+  };
+
+  const handleSendForward = async () => {
+    if (!forwardTo || !forwardBody.trim()) {
+      toast.error('Completează destinatarul și mesajul');
+      return;
+    }
+    
+    const attachmentsData = await Promise.all(
+      forwardAttachments.map(async (file) => ({
+        filename: file.name,
+        content: await fileToBase64(file),
+        contentType: file.type || 'application/octet-stream'
+      }))
+    );
+
+    sendEmailMutation.mutate({
+      to: forwardTo,
+      cc: forwardCc || undefined,
+      bcc: forwardBcc || undefined,
+      subject: forwardSubject,
+      body: forwardBody,
+      attachments: attachmentsData
+    });
+    
+    setForwardDialogOpen(false);
+    setForwardTo("");
+    setForwardCc("");
+    setForwardBcc("");
+    setForwardSubject("");
+    setForwardBody("");
+    setForwardAttachments([]);
+  };
+
+  const handleForwardFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setForwardAttachments(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleRemoveForwardAttachment = (index: number) => {
+    setForwardAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleOpenCompose = () => {
     resetComposeForm();
     setComposeDialogOpen(true);
@@ -1608,6 +1688,7 @@ const InboxPage = () => {
             email={selectedEmail}
             onClose={handleBackToList}
             onReply={handleOpenReply}
+            onForward={handleOpenForward}
             onToggleStar={() => {
               if (selectedEmail) {
                 updateEmailMutation.mutate({ 
@@ -1693,6 +1774,147 @@ const InboxPage = () => {
               className="bg-gradient-to-r from-gold to-gold-light text-black"
             >
               {sendReplyMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Se trimite...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Trimite
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Forward Dialog */}
+      <Dialog open={forwardDialogOpen} onOpenChange={setForwardDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Forward className="h-5 w-5 text-gold" />
+              Redirecționează email
+            </DialogTitle>
+            <DialogDescription>Trimite emailul către altcineva</DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 flex-1 overflow-y-auto">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Către</Label>
+                {!showForwardCcBcc && (
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs h-6 text-gold px-2"
+                    onClick={() => setShowForwardCcBcc(true)}
+                  >
+                    Cc/Bcc
+                  </Button>
+                )}
+              </div>
+              <EmailAutocomplete
+                value={forwardTo}
+                onChange={setForwardTo}
+                placeholder="email@example.com"
+              />
+            </div>
+            
+            {showForwardCcBcc && (
+              <>
+                <div className="space-y-2">
+                  <Label>Cc</Label>
+                  <EmailAutocomplete
+                    value={forwardCc}
+                    onChange={setForwardCc}
+                    placeholder="cc@example.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Bcc</Label>
+                  <EmailAutocomplete
+                    value={forwardBcc}
+                    onChange={setForwardBcc}
+                    placeholder="bcc@example.com"
+                  />
+                </div>
+              </>
+            )}
+            
+            <div className="space-y-2">
+              <Label>Subiect</Label>
+              <Input
+                value={forwardSubject}
+                onChange={(e) => setForwardSubject(e.target.value)}
+                placeholder="Fwd: Subiect"
+                className="bg-white/5 border-white/10"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Mesaj</Label>
+              <Textarea
+                value={forwardBody}
+                onChange={(e) => setForwardBody(e.target.value)}
+                placeholder="Adaugă un mesaj..."
+                className="min-h-[200px] max-h-[40vh] resize-y bg-white/5 border-white/10"
+              />
+            </div>
+
+            {/* Attachments */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Atașamente</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 text-gold"
+                  onClick={() => document.getElementById('forward-file-input')?.click()}
+                >
+                  <Paperclip className="h-3 w-3 mr-1" />
+                  Adaugă
+                </Button>
+                <input
+                  id="forward-file-input"
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleForwardFileChange}
+                />
+              </div>
+              {forwardAttachments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {forwardAttachments.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-white/5 rounded text-xs">
+                      <Paperclip className="h-3 w-3" />
+                      <span className="max-w-[150px] truncate">{file.name}</span>
+                      <button
+                        onClick={() => handleRemoveForwardAttachment(idx)}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setForwardDialogOpen(false)} className="border-white/10">
+              Anulează
+            </Button>
+            <Button 
+              onClick={handleSendForward}
+              disabled={sendEmailMutation.isPending || !forwardTo.trim()}
+              className="bg-gradient-to-r from-gold to-gold-light text-black"
+            >
+              {sendEmailMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Se trimite...
