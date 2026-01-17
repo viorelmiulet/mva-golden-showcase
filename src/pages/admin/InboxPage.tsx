@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isYesterday } from "date-fns";
@@ -1460,16 +1461,16 @@ ${originalBody}`;
           </div>
         )}
 
-        {/* Email List - Full width on mobile when list view */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col min-h-0",
-            "flex-1 lg:w-80 lg:flex-none lg:shrink-0",
-            mobileView === 'detail' && "hidden lg:flex"
-          )}
-        >
+        {/* Desktop: Resizable Panels */}
+        <div className="hidden lg:flex flex-1 min-h-0">
+          <ResizablePanelGroup direction="horizontal" className="min-h-0">
+            {/* Email List Panel - Resizable */}
+            <ResizablePanel defaultSize={30} minSize={15} maxSize={50}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col h-full"
+              >
           {/* Bulk action bar */}
           {isMultiSelectMode && selectedEmailIds.size > 0 && filter !== 'sent' && (
             <div className="p-2 md:p-3 border-b border-white/5 bg-gold/10 flex items-center justify-between gap-2 flex-wrap">
@@ -1677,12 +1678,232 @@ ${originalBody}`;
               </motion.div>
             )}
           </div>
+              </motion.div>
+            </ResizablePanel>
+
+            {/* Resizable Handle */}
+            <ResizableHandle withHandle className="mx-2 bg-white/10 hover:bg-gold/30 transition-colors" />
+
+            {/* Email Detail Panel - Resizable */}
+            <ResizablePanel defaultSize={70} minSize={40}>
+              <div className="h-full min-h-0">
+                <EmailDetail
+                  email={selectedEmail}
+                  onClose={handleBackToList}
+                  onReply={handleOpenReply}
+                  onForward={handleOpenForward}
+                  onToggleStar={() => {
+                    if (selectedEmail) {
+                      updateEmailMutation.mutate({ 
+                        id: selectedEmail.id, 
+                        updates: { is_starred: !selectedEmail.is_starred } 
+                      });
+                    }
+                  }}
+                  onArchive={handleArchive}
+                  onUnarchive={() => {
+                    if (selectedEmail) {
+                      unarchiveEmailMutation.mutate(selectedEmail.id);
+                    }
+                  }}
+                  onDelete={handleDelete}
+                  isArchived={filter === 'archived'}
+                  extractSenderName={extractSenderName}
+                  extractSenderInitials={extractSenderInitials}
+                />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
+
+        {/* Mobile: Email List - Full width when list view */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "lg:hidden rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col min-h-0 flex-1",
+            mobileView === 'detail' && "hidden"
+          )}
+        >
+          {/* Bulk action bar for mobile */}
+          {isMultiSelectMode && selectedEmailIds.size > 0 && filter !== 'sent' && (
+            <div className="p-2 md:p-3 border-b border-white/5 bg-gold/10 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={deselectAllEmails}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" />
+                  <span className="hidden sm:inline">Anulează</span>
+                </button>
+                <span className="text-xs font-medium text-gold">
+                  {selectedEmailIds.size} selectate
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {filter !== 'trash' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkMarkAsReadMutation.isPending}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <MailOpen className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Citit</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkArchiveMutation.isPending}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <Archive className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Arhivează</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkDeleteMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkDeleteMutation.isPending}
+                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Șterge</span>
+                    </Button>
+                  </>
+                )}
+                {filter === 'trash' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => bulkRestoreMutation.mutate(Array.from(selectedEmailIds))}
+                      disabled={bulkRestoreMutation.isPending}
+                      className="h-7 px-2 text-xs text-green-400 hover:text-green-400"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Restaurează</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        if (confirm('Ești sigur că vrei să ștergi definitiv aceste emailuri?')) {
+                          bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
+                        }
+                      }}
+                      disabled={bulkPermanentDeleteMutation.isPending}
+                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                      <span className="hidden sm:inline">Șterge definitiv</span>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {filter !== 'sent' && filteredEmails && filteredEmails.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (isMultiSelectMode) {
+                      if (selectedEmailIds.size === filteredEmails.length) {
+                        deselectAllEmails();
+                      } else {
+                        selectAllEmails();
+                      }
+                    } else {
+                      setIsMultiSelectMode(true);
+                    }
+                  }}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-colors",
+                    isMultiSelectMode 
+                      ? "bg-gold/20 text-gold" 
+                      : "hover:bg-white/10 text-muted-foreground"
+                  )}
+                  title={isMultiSelectMode ? "Selectează tot" : "Mod selectare"}
+                >
+                  {isMultiSelectMode && selectedEmailIds.size === filteredEmails?.length ? (
+                    <CheckSquare className="h-4 w-4" />
+                  ) : (
+                    <Square className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+              <span className="text-xs text-muted-foreground font-medium">
+                {filteredEmails?.length || 0} email-uri
+              </span>
+            </div>
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="text-xs text-gold hover:underline"
+              >
+                Șterge căutarea
+              </button>
+            )}
+          </div>
+          <div 
+            ref={pullToRefresh.containerRef}
+            className="flex-1 overflow-y-auto min-h-[200px]"
+          >
+            <PullToRefreshIndicator 
+              pullDistance={pullToRefresh.pullDistance}
+              isRefreshing={pullToRefresh.isRefreshing}
+              progress={pullToRefresh.progress}
+            />
+            {(isLoading || !emails) && !pullToRefresh.isRefreshing ? (
+              <EmailListSkeleton count={6} />
+            ) : filteredEmails && filteredEmails.length === 0 ? (
+              <div className="p-6 md:p-8 text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                  <Mail className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/30" />
+                </div>
+                <p className="font-medium text-sm md:text-base text-muted-foreground">Nu există email-uri</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  {searchQuery ? "Încearcă altă căutare" : "Inbox-ul tău este gol"}
+                </p>
+              </div>
+            ) : (
+              <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.03 } }
+                }}
+                className="divide-y divide-white/5"
+              >
+                {filteredEmails?.map((email) => (
+                  <SwipeableEmailItem
+                    key={email.id}
+                    email={email}
+                    isSelected={selectedEmail?.id === email.id}
+                    onSelect={() => handleSelectEmail(email)}
+                    onToggleStar={(e) => handleToggleStar(e, email)}
+                    onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : filter === 'trash' ? deleteEmailMutation.mutate(email.id) : moveToTrashMutation.mutate(email.id)}
+                    onArchive={() => filter === 'trash' ? restoreFromTrashMutation.mutate(email.id) : archiveEmailMutation.mutate(email.id)}
+                    extractSenderName={extractSenderName}
+                    extractSenderInitials={extractSenderInitials}
+                    formatEmailDate={formatEmailDate}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </div>
         </motion.div>
 
-        {/* Email Detail - Full width on mobile when detail view */}
+        {/* Mobile: Email Detail - Full width when detail view */}
         <div className={cn(
-          "flex-1 min-w-0 min-h-0",
-          mobileView === 'list' && "hidden lg:block"
+          "lg:hidden flex-1 min-w-0 min-h-0",
+          mobileView === 'list' && "hidden"
         )}>
           <EmailDetail
             email={selectedEmail}
