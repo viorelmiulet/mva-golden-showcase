@@ -28,6 +28,7 @@ import ContractClausesEditor from "@/components/admin/ContractClausesEditor";
 import { MobileFilterSort, FilterOption, SortOption } from "@/components/admin/MobileFilterSort";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { fetchContractClauses, type ContractClause } from "@/hooks/useContractClauses";
 import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -434,8 +435,7 @@ const ContractGeneratorPage = () => {
 
   const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
     try {
-      const { data: insertedContract, error } = await supabase.from('contracts').insert({
-        // Chiriaș data
+      const result = await adminApi.insert('contracts', {
         client_name: contractData.chirias.nume,
         client_prenume: contractData.chirias.prenume || null,
         client_cnp: contractData.chirias.cnp || null,
@@ -444,7 +444,6 @@ const ContractGeneratorPage = () => {
         client_adresa: contractData.chirias.adresa || null,
         client_ci_emitent: contractData.chirias.ci_emitent || null,
         client_ci_data_emiterii: contractData.chirias.ci_data_emiterii || null,
-        // Proprietar data
         proprietar_name: contractData.proprietar.nume || null,
         proprietar_prenume: contractData.proprietar.prenume || null,
         proprietar_cnp: contractData.proprietar.cnp || null,
@@ -453,7 +452,6 @@ const ContractGeneratorPage = () => {
         proprietar_adresa: contractData.proprietar.adresa || null,
         proprietar_ci_emitent: contractData.proprietar.ci_emitent || null,
         proprietar_ci_data_emiterii: contractData.proprietar.ci_data_emiterii || null,
-        // Property data
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
         property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
@@ -466,15 +464,14 @@ const ContractGeneratorPage = () => {
         pdf_generated: true,
         pdf_url: pdfUrl || null,
         docx_url: docxUrl || null,
-      }).select('id').single();
+      });
 
-      if (error) throw error;
+      if (!result.success) throw new Error(result.error);
+      const insertedContract = result.data?.[0] as any;
 
-      // Create signature links for the new contract
       if (insertedContract) {
         await createSignatureLinks(insertedContract.id);
         
-        // Save inventory items for the contract
         if (inventoryItems.length > 0) {
           const inventoryToSave = inventoryItems.map(item => ({
             contract_id: insertedContract.id,
@@ -486,13 +483,7 @@ const ContractGeneratorPage = () => {
             images: item.images || []
           }));
           
-          const { error: invError } = await supabase
-            .from('contract_inventory')
-            .insert(inventoryToSave);
-          
-          if (invError) {
-            console.error('Error saving inventory:', invError);
-          }
+          await adminApi.insert('contract_inventory', inventoryToSave as any);
         }
       }
 
@@ -2754,8 +2745,8 @@ const ContractGeneratorPage = () => {
 
   const handleDeleteContract = async (id: string) => {
     try {
-      const { error } = await supabase.from('contracts').delete().eq('id', id);
-      if (error) throw error;
+      const result = await adminApi.delete('contracts', id);
+      if (!result.success) throw new Error(result.error);
       
       setContracts(prev => prev.filter(c => c.id !== id));
       setDeleteDialogOpen(false);

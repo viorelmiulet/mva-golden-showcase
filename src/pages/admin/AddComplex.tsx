@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,31 +98,27 @@ const AddComplex = () => {
       // Upload image if selected
       const imageUrl = await uploadImage();
 
-      // Create the complex
-      const { data, error } = await supabase
-        .from('real_estate_projects')
-        .insert({
-          name: formData.name.trim(),
-          location: formData.location.trim(),
-          description: formData.description.trim() || null,
-          developer: formData.developer.trim() || null,
-          price_range: formData.price_range.trim() || null,
-          surface_range: formData.surface_range.trim() || null,
-          rooms_range: formData.rooms_range.trim() || null,
-          completion_date: formData.completion_date.trim() || null,
-          status: formData.status,
-          main_image: imageUrl,
-        })
-        .select()
-        .single();
+      // Create the complex using admin API
+      const result = await adminApi.insertComplex({
+        name: formData.name.trim(),
+        location: formData.location.trim(),
+        description: formData.description.trim() || null,
+        developer: formData.developer.trim() || null,
+        price_range: formData.price_range.trim() || null,
+        surface_range: formData.surface_range.trim() || null,
+        rooms_range: formData.rooms_range.trim() || null,
+        completion_date: formData.completion_date.trim() || null,
+        status: formData.status,
+        main_image: imageUrl,
+      });
 
-      if (error) throw error;
+      if (!result.success) throw new Error(result.error);
 
       toast.success("Complexul a fost adăugat cu succes!");
-      navigate(`/admin/complexe/${data.id}`);
-    } catch (error) {
+      navigate(`/admin/complexe/${(result.data as any[])[0].id}`);
+    } catch (error: any) {
       console.error('Error creating complex:', error);
-      toast.error("Eroare la crearea complexului");
+      toast.error(error.message || "Eroare la crearea complexului");
     } finally {
       setIsLoading(false);
     }

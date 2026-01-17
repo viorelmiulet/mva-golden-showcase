@@ -27,6 +27,7 @@ import {
   MoreHorizontal
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { toast } from "sonner";
@@ -201,9 +202,9 @@ const GeneratedContractsPage = () => {
         : contractToDelete.type === "exclusive" 
           ? "exclusive_contracts" 
           : "comodat_contracts";
-      const { error } = await supabase.from(table).delete().eq("id", contractToDelete.id);
-
-      if (error) throw error;
+      
+      const result = await adminApi.delete(table, contractToDelete.id);
+      if (!result.success) throw new Error(result.error);
 
       toast.success("Contract șters cu succes");
       fetchContracts();
