@@ -329,7 +329,13 @@ ${projectHashtags}`;
         // Generate project payload
         const content = generateProjectContent(platformName, project);
         const projectUrl = `${siteUrl}/complexe/${project.id}`;
-        const projectImage = project.main_image || '';
+        
+        // Convert relative image paths to absolute URLs
+        let projectImage = project.main_image || '';
+        if (projectImage && !projectImage.startsWith('http')) {
+          projectImage = `${siteUrl}${projectImage.startsWith('/') ? '' : '/'}${projectImage}`;
+        }
+        console.log(`social-auto-post: Project image URL: ${projectImage}`);
         
         const projectName = project.name?.toLowerCase().replace(/\s+/g, '') || '';
         const projectHashtags = `#imobiliare #ansamblrezidential #bucuresti #MVAImobiliare #${projectName} #apartamentnoi #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #dezvoltatorimobiliar`;
