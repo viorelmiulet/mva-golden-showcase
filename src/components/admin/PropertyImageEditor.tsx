@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useImageValidation } from "@/hooks/useImageValidation";
 import {
   Loader2,
   Upload,
@@ -11,6 +12,9 @@ import {
   GripVertical,
   ChevronUp,
   ChevronDown,
+  AlertTriangle,
+  RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 interface PropertyImageEditorProps {
@@ -28,6 +32,15 @@ const PropertyImageEditor = ({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const { toast } = useToast();
+  
+  const { 
+    isImageValid, 
+    isImageLoading, 
+    hasInvalidImages, 
+    invalidCount,
+    getInvalidImages,
+    revalidate 
+  } = useImageValidation(images);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -91,6 +104,16 @@ const PropertyImageEditor = ({
     onChange(images.filter((_, i) => i !== index));
   };
 
+  const removeInvalidImages = () => {
+    const invalidUrls = getInvalidImages();
+    const validImages = images.filter(url => !invalidUrls.includes(url));
+    onChange(validImages);
+    toast({
+      title: "Imagini șterse",
+      description: `${invalidUrls.length} imagin${invalidUrls.length === 1 ? "e coruptă ștearsă" : "i corupte șterse"}`,
+    });
+  };
+
   const moveImage = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= images.length) return;
     const newImages = [...images];
@@ -137,6 +160,42 @@ const PropertyImageEditor = ({
     <div className="space-y-3">
       <Label>{label}</Label>
 
+      {/* Invalid images warning */}
+      {hasInvalidImages && (
+        <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+          <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-destructive">
+              {invalidCount} imagin{invalidCount === 1 ? "e coruptă" : "i corupte"} detectat{invalidCount === 1 ? "ă" : "e"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Aceste imagini nu pot fi afișate și trebuie reîncărcate
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={revalidate}
+              className="border-destructive/30 hover:bg-destructive/10"
+            >
+              <RefreshCw className="w-4 h-4 mr-1" />
+              Reverifică
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={removeInvalidImages}
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Șterge corupte
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Upload button */}
       <div className="flex items-center gap-2">
         <input
@@ -174,75 +233,93 @@ const PropertyImageEditor = ({
       {/* Images grid with drag & drop */}
       {images.length > 0 ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-          {images.map((url, index) => (
-            <div
-              key={`${url}-${index}`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, index)}
-              onDragEnd={handleDragEnd}
-              className={`relative group cursor-move rounded-lg overflow-hidden border-2 transition-all ${
-                draggedIndex === index
-                  ? "opacity-50 border-gold"
-                  : dragOverIndex === index
-                  ? "border-gold border-dashed"
-                  : "border-border hover:border-gold/50"
-              }`}
-            >
-              <img
-                src={url}
-                alt={`Imagine ${index + 1}`}
-                className="w-full h-20 object-cover"
-                draggable={false}
-              />
+          {images.map((url, index) => {
+            const imageValid = isImageValid(url);
+            const imageLoading = isImageLoading(url);
+            
+            return (
+              <div
+                key={`${url}-${index}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`relative group cursor-move rounded-lg overflow-hidden border-2 transition-all ${
+                  !imageValid && !imageLoading
+                    ? "border-destructive bg-destructive/10"
+                    : draggedIndex === index
+                    ? "opacity-50 border-gold"
+                    : dragOverIndex === index
+                    ? "border-gold border-dashed"
+                    : "border-border hover:border-gold/50"
+                }`}
+              >
+                {imageLoading ? (
+                  <div className="w-full h-20 flex items-center justify-center bg-muted">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : !imageValid ? (
+                  <div className="w-full h-20 flex flex-col items-center justify-center bg-destructive/10">
+                    <AlertTriangle className="w-6 h-6 text-destructive mb-1" />
+                    <span className="text-[10px] text-destructive font-medium">Coruptă</span>
+                  </div>
+                ) : (
+                  <img
+                    src={url}
+                    alt={`Imagine ${index + 1}`}
+                    className="w-full h-20 object-cover"
+                    draggable={false}
+                  />
+                )}
 
-              {/* Position indicator */}
-              {index === 0 && (
-                <div className="absolute top-1 left-1 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded">
-                  Principal
+                {/* Position indicator */}
+                {index === 0 && imageValid && !imageLoading && (
+                  <div className="absolute top-1 left-1 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded">
+                    Principal
+                  </div>
+                )}
+
+                {/* Drag handle indicator */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <GripVertical className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-              )}
 
-              {/* Drag handle indicator */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                <GripVertical className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
+                {/* Action buttons */}
+                <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, index - 1)}
+                    disabled={index === 0}
+                    className="bg-background/90 hover:bg-background text-foreground rounded p-0.5 disabled:opacity-30"
+                  >
+                    <ChevronUp className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveImage(index, index + 1)}
+                    disabled={index === images.length - 1}
+                    className="bg-background/90 hover:bg-background text-foreground rounded p-0.5 disabled:opacity-30"
+                  >
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
 
-              {/* Action buttons */}
-              <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  type="button"
-                  onClick={() => moveImage(index, index - 1)}
-                  disabled={index === 0}
-                  className="bg-background/90 hover:bg-background text-foreground rounded p-0.5 disabled:opacity-30"
-                >
-                  <ChevronUp className="w-3 h-3" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => moveImage(index, index + 1)}
-                  disabled={index === images.length - 1}
-                  className="bg-background/90 hover:bg-background text-foreground rounded p-0.5 disabled:opacity-30"
-                >
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
+                {/* Index indicator */}
+                <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
+                  {index + 1}
+                </div>
               </div>
-
-              {/* Index indicator */}
-              <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
-                {index + 1}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="border-2 border-dashed border-border rounded-lg p-6 text-center text-muted-foreground">
