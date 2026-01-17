@@ -191,13 +191,6 @@ const EditComplex = () => {
       return;
     }
 
-    // Check if user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast.error("Trebuie să fii autentificat pentru a edita complexul");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
