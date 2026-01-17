@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   Paperclip,
   Reply,
+  Forward,
   Download,
   MoreHorizontal
 } from "lucide-react";
@@ -46,6 +47,7 @@ interface EmailDetailProps {
   email: Email | null;
   onClose: () => void;
   onReply: () => void;
+  onForward: () => void;
   onToggleStar: () => void;
   onArchive: () => void;
   onUnarchive?: () => void;
@@ -59,6 +61,7 @@ export const EmailDetail = ({
   email,
   onClose,
   onReply,
+  onForward,
   onToggleStar,
   onArchive,
   onUnarchive,
@@ -128,6 +131,15 @@ export const EmailDetail = ({
                   >
                     <Reply className="h-4 w-4 md:mr-1" />
                     <span className="hidden md:inline">Răspunde</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={onForward}
+                    className="h-8 px-2 md:px-3 border-white/10 hover:bg-white/5"
+                  >
+                    <Forward className="h-4 w-4 md:mr-1" />
+                    <span className="hidden md:inline">Redirecționează</span>
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
