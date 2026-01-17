@@ -19,11 +19,16 @@ serve(async (req) => {
     const url = new URL(req.url);
     const days = parseInt(url.searchParams.get('days') || '7');
     
+    // Plausible uses "Last 7 days" which excludes today and counts 7 complete days back
+    // So for "7 days" we want: yesterday - 6 days back = 7 complete days
     const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() - days);
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() - 1); // Yesterday (last complete day)
     
-    const period = `${startDate.toISOString().split('T')[0]},${today.toISOString().split('T')[0]}`;
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - (days - 1)); // Go back (days - 1) more days
+    
+    const period = `${startDate.toISOString().split('T')[0]},${endDate.toISOString().split('T')[0]}`;
     
     console.log(`Fetching Plausible data for ${SITE_ID}, period: ${period}`);
 
