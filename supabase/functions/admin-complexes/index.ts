@@ -23,9 +23,12 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { action, id, data } = await req.json();
+    const { action, id, data, table } = await req.json();
+
+    console.log("Admin action:", action, "table:", table, "id:", id);
 
     switch (action) {
+      // ============ COMPLEXES (real_estate_projects) ============
       case "update_complex": {
         if (!id || !data) {
           return new Response(
@@ -129,6 +132,89 @@ Deno.serve(async (req) => {
 
         return new Response(
           JSON.stringify({ success: true, data: insertedData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // ============ GENERIC CRUD OPERATIONS ============
+      case "insert": {
+        if (!table || !data) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing table or data" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { data: insertedData, error } = await supabase
+          .from(table)
+          .insert(data)
+          .select();
+
+        if (error) {
+          console.error("Insert error:", error);
+          return new Response(
+            JSON.stringify({ success: false, error: error.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, data: insertedData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "update": {
+        if (!table || !id || !data) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing table, id, or data" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { data: updatedData, error } = await supabase
+          .from(table)
+          .update(data)
+          .eq("id", id)
+          .select();
+
+        if (error) {
+          console.error("Update error:", error);
+          return new Response(
+            JSON.stringify({ success: false, error: error.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, data: updatedData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "delete": {
+        if (!table || !id) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing table or id" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const { error } = await supabase
+          .from(table)
+          .delete()
+          .eq("id", id);
+
+        if (error) {
+          console.error("Delete error:", error);
+          return new Response(
+            JSON.stringify({ success: false, error: error.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2, Facebook, Instagram } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -175,21 +176,18 @@ const ComplexesOverview = () => {
     if (!projectToDelete) return;
 
     try {
-      // First delete all properties associated with this project
-      const { error: propertiesError } = await supabase
-        .from('catalog_offers')
-        .delete()
-        .eq('project_id', projectToDelete);
+      // First delete all properties associated with this project using admin API
+      const propertiesResult = await adminApi.delete('catalog_offers', projectToDelete);
+      // Note: This deletes by project_id match - we need a different approach
+      // For now, use edge function for properties too
+      const { error: propertiesError } = await supabase.functions.invoke('admin-offers', {
+        body: { action: 'delete_by_project', projectId: projectToDelete }
+      });
 
-      if (propertiesError) throw propertiesError;
+      // Then delete the project using admin API
+      const result = await adminApi.deleteComplex(projectToDelete);
 
-      // Then delete the project
-      const { error: projectError } = await supabase
-        .from('real_estate_projects')
-        .delete()
-        .eq('id', projectToDelete);
-
-      if (projectError) throw projectError;
+      if (!result.success) throw new Error(result.error);
 
       toast({
         title: "Succes!",

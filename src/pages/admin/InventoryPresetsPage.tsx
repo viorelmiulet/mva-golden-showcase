@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,16 +73,14 @@ const InventoryPresetsPage = () => {
 
     const maxOrder = items.length > 0 ? Math.max(...items.map(i => i.sort_order)) : 0;
 
-    const { error } = await supabase
-      .from('preset_inventory_items')
-      .insert({
-        ...newItem,
-        sort_order: maxOrder + 1
-      });
+    const result = await adminApi.insert('preset_inventory_items', {
+      ...newItem,
+      sort_order: maxOrder + 1
+    });
 
-    if (error) {
+    if (!result.success) {
       toast.error('Eroare la adaugarea articolului');
-      console.error(error);
+      console.error(result.error);
     } else {
       toast.success('Articol adaugat cu succes');
       setNewItem({ item_name: '', quantity: 1, condition: 'buna', location: '', notes: '' });
@@ -101,20 +100,17 @@ const InventoryPresetsPage = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from('preset_inventory_items')
-      .update({
-        item_name: editForm.item_name,
-        quantity: editForm.quantity,
-        condition: editForm.condition,
-        location: editForm.location,
-        notes: editForm.notes
-      })
-      .eq('id', editingId);
+    const result = await adminApi.update('preset_inventory_items', editingId!, {
+      item_name: editForm.item_name,
+      quantity: editForm.quantity,
+      condition: editForm.condition,
+      location: editForm.location,
+      notes: editForm.notes
+    });
 
-    if (error) {
+    if (!result.success) {
       toast.error('Eroare la salvarea modificarilor');
-      console.error(error);
+      console.error(result.error);
     } else {
       toast.success('Modificari salvate');
       setEditingId(null);
@@ -126,14 +122,11 @@ const InventoryPresetsPage = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Sigur doriti sa stergeti acest articol?')) return;
 
-    const { error } = await supabase
-      .from('preset_inventory_items')
-      .delete()
-      .eq('id', id);
+    const result = await adminApi.delete('preset_inventory_items', id);
 
-    if (error) {
+    if (!result.success) {
       toast.error('Eroare la stergerea articolului');
-      console.error(error);
+      console.error(result.error);
     } else {
       toast.success('Articol sters');
       fetchItems();
@@ -152,8 +145,8 @@ const InventoryPresetsPage = () => {
     const swapItem = items[newIndex];
 
     await Promise.all([
-      supabase.from('preset_inventory_items').update({ sort_order: swapItem.sort_order }).eq('id', currentItem.id),
-      supabase.from('preset_inventory_items').update({ sort_order: currentItem.sort_order }).eq('id', swapItem.id)
+      adminApi.update('preset_inventory_items', currentItem.id, { sort_order: swapItem.sort_order }),
+      adminApi.update('preset_inventory_items', swapItem.id, { sort_order: currentItem.sort_order })
     ]);
 
     fetchItems();

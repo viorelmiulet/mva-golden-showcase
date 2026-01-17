@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { toast } from "sonner";
 import { Upload, FileText, Download, Loader2, User, Home, Calendar, Sparkles, Mail, Handshake } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { replaceDiacritics } from "@/lib/utils";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
@@ -417,8 +418,8 @@ const ComodatContractPage = () => {
       const pdfBlob = doc.output('blob');
       const pdfUrl = await uploadContractFile(pdfBlob, pdfFileName);
       
-      // Save to database
-      const { data: insertedContract, error } = await supabase.from('comodat_contracts').insert({
+      // Save to database using admin API
+      const result = await adminApi.insert('comodat_contracts', {
         comodant_name: contractData.comodant.nume,
         comodant_prenume: contractData.comodant.prenume,
         comodant_cnp: contractData.comodant.cnp,
@@ -450,9 +451,10 @@ const ComodatContractPage = () => {
         purpose: contractData.scop_folosinta,
         pdf_url: pdfUrl,
         status: 'generated',
-      }).select('id').single();
+      });
 
-      if (error) throw error;
+      if (!result.success) throw new Error(result.error);
+      const insertedContract = result.data?.[0] as any;
 
       // Save the contract ID for email sending
       if (insertedContract) {

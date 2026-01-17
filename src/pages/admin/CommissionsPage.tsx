@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as XLSX from "xlsx";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,8 +173,9 @@ const CommissionsPage = () => {
 
   const addMutation = useMutation({
     mutationFn: async (data: Omit<Commission, 'id' | 'created_at' | 'updated_at'>) => {
-      const { error } = await supabase.from('commissions').insert(data);
-      if (error) throw error;
+      const result = await adminApi.insert('commissions', data);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['commissions'] });
@@ -186,8 +188,8 @@ const CommissionsPage = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Commission> }) => {
-      const { error } = await supabase.from('commissions').update(data).eq('id', id);
-      if (error) throw error;
+      const result = await adminApi.update('commissions', id, data);
+      if (!result.success) throw new Error(result.error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['commissions'] });
@@ -200,8 +202,8 @@ const CommissionsPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('commissions').delete().eq('id', id);
-      if (error) throw error;
+      const result = await adminApi.delete('commissions', id);
+      if (!result.success) throw new Error(result.error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['commissions'] });
@@ -260,17 +262,13 @@ const CommissionsPage = () => {
         }
         updateMutation.mutate({ id: editingCommission.id, data });
       } else {
-        const { data: newCommission, error } = await supabase
-          .from('commissions')
-          .insert([data as any])
-          .select()
-          .single();
+        const result = await adminApi.insert('commissions', data as any);
+        if (!result.success) throw new Error(result.error);
+        const insertedCommission = result.data?.[0] as any;
 
-        if (error) throw error;
-
-        if (invoiceFile && newCommission) {
-          const fileUrl = await uploadInvoiceFile(invoiceFile, newCommission.id);
-          await supabase.from('commissions').update({ invoice_file_url: fileUrl }).eq('id', newCommission.id);
+        if (invoiceFile && insertedCommission) {
+          const fileUrl = await uploadInvoiceFile(invoiceFile, insertedCommission.id);
+          await adminApi.update('commissions', insertedCommission.id, { invoice_file_url: fileUrl });
         }
 
         queryClient.invalidateQueries({ queryKey: ['commissions'] });
@@ -309,7 +307,7 @@ const CommissionsPage = () => {
       if (urlParts.length > 1) {
         await supabase.storage.from('invoice-files').remove([urlParts[1]]);
       }
-      await supabase.from('commissions').update({ invoice_file_url: null }).eq('id', commissionId);
+      await adminApi.update('commissions', commissionId, { invoice_file_url: null });
       queryClient.invalidateQueries({ queryKey: ['commissions'] });
       setExistingInvoiceUrl(null);
       toast.success("Fișierul facturii a fost șters");
