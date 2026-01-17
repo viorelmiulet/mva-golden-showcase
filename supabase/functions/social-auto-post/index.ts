@@ -342,14 +342,17 @@ ${projectHashtags}`;
         
         const projectCaption = content;
 
+        // For Facebook: only single image and fixed location "Militari Residence"
+        const facebookLocation = 'Militari Residence';
+        
         payload = {
           type: 'project',
           project: {
             id: project.id,
             name: project.name,
-            location: project.location,
+            location: facebookLocation,
             description: project.description?.substring(0, 500) || '',
-            main_image: project.main_image,
+            main_image: projectImage,
             price_range: project.price_range,
             surface_range: project.surface_range,
             rooms_range: project.rooms_range,
@@ -357,30 +360,32 @@ ${projectHashtags}`;
             status: project.status,
           },
           platform: platformName,
-          content,
+          content: content.replace(project.location || 'București', facebookLocation),
           propertyUrl: projectUrl,
           imageUrl: projectImage,
           timestamp: new Date().toISOString(),
           // Easy access fields for Zapier
           title: project.name,
           description: project.description?.substring(0, 500) || '',
-          location: project.location || 'București',
+          location: facebookLocation,
           price: project.price_range || 'Preț la cerere',
           rooms: project.rooms_range || '',
           surface: project.surface_range || '',
           hashtags: projectHashtags,
           website: 'mvaimobiliare.ro',
           phone: '0767.941.512',
-          message: content,
-          instagram_caption: projectCaption,
-          tiktok_caption: projectCaption,
-          google_caption: content.replace(projectHashtags, '').trim(),
+          message: content.replace(project.location || 'București', facebookLocation),
+          instagram_caption: projectCaption.replace(project.location || 'București', facebookLocation),
+          tiktok_caption: projectCaption.replace(project.location || 'București', facebookLocation),
+          google_caption: content.replace(projectHashtags, '').replace(project.location || 'București', facebookLocation).trim(),
+          // SINGLE IMAGE ONLY for Facebook
           media: projectImage,
           media_url: projectImage,
           image_url: projectImage,
           photo_url: projectImage,
           photo: projectImage,
           url: projectUrl,
+          // Only single image
           all_images: projectImage ? [projectImage] : [],
           images_count: projectImage ? 1 : 0,
           image_1: projectImage || undefined,
@@ -388,7 +393,7 @@ ${projectHashtags}`;
             enabled: false,
             images: projectImage ? [projectImage] : [],
             images_count: projectImage ? 1 : 0,
-            caption: projectCaption,
+            caption: projectCaption.replace(project.location || 'București', facebookLocation),
           },
           carousel_images_csv: projectImage || '',
           carousel_images_json: JSON.stringify(projectImage ? [projectImage] : []),
