@@ -124,6 +124,7 @@ export type Database = {
           id: string
           images: string[] | null
           is_featured: boolean | null
+          is_published: boolean | null
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -175,6 +176,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -226,6 +228,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -1017,6 +1020,7 @@ export type Database = {
           features: string[] | null
           id: string
           investment_details: string | null
+          is_published: boolean | null
           is_recommended: boolean | null
           location: string | null
           location_advantages: string[] | null
@@ -1039,6 +1043,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           investment_details?: string | null
+          is_published?: boolean | null
           is_recommended?: boolean | null
           location?: string | null
           location_advantages?: string[] | null
@@ -1061,6 +1066,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           investment_details?: string | null
+          is_published?: boolean | null
           is_recommended?: boolean | null
           location?: string | null
           location_advantages?: string[] | null

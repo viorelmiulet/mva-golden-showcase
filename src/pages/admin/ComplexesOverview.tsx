@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2, Facebook, Instagram } from "lucide-react";
+import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2, Facebook, Instagram, Eye, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -41,6 +42,7 @@ interface ProjectStats {
   available: number;
   sold: number;
   soldPercentage: number;
+  is_published: boolean;
 }
 
 const ComplexesOverview = () => {
@@ -51,8 +53,34 @@ const ComplexesOverview = () => {
   const [postingToSocial, setPostingToSocial] = useState<string | null>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [projectToShare, setProjectToShare] = useState<{ id: string; name: string } | null>(null);
+  const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const toggleVisibility = async (projectId: string, currentValue: boolean) => {
+    setTogglingVisibility(projectId);
+    try {
+      const result = await adminApi.updateComplex(projectId, { is_published: !currentValue });
+
+      if (!result.success) throw new Error(result.error);
+
+      toast({
+        title: "Succes!",
+        description: !currentValue ? "Complexul este acum vizibil pe site" : "Complexul a fost ascuns de pe site",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["projects-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["real_estate_projects"] });
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut actualiza vizibilitatea",
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingVisibility(null);
+    }
+  };
 
   // Pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -106,7 +134,8 @@ const ComplexesOverview = () => {
           total_properties: total,
           available,
           sold,
-          soldPercentage
+          soldPercentage,
+          is_published: project.is_published !== false
         };
       });
 
@@ -396,6 +425,24 @@ const ComplexesOverview = () => {
                   <div className="space-y-0.5 md:space-y-1">
                     <p className="text-xs md:text-sm text-muted-foreground">Vândute</p>
                     <p className="text-lg md:text-2xl font-bold text-red-600">{project.sold}</p>
+                  </div>
+                </div>
+
+                {/* Visibility Toggle */}
+                <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-border/20">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={project.is_published}
+                      onCheckedChange={() => toggleVisibility(project.id, project.is_published)}
+                      disabled={togglingVisibility === project.id}
+                    />
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      {project.is_published ? (
+                        <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil pe site</>
+                      ) : (
+                        <><EyeOff className="w-3.5 h-3.5" /> Ascuns</>
+                      )}
+                    </span>
                   </div>
                 </div>
 

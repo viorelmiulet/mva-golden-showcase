@@ -22,7 +22,10 @@ import {
   Instagram,
   Facebook,
   Share2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,8 +64,40 @@ const PropertiesAdmin = () => {
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+  const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const toggleVisibility = async (propertyId: string, currentValue: boolean) => {
+    setTogglingVisibility(propertyId);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-offers", {
+        body: { 
+          action: "update_offer", 
+          id: propertyId, 
+          data: { is_published: !currentValue } 
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Update failed");
+
+      toast({
+        title: "Succes!",
+        description: !currentValue ? "Anunțul este acum vizibil pe site" : "Anunțul a fost ascuns de pe site",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut actualiza vizibilitatea",
+        variant: "destructive",
+      });
+    } finally {
+      setTogglingVisibility(null);
+    }
+  };
 
   // Pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -598,8 +633,24 @@ const PropertiesAdmin = () => {
                         )}
                       </div>
 
-                      {/* Action buttons - full width grid */}
-                      <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/20">
+                      {/* Visibility Toggle and Actions */}
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/20">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={property.is_published !== false}
+                            onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                            disabled={togglingVisibility === property.id}
+                          />
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            {property.is_published !== false ? (
+                              <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
+                            ) : (
+                              <><EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> Ascuns</>
+                            )}
+                          </span>
+                        </div>
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
@@ -663,6 +714,7 @@ const PropertiesAdmin = () => {
                           checked={selectedProperties.has(property.id)}
                           onCheckedChange={() => togglePropertySelection(property.id)}
                         />
+                        </div>
                       </div>
                       {property.images?.[0] && (
                         <img
@@ -689,6 +741,21 @@ const PropertiesAdmin = () => {
                             {property.rooms}cam
                           </Badge>
                         </div>
+                      </div>
+                      {/* Visibility Toggle */}
+                      <div className="flex items-center gap-2 mr-4 shrink-0">
+                        <Switch
+                          checked={property.is_published !== false}
+                          onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                          disabled={togglingVisibility === property.id}
+                        />
+                        <span className="text-xs text-muted-foreground flex items-center gap-1 min-w-[70px]">
+                          {property.is_published !== false ? (
+                            <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
+                          ) : (
+                            <><EyeOff className="w-3.5 h-3.5" /> Ascuns</>
+                          )}
+                        </span>
                       </div>
                       <div className="flex flex-row gap-2 items-start shrink-0">
                         <Button
