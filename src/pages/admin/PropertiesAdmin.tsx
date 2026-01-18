@@ -21,6 +21,7 @@ import {
   Send,
   Instagram,
   Facebook,
+  Share2,
 } from "lucide-react";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -54,9 +55,9 @@ const PropertiesAdmin = () => {
   });
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
-  const [sendingToZapier, setSendingToZapier] = useState<string | null>(null);
-  const [sendingToInstagram, setSendingToInstagram] = useState<string | null>(null);
-  const [sendingToFacebook, setSendingToFacebook] = useState<string | null>(null);
+  const [sendingToSocial, setSendingToSocial] = useState<string | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [propertyToShare, setPropertyToShare] = useState<{ id: string; title: string } | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
@@ -249,84 +250,43 @@ const PropertiesAdmin = () => {
     setAddImages([]);
   };
 
-  const sendToZapier = async (propertyId: string) => {
-    setSendingToZapier(propertyId);
-    try {
-      const success = await triggerSocialAutoPost(propertyId);
-      if (success) {
-        toast({
-          title: "Succes!",
-          description: "Proprietatea a fost trimisă către Zapier",
-        });
-      } else {
-        toast({
-          title: "Atenție",
-          description: "Webhook-urile nu sunt configurate sau sunt dezactivate",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error?.message || "Nu am putut trimite către Zapier",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingToZapier(null);
-    }
+  const openShareDialog = (propertyId: string, propertyTitle: string) => {
+    setPropertyToShare({ id: propertyId, title: propertyTitle });
+    setShareDialogOpen(true);
   };
 
-  const sendToInstagram = async (propertyId: string) => {
-    setSendingToInstagram(propertyId);
+  const handleShareToSocial = async (platform: 'facebook' | 'instagram' | 'all') => {
+    if (!propertyToShare) return;
+    
+    setShareDialogOpen(false);
+    setSendingToSocial(propertyToShare.id);
+    
     try {
-      const success = await triggerSocialAutoPost(propertyId, 'instagram');
+      const success = await triggerSocialAutoPost(propertyToShare.id, platform);
+      
+      const platformName = platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : 'toate platformele';
+      
       if (success) {
         toast({
           title: "Succes!",
-          description: "Proprietatea a fost trimisă către Instagram via Zapier",
+          description: `Proprietatea a fost trimisă către ${platformName}`
         });
       } else {
         toast({
           title: "Atenție",
-          description: "Webhook-ul Instagram nu este configurat sau este dezactivat",
-          variant: "destructive",
+          description: "Nu s-a putut trimite către Zapier. Verificați configurarea webhook-urilor.",
+          variant: "destructive"
         });
       }
     } catch (error: any) {
       toast({
         title: "Eroare",
-        description: error?.message || "Nu am putut trimite către Instagram",
-        variant: "destructive",
+        description: error.message || "Nu am putut trimite către social media",
+        variant: "destructive"
       });
     } finally {
-      setSendingToInstagram(null);
-    }
-  };
-
-  const sendToFacebook = async (propertyId: string) => {
-    setSendingToFacebook(propertyId);
-    try {
-      const success = await triggerSocialAutoPost(propertyId, 'facebook');
-      if (success) {
-        toast({
-          title: "Succes!",
-          description: "Proprietatea a fost trimisă către Facebook via Zapier",
-        });
-      } else {
-        toast({
-          title: "Atenție",
-          description: "Webhook-ul Facebook nu este configurat sau este dezactivat",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Eroare",
-        description: error?.message || "Nu am putut trimite către Facebook",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingToFacebook(null);
+      setSendingToSocial(null);
+      setPropertyToShare(null);
     }
   };
 
@@ -639,31 +599,19 @@ const PropertiesAdmin = () => {
                       </div>
 
                       {/* Action buttons - full width grid */}
-                      <div className="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-border/20">
+                      <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/20">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => sendToFacebook(property.id)}
-                          disabled={sendingToFacebook === property.id}
-                          className="border-blue-600/30 hover:bg-blue-600/10 h-10 w-full"
+                          onClick={() => openShareDialog(property.id, property.title)}
+                          disabled={sendingToSocial === property.id}
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-full"
+                          title="Publică pe social media"
                         >
-                          {sendingToFacebook === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                          {sendingToSocial === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                           ) : (
-                            <Facebook className="w-4 h-4 text-blue-600" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => sendToInstagram(property.id)}
-                          disabled={sendingToInstagram === property.id}
-                          className="border-pink-500/30 hover:bg-pink-500/10 h-10 w-full"
-                        >
-                          {sendingToInstagram === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
-                          ) : (
-                            <Instagram className="w-4 h-4 text-pink-400" />
+                            <Share2 className="w-4 h-4 text-blue-500" />
                           )}
                         </Button>
                         <Button
@@ -746,29 +694,15 @@ const PropertiesAdmin = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => sendToFacebook(property.id)}
-                          disabled={sendingToFacebook === property.id}
-                          className="border-blue-600/30 hover:bg-blue-600/10 h-8 w-8 p-0"
-                          title="Publică pe Facebook"
+                          onClick={() => openShareDialog(property.id, property.title)}
+                          disabled={sendingToSocial === property.id}
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-8 w-8 p-0"
+                          title="Publică pe social media"
                         >
-                          {sendingToFacebook === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                          {sendingToSocial === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                           ) : (
-                            <Facebook className="w-4 h-4 text-blue-600" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => sendToInstagram(property.id)}
-                          disabled={sendingToInstagram === property.id}
-                          className="border-pink-500/30 hover:bg-pink-500/10 h-8 w-8 p-0"
-                          title="Publică pe Instagram"
-                        >
-                          {sendingToInstagram === property.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
-                          ) : (
-                            <Instagram className="w-4 h-4 text-pink-400" />
+                            <Share2 className="w-4 h-4 text-blue-500" />
                           )}
                         </Button>
                         <Button
@@ -1048,6 +982,46 @@ const PropertiesAdmin = () => {
                     Adaugă Proprietate
                   </>
                 )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Platform Selection Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Selectează platforma</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              Trimite "{propertyToShare?.title}" către:
+            </p>
+            <div className="grid grid-cols-1 gap-2">
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('facebook')}
+              >
+                <Facebook className="h-5 w-5 text-blue-600" />
+                <span>Facebook</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('instagram')}
+              >
+                <Instagram className="h-5 w-5 text-pink-600" />
+                <span>Instagram</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('all')}
+              >
+                <Share2 className="h-5 w-5 text-primary" />
+                <span>Toate platformele</span>
               </Button>
             </div>
           </div>
