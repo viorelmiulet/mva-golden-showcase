@@ -77,7 +77,7 @@ const Properties = () => {
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
   const { t, language } = useLanguage()
 
-  // Fetch existing properties (exclude properties from residential complexes)
+  // Fetch existing properties (exclude properties from residential complexes and hidden ones)
   const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
     queryKey: ['catalog_offers'],
     queryFn: async () => {
@@ -85,6 +85,7 @@ const Properties = () => {
         .from('catalog_offers')
         .select('*')
         .is('project_id', null)
+        .neq('is_published', false)
         .order('created_at', { ascending: false })
       
       if (error) throw error

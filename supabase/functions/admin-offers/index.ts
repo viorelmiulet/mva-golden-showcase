@@ -59,6 +59,7 @@ Deno.serve(async (req: Request) => {
       if (!('images' in offer)) offer['images'] = [];
       if (!('features' in offer)) offer['features'] = [];
       if (!('amenities' in offer)) offer['amenities'] = [];
+      if (!('is_published' in offer)) offer['is_published'] = true;
 
       console.log('[admin-offers] Inserting offer');
       const { data, error } = await supabase.from('catalog_offers').insert(offer).select('id').maybeSingle();

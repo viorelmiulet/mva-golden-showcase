@@ -27,6 +27,7 @@ const Complexe = () => {
       const { data, error } = await supabase
         .from('real_estate_projects')
         .select('*')
+        .neq('is_published', false)
         .order('name');
 
       if (error) throw error;
