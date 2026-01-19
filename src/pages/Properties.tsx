@@ -761,9 +761,6 @@ const Properties = () => {
                           <div className="text-xs text-muted-foreground">Preț</div>
                           <div className="text-sm font-semibold">
                             {property.price_min?.toLocaleString('de-DE')} {property.currency || 'EUR'}
-                            {property.price_max && property.price_max !== property.price_min && 
-                              ` - ${property.price_max.toLocaleString('de-DE')} ${property.currency || 'EUR'}`
-                            }
                           </div>
                         </div>
 
@@ -774,10 +771,7 @@ const Properties = () => {
                             </div>
                             <div className="text-xs text-muted-foreground">Suprafață</div>
                             <div className="text-sm font-semibold">
-                              {property.surface_min}
-                              {property.surface_max && property.surface_max !== property.surface_min && 
-                                ` - ${property.surface_max}`
-                              } mp
+                              {property.surface_min || property.surface_max || '-'} mp
                             </div>
                           </div>
                         )}
