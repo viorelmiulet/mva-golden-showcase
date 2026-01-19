@@ -52,8 +52,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      // Defaults
-      if (!('currency' in offer)) offer['currency'] = 'EUR';
+      // Defaults - always set EUR as currency
+      offer['currency'] = 'EUR';
       if (!('availability_status' in offer)) offer['availability_status'] = 'available';
       if (!('source' in offer)) offer['source'] = 'manual';
       if (!('images' in offer)) offer['images'] = [];
@@ -112,6 +112,11 @@ Deno.serve(async (req: Request) => {
           JSON.stringify({ success: false, error: 'Missing required fields: id, data' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // Force EUR currency on updates
+      if ('currency' in data) {
+        data['currency'] = 'EUR';
       }
 
       console.log('[admin-offers] Updating offer', { id });
