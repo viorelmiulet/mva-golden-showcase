@@ -40,7 +40,9 @@ const MobileSearch = () => {
       
       if (error) throw error;
       return data || [];
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
   // Detect transaction type from text

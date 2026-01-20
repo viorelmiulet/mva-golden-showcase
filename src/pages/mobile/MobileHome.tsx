@@ -31,7 +31,9 @@ const MobileHome = () => {
       
       if (error) throw error;
       return data || [];
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
   // Fetch recent properties if no featured
@@ -48,7 +50,9 @@ const MobileHome = () => {
       if (error) throw error;
       return data || [];
     },
-    enabled: featuredProperties.length === 0
+    enabled: featuredProperties.length === 0,
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
   // Fetch complexes
