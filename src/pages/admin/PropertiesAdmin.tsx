@@ -706,6 +706,7 @@ const PropertiesAdmin = () => {
                         </AlertDialog>
                       </div>
                     </div>
+                    </div>
 
                     {/* Desktop Layout */}
                     <div className="hidden md:flex gap-4">
@@ -714,7 +715,6 @@ const PropertiesAdmin = () => {
                           checked={selectedProperties.has(property.id)}
                           onCheckedChange={() => togglePropertySelection(property.id)}
                         />
-                        </div>
                       </div>
                       {property.images?.[0] && (
                         <img
