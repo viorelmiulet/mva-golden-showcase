@@ -79,11 +79,16 @@ const MobileComplexDetail = () => {
   );
 
   const formatPrice = (price: number, currency: string = 'EUR') => {
-    return new Intl.NumberFormat('ro-RO', {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 0
-    }).format(price);
+    const validCurrency = currency === 'LEI' ? 'RON' : (currency || 'EUR');
+    try {
+      return new Intl.NumberFormat('ro-RO', {
+        style: 'currency',
+        currency: validCurrency,
+        maximumFractionDigits: 0
+      }).format(price);
+    } catch {
+      return `€${price.toLocaleString('de-DE')}`;
+    }
   };
 
   if (isLoading) {

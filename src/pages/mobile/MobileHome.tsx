@@ -80,11 +80,17 @@ const MobileHome = () => {
   });
 
   const formatPrice = (price: number, currency: string = 'EUR') => {
-    return new Intl.NumberFormat('ro-RO', {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 0
-    }).format(price);
+    // Ensure valid ISO currency code (LEI is not valid, use RON)
+    const validCurrency = currency === 'LEI' ? 'RON' : (currency || 'EUR');
+    try {
+      return new Intl.NumberFormat('ro-RO', {
+        style: 'currency',
+        currency: validCurrency,
+        maximumFractionDigits: 0
+      }).format(price);
+    } catch {
+      return `€${price.toLocaleString('de-DE')}`;
+    }
   };
 
   return (
