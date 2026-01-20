@@ -90,7 +90,10 @@ const Properties = () => {
       
       if (error) throw error
       return data
-    }
+    },
+    staleTime: 0, // Force fresh data
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true
   })
 
   // Helper: detect transaction type from text when missing or incorrect
@@ -760,7 +763,7 @@ const Properties = () => {
                           </div>
                           <div className="text-xs text-muted-foreground">Preț</div>
                           <div className="text-sm font-semibold">
-                            {property.price_min?.toLocaleString('de-DE')} {property.currency || 'EUR'}
+                            €{property.price_min?.toLocaleString('de-DE')}
                           </div>
                         </div>
 
