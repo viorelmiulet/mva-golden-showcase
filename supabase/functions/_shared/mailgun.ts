@@ -71,10 +71,35 @@ export const sendMailgunEmail = async (options: MailgunEmailOptions): Promise<Ma
   }
 
   // Add attachments if any
-  for (const attachment of attachments) {
-    const binaryData = Uint8Array.from(atob(attachment.content), (c) => c.charCodeAt(0));
-    const blob = new Blob([binaryData], { type: attachment.contentType });
-    formData.append("attachment", blob, attachment.filename);
+  if (attachments && attachments.length > 0) {
+    console.log(`Processing ${attachments.length} attachments for Mailgun`);
+    for (const attachment of attachments) {
+      try {
+        if (!attachment.content || !attachment.filename) {
+          console.error('Invalid attachment - missing content or filename:', attachment.filename);
+          continue;
+        }
+        
+        // Clean base64 string - remove any data URL prefix if present
+        let base64Content = attachment.content;
+        if (base64Content.includes(',')) {
+          base64Content = base64Content.split(',')[1];
+        }
+        
+        // Decode base64 to binary
+        const binaryString = atob(base64Content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([bytes], { type: attachment.contentType || 'application/octet-stream' });
+        formData.append("attachment", blob, attachment.filename);
+        console.log(`Attached file: ${attachment.filename} (${bytes.length} bytes, type: ${attachment.contentType})`);
+      } catch (attachError) {
+        console.error(`Error processing attachment ${attachment.filename}:`, attachError);
+      }
+    }
   }
 
   const response = await fetch(
