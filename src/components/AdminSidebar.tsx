@@ -21,6 +21,7 @@ import {
   Chrome,
   Stamp,
   Inbox,
+  Mic,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,6 +54,7 @@ const menuItems = [
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
   { title: "Virtual Staging", url: "/admin/virtual-staging", icon: Sparkles },
   { title: "Watermark", url: "/admin/watermark", icon: Stamp },
+  { title: "Agent Vocal AI", url: "/admin/agent-vocal", icon: Mic },
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
