@@ -521,39 +521,39 @@ export const ApartmentImageGallery = ({
           aria-describedby={undefined}
         >
           <div className="w-full h-full h-[100dvh] flex flex-col relative z-10">
-            {/* Header */}
-            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0 z-50 bg-gradient-to-b from-black/70 via-black/40 to-transparent">
+            {/* Close Button - Fixed top right, always visible */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsLightboxOpen(false)}
+              className="fixed top-4 right-4 z-[60] text-white h-12 w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+
+            {/* Header - Counter and controls */}
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 z-50">
               {/* Title & Counter - Left */}
-              <div className="text-white min-w-0 flex-1 pr-2">
-                <h3 className="font-semibold text-sm sm:text-lg truncate">
+              <div className="text-white min-w-0 flex-1 pr-16">
+                <h3 className="font-semibold text-base sm:text-lg truncate">
                   {title}
                 </h3>
-                <p className="text-xs sm:text-sm text-white/70">
+                <p className="text-sm text-white/70">
                   {currentIndex + 1} / {validImages.length}
                 </p>
               </div>
               
-              {/* Controls - Right */}
-              <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-                {/* Close Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsLightboxOpen(false)}
-                  className="text-white h-9 w-9 sm:h-10 sm:w-10 rounded-md border border-white/30 hover:bg-white/10"
-                >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
-                
-                {/* Zoom Controls - Hidden on mobile */}
+              {/* Controls - Right (except close) */}
+              <div className="hidden sm:flex items-center gap-1 flex-shrink-0 mr-14">
+                {/* Zoom Controls */}
                 {!isGridView && (
-                  <div className="hidden sm:flex items-center gap-1">
+                  <>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={handleZoomOut}
                       disabled={zoomLevel <= 1}
-                      className="text-white hover:bg-white/10 h-10 w-10 disabled:opacity-30"
+                      className="text-white hover:bg-white/20 h-10 w-10 rounded-full disabled:opacity-30"
                     >
                       <ZoomOut className="w-5 h-5" />
                     </Button>
@@ -562,14 +562,14 @@ export const ApartmentImageGallery = ({
                       size="icon"
                       onClick={handleZoomIn}
                       disabled={zoomLevel >= 3}
-                      className="text-white hover:bg-white/10 h-10 w-10 disabled:opacity-30"
+                      className="text-white hover:bg-white/20 h-10 w-10 rounded-full disabled:opacity-30"
                     >
                       <ZoomIn className="w-5 h-5" />
                     </Button>
-                  </div>
+                  </>
                 )}
 
-                {/* Download Button - Hidden on mobile */}
+                {/* Download Button */}
                 {!isGridView && (
                   <Button
                     variant="ghost"
@@ -583,13 +583,12 @@ export const ApartmentImageGallery = ({
                       link.click();
                       document.body.removeChild(link);
                     }}
-                    className="hidden sm:flex text-white hover:bg-white/10 h-10 w-10"
+                    className="text-white hover:bg-white/20 h-10 w-10 rounded-full"
                     title="Descarcă imaginea"
                   >
                     <Download className="w-5 h-5" />
                   </Button>
                 )}
-                
               </div>
             </div>
 
@@ -657,7 +656,7 @@ export const ApartmentImageGallery = ({
                   
                   {/* Image container */}
                   <div 
-                    className="flex items-center justify-center w-full h-full px-4 pt-20 pb-4 sm:px-16 sm:pt-4"
+                    className="flex items-center justify-center w-full h-full px-4 py-4 sm:px-20"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -667,7 +666,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-[90vw] sm:max-w-[85vw] max-h-[40vh] sm:max-h-[70vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full sm:max-w-[85vw] max-h-[60vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
