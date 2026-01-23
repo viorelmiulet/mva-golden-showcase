@@ -624,7 +624,6 @@ export const ApartmentImageGallery = ({
             ) : (
               /* Single Image View */
               <>
-
                 <div 
                   ref={imageRef}
                   className="flex-1 flex items-center justify-center relative overflow-hidden"
@@ -632,31 +631,31 @@ export const ApartmentImageGallery = ({
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  {/* Navigation Arrows - hidden on mobile, only visible on desktop */}
+                  {/* Navigation Arrows - visible on all devices */}
                   {validImages.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60 z-20"
+                        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20 touch-manipulation"
                       >
-                        <ChevronLeft className="w-8 h-8" />
+                        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60 z-20"
+                        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20 touch-manipulation"
                       >
-                        <ChevronRight className="w-8 h-8" />
+                        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
                       </Button>
                     </>
                   )}
                   
                   {/* Image container */}
                   <div 
-                    className="flex items-center justify-center w-full h-full px-4 py-4 sm:px-20"
+                    className="flex items-center justify-center w-full h-full px-12 sm:px-20 py-2"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -666,7 +665,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-full sm:max-w-[85vw] max-h-[60vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full max-h-[65vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
@@ -675,21 +674,12 @@ export const ApartmentImageGallery = ({
                       decoding="async"
                     />
                   </div>
-                  
-                  {/* Swipe indicator on mobile */}
-                  {validImages.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:hidden flex items-center gap-2 text-white/60 text-xs bg-black/40 px-3 py-1 rounded-full">
-                      <ChevronLeft className="w-3 h-3" />
-                      <span>Swipe pentru navigare</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </div>
-                  )}
                 </div>
 
                 {/* Bottom Thumbnail Strip */}
                 {validImages.length > 1 && (
-                  <div className="flex-shrink-0 py-2 sm:py-6 pb-4 sm:pb-12 px-2 sm:px-4 bg-gradient-to-t from-black/50 to-transparent">
-                    <div className="flex gap-1.5 sm:gap-2 justify-center overflow-x-auto max-w-full pb-1">
+                  <div className="flex-shrink-0 py-2 pb-6 sm:pb-8 px-2 sm:px-4">
+                    <div className="flex gap-1.5 sm:gap-2 justify-center overflow-x-auto max-w-full pb-1 px-2">
                       {validImages.map((img, idx) => (
                         <button
                           key={idx}
@@ -698,10 +688,10 @@ export const ApartmentImageGallery = ({
                             setZoomLevel(1);
                           }}
                           className={cn(
-                            "flex-shrink-0 w-12 h-12 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
+                            "flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 touch-manipulation",
                             currentIndex === idx
                               ? "border-gold scale-105"
-                              : "border-transparent opacity-70 hover:opacity-100"
+                              : "border-white/30 opacity-70 hover:opacity-100"
                           )}
                         >
                           <OptimizedGalleryImage
