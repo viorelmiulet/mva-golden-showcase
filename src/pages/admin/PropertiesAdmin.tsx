@@ -65,6 +65,7 @@ const PropertiesAdmin = () => {
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
+  const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -396,6 +397,61 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const bulkToggleVisibility = async (visible: boolean) => {
+    if (selectedProperties.size === 0) {
+      toast({
+        title: "Atenție",
+        description: "Selectează cel puțin o proprietate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsBulkTogglingVisibility(true);
+    const total = selectedProperties.size;
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const propertyId of selectedProperties) {
+      try {
+        const { data, error } = await supabase.functions.invoke("admin-offers", {
+          body: { 
+            action: "update_offer", 
+            id: propertyId, 
+            data: { is_published: visible } 
+          },
+        });
+
+        if (error || !data?.success) {
+          failCount++;
+        } else {
+          successCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsBulkTogglingVisibility(false);
+    setSelectedProperties(new Set());
+
+    const actionText = visible ? "afișate" : "ascunse";
+    
+    if (successCount > 0) {
+      toast({
+        title: "Succes!",
+        description: `${successCount} proprietăți ${actionText}${failCount > 0 ? `, ${failCount} au eșuat` : ''}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } else {
+      toast({
+        title: "Eroare",
+        description: `Nu s-au putut actualiza proprietățile`,
+        variant: "destructive",
+      });
+    }
+  };
+
   const addProperty = async () => {
     if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
       toast({
@@ -532,12 +588,12 @@ const PropertiesAdmin = () => {
                 Selectează toate ({selectedProperties.size}/{properties.length})
               </Label>
               {selectedProperties.size > 0 && (
-                <div className="ml-auto flex items-center gap-3">
-                  {isBulkSending && bulkProgress.total > 0 && (
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                  {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-blue-500 transition-all duration-300"
+                          className="h-full bg-primary transition-all duration-300"
                           style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
                         />
                       </div>
@@ -546,18 +602,51 @@ const PropertiesAdmin = () => {
                       </span>
                     </div>
                   )}
+                  {/* Visibility bulk actions */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => bulkToggleVisibility(false)}
+                    disabled={isBulkTogglingVisibility || isBulkSending}
+                    className="border-muted-foreground/30 hover:bg-muted h-8 text-xs"
+                  >
+                    {isBulkTogglingVisibility ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">Ascunde {selectedProperties.size}</span>
+                    <span className="sm:hidden">Ascunde</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => bulkToggleVisibility(true)}
+                    disabled={isBulkTogglingVisibility || isBulkSending}
+                    className="border-green-500/30 hover:bg-green-500/10 text-green-600 h-8 text-xs"
+                  >
+                    {isBulkTogglingVisibility ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">Afișează {selectedProperties.size}</span>
+                    <span className="sm:hidden">Afișează</span>
+                  </Button>
+                  {/* Zapier bulk action */}
                   <Button
                     size="sm"
                     onClick={sendSelectedToZapier}
-                    disabled={isBulkSending}
-                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs md:text-sm"
+                    disabled={isBulkSending || isBulkTogglingVisibility}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs"
                   >
                     {isBulkSending ? (
                       <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                     ) : (
                       <Send className="w-3.5 h-3.5 mr-1.5" />
                     )}
-                    {isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}
+                    <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
+                    <span className="sm:hidden">Zapier</span>
                   </Button>
                 </div>
               )}
