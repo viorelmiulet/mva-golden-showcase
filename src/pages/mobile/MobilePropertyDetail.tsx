@@ -317,61 +317,61 @@ const MobilePropertyDetail = () => {
 
       {/* Fullscreen gallery modal */}
       {showGallery && (
-        <div className="fixed inset-0 z-[100] bg-background flex flex-col">
-          {/* Top bar with close button */}
-          <div className="flex-shrink-0 h-14 flex items-center justify-between px-4 border-b border-border/20">
-            <span className="text-sm text-muted-foreground">
-              {currentImageIndex + 1} / {images.length}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10"
-              onClick={() => setShowGallery(false)}
-            >
-              <X className="w-6 h-6" />
-            </Button>
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+          {/* Close button - Fixed top right */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-4 right-4 z-[110] h-12 w-12 rounded-full bg-black/70 text-white hover:bg-black/90 border border-white/20"
+            onClick={() => setShowGallery(false)}
+          >
+            <X className="w-6 h-6" />
+          </Button>
+
+          {/* Counter - Top left */}
+          <div className="fixed top-4 left-4 z-[110] text-white text-sm bg-black/50 px-3 py-2 rounded-full">
+            {currentImageIndex + 1} / {images.length}
           </div>
           
-          {/* Image container - takes remaining space */}
-          <div className="flex-1 flex items-center justify-center px-2 py-4 overflow-hidden">
+          {/* Image container - takes full remaining space */}
+          <div className="flex-1 flex items-center justify-center px-12 py-16 overflow-hidden">
             <img
               src={images[currentImageIndex]}
               alt={property.title}
-              className="max-w-[90vw] max-h-[60vh] w-auto h-auto object-contain rounded-lg"
+              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
             />
           </div>
-          
+
           {/* Navigation arrows */}
           {images.length > 1 && (
             <>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur flex items-center justify-center"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center z-[105] touch-manipulation"
               >
-                <ChevronLeft className="w-5 h-5 text-white" />
+                <ChevronLeft className="w-6 h-6 text-white" />
               </button>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 backdrop-blur flex items-center justify-center"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center z-[105] touch-manipulation"
               >
-                <ChevronRight className="w-5 h-5 text-white" />
+                <ChevronRight className="w-6 h-6 text-white" />
               </button>
             </>
           )}
           
           {/* Thumbnail strip at bottom */}
           {images.length > 1 && (
-            <div className="flex-shrink-0 py-3 pb-6 px-2 border-t border-border/20">
-              <div className="flex gap-1.5 justify-center overflow-x-auto">
+            <div className="flex-shrink-0 py-3 pb-8 px-2">
+              <div className="flex gap-2 justify-center overflow-x-auto">
                 {images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                       index === currentImageIndex 
                         ? 'border-gold ring-1 ring-gold' 
-                        : 'border-transparent opacity-60 hover:opacity-100'
+                        : 'border-white/30 opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img
