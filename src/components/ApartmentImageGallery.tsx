@@ -520,15 +520,6 @@ export const ApartmentImageGallery = ({
           }}
           aria-describedby={undefined}
         >
-          {/* Blurred Background */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center scale-110 transition-all duration-500 ease-out"
-            style={{ 
-              backgroundImage: `url(${validImages[currentIndex]})`,
-              filter: 'blur(15px) brightness(0.6)'
-            }}
-          />
-          
           <div className="w-full h-full h-[100dvh] flex flex-col relative z-10">
             {/* Header */}
             <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0 z-50 bg-gradient-to-b from-black/70 via-black/40 to-transparent">
