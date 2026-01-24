@@ -333,13 +333,13 @@ const MobilePropertyDetail = () => {
             {currentImageIndex + 1} / {images.length}
           </div>
           
-          {/* Image container - takes full remaining space */}
-          <div className="flex-1 flex items-center justify-center px-12 py-16 overflow-hidden">
-            <img
-              src={images[currentImageIndex]}
-              alt={property.title}
-              className="max-w-full max-h-full w-auto h-auto object-contain rounded-lg"
-            />
+        {/* Image container - takes full remaining space */}
+        <div className="flex-1 flex items-center justify-center px-2 py-4 overflow-hidden">
+          <img
+            src={images[currentImageIndex]}
+            alt={property.title}
+            className="w-full h-full object-contain"
+          />
           </div>
 
           {/* Navigation arrows */}
@@ -347,31 +347,31 @@ const MobilePropertyDetail = () => {
             <>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center z-[105] touch-manipulation"
+                className="absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 flex items-center justify-center z-[105] touch-manipulation"
               >
-                <ChevronLeft className="w-6 h-6 text-white" />
+                <ChevronLeft className="w-5 h-5 text-white" />
               </button>
               <button
                 onClick={() => setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center z-[105] touch-manipulation"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 flex items-center justify-center z-[105] touch-manipulation"
               >
-                <ChevronRight className="w-6 h-6 text-white" />
+                <ChevronRight className="w-5 h-5 text-white" />
               </button>
             </>
           )}
           
           {/* Thumbnail strip at bottom */}
           {images.length > 1 && (
-            <div className="flex-shrink-0 py-3 pb-8 px-2">
-              <div className="flex gap-2 justify-center overflow-x-auto">
+            <div className="flex-shrink-0 py-2 pb-6 px-2 bg-black/50">
+              <div className="flex gap-1.5 justify-center overflow-x-auto">
                 {images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
+                    className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 transition-all touch-manipulation ${
                       index === currentImageIndex 
                         ? 'border-gold ring-1 ring-gold' 
-                        : 'border-white/30 opacity-60 hover:opacity-100'
+                        : 'border-white/20 opacity-50 hover:opacity-100'
                     }`}
                   >
                     <img
