@@ -626,7 +626,7 @@ export const ApartmentImageGallery = ({
               <>
                 <div 
                   ref={imageRef}
-                  className="flex-1 flex items-center justify-center relative overflow-hidden"
+                  className="flex-1 flex items-center justify-center relative overflow-hidden px-14 sm:px-20"
                   onTouchStart={onTouchStart}
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
@@ -638,24 +638,24 @@ export const ApartmentImageGallery = ({
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20 touch-manipulation"
+                        className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 touch-manipulation shadow-lg"
                       >
-                        <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+                        <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 z-20 touch-manipulation"
+                        className="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-black/60 z-20 touch-manipulation shadow-lg"
                       >
-                        <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                        <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
                       </Button>
                     </>
                   )}
                   
-                  {/* Image container */}
+                  {/* Image container - full height available */}
                   <div 
-                    className="flex items-center justify-center w-full h-full px-12 sm:px-20 py-2"
+                    className="flex items-center justify-center w-full h-full"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -665,7 +665,7 @@ export const ApartmentImageGallery = ({
                       key={currentIndex}
                       src={getOptimizedImageUrl(validImages[currentIndex], imageSizes.lightbox, 90)}
                       alt={`${title} - Imagine ${currentIndex + 1}`}
-                      className="max-w-full max-h-[65vh] sm:max-h-[75vh] w-auto h-auto object-contain select-none animate-fade-in rounded-lg shadow-2xl"
+                      className="max-w-full max-h-full w-auto h-auto object-contain select-none animate-fade-in"
                       style={{ 
                         transform: `scale(${zoomLevel})`,
                         transition: 'transform 0.3s ease-out'
