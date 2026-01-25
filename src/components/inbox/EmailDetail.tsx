@@ -87,100 +87,100 @@ export const EmailDetail = ({
           >
             {/* Header */}
             <div className="p-3 md:p-4 border-b border-white/5">
-              <div className="flex items-start justify-between gap-2 md:gap-4">
-                <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="shrink-0 h-8 w-8"
-                        onClick={onClose}
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p>Înapoi la listă</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold font-semibold shrink-0 text-sm md:text-base">
-                    {extractSenderInitials(email.sender)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold truncate text-base md:text-lg">
-                      {email.subject || '(Fără subiect)'}
-                    </h3>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">
-                      {extractSenderName(email.sender)}
-                    </p>
-                    <p className="text-[10px] md:text-xs text-muted-foreground/60 mt-0.5 hidden xs:block">
-                      {format(new Date(email.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro })}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5 xs:hidden">
-                      {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button
-                    size="sm"
-                    onClick={onReply}
-                    className="bg-gradient-to-r from-gold to-gold-light text-black h-8 px-2 md:px-3"
-                  >
-                    <Reply className="h-4 w-4 md:mr-1" />
-                    <span className="hidden md:inline">Răspunde</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={onForward}
-                    className="h-8 px-2 md:px-3 border-white/10 hover:bg-white/5"
-                  >
-                    <Forward className="h-4 w-4 md:mr-1" />
-                    <span className="hidden md:inline">Redirecționează</span>
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-card border-white/10">
-                      <DropdownMenuItem onClick={onToggleStar}>
-                        {email.is_starred ? (
-                          <>
-                            <StarOff className="h-4 w-4 mr-2" />
-                            Elimină steaua
-                          </>
-                        ) : (
-                          <>
-                            <Star className="h-4 w-4 mr-2" />
-                            Adaugă stea
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      {isArchived ? (
-                        <DropdownMenuItem onClick={onUnarchive}>
-                          <ArchiveRestore className="h-4 w-4 mr-2" />
-                          Restaurează din arhivă
-                        </DropdownMenuItem>
+              {/* Actions row - always visible at top on desktop */}
+              <div className="flex items-center justify-end gap-1 mb-3">
+                <Button
+                  size="sm"
+                  onClick={onReply}
+                  className="bg-gradient-to-r from-gold to-gold-light text-black h-8 px-3"
+                >
+                  <Reply className="h-4 w-4 mr-1.5" />
+                  Răspunde
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onForward}
+                  className="h-8 px-3 border-white/10 hover:bg-white/5"
+                >
+                  <Forward className="h-4 w-4 mr-1.5" />
+                  Redirecționează
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-card border-white/10">
+                    <DropdownMenuItem onClick={onToggleStar}>
+                      {email.is_starred ? (
+                        <>
+                          <StarOff className="h-4 w-4 mr-2" />
+                          Elimină steaua
+                        </>
                       ) : (
-                        <DropdownMenuItem onClick={onArchive}>
-                          <Archive className="h-4 w-4 mr-2" />
-                          Arhivează
-                        </DropdownMenuItem>
+                        <>
+                          <Star className="h-4 w-4 mr-2" />
+                          Adaugă stea
+                        </>
                       )}
-                      <DropdownMenuItem 
-                        onClick={onDelete}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Șterge
+                    </DropdownMenuItem>
+                    {isArchived ? (
+                      <DropdownMenuItem onClick={onUnarchive}>
+                        <ArchiveRestore className="h-4 w-4 mr-2" />
+                        Restaurează din arhivă
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    ) : (
+                      <DropdownMenuItem onClick={onArchive}>
+                        <Archive className="h-4 w-4 mr-2" />
+                        Arhivează
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem 
+                      onClick={onDelete}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Șterge
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Email info row */}
+              <div className="flex items-start gap-2 md:gap-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="shrink-0 h-8 w-8"
+                      onClick={onClose}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p>Înapoi la listă</p>
+                  </TooltipContent>
+                </Tooltip>
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold font-semibold shrink-0 text-sm md:text-base">
+                  {extractSenderInitials(email.sender)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold truncate text-base md:text-lg">
+                    {email.subject || '(Fără subiect)'}
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">
+                    {extractSenderName(email.sender)}
+                  </p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground/60 mt-0.5 hidden xs:block">
+                    {format(new Date(email.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro })}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5 xs:hidden">
+                    {format(new Date(email.received_at), 'dd MMM, HH:mm', { locale: ro })}
+                  </p>
                 </div>
               </div>
             </div>
