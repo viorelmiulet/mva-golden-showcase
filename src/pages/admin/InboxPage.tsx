@@ -1,40 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isYesterday } from "date-fns";
 import { ro } from "date-fns/locale";
-import { motion } from "framer-motion";
 import { 
-  Inbox,
-  RefreshCw,
   Loader2,
-  PenSquare,
-  Reply,
-  Forward,
   Send,
   Save,
   Paperclip,
-  Star,
-  Mail,
-  Check,
+  Reply,
+  Forward,
   X,
-  Archive,
-  FileText,
-  Trash2,
-  CheckSquare,
-  Square,
-  MailOpen,
-  RotateCcw,
-  SlidersHorizontal,
-  Calendar,
-  User,
-  PanelLeftClose,
-  PanelLeft
+  Check,
+  PenSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,19 +29,20 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
-import { InboxSidebar, EmailListItem, EmailDetail, SwipeableEmailItem, EmailAutocomplete } from "@/components/inbox";
+import { 
+  GmailSidebar, 
+  GmailHeader, 
+  GmailEmailList, 
+  GmailEmailDetail,
+  EmailAutocomplete,
+  SwipeableEmailItem 
+} from "@/components/inbox";
 import EmailListSkeleton from "@/components/skeletons/EmailListSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ReceivedEmail {
   id: string;
@@ -78,14 +60,6 @@ interface ReceivedEmail {
   is_deleted: boolean;
   received_at: string;
   created_at: string;
-}
-
-// Advanced search filters interface
-interface AdvancedFilters {
-  senderSearch: string;
-  dateFrom: string;
-  dateTo: string;
-  hasAttachments: boolean | null; // null = don't filter, true = with attachments, false = without
 }
 
 const InboxPage = () => {
@@ -107,18 +81,8 @@ const InboxPage = () => {
   const [forwardAttachments, setForwardAttachments] = useState<File[]>([]);
   const [showForwardCcBcc, setShowForwardCcBcc] = useState(false);
   
-  // Advanced search filters
-  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
-    senderSearch: '',
-    dateFrom: '',
-    dateTo: '',
-    hasAttachments: null
-  });
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  
   // Multi-select state
   const [selectedEmailIds, setSelectedEmailIds] = useState<Set<string>>(new Set());
-  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   
   // Compose state
   const [composeDialogOpen, setComposeDialogOpen] = useState(false);
@@ -132,38 +96,17 @@ const InboxPage = () => {
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
   const [showDrafts, setShowDrafts] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
-  const [recipientFilter, setRecipientFilter] = useState<string>('all');
-  const [emailListCollapsed, setEmailListCollapsed] = useState(false);
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const emailListPanelRef = useRef<any>(null);
   
   const queryClient = useQueryClient();
-
-  // Count active advanced filters
-  const activeAdvancedFiltersCount = [
-    advancedFilters.senderSearch,
-    advancedFilters.dateFrom,
-    advancedFilters.dateTo,
-    advancedFilters.hasAttachments !== null
-  ].filter(Boolean).length;
-
-  // Clear all advanced filters
-  const clearAdvancedFilters = () => {
-    setAdvancedFilters({
-      senderSearch: '',
-      dateFrom: '',
-      dateTo: '',
-      hasAttachments: null
-    });
-  };
+  const isMobile = useIsMobile();
 
   // Clear selection when filter changes
   useEffect(() => {
     setSelectedEmailIds(new Set());
-    setIsMultiSelectMode(false);
   }, [filter]);
 
   // Fetch drafts
@@ -297,49 +240,17 @@ const InboxPage = () => {
     }
   });
 
-  // Fetch email addresses from settings
-  const { data: emailAddresses } = useQuery({
-    queryKey: ['email-function-settings-addresses'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('email_function_settings')
-        .select('from_email, function_label')
-        .eq('is_active', true);
-      if (error) throw error;
-      
-      // Get unique emails
-      const uniqueEmails = new Map<string, string>();
-      data?.forEach(item => {
-        if (!uniqueEmails.has(item.from_email)) {
-          uniqueEmails.set(item.from_email, item.function_label);
-        }
-      });
-      
-      return Array.from(uniqueEmails.entries()).map(([email, label]) => ({
-        email,
-        label: `${label} (${email})`
-      }));
-    }
-  });
-
   const { data: emails, isLoading, refetch } = useQuery({
-    queryKey: ['received-emails', filter, recipientFilter],
+    queryKey: ['received-emails', filter],
     queryFn: async () => {
-      console.log('[InboxPage] Fetching emails with filter:', filter, 'recipientFilter:', recipientFilter);
-      
       // If filter is 'sent', query sent_emails table instead
       if (filter === 'sent') {
         const { data, error } = await supabase
           .from('sent_emails')
           .select('*')
           .order('sent_at', { ascending: false });
-        if (error) {
-          console.error('[InboxPage] Error fetching sent emails:', error);
-          throw error;
-        }
-        console.log('[InboxPage] Fetched sent emails:', data?.length);
+        if (error) throw error;
         
-        // Map sent_emails to ReceivedEmail format for display
         return (data || []).map((email: any) => ({
           id: email.id,
           sender: email.from_address,
@@ -353,6 +264,7 @@ const InboxPage = () => {
           is_read: true,
           is_starred: false,
           is_archived: false,
+          is_deleted: false,
           received_at: email.sent_at,
           created_at: email.created_at
         })) as ReceivedEmail[];
@@ -376,24 +288,15 @@ const InboxPage = () => {
         }
       }
 
-      // Apply recipient filter
-      if (recipientFilter && recipientFilter !== 'all') {
-        query = query.ilike('recipient', `%${recipientFilter}%`);
-      }
-
       const { data, error } = await query;
-      if (error) {
-        console.error('[InboxPage] Error fetching received emails:', error);
-        throw error;
-      }
-      console.log('[InboxPage] Fetched received emails:', data?.length, data);
+      if (error) throw error;
       return data as ReceivedEmail[];
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes - data stays fresh
-    gcTime: 1000 * 60 * 30, // 30 minutes - keep in cache
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   });
 
-  // Query for archived count
+  // Query for counts
   const { data: archivedEmails } = useQuery({
     queryKey: ['received-emails-archived-count'],
     queryFn: async () => {
@@ -406,7 +309,6 @@ const InboxPage = () => {
     }
   });
 
-  // Query for sent emails count
   const { data: sentEmails } = useQuery({
     queryKey: ['sent-emails-count'],
     queryFn: async () => {
@@ -418,7 +320,6 @@ const InboxPage = () => {
     }
   });
 
-  // Query for trash count
   const { data: trashEmails } = useQuery({
     queryKey: ['received-emails-trash-count'],
     queryFn: async () => {
@@ -434,6 +335,8 @@ const InboxPage = () => {
   const archivedCount = archivedEmails?.length || 0;
   const sentCount = sentEmails?.length || 0;
   const trashCount = trashEmails?.length || 0;
+  const unreadCount = emails?.filter(e => !e.is_read).length || 0;
+  const starredCount = emails?.filter(e => e.is_starred).length || 0;
 
   // Pull to refresh for mobile
   const pullToRefresh = usePullToRefresh({
@@ -455,11 +358,9 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
     }
   });
 
-  // Soft delete - move to trash
   const moveToTrashMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -470,15 +371,12 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
       setSelectedEmail(null);
       toast.success('Email mutat în coșul de gunoi');
     }
   });
 
-  // Permanent delete
   const deleteEmailMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -495,7 +393,6 @@ const InboxPage = () => {
     }
   });
 
-  // Restore from trash
   const restoreFromTrashMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -507,26 +404,40 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmail(null);
       toast.success('Email restaurat');
     }
   });
 
-  // Empty trash - delete all emails permanently
-  const emptyTrashMutation = useMutation({
-    mutationFn: async () => {
+  const archiveEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('received_emails')
-        .delete()
-        .eq('is_deleted', true);
+        .update({ is_archived: true })
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
       setSelectedEmail(null);
-      toast.success('Coșul de gunoi a fost golit');
+      toast.success('Email arhivat');
+    }
+  });
+
+  const unarchiveEmailMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_archived: false })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      setSelectedEmail(null);
+      toast.success('Email restaurat din arhivă');
     }
   });
 
@@ -541,10 +452,7 @@ const InboxPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmailIds(new Set());
-      setIsMultiSelectMode(false);
       toast.success('Emailurile au fost marcate ca citite');
     }
   });
@@ -560,9 +468,7 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmailIds(new Set());
-      setIsMultiSelectMode(false);
       toast.success('Emailurile au fost arhivate');
     }
   });
@@ -578,10 +484,24 @@ const InboxPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
       setSelectedEmailIds(new Set());
-      setIsMultiSelectMode(false);
       toast.success('Emailurile au fost mutate în coș');
+    }
+  });
+
+  const bulkRestoreMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_deleted: false })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
+      setSelectedEmailIds(new Set());
+      toast.success('Emailurile au fost restaurate');
     }
   });
 
@@ -597,54 +517,9 @@ const InboxPage = () => {
       queryClient.invalidateQueries({ queryKey: ['received-emails'] });
       queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
       setSelectedEmailIds(new Set());
-      setIsMultiSelectMode(false);
       toast.success('Emailurile au fost șterse definitiv');
     }
   });
-
-  const bulkRestoreMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
-      const { error } = await supabase
-        .from('received_emails')
-        .update({ is_deleted: false })
-        .in('id', ids);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['received-emails-trash-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
-      setSelectedEmailIds(new Set());
-      setIsMultiSelectMode(false);
-      toast.success('Emailurile au fost restaurate');
-    }
-  });
-
-  // Toggle email selection
-  const toggleEmailSelection = (emailId: string) => {
-    setSelectedEmailIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(emailId)) {
-        newSet.delete(emailId);
-      } else {
-        newSet.add(emailId);
-      }
-      return newSet;
-    });
-  };
-
-  // Select all visible emails
-  const selectAllEmails = () => {
-    if (filteredEmails) {
-      setSelectedEmailIds(new Set(filteredEmails.map(e => e.id)));
-    }
-  };
-
-  // Deselect all emails
-  const deselectAllEmails = () => {
-    setSelectedEmailIds(new Set());
-    setIsMultiSelectMode(false);
-  };
 
   const deleteSentEmailMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -662,41 +537,27 @@ const InboxPage = () => {
     }
   });
 
-  const archiveEmailMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('received_emails')
-        .update({ is_archived: true })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
-      setSelectedEmail(null);
-      toast.success('Email arhivat');
-    }
-  });
+  const toggleEmailSelection = (emailId: string) => {
+    setSelectedEmailIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(emailId)) {
+        newSet.delete(emailId);
+      } else {
+        newSet.add(emailId);
+      }
+      return newSet;
+    });
+  };
 
-  const unarchiveEmailMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('received_emails')
-        .update({ is_archived: false })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
-      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-emails-for-notifications'] });
-      setSelectedEmail(null);
-      toast.success('Email restaurat din arhivă');
+  const selectAllEmails = () => {
+    if (filteredEmails) {
+      setSelectedEmailIds(new Set(filteredEmails.map(e => e.id)));
     }
-  });
+  };
 
-  const isMobile = useIsMobile();
+  const deselectAllEmails = () => {
+    setSelectedEmailIds(new Set());
+  };
 
   const sendReplyMutation = useMutation({
     mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress }: { 
@@ -724,7 +585,6 @@ const InboxPage = () => {
 
   const saveEmailContactMutation = useMutation({
     mutationFn: async (email: string) => {
-      // Extract just the email if format is "Name <email@domain.com>"
       const cleanEmail = email.includes('<') 
         ? email.match(/<(.+)>/)?.[1]?.toLowerCase() || email.toLowerCase()
         : email.toLowerCase();
@@ -741,7 +601,6 @@ const InboxPage = () => {
         });
       
       if (error) {
-        // If upsert fails, try to update the existing record
         await supabase
           .from('email_contacts')
           .update({ 
@@ -766,7 +625,6 @@ const InboxPage = () => {
       });
       if (error) throw error;
       
-      // Save email contacts
       saveEmailContactMutation.mutate(to);
       if (cc) saveEmailContactMutation.mutate(cc);
       if (bcc) saveEmailContactMutation.mutate(bcc);
@@ -818,12 +676,7 @@ const InboxPage = () => {
 
   const handleArchive = () => {
     if (!selectedEmail) return;
-    updateEmailMutation.mutate({ 
-      id: selectedEmail.id, 
-      updates: { is_archived: true } 
-    });
-    setSelectedEmail(null);
-    toast.success('Email arhivat');
+    archiveEmailMutation.mutate(selectedEmail.id);
   };
 
   const handleDelete = () => {
@@ -831,10 +684,8 @@ const InboxPage = () => {
     if (filter === 'sent') {
       deleteSentEmailMutation.mutate(selectedEmail.id);
     } else if (filter === 'trash') {
-      // Permanent delete from trash
       deleteEmailMutation.mutate(selectedEmail.id);
     } else {
-      // Move to trash
       moveToTrashMutation.mutate(selectedEmail.id);
     }
   };
@@ -873,7 +724,6 @@ const InboxPage = () => {
   const handleOpenForward = () => {
     if (!selectedEmail) return;
     
-    // Build forwarded content with original email info
     const originalDate = format(new Date(selectedEmail.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
     const originalBody = selectedEmail.body_plain || selectedEmail.stripped_text || '';
     
@@ -920,23 +770,6 @@ ${originalBody}`;
     });
     
     setForwardDialogOpen(false);
-    setForwardTo("");
-    setForwardCc("");
-    setForwardBcc("");
-    setForwardSubject("");
-    setForwardBody("");
-    setForwardAttachments([]);
-  };
-
-  const handleForwardFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setForwardAttachments(prev => [...prev, ...newFiles]);
-    }
-  };
-
-  const handleRemoveForwardAttachment = (index: number) => {
-    setForwardAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleOpenCompose = () => {
@@ -1058,866 +891,44 @@ ${originalBody}`;
     return format(date, 'dd MMM', { locale: ro });
   };
 
-  const unreadCount = emails?.filter(e => !e.is_read).length || 0;
-  const starredCount = emails?.filter(e => e.is_starred).length || 0;
-
   const filteredEmails = emails?.filter(email => {
-    // Basic text search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      const matchesBasic = (
+      return (
         email.sender.toLowerCase().includes(query) ||
         email.subject?.toLowerCase().includes(query) ||
         email.body_plain?.toLowerCase().includes(query)
       );
-      if (!matchesBasic) return false;
     }
-
-    // Advanced filter: Sender search
-    if (advancedFilters.senderSearch) {
-      const senderQuery = advancedFilters.senderSearch.toLowerCase();
-      if (!email.sender.toLowerCase().includes(senderQuery)) {
-        return false;
-      }
-    }
-
-    // Advanced filter: Date from
-    if (advancedFilters.dateFrom) {
-      const emailDate = new Date(email.received_at);
-      const fromDate = new Date(advancedFilters.dateFrom);
-      fromDate.setHours(0, 0, 0, 0);
-      if (emailDate < fromDate) {
-        return false;
-      }
-    }
-
-    // Advanced filter: Date to
-    if (advancedFilters.dateTo) {
-      const emailDate = new Date(email.received_at);
-      const toDate = new Date(advancedFilters.dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      if (emailDate > toDate) {
-        return false;
-      }
-    }
-
-    // Advanced filter: Has attachments
-    if (advancedFilters.hasAttachments !== null) {
-      const hasAttachments = email.attachments && email.attachments.length > 0;
-      if (advancedFilters.hasAttachments && !hasAttachments) {
-        return false;
-      }
-      if (!advancedFilters.hasAttachments && hasAttachments) {
-        return false;
-      }
-    }
-
     return true;
   });
 
-  console.log('[InboxPage] Render state - isMobile:', isMobile, 'mobileView:', mobileView, 'emails:', emails?.length, 'filteredEmails:', filteredEmails?.length, 'isLoading:', isLoading);
-
-  return (
-    <div className="h-[calc(100vh-180px)] md:h-[calc(100vh-120px)] flex flex-col gap-2 md:gap-4">
-      {/* Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={cn(
-          "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4",
-          mobileView === 'detail' && "hidden md:flex"
-        )}
-      >
-        <div className="flex items-center gap-3 md:gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-xl md:rounded-2xl blur-xl" />
-            <div className="relative p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-              <Inbox className="h-5 w-5 md:h-6 md:w-6 text-gold" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Inbox</h1>
-            <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground">
-              {unreadCount > 0 && (
-                <span className="flex items-center gap-1 md:gap-1.5">
-                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gold animate-pulse" />
-                  {unreadCount} necitite
-                </span>
-              )}
-              {starredCount > 0 && (
-                <span className="flex items-center gap-1 md:gap-1.5">
-                  <Star className="h-3 w-3 text-yellow-500" />
-                  {starredCount} cu stea
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {filter === 'trash' && trashCount > 0 && (
-            <Button 
-              onClick={() => {
-                if (confirm('Ești sigur că vrei să ștergi definitiv toate emailurile din coș?')) {
-                  emptyTrashMutation.mutate();
-                }
-              }}
-              size="sm"
-              variant="destructive"
-              disabled={emptyTrashMutation.isPending}
-              className="flex-1 sm:flex-none"
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="h-[calc(100vh-120px)] flex flex-col bg-background">
+        {mobileView === 'list' ? (
+          <>
+            <GmailHeader
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+              onRefresh={() => refetch()}
+              isRefreshing={isLoading}
+            />
+            <div 
+              ref={pullToRefresh.containerRef}
+              className="flex-1 overflow-y-auto"
             >
-              {emptyTrashMutation.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PullToRefreshIndicator 
+                pullDistance={pullToRefresh.pullDistance}
+                isRefreshing={pullToRefresh.isRefreshing}
+                progress={pullToRefresh.progress}
+              />
+              {isLoading ? (
+                <EmailListSkeleton count={6} />
               ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Golește coșul
-            </Button>
-          )}
-          <Button 
-            onClick={handleOpenCompose}
-            size="sm"
-            className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25 transition-all flex-1 sm:flex-none"
-          >
-            <PenSquare className="h-4 w-4 mr-2" />
-            <span className="hidden xs:inline">Compune</span>
-            <span className="xs:hidden">Nou</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={() => refetch()}
-            className="border-white/10 hover:bg-white/5 h-8 w-8 md:h-10 md:w-10"
-          >
-            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Main Content - Responsive Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-2 md:gap-4 min-h-0 overflow-hidden">
-        {/* Sidebar - Hidden on mobile */}
-        <div className="hidden lg:block shrink-0">
-          <InboxSidebar
-            filter={filter}
-            setFilter={setFilter}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            emailsCount={emails?.length || 0}
-            unreadCount={unreadCount}
-            starredCount={starredCount}
-            archivedCount={archivedCount}
-            sentCount={sentCount}
-            trashCount={trashCount}
-            collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-            showDrafts={showDrafts}
-            setShowDrafts={setShowDrafts}
-            drafts={drafts}
-            onLoadDraft={handleLoadDraft}
-            onDeleteDraft={handleDeleteDraft}
-            recipientFilter={recipientFilter}
-            setRecipientFilter={setRecipientFilter}
-            emailAddresses={emailAddresses || []}
-            advancedFilters={advancedFilters}
-            setAdvancedFilters={setAdvancedFilters}
-            showAdvancedSearch={showAdvancedSearch}
-            setShowAdvancedSearch={setShowAdvancedSearch}
-            activeAdvancedFiltersCount={activeAdvancedFiltersCount}
-            clearAdvancedFilters={clearAdvancedFilters}
-          />
-        </div>
-
-        {/* Mobile Filter Bar - Only show in list view on mobile */}
-        {mobileView === 'list' && (
-          <div className="lg:hidden flex flex-col gap-1.5 shrink-0">
-            <div className="flex items-center gap-1 flex-wrap">
-              {[
-                { key: 'all', label: 'Primite', icon: Mail },
-                { key: 'unread', label: 'Necitite', icon: null },
-                { key: 'starred', label: 'Stea', icon: Star },
-                { key: 'sent', label: 'Trimise', icon: Send },
-                { key: 'archived', label: 'Arhivă', icon: Archive }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  onClick={() => setFilter(item.key as 'all' | 'unread' | 'starred' | 'archived' | 'sent')}
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
-                    filter === item.key 
-                      ? "bg-gold/20 text-gold border border-gold/30" 
-                      : "bg-white/5 text-muted-foreground border border-white/10"
-                  )}
-                >
-                  {item.icon && <item.icon className="h-2.5 w-2.5" />}
-                  {item.key === 'unread' && unreadCount > 0 && (
-                    <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
-                  )}
-                  {item.key === 'sent' && sentCount > 0 && (
-                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{sentCount > 9 ? '9+' : sentCount}</span>
-                  )}
-                  {item.key === 'archived' && archivedCount > 0 && (
-                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{archivedCount > 9 ? '9+' : archivedCount}</span>
-                  )}
-                  <span>{item.label}</span>
-                </button>
-              ))}
-              {/* Drafts button inline with filters */}
-              <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
-                <button
-                  onClick={() => setShowDrafts(true)}
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
-                    showDrafts 
-                      ? "bg-gold/20 text-gold border border-gold/30" 
-                      : "bg-white/5 text-muted-foreground border border-white/10"
-                  )}
-                >
-                  <FileText className="h-2.5 w-2.5" />
-                  {drafts && drafts.length > 0 && (
-                    <span className="w-3.5 h-3.5 rounded-full bg-white/20 text-[8px] flex items-center justify-center font-bold">{drafts.length > 9 ? '9+' : drafts.length}</span>
-                  )}
-                  <span>Ciorne</span>
-                </button>
-                <DialogContent className="max-w-md bg-background border-white/10">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-gold" />
-                      Ciorne ({drafts?.length || 0})
-                    </DialogTitle>
-                    <DialogDescription>
-                      Selectează o ciornă pentru a o încărca
-                    </DialogDescription>
-                  </DialogHeader>
-                  <ScrollArea className="max-h-[60vh]">
-                    {drafts && drafts.length > 0 ? (
-                      <div className="space-y-2">
-                        {drafts.map((draft: any) => (
-                          <div
-                            key={draft.id}
-                            className="p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <button
-                                onClick={() => {
-                                  handleLoadDraft(draft);
-                                  setShowDrafts(false);
-                                }}
-                                className="flex-1 text-left"
-                              >
-                                <p className="text-sm font-medium truncate">
-                                  {draft.subject || "(Fără subiect)"}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  Către: {draft.recipient || "(Fără destinatar)"}
-                                </p>
-                                <p className="text-xs text-muted-foreground/60 mt-1">
-                                  {format(new Date(draft.updated_at), "d MMM, HH:mm", { locale: ro })}
-                                </p>
-                              </button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                onClick={(e) => handleDeleteDraft(e, draft.id)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-8 text-center">
-                        <FileText className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-                        <p className="text-sm text-muted-foreground">Nu ai ciorne salvate</p>
-                      </div>
-                    )}
-                  </ScrollArea>
-                </DialogContent>
-              </Dialog>
-
-              {/* Advanced Search Button for Mobile */}
-              <button
-                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-                className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all",
-                  showAdvancedSearch || activeAdvancedFiltersCount > 0
-                    ? "bg-gold/20 text-gold border border-gold/30" 
-                    : "bg-white/5 text-muted-foreground border border-white/10"
-                )}
-              >
-                <SlidersHorizontal className="h-2.5 w-2.5" />
-                {activeAdvancedFiltersCount > 0 && (
-                  <span className="w-3.5 h-3.5 rounded-full bg-gold text-black text-[8px] flex items-center justify-center font-bold">
-                    {activeAdvancedFiltersCount}
-                  </span>
-                )}
-                <span>Filtre</span>
-              </button>
-            </div>
-
-            {/* Mobile Advanced Search Panel */}
-            {showAdvancedSearch && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="p-2 rounded-lg border border-white/10 bg-white/5 space-y-2"
-              >
-                {/* Sender filter */}
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <User className="h-2.5 w-2.5" />
-                    Expeditor
-                  </Label>
-                  <Input
-                    placeholder="Caută după expeditor..."
-                    value={advancedFilters.senderSearch}
-                    onChange={(e) => setAdvancedFilters({...advancedFilters, senderSearch: e.target.value})}
-                    className="h-7 text-xs bg-white/5 border-white/10 focus:border-gold/50"
-                  />
-                </div>
-
-                {/* Date range filter */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-2.5 w-2.5" />
-                      De la
-                    </Label>
-                    <Input
-                      type="date"
-                      value={advancedFilters.dateFrom}
-                      onChange={(e) => setAdvancedFilters({...advancedFilters, dateFrom: e.target.value})}
-                      className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] text-muted-foreground">Până la</Label>
-                    <Input
-                      type="date"
-                      value={advancedFilters.dateTo}
-                      onChange={(e) => setAdvancedFilters({...advancedFilters, dateTo: e.target.value})}
-                      className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50"
-                    />
-                  </div>
-                </div>
-
-                {/* Attachments filter */}
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Paperclip className="h-2.5 w-2.5" />
-                    Atașamente
-                  </Label>
-                  <Select
-                    value={advancedFilters.hasAttachments === null ? 'all' : advancedFilters.hasAttachments ? 'with' : 'without'}
-                    onValueChange={(value) => {
-                      setAdvancedFilters({
-                        ...advancedFilters,
-                        hasAttachments: value === 'all' ? null : value === 'with'
-                      });
-                    }}
-                  >
-                    <SelectTrigger className="h-7 text-xs bg-white/5 border-white/10 focus:border-gold/50">
-                      <SelectValue placeholder="Toate" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Toate</SelectItem>
-                      <SelectItem value="with">Cu atașamente</SelectItem>
-                      <SelectItem value="without">Fără atașamente</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Clear filters button */}
-                {activeAdvancedFiltersCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAdvancedFilters}
-                    className="w-full h-7 text-[10px] text-muted-foreground hover:text-destructive border border-white/10"
-                  >
-                    <X className="h-2.5 w-2.5 mr-1" />
-                    Șterge filtrele ({activeAdvancedFiltersCount})
-                  </Button>
-                )}
-              </motion.div>
-            )}
-            
-            {/* Mobile Recipient Filter */}
-            {emailAddresses && emailAddresses.length > 0 && (
-              <Select value={recipientFilter} onValueChange={setRecipientFilter}>
-                <SelectTrigger className="h-7 text-[10px] bg-white/5 border-white/10 focus:border-gold/50">
-                  <SelectValue placeholder="Toate adresele" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toate adresele</SelectItem>
-                  {emailAddresses.map((addr) => (
-                    <SelectItem key={addr.email} value={addr.email}>
-                      {addr.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-        )}
-
-        {/* Desktop: Resizable Panels */}
-        <div className="hidden lg:flex flex-1 min-h-0">
-          <ResizablePanelGroup direction="horizontal" className="min-h-0">
-            {/* Email List Panel - Collapsible */}
-            <ResizablePanel 
-              ref={emailListPanelRef}
-              defaultSize={30} 
-              minSize={0} 
-              maxSize={50} 
-              collapsible 
-              collapsedSize={0}
-              onCollapse={() => setEmailListCollapsed(true)}
-              onExpand={() => setEmailListCollapsed(false)}
-            >
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col h-full"
-              >
-          {/* Bulk action bar */}
-          {isMultiSelectMode && selectedEmailIds.size > 0 && filter !== 'sent' && (
-            <div className="p-2 md:p-3 border-b border-white/5 bg-gold/10 flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={deselectAllEmails}
-                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" />
-                  <span className="hidden sm:inline">Anulează</span>
-                </button>
-                <span className="text-xs font-medium text-gold">
-                  {selectedEmailIds.size} selectate
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                {filter !== 'trash' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkMarkAsReadMutation.isPending}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <MailOpen className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Citit</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkArchiveMutation.isPending}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <Archive className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Arhivează</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkDeleteMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkDeleteMutation.isPending}
-                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Șterge</span>
-                    </Button>
-                  </>
-                )}
-                {filter === 'trash' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkRestoreMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkRestoreMutation.isPending}
-                      className="h-7 px-2 text-xs text-green-400 hover:text-green-400"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Restaurează</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        if (confirm('Ești sigur că vrei să ștergi definitiv aceste emailuri?')) {
-                          bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
-                        }
-                      }}
-                      disabled={bulkPermanentDeleteMutation.isPending}
-                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Șterge definitiv</span>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {filter !== 'sent' && filteredEmails && filteredEmails.length > 0 && (
-                <button
-                  onClick={() => {
-                    if (isMultiSelectMode) {
-                      if (selectedEmailIds.size === filteredEmails.length) {
-                        deselectAllEmails();
-                      } else {
-                        selectAllEmails();
-                      }
-                    } else {
-                      setIsMultiSelectMode(true);
-                    }
-                  }}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors",
-                    isMultiSelectMode 
-                      ? "bg-gold/20 text-gold" 
-                      : "hover:bg-white/10 text-muted-foreground"
-                  )}
-                  title={isMultiSelectMode ? "Selectează tot" : "Mod selectare"}
-                >
-                  {isMultiSelectMode && selectedEmailIds.size === filteredEmails?.length ? (
-                    <CheckSquare className="h-4 w-4" />
-                  ) : (
-                    <Square className="h-4 w-4" />
-                  )}
-                </button>
-              )}
-              <span className="text-xs text-muted-foreground font-medium">
-                {filteredEmails?.length || 0} email-uri
-              </span>
-            </div>
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="text-xs text-gold hover:underline"
-              >
-                Șterge căutarea
-              </button>
-            )}
-          </div>
-          <div 
-            ref={pullToRefresh.containerRef}
-            className="flex-1 overflow-y-auto min-h-[200px]"
-          >
-            <PullToRefreshIndicator 
-              pullDistance={pullToRefresh.pullDistance}
-              isRefreshing={pullToRefresh.isRefreshing}
-              progress={pullToRefresh.progress}
-            />
-            {(isLoading || !emails) && !pullToRefresh.isRefreshing ? (
-              <EmailListSkeleton count={6} />
-            ) : filteredEmails && filteredEmails.length === 0 ? (
-              <div className="p-6 md:p-8 text-center">
-                <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <Mail className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/30" />
-                </div>
-                <p className="font-medium text-sm md:text-base text-muted-foreground">Nu există email-uri</p>
-                <p className="text-xs text-muted-foreground/60 mt-1">
-                  {searchQuery ? "Încearcă altă căutare" : "Inbox-ul tău este gol"}
-                </p>
-              </div>
-            ) : (
-              <motion.div 
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { staggerChildren: 0.03 } }
-                }}
-                className="divide-y divide-white/5"
-              >
-                {filteredEmails?.map((email) => (
-                  isMobile ? (
-                    <SwipeableEmailItem
-                      key={email.id}
-                      email={email}
-                      isSelected={selectedEmail?.id === email.id}
-                      onSelect={() => handleSelectEmail(email)}
-                      onToggleStar={(e) => handleToggleStar(e, email)}
-                      onDelete={() => filter === 'sent' ? deleteSentEmailMutation.mutate(email.id) : filter === 'trash' ? deleteEmailMutation.mutate(email.id) : moveToTrashMutation.mutate(email.id)}
-                      onArchive={() => filter === 'trash' ? restoreFromTrashMutation.mutate(email.id) : archiveEmailMutation.mutate(email.id)}
-                      extractSenderName={extractSenderName}
-                      extractSenderInitials={extractSenderInitials}
-                      formatEmailDate={formatEmailDate}
-                    />
-                  ) : (
-                    <EmailListItem
-                      key={email.id}
-                      email={email}
-                      isSelected={selectedEmail?.id === email.id}
-                      onSelect={() => handleSelectEmail(email)}
-                      onToggleStar={(e) => handleToggleStar(e, email)}
-                      onDelete={(e) => {
-                        e.stopPropagation();
-                        if (filter === 'sent') {
-                          deleteSentEmailMutation.mutate(email.id);
-                        } else if (filter === 'trash') {
-                          deleteEmailMutation.mutate(email.id);
-                        } else {
-                          moveToTrashMutation.mutate(email.id);
-                        }
-                      }}
-                      onRestore={filter === 'trash' ? (e) => {
-                        e.stopPropagation();
-                        restoreFromTrashMutation.mutate(email.id);
-                      } : undefined}
-                      extractSenderName={extractSenderName}
-                      extractSenderInitials={extractSenderInitials}
-                      formatEmailDate={formatEmailDate}
-                      isTrashView={filter === 'trash'}
-                      isMultiSelectMode={isMultiSelectMode && filter !== 'sent'}
-                      isChecked={selectedEmailIds.has(email.id)}
-                      onToggleCheck={(e) => {
-                        e.stopPropagation();
-                        toggleEmailSelection(email.id);
-                      }}
-                    />
-                  )
-                ))}
-              </motion.div>
-            )}
-          </div>
-              </motion.div>
-            </ResizablePanel>
-
-            {/* Resizable Handle with Toggle Button */}
-            <div className="flex flex-col items-center justify-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  if (emailListPanelRef.current) {
-                    if (emailListCollapsed) {
-                      emailListPanelRef.current.expand();
-                    } else {
-                      emailListPanelRef.current.collapse();
-                    }
-                  }
-                }}
-                className="h-8 w-8 rounded-full bg-white/5 hover:bg-gold/20 border border-white/10 hover:border-gold/30 transition-all z-10"
-                title={emailListCollapsed ? "Extinde lista" : "Restrânge lista"}
-              >
-                {emailListCollapsed ? (
-                  <PanelLeft className="h-4 w-4 text-gold" />
-                ) : (
-                  <PanelLeftClose className="h-4 w-4 text-muted-foreground" />
-                )}
-              </Button>
-              <ResizableHandle withHandle className="flex-1 bg-white/10 hover:bg-gold/30 transition-colors" />
-            </div>
-
-            {/* Email Detail Panel - Resizable */}
-            <ResizablePanel defaultSize={70} minSize={40}>
-              <div className="h-full min-h-0">
-                <EmailDetail
-                  email={selectedEmail}
-                  onClose={handleBackToList}
-                  onReply={handleOpenReply}
-                  onForward={handleOpenForward}
-                  onToggleStar={() => {
-                    if (selectedEmail) {
-                      updateEmailMutation.mutate({ 
-                        id: selectedEmail.id, 
-                        updates: { is_starred: !selectedEmail.is_starred } 
-                      });
-                    }
-                  }}
-                  onArchive={handleArchive}
-                  onUnarchive={() => {
-                    if (selectedEmail) {
-                      unarchiveEmailMutation.mutate(selectedEmail.id);
-                    }
-                  }}
-                  onDelete={handleDelete}
-                  isArchived={filter === 'archived'}
-                  extractSenderName={extractSenderName}
-                  extractSenderInitials={extractSenderInitials}
-                />
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-
-        {/* Mobile: Email List - Full width when list view */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "lg:hidden rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent overflow-hidden flex flex-col min-h-0 flex-1",
-            mobileView === 'detail' && "hidden"
-          )}
-        >
-          {/* Bulk action bar for mobile */}
-          {isMultiSelectMode && selectedEmailIds.size > 0 && filter !== 'sent' && (
-            <div className="p-2 md:p-3 border-b border-white/5 bg-gold/10 flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={deselectAllEmails}
-                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" />
-                  <span className="hidden sm:inline">Anulează</span>
-                </button>
-                <span className="text-xs font-medium text-gold">
-                  {selectedEmailIds.size} selectate
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                {filter !== 'trash' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkMarkAsReadMutation.isPending}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <MailOpen className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Citit</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkArchiveMutation.isPending}
-                      className="h-7 px-2 text-xs"
-                    >
-                      <Archive className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Arhivează</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkDeleteMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkDeleteMutation.isPending}
-                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Șterge</span>
-                    </Button>
-                  </>
-                )}
-                {filter === 'trash' && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => bulkRestoreMutation.mutate(Array.from(selectedEmailIds))}
-                      disabled={bulkRestoreMutation.isPending}
-                      className="h-7 px-2 text-xs text-green-400 hover:text-green-400"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Restaurează</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        if (confirm('Ești sigur că vrei să ștergi definitiv aceste emailuri?')) {
-                          bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
-                        }
-                      }}
-                      disabled={bulkPermanentDeleteMutation.isPending}
-                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                      <span className="hidden sm:inline">Șterge definitiv</span>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <div className="p-2 md:p-3 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {filter !== 'sent' && filteredEmails && filteredEmails.length > 0 && (
-                <button
-                  onClick={() => {
-                    if (isMultiSelectMode) {
-                      if (selectedEmailIds.size === filteredEmails.length) {
-                        deselectAllEmails();
-                      } else {
-                        selectAllEmails();
-                      }
-                    } else {
-                      setIsMultiSelectMode(true);
-                    }
-                  }}
-                  className={cn(
-                    "p-1.5 rounded-lg transition-colors",
-                    isMultiSelectMode 
-                      ? "bg-gold/20 text-gold" 
-                      : "hover:bg-white/10 text-muted-foreground"
-                  )}
-                  title={isMultiSelectMode ? "Selectează tot" : "Mod selectare"}
-                >
-                  {isMultiSelectMode && selectedEmailIds.size === filteredEmails?.length ? (
-                    <CheckSquare className="h-4 w-4" />
-                  ) : (
-                    <Square className="h-4 w-4" />
-                  )}
-                </button>
-              )}
-              <span className="text-xs text-muted-foreground font-medium">
-                {filteredEmails?.length || 0} email-uri
-              </span>
-            </div>
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="text-xs text-gold hover:underline"
-              >
-                Șterge căutarea
-              </button>
-            )}
-          </div>
-          <div 
-            ref={pullToRefresh.containerRef}
-            className="flex-1 overflow-y-auto min-h-[200px]"
-          >
-            <PullToRefreshIndicator 
-              pullDistance={pullToRefresh.pullDistance}
-              isRefreshing={pullToRefresh.isRefreshing}
-              progress={pullToRefresh.progress}
-            />
-            {(isLoading || !emails) && !pullToRefresh.isRefreshing ? (
-              <EmailListSkeleton count={6} />
-            ) : filteredEmails && filteredEmails.length === 0 ? (
-              <div className="p-6 md:p-8 text-center">
-                <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-3 md:mb-4">
-                  <Mail className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/30" />
-                </div>
-                <p className="font-medium text-sm md:text-base text-muted-foreground">Nu există email-uri</p>
-                <p className="text-xs text-muted-foreground/60 mt-1">
-                  {searchQuery ? "Încearcă altă căutare" : "Inbox-ul tău este gol"}
-                </p>
-              </div>
-            ) : (
-              <motion.div 
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { staggerChildren: 0.03 } }
-                }}
-                className="divide-y divide-white/5"
-              >
-                {filteredEmails?.map((email) => (
+                filteredEmails?.map((email) => (
                   <SwipeableEmailItem
                     key={email.id}
                     email={email}
@@ -1930,18 +941,12 @@ ${originalBody}`;
                     extractSenderInitials={extractSenderInitials}
                     formatEmailDate={formatEmailDate}
                   />
-                ))}
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Mobile: Email Detail - Full width when detail view */}
-        <div className={cn(
-          "lg:hidden flex-1 min-w-0 min-h-0",
-          mobileView === 'list' && "hidden"
-        )}>
-          <EmailDetail
+                ))
+              )}
+            </div>
+          </>
+        ) : (
+          <GmailEmailDetail
             email={selectedEmail}
             onClose={handleBackToList}
             onReply={handleOpenReply}
@@ -1961,32 +966,201 @@ ${originalBody}`;
               }
             }}
             onDelete={handleDelete}
+            onRestore={filter === 'trash' ? handleRestore : undefined}
             isArchived={filter === 'archived'}
+            isTrashView={filter === 'trash'}
             extractSenderName={extractSenderName}
             extractSenderInitials={extractSenderInitials}
           />
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout - Gmail Style
+  return (
+    <div className="h-[calc(100vh-80px)] flex flex-col bg-background">
+      {/* Gmail Header */}
+      <GmailHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onRefresh={() => refetch()}
+        isRefreshing={isLoading}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex min-h-0">
+        {/* Sidebar */}
+        <GmailSidebar
+          filter={filter}
+          setFilter={setFilter}
+          emailsCount={emails?.length || 0}
+          unreadCount={unreadCount}
+          starredCount={starredCount}
+          archivedCount={archivedCount}
+          sentCount={sentCount}
+          trashCount={trashCount}
+          draftsCount={drafts?.length || 0}
+          onCompose={handleOpenCompose}
+          onShowDrafts={() => setShowDrafts(true)}
+          collapsed={sidebarCollapsed}
+        />
+
+        {/* Email List */}
+        <div className="flex-1 flex min-w-0 border-r border-border/30">
+          {isLoading ? (
+            <div className="flex-1 p-4">
+              <EmailListSkeleton count={10} />
+            </div>
+          ) : (
+            <div className="w-full max-w-[400px] border-r border-border/30">
+              <GmailEmailList
+                emails={filteredEmails || []}
+                selectedEmailId={selectedEmail?.id || null}
+                onSelectEmail={handleSelectEmail}
+                onToggleStar={handleToggleStar}
+                onDelete={(email) => {
+                  if (filter === 'sent') {
+                    deleteSentEmailMutation.mutate(email.id);
+                  } else if (filter === 'trash') {
+                    deleteEmailMutation.mutate(email.id);
+                  } else {
+                    moveToTrashMutation.mutate(email.id);
+                  }
+                }}
+                onArchive={(email) => archiveEmailMutation.mutate(email.id)}
+                onRestore={filter === 'trash' ? (email) => restoreFromTrashMutation.mutate(email.id) : undefined}
+                extractSenderName={extractSenderName}
+                formatEmailDate={formatEmailDate}
+                isLoading={isLoading}
+                isTrashView={filter === 'trash'}
+                selectedIds={selectedEmailIds}
+                onToggleSelect={toggleEmailSelection}
+                onSelectAll={selectAllEmails}
+                onDeselectAll={deselectAllEmails}
+                totalCount={emails?.length || 0}
+                onRefresh={() => refetch()}
+                onBulkDelete={() => {
+                  if (filter === 'trash') {
+                    bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
+                  } else {
+                    bulkDeleteMutation.mutate(Array.from(selectedEmailIds));
+                  }
+                }}
+                onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
+                onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
+              />
+            </div>
+          )}
+          
+          {/* Email Detail */}
+          <div className="flex-1 min-w-0">
+            <GmailEmailDetail
+              email={selectedEmail}
+              onClose={handleBackToList}
+              onReply={handleOpenReply}
+              onForward={handleOpenForward}
+              onToggleStar={() => {
+                if (selectedEmail) {
+                  updateEmailMutation.mutate({ 
+                    id: selectedEmail.id, 
+                    updates: { is_starred: !selectedEmail.is_starred } 
+                  });
+                }
+              }}
+              onArchive={handleArchive}
+              onUnarchive={() => {
+                if (selectedEmail) {
+                  unarchiveEmailMutation.mutate(selectedEmail.id);
+                }
+              }}
+              onDelete={handleDelete}
+              onRestore={filter === 'trash' ? handleRestore : undefined}
+              isArchived={filter === 'archived'}
+              isTrashView={filter === 'trash'}
+              extractSenderName={extractSenderName}
+              extractSenderInitials={extractSenderInitials}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Reply Dialog */}
-      <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+      {/* Drafts Dialog */}
+      <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
+        <DialogContent className="max-w-md bg-background border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Reply className="h-5 w-5 text-gold" />
-              Răspunde la email
+              <PenSquare className="h-5 w-5 text-primary" />
+              Ciorne ({drafts?.length || 0})
+            </DialogTitle>
+            <DialogDescription>
+              Selectează o ciornă pentru a o încărca
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh]">
+            {drafts && drafts.length > 0 ? (
+              <div className="space-y-2">
+                {drafts.map((draft: any) => (
+                  <div
+                    key={draft.id}
+                    className="p-3 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => handleLoadDraft(draft)}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {draft.subject || "(Fără subiect)"}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Către: {draft.recipient || "(Fără destinatar)"}
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">
+                          {format(new Date(draft.updated_at), "d MMM, HH:mm", { locale: ro })}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={(e) => handleDeleteDraft(e, draft.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <PenSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">Nu ai ciorne salvate</p>
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reply Dialog */}
+      <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] bg-background border-border max-h-[90vh] flex flex-col overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Reply className="h-5 w-5 text-primary" />
+              Răspunde
             </DialogTitle>
             <DialogDescription>Trimite un răspuns către expeditor</DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1 overflow-y-auto">
             <div className="space-y-2">
               <Label>Către</Label>
               <Input
                 value={replyTo}
                 onChange={(e) => setReplyTo(e.target.value)}
                 placeholder="email@example.com"
-                className="bg-white/5 border-white/10"
+                className="bg-muted/30 border-border"
               />
             </div>
             
@@ -1996,7 +1170,7 @@ ${originalBody}`;
                 value={replySubject}
                 onChange={(e) => setReplySubject(e.target.value)}
                 placeholder="Re: Subiect"
-                className="bg-white/5 border-white/10"
+                className="bg-muted/30 border-border"
               />
             </div>
             
@@ -2006,12 +1180,12 @@ ${originalBody}`;
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
                 placeholder="Scrie răspunsul tău aici..."
-                className="min-h-[200px] max-h-[60vh] resize-y bg-white/5 border-white/10"
+                className="min-h-[200px] max-h-[60vh] resize-y bg-muted/30 border-border"
               />
             </div>
             
             {selectedEmail && (
-              <div className="p-3 bg-white/5 rounded-xl text-sm border border-white/10">
+              <div className="p-3 bg-muted/20 rounded-xl text-sm border border-border/50">
                 <p className="font-medium text-muted-foreground mb-1">Email original:</p>
                 <p className="text-xs text-muted-foreground">
                   De la: {selectedEmail.sender}<br/>
@@ -2022,13 +1196,12 @@ ${originalBody}`;
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReplyDialogOpen(false)} className="border-white/10">
+            <Button variant="outline" onClick={() => setReplyDialogOpen(false)}>
               Anulează
             </Button>
             <Button 
               onClick={handleSendReply}
               disabled={sendReplyMutation.isPending || !replyBody.trim()}
-              className="bg-gradient-to-r from-gold to-gold-light text-black"
             >
               {sendReplyMutation.isPending ? (
                 <>
@@ -2048,10 +1221,10 @@ ${originalBody}`;
 
       {/* Forward Dialog */}
       <Dialog open={forwardDialogOpen} onOpenChange={setForwardDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[hsl(220,30%,12%)] border-white/10 max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent className="sm:max-w-[600px] bg-background border-border max-h-[90vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Forward className="h-5 w-5 text-gold" />
+              <Forward className="h-5 w-5 text-primary" />
               Redirecționează email
             </DialogTitle>
             <DialogDescription>Trimite emailul către altcineva</DialogDescription>
@@ -2066,7 +1239,7 @@ ${originalBody}`;
                     type="button" 
                     variant="ghost" 
                     size="sm" 
-                    className="text-xs h-6 text-gold px-2"
+                    className="text-xs h-6 text-primary px-2"
                     onClick={() => setShowForwardCcBcc(true)}
                   >
                     Cc/Bcc
@@ -2107,7 +1280,7 @@ ${originalBody}`;
                 value={forwardSubject}
                 onChange={(e) => setForwardSubject(e.target.value)}
                 placeholder="Fwd: Subiect"
-                className="bg-white/5 border-white/10"
+                className="bg-muted/30 border-border"
               />
             </div>
             
@@ -2117,59 +1290,18 @@ ${originalBody}`;
                 value={forwardBody}
                 onChange={(e) => setForwardBody(e.target.value)}
                 placeholder="Adaugă un mesaj..."
-                className="min-h-[200px] max-h-[40vh] resize-y bg-white/5 border-white/10"
+                className="min-h-[200px] max-h-[40vh] resize-y bg-muted/30 border-border"
               />
-            </div>
-
-            {/* Attachments */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Atașamente</Label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-6 text-gold"
-                  onClick={() => document.getElementById('forward-file-input')?.click()}
-                >
-                  <Paperclip className="h-3 w-3 mr-1" />
-                  Adaugă
-                </Button>
-                <input
-                  id="forward-file-input"
-                  type="file"
-                  multiple
-                  className="hidden"
-                  onChange={handleForwardFileChange}
-                />
-              </div>
-              {forwardAttachments.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {forwardAttachments.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-white/5 rounded text-xs">
-                      <Paperclip className="h-3 w-3" />
-                      <span className="max-w-[150px] truncate">{file.name}</span>
-                      <button
-                        onClick={() => handleRemoveForwardAttachment(idx)}
-                        className="text-destructive hover:text-destructive/80"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setForwardDialogOpen(false)} className="border-white/10">
+            <Button variant="outline" onClick={() => setForwardDialogOpen(false)}>
               Anulează
             </Button>
             <Button 
               onClick={handleSendForward}
               disabled={sendEmailMutation.isPending || !forwardTo.trim()}
-              className="bg-gradient-to-r from-gold to-gold-light text-black"
             >
               {sendEmailMutation.isPending ? (
                 <>
@@ -2189,10 +1321,10 @@ ${originalBody}`;
 
       {/* Compose Dialog */}
       <Dialog open={composeDialogOpen} onOpenChange={setComposeDialogOpen}>
-        <DialogContent className="max-w-2xl bg-[hsl(220,30%,12%)] border-white/10 h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-lg p-4 sm:p-6 gap-3 sm:gap-4">
+        <DialogContent className="max-w-2xl bg-background border-border h-[100dvh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden rounded-none sm:rounded-lg p-4 sm:p-6 gap-3 sm:gap-4">
           <DialogHeader className="shrink-0 space-y-1">
             <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
-              <PenSquare className="h-4 w-4 sm:h-5 sm:w-5 text-gold" />
+              <PenSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Email nou
             </DialogTitle>
             <DialogDescription className="flex items-center justify-between text-xs sm:text-sm">
@@ -2215,7 +1347,7 @@ ${originalBody}`;
                     type="button" 
                     variant="ghost" 
                     size="sm" 
-                    className="text-[10px] sm:text-xs h-5 sm:h-6 text-gold px-2"
+                    className="text-[10px] sm:text-xs h-5 sm:h-6 text-primary px-2"
                     onClick={() => setShowCcBcc(true)}
                   >
                     CC/BCC
@@ -2237,7 +1369,7 @@ ${originalBody}`;
                     value={composeCc}
                     onChange={(e) => setComposeCc(e.target.value)}
                     placeholder="cc@example.com"
-                    className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
+                    className="bg-muted/30 border-border h-8 sm:h-10 text-sm"
                   />
                 </div>
                 <div className="flex-1 space-y-1">
@@ -2246,7 +1378,7 @@ ${originalBody}`;
                     value={composeBcc}
                     onChange={(e) => setComposeBcc(e.target.value)}
                     placeholder="bcc@example.com"
-                    className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
+                    className="bg-muted/30 border-border h-8 sm:h-10 text-sm"
                   />
                 </div>
               </div>
@@ -2258,13 +1390,13 @@ ${originalBody}`;
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
                 placeholder="Subiectul emailului"
-                className="bg-white/5 border-white/10 h-8 sm:h-10 text-sm"
+                className="bg-muted/30 border-border h-8 sm:h-10 text-sm"
               />
             </div>
             
             <div className="flex-1 min-h-0 flex flex-col space-y-1 sm:space-y-2 overflow-hidden">
               <Label className="text-xs sm:text-sm shrink-0">Mesaj</Label>
-              <div className="flex-1 min-h-0 overflow-hidden [&_.border]:border-white/10 [&_.bg-background]:bg-white/5">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <RichTextEditor
                   value={composeBody}
                   onChange={setComposeBody}
@@ -2281,7 +1413,7 @@ ${originalBody}`;
                     <Badge 
                       key={idx} 
                       variant="secondary" 
-                      className="flex items-center gap-1 py-0.5 px-2 bg-white/5 text-xs"
+                      className="flex items-center gap-1 py-0.5 px-2 bg-muted/30 text-xs"
                     >
                       <Paperclip className="h-3 w-3" />
                       <span className="max-w-[100px] truncate">{file.name}</span>
@@ -2299,13 +1431,13 @@ ${originalBody}`;
             )}
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2 pt-3 border-t border-white/10 shrink-0">
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-3 border-t border-border shrink-0">
             <div className="flex gap-2 w-full sm:w-auto order-2 sm:order-1">
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setComposeDialogOpen(false)} 
-                className="border-white/10 flex-1 sm:flex-none h-9"
+                className="flex-1 sm:flex-none h-9"
               >
                 Anulează
               </Button>
@@ -2321,7 +1453,7 @@ ${originalBody}`;
                 variant="outline" 
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                className="border-white/10 flex-1 sm:flex-none h-9"
+                className="flex-1 sm:flex-none h-9"
               >
                 <Paperclip className="h-4 w-4 mr-1.5" />
                 Atașează
@@ -2333,7 +1465,7 @@ ${originalBody}`;
                 size="sm"
                 onClick={handleSaveDraft}
                 disabled={saveDraftMutation.isPending}
-                className="bg-white/5 hover:bg-white/10 flex-1 sm:flex-none h-9"
+                className="bg-muted/30 hover:bg-muted/50 flex-1 sm:flex-none h-9"
               >
                 {saveDraftMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -2354,7 +1486,7 @@ ${originalBody}`;
                   }
                 }}
                 disabled={sendEmailMutation.isPending || !composeBody.trim() || !composeTo.trim()}
-                className="bg-gradient-to-r from-gold to-gold-light text-black flex-1 sm:flex-none h-9"
+                className="flex-1 sm:flex-none h-9"
               >
                 {sendEmailMutation.isPending ? (
                   <>
