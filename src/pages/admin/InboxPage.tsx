@@ -1005,6 +1005,7 @@ ${originalBody}`;
           onCompose={handleOpenCompose}
           onShowDrafts={() => setShowDrafts(true)}
           collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
 
         {/* Email List */}
