@@ -9,3 +9,4 @@ export { GmailSidebar } from './GmailSidebar';
 export { GmailHeader } from './GmailHeader';
 export { GmailEmailList } from './GmailEmailList';
 export { GmailEmailDetail } from './GmailEmailDetail';
+export { EmailThreadView } from './EmailThreadView';
