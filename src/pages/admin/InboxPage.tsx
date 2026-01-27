@@ -36,13 +36,15 @@ import {
   GmailEmailList, 
   GmailEmailDetail,
   EmailAutocomplete,
-  SwipeableEmailItem 
+  SwipeableEmailItem,
+  EmailThreadView
 } from "@/components/inbox";
 import EmailListSkeleton from "@/components/skeletons/EmailListSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useEmailThreads } from "@/hooks/useEmailThreads";
 
 interface ReceivedEmail {
   id: string;
@@ -63,6 +65,7 @@ interface ReceivedEmail {
 }
 
 const InboxPage = () => {
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [selectedEmail, setSelectedEmail] = useState<ReceivedEmail | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash'>('all');
   const [searchQuery, setSearchQuery] = useState("");
@@ -337,6 +340,46 @@ const InboxPage = () => {
   const trashCount = trashEmails?.length || 0;
   const unreadCount = emails?.filter(e => !e.is_read).length || 0;
   const starredCount = emails?.filter(e => e.is_starred).length || 0;
+
+  // Fetch all sent emails for threading
+  const { data: allSentEmails } = useQuery({
+    queryKey: ['all-sent-emails'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sent_emails')
+        .select('*')
+        .eq('is_deleted', false)
+        .order('sent_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map((email: any) => ({
+        id: email.id,
+        sender: email.from_address,
+        recipient: email.recipient,
+        subject: email.subject,
+        body_plain: email.body_plain,
+        body_html: email.body_html,
+        stripped_text: email.body_plain,
+        message_id: email.message_id,
+        in_reply_to: email.in_reply_to,
+        attachments: email.attachments || [],
+        is_read: true,
+        is_starred: false,
+        is_archived: false,
+        is_deleted: false,
+        received_at: email.sent_at,
+        created_at: email.created_at
+      }));
+    }
+  });
+
+  // Use email threads hook
+  const { threads, getThreadById } = useEmailThreads(
+    filter !== 'sent' ? emails : undefined, 
+    allSentEmails
+  );
+
+  // Get current thread
+  const currentThread = selectedThreadId ? getThreadById(selectedThreadId) : null;
 
   // Pull to refresh for mobile
   const pullToRefresh = usePullToRefresh({
@@ -656,6 +699,13 @@ const InboxPage = () => {
   const handleSelectEmail = async (email: ReceivedEmail) => {
     setSelectedEmail(email);
     setMobileView('detail');
+    
+    // Find the thread for this email
+    const thread = getThreadById(email.id);
+    if (thread) {
+      setSelectedThreadId(thread.id);
+    }
+    
     if (!email.is_read) {
       updateEmailMutation.mutate({ id: email.id, updates: { is_read: true } });
     }
@@ -664,6 +714,7 @@ const InboxPage = () => {
   const handleBackToList = () => {
     setMobileView('list');
     setSelectedEmail(null);
+    setSelectedThreadId(null);
   };
 
   const handleToggleStar = (e: React.MouseEvent, email: ReceivedEmail) => {
@@ -695,15 +746,46 @@ const InboxPage = () => {
     restoreFromTrashMutation.mutate(selectedEmail.id);
   };
 
-  const handleOpenReply = () => {
-    if (!selectedEmail) return;
-    const emailMatch = selectedEmail.sender.match(/<([^>]+)>/) || [null, selectedEmail.sender];
-    const senderEmail = emailMatch[1] || selectedEmail.sender;
+  // Thread-aware reply handler
+  const handleOpenReplyForEmail = (email: any) => {
+    const emailMatch = email.sender.match(/<([^>]+)>/) || [null, email.sender];
+    const senderEmail = email.type === 'sent' 
+      ? (email.recipient?.match(/<([^>]+)>/)?.[1] || email.recipient || '')
+      : (emailMatch[1] || email.sender);
     
     setReplyTo(senderEmail);
-    setReplySubject(selectedEmail.subject?.startsWith('Re:') ? selectedEmail.subject : `Re: ${selectedEmail.subject || ''}`);
+    setReplySubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject || ''}`);
     setReplyBody("");
     setReplyDialogOpen(true);
+  };
+
+  const handleOpenReply = () => {
+    if (!selectedEmail) return;
+    handleOpenReplyForEmail(selectedEmail);
+  };
+
+  // Thread-aware forward handler
+  const handleOpenForwardForEmail = (email: any) => {
+    const originalDate = format(new Date(email.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
+    const originalBody = email.body_plain || email.stripped_text || '';
+    
+    const forwardedContent = `
+
+---------- Mesaj redirecționat ----------
+De la: ${email.sender}
+Data: ${originalDate}
+Subiect: ${email.subject || '(Fără subiect)'}
+
+${originalBody}`;
+    
+    setForwardTo("");
+    setForwardCc("");
+    setForwardBcc("");
+    setForwardSubject(email.subject?.startsWith('Fwd:') ? email.subject : `Fwd: ${email.subject || ''}`);
+    setForwardBody(forwardedContent);
+    setForwardAttachments([]);
+    setShowForwardCcBcc(false);
+    setForwardDialogOpen(true);
   };
 
   const handleSendReply = () => {
@@ -723,27 +805,7 @@ const InboxPage = () => {
 
   const handleOpenForward = () => {
     if (!selectedEmail) return;
-    
-    const originalDate = format(new Date(selectedEmail.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
-    const originalBody = selectedEmail.body_plain || selectedEmail.stripped_text || '';
-    
-    const forwardedContent = `
-
----------- Mesaj redirecționat ----------
-De la: ${selectedEmail.sender}
-Data: ${originalDate}
-Subiect: ${selectedEmail.subject || '(Fără subiect)'}
-
-${originalBody}`;
-    
-    setForwardTo("");
-    setForwardCc("");
-    setForwardBcc("");
-    setForwardSubject(selectedEmail.subject?.startsWith('Fwd:') ? selectedEmail.subject : `Fwd: ${selectedEmail.subject || ''}`);
-    setForwardBody(forwardedContent);
-    setForwardAttachments([]);
-    setShowForwardCcBcc(false);
-    setForwardDialogOpen(true);
+    handleOpenForwardForEmail(selectedEmail);
   };
 
   const handleSendForward = async () => {
@@ -1056,34 +1118,62 @@ ${originalBody}`;
             </div>
           )}
           
-          {/* Email Detail */}
+          {/* Email Detail / Thread View */}
           <div className="flex-1 min-w-0">
-            <GmailEmailDetail
-              email={selectedEmail}
-              onClose={handleBackToList}
-              onReply={handleOpenReply}
-              onForward={handleOpenForward}
-              onToggleStar={() => {
-                if (selectedEmail) {
+            {currentThread && currentThread.emails.length > 1 ? (
+              <EmailThreadView
+                thread={currentThread.emails}
+                subject={currentThread.subject}
+                onClose={handleBackToList}
+                onReply={handleOpenReplyForEmail}
+                onForward={handleOpenForwardForEmail}
+                onToggleStar={(email) => {
                   updateEmailMutation.mutate({ 
-                    id: selectedEmail.id, 
-                    updates: { is_starred: !selectedEmail.is_starred } 
+                    id: email.id, 
+                    updates: { is_starred: !email.is_starred } 
                   });
-                }
-              }}
-              onArchive={handleArchive}
-              onUnarchive={() => {
-                if (selectedEmail) {
-                  unarchiveEmailMutation.mutate(selectedEmail.id);
-                }
-              }}
-              onDelete={handleDelete}
-              onRestore={filter === 'trash' ? handleRestore : undefined}
-              isArchived={filter === 'archived'}
-              isTrashView={filter === 'trash'}
-              extractSenderName={extractSenderName}
-              extractSenderInitials={extractSenderInitials}
-            />
+                }}
+                onArchive={handleArchive}
+                onUnarchive={() => {
+                  if (selectedEmail) {
+                    unarchiveEmailMutation.mutate(selectedEmail.id);
+                  }
+                }}
+                onDelete={handleDelete}
+                onRestore={filter === 'trash' ? handleRestore : undefined}
+                isArchived={filter === 'archived'}
+                isTrashView={filter === 'trash'}
+                extractSenderName={extractSenderName}
+                extractSenderInitials={extractSenderInitials}
+              />
+            ) : (
+              <GmailEmailDetail
+                email={selectedEmail}
+                onClose={handleBackToList}
+                onReply={handleOpenReply}
+                onForward={handleOpenForward}
+                onToggleStar={() => {
+                  if (selectedEmail) {
+                    updateEmailMutation.mutate({ 
+                      id: selectedEmail.id, 
+                      updates: { is_starred: !selectedEmail.is_starred } 
+                    });
+                  }
+                }}
+                onArchive={handleArchive}
+                onUnarchive={() => {
+                  if (selectedEmail) {
+                    unarchiveEmailMutation.mutate(selectedEmail.id);
+                  }
+                }}
+                onDelete={handleDelete}
+                onRestore={filter === 'trash' ? handleRestore : undefined}
+                isArchived={filter === 'archived'}
+                isTrashView={filter === 'trash'}
+                extractSenderName={extractSenderName}
+                extractSenderInitials={extractSenderInitials}
+              />
+            )}
           </div>
         </div>
       </div>
