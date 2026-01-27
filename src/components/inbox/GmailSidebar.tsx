@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Inbox, 
   Star, 
@@ -8,13 +8,19 @@ import {
   Trash2,
   PenSquare,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Tag,
-  Clock,
-  AlertCircle,
-  Users
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface GmailSidebarProps {
   filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent' | 'trash';
@@ -29,6 +35,7 @@ interface GmailSidebarProps {
   onCompose: () => void;
   onShowDrafts: () => void;
   collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const GmailSidebar = ({
@@ -44,6 +51,7 @@ export const GmailSidebar = ({
   onCompose,
   onShowDrafts,
   collapsed = false,
+  onToggleCollapse,
 }: GmailSidebarProps) => {
   const mainItems = [
     { key: 'all' as const, label: 'Primite', count: unreadCount, icon: Inbox, showCount: true },
@@ -59,25 +67,59 @@ export const GmailSidebar = ({
 
   return (
     <div className={cn(
-      "flex flex-col h-full py-2 transition-all duration-200",
+      "relative flex flex-col h-full py-2 transition-all duration-300 ease-in-out border-r border-border/30",
       collapsed ? "w-[68px]" : "w-[256px]"
     )}>
+      {/* Toggle button */}
+      {onToggleCollapse && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onToggleCollapse}
+                className={cn(
+                  "absolute -right-3 top-6 z-10 h-6 w-6 rounded-full",
+                  "bg-background border border-border shadow-sm",
+                  "flex items-center justify-center",
+                  "hover:bg-muted transition-colors"
+                )}
+              >
+                {collapsed ? (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {collapsed ? "Extinde meniul" : "Restrânge meniul"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       {/* Compose Button */}
       <div className={cn("px-3 mb-4", collapsed && "px-2")}>
-        <Button
-          onClick={onCompose}
-          className={cn(
-            "shadow-md hover:shadow-lg transition-all duration-200",
-            "bg-[hsl(210,100%,95%)] hover:bg-[hsl(210,100%,92%)] text-[hsl(210,100%,30%)]",
-            "border-0 font-medium",
-            collapsed 
-              ? "w-12 h-12 rounded-full p-0" 
-              : "w-full h-14 rounded-2xl px-6 justify-start gap-3"
-          )}
-        >
-          <PenSquare className={cn("h-5 w-5", !collapsed && "-ml-1")} />
-          {!collapsed && <span className="text-sm">Compune</span>}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onCompose}
+                className={cn(
+                  "shadow-md hover:shadow-lg transition-all duration-200",
+                  "bg-primary/10 hover:bg-primary/20 text-primary",
+                  "border-0 font-medium",
+                  collapsed 
+                    ? "w-12 h-12 rounded-full p-0" 
+                    : "w-full h-14 rounded-2xl px-6 justify-start gap-3"
+                )}
+              >
+                <PenSquare className={cn("h-5 w-5", !collapsed && "-ml-1")} />
+                {!collapsed && <span className="text-sm">Compune</span>}
+              </Button>
+            </TooltipTrigger>
+            {collapsed && <TooltipContent side="right">Compune</TooltipContent>}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Main Navigation */}
