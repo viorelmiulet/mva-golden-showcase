@@ -12,7 +12,9 @@ import {
   Forward,
   X,
   Check,
-  PenSquare
+  PenSquare,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -100,6 +102,7 @@ const InboxPage = () => {
   const [showDrafts, setShowDrafts] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [emailListCollapsed, setEmailListCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1073,53 +1076,74 @@ ${originalBody}`;
         {/* Email List */}
         <div className="flex-1 flex min-w-0 border-r border-border/30">
           {isLoading ? (
-            <div className="flex-1 p-4">
-              <EmailListSkeleton count={10} />
+            <div className={cn(
+              "p-4 transition-all duration-300",
+              emailListCollapsed ? "w-0 overflow-hidden p-0" : "flex-1"
+            )}>
+              {!emailListCollapsed && <EmailListSkeleton count={10} />}
             </div>
           ) : (
-            <div className="w-full max-w-[400px] border-r border-border/30">
-              <GmailEmailList
-                emails={filteredEmails || []}
-                selectedEmailId={selectedEmail?.id || null}
-                onSelectEmail={handleSelectEmail}
-                onToggleStar={handleToggleStar}
-                onDelete={(email) => {
-                  if (filter === 'sent') {
-                    deleteSentEmailMutation.mutate(email.id);
-                  } else if (filter === 'trash') {
-                    deleteEmailMutation.mutate(email.id);
-                  } else {
-                    moveToTrashMutation.mutate(email.id);
-                  }
-                }}
-                onArchive={(email) => archiveEmailMutation.mutate(email.id)}
-                onRestore={filter === 'trash' ? (email) => restoreFromTrashMutation.mutate(email.id) : undefined}
-                extractSenderName={extractSenderName}
-                formatEmailDate={formatEmailDate}
-                isLoading={isLoading}
-                isTrashView={filter === 'trash'}
-                selectedIds={selectedEmailIds}
-                onToggleSelect={toggleEmailSelection}
-                onSelectAll={selectAllEmails}
-                onDeselectAll={deselectAllEmails}
-                totalCount={emails?.length || 0}
-                onRefresh={() => refetch()}
-                onBulkDelete={() => {
-                  if (filter === 'trash') {
-                    bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
-                  } else {
-                    bulkDeleteMutation.mutate(Array.from(selectedEmailIds));
-                  }
-                }}
-                onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
-                onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
-                onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
-              />
+            <div className={cn(
+              "border-r border-border/30 transition-all duration-300 relative",
+              emailListCollapsed ? "w-0 overflow-hidden" : "w-full max-w-[400px]"
+            )}>
+              {!emailListCollapsed && (
+                <GmailEmailList
+                  emails={filteredEmails || []}
+                  selectedEmailId={selectedEmail?.id || null}
+                  onSelectEmail={handleSelectEmail}
+                  onToggleStar={handleToggleStar}
+                  onDelete={(email) => {
+                    if (filter === 'sent') {
+                      deleteSentEmailMutation.mutate(email.id);
+                    } else if (filter === 'trash') {
+                      deleteEmailMutation.mutate(email.id);
+                    } else {
+                      moveToTrashMutation.mutate(email.id);
+                    }
+                  }}
+                  onArchive={(email) => archiveEmailMutation.mutate(email.id)}
+                  onRestore={filter === 'trash' ? (email) => restoreFromTrashMutation.mutate(email.id) : undefined}
+                  extractSenderName={extractSenderName}
+                  formatEmailDate={formatEmailDate}
+                  isLoading={isLoading}
+                  isTrashView={filter === 'trash'}
+                  selectedIds={selectedEmailIds}
+                  onToggleSelect={toggleEmailSelection}
+                  onSelectAll={selectAllEmails}
+                  onDeselectAll={deselectAllEmails}
+                  totalCount={emails?.length || 0}
+                  onRefresh={() => refetch()}
+                  onBulkDelete={() => {
+                    if (filter === 'trash') {
+                      bulkPermanentDeleteMutation.mutate(Array.from(selectedEmailIds));
+                    } else {
+                      bulkDeleteMutation.mutate(Array.from(selectedEmailIds));
+                    }
+                  }}
+                  onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                  onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
+                  onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
+                />
+              )}
             </div>
           )}
           
           {/* Email Detail / Thread View */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 relative">
+            {/* Toggle button for email list */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setEmailListCollapsed(!emailListCollapsed)}
+              className="absolute left-2 top-2 z-10 h-8 w-8 rounded-full bg-muted/80 hover:bg-muted shadow-sm"
+            >
+              {emailListCollapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </Button>
             {currentThread && currentThread.emails.length > 1 ? (
               <EmailThreadView
                 thread={currentThread.emails}
