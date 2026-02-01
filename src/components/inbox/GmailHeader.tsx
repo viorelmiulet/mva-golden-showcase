@@ -153,7 +153,7 @@ export const GmailHeader = ({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <header className="h-16 border-b border-border/30 flex items-center gap-2 px-4 bg-background">
+      <header className="h-16 border-b border-border/5 flex items-center gap-3 px-4 bg-gradient-to-r from-background via-background to-muted/10 backdrop-blur-xl sticky top-0 z-50">
         {/* Hidden file input */}
         <input
           ref={fileInputRef}
@@ -164,14 +164,14 @@ export const GmailHeader = ({
         />
 
         {/* Left section */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onToggleSidebar}
-                className="h-10 w-10 rounded-full hover:bg-muted/50"
+                className="h-10 w-10 rounded-xl hover:bg-white/10 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -179,41 +179,46 @@ export const GmailHeader = ({
             <TooltipContent>Meniu principal</TooltipContent>
           </Tooltip>
           
-          {/* Logo */}
-          <div className="flex items-center gap-2 pl-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold/80 to-gold flex items-center justify-center">
-              <span className="text-black font-bold text-sm">M</span>
+          {/* Logo - Modern gradient */}
+          <div className="flex items-center gap-3 pl-2">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-amber-500/40 rounded-xl blur-lg opacity-60" />
+              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center shadow-lg shadow-gold/20">
+                <span className="text-black font-bold text-base">M</span>
+              </div>
             </div>
-            <span className="text-xl font-medium text-muted-foreground hidden md:block">Mail</span>
+            <span className="text-xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent hidden md:block">
+              Mail
+            </span>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-[720px] mx-4">
+        {/* Search Bar - Glassmorphism style */}
+        <div className="flex-1 max-w-2xl mx-6">
           <div className={cn(
-            "relative flex items-center transition-all duration-200",
+            "relative flex items-center transition-all duration-300 ease-out",
             searchFocused 
-              ? "bg-background shadow-lg border border-border rounded-lg" 
-              : "bg-muted/50 hover:bg-muted/70 rounded-full"
+              ? "bg-background/80 shadow-xl shadow-primary/5 border border-border/50 rounded-2xl backdrop-blur-xl scale-[1.02]" 
+              : "bg-muted/30 hover:bg-muted/50 rounded-2xl border border-transparent hover:border-border/20"
           )}>
             <Button
               variant="ghost"
               size="icon"
-              className="h-10 w-10 rounded-full shrink-0"
+              className="h-12 w-12 rounded-xl shrink-0"
             >
               <Search className="h-5 w-5 text-muted-foreground" />
             </Button>
             
             <Input
               type="text"
-              placeholder="Caută în mail"
+              placeholder="Caută în mail..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
               className={cn(
                 "border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
-                "h-12 text-base placeholder:text-muted-foreground"
+                "h-12 text-base placeholder:text-muted-foreground/60 font-medium"
               )}
             />
             
@@ -222,7 +227,7 @@ export const GmailHeader = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => setSearchQuery("")}
-                className="h-8 w-8 mr-1"
+                className="h-8 w-8 mr-2 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -233,7 +238,7 @@ export const GmailHeader = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full shrink-0 mr-1"
+                  className="h-10 w-10 rounded-xl shrink-0 mr-1 hover:bg-primary/10 transition-colors"
                 >
                   <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
                 </Button>
@@ -243,7 +248,7 @@ export const GmailHeader = ({
           </div>
         </div>
 
-        {/* Right section */}
+        {/* Right section - Icon buttons with glow effect */}
         <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -252,7 +257,7 @@ export const GmailHeader = ({
                 size="icon"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                className="h-10 w-10 rounded-full hover:bg-muted/50 hidden sm:flex"
+                className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 hidden sm:flex"
               >
                 <RefreshCw className={cn("h-5 w-5", isRefreshing && "animate-spin")} />
               </Button>
@@ -266,7 +271,7 @@ export const GmailHeader = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleHelp}
-                className="h-10 w-10 rounded-full hover:bg-muted/50 hidden sm:flex"
+                className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300 hidden sm:flex"
               >
                 <HelpCircle className="h-5 w-5" />
               </Button>
@@ -280,7 +285,7 @@ export const GmailHeader = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleSettings}
-                className="h-10 w-10 rounded-full hover:bg-muted/50 hidden sm:flex"
+                className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300 hidden sm:flex"
               >
                 <Settings className="h-5 w-5" />
               </Button>
@@ -294,7 +299,7 @@ export const GmailHeader = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleApps}
-                className="h-10 w-10 rounded-full hover:bg-muted/50 hidden sm:flex"
+                className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-300 hidden sm:flex"
               >
                 <Grid3X3 className="h-5 w-5" />
               </Button>
@@ -302,40 +307,41 @@ export const GmailHeader = ({
             <TooltipContent>Aplicații Admin</TooltipContent>
           </Tooltip>
 
-          {/* User Avatar with upload */}
+          {/* User Avatar with modern glow */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full ml-2 p-0 overflow-hidden"
+                className="h-11 w-11 rounded-xl ml-2 p-0 overflow-hidden hover:scale-105 transition-transform duration-300 relative group"
                 disabled={isUploading}
               >
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={avatarUrl || undefined} alt="Profil" />
-                  <AvatarFallback className="bg-gold/20 text-gold font-semibold">
+                <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                <Avatar className="h-10 w-10 ring-2 ring-border/50 ring-offset-2 ring-offset-background">
+                  <AvatarImage src={avatarUrl || undefined} alt="Profil" className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-gold/20 to-amber-500/20 text-gold font-semibold">
                     {isUploading ? "..." : userInitial}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 backdrop-blur-xl bg-popover/95 border-border/50">
               <DropdownMenuItem 
                 onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer"
+                className="cursor-pointer focus:bg-primary/10"
               >
                 <Camera className="h-4 w-4 mr-2" />
                 Schimbă poza de profil
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/admin")}>
+              <DropdownMenuSeparator className="bg-border/30" />
+              <DropdownMenuItem onClick={() => navigate("/admin")} className="focus:bg-primary/10">
                 Dashboard Admin
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSettings}>
+              <DropdownMenuItem onClick={handleSettings} className="focus:bg-primary/10">
                 Setări
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/")}>
+              <DropdownMenuSeparator className="bg-border/30" />
+              <DropdownMenuItem onClick={() => navigate("/")} className="focus:bg-primary/10">
                 Înapoi la Site
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -87,15 +87,20 @@ export const GmailEmailDetail = ({
 }: GmailEmailDetailProps) => {
   if (!email) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-background">
-        <div className="w-32 h-32 rounded-full bg-muted/10 flex items-center justify-center mb-6">
-          <svg className="w-20 h-20 text-muted-foreground/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-            <rect x="2" y="4" width="20" height="16" rx="2" />
-            <path d="M22 6l-10 7L2 6" />
-          </svg>
+      <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-br from-background via-background to-muted/5">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl scale-150" />
+          <div className="relative w-36 h-36 rounded-3xl bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center border border-border/10 shadow-2xl shadow-black/5">
+            <svg className="w-16 h-16 text-muted-foreground/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="3" />
+              <path d="M22 7l-10 6L2 7" />
+            </svg>
+          </div>
         </div>
-        <p className="text-xl font-medium mb-2">Selectează un email pentru a-l citi</p>
-        <p className="text-sm text-muted-foreground/60">Alege un mesaj din listă</p>
+        <p className="text-2xl font-semibold mb-2 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+          Selectează un email
+        </p>
+        <p className="text-sm text-muted-foreground/50">Alege un mesaj din listă pentru a-l citi</p>
       </div>
     );
   }
@@ -123,9 +128,9 @@ export const GmailEmailDetail = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Header Toolbar */}
-      <div className="h-12 border-b border-border/30 flex items-center justify-between px-2 shrink-0">
+    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/5">
+      {/* Header Toolbar - Modern glass style */}
+      <div className="h-14 border-b border-border/10 flex items-center justify-between px-3 shrink-0 backdrop-blur-sm bg-background/50">
         <div className="flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
@@ -134,7 +139,7 @@ export const GmailEmailDetail = ({
                   variant="ghost"
                   size="icon"
                   onClick={onClose}
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all duration-200"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -142,6 +147,8 @@ export const GmailEmailDetail = ({
               <TooltipContent>Înapoi</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
+          <div className="h-6 w-px bg-border/30 mx-1" />
 
           {isTrashView && onRestore ? (
             <TooltipProvider>
@@ -151,7 +158,7 @@ export const GmailEmailDetail = ({
                     variant="ghost"
                     size="icon"
                     onClick={onRestore}
-                    className="h-9 w-9"
+                    className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-200"
                   >
                     <RotateCcw className="h-5 w-5" />
                   </Button>
@@ -167,7 +174,7 @@ export const GmailEmailDetail = ({
                     variant="ghost"
                     size="icon"
                     onClick={isArchived ? onUnarchive : onArchive}
-                    className="h-9 w-9"
+                    className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-200"
                   >
                     <Archive className="h-5 w-5" />
                   </Button>
@@ -184,7 +191,7 @@ export const GmailEmailDetail = ({
                   variant="ghost"
                   size="icon"
                   onClick={onDelete}
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
                 >
                   <Trash2 className="h-5 w-5" />
                 </Button>
@@ -193,7 +200,7 @@ export const GmailEmailDetail = ({
             </Tooltip>
           </TooltipProvider>
 
-          <div className="h-5 w-px bg-border mx-1" />
+          <div className="h-6 w-px bg-border/30 mx-1" />
 
           <TooltipProvider>
             <Tooltip>
@@ -201,7 +208,7 @@ export const GmailEmailDetail = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all duration-200"
                 >
                   <Clock className="h-5 w-5" />
                 </Button>
@@ -216,7 +223,7 @@ export const GmailEmailDetail = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all duration-200"
                 >
                   <Tag className="h-5 w-5" />
                 </Button>
@@ -233,7 +240,7 @@ export const GmailEmailDetail = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all duration-200"
                 >
                   <Printer className="h-5 w-5" />
                 </Button>
@@ -248,7 +255,7 @@ export const GmailEmailDetail = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-10 w-10 rounded-xl hover:bg-muted/50 transition-all duration-200"
                 >
                   <ExternalLink className="h-5 w-5" />
                 </Button>
@@ -261,51 +268,54 @@ export const GmailEmailDetail = ({
 
       {/* Email Content */}
       <ScrollArea className="flex-1">
-        <div className="max-w-4xl mx-auto p-6">
-          {/* Subject */}
-          <div className="flex items-start justify-between mb-6">
-            <h1 className="text-2xl font-normal text-foreground pr-4">
+        <div className="max-w-4xl mx-auto p-8">
+          {/* Subject - Modern typography */}
+          <div className="flex items-start justify-between mb-8">
+            <h1 className="text-2xl font-semibold text-foreground pr-4 leading-tight">
               {email.subject || '(Fără subiect)'}
             </h1>
-            <button onClick={onToggleStar} className="shrink-0 p-1">
+            <button 
+              onClick={onToggleStar} 
+              className="shrink-0 p-2 rounded-xl hover:bg-muted/50 transition-colors"
+            >
               <Star 
                 className={cn(
-                  "h-6 w-6 transition-colors",
+                  "h-6 w-6 transition-all duration-200",
                   email.is_starred 
-                    ? "fill-gold text-gold"
+                    ? "fill-gold text-gold scale-110"
                     : "text-muted-foreground hover:text-gold"
                 )} 
               />
             </button>
           </div>
 
-          {/* Sender info */}
-          <div className="flex items-start gap-4 mb-6">
-            <Avatar className="h-10 w-10 shrink-0">
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+          {/* Sender info - Card style */}
+          <div className="flex items-start gap-4 mb-8 p-4 rounded-2xl bg-muted/20 border border-border/10">
+            <Avatar className="h-12 w-12 shrink-0 ring-2 ring-background shadow-lg">
+              <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground text-sm font-semibold">
                 {extractSenderInitials(email.sender)}
               </AvatarFallback>
             </Avatar>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-foreground">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="font-semibold text-foreground">
                   {extractSenderName(email.sender)}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground/70">
                   &lt;{extractEmail(email.sender)}&gt;
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>către mine</span>
-                <button className="hover:text-foreground">
+                <button className="hover:text-foreground p-1 rounded-lg hover:bg-background transition-colors">
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground px-3 py-1.5 bg-background rounded-lg">
                 {format(new Date(email.received_at), "d MMM yyyy, HH:mm", { locale: ro })}
               </span>
               
@@ -316,7 +326,7 @@ export const GmailEmailDetail = ({
                       variant="ghost"
                       size="icon"
                       onClick={onReply}
-                      className="h-9 w-9"
+                      className="h-10 w-10 rounded-xl hover:bg-primary/10 transition-all duration-200"
                     >
                       <Reply className="h-5 w-5" />
                     </Button>
@@ -327,21 +337,21 @@ export const GmailEmailDetail = ({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-muted/50">
                     <MoreVertical className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={onReply}>
+                <DropdownMenuContent align="end" className="w-48 backdrop-blur-xl bg-popover/95 border-border/50 rounded-xl">
+                  <DropdownMenuItem onClick={onReply} className="rounded-lg focus:bg-primary/10">
                     <Reply className="h-4 w-4 mr-2" />
                     Răspunde
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onForward}>
+                  <DropdownMenuItem onClick={onForward} className="rounded-lg focus:bg-primary/10">
                     <Forward className="h-4 w-4 mr-2" />
                     Redirecționează
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                  <DropdownMenuSeparator className="bg-border/30" />
+                  <DropdownMenuItem onClick={onDelete} className="rounded-lg text-destructive focus:bg-destructive/10">
                     <Trash2 className="h-4 w-4 mr-2" />
                     Șterge
                   </DropdownMenuItem>
@@ -350,30 +360,32 @@ export const GmailEmailDetail = ({
             </div>
           </div>
 
-          {/* Email body */}
-          <div className="mb-8">
+          {/* Email body - Clean reading experience */}
+          <div className="mb-10">
             {email.body_html ? (
               <div 
-                className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-headings:my-3"
+                className="prose prose-base max-w-none dark:prose-invert prose-p:my-3 prose-headings:my-4 prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
                 dangerouslySetInnerHTML={{ __html: email.body_html }}
               />
             ) : (
-              <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+              <div className="whitespace-pre-wrap text-base text-foreground/90 leading-relaxed">
                 {email.body_plain || email.stripped_text || 'Nu există conținut'}
               </div>
             )}
           </div>
 
-          {/* Attachments */}
+          {/* Attachments - Modern card grid */}
           {email.attachments && email.attachments.length > 0 && (
-            <div className="border-t border-border/30 pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Paperclip className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">
+            <div className="border-t border-border/10 pt-8">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-muted/30 rounded-xl">
+                  <Paperclip className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <span className="text-sm font-semibold text-muted-foreground">
                   {email.attachments.length} atașament{email.attachments.length > 1 ? 'e' : ''}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {email.attachments.map((attachment, idx) => {
                   const FileIcon = getFileIcon(attachment.filename || attachment.name);
                   return (
@@ -383,20 +395,22 @@ export const GmailEmailDetail = ({
                       download={attachment.filename || attachment.name}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-4 py-3 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors group"
+                      className="flex items-center gap-4 p-4 bg-muted/20 border border-border/10 rounded-2xl hover:bg-muted/40 hover:border-border/30 transition-all duration-200 group"
                     >
-                      <FileIcon className="h-8 w-8 text-muted-foreground" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate max-w-[150px]">
+                      <div className="p-3 bg-background rounded-xl shadow-sm">
+                        <FileIcon className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
                           {attachment.filename || attachment.name}
                         </p>
                         {attachment.size && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground/60">
                             {formatFileSize(attachment.size)}
                           </p>
                         )}
                       </div>
-                      <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Download className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </a>
                   );
                 })}
@@ -404,22 +418,19 @@ export const GmailEmailDetail = ({
             </div>
           )}
 
-          {/* Reply box */}
-          <div className="mt-8 border border-border/50 rounded-2xl p-4">
-            <button 
-              onClick={onReply}
-              className="w-full text-left text-muted-foreground hover:text-foreground transition-colors"
-            >
+          {/* Reply box - Modern input style */}
+          <div className="mt-10 p-5 border border-border/10 rounded-2xl bg-muted/10 hover:bg-muted/20 transition-colors cursor-pointer" onClick={onReply}>
+            <p className="text-muted-foreground/60">
               Click aici pentru a răspunde...
-            </button>
+            </p>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-3 mt-6">
+          {/* Action buttons - Pill style */}
+          <div className="flex items-center gap-3 mt-8">
             <Button
               variant="outline"
               onClick={onReply}
-              className="gap-2"
+              className="gap-2 rounded-xl px-5 border-border/30 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
             >
               <Reply className="h-4 w-4" />
               Răspunde
@@ -427,7 +438,7 @@ export const GmailEmailDetail = ({
             <Button
               variant="outline"
               onClick={onForward}
-              className="gap-2"
+              className="gap-2 rounded-xl px-5 border-border/30 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-200"
             >
               <Forward className="h-4 w-4" />
               Redirecționează
