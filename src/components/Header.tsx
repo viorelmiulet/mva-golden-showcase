@@ -17,6 +17,7 @@ import { useUserRoles } from "@/hooks/useUserRoles"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageToggle } from "@/components/LanguageToggle"
+import { GoogleTranslate } from "@/components/GoogleTranslate"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -260,6 +261,7 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
+            <GoogleTranslate />
             <LanguageToggle />
             {user ? (
               <>
@@ -327,7 +329,10 @@ const Header = () => {
                       MVA IMOBILIARE
                     </div>
                   </div>
-                  <LanguageToggle />
+                  <div className="flex items-center gap-2">
+                    <GoogleTranslate />
+                    <LanguageToggle />
+                  </div>
                 </div>
 
                 {navItems.map((item) => (
