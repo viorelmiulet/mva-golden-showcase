@@ -349,7 +349,7 @@ const AdminLayout = () => {
           />
 
           {/* Main Content - fully responsive with safe area support */}
-          <main className="flex-1 p-4 md:p-8 overflow-x-hidden overflow-y-auto overscroll-contain bg-gradient-to-br from-transparent to-black/5">
+          <main className="flex-1 p-4 md:p-8 overflow-auto bg-gradient-to-br from-transparent to-black/5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
