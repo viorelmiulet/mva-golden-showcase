@@ -161,21 +161,37 @@ const EditComplex = () => {
     if (!imageFile) return formData.main_image;
 
     try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(imageFile);
+      });
+      
+      const imageData = await base64Promise;
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `complexes/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('project-images')
-        .upload(filePath, imageFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('project-images')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      
+      // Use edge function to upload (bypasses RLS)
+      const { data: response, error } = await supabase.functions.invoke('admin-complexes', {
+        body: {
+          action: 'upload_image',
+          data: {
+            imageData,
+            fileName,
+            folder: 'complexes'
+          }
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (!response?.success) {
+        throw new Error(response?.error || "Nu s-a putut încărca imaginea");
+      }
+      
+      return response.url;
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error("Eroare la încărcarea imaginii");

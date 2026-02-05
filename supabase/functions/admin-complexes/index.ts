@@ -28,6 +28,51 @@ Deno.serve(async (req) => {
     console.log("Admin action:", action, "table:", table, "id:", id);
 
     switch (action) {
+      case "upload_image": {
+        const { imageData, fileName, folder } = data || {};
+        
+        if (!imageData || !fileName) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing imageData or fileName" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        // Convert base64 to Uint8Array
+        const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const filePath = folder ? `${folder}/${fileName}` : fileName;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("project-images")
+          .upload(filePath, bytes, {
+            contentType: imageData.split(";")[0].split(":")[1] || "image/jpeg",
+            upsert: true,
+          });
+        
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          return new Response(
+            JSON.stringify({ success: false, error: uploadError.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from("project-images")
+          .getPublicUrl(filePath);
+        
+        return new Response(
+          JSON.stringify({ success: true, url: publicUrl }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       // ============ COMPLEXES (real_estate_projects) ============
       case "update_complex": {
         if (!id || !data) {
