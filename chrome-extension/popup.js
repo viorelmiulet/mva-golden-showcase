@@ -5,12 +5,18 @@ const ADMIN_URL = 'https://a0228d82-898b-4546-9599-8fbda4644c54.lovableproject.c
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Load settings
-  const settings = await chrome.storage.local.get(['notificationsEnabled', 'lastCheckTime']);
+  const settings = await chrome.storage.local.get(['notificationsEnabled', 'emailNotificationsEnabled', 'lastCheckTime']);
   
   // Set toggle state
   const toggle = document.getElementById('notificationsToggle');
   if (settings.notificationsEnabled === false) {
     toggle.classList.remove('active');
+  }
+  
+  // Set email notifications toggle state
+  const emailToggle = document.getElementById('emailNotificationsToggle');
+  if (settings.emailNotificationsEnabled === false) {
+    emailToggle.classList.remove('active');
   }
   
   // Set last check time
@@ -25,11 +31,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load stats
   await loadStats();
   
+  // Load unread emails count
+  await loadUnreadEmailsCount();
+  
   // Toggle notifications
   toggle.addEventListener('click', async () => {
     toggle.classList.toggle('active');
     const enabled = toggle.classList.contains('active');
     await chrome.storage.local.set({ notificationsEnabled: enabled });
+  });
+  
+  // Toggle email notifications
+  emailToggle.addEventListener('click', async () => {
+    emailToggle.classList.toggle('active');
+    const enabled = emailToggle.classList.contains('active');
+    await chrome.storage.local.set({ emailNotificationsEnabled: enabled });
   });
   
   // Open admin panel
@@ -54,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     await chrome.runtime.sendMessage({ action: 'checkNow' });
     await loadStats();
+    await loadUnreadEmailsCount();
     
     const now = new Date();
     document.getElementById('lastCheck').textContent = formatDate(now);
@@ -166,4 +183,26 @@ function getHeaders() {
     'apikey': SUPABASE_ANON_KEY,
     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
   };
+}
+
+async function loadUnreadEmailsCount() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/received_emails?is_read=eq.false&is_deleted=eq.false&select=id`,
+      { headers: getHeaders() }
+    );
+    
+    if (response.ok) {
+      const emails = await response.json();
+      const badge = document.getElementById('unreadEmailsBadge');
+      if (emails.length > 0) {
+        badge.textContent = emails.length > 99 ? '99+' : emails.length;
+        badge.style.display = 'inline';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.error('Error loading unread emails count:', error);
+  }
 }

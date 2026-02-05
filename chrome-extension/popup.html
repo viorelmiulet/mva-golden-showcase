@@ -375,6 +375,10 @@
     <!-- CRM Section -->
     <div class="section-title">👥 CRM & Clienți</div>
     <div class="menu-grid">
+      <div class="menu-item" data-url="/admin/inbox">
+        <span class="icon">📧</span>
+        <span class="label">Inbox <span class="badge" id="unreadEmailsBadge" style="display: none;">0</span></span>
+      </div>
       <div class="menu-item" data-url="/admin/vizionari">
         <span class="icon">📅</span>
         <span class="label">Vizionări</span>
@@ -447,8 +451,16 @@
     
     <!-- Notifications Toggle -->
     <div class="settings-row">
-      <span class="settings-label">🔔 Notificări push</span>
-      <div class="toggle active" id="notificationsToggle"></div>
+      <div class="toggles-wrapper">
+        <div class="toggle-row">
+          <span class="settings-label">🔔 Notificări generale</span>
+          <div class="toggle active" id="notificationsToggle"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="settings-label">📧 Emailuri noi</span>
+          <div class="toggle active" id="emailNotificationsToggle"></div>
+        </div>
+      </div>
     </div>
     
     <div class="loading" id="loading">Se încarcă...</div>
@@ -456,8 +468,32 @@
   
   <div class="footer">
     <span>Ultima verificare: <span id="lastCheck">-</span></span>
-    <span>v1.1.0</span>
+    <span>v1.2.0</span>
   </div>
+  
+  <style>
+    .toggles-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .menu-item .badge {
+      background: #d4af37;
+      color: #1a1a2e;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+  </style>
   
   <script src="popup.js"></script>
 </body>
