@@ -292,6 +292,24 @@ const EditComplex = () => {
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
+                    {/* Change image button */}
+                    <label className="absolute bottom-2 left-2 cursor-pointer">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="pointer-events-none"
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Schimbă imagine
+                      </Button>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                      />
+                    </label>
                     <Button
                       type="button"
                       variant="destructive"
