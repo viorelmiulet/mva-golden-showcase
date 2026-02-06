@@ -98,7 +98,9 @@ const ComplexDetail = () => {
       
       if (error) throw error;
       return data;
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const setAvailability = async (propertyId: string, newStatus: 'available' | 'sold' | 'reserved') => {
