@@ -57,7 +57,9 @@ const MobileComplexDetail = () => {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!id
+    enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const handleShare = async () => {
