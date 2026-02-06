@@ -112,20 +112,25 @@ const FloorPlanUploadDialog = ({
 
     setUploading(true);
     try {
-      const { error } = await supabase
-        .from('catalog_offers')
-        .update({ floor_plan: null })
-        .eq('id', propertyId);
+      // Use edge function to bypass RLS
+      const { data, error } = await supabase.functions.invoke('update-floor-plan', {
+        body: {
+          propertyId,
+          floor_plan: null
+        }
+      });
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to delete floor plan');
+      }
 
       toast.success("Schiță ștearsă cu succes");
       onSuccess();
       onOpenChange(false);
       setPreviewUrl(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting floor plan:', error);
-      toast.error("Eroare la ștergerea schiței");
+      toast.error(`Eroare la ștergerea schiței: ${error?.message || 'Unknown error'}`);
     } finally {
       setUploading(false);
     }
