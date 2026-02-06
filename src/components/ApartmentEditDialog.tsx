@@ -33,21 +33,27 @@ export const ApartmentEditDialog = ({ apartment, open, onOpenChange, onSuccess }
     setIsUpdating(true);
 
     try {
-      const { error } = await supabase
-        .from('catalog_offers')
-        .update({
-          title: formData.title,
-          surface_min: parseInt(String(formData.surface_min)) || 0,
-          surface_max: parseInt(String(formData.surface_min)) || 0,
-          rooms: parseInt(String(formData.rooms)) || 1,
-          price_min: parseInt(String(formData.price_min)) || 0,
-          price_max: parseInt(String(formData.price_max)) || 0,
-          availability_status: formData.availability_status,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', apartment.id);
+      // Use edge function to bypass RLS
+      const { data, error } = await supabase.functions.invoke('admin-offers', {
+        body: {
+          action: 'update_offer',
+          id: apartment.id,
+          data: {
+            title: formData.title,
+            surface_min: parseInt(String(formData.surface_min)) || 0,
+            surface_max: parseInt(String(formData.surface_min)) || 0,
+            rooms: parseInt(String(formData.rooms)) || 1,
+            price_min: parseInt(String(formData.price_min)) || 0,
+            price_max: parseInt(String(formData.price_max)) || 0,
+            availability_status: formData.availability_status,
+            updated_at: new Date().toISOString()
+          }
+        }
+      });
 
-      if (error) throw error;
+      if (error || data?.success === false) {
+        throw new Error(data?.error || error?.message || 'Eroare la actualizare');
+      }
 
       toast({
         title: "Succes!",
