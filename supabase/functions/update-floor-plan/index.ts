@@ -14,9 +14,9 @@ serve(async (req) => {
 
   try {
     const { propertyId, floor_plan } = await req.json();
-    if (!propertyId || !floor_plan) {
+    if (!propertyId) {
       return new Response(
-        JSON.stringify({ error: "propertyId și floor_plan sunt obligatorii" }),
+        JSON.stringify({ error: "propertyId este obligatoriu" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
