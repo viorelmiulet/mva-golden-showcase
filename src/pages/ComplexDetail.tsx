@@ -97,9 +97,11 @@ const ComplexDetail = () => {
         .order('title');
       
       if (error) throw error;
+      console.log('[ComplexDetail] Fetched properties:', data?.length, 'with floor_plan:', data?.filter(p => p.floor_plan).length);
       return data;
     },
     staleTime: 0,
+    gcTime: 0,
     refetchOnMount: 'always',
   });
 
