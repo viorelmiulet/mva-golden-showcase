@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft,
   Star,
@@ -15,6 +16,7 @@ import {
   Clock,
   Tag,
   ChevronDown,
+  ChevronUp,
   FileText,
   Image as ImageIcon,
   File
@@ -38,11 +40,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Email {
   id: string;
   sender: string;
   recipient?: string | null;
+  cc?: string | null;
+  bcc?: string | null;
   subject: string | null;
   body_plain: string | null;
   body_html: string | null;
@@ -52,6 +61,7 @@ interface Email {
   is_archived?: boolean;
   attachments: any[];
   received_at: string;
+  message_id?: string | null;
 }
 
 interface GmailEmailDetailProps {
@@ -85,6 +95,8 @@ export const GmailEmailDetail = ({
   extractSenderName,
   extractSenderInitials,
 }: GmailEmailDetailProps) => {
+  const [showEmailDetails, setShowEmailDetails] = useState(false);
+
   if (!email) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-br from-background via-background to-muted/5">
@@ -289,7 +301,6 @@ export const GmailEmailDetail = ({
             </button>
           </div>
 
-          {/* Sender info - Card style */}
           <div className="flex items-start gap-4 mb-8 p-4 rounded-2xl bg-muted/20 border border-border/10">
             <Avatar className="h-12 w-12 shrink-0 ring-2 ring-background shadow-lg">
               <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary text-primary-foreground text-sm font-semibold">
@@ -306,12 +317,77 @@ export const GmailEmailDetail = ({
                   &lt;{extractEmail(email.sender)}&gt;
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>către mine</span>
-                <button className="hover:text-foreground p-1 rounded-lg hover:bg-background transition-colors">
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </div>
+              
+              {/* Expandable recipient details */}
+              <Collapsible open={showEmailDetails} onOpenChange={setShowEmailDetails}>
+                <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer group">
+                  <span>către {email.recipient ? extractEmail(email.recipient) : 'mine'}</span>
+                  {showEmailDetails ? (
+                    <ChevronUp className="h-4 w-4 transition-transform" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 transition-transform" />
+                  )}
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <AnimatePresence>
+                    {showEmailDetails && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-3 p-3 rounded-xl bg-background/50 border border-border/20 space-y-2 text-sm"
+                      >
+                        <div className="grid grid-cols-[80px_1fr] gap-2">
+                          <span className="text-muted-foreground">de la:</span>
+                          <span className="text-foreground break-all">{email.sender}</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-[80px_1fr] gap-2">
+                          <span className="text-muted-foreground">către:</span>
+                          <span className="text-foreground break-all">{email.recipient || 'contact@mvaimobiliare.ro'}</span>
+                        </div>
+                        
+                        {email.cc && (
+                          <div className="grid grid-cols-[80px_1fr] gap-2">
+                            <span className="text-muted-foreground">cc:</span>
+                            <span className="text-foreground break-all">{email.cc}</span>
+                          </div>
+                        )}
+                        
+                        {email.bcc && (
+                          <div className="grid grid-cols-[80px_1fr] gap-2">
+                            <span className="text-muted-foreground">bcc:</span>
+                            <span className="text-foreground break-all">{email.bcc}</span>
+                          </div>
+                        )}
+                        
+                        <div className="grid grid-cols-[80px_1fr] gap-2">
+                          <span className="text-muted-foreground">dată:</span>
+                          <span className="text-foreground">
+                            {format(new Date(email.received_at), "EEEE, d MMMM yyyy 'la' HH:mm", { locale: ro })}
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-[80px_1fr] gap-2">
+                          <span className="text-muted-foreground">subiect:</span>
+                          <span className="text-foreground">{email.subject || '(Fără subiect)'}</span>
+                        </div>
+                        
+                        {email.message_id && (
+                          <div className="grid grid-cols-[80px_1fr] gap-2">
+                            <span className="text-muted-foreground">mailed-by:</span>
+                            <span className="text-foreground/70 text-xs break-all font-mono">
+                              {email.message_id.replace(/<|>/g, '')}
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
