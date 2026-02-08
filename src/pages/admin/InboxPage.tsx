@@ -41,6 +41,7 @@ import {
   SwipeableEmailItem,
   EmailThreadView
 } from "@/components/inbox";
+import { MultiEmailInput } from "@/components/inbox/MultiEmailInput";
 import EmailListSkeleton from "@/components/skeletons/EmailListSkeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -1477,23 +1478,23 @@ ${originalBody}`;
             </div>
             
             {showCcBcc && (
-              <div className="flex gap-2 shrink-0">
+              <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <div className="flex-1 space-y-1">
-                  <Label className="text-xs sm:text-sm">CC</Label>
-                  <Input
+                  <Label className="text-xs sm:text-sm">CC (mai multe adrese)</Label>
+                  <MultiEmailInput
                     value={composeCc}
-                    onChange={(e) => setComposeCc(e.target.value)}
+                    onChange={setComposeCc}
                     placeholder="cc@example.com"
-                    className="bg-muted/30 border-border h-8 sm:h-10 text-sm"
+                    className="bg-muted/30 border-border min-h-[36px] sm:min-h-[40px]"
                   />
                 </div>
                 <div className="flex-1 space-y-1">
-                  <Label className="text-xs sm:text-sm">BCC</Label>
-                  <Input
+                  <Label className="text-xs sm:text-sm">BCC (mai multe adrese)</Label>
+                  <MultiEmailInput
                     value={composeBcc}
-                    onChange={(e) => setComposeBcc(e.target.value)}
+                    onChange={setComposeBcc}
                     placeholder="bcc@example.com"
-                    className="bg-muted/30 border-border h-8 sm:h-10 text-sm"
+                    className="bg-muted/30 border-border min-h-[36px] sm:min-h-[40px]"
                   />
                 </div>
               </div>
