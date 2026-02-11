@@ -250,7 +250,7 @@ const CommissionsPage = () => {
         date: formData.date,
         amount: parseFloat(formData.amount),
         currency: formData.currency,
-        invoice_number: formData.invoice_number || null,
+        invoice_number: formData.has_invoice === "da" ? (formData.invoice_number || "Da") : null,
         transaction_type: formData.transaction_type,
         notes: formData.notes || null
       };
