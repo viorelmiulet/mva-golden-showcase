@@ -485,7 +485,7 @@ const CommissionsPage = () => {
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[9999]" position="popper" sideOffset={4}>
                           <SelectItem value="EUR">EUR</SelectItem>
                           <SelectItem value="RON">RON</SelectItem>
                         </SelectContent>
@@ -502,7 +502,7 @@ const CommissionsPage = () => {
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[9999]" position="popper" sideOffset={4}>
                         {TRANSACTION_TYPES.map(type => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
@@ -523,7 +523,7 @@ const CommissionsPage = () => {
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[9999]" position="popper" sideOffset={4}>
                         <SelectItem value="da">Cu Factură</SelectItem>
                         <SelectItem value="nu">Fără Factură</SelectItem>
                       </SelectContent>
