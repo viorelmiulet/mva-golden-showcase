@@ -572,12 +572,12 @@ const InboxPage = () => {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('sent_emails')
-        .delete()
+        .update({ is_deleted: true })
         .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['all-sent-emails'] });
       queryClient.invalidateQueries({ queryKey: ['sent-emails-count'] });
       setSelectedEmail(null);
       toast.success('Email trimis șters');
