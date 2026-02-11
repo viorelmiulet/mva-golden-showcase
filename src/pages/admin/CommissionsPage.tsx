@@ -445,7 +445,22 @@ const CommissionsPage = () => {
                   <span className="hidden sm:inline">Adaugă</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+              <DialogContent 
+                className="max-w-[95vw] sm:max-w-[425px] max-h-[90vh] overflow-y-auto"
+                onPointerDownOutside={(e) => {
+                  // Prevent dialog from closing when clicking on Select dropdown (portaled outside dialog)
+                  const target = e.target as HTMLElement;
+                  if (target?.closest('[data-radix-select-content]') || target?.closest('[role="listbox"]') || target?.closest('[role="option"]')) {
+                    e.preventDefault();
+                  }
+                }}
+                onInteractOutside={(e) => {
+                  const target = e.target as HTMLElement;
+                  if (target?.closest('[data-radix-select-content]') || target?.closest('[role="listbox"]') || target?.closest('[role="option"]')) {
+                    e.preventDefault();
+                  }
+                }}
+              >
                 <DialogHeader>
                   <DialogTitle className="text-base md:text-lg">
                     {editingCommission ? "Editează Comision" : "Adaugă Comision"}
