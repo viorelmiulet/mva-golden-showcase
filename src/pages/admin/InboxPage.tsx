@@ -255,6 +255,7 @@ const InboxPage = () => {
         const { data, error } = await supabase
           .from('sent_emails')
           .select('*')
+          .eq('is_deleted', false)
           .order('sent_at', { ascending: false });
         if (error) throw error;
         
@@ -321,7 +322,8 @@ const InboxPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('sent_emails')
-        .select('id');
+        .select('id')
+        .eq('is_deleted', false);
       if (error) throw error;
       return data;
     }
