@@ -766,77 +766,87 @@ const RegimHotelier = () => {
 
                       {/* Calendars side by side */}
                       <div className="grid grid-cols-2 gap-2 notranslate" translate="no">
-                        <div className="border rounded-lg overflow-hidden">
-                          <Calendar
-                            mode="single"
-                            selected={checkIn}
-                            onSelect={(date) => {
-                              if (!date) return;
-                              if (!isDateAvailable(date)) {
-                                toast({
-                                  title: language === "ro" ? "Dată indisponibilă" : "Date unavailable",
-                                  description: language === "ro" ? "Această dată nu este disponibilă" : "This date is not available",
-                                  variant: "destructive",
-                                });
-                                return;
+                        <div>
+                          <p className="text-xs font-medium text-center mb-1 text-muted-foreground">
+                            {language === "ro" ? "Selectează sosirea" : "Select check-in"}
+                          </p>
+                          <div className="border rounded-lg overflow-hidden">
+                            <Calendar
+                              mode="single"
+                              selected={checkIn}
+                              onSelect={(date) => {
+                                if (!date) return;
+                                if (!isDateAvailable(date)) {
+                                  toast({
+                                    title: language === "ro" ? "Dată indisponibilă" : "Date unavailable",
+                                    description: language === "ro" ? "Această dată nu este disponibilă" : "This date is not available",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                setCheckIn(date);
+                                if (checkOut && !isAfter(checkOut, date)) {
+                                  setCheckOut(addDays(date, 1));
+                                } else if (!checkOut) {
+                                  setCheckOut(addDays(date, 1));
+                                }
+                              }}
+                              month={currentMonth}
+                              onMonthChange={setCurrentMonth}
+                              locale={dateLocale}
+                              disabled={(date) =>
+                                isBefore(date, startOfDay(new Date())) ||
+                                !isDateAvailable(date)
                               }
-                              setCheckIn(date);
-                              if (checkOut && !isAfter(checkOut, date)) {
-                                setCheckOut(addDays(date, 1));
-                              } else if (!checkOut) {
-                                setCheckOut(addDays(date, 1));
-                              }
-                            }}
-                            month={currentMonth}
-                            onMonthChange={setCurrentMonth}
-                            locale={dateLocale}
-                            disabled={(date) =>
-                              isBefore(date, startOfDay(new Date())) ||
-                              !isDateAvailable(date)
-                            }
-                            className="p-1 pointer-events-auto w-full text-xs"
-                          />
+                              className="p-1 pointer-events-auto w-full text-xs"
+                            />
+                          </div>
                         </div>
-                        <div className="border rounded-lg overflow-hidden">
-                          <Calendar
-                            mode="single"
-                            selected={checkOut}
-                            onSelect={(date) => {
-                              if (!date) return;
-                              if (checkIn && !isAfter(date, checkIn)) {
-                                toast({
-                                  title: language === "ro" ? "Dată invalidă" : "Invalid date",
-                                  description: language === "ro" ? "Data de plecare trebuie să fie după sosire" : "Check-out must be after check-in",
-                                  variant: "destructive",
-                                });
-                                return;
+                        <div>
+                          <p className="text-xs font-medium text-center mb-1 text-muted-foreground">
+                            {language === "ro" ? "Selectează plecarea" : "Select check-out"}
+                          </p>
+                          <div className="border rounded-lg overflow-hidden">
+                            <Calendar
+                              mode="single"
+                              selected={checkOut}
+                              onSelect={(date) => {
+                                if (!date) return;
+                                if (checkIn && !isAfter(date, checkIn)) {
+                                  toast({
+                                    title: language === "ro" ? "Dată invalidă" : "Invalid date",
+                                    description: language === "ro" ? "Data de plecare trebuie să fie după sosire" : "Check-out must be after check-in",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                if (checkIn && !isRangeAvailable(checkIn, date)) {
+                                  toast({
+                                    title: language === "ro" ? "Interval indisponibil" : "Range unavailable",
+                                    description: language === "ro" ? "Există date ocupate în intervalul selectat" : "There are booked dates in the selected range",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                setCheckOut(date);
+                              }}
+                              month={currentMonth}
+                              onMonthChange={setCurrentMonth}
+                              locale={dateLocale}
+                              disabled={(date) =>
+                                isBefore(date, startOfDay(checkIn || new Date())) ||
+                                !isDateAvailable(date)
                               }
-                              if (checkIn && !isRangeAvailable(checkIn, date)) {
-                                toast({
-                                  title: language === "ro" ? "Interval indisponibil" : "Range unavailable",
-                                  description: language === "ro" ? "Există date ocupate în intervalul selectat" : "There are booked dates in the selected range",
-                                  variant: "destructive",
-                                });
-                                return;
-                              }
-                              setCheckOut(date);
-                            }}
-                            month={currentMonth}
-                            onMonthChange={setCurrentMonth}
-                            locale={dateLocale}
-                            disabled={(date) =>
-                              isBefore(date, startOfDay(checkIn || new Date())) ||
-                              !isDateAvailable(date)
-                            }
-                            modifiers={{
-                              inRange: (date) =>
-                                !!(checkIn && checkOut && isAfter(date, checkIn) && isBefore(date, checkOut)),
-                            }}
-                            modifiersClassNames={{
-                              inRange: "bg-primary/20",
-                            }}
-                            className="p-1 pointer-events-auto w-full text-xs"
-                          />
+                              modifiers={{
+                                inRange: (date) =>
+                                  !!(checkIn && checkOut && isAfter(date, checkIn) && isBefore(date, checkOut)),
+                              }}
+                              modifiersClassNames={{
+                                inRange: "bg-primary/20",
+                              }}
+                              className="p-1 pointer-events-auto w-full text-xs"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
