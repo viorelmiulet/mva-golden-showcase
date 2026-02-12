@@ -649,53 +649,100 @@ const RegimHotelier = () => {
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-2 text-center">
+                      <h4 className="font-semibold mb-3 text-center">
                         {language === "ro" ? "Selectează datele" : "Select dates"}
                       </h4>
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setCurrentMonth(addDays(currentMonth, -30))}
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </Button>
-                        <span className="font-medium">
-                          {format(currentMonth, "MMMM yyyy", { locale: dateLocale })}
-                        </span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setCurrentMonth(addDays(currentMonth, 30))}
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="checkInDate" className="text-xs font-medium">
+                            {language === "ro" ? "Sosire" : "Check-in"}
+                          </Label>
+                          <div className="relative">
+                            <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              id="checkInDate"
+                              type="date"
+                              min={format(new Date(), "yyyy-MM-dd")}
+                              value={checkIn ? format(checkIn, "yyyy-MM-dd") : ""}
+                              onChange={(e) => {
+                                const date = e.target.value ? new Date(e.target.value + "T00:00:00") : undefined;
+                                if (date && !isDateAvailable(date)) {
+                                  toast({
+                                    title: language === "ro" ? "Dată indisponibilă" : "Date unavailable",
+                                    description: language === "ro" ? "Această dată nu este disponibilă" : "This date is not available",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                setCheckIn(date);
+                                if (date && checkOut && !isAfter(checkOut, date)) {
+                                  setCheckOut(addDays(date, 1));
+                                } else if (date && !checkOut) {
+                                  setCheckOut(addDays(date, 1));
+                                }
+                              }}
+                              className="pl-9 text-sm"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          <Label htmlFor="numNights" className="text-xs font-medium">
+                            {language === "ro" ? "Nopți" : "Nights"}
+                          </Label>
+                          <Input
+                            id="numNights"
+                            type="number"
+                            min={selectedRental.min_nights || 1}
+                            max={90}
+                            value={getNights() || (selectedRental.min_nights || 1)}
+                            onChange={(e) => {
+                              const nights = parseInt(e.target.value) || 1;
+                              if (checkIn) {
+                                const newCheckOut = addDays(checkIn, nights);
+                                if (isRangeAvailable(checkIn, newCheckOut)) {
+                                  setCheckOut(newCheckOut);
+                                } else {
+                                  toast({
+                                    title: language === "ro" ? "Interval indisponibil" : "Range unavailable",
+                                    description: language === "ro" ? "Există date ocupate în acest interval" : "There are booked dates in this range",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }
+                            }}
+                            className="text-sm text-center"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                          <Label htmlFor="checkOutDate" className="text-xs font-medium">
+                            {language === "ro" ? "Plecare" : "Check-out"}
+                          </Label>
+                          <div className="relative">
+                            <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              id="checkOutDate"
+                              type="date"
+                              min={checkIn ? format(addDays(checkIn, 1), "yyyy-MM-dd") : format(addDays(new Date(), 1), "yyyy-MM-dd")}
+                              value={checkOut ? format(checkOut, "yyyy-MM-dd") : ""}
+                              onChange={(e) => {
+                                const date = e.target.value ? new Date(e.target.value + "T00:00:00") : undefined;
+                                if (date && checkIn && !isRangeAvailable(checkIn, date)) {
+                                  toast({
+                                    title: language === "ro" ? "Interval indisponibil" : "Range unavailable",
+                                    description: language === "ro" ? "Există date ocupate în intervalul selectat" : "There are booked dates in the selected range",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                setCheckOut(date);
+                              }}
+                              className="pl-9 text-sm"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      
-                      <Calendar
-                        mode="single"
-                        selected={checkIn}
-                        onSelect={handleDateSelect}
-                        month={currentMonth}
-                        onMonthChange={setCurrentMonth}
-                        locale={dateLocale}
-                        disabled={(date) => 
-                          isBefore(date, startOfDay(new Date())) || 
-                          !isDateAvailable(date)
-                        }
-                        modifiers={{
-                          selected: (date) => 
-                            (checkIn && isSameDay(date, checkIn)) || 
-                            (checkOut && isSameDay(date, checkOut)),
-                          inRange: (date) => 
-                            checkIn && checkOut && isAfter(date, checkIn) && isBefore(date, checkOut),
-                        }}
-                        modifiersClassNames={{
-                          selected: "bg-gold text-white hover:bg-gold",
-                          inRange: "bg-gold/20",
-                        }}
-                        className="rounded-md border pointer-events-auto"
-                      />
                     </div>
 
                     {checkIn && (
