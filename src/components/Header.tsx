@@ -16,7 +16,7 @@ import { toast } from "sonner"
 import { useUserRoles } from "@/hooks/useUserRoles"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { LanguageToggle } from "@/components/LanguageToggle"
+
 import { GoogleTranslate } from "@/components/GoogleTranslate"
 
 const Header = () => {
@@ -262,7 +262,6 @@ const Header = () => {
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
             <GoogleTranslate />
-            <LanguageToggle />
             {user ? (
               <>
                 <Link to="/favorite">
@@ -331,7 +330,6 @@ const Header = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <GoogleTranslate />
-                    <LanguageToggle />
                   </div>
                 </div>
 
