@@ -79,6 +79,7 @@ const RegimHotelier = () => {
   const [selectedRental, setSelectedRental] = useState<ShortTermRental | null>(null);
   const [checkIn, setCheckIn] = useState<Date | undefined>();
   const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [nightsInput, setNightsInput] = useState<string>("1");
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -154,6 +155,14 @@ const RegimHotelier = () => {
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [selectedRental?.id]);
+
+  // Sync nightsInput when checkIn/checkOut change externally
+  useEffect(() => {
+    if (checkIn && checkOut) {
+      const n = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+      if (n > 0) setNightsInput(String(n));
+    }
+  }, [checkIn, checkOut]);
 
   const { data: rentals = [], isLoading } = useQuery({
     queryKey: ["short-term-rentals"],
@@ -696,11 +705,16 @@ const RegimHotelier = () => {
                             type="number"
                             min={selectedRental.min_nights || 1}
                             max={90}
-                            value={getNights() || (selectedRental.min_nights || 1)}
+                            value={nightsInput}
                             onChange={(e) => {
-                              const nights = parseInt(e.target.value) || 1;
+                              setNightsInput(e.target.value);
+                            }}
+                            onBlur={() => {
+                              const nights = parseInt(nightsInput) || (selectedRental.min_nights || 1);
+                              const clamped = Math.max(selectedRental.min_nights || 1, Math.min(90, nights));
+                              setNightsInput(String(clamped));
                               if (checkIn) {
-                                const newCheckOut = addDays(checkIn, nights);
+                                const newCheckOut = addDays(checkIn, clamped);
                                 if (isRangeAvailable(checkIn, newCheckOut)) {
                                   setCheckOut(newCheckOut);
                                 } else {
@@ -710,6 +724,11 @@ const RegimHotelier = () => {
                                     variant: "destructive",
                                   });
                                 }
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                (e.target as HTMLInputElement).blur();
                               }
                             }}
                             className="text-sm text-center"
