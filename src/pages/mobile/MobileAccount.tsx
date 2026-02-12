@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MobileHeader from "@/components/mobile/MobileHeader";
-import { LanguageToggle } from "@/components/LanguageToggle";
+import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { 
   User, 
   Heart, 
@@ -108,7 +108,7 @@ const MobileAccount = () => {
                       {language === 'ro' ? 'Limbă' : 'Language'}
                     </span>
                   </div>
-                  <LanguageToggle />
+                  <GoogleTranslate />
                 </div>
               </CardContent>
             </Card>
@@ -193,7 +193,7 @@ const MobileAccount = () => {
                   <Globe className="w-5 h-5 text-muted-foreground" />
                   <span className="text-sm">{language === 'ro' ? 'Limbă' : 'Language'}</span>
                 </div>
-                <LanguageToggle />
+                <GoogleTranslate />
               </div>
             </CardContent>
           </Card>
