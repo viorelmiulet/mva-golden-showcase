@@ -765,7 +765,7 @@ const RegimHotelier = () => {
                       </div>
 
                       {/* Calendars side by side */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2 notranslate" translate="no">
                         <div className="border rounded-lg overflow-hidden">
                           <Calendar
                             mode="single"
@@ -794,7 +794,7 @@ const RegimHotelier = () => {
                               isBefore(date, startOfDay(new Date())) ||
                               !isDateAvailable(date)
                             }
-                            className="p-2 pointer-events-auto w-full"
+                            className="p-1 pointer-events-auto w-full text-xs"
                           />
                         </div>
                         <div className="border rounded-lg overflow-hidden">
@@ -835,7 +835,7 @@ const RegimHotelier = () => {
                             modifiersClassNames={{
                               inRange: "bg-primary/20",
                             }}
-                            className="p-2 pointer-events-auto w-full"
+                            className="p-1 pointer-events-auto w-full text-xs"
                           />
                         </div>
                       </div>
