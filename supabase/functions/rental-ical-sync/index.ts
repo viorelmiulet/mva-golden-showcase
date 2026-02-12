@@ -16,6 +16,13 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Check if force sync is requested
+    let forceSync = false;
+    try {
+      const body = await req.json();
+      forceSync = body?.force === true;
+    } catch { /* no body */ }
+
     // Get all active iCal sources that need syncing
     const { data: sources, error: sourcesError } = await supabase
       .from("rental_ical_sources")
@@ -26,18 +33,20 @@ serve(async (req) => {
       throw new Error(`Failed to fetch sources: ${sourcesError.message}`);
     }
 
-    console.log(`Found ${sources?.length || 0} active iCal sources`);
+    console.log(`Found ${sources?.length || 0} active iCal sources, force=${forceSync}`);
 
-    const results: Array<{ source_id: string; success: boolean; error?: string; dates_imported?: number }> = [];
+    const results: Array<{ source_id: string; success: boolean; error?: string; dates_imported?: number; dates_cleared?: number }> = [];
 
     for (const source of sources || []) {
       // Check if sync is needed based on interval
-      const lastSync = source.last_sync_at ? new Date(source.last_sync_at) : null;
-      const hoursAgo = lastSync ? (Date.now() - lastSync.getTime()) / (1000 * 60 * 60) : Infinity;
+      if (!forceSync) {
+        const lastSync = source.last_sync_at ? new Date(source.last_sync_at) : null;
+        const hoursAgo = lastSync ? (Date.now() - lastSync.getTime()) / (1000 * 60 * 60) : Infinity;
 
-      if (hoursAgo < (source.sync_interval_hours || 6)) {
-        console.log(`Skipping source ${source.id} - synced ${hoursAgo.toFixed(1)} hours ago`);
-        continue;
+        if (hoursAgo < (source.sync_interval_hours || 6)) {
+          console.log(`Skipping source ${source.id} - synced ${hoursAgo.toFixed(1)} hours ago`);
+          continue;
+        }
       }
 
       console.log(`Syncing source ${source.id} (${source.source_name}) for rental ${source.rental_id}`);
@@ -56,10 +65,46 @@ serve(async (req) => {
         const events = parseICal(icalContent);
         console.log(`Parsed ${events.length} events from ${source.source_name}`);
 
-        // Process events
-        let imported = 0;
+        // STEP 1: Delete old synced dates for this source (dates that were auto-synced)
+        // Only delete dates that were created by sync (identified by notes containing source name)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split("T")[0];
+
+        // Delete dates synced from this source (match by notes pattern)
+        const syncPattern = `%Sync automat din ${source.source_name}%`;
+        const importPattern = `%Import din ${source.source_name}%`;
+        
+        const { data: deletedSync, error: delErr1 } = await supabase
+          .from("rental_availability")
+          .delete()
+          .eq("rental_id", source.rental_id)
+          .gte("date", todayStr)
+          .ilike("notes", syncPattern)
+          .select("id");
+
+        const { data: deletedImport, error: delErr2 } = await supabase
+          .from("rental_availability")
+          .delete()
+          .eq("rental_id", source.rental_id)
+          .gte("date", todayStr)
+          .ilike("notes", importPattern)
+          .select("id");
+
+        const datesCleared = (deletedSync?.length || 0) + (deletedImport?.length || 0);
+        if (delErr1) console.error(`Error clearing sync dates:`, delErr1.message);
+        if (delErr2) console.error(`Error clearing import dates:`, delErr2.message);
+        console.log(`Cleared ${datesCleared} old synced dates for ${source.source_name}`);
+
+        // STEP 2: Re-import current events
+        let imported = 0;
+        const datesToInsert: Array<{
+          rental_id: string;
+          date: string;
+          is_available: boolean;
+          guest_name: string | null;
+          notes: string;
+        }> = [];
 
         for (const event of events) {
           if (!event.startDate || !event.endDate) continue;
@@ -68,22 +113,30 @@ serve(async (req) => {
           const dates = getDatesBetween(event.startDate, event.endDate);
 
           for (const date of dates) {
+            if (date < today) continue;
             const dateStr = date.toISOString().split("T")[0];
+            datesToInsert.push({
+              rental_id: source.rental_id,
+              date: dateStr,
+              is_available: false,
+              guest_name: event.summary || null,
+              notes: `Sync automat din ${source.source_name}: ${event.summary || "Rezervare externă"}`,
+            });
+          }
+        }
 
-            const { error } = await supabase
-              .from("rental_availability")
-              .upsert(
-                {
-                  rental_id: source.rental_id,
-                  date: dateStr,
-                  is_available: false,
-                  guest_name: event.summary || null,
-                  notes: `Sync automat din ${source.source_name}: ${event.summary || "Rezervare externă"}`,
-                },
-                { onConflict: "rental_id,date" }
-              );
+        // Batch insert using upsert
+        const BATCH_SIZE = 100;
+        for (let i = 0; i < datesToInsert.length; i += BATCH_SIZE) {
+          const batch = datesToInsert.slice(i, i + BATCH_SIZE);
+          const { error } = await supabase
+            .from("rental_availability")
+            .upsert(batch, { onConflict: "rental_id,date" });
 
-            if (!error) imported++;
+          if (!error) {
+            imported += batch.length;
+          } else {
+            console.error(`Batch insert error:`, error.message);
           }
         }
 
@@ -97,14 +150,13 @@ serve(async (req) => {
           })
           .eq("id", source.id);
 
-        results.push({ source_id: source.id, success: true, dates_imported: imported });
-        console.log(`Successfully synced ${imported} dates from ${source.source_name}`);
+        results.push({ source_id: source.id, success: true, dates_imported: imported, dates_cleared: datesCleared });
+        console.log(`Successfully synced: cleared ${datesCleared}, imported ${imported} dates from ${source.source_name}`);
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         console.error(`Error syncing source ${source.id}:`, errorMessage);
 
-        // Update source with error status
         await supabase
           .from("rental_ical_sources")
           .update({
