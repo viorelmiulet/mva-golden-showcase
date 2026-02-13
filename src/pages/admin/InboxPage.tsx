@@ -14,9 +14,18 @@ import {
   Check,
   PenSquare,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Search,
+  RefreshCw,
+  Star,
+  Archive,
+  Trash2,
+  ArrowLeft,
+  RotateCcw,
+  Inbox
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -971,19 +980,76 @@ ${originalBody}`;
     return true;
   });
 
+  const mobileFilterItems = [
+    { key: 'all' as const, label: 'Primite', icon: Inbox, count: unreadCount },
+    { key: 'starred' as const, label: 'Cu stea', icon: Star, count: starredCount },
+    { key: 'sent' as const, label: 'Trimise', icon: Send, count: 0 },
+    { key: 'archived' as const, label: 'Arhivate', icon: Archive, count: archivedCount },
+    { key: 'trash' as const, label: 'Coș', icon: Trash2, count: trashCount },
+  ];
+
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="h-[calc(100vh-120px)] flex flex-col bg-background">
+      <div className="h-[calc(100vh-120px)] flex flex-col bg-background relative">
         {mobileView === 'list' ? (
           <>
-            <GmailHeader
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-              onRefresh={() => refetch()}
-              isRefreshing={isLoading}
-            />
+            {/* Compact mobile header */}
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-sm shrink-0">
+                <span className="text-primary-foreground font-bold text-[10px]">M</span>
+              </div>
+              <div className={cn(
+                "flex-1 relative flex items-center rounded-lg h-9 transition-all",
+                "bg-muted/40 border border-transparent focus-within:bg-background focus-within:border-border/40 focus-within:shadow-md"
+              )}>
+                <Search className="h-3.5 w-3.5 text-muted-foreground ml-2.5 shrink-0" />
+                <Input
+                  type="text"
+                  placeholder="Caută..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-sm placeholder:text-muted-foreground/50 pl-1.5"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="p-1.5 mr-1">
+                    <X className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8 shrink-0">
+                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+              </Button>
+            </div>
+
+            {/* Filter chips */}
+            <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto no-scrollbar border-b border-border/5 bg-background/90 shrink-0">
+              {mobileFilterItems.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => setFilter(item.key)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all shrink-0",
+                    filter === item.key
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                  )}
+                >
+                  <item.icon className="h-3 w-3" />
+                  {item.label}
+                  {item.count > 0 && (
+                    <span className={cn(
+                      "text-[10px] px-1 py-0.5 rounded-full min-w-[16px] text-center leading-none",
+                      filter === item.key ? "bg-primary-foreground/20" : "bg-muted"
+                    )}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Email list */}
             <div 
               ref={pullToRefresh.containerRef}
               className="flex-1 overflow-y-auto"
@@ -995,8 +1061,8 @@ ${originalBody}`;
               />
               {isLoading ? (
                 <EmailListSkeleton count={6} />
-              ) : (
-                filteredEmails?.map((email) => (
+              ) : filteredEmails && filteredEmails.length > 0 ? (
+                filteredEmails.map((email) => (
                   <SwipeableEmailItem
                     key={email.id}
                     email={email}
@@ -1010,36 +1076,137 @@ ${originalBody}`;
                     formatEmailDate={formatEmailDate}
                   />
                 ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                  <Archive className="h-12 w-12 text-muted-foreground/15 mb-3" />
+                  <p className="text-sm font-medium">Niciun email</p>
+                  <p className="text-xs text-muted-foreground/50 mt-0.5">
+                    {filter === 'all' ? 'Inbox-ul este gol' : `Nu sunt emailuri în ${mobileFilterItems.find(f => f.key === filter)?.label?.toLowerCase()}`}
+                  </p>
+                </div>
               )}
             </div>
+
+            {/* FAB Compose */}
+            <button
+              onClick={handleOpenCompose}
+              className="absolute bottom-4 right-4 z-30 h-14 w-14 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+            >
+              <PenSquare className="h-5 w-5" />
+            </button>
           </>
         ) : (
-          <GmailEmailDetail
-            email={selectedEmail}
-            onClose={handleBackToList}
-            onReply={handleOpenReply}
-            onForward={handleOpenForward}
-            onToggleStar={() => {
-              if (selectedEmail) {
-                updateEmailMutation.mutate({ 
-                  id: selectedEmail.id, 
-                  updates: { is_starred: !selectedEmail.is_starred } 
-                });
-              }
-            }}
-            onArchive={handleArchive}
-            onUnarchive={() => {
-              if (selectedEmail) {
-                unarchiveEmailMutation.mutate(selectedEmail.id);
-              }
-            }}
-            onDelete={handleDelete}
-            onRestore={filter === 'trash' ? handleRestore : undefined}
-            isArchived={filter === 'archived'}
-            isTrashView={filter === 'trash'}
-            extractSenderName={extractSenderName}
-            extractSenderInitials={extractSenderInitials}
-          />
+          <div className="flex flex-col h-full">
+            {/* Compact detail toolbar */}
+            <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40 shrink-0">
+              <Button variant="ghost" size="icon" onClick={handleBackToList} className="h-9 w-9">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-0.5">
+                {filter === 'trash' && (
+                  <Button variant="ghost" size="icon" onClick={handleRestore} className="h-9 w-9">
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                )}
+                {filter !== 'trash' && (
+                  <Button variant="ghost" size="icon" onClick={handleArchive} className="h-9 w-9">
+                    <Archive className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={handleDelete} className="h-9 w-9 hover:text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => {
+                  if (selectedEmail) updateEmailMutation.mutate({ id: selectedEmail.id, updates: { is_starred: !selectedEmail.is_starred } });
+                }} className="h-9 w-9">
+                  <Star className={cn("h-4 w-4", selectedEmail?.is_starred ? "fill-gold text-gold" : "text-muted-foreground")} />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Email content */}
+            <ScrollArea className="flex-1">
+              <div className="px-4 py-4">
+                {/* Subject */}
+                <h1 className="text-lg font-semibold text-foreground mb-4 leading-snug">
+                  {selectedEmail?.subject || '(Fără subiect)'}
+                </h1>
+
+                {/* Sender */}
+                <div className="flex items-start gap-2.5 mb-4">
+                  <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarFallback className="bg-gradient-to-br from-primary/60 to-primary text-primary-foreground text-xs font-semibold">
+                      {selectedEmail ? extractSenderInitials(selectedEmail.sender) : '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm text-foreground truncate">
+                        {selectedEmail ? extractSenderName(selectedEmail.sender) : ''}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground/50 shrink-0 ml-2">
+                        {selectedEmail ? formatEmailDate(selectedEmail.received_at) : ''}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/50 truncate">
+                      către {selectedEmail?.recipient ? selectedEmail.recipient.replace(/<|>/g, '') : 'mine'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="mb-6">
+                  {selectedEmail?.body_html ? (
+                    <div 
+                      className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1.5 prose-a:text-primary text-sm"
+                      dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
+                    />
+                  ) : (
+                    <div className="whitespace-pre-wrap text-sm text-foreground/85 leading-relaxed">
+                      {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Attachments */}
+                {selectedEmail?.attachments && selectedEmail.attachments.length > 0 && (
+                  <div className="border-t border-border/10 pt-4 mb-4">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Paperclip className="h-3.5 w-3.5 text-muted-foreground/50" />
+                      <span className="text-xs text-muted-foreground/60">
+                        {selectedEmail.attachments.length} atașament{selectedEmail.attachments.length > 1 ? 'e' : ''}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {selectedEmail.attachments.map((att: any, idx: number) => (
+                        <a
+                          key={idx}
+                          href={att.url}
+                          download={att.filename || att.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-2.5 bg-muted/10 border border-border/10 rounded-lg text-xs"
+                        >
+                          <Paperclip className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <span className="truncate flex-1">{att.filename || att.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 pt-2">
+                  <Button variant="outline" size="sm" onClick={handleOpenReply} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
+                    <Reply className="h-3.5 w-3.5" /> Răspunde
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleOpenForward} className="flex-1 gap-1.5 h-10 rounded-xl border-border/20">
+                    <Forward className="h-3.5 w-3.5" /> Redirecționează
+                  </Button>
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
         )}
       </div>
     );
