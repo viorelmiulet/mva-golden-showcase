@@ -750,13 +750,18 @@ const ComplexDetail = () => {
                                     }
                                   />
                                 )}
+                              </div>
 
+                              {/* Floor Plan Button - separate container to avoid Dialog interference */}
+                              <div className="space-y-1.5 sm:space-y-2">
                                 {apt.floor_plan ? (
                                   <Button 
                                     size="sm" 
                                     variant="outline"
                                     className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       setSelectedFloorPlan(apt.floor_plan);
                                       setFloorPlanOpen(true);
                                     }}
