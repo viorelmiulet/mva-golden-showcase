@@ -733,7 +733,7 @@ const ComplexDetail = () => {
 
                               {/* Floor Plan Button - rendered BEFORE ScheduleViewingDialog to avoid interference */}
                               <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
-                                {apt.floor_plan ? (
+                                {apt.floor_plan && isAvailable ? (
                                   <a 
                                     href={apt.floor_plan}
                                     target="_blank"
@@ -759,7 +759,7 @@ const ComplexDetail = () => {
                                     <span className="sm:hidden">N/A</span>
                                   </div>
                                 )}
-                              </div>
+                               </div>
 
                               {/* Schedule Viewing Button - rendered AFTER floor plan to avoid Dialog interference */}
                               {isAvailable && (
