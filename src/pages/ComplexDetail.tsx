@@ -739,12 +739,14 @@ const ComplexDetail = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="block"
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     <Button 
                                       size="sm" 
                                       variant="outline"
                                       className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
                                       type="button"
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
                                       Schiță
