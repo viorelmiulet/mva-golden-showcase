@@ -739,10 +739,9 @@ const ComplexDetail = () => {
                                       variant="outline"
                                       className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
                                       type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        window.open(apt.floor_plan, '_blank', 'noopener,noreferrer');
+                                      onClick={() => {
+                                        setSelectedFloorPlan(apt.floor_plan || null);
+                                        setFloorPlanOpen(true);
                                       }}
                                     >
                                       <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
