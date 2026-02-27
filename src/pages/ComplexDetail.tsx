@@ -734,24 +734,20 @@ const ComplexDetail = () => {
                               {/* Floor Plan Button - rendered BEFORE ScheduleViewingDialog to avoid interference */}
                               <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
                                 {apt.floor_plan && isAvailable ? (
-                                  <a 
-                                    href={apt.floor_plan}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="block"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
                                     <Button 
                                       size="sm" 
                                       variant="outline"
                                       className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
                                       type="button"
-                                      onClick={(e) => e.stopPropagation()}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.open(apt.floor_plan, '_blank', 'noopener,noreferrer');
+                                      }}
                                     >
                                       <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
                                       Schiță
                                     </Button>
-                                  </a>
                                 ) : (
                                   <div className="text-center text-[9px] sm:text-[10px] md:text-sm text-muted-foreground py-1 sm:py-2">
                                     <FileText className="h-3 w-3 sm:h-4 sm:w-4 mx-auto mb-0.5 opacity-50" />
