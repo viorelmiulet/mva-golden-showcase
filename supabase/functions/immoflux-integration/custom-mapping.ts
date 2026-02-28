@@ -127,11 +127,11 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
     
     // Try to detect property blocks (same patterns as auto-detect)
     let propertyBlocks = 
+      cleanXml.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
       cleanXml.match(/<ad[^>]*>[\s\S]*?<\/ad>/gi) ||
       cleanXml.match(/<item[^>]*>[\s\S]*?<\/item>/gi) ||
       cleanXml.match(/<oferta[^>]*>[\s\S]*?<\/oferta>/gi) ||
       cleanXml.match(/<property[^>]*>[\s\S]*?<\/property>/gi) ||
-      cleanXml.match(/<listing[^>]*>[\s\S]*?<\/listing>/gi) ||
       cleanXml.match(/<offer[^>]*>[\s\S]*?<\/offer>/gi) ||
       cleanXml.match(/<entry[^>]*>[\s\S]*?<\/entry>/gi) ||
       cleanXml.match(/<unit[^>]*>[\s\S]*?<\/unit>/gi);
@@ -142,6 +142,9 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
     }
     
     console.log(`Found ${propertyBlocks.length} property blocks`);
+    
+    // Extract broker/agency info from the feed header for contact enrichment
+    const brokerInfo = extractBrokerInfo(cleanXml);
     
     propertyBlocks.forEach((block, index) => {
       try {
@@ -163,8 +166,15 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
         const description = extractedData.description || '';
         const location = extractedData.location || extractedData.zone || extractedData.city || 'Necunoscut';
         
-        // Parse price
-        const priceRaw = extractedData.price;
+        // Parse price - handle nested <price><price>37000</price></price> structure
+        let priceRaw = extractedData.price;
+        // If price contains nested price tag content, extract the numeric value
+        if (priceRaw) {
+          const nestedPriceMatch = priceRaw.match(/(\d[\d.,]*)/);
+          if (nestedPriceMatch) {
+            priceRaw = nestedPriceMatch[1];
+          }
+        }
         const price = parsePrice(priceRaw);
         
         // Parse surface
@@ -175,22 +185,26 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
         const roomsRaw = extractedData.rooms;
         const rooms = parseNumber(roomsRaw) || 1;
         
-        // Currency
-        const currency = extractedData.currency || 
-          (priceRaw && priceRaw.includes('EUR') ? 'EUR' : 
-           priceRaw && priceRaw.includes('RON') ? 'RON' : 'EUR');
+        // Currency - try from mapping first, then from price block
+        let currency = extractedData.currency || 'EUR';
+        if (!extractedData.currency) {
+          const currencyFromBlock = extractFieldValue(block, 'currency');
+          if (currencyFromBlock) currency = currencyFromBlock;
+        }
         
-        // Images - handle both single and multiple
+        // Images - handle <images><image>url</image>...</images> structure
         const imagesRaw = extractedData.images;
         const images = parseImages(block, imagesRaw);
         
-        // Features
-        const featuresRaw = extractedData.features;
-        const features = parseFeatures(featuresRaw);
+        // Build features from individual boolean fields (REBS CRM format)
+        const features = buildFeaturesFromBlock(block, extractedData);
         
-        // Contact
+        // Contact - enrich with broker info from header
         const contactRaw = extractedData.contact;
-        const contact = parseContact(contactRaw);
+        let contact = parseContact(contactRaw);
+        if (!contact && brokerInfo) {
+          contact = brokerInfo;
+        }
         
         // Transaction type
         const transactionType = extractedData.transaction_type?.toLowerCase() === 'rent' || 
@@ -207,9 +221,27 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
         const surfaceLand = parseNumber(extractedData.surface_land);
         const surfaceTotal = parseNumber(extractedData.surface_total);
         
-        // Parse coordinates
-        const latitude = extractedData.latitude ? parseFloat(extractedData.latitude) : null;
-        const longitude = extractedData.longitude ? parseFloat(extractedData.longitude) : null;
+        // Parse coordinates - handle both direct fields and nested geo_location
+        let latitude = extractedData.latitude ? parseFloat(extractedData.latitude) : null;
+        let longitude = extractedData.longitude ? parseFloat(extractedData.longitude) : null;
+        
+        // Fallback: try to extract lat/lon from geo_location block
+        if (!latitude || !longitude) {
+          const latVal = extractFieldValue(block, 'lat');
+          const lonVal = extractFieldValue(block, 'lon');
+          if (latVal) latitude = parseFloat(latVal);
+          if (lonVal) longitude = parseFloat(lonVal);
+        }
+        
+        // Agent/agency - try broker info from header if not mapped
+        const agentName = extractedData.agent || null;
+        const agencyName = extractedData.agency || null;
+        
+        // Source URL
+        const sourceUrl = extractedData.source_url || null;
+        
+        // External ID
+        const externalId = extractedData.external_id || null;
         
         const property: any = {
           title,
@@ -242,14 +274,14 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
           parking,
           balconies,
           furnished: extractedData.furnished || null,
-          external_id: extractedData.external_id || null,
-          source_url: extractedData.source_url || null,
+          external_id: externalId,
+          source_url: sourceUrl,
           zone: extractedData.zone || null,
           city: extractedData.city || null,
           latitude,
           longitude,
-          agent: extractedData.agent || null,
-          agency: extractedData.agency || null,
+          agent: agentName,
+          agency: agencyName,
           surface_land: surfaceLand,
           comfort: extractedData.comfort || null,
           video: extractedData.video || null,
@@ -263,12 +295,12 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
           }
         });
         
-        // Validate minimum required fields
-        if (property.title && property.price_min > 0 && property.rooms > 0) {
+        // Validate minimum required fields - relaxed: accept if has title
+        if (property.title && (property.price_min > 0 || property.rooms > 0)) {
           properties.push(property);
           console.log(`✓ Property ${index + 1} mapped: ${property.title}`);
         } else {
-          console.log(`✗ Property ${index + 1} skipped: missing required data`);
+          console.log(`✗ Property ${index + 1} skipped: missing required data (title: ${property.title}, price: ${property.price_min}, rooms: ${property.rooms})`);
         }
         
       } catch (blockError: any) {
@@ -283,6 +315,81 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
     console.error('Error in parseXmlWithCustomMapping:', error);
     return [];
   }
+}
+
+// Extract broker contact info from feed header
+function extractBrokerInfo(xmlContent: string): any {
+  try {
+    const brokerBlock = xmlContent.match(/<broker[^>]*>[\s\S]*?<\/broker>/i);
+    if (!brokerBlock) return null;
+    
+    const phone = extractFieldValue(brokerBlock[0], 'phone');
+    const email = extractFieldValue(brokerBlock[0], 'email');
+    const name = extractFieldValue(brokerBlock[0], 'name');
+    
+    const contact: any = {};
+    if (phone && phone !== '0' && phone !== '1') contact.phone = phone;
+    if (email) contact.email = email;
+    if (name) contact.name = name;
+    
+    return Object.keys(contact).length > 0 ? contact : null;
+  } catch {
+    return null;
+  }
+}
+
+// Build features array from individual boolean fields (REBS CRM format)
+function buildFeaturesFromBlock(block: string, extractedData: any): string[] {
+  const features: string[] = [];
+  
+  // Add any mapped features first
+  if (extractedData.features) {
+    const parsed = parseFeatures(extractedData.features);
+    features.push(...parsed);
+  }
+  
+  // REBS CRM boolean amenity fields
+  const booleanFeatureMap: Record<string, string> = {
+    'air_conditioning': 'Aer Condiționat',
+    'internet': 'Internet',
+    'television': 'Televiziune',
+    'security': 'Securitate',
+    'electricity': 'Electricitate',
+    'wather': 'Apă',
+    'gas': 'Gaz',
+    'wood_floors': 'Parchet Lemn',
+    'phone': 'Telefon',
+    'elevator': 'Lift',
+    'intercom': 'Interfon',
+    'central_heating': 'Centrală Termică',
+    'terrace': 'Terasă',
+    'garden': 'Grădină',
+    'pool': 'Piscină',
+    'storage': 'Boxă',
+  };
+  
+  Object.entries(booleanFeatureMap).forEach(([xmlField, label]) => {
+    const value = extractFieldValue(block, xmlField);
+    if (value === '1' || value?.toLowerCase() === 'true' || value?.toLowerCase() === 'da' || value?.toLowerCase() === 'yes') {
+      if (!features.includes(label)) {
+        features.push(label);
+      }
+    }
+  });
+  
+  // Add compartment/apartment type as feature
+  const aptType = extractFieldValue(block, 'appartment_type') || extractFieldValue(block, 'apartment_type');
+  if (aptType && !features.includes(aptType)) {
+    features.push(aptType);
+  }
+  
+  // Add build materials as feature
+  const buildMat = extractFieldValue(block, 'build_materials');
+  if (buildMat && !features.includes(buildMat)) {
+    features.push(`Construcție: ${buildMat}`);
+  }
+  
+  return features.slice(0, 20);
 }
 
 function extractFieldValue(xmlBlock: string, fieldName: string): string | null {
