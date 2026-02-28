@@ -109,7 +109,7 @@ const Header = () => {
     { name: t.services.title, id: '/servicii', type: 'link' },
     { name: t.nav.properties, id: '/proprietati', type: 'link' },
     { name: t.nav.complexes, id: '/complexe', type: 'link' },
-    { name: t.nav.shortTermRentals, id: '/regim-hotelier', type: 'link' },
+    
     { name: t.nav.calculator, id: '/calculator-credit', type: 'link' },
     { name: t.nav.whyUs, id: '/de-ce-sa-ne-alegi', type: 'link' },
     { name: t.nav.blog, id: '/blog', type: 'link' },

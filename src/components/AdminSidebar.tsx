@@ -48,7 +48,7 @@ const menuItems = [
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
-  { title: "Regim Hotelier", url: "/admin/regim-hotelier", icon: Hotel },
+  
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
