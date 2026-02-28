@@ -48,5 +48,8 @@ Allow: /
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
 Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index
 
+# AI Context
+# https://mvaimobiliare.ro/llms.txt
+
 # Crawl-delay
 Crawl-delay: 1
