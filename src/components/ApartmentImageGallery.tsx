@@ -655,7 +655,7 @@ export const ApartmentImageGallery = ({
                   
                   {/* Image container - uses all available space */}
                   <div 
-                    className="w-full h-full flex items-center justify-center px-2 sm:px-12"
+                    className="w-full h-full flex items-center justify-center px-2 sm:px-16 lg:px-24"
                     style={{
                       transform: `translateX(${swipeOffset}px)`,
                       transition: swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'
@@ -678,7 +678,7 @@ export const ApartmentImageGallery = ({
 
                 {/* Bottom Thumbnail Strip */}
                 {validImages.length > 1 && (
-                <div className="flex-shrink-0 py-1.5 pb-4 sm:py-2 sm:pb-8 px-1 sm:px-4">
+                <div className="flex-shrink-0 py-1.5 pb-4 sm:py-3 sm:pb-6 px-1 sm:px-4">
                     <div className="flex gap-1 sm:gap-2 justify-center overflow-x-auto max-w-full pb-1 px-1">
                       {validImages.map((img, idx) => (
                         <button
@@ -688,7 +688,7 @@ export const ApartmentImageGallery = ({
                             setZoomLevel(1);
                           }}
                           className={cn(
-                            "flex-shrink-0 w-12 h-12 sm:w-20 sm:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-200 touch-manipulation",
+                            "flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-200 touch-manipulation",
                             currentIndex === idx
                               ? "border-gold scale-105"
                               : "border-white/30 opacity-70 hover:opacity-100"
