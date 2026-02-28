@@ -229,3 +229,21 @@
 .credit-sim .bar-legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
 
 @keyframes csPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+/* Inline number inputs */
+.credit-sim .field-value-input {
+  display: flex; align-items: baseline; gap: 6px;
+  font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text);
+}
+.credit-sim .field-value-input span { font-size: 0.9rem; color: var(--cs-muted); font-weight: 300; }
+.credit-sim .inline-number-input {
+  background: transparent; border: none; border-bottom: 1px solid var(--cs-border);
+  color: var(--cs-text); font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-weight: 600; width: 140px; text-align: right;
+  outline: none; padding: 0 2px 2px; transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+.credit-sim .inline-number-input::-webkit-inner-spin-button,
+.credit-sim .inline-number-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.credit-sim .inline-number-input:focus { border-bottom-color: var(--cs-gold); }
+.credit-sim .inline-number-sm { width: 70px; }

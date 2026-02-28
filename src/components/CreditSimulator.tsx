@@ -249,7 +249,18 @@ const CreditSimulator = () => {
           <div className="field">
             <div className="field-header">
               <span className="field-label">{isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}</span>
-              <span className="field-value">{fmt(clampedValue)} <span>{currency}</span></span>
+              <div className="field-value-input">
+                <input
+                  type="number"
+                  min={limits.valMin}
+                  max={limits.valMax}
+                  step={limits.valStep}
+                  value={clampedValue}
+                  onChange={(e) => setPropertyValue(Number(e.target.value) || limits.valMin)}
+                  className="inline-number-input"
+                />
+                <span>{currency}</span>
+              </div>
             </div>
             <input
               type="range"
@@ -272,7 +283,12 @@ const CreditSimulator = () => {
                 <span className="field-label">
                   Avans <span className="info-tip" title="Loan-to-Value: raportul dintre credit și valoarea proprietății">i</span>
                 </span>
-                <span className="field-value">{downPaymentPct} <span>%</span></span>
+                <div className="field-value-input">
+                  <input type="number" min={5} max={80} step={1} value={downPaymentPct}
+                    onChange={(e) => setDownPaymentPct(Math.min(80, Math.max(5, Number(e.target.value) || 5)))}
+                    className="inline-number-input inline-number-sm" />
+                  <span>%</span>
+                </div>
               </div>
               <input
                 type="range"
@@ -295,7 +311,12 @@ const CreditSimulator = () => {
           <div className="field">
             <div className="field-header">
               <span className="field-label">Perioadă</span>
-              <span className="field-value">{clampedYears} <span>ani</span></span>
+              <div className="field-value-input">
+                <input type="number" min={limits.yrMin} max={limits.yrMax} step={1} value={clampedYears}
+                  onChange={(e) => setYears(Number(e.target.value) || limits.yrMin)}
+                  className="inline-number-input inline-number-sm" />
+                <span>ani</span>
+              </div>
             </div>
             <input
               type="range"
@@ -320,7 +341,12 @@ const CreditSimulator = () => {
           <div className="field">
             <div className="field-header">
               <span className="field-label">Rată dobândă anuală</span>
-              <span className="field-value">{clampedRate.toFixed(1)} <span>% / an</span></span>
+              <div className="field-value-input">
+                <input type="number" min={limits.rateMin} max={limits.rateMax} step={0.1} value={clampedRate}
+                  onChange={(e) => setInterestRate(Number(e.target.value) || limits.rateMin)}
+                  className="inline-number-input" />
+                <span>% / an</span>
+              </div>
             </div>
             <input
               type="range"
@@ -351,7 +377,13 @@ const CreditSimulator = () => {
           <div className="field">
             <div className="field-header">
               <span className="field-label">Costuri suplimentare / lună</span>
-              <span className="field-value">{fmt(extraCosts)} <span>{currency}</span></span>
+              <div className="field-value-input">
+                <input type="number" min={0} max={currency === 'RON' ? 2000 : 400} step={currency === 'RON' ? 50 : 10}
+                  value={extraCosts}
+                  onChange={(e) => setExtraCosts(Number(e.target.value) || 0)}
+                  className="inline-number-input" />
+                <span>{currency}</span>
+              </div>
             </div>
             <input
               type="range"
