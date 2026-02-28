@@ -116,14 +116,14 @@ export const XmlFieldMappingDialog = ({
       surface_land: ["teren", "land", "lot", "suprafata_teren", "land_area"],
       currency: ["currency", "moneda", "valuta", "coin", "money_type"],
       transaction_type: ["transaction", "tranzactie", "tip_anunt", "offer_type", "listing_type", "vanzare", "inchiriere", "sale", "rent", "tip_tranzactie"],
-      property_type: ["tip_proprietate", "property_type", "tip_imobil", "categorie", "category", "type"],
+      property_type: ["tip_proprietate", "property_type", "tip_imobil", "categorie", "category", "type", "property_subtype"],
       
       // Building info
       floor: ["etaj", "floor", "nivel", "level"],
-      total_floors: ["etaje", "floors", "nr_etaje", "total_floors", "numar_etaje"],
-      year_built: ["an", "year", "an_constructie", "year_built", "constructie", "built"],
-      building_type: ["tip_cladire", "building_type", "structura", "structure"],
-      compartment: ["compartimentare", "compartment", "layout"],
+      total_floors: ["etaje", "floors", "nr_etaje", "total_floors", "numar_etaje", "building_flors", "building_floors"],
+      year_built: ["an", "year", "an_constructie", "year_built", "constructie", "built", "build_year"],
+      building_type: ["tip_cladire", "building_type", "structura", "structure", "build_materials"],
+      compartment: ["compartimentare", "compartment", "layout", "appartment_type", "apartment_type"],
       
       // Room details
       bathrooms: ["bai", "bathrooms", "bath", "baie", "nr_bai"],
@@ -138,11 +138,11 @@ export const XmlFieldMappingDialog = ({
       amenities: ["amenities", "facilitati", "utilities"],
       comfort: ["confort", "comfort_level"],
       heating: ["incalzire", "heating", "centrala", "termica"],
-      conditioning: ["aer", "ac", "conditioning", "clima", "climatizare"],
+      conditioning: ["aer", "ac", "conditioning", "clima", "climatizare", "air_conditioning"],
       furnished: ["mobilat", "furnished", "mobilier", "furniture"],
       
       // Media
-      images: ["image", "photo", "foto", "poza", "picture", "gallery", "galerie", "media", "imagini", "poze", "photos"],
+      images: ["image", "photo", "foto", "poza", "picture", "gallery", "galerie", "media", "imagini", "poze", "photos", "images"],
       floor_plan: ["plan", "floor_plan", "schita", "schema", "blueprint"],
       video: ["video", "clip", "movie", "film"],
       virtual_tour: ["tour", "virtual", "3d", "360"],
@@ -153,12 +153,12 @@ export const XmlFieldMappingDialog = ({
       agent: ["agent", "broker", "consultant"],
       agency: ["agentie", "agency", "firma", "company"],
       source_url: ["url", "link", "source", "sursa", "storia", "olx"],
-      external_id: ["id_extern", "external_id", "ref", "reference", "cod", "code"],
+      external_id: ["id_extern", "external_id", "ref", "reference", "cod", "code", "id"],
       
       // Status
-      availability_status: ["status", "disponibilitate", "availability", "stare"],
+      availability_status: ["status", "disponibilitate", "availability", "stare", "exclusivity"],
       available_from: ["disponibil", "available", "from_date", "start_date"],
-      updated_at: ["actualizat", "updated", "modified", "data_actualizare"],
+      updated_at: ["actualizat", "updated", "modified", "data_actualizare", "date_added"],
       
       // Location details
       city: ["oras", "city", "municipiu", "localitate"],
