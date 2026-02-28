@@ -449,6 +449,15 @@ const CreditSimulator = () => {
         </div>
       </div>
 
+      {/* Download Button - prominent */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '32px 0 8px' }}>
+        <button className="btn-sm download-main" onClick={downloadPDF} style={{
+          padding: '14px 32px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px'
+        }}>
+          📥 Descarcă Scadențar PDF
+        </button>
+      </div>
+
       {/* Amortization Table */}
       <div className="table-card">
         <div className="table-header">
@@ -458,7 +467,6 @@ const CreditSimulator = () => {
           <div className="table-actions">
             <button className={`btn-sm ${tableView === 'lunar' ? 'active' : ''}`} onClick={() => setTableView('lunar')}>Lunar</button>
             <button className={`btn-sm ${tableView === 'anual' ? 'active' : ''}`} onClick={() => setTableView('anual')}>Anual</button>
-            <button className="btn-sm" onClick={downloadPDF} style={{ marginLeft: 8 }}>📥 Descarcă PDF</button>
           </div>
         </div>
         <div className="table-scroll">
