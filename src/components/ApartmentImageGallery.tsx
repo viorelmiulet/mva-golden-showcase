@@ -512,17 +512,18 @@ export const ApartmentImageGallery = ({
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
         <DialogContent 
           hideCloseButton
-          className="fixed inset-0 max-w-none w-screen h-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none overflow-hidden z-[100]"
+          className="fixed inset-0 max-w-none w-screen p-0 m-0 bg-black border-none rounded-none overflow-hidden z-[100]"
           style={{ 
             transform: 'none', 
             left: 0, 
             top: 0, 
             translate: 'none',
+            height: '100dvh',
             maxHeight: '100dvh'
           }}
           aria-describedby={undefined}
         >
-          <div className="w-full h-full h-[100dvh] flex flex-col relative z-10">
+          <div className="w-full flex flex-col relative z-10" style={{ height: '100dvh', maxHeight: '100dvh' }}>
             {/* Close Button - Fixed top right, always visible */}
             <Button
               variant="ghost"
