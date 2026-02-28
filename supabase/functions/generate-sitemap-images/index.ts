@@ -5,27 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CatalogOffer {
-  id: string;
-  title: string;
-  images: string[] | null;
-  updated_at: string;
-}
-
-interface RealEstateProject {
-  id: string;
-  name: string;
-  main_image: string | null;
-  updated_at: string;
-}
-
-interface ShortTermRental {
-  id: string;
-  title: string;
-  images: string[] | null;
-  updated_at: string;
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -41,58 +20,51 @@ Deno.serve(async (req) => {
     const baseUrl = 'https://mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Fetch all data in parallel
-    const [propertiesResult, projectsResult, rentalsResult] = await Promise.all([
+    // Fetch published properties and projects with images in parallel
+    const [propertiesResult, projectsResult] = await Promise.all([
       supabase
         .from('catalog_offers')
         .select('id, title, images, updated_at')
+        .eq('is_published', true)
         .not('images', 'is', null)
-        .order('updated_at', { ascending: false }),
+        .order('updated_at', { ascending: false })
+        .limit(5000),
       supabase
         .from('real_estate_projects')
         .select('id, name, main_image, updated_at')
+        .eq('is_published', true)
         .not('main_image', 'is', null)
         .order('updated_at', { ascending: false }),
-      supabase
-        .from('short_term_rentals')
-        .select('id, title, images, updated_at')
-        .not('images', 'is', null)
-        .order('updated_at', { ascending: false })
     ]);
 
-    const properties = propertiesResult.data as CatalogOffer[] || [];
-    const projects = projectsResult.data as RealEstateProject[] || [];
-    const rentals = rentalsResult.data as ShortTermRental[] || [];
+    const properties = propertiesResult.data || [];
+    const projects = projectsResult.data || [];
 
-    console.log(`Found ${properties.length} properties, ${projects.length} projects, ${rentals.length} rentals with images`);
+    console.log(`Found ${properties.length} properties, ${projects.length} projects with images`);
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 `;
 
-    // Add property images
+    // Property images
     for (const property of properties) {
       if (property.images && property.images.length > 0) {
         const lastmod = property.updated_at 
           ? new Date(property.updated_at).toISOString().split('T')[0]
           : currentDate;
-        
-        const pageUrl = property.id ? `${baseUrl}/proprietati/${property.id}` : null;
-        if (!pageUrl) continue;
 
         sitemap += `  <url>
-    <loc>${escapeXml(pageUrl)}</loc>
+    <loc>${escapeXml(`${baseUrl}/proprietati/${property.id}`)}</loc>
     <lastmod>${lastmod}</lastmod>
 `;
         
-        for (let i = 0; i < Math.min(property.images.length, 1000); i++) {
+        for (let i = 0; i < Math.min(property.images.length, 50); i++) {
           const imageUrl = property.images[i];
           if (imageUrl && isValidUrl(imageUrl)) {
-            const caption = `${property.title || 'Proprietate'} - Imagine ${i + 1}`;
             sitemap += `    <image:image>
       <image:loc>${escapeXml(imageUrl)}</image:loc>
-      <image:caption>${escapeXml(caption)}</image:caption>
+      <image:caption>${escapeXml(`${property.title || 'Proprietate'} - Imagine ${i + 1}`)}</image:caption>
       <image:title>${escapeXml(property.title || 'Proprietate imobiliară')}</image:title>
     </image:image>
 `;
@@ -104,17 +76,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Add project images
+    // Project images
     for (const project of projects) {
       if (project.main_image) {
         const lastmod = project.updated_at 
           ? new Date(project.updated_at).toISOString().split('T')[0]
           : currentDate;
         
-        const pageUrl = `${baseUrl}/complexe/${project.id}`;
-        
         sitemap += `  <url>
-    <loc>${escapeXml(pageUrl)}</loc>
+    <loc>${escapeXml(`${baseUrl}/complexe/${project.id}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <image:image>
       <image:loc>${escapeXml(project.main_image)}</image:loc>
@@ -126,47 +96,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Add rental images
-    for (const rental of rentals) {
-      if (rental.images && rental.images.length > 0) {
-        const lastmod = rental.updated_at 
-          ? new Date(rental.updated_at).toISOString().split('T')[0]
-          : currentDate;
-        
-        const pageUrl = `${baseUrl}/regim-hotelier/${rental.id}`;
-
-        sitemap += `  <url>
-    <loc>${escapeXml(pageUrl)}</loc>
-    <lastmod>${lastmod}</lastmod>
-`;
-        
-        for (let i = 0; i < Math.min(rental.images.length, 1000); i++) {
-          const imageUrl = rental.images[i];
-          if (imageUrl && isValidUrl(imageUrl)) {
-            const caption = `${rental.title || 'Cazare'} - Imagine ${i + 1}`;
-            sitemap += `    <image:image>
-      <image:loc>${escapeXml(imageUrl)}</image:loc>
-      <image:caption>${escapeXml(caption)}</image:caption>
-      <image:title>${escapeXml(rental.title || 'Cazare regim hotelier')}</image:title>
-    </image:image>
-`;
-          }
-        }
-        
-        sitemap += `  </url>
-`;
-      }
-    }
-
     sitemap += `</urlset>`;
-
-    console.log('Images sitemap generated successfully');
 
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600',
+        'Content-Type': 'application/xml; charset=UTF-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'X-Robots-Tag': 'noindex',
       },
     });
 
