@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   
   <!-- Homepage -->
   <url>
     <loc>https://mvaimobiliare.ro/</loc>
-    <lastmod>2025-10-04</lastmod>
+    <lastmod>2026-02-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -14,63 +13,111 @@
       <image:title>MVA Imobiliare - Agenție Imobiliară Premium București</image:title>
     </image:image>
   </url>
-  
+
+  <!-- Despre Noi -->
+  <url>
+    <loc>https://mvaimobiliare.ro/despre-noi</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Servicii -->
+  <url>
+    <loc>https://mvaimobiliare.ro/servicii</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Properties Page -->
   <url>
     <loc>https://mvaimobiliare.ro/proprietati</loc>
-    <lastmod>2025-10-04</lastmod>
+    <lastmod>2026-02-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Why Choose Us Page -->
-  <url>
-    <loc>https://mvaimobiliare.ro/de-ce-sa-ne-alegi</loc>
-    <lastmod>2025-10-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Business Card Page -->
-  <url>
-    <loc>https://mvaimobiliare.ro/carte-vizita</loc>
-    <lastmod>2025-10-04</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <!-- Blog Page -->
-  <url>
-    <loc>https://mvaimobiliare.ro/blog</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- FAQ Page -->
-  <url>
-    <loc>https://mvaimobiliare.ro/faq</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
+
   <!-- Complexe Page -->
   <url>
     <loc>https://mvaimobiliare.ro/complexe</loc>
-    <lastmod>2025-11-10</lastmod>
+    <lastmod>2026-02-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
+  <!-- Calculator Credit -->
+  <url>
+    <loc>https://mvaimobiliare.ro/calculator-credit</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Why Choose Us Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/de-ce-sa-ne-alegi</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/blog</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- FAQ Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/faq</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contact Page -->
+  <url>
+    <loc>https://mvaimobiliare.ro/contact</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Cariera Page -->
   <url>
     <loc>https://mvaimobiliare.ro/cariera</loc>
-    <lastmod>2025-11-10</lastmod>
+    <lastmod>2026-02-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-  
+
+  <!-- Carte Vizită -->
+  <url>
+    <loc>https://mvaimobiliare.ro/carte-vizita</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Politica Confidentialitate -->
+  <url>
+    <loc>https://mvaimobiliare.ro/politica-confidentialitate</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Termeni și Condiții -->
+  <url>
+    <loc>https://mvaimobiliare.ro/termeni-conditii</loc>
+    <lastmod>2026-02-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
   <!-- Blog Posts -->
   <url>
     <loc>https://mvaimobiliare.ro/blog/ghidul-complet-cumparare-proprietate-bucuresti</loc>
@@ -78,34 +125,26 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <url>
     <loc>https://mvaimobiliare.ro/blog/tendinte-piata-imobiliara-2025</loc>
     <lastmod>2025-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <url>
     <loc>https://mvaimobiliare.ro/blog/cum-pregatesti-casa-pentru-vanzare</loc>
     <lastmod>2025-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <url>
     <loc>https://mvaimobiliare.ro/blog/investitii-imobiliare-ghid-incepatori</loc>
     <lastmod>2025-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Dynamic Pages Note: 
-       Complex detail pages and property detail pages are dynamically generated
-       Example URLs:
-       - https://mvaimobiliare.ro/complexe/{complex-id}
-       - https://mvaimobiliare.ro/proprietati/{property-id}
-       These are crawlable through the main pages above
-  -->
-  
+
 </urlset>
