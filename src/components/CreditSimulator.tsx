@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './CreditSimulator.css';
@@ -18,6 +18,20 @@ const CreditSimulator = () => {
   const [rateType, setRateType] = useState<RateType>('fixa');
   const [extraCosts, setExtraCosts] = useState(0);
   const [tableView, setTableView] = useState<TableView>('lunar');
+
+  // Local string states for editable inputs (prevents clamping while typing)
+  const [inputValue, setInputValue] = useState(String(propertyValue));
+  const [inputDown, setInputDown] = useState(String(downPaymentPct));
+  const [inputYears, setInputYears] = useState(String(years));
+  const [inputRate, setInputRate] = useState(String(interestRate));
+  const [inputExtra, setInputExtra] = useState(String(extraCosts));
+
+  // Sync local inputs when values change from sliders or type switches
+  useEffect(() => { setInputValue(String(propertyValue)); }, [propertyValue]);
+  useEffect(() => { setInputDown(String(downPaymentPct)); }, [downPaymentPct]);
+  useEffect(() => { setInputYears(String(years)); }, [years]);
+  useEffect(() => { setInputRate(String(interestRate)); }, [interestRate]);
+  useEffect(() => { setInputExtra(String(extraCosts)); }, [extraCosts]);
 
   const isPersonal = creditType === 'personal';
 
@@ -251,12 +265,12 @@ const CreditSimulator = () => {
               <span className="field-label">{isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}</span>
               <div className="field-value-input">
                 <input
-                  type="number"
-                  min={limits.valMin}
-                  max={limits.valMax}
-                  step={limits.valStep}
-                  value={clampedValue}
-                  onChange={(e) => setPropertyValue(Number(e.target.value) || limits.valMin)}
+                  type="text"
+                  inputMode="numeric"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value.replace(/[^0-9]/g, ''))}
+                  onBlur={() => { const v = Number(inputValue) || limits.valMin; setPropertyValue(v); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                   className="inline-number-input"
                 />
                 <span>{currency}</span>
@@ -284,8 +298,10 @@ const CreditSimulator = () => {
                   Avans <span className="info-tip" title="Loan-to-Value: raportul dintre credit și valoarea proprietății">i</span>
                 </span>
                 <div className="field-value-input">
-                  <input type="number" min={5} max={80} step={1} value={downPaymentPct}
-                    onChange={(e) => setDownPaymentPct(Math.min(80, Math.max(5, Number(e.target.value) || 5)))}
+                  <input type="text" inputMode="numeric" value={inputDown}
+                    onChange={(e) => setInputDown(e.target.value.replace(/[^0-9]/g, ''))}
+                    onBlur={() => { const v = Math.min(80, Math.max(5, Number(inputDown) || 5)); setDownPaymentPct(v); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                     className="inline-number-input inline-number-sm" />
                   <span>%</span>
                 </div>
@@ -312,8 +328,10 @@ const CreditSimulator = () => {
             <div className="field-header">
               <span className="field-label">Perioadă</span>
               <div className="field-value-input">
-                <input type="number" min={limits.yrMin} max={limits.yrMax} step={1} value={clampedYears}
-                  onChange={(e) => setYears(Number(e.target.value) || limits.yrMin)}
+                <input type="text" inputMode="numeric" value={inputYears}
+                  onChange={(e) => setInputYears(e.target.value.replace(/[^0-9]/g, ''))}
+                  onBlur={() => { const v = Number(inputYears) || limits.yrMin; setYears(v); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                   className="inline-number-input inline-number-sm" />
                 <span>ani</span>
               </div>
@@ -342,8 +360,10 @@ const CreditSimulator = () => {
             <div className="field-header">
               <span className="field-label">Rată dobândă anuală</span>
               <div className="field-value-input">
-                <input type="number" min={limits.rateMin} max={limits.rateMax} step={0.1} value={clampedRate}
-                  onChange={(e) => setInterestRate(Number(e.target.value) || limits.rateMin)}
+                <input type="text" inputMode="decimal" value={inputRate}
+                  onChange={(e) => setInputRate(e.target.value.replace(/[^0-9.]/g, ''))}
+                  onBlur={() => { const v = Number(inputRate) || limits.rateMin; setInterestRate(v); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                   className="inline-number-input" />
                 <span>% / an</span>
               </div>
@@ -378,9 +398,10 @@ const CreditSimulator = () => {
             <div className="field-header">
               <span className="field-label">Costuri suplimentare / lună</span>
               <div className="field-value-input">
-                <input type="number" min={0} max={currency === 'RON' ? 2000 : 400} step={currency === 'RON' ? 50 : 10}
-                  value={extraCosts}
-                  onChange={(e) => setExtraCosts(Number(e.target.value) || 0)}
+                <input type="text" inputMode="numeric" value={inputExtra}
+                  onChange={(e) => setInputExtra(e.target.value.replace(/[^0-9]/g, ''))}
+                  onBlur={() => { setExtraCosts(Number(inputExtra) || 0); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
                   className="inline-number-input" />
                 <span>{currency}</span>
               </div>
