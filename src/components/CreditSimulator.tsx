@@ -49,7 +49,7 @@ const CreditSimulator = () => {
       valMin: currency === 'RON' ? 50000 : 10000,
       valMax: currency === 'RON' ? 2000000 : 500000,
       valStep: currency === 'RON' ? 5000 : 1000,
-      yrMin: 5, yrMax: 30,
+      yrMin: 5, yrMax: 35,
       rateMin: 1, rateMax: 20,
     };
   }, [isPersonal, currency]);
