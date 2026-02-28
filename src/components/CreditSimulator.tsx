@@ -136,24 +136,31 @@ const CreditSimulator = () => {
     setPropertyValue(Math.round(propertyValue * ratio));
     setExtraCosts(Math.round(extraCosts * ratio));
   };
+  const removeDiacritics = (text: string) =>
+    text.replace(/[ăâ]/g, 'a').replace(/[ÂĂ]/g, 'A')
+        .replace(/[î]/g, 'i').replace(/[Î]/g, 'I')
+        .replace(/[șş]/g, 's').replace(/[ȘŞ]/g, 'S')
+        .replace(/[țţ]/g, 't').replace(/[ȚŢ]/g, 'T');
+
   const downloadPDF = useCallback(() => {
     const doc = new jsPDF();
     const pageW = doc.internal.pageSize.getWidth();
+    const d = removeDiacritics;
 
     // Title
     doc.setFontSize(18);
-    doc.text('Scadentar Credit - MVA Imobiliare', pageW / 2, 20, { align: 'center' });
+    doc.text(d('Scadentar Credit - MVA Imobiliare'), pageW / 2, 20, { align: 'center' });
 
     // Summary
     doc.setFontSize(11);
     const summaryY = 32;
     const tipCredit = isPersonal ? 'Nevoi Personale' : 'Ipotecar';
     const lines = [
-      `Tip credit: ${tipCredit}  |  Monedă: ${currency}`,
-      `${isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}: ${fmt(clampedValue)} ${currency}` +
-        (isPersonal ? '' : `  |  Avans: ${effectiveDownPct}% (${fmt(calc.dp)} ${currency})`),
-      `Sumă creditată: ${fmt(calc.loan)} ${currency}  |  Perioadă: ${clampedYears} ani  |  Dobândă: ${clampedRate.toFixed(1)}%/an (${rateType === 'fixa' ? 'Fixă' : 'Variabilă IRCC'})`,
-      `Rată lunară: ${fmt(calc.monthly)} ${currency}  |  Total dobândă: ${fmt(calc.totalInterest)} ${currency}  |  Cost total: ${fmt(calc.totalPaid)} ${currency}`,
+      d(`Tip credit: ${tipCredit}  |  Moneda: ${currency}`),
+      d(`${isPersonal ? 'Suma imprumut' : 'Valoare proprietate'}: ${fmt(clampedValue)} ${currency}`) +
+        (isPersonal ? '' : d(`  |  Avans: ${effectiveDownPct}% (${fmt(calc.dp)} ${currency})`)),
+      d(`Suma creditata: ${fmt(calc.loan)} ${currency}  |  Perioada: ${clampedYears} ani  |  Dobanda: ${clampedRate.toFixed(1)}%/an (${rateType === 'fixa' ? 'Fixa' : 'Variabila IRCC'})`),
+      d(`Rata lunara: ${fmt(calc.monthly)} ${currency}  |  Total dobanda: ${fmt(calc.totalInterest)} ${currency}  |  Cost total: ${fmt(calc.totalPaid)} ${currency}`),
     ];
     lines.forEach((line, i) => {
       doc.text(line, 14, summaryY + i * 7);
@@ -162,11 +169,11 @@ const CreditSimulator = () => {
     // Monthly table
     const startY = summaryY + lines.length * 7 + 8;
     doc.setFontSize(13);
-    doc.text('Plan Amortizare Lunar', 14, startY);
+    doc.text(d('Plan Amortizare Lunar'), 14, startY);
 
     autoTable(doc, {
       startY: startY + 4,
-      head: [['Luna', 'Rată', 'Principal', 'Dobândă', 'Sold rămas']],
+      head: [['Luna', 'Rata', 'Principal', d('Dobanda'), d('Sold ramas')]],
       body: calc.schedule.map((r) => [
         `${r.month}`,
         `${fmt(r.payment)} ${currency}`,
@@ -187,7 +194,7 @@ const CreditSimulator = () => {
       doc.setFontSize(8);
       doc.setTextColor(150);
       doc.text(
-        `Generat de MVA Imobiliare — mvaperfect.ro | Pagina ${i}/${pageCount}`,
+        d(`Generat de MVA Imobiliare — mvaperfect.ro | Pagina ${i}/${pageCount}`),
         pageW / 2,
         doc.internal.pageSize.getHeight() - 8,
         { align: 'center' }
