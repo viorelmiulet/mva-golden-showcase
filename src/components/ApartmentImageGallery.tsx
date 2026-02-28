@@ -343,23 +343,23 @@ export const ApartmentImageGallery = ({
     <>
       {/* Gallery Preview - Desktop Optimized */}
       <div className={cn("relative", className)}>
-        {/* Desktop Layout: Main + Side Thumbnails */}
-        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-3">
-          {/* Main Image - Takes 3 columns with Parallax */}
+        {/* Desktop Layout: Main + Side Grid */}
+        <div className="hidden lg:grid lg:grid-cols-12 lg:gap-2">
+          {/* Main Image - Takes 8 columns */}
           <div 
             ref={mainImageRef}
-            className="col-span-3 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
+            className="col-span-8 aspect-[16/10] rounded-xl overflow-hidden cursor-pointer relative bg-muted group"
             onClick={() => setIsLightboxOpen(true)}
           >
             <OptimizedGalleryImage
               src={validImages[0]}
               width={imageSizes.main}
               quality={85}
-              sizes="(min-width: 1024px) 75vw, 100vw"
+              sizes="(min-width: 1024px) 66vw, 100vw"
               alt={title}
-              className="w-full h-full object-cover transition-transform duration-300 ease-out"
+              className="w-full h-full object-cover transition-transform duration-500 ease-out"
               style={{
-                transform: `translate(${parallax.x}px, ${parallax.y}px) scale(1.1)`,
+                transform: `translate(${parallax.x}px, ${parallax.y}px) scale(1.05)`,
               }}
               priority={true}
               onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
@@ -371,62 +371,64 @@ export const ApartmentImageGallery = ({
                 <Maximize2 className="w-10 h-10 text-white drop-shadow-lg" />
               </div>
             </div>
+
+            {/* Image count badge */}
+            {validImages.length > 5 && (
+              <div className="absolute bottom-3 left-3 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-sm">
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span className="font-medium">{validImages.length} imagini</span>
+              </div>
+            )}
           </div>
 
-          {/* Side Thumbnails Column */}
-          <div className="col-span-1 flex flex-col gap-3">
-            {validImages.slice(1, 4).map((img, idx) => (
-              <button
-                key={idx + 1}
-                onClick={() => {
-                  setCurrentIndex(idx + 1);
-                  setIsLightboxOpen(true);
-                }}
-                className="relative aspect-[4/3] rounded-lg overflow-hidden group"
+          {/* Side Grid - 4 columns, 2x2 layout */}
+          <div className="col-span-4 grid grid-cols-2 grid-rows-2 gap-2">
+            {validImages.slice(1, 5).map((img, idx) => {
+              const isLast = idx === 3 && validImages.length > 5;
+              return (
+                <button
+                  key={idx + 1}
+                  onClick={() => {
+                    setCurrentIndex(idx + 1);
+                    setIsLightboxOpen(true);
+                  }}
+                  className={cn(
+                    "relative w-full h-full overflow-hidden group",
+                    idx === 0 && "rounded-tr-xl",
+                    idx === 1 && "rounded-tl-none",
+                    idx === 2 && "rounded-bl-none",
+                    idx === 3 && "rounded-br-xl",
+                    "rounded-lg"
+                  )}
+                >
+                  <OptimizedGalleryImage
+                    src={img}
+                    width={400}
+                    quality={75}
+                    alt={`${title} - ${idx + 2}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
+                  
+                  {/* Show "+N" overlay on last image if more exist */}
+                  {isLast && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/60 transition-colors">
+                      <span className="text-white font-semibold text-xl">+{validImages.length - 5}</span>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Fill empty slots */}
+            {validImages.length < 5 && Array.from({ length: 5 - Math.max(validImages.length, 1) }).map((_, idx) => (
+              <div
+                key={`empty-${idx}`}
+                className="rounded-lg bg-muted/30 flex items-center justify-center"
               >
-                <OptimizedGalleryImage
-                  src={img}
-                  width={300}
-                  quality={70}
-                  alt={`${title} - ${idx + 2}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
-              </button>
+                <ImageIcon className="w-6 h-6 text-muted-foreground/40" />
+              </div>
             ))}
-            
-            {/* Show More Button */}
-            {validImages.length > 4 && (
-              <button
-                onClick={() => {
-                  setCurrentIndex(4);
-                  setIsGridView(false);
-                  setIsLightboxOpen(true);
-                }}
-                className="relative aspect-[4/3] rounded-lg overflow-hidden group"
-              >
-                <OptimizedGalleryImage
-                  src={validImages[4]}
-                  width={300}
-                  quality={70}
-                  alt={`${title} - mai multe`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center group-hover:bg-black/70 transition-colors">
-                  <span className="text-white font-semibold text-lg">+{validImages.length - 4}</span>
-                </div>
-              </button>
-            )}
-            
-            {/* Fill empty slots with smaller images if needed */}
-            {validImages.length === 2 && (
-              <button
-                onClick={() => setIsLightboxOpen(true)}
-                className="flex-1 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
-              >
-                <ImageIcon className="w-6 h-6" />
-              </button>
-            )}
           </div>
         </div>
 
@@ -631,24 +633,24 @@ export const ApartmentImageGallery = ({
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  {/* Navigation Arrows - desktop only */}
+                   {/* Navigation Arrows - desktop only */}
                   {validImages.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-12 w-12 rounded-full bg-black/80 z-40 shadow-xl border border-white/30"
+                        className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
                       >
-                        <ChevronLeft className="w-7 h-7" />
+                        <ChevronLeft className="w-7 h-7 lg:w-8 lg:h-8" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-12 w-12 rounded-full bg-black/80 z-40 shadow-xl border border-white/30"
+                        className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
                       >
-                        <ChevronRight className="w-7 h-7" />
+                        <ChevronRight className="w-7 h-7 lg:w-8 lg:h-8" />
                       </Button>
                     </>
                   )}
