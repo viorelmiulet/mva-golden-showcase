@@ -194,31 +194,11 @@ const MobilePropertyDetail = () => {
             )}
           </div>
           
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
-                }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+           {images.length > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur px-3 py-1 rounded-full text-sm">
                 {currentImageIndex + 1} / {images.length}
               </div>
-            </>
-          )}
+           )}
         </div>
       </div>
 
@@ -373,23 +353,6 @@ const MobilePropertyDetail = () => {
           />
           </div>
 
-          {/* Navigation arrows */}
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={() => setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                className="absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 flex items-center justify-center z-[105] touch-manipulation"
-              >
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-              <button
-                onClick={() => setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 flex items-center justify-center z-[105] touch-manipulation"
-              >
-                <ChevronRight className="w-5 h-5 text-white" />
-              </button>
-            </>
-          )}
           
           {/* Thumbnail strip at bottom */}
           {images.length > 1 && (

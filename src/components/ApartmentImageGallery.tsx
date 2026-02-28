@@ -631,24 +631,24 @@ export const ApartmentImageGallery = ({
                   onTouchMove={onTouchMove}
                   onTouchEnd={onTouchEnd}
                 >
-                  {/* Navigation Arrows - always visible, positioned outside image area */}
+                  {/* Navigation Arrows - desktop only */}
                   {validImages.length > 1 && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/80 z-40 touch-manipulation shadow-xl border border-white/30"
+                        className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-12 w-12 rounded-full bg-black/80 z-40 shadow-xl border border-white/30"
                       >
-                        <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
+                        <ChevronLeft className="w-7 h-7" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/80 z-40 touch-manipulation shadow-xl border border-white/30"
+                        className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/40 h-12 w-12 rounded-full bg-black/80 z-40 shadow-xl border border-white/30"
                       >
-                        <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
+                        <ChevronRight className="w-7 h-7" />
                       </Button>
                     </>
                   )}
