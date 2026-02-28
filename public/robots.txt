@@ -1,51 +1,52 @@
-# AI Crawlers - OpenAI
-User-agent: GPTBot
-Allow: /
+# MVA Imobiliare - robots.txt
+# https://mvaimobiliare.ro
 
-User-agent: ChatGPT-User
-Allow: /
-
-# AI Crawlers - Anthropic
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-# AI Crawlers - Google
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Allow all search engines
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /adauga/
 Disallow: /api-keys/
 Disallow: /private/
+Disallow: /auth
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# Social Media
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# AI Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
 
 # Sitemaps
-# Dynamic sitemap index that splits sitemap into multiple files for better performance
+Sitemap: https://mvaimobiliare.ro/sitemap.xml
 Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index
 
-# Individual sitemaps (accessible directly if needed)
-# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-static
-# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-complexes
-# Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-properties
-
-# Static sitemap for backup
-Sitemap: https://mvaimobiliare.ro/sitemap.xml
-
-# Crawl-delay for respectful crawling
+# Crawl-delay
 Crawl-delay: 1

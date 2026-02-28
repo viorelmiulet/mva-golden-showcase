@@ -5,13 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface Property {
-  id: string;
-  updated_at: string;
-}
-
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -19,35 +13,32 @@ Deno.serve(async (req) => {
   try {
     console.log('Generating properties sitemap.xml');
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all properties (without project_id - standalone properties)
+    // Fetch all published properties
     const { data: properties, error: propertiesError } = await supabase
       .from('catalog_offers')
-      .select('id, updated_at')
-      .is('project_id', null)
-      .order('updated_at', { ascending: false });
+      .select('id, title, updated_at')
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false })
+      .limit(5000);
 
     if (propertiesError) {
       console.error('Error fetching properties:', propertiesError);
       throw propertiesError;
     }
 
-    console.log(`Found ${properties?.length || 0} properties`);
+    console.log(`Found ${properties?.length || 0} published properties`);
 
     const baseUrl = 'https://mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Add property detail pages
     if (properties && properties.length > 0) {
       for (const property of properties) {
         const lastmod = property.updated_at 
@@ -66,14 +57,12 @@ Deno.serve(async (req) => {
 
     sitemap += `</urlset>`;
 
-    console.log('Properties sitemap generated successfully');
-
-    // Return XML response
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Type': 'application/xml; charset=UTF-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'X-Robots-Tag': 'noindex',
       },
     });
 

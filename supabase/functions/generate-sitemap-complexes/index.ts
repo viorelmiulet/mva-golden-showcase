@@ -5,13 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface Project {
-  id: string;
-  updated_at: string;
-}
-
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -19,15 +13,15 @@ Deno.serve(async (req) => {
   try {
     console.log('Generating complexes sitemap.xml');
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all projects (complexes)
+    // Fetch published projects with their apartments for richer sitemap
     const { data: projects, error: projectsError } = await supabase
       .from('real_estate_projects')
-      .select('id, updated_at')
+      .select('id, name, updated_at')
+      .eq('is_published', true)
       .order('updated_at', { ascending: false });
 
     if (projectsError) {
@@ -35,18 +29,15 @@ Deno.serve(async (req) => {
       throw projectsError;
     }
 
-    console.log(`Found ${projects?.length || 0} complexes`);
+    console.log(`Found ${projects?.length || 0} published complexes`);
 
     const baseUrl = 'https://mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Add complex detail pages
     if (projects && projects.length > 0) {
       for (const project of projects) {
         const lastmod = project.updated_at 
@@ -65,14 +56,12 @@ Deno.serve(async (req) => {
 
     sitemap += `</urlset>`;
 
-    console.log('Complexes sitemap generated successfully');
-
-    // Return XML response
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Type': 'application/xml; charset=UTF-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'X-Robots-Tag': 'noindex',
       },
     });
 
