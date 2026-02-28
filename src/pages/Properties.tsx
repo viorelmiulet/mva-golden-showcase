@@ -788,6 +788,36 @@ const Properties = () => {
                         </div>
                       </div>
 
+                      {/* Extra Details Row */}
+                      {(property.floor !== null || property.bathrooms || property.year_built || property.heating || property.building_type || property.parking) && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs text-muted-foreground">
+                          {property.floor !== null && property.floor !== undefined && (
+                            <span className="flex items-center gap-1">
+                              <Building className="w-3 h-3 text-gold" />
+                              Etaj {property.floor}{property.total_floors ? `/${property.total_floors}` : ''}
+                            </span>
+                          )}
+                          {property.bathrooms !== null && property.bathrooms !== undefined && (
+                            <span className="flex items-center gap-1">
+                              <Bath className="w-3 h-3 text-gold" />
+                              {property.bathrooms} {property.bathrooms === 1 ? 'baie' : 'băi'}
+                            </span>
+                          )}
+                          {property.year_built && (
+                            <span className="flex items-center gap-1">
+                              <Construction className="w-3 h-3 text-gold" />
+                              {property.year_built}
+                            </span>
+                          )}
+                          {property.parking !== null && property.parking !== undefined && property.parking > 0 && (
+                            <span>🅿️ {property.parking} loc{property.parking > 1 ? 'uri' : ''}</span>
+                          )}
+                          {property.surface_land && (
+                            <span>🏗️ Teren {property.surface_land} mp</span>
+                          )}
+                        </div>
+                      )}
+
                       {/* Description */}
                       {property.description && (
                         <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
@@ -808,6 +838,19 @@ const Properties = () => {
                               +{(property.features as string[]).length - 3} mai multe
                             </Badge>
                           )}
+                        </div>
+                      )}
+
+                      {/* Agent / Agency */}
+                      {(property.agent || property.agency) && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                          <Building className="w-3 h-3 text-gold flex-shrink-0" />
+                          <span className="truncate">
+                            {property.agent && property.agency 
+                              ? `${property.agent} • ${property.agency}`
+                              : property.agent || property.agency
+                            }
+                          </span>
                         </div>
                       )}
 

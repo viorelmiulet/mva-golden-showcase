@@ -32,6 +32,12 @@ import {
   Square,
   Video,
   View,
+  Tag,
+  MapPinned,
+  User,
+  Briefcase,
+  Hash,
+  Link2,
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { Helmet } from "react-helmet-async";
@@ -367,12 +373,29 @@ const PropertyDetail = () => {
               
               {/* Title & Location - FIRST */}
               <header>
-                {property.availability_status === "available" && (
-                  <Badge className="bg-green-600 text-white mb-2 sm:mb-3 text-[10px] sm:text-xs">
-                    <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-                    Disponibil
-                  </Badge>
-                )}
+                <div className="flex flex-wrap gap-2 mb-2 sm:mb-3">
+                  {property.availability_status === "available" && (
+                    <Badge className="bg-green-600 text-white text-[10px] sm:text-xs">
+                      <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                      Disponibil
+                    </Badge>
+                  )}
+                  {property.transaction_type && (
+                    <Badge className={`text-[10px] sm:text-xs ${
+                      property.transaction_type === 'rent' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gold/20 text-gold-dark border-gold/30'
+                    }`}>
+                      <Tag className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                      {property.transaction_type === 'rent' ? 'Închiriere' : 'Vânzare'}
+                    </Badge>
+                  )}
+                  {property.property_type && (
+                    <Badge variant="outline" className="text-[10px] sm:text-xs border-gold/30">
+                      {property.property_type}
+                    </Badge>
+                  )}
+                </div>
                 
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3">
                   {property.title}
@@ -384,9 +407,20 @@ const PropertyDetail = () => {
                   </p>
                 )}
                 
-                <div className="flex items-center text-muted-foreground">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
-                  <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-muted-foreground">
+                  <div className="flex items-center">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
+                    <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
+                  </div>
+                  {property.zone && property.zone !== property.location && (
+                    <div className="flex items-center">
+                      <MapPinned className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 text-gold flex-shrink-0" />
+                      <span className="text-xs sm:text-sm">{property.zone}</span>
+                    </div>
+                  )}
+                  {property.city && property.city !== property.location && (
+                    <span className="text-xs sm:text-sm text-muted-foreground">• {property.city}</span>
+                  )}
                 </div>
               </header>
 
@@ -652,7 +686,102 @@ const PropertyDetail = () => {
                   )}
                 </div>
 
-                {/* Action Buttons */}
+                {/* Agent / Agency / Contact Info */}
+                {(property.agent || property.agency || property.contact_info) && (
+                  <Card className="border-gold/20">
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Informații Contact</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                        {property.agent && (
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Agent</div>
+                              <div className="text-sm font-medium">{property.agent}</div>
+                            </div>
+                          </div>
+                        )}
+                        {property.agency && (
+                          <div className="flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Agenție</div>
+                              <div className="text-sm font-medium">{property.agency}</div>
+                            </div>
+                          </div>
+                        )}
+                        {property.contact_info?.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Telefon</div>
+                              <a href={`tel:${property.contact_info.phone}`} className="text-sm font-medium hover:text-gold transition-colors">
+                                {property.contact_info.phone}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                        {property.contact_info?.email && (
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Email</div>
+                              <a href={`mailto:${property.contact_info.email}`} className="text-sm font-medium hover:text-gold transition-colors">
+                                {property.contact_info.email}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                        {property.contact_info?.name && (
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Persoană Contact</div>
+                              <div className="text-sm font-medium">{property.contact_info.name}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* External Reference / Source */}
+                {(property.external_id || property.source_url) && (
+                  <Card className="border-gold/20">
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Referință</h2>
+                      <div className="flex flex-wrap gap-4">
+                        {property.external_id && (
+                          <div className="flex items-center gap-2">
+                            <Hash className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">ID Extern</div>
+                              <div className="text-sm font-medium">{property.external_id}</div>
+                            </div>
+                          </div>
+                        )}
+                        {property.source_url && (
+                          <div className="flex items-center gap-2">
+                            <Link2 className="w-4 h-4 text-gold flex-shrink-0" />
+                            <div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">Sursă</div>
+                              <a 
+                                href={property.source_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium hover:text-gold transition-colors flex items-center gap-1"
+                              >
+                                Vezi anunțul original
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <ScheduleViewingDialog
                     propertyTitle={property.title}
