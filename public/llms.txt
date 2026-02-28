@@ -1,0 +1,58 @@
+# MVA Imobiliare
+
+> Agenție imobiliară premium specializată în apartamente și case din Chiajna și vestul Bucureștiului.
+
+## Informații Generale
+
+- **Website**: https://mvaimobiliare.ro
+- **Telefon**: +40 767 941 512
+- **Email**: contact@mvaimobiliare.ro
+- **Locație**: Chiajna, Ilfov, România
+- **Program**: Luni-Vineri 09:00-18:00, Sâmbătă 10:00-14:00
+
+## Servicii
+
+- Vânzare apartamente noi și vechi
+- Cumpărare proprietăți rezidențiale
+- Consultanță imobiliară profesională
+- Evaluare gratuită proprietăți
+- Asistență completă în tranzacții imobiliare
+- Management proprietăți
+
+## Zone Deservite
+
+- Chiajna, Ilfov
+- Militari Residence, București
+- Vestul Bucureștiului
+- Roșu, Ilfov
+
+## Complexe Rezidențiale Partenere
+
+- Renew Residence - Chiajna
+- Eurocasa Residence - Chiajna
+
+## Pagini Principale
+
+- [Acasă](https://mvaimobiliare.ro/)
+- [Proprietăți](https://mvaimobiliare.ro/proprietati)
+- [Complexe Rezidențiale](https://mvaimobiliare.ro/complexe)
+- [Despre Noi](https://mvaimobiliare.ro/despre-noi)
+- [Servicii](https://mvaimobiliare.ro/servicii)
+- [De Ce Să Ne Alegi](https://mvaimobiliare.ro/de-ce-sa-ne-alegi)
+- [Calculator Credit](https://mvaimobiliare.ro/calculator-credit)
+- [Blog](https://mvaimobiliare.ro/blog)
+- [FAQ](https://mvaimobiliare.ro/faq)
+- [Contact](https://mvaimobiliare.ro/contact)
+- [Carieră](https://mvaimobiliare.ro/cariera)
+
+## Articole Blog
+
+- [Ghidul Complet pentru Cumpărarea unei Proprietăți în București](https://mvaimobiliare.ro/blog/ghidul-complet-cumparare-proprietate-bucuresti)
+- [Tendințe Piața Imobiliară 2025](https://mvaimobiliare.ro/blog/tendinte-piata-imobiliara-2025)
+- [Cum Pregătești Casa pentru Vânzare](https://mvaimobiliare.ro/blog/cum-pregatesti-casa-pentru-vanzare)
+- [Investiții Imobiliare - Ghid pentru Începători](https://mvaimobiliare.ro/blog/investitii-imobiliare-ghid-incepatori)
+
+## API și Date Structurate
+
+- Sitemap XML: https://mvaimobiliare.ro/sitemap.xml
+- Sitemap Dinamic: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index
