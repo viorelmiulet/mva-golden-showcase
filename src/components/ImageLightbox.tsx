@@ -98,24 +98,24 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
           >
-            {/* Navigation Buttons */}
+            {/* Navigation Buttons - desktop only */}
             {images.length > 1 && (
               <>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={goToPrevious}
-                  className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-9 w-9 sm:h-12 sm:w-12 rounded-full bg-black/60 touch-manipulation"
+                  className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60"
                 >
-                  <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" />
+                  <ChevronLeft className="w-8 h-8" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={goToNext}
-                  className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-9 w-9 sm:h-12 sm:w-12 rounded-full bg-black/60 touch-manipulation"
+                  className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60"
                 >
-                  <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" />
+                  <ChevronRight className="w-8 h-8" />
                 </Button>
               </>
             )}
