@@ -29,6 +29,8 @@ const MobilePropertyDetail = () => {
   const { id } = useParams();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { language } = useLanguage();
 
@@ -72,6 +74,27 @@ const MobilePropertyDetail = () => {
       } catch (err) {
         console.log('Share cancelled');
       }
+    }
+  };
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
+    } else if (distance < -minSwipeDistance) {
+      setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
     }
   };
 
@@ -150,6 +173,9 @@ const MobilePropertyDetail = () => {
           <div 
             className="w-full h-72 bg-muted cursor-pointer"
             onClick={() => setShowGallery(true)}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
           >
           {images.length > 0 ? (
               <OptimizedPropertyImage
@@ -334,7 +360,12 @@ const MobilePropertyDetail = () => {
           </div>
           
         {/* Image container - takes full remaining space */}
-        <div className="flex-1 flex items-center justify-center px-1 py-2 overflow-hidden">
+        <div 
+          className="flex-1 flex items-center justify-center px-1 py-2 overflow-hidden"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           <img
             src={images[currentImageIndex]}
             alt={property.title}
