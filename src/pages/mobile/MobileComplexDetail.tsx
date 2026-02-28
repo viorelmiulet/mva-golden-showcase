@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,11 +22,14 @@ import {
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 const MobileComplexDetail = () => {
   const { id } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { language } = useLanguage();
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const { data: complex, isLoading } = useQuery({
     queryKey: ['mobile-complex', id],
@@ -302,47 +306,75 @@ const MobileComplexDetail = () => {
           ) : (
             <div className="space-y-3">
               {apartments.map((apt) => (
-                <Link key={apt.id} to={`/app/proprietate/${apt.id}`}>
-                  <Card className="hover:border-gold/30 transition-colors">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {apt.images && apt.images.length > 0 ? (
-                            <OptimizedPropertyImage
-                              src={apt.images[0]}
-                              alt=""
-                              containerClassName="w-12 h-12 rounded-lg"
-                              aspectRatio="auto"
-                              quality={60}
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
-                              <Home className="w-6 h-6 text-gold" />
+                <div key={apt.id} className="space-y-1">
+                  <Link to={`/app/proprietate/${apt.id}`}>
+                    <Card className="hover:border-gold/30 transition-colors">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {apt.images && apt.images.length > 0 ? (
+                              <OptimizedPropertyImage
+                                src={apt.images[0]}
+                                alt=""
+                                containerClassName="w-12 h-12 rounded-lg"
+                                aspectRatio="auto"
+                                quality={60}
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
+                                <Home className="w-6 h-6 text-gold" />
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-medium text-sm">
+                                {apt.title || `${apt.rooms} ${language === 'ro' ? 'camere' : 'rooms'}`}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {apt.rooms} {language === 'ro' ? 'cam' : 'rooms'}
+                                {apt.surface_min && ` • ${apt.surface_min}m²`}
+                              </p>
+                              <p className="text-gold font-semibold text-sm">
+                                {formatPrice(apt.price_min || 0, apt.currency || 'EUR')}
+                              </p>
                             </div>
-                          )}
-                          <div>
-                            <p className="font-medium text-sm">
-                              {apt.title || `${apt.rooms} ${language === 'ro' ? 'camere' : 'rooms'}`}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {apt.rooms} {language === 'ro' ? 'cam' : 'rooms'}
-                              {apt.surface_min && ` • ${apt.surface_min}m²`}
-                            </p>
-                            <p className="text-gold font-semibold text-sm">
-                              {formatPrice(apt.price_min || 0, apt.currency || 'EUR')}
-                            </p>
                           </div>
+                          <ChevronRight className="w-5 h-5 text-muted-foreground" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  {apt.floor_plan && apt.availability_status === 'available' && (
+                    <button
+                      type="button"
+                      className="w-full rounded-lg overflow-hidden border border-border hover:border-gold/40 transition-all cursor-zoom-in group"
+                      onClick={() => {
+                        setLightboxImages([apt.floor_plan!]);
+                        setLightboxOpen(true);
+                      }}
+                    >
+                      <img
+                        src={apt.floor_plan}
+                        alt={`Schiță ${apt.title || ''}`}
+                        className="w-full h-20 object-contain bg-white dark:bg-white/10 p-1"
+                        loading="lazy"
+                      />
+                      <div className="text-[9px] text-muted-foreground py-1 text-center bg-muted/30">
+                        {language === 'ro' ? 'Apasă pentru mărire' : 'Tap to enlarge'}
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      <ImageLightbox
+        images={lightboxImages}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        initialIndex={0}
+      />
+    </div>
 
       {/* Fixed bottom CTA */}
       <div className="fixed bottom-16 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border/50">

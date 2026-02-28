@@ -731,22 +731,34 @@ const ComplexDetail = () => {
                                 </div>
                               )}
 
-                              {/* Floor Plan Button - rendered BEFORE ScheduleViewingDialog to avoid interference */}
-                              <div className="space-y-1.5 sm:space-y-2 mt-1.5 sm:mt-2">
+                              {/* Floor Plan Thumbnail - click to enlarge */}
+                              <div className="mt-1.5 sm:mt-2">
                                 {apt.floor_plan && isAvailable ? (
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm glass-hover border-primary/20"
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedFloorPlan(apt.floor_plan || null);
-                                        setFloorPlanOpen(true);
-                                      }}
-                                    >
-                                      <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                                      Schiță
-                                    </Button>
+                                  <button
+                                    type="button"
+                                    className="w-full rounded-lg overflow-hidden border border-primary/20 hover:border-primary/50 transition-all hover:shadow-md cursor-zoom-in group"
+                                    onClick={() => {
+                                      setSelectedFloorPlan(apt.floor_plan || null);
+                                      setFloorPlanOpen(true);
+                                    }}
+                                  >
+                                    <div className="relative">
+                                      <img
+                                        src={apt.floor_plan}
+                                        alt={`Schiță Ap. ${aptNumber}`}
+                                        className="w-full h-20 sm:h-24 md:h-28 object-contain bg-white/90 dark:bg-white/10 p-1"
+                                        loading="lazy"
+                                      />
+                                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                        <span className="text-[8px] sm:text-[10px] text-white bg-black/60 px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                          Click pentru mărire
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-[9px] sm:text-[10px] text-muted-foreground py-1 text-center bg-muted/30">
+                                      Schiță apartament
+                                    </div>
+                                  </button>
                                 ) : (
                                   <div className="text-center text-[9px] sm:text-[10px] md:text-sm text-muted-foreground py-1 sm:py-2">
                                     <FileText className="h-3 w-3 sm:h-4 sm:w-4 mx-auto mb-0.5 opacity-50" />
@@ -754,7 +766,7 @@ const ComplexDetail = () => {
                                     <span className="sm:hidden">N/A</span>
                                   </div>
                                 )}
-                               </div>
+                              </div>
 
                               {/* Schedule Viewing Button - rendered AFTER floor plan to avoid Dialog interference */}
                               {isAvailable && (
