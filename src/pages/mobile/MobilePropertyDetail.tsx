@@ -334,7 +334,7 @@ const MobilePropertyDetail = () => {
           </div>
           
         {/* Image container - takes full remaining space */}
-        <div className="flex-1 flex items-center justify-center px-2 py-4 overflow-hidden">
+        <div className="flex-1 flex items-center justify-center px-1 py-2 overflow-hidden">
           <img
             src={images[currentImageIndex]}
             alt={property.title}
