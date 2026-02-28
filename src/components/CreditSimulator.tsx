@@ -1,4 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import './CreditSimulator.css';
 
 type CreditType = 'ipotecar' | 'personal';
@@ -134,6 +136,66 @@ const CreditSimulator = () => {
     setPropertyValue(Math.round(propertyValue * ratio));
     setExtraCosts(Math.round(extraCosts * ratio));
   };
+  const downloadPDF = useCallback(() => {
+    const doc = new jsPDF();
+    const pageW = doc.internal.pageSize.getWidth();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text('Scadentar Credit - MVA Imobiliare', pageW / 2, 20, { align: 'center' });
+
+    // Summary
+    doc.setFontSize(11);
+    const summaryY = 32;
+    const tipCredit = isPersonal ? 'Nevoi Personale' : 'Ipotecar';
+    const lines = [
+      `Tip credit: ${tipCredit}  |  Monedă: ${currency}`,
+      `${isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}: ${fmt(clampedValue)} ${currency}` +
+        (isPersonal ? '' : `  |  Avans: ${effectiveDownPct}% (${fmt(calc.dp)} ${currency})`),
+      `Sumă creditată: ${fmt(calc.loan)} ${currency}  |  Perioadă: ${clampedYears} ani  |  Dobândă: ${clampedRate.toFixed(1)}%/an (${rateType === 'fixa' ? 'Fixă' : 'Variabilă IRCC'})`,
+      `Rată lunară: ${fmt(calc.monthly)} ${currency}  |  Total dobândă: ${fmt(calc.totalInterest)} ${currency}  |  Cost total: ${fmt(calc.totalPaid)} ${currency}`,
+    ];
+    lines.forEach((line, i) => {
+      doc.text(line, 14, summaryY + i * 7);
+    });
+
+    // Monthly table
+    const startY = summaryY + lines.length * 7 + 8;
+    doc.setFontSize(13);
+    doc.text('Plan Amortizare Lunar', 14, startY);
+
+    autoTable(doc, {
+      startY: startY + 4,
+      head: [['Luna', 'Rată', 'Principal', 'Dobândă', 'Sold rămas']],
+      body: calc.schedule.map((r) => [
+        `${r.month}`,
+        `${fmt(r.payment)} ${currency}`,
+        `${fmt(r.principal)} ${currency}`,
+        `${fmt(r.interest)} ${currency}`,
+        `${fmt(r.balance)} ${currency}`,
+      ]),
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [201, 168, 76], textColor: [10, 12, 15], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 240] },
+      margin: { left: 14, right: 14 },
+    });
+
+    // Footer on each page
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(
+        `Generat de MVA Imobiliare — mvaperfect.ro | Pagina ${i}/${pageCount}`,
+        pageW / 2,
+        doc.internal.pageSize.getHeight() - 8,
+        { align: 'center' }
+      );
+    }
+
+    doc.save(`scadentar-credit-${tipCredit.toLowerCase().replace(/\s/g, '-')}-${clampedYears}ani.pdf`);
+  }, [calc, currency, clampedValue, clampedYears, clampedRate, effectiveDownPct, isPersonal, rateType]);
 
   return (
     <div className="credit-sim">
@@ -396,6 +458,7 @@ const CreditSimulator = () => {
           <div className="table-actions">
             <button className={`btn-sm ${tableView === 'lunar' ? 'active' : ''}`} onClick={() => setTableView('lunar')}>Lunar</button>
             <button className={`btn-sm ${tableView === 'anual' ? 'active' : ''}`} onClick={() => setTableView('anual')}>Anual</button>
+            <button className="btn-sm" onClick={downloadPDF} style={{ marginLeft: 8 }}>📥 Descarcă PDF</button>
           </div>
         </div>
         <div className="table-scroll">
