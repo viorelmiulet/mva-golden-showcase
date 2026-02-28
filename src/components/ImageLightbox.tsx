@@ -13,6 +13,10 @@ interface ImageLightboxProps {
 
 export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: ImageLightboxProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     setCurrentIndex(initialIndex);
@@ -43,33 +47,57 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      goToNext();
+    } else if (distance < -minSwipeDistance) {
+      goToPrevious();
+    }
+  };
+
   if (!images || images.length === 0) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed inset-0 max-w-none w-screen h-screen p-0 m-0 bg-black border-none rounded-none z-[100] [&>button]:hidden" aria-describedby={undefined}>
+      <DialogContent className="fixed inset-0 max-w-none w-screen h-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[100] [&>button]:hidden" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Galerie imagini</DialogTitle>
         </VisuallyHidden>
         
-        <div className="relative flex flex-col h-full w-full">
+        <div className="relative flex flex-col h-full h-[100dvh] w-full">
           {/* Close Button - Fixed top right */}
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="fixed top-4 right-4 z-[60] text-white h-12 w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
+            className="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] text-white h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
 
           {/* Counter - Top left */}
-          <div className="fixed top-4 left-4 z-50 text-white text-sm bg-black/50 px-3 py-2 rounded-full">
+          <div className="fixed top-3 left-3 sm:top-4 sm:left-4 z-50 text-white text-xs sm:text-sm bg-black/50 px-3 py-2 rounded-full">
             {currentIndex + 1} / {images.length}
           </div>
 
           {/* Main Image Container */}
-          <div className="flex-1 flex items-center justify-center px-12 sm:px-20 py-16">
+          <div 
+            className="flex-1 flex items-center justify-center px-2 sm:px-20 py-12 sm:py-16"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {/* Navigation Buttons */}
             {images.length > 1 && (
               <>
@@ -77,17 +105,17 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
                   variant="ghost"
                   size="icon"
                   onClick={goToPrevious}
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 touch-manipulation"
+                  className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-9 w-9 sm:h-12 sm:w-12 rounded-full bg-black/60 touch-manipulation"
                 >
-                  <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={goToNext}
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/50 touch-manipulation"
+                  className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-9 w-9 sm:h-12 sm:w-12 rounded-full bg-black/60 touch-manipulation"
                 >
-                  <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8" />
                 </Button>
               </>
             )}
@@ -96,20 +124,20 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
             <img
               src={images[currentIndex]}
               alt={`Imagine ${currentIndex + 1} din ${images.length}`}
-              className="max-w-full max-h-[65vh] sm:max-h-[75vh] w-auto h-auto object-contain rounded-lg shadow-2xl animate-fade-in"
+              className="max-w-full max-h-full w-auto h-auto object-contain animate-fade-in"
               loading="eager"
             />
           </div>
 
           {/* Thumbnail Strip */}
           {images.length > 1 && (
-            <div className="flex-shrink-0 py-3 pb-8 px-2 sm:px-4">
-              <div className="flex gap-2 justify-center overflow-x-auto max-w-full">
+            <div className="flex-shrink-0 py-1.5 pb-4 sm:py-3 sm:pb-8 px-1 sm:px-4">
+              <div className="flex gap-1 sm:gap-2 justify-center overflow-x-auto max-w-full">
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
+                    className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                       currentIndex === idx
                         ? "border-gold scale-110"
                         : "border-white/30 opacity-70 hover:opacity-100"
