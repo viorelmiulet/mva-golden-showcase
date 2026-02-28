@@ -208,7 +208,7 @@ const CreditSimulator = () => {
       doc.setFontSize(8);
       doc.setTextColor(150);
       doc.text(
-        d(`Generat de MVA Imobiliare — mvaperfect.ro | Pagina ${i}/${pageCount}`),
+        d(`Generat de MVA Imobiliare — mvaimobiliare.ro | contact@mvaimobiliare.ro | 0767.941.512 | Pagina ${i}/${pageCount}`),
         pageW / 2,
         doc.internal.pageSize.getHeight() - 8,
         { align: 'center' }
