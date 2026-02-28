@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -41,6 +41,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { ImageLightbox } from "@/components/ImageLightbox"
 
 interface ScrapedProperty {
   title: string
@@ -57,8 +58,8 @@ interface ScrapedProperty {
 
 const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [selectedPropertyDetails, setSelectedPropertyDetails] = useState<any>(null)
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
+  
   const [priceMin, setPriceMin] = useState<string>("")
   const [priceMax, setPriceMax] = useState<string>("")
   const [roomsFilter, setRoomsFilter] = useState("all")
@@ -289,38 +290,13 @@ const Properties = () => {
     return [...new Set(zones)].sort()
   }, [properties])
 
-  const openPropertyGallery = (property: any) => {
+  const openPropertyGallery = (property: any, index = 0) => {
     setSelectedProperty(property)
-    setCurrentImageIndex(0)
+    setGalleryInitialIndex(index)
   }
 
   const closeGallery = () => {
     setSelectedProperty(null)
-    setCurrentImageIndex(0)
-  }
-
-  const openPropertyDetails = (property: any) => {
-    setSelectedPropertyDetails(property)
-  }
-
-  const closePropertyDetails = () => {
-    setSelectedPropertyDetails(null)
-  }
-
-  const nextImage = () => {
-    if (selectedProperty && selectedProperty.images) {
-      setCurrentImageIndex((prev) => 
-        prev + 1 >= selectedProperty.images.length ? 0 : prev + 1
-      )
-    }
-  }
-
-  const prevImage = () => {
-    if (selectedProperty && selectedProperty.images) {
-      setCurrentImageIndex((prev) => 
-        prev - 1 < 0 ? selectedProperty.images.length - 1 : prev - 1
-      )
-    }
   }
 
   // Enhanced structured data for AI understanding
@@ -912,321 +888,13 @@ const Properties = () => {
           </div>
         </main>
 
-      {/* Image Gallery Modal */}
-      <Dialog open={!!selectedProperty} onOpenChange={closeGallery}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-          <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="flex items-center justify-between">
-              <span>{selectedProperty?.title}</span>
-              <Button variant="ghost" size="sm" onClick={closeGallery}>
-                <X className="w-4 h-4" />
-              </Button>
-            </DialogTitle>
-          </DialogHeader>
-          
-          {selectedProperty && selectedProperty.images && (
-            <div className="relative">
-              {/* Main Image */}
-              <div className="relative aspect-video bg-muted">
-                <img
-                  src={(selectedProperty.images as string[])[currentImageIndex]}
-                  alt={`${selectedProperty.title} - Imagine ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Navigation Buttons */}
-                {(selectedProperty.images as string[]).length > 1 && (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
-                      onClick={prevImage}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background"
-                      onClick={nextImage}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </>
-                )}
-                
-                {/* Image Counter */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {(selectedProperty.images as string[]).length}
-                </div>
-              </div>
-              
-              {/* Thumbnail Navigation */}
-              {(selectedProperty.images as string[]).length > 1 && (
-                <div className="p-4">
-                  <div className="flex gap-2 overflow-x-auto">
-                    {(selectedProperty.images as string[]).map((image, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                          index === currentImageIndex 
-                            ? 'border-primary' 
-                            : 'border-transparent hover:border-muted-foreground'
-                        }`}
-                      >
-                        <img
-                          src={image}
-                          alt={`Thumbnail ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Property Info */}
-              <div className="p-6 pt-2">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-gold">{selectedProperty.price_min?.toLocaleString('de-DE')} {selectedProperty.currency || 'EUR'}</div>
-                    <div className="text-sm text-muted-foreground">Preț</div>
-                  </div>
-                  {selectedProperty.surface_min && (
-                    <div>
-                      <div className="text-2xl font-bold">{selectedProperty.surface_min} mp</div>
-                      <div className="text-sm text-muted-foreground">Suprafață</div>
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-2xl font-bold">{selectedProperty.rooms}</div>
-                    <div className="text-sm text-muted-foreground">Camere</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gold">{(selectedProperty.images as string[]).length}</div>
-                    <div className="text-sm text-muted-foreground">Poze</div>
-                  </div>
-                </div>
-                
-                {selectedProperty.location && (
-                  <div className="mt-4 flex items-center text-muted-foreground">
-                    <MapPin className="w-4 h-4 mr-2 text-gold" />
-                    <span>{selectedProperty.location}</span>
-                  </div>
-                )}
-                
-                {selectedProperty.storia_link && (
-                  <div className="mt-4">
-                    <Button asChild className="w-full">
-                      <a href={selectedProperty.storia_link} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Vezi Anunțul Original
-                      </a>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Property Details Modal */}
-      <Dialog open={!!selectedPropertyDetails} onOpenChange={closePropertyDetails}>
-        <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="text-xl font-bold">
-              {selectedPropertyDetails?.title}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="flex-1 overflow-y-auto pr-2">
-            {selectedPropertyDetails && (
-            <div className="space-y-6">
-              {/* Main Image */}
-              {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && selectedPropertyDetails.images.length > 0 && (
-                <div className="aspect-video overflow-hidden rounded-lg">
-                  <img 
-                    src={(selectedPropertyDetails.images as string[])[0]} 
-                    alt={selectedPropertyDetails.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-
-              {/* Key Information */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <Euro className="w-8 h-8 text-gold mx-auto mb-2" />
-                  <div className="font-bold text-lg">{selectedPropertyDetails.price_min?.toLocaleString('de-DE')} {selectedPropertyDetails.currency || 'EUR'}</div>
-                  {selectedPropertyDetails.price_max && selectedPropertyDetails.price_max !== selectedPropertyDetails.price_min && (
-                    <div className="text-sm text-muted-foreground">- {selectedPropertyDetails.price_max.toLocaleString('de-DE')} {selectedPropertyDetails.currency || 'EUR'}</div>
-                  )}
-                  <div className="text-xs text-muted-foreground mt-1">Preț</div>
-                </div>
-
-                {(selectedPropertyDetails.surface_min || selectedPropertyDetails.surface_max) && (
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <Ruler className="w-8 h-8 text-gold mx-auto mb-2" />
-                    <div className="font-bold text-lg">
-                      {selectedPropertyDetails.surface_min}
-                      {selectedPropertyDetails.surface_max && selectedPropertyDetails.surface_max !== selectedPropertyDetails.surface_min && 
-                        ` - ${selectedPropertyDetails.surface_max}`
-                      } mp
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">Suprafață</div>
-                  </div>
-                )}
-
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <Home className="w-8 h-8 text-gold mx-auto mb-2" />
-                  <div className="font-bold text-lg">{selectedPropertyDetails.rooms}</div>
-                  <div className="text-xs text-muted-foreground mt-1">Camere</div>
-                </div>
-
-                {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && (
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <Images className="w-8 h-8 text-gold mx-auto mb-2" />
-                    <div className="font-bold text-lg">{(selectedPropertyDetails.images as string[]).length}</div>
-                    <div className="text-xs text-muted-foreground mt-1">Imagini</div>
-                  </div>
-                )}
-              </div>
-
-              {/* Location */}
-              {selectedPropertyDetails.location && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-gold" />
-                    Locație
-                  </h3>
-                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                    {selectedPropertyDetails.location}
-                  </p>
-                </div>
-              )}
-
-              {/* Project Name */}
-              {selectedPropertyDetails.project_name && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Building className="w-5 h-5 text-gold" />
-                    Proiect
-                  </h3>
-                  <p className="text-muted-foreground bg-muted/50 p-3 rounded-lg font-cormorant text-lg font-medium tracking-wide">
-                    {selectedPropertyDetails.project_name}
-                  </p>
-                </div>
-              )}
-
-              {/* Description */}
-              {selectedPropertyDetails.description && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Descriere Completă</h3>
-                  <div className="text-muted-foreground bg-muted/50 p-4 rounded-lg whitespace-pre-wrap break-words max-h-none overflow-visible">
-                    {selectedPropertyDetails.description}
-                  </div>
-                </div>
-              )}
-
-              {/* Features */}
-              {selectedPropertyDetails.features && Array.isArray(selectedPropertyDetails.features) && selectedPropertyDetails.features.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Caracteristici</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(selectedPropertyDetails.features as string[]).map((feature, index) => (
-                      <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20">
-                        {feature}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Amenities */}
-              {selectedPropertyDetails.amenities && Array.isArray(selectedPropertyDetails.amenities) && selectedPropertyDetails.amenities.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Facilități</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {(selectedPropertyDetails.amenities as string[]).map((amenity, index) => (
-                      <Badge key={index} variant="outline" className="border-gold/30 text-foreground">
-                        {amenity}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Status and Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selectedPropertyDetails.availability_status && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Status</h4>
-                    <Badge 
-                      variant={selectedPropertyDetails.availability_status === 'available' ? 'default' : 'secondary'}
-                      className={selectedPropertyDetails.availability_status === 'available' ? 'bg-green-500 hover:bg-green-600' : ''}
-                    >
-                      {selectedPropertyDetails.availability_status === 'available' ? 'Disponibil' : selectedPropertyDetails.availability_status}
-                    </Badge>
-                  </div>
-                )}
-                
-                {selectedPropertyDetails.created_at && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gold" />
-                      Adăugat la
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(selectedPropertyDetails.created_at).toLocaleDateString('ro-RO', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                {selectedPropertyDetails.images && Array.isArray(selectedPropertyDetails.images) && selectedPropertyDetails.images.length > 0 && (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      closePropertyDetails()
-                      openPropertyGallery(selectedPropertyDetails)
-                    }}
-                    className="flex-1"
-                  >
-                    <Images className="w-4 h-4 mr-2" />
-                    Vezi Toate Pozele ({(selectedPropertyDetails.images as string[]).length})
-                  </Button>
-                )}
-                
-                {selectedPropertyDetails.storia_link && (
-                  <Button variant="outline" asChild className="flex-1">
-                    <a href={selectedPropertyDetails.storia_link} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Vezi Anunțul Original
-                    </a>
-                  </Button>
-                )}
-                
-                <Button asChild className="flex-1">
-                  <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                    <WhatsAppIcon className="w-4 h-4 mr-2" />
-                    Contactează-ne pe WhatsApp
-                  </a>
-                </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-        </DialogContent>
-      </Dialog>
+      {/* Image Gallery - Optimized Lightbox with swipe */}
+      <ImageLightbox
+        images={selectedProperty?.images || []}
+        isOpen={!!selectedProperty}
+        onClose={closeGallery}
+        initialIndex={galleryInitialIndex}
+      />
 
       <Footer />
     </div>
