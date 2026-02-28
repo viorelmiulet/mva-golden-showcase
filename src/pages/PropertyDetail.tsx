@@ -433,233 +433,128 @@ const PropertyDetail = () => {
               </section>
 
               {/* Price & Details - THIRD */}
-              <section className="space-y-4 sm:space-y-5 md:space-y-6" aria-label="Detalii proprietate">
+              <section className="space-y-4 sm:space-y-5" aria-label="Detalii proprietate">
                 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                        <Euro className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
+                {/* Compact Stats Bar */}
+                <Card className="border-gold/20 overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="grid grid-cols-3 sm:grid-cols-3 divide-x divide-border">
+                      <div className="p-3 sm:p-4 text-center">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Preț</div>
+                        <div className="text-sm sm:text-lg md:text-xl font-bold text-gold">
+                          {formatPrice(property.price_min, property.price_max)}
+                        </div>
                       </div>
-                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Preț</div>
-                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
-                        {formatPrice(property.price_min, property.price_max)}
+                      <div className="p-3 sm:p-4 text-center">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Suprafață</div>
+                        <div className="text-sm sm:text-lg md:text-xl font-bold text-foreground">
+                          {formatSurface(property.surface_min, property.surface_max)}
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                        <Ruler className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
+                      <div className="p-3 sm:p-4 text-center">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Camere</div>
+                        <div className="text-sm sm:text-lg md:text-xl font-bold text-foreground">
+                          {property.rooms}
+                        </div>
                       </div>
-                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Suprafață</div>
-                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
-                        {formatSurface(property.surface_min, property.surface_max)}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-6 text-center">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                        <Home className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
-                      </div>
-                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mb-0.5 sm:mb-1">Camere</div>
-                      <div className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-foreground">
-                        {property.rooms}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Additional Property Details */}
-                {(property.floor || property.bathrooms || property.year_built || property.parking || 
-                  property.heating || property.furnished || property.building_type || property.compartment ||
-                  property.balconies || property.surface_land || property.comfort) && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-4 sm:p-5 md:p-6">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Detalii Tehnice</h2>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                        {property.floor !== null && property.floor !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <Building className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Etaj</div>
-                              <div className="text-sm font-medium">
-                                {property.floor}{property.total_floors ? ` / ${property.total_floors}` : ''}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.bathrooms !== null && property.bathrooms !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <Bath className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Băi</div>
-                              <div className="text-sm font-medium">{property.bathrooms}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.year_built && (
-                          <div className="flex items-center gap-2">
-                            <Construction className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">An Construcție</div>
-                              <div className="text-sm font-medium">{property.year_built}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.parking !== null && property.parking !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <Car className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Parcare</div>
-                              <div className="text-sm font-medium">{property.parking} locuri</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.balconies !== null && property.balconies !== undefined && (
-                          <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Balcoane</div>
-                              <div className="text-sm font-medium">{property.balconies}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.surface_land && (
-                          <div className="flex items-center gap-2">
-                            <Square className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Teren</div>
-                              <div className="text-sm font-medium">{property.surface_land} mp</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.heating && (
-                          <div className="flex items-center gap-2">
-                            <Thermometer className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Încălzire</div>
-                              <div className="text-sm font-medium">{property.heating}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.furnished && (
-                          <div className="flex items-center gap-2">
-                            <Sofa className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Mobilat</div>
-                              <div className="text-sm font-medium">{property.furnished}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.building_type && (
-                          <div className="flex items-center gap-2">
-                            <Building className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Tip Clădire</div>
-                              <div className="text-sm font-medium">{property.building_type}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.compartment && (
-                          <div className="flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Compartimentare</div>
-                              <div className="text-sm font-medium">{property.compartment}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.comfort && (
-                          <div className="flex items-center gap-2">
-                            <Home className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Confort</div>
-                              <div className="text-sm font-medium">{property.comfort}</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {property.property_type && (
-                          <div className="flex items-center gap-2">
-                            <Home className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Tip Proprietate</div>
-                              <div className="text-sm font-medium">{property.property_type}</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Video & Virtual Tour */}
-                {(property.video || property.virtual_tour) && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-4 sm:p-5 md:p-6">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Media</h2>
-                      <div className="flex flex-wrap gap-3">
-                        {property.video && (
-                          <a 
-                            href={property.video} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors"
-                          >
-                            <Video className="w-5 h-5 text-gold" />
-                            <span className="text-sm font-medium">Vezi Video</span>
-                          </a>
-                        )}
-                        {property.virtual_tour && (
-                          <a 
-                            href={property.virtual_tour} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors"
-                          >
-                            <View className="w-5 h-5 text-gold" />
-                            <span className="text-sm font-medium">Tur Virtual 360°</span>
-                          </a>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Description */}
-                <Card className="border-gold/20">
-                  <CardContent className="p-4 sm:p-5 md:p-6">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Descriere</h2>
-                    <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {property.description}
-                    </p>
+                    </div>
                   </CardContent>
                 </Card>
 
-                {/* Features & Amenities in Grid */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  {/* Features */}
-                  {property.features && property.features.length > 0 && (
+                {/* All Technical Details - Compact Grid */}
+                {(() => {
+                  const details: { icon: React.ReactNode; label: string; value: string }[] = [];
+                  
+                  if (property.floor !== null && property.floor !== undefined)
+                    details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Etaj', value: `${property.floor}${property.total_floors ? ` / ${property.total_floors}` : ''}` });
+                  if (property.bathrooms !== null && property.bathrooms !== undefined)
+                    details.push({ icon: <Bath className="w-4 h-4 text-gold" />, label: 'Băi', value: `${property.bathrooms}` });
+                  if (property.year_built)
+                    details.push({ icon: <Construction className="w-4 h-4 text-gold" />, label: 'An Construcție', value: `${property.year_built}` });
+                  if (property.parking !== null && property.parking !== undefined)
+                    details.push({ icon: <Car className="w-4 h-4 text-gold" />, label: 'Parcare', value: `${property.parking} locuri` });
+                  if (property.balconies !== null && property.balconies !== undefined)
+                    details.push({ icon: <Layers className="w-4 h-4 text-gold" />, label: 'Balcoane', value: `${property.balconies}` });
+                  if (property.surface_land)
+                    details.push({ icon: <Square className="w-4 h-4 text-gold" />, label: 'Teren', value: `${property.surface_land} mp` });
+                  if (property.heating)
+                    details.push({ icon: <Thermometer className="w-4 h-4 text-gold" />, label: 'Încălzire', value: property.heating });
+                  if (property.furnished)
+                    details.push({ icon: <Sofa className="w-4 h-4 text-gold" />, label: 'Mobilat', value: property.furnished });
+                  if (property.building_type)
+                    details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Tip Clădire', value: property.building_type });
+                  if (property.compartment)
+                    details.push({ icon: <Layers className="w-4 h-4 text-gold" />, label: 'Compartimentare', value: property.compartment });
+                  if (property.comfort)
+                    details.push({ icon: <Home className="w-4 h-4 text-gold" />, label: 'Confort', value: property.comfort });
+                  if (property.property_type)
+                    details.push({ icon: <Home className="w-4 h-4 text-gold" />, label: 'Tip Proprietate', value: property.property_type });
+
+                  if (details.length === 0) return null;
+
+                  return (
                     <Card className="border-gold/20">
-                      <CardContent className="p-4 sm:p-5 md:p-6">
-                        <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Caracteristici</h2>
+                      <CardContent className="p-3 sm:p-4 md:p-5">
+                        <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Detalii Tehnice</h2>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
+                          {details.map((d, i) => (
+                            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                              {d.icon}
+                              <div className="min-w-0">
+                                <div className="text-[10px] text-muted-foreground leading-tight">{d.label}</div>
+                                <div className="text-xs sm:text-sm font-medium truncate">{d.value}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Video & Virtual Tour */}
+                {(property.video || property.virtual_tour) && (
+                  <div className="flex flex-wrap gap-2">
+                    {property.video && (
+                      <a 
+                        href={property.video} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors border border-gold/20"
+                      >
+                        <Video className="w-4 h-4 text-gold" />
+                        <span className="text-sm font-medium">Video</span>
+                      </a>
+                    )}
+                    {property.virtual_tour && (
+                      <a 
+                        href={property.virtual_tour} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-lg hover:bg-gold/20 transition-colors border border-gold/20"
+                      >
+                        <View className="w-4 h-4 text-gold" />
+                        <span className="text-sm font-medium">Tur Virtual 360°</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Features (deduplicated with amenities) */}
+                {(() => {
+                  const allFeatures = new Set<string>();
+                  if (property.features?.length) property.features.forEach((f: string) => allFeatures.add(f));
+                  if (property.amenities?.length) property.amenities.forEach((a: string) => allFeatures.add(a));
+                  const uniqueFeatures = Array.from(allFeatures);
+                  
+                  if (uniqueFeatures.length === 0) return null;
+
+                  return (
+                    <Card className="border-gold/20">
+                      <CardContent className="p-3 sm:p-4 md:p-5">
+                        <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Caracteristici & Facilități</h2>
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {property.features.map((feature, idx) => (
+                          {uniqueFeatures.map((feature, idx) => (
                             <Badge key={idx} variant="secondary" className="bg-gold/10 text-gold text-[10px] sm:text-xs">
                               {feature}
                             </Badge>
@@ -667,77 +562,73 @@ const PropertyDetail = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  )}
+                  );
+                })()}
 
-                  {/* Amenities */}
-                  {property.amenities && property.amenities.length > 0 && (
-                    <Card className="border-gold/20">
-                      <CardContent className="p-4 sm:p-5 md:p-6">
-                        <h2 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">Facilități</h2>
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {property.amenities.map((amenity, idx) => (
-                            <Badge key={idx} variant="outline" className="border-gold/30 text-[10px] sm:text-xs">
-                              {amenity}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                {/* Description */}
+                {property.description && (
+                  <Card className="border-gold/20">
+                    <CardContent className="p-3 sm:p-4 md:p-5">
+                      <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Descriere</h2>
+                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {property.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Agent / Agency / Contact Info */}
                 {(property.agent || property.agency || property.contact_info) && (
                   <Card className="border-gold/20">
-                    <CardContent className="p-4 sm:p-5 md:p-6">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Informații Contact</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                    <CardContent className="p-3 sm:p-4 md:p-5">
+                      <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Informații Contact</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
                         {property.agent && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                             <User className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Agent</div>
-                              <div className="text-sm font-medium">{property.agent}</div>
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-muted-foreground">Agent</div>
+                              <div className="text-xs sm:text-sm font-medium truncate">{property.agent}</div>
                             </div>
                           </div>
                         )}
                         {property.agency && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                             <Briefcase className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Agenție</div>
-                              <div className="text-sm font-medium">{property.agency}</div>
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-muted-foreground">Agenție</div>
+                              <div className="text-xs sm:text-sm font-medium truncate">{property.agency}</div>
                             </div>
                           </div>
                         )}
                         {property.contact_info?.phone && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                             <Phone className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Telefon</div>
-                              <a href={`tel:${property.contact_info.phone}`} className="text-sm font-medium hover:text-gold transition-colors">
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-muted-foreground">Telefon</div>
+                              <a href={`tel:${property.contact_info.phone}`} className="text-xs sm:text-sm font-medium hover:text-gold transition-colors truncate block">
                                 {property.contact_info.phone}
                               </a>
                             </div>
                           </div>
                         )}
                         {property.contact_info?.email && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                             <Mail className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Email</div>
-                              <a href={`mailto:${property.contact_info.email}`} className="text-sm font-medium hover:text-gold transition-colors">
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-muted-foreground">Email</div>
+                              <a href={`mailto:${property.contact_info.email}`} className="text-xs sm:text-sm font-medium hover:text-gold transition-colors truncate block">
                                 {property.contact_info.email}
                               </a>
                             </div>
                           </div>
                         )}
                         {property.contact_info?.name && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
                             <User className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Persoană Contact</div>
-                              <div className="text-sm font-medium">{property.contact_info.name}</div>
+                            <div className="min-w-0">
+                              <div className="text-[10px] text-muted-foreground">Contact</div>
+                              <div className="text-xs sm:text-sm font-medium truncate">{property.contact_info.name}</div>
                             </div>
                           </div>
                         )}
@@ -746,50 +637,40 @@ const PropertyDetail = () => {
                   </Card>
                 )}
 
-                {/* External Reference / Source */}
+                {/* External Reference */}
                 {(property.external_id || property.source_url) && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-4 sm:p-5 md:p-6">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">Referință</h2>
-                      <div className="flex flex-wrap gap-4">
-                        {property.external_id && (
-                          <div className="flex items-center gap-2">
-                            <Hash className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">ID Extern</div>
-                              <div className="text-sm font-medium">{property.external_id}</div>
-                            </div>
-                          </div>
-                        )}
-                        {property.source_url && (
-                          <div className="flex items-center gap-2">
-                            <Link2 className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground">Sursă</div>
-                              <a 
-                                href={property.source_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-sm font-medium hover:text-gold transition-colors flex items-center gap-1"
-                              >
-                                Vezi anunțul original
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                    {property.external_id && (
+                      <span className="flex items-center gap-1">
+                        <Hash className="w-3 h-3 text-gold" />
+                        Ref: {property.external_id}
+                      </span>
+                    )}
+                    {property.source_url && (
+                      <a 
+                        href={property.source_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:text-gold transition-colors"
+                      >
+                        <Link2 className="w-3 h-3" />
+                        Anunț original
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
                 )}
-                <div className="grid sm:grid-cols-2 gap-3">
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <ScheduleViewingDialog
                     propertyTitle={property.title}
                     propertyId={property.id}
                     trigger={
-                      <Button className="w-full" size="lg" variant="luxury">
-                        <Calendar className="w-5 h-5 mr-2" />
-                        Programează Vizionare
+                      <Button className="w-full" size="default" variant="luxury">
+                        <Calendar className="w-4 h-4 mr-1.5" />
+                        <span className="hidden sm:inline">Programează</span>
+                        <span className="sm:hidden">Vizionare</span>
                       </Button>
                     }
                   />
@@ -797,39 +678,51 @@ const PropertyDetail = () => {
                   <Button
                     onClick={contactWhatsApp}
                     className="w-full"
-                    size="lg"
+                    size="default"
                     variant="luxuryOutline"
                   >
-                    <WhatsAppIcon className="w-5 h-5 mr-2" />
-                    Contactează pe WhatsApp
+                    <WhatsAppIcon className="w-4 h-4 mr-1.5" />
+                    WhatsApp
                   </Button>
 
                   <Button
                     onClick={shareProperty}
-                    variant="luxuryOutline"
+                    variant="outline"
                     className="w-full"
+                    size="default"
                   >
                     {copied ? (
                       <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
+                        <CheckCircle className="w-4 h-4 mr-1.5" />
                         Copiat!
                       </>
                     ) : (
                       <>
-                        <Share2 className="w-4 h-4 mr-2" />
+                        <Share2 className="w-4 h-4 mr-1.5" />
                         Distribuie
                       </>
                     )}
                   </Button>
 
-                  {property.storia_link && (
+                  {property.storia_link ? (
                     <Button
                       variant="outline"
                       className="w-full"
+                      size="default"
                       onClick={() => window.open(property.storia_link!, "_blank")}
                     >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Vezi pe Storia
+                      <ExternalLink className="w-4 h-4 mr-1.5" />
+                      Storia
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="default"
+                      onClick={() => window.location.href = "tel:+40767941512"}
+                    >
+                      <Phone className="w-4 h-4 mr-1.5" />
+                      Sună
                     </Button>
                   )}
                 </div>
