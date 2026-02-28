@@ -1,0 +1,231 @@
+/* Credit Simulator Styles */
+.credit-sim {
+  --cs-gold: #C9A84C;
+  --cs-gold-light: #E8C97A;
+  --cs-gold-dim: rgba(201,168,76,0.15);
+  --cs-bg2: #111318;
+  --cs-bg3: #181B22;
+  --cs-text: #EDE8DF;
+  --cs-muted: #7A7870;
+  --cs-border: rgba(201,168,76,0.2);
+  --cs-green: #4CAF8A;
+  --cs-red: #E05C5C;
+  --cs-blue: #5C9EE0;
+}
+
+.credit-sim .cs-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--cs-gold-dim); border: 1px solid var(--cs-border);
+  border-radius: 100px; padding: 6px 18px;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--cs-gold); margin-bottom: 20px;
+}
+.credit-sim .cs-badge::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cs-gold); box-shadow: 0 0 8px var(--cs-gold);
+  animation: csPulse 2s infinite;
+}
+
+.credit-sim h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 300; line-height: 1.1; letter-spacing: -0.02em;
+}
+.credit-sim h1 em { font-style: italic; color: var(--cs-gold); }
+.credit-sim .cs-subtitle { margin-top: 14px; color: var(--cs-muted); font-size: 15px; font-weight: 300; }
+
+/* Selector bar */
+.credit-sim .selector-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 20px; margin-bottom: 40px; flex-wrap: wrap;
+}
+.credit-sim .selector-group {
+  display: flex; border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.credit-sim .sel-btn {
+  padding: 13px 26px; background: transparent; color: var(--cs-muted);
+  font-size: 14px; font-weight: 500; cursor: pointer; border: none;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap;
+}
+.credit-sim .sel-btn:hover { color: var(--cs-text); background: rgba(255,255,255,0.04); }
+.credit-sim .sel-btn.active { background: var(--cs-gold-dim); color: var(--cs-gold); }
+.credit-sim .sel-btn + .sel-btn { border-left: 1px solid rgba(255,255,255,0.08); }
+
+.credit-sim .currency-toggle {
+  display: flex; border-radius: 100px; overflow: hidden;
+  border: 1px solid var(--cs-border);
+}
+.credit-sim .cur-btn {
+  padding: 11px 22px; background: transparent; border: none;
+  color: var(--cs-muted); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s; letter-spacing: 0.06em;
+}
+.credit-sim .cur-btn:hover { color: var(--cs-gold); }
+.credit-sim .cur-btn.active { background: var(--cs-gold); color: #0A0C0F; }
+.credit-sim .cur-btn + .cur-btn { border-left: 1px solid var(--cs-border); }
+
+/* Grid */
+.credit-sim .cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+@media(max-width:768px) { .credit-sim .cs-grid { grid-template-columns: 1fr; } }
+
+/* Cards */
+.credit-sim .cs-card {
+  background: var(--cs-bg2); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 32px; position: relative; overflow: hidden;
+}
+.credit-sim .cs-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cs-gold-light), transparent);
+  opacity: 0.4;
+}
+.credit-sim .card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 600; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--cs-gold); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.credit-sim .card-title .icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--cs-gold-dim);
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+
+/* Notice */
+.credit-sim .notice {
+  background: rgba(92,158,224,0.08); border: 1px solid rgba(92,158,224,0.2);
+  border-radius: 10px; padding: 12px 16px;
+  font-size: 12px; color: var(--cs-blue); line-height: 1.6; margin-bottom: 24px;
+}
+
+/* Fields */
+.credit-sim .field { margin-bottom: 28px; }
+.credit-sim .field:last-child { margin-bottom: 0; }
+.credit-sim .field-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.credit-sim .field-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cs-muted); font-weight: 500; }
+.credit-sim .field-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text); }
+.credit-sim .field-value span { font-size: 0.9rem; color: var(--cs-muted); font-weight: 300; }
+
+.credit-sim input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 4px;
+  background: rgba(255,255,255,0.08); border-radius: 4px;
+  outline: none; cursor: pointer; margin-bottom: 8px;
+}
+.credit-sim input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px;
+  border-radius: 50%; background: #0A0C0F;
+  border: 2px solid var(--cs-gold);
+  box-shadow: 0 0 12px rgba(201,168,76,0.5);
+  cursor: pointer; transition: all 0.2s;
+}
+.credit-sim input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2); box-shadow: 0 0 20px rgba(201,168,76,0.8);
+}
+.credit-sim .range-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--cs-muted); }
+
+/* LTV */
+.credit-sim .ltv-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+.credit-sim .ltv-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.credit-sim .ltv-info { display: flex; justify-content: space-between; font-size: 11px; color: var(--cs-muted); margin-top: 6px; }
+.credit-sim .info-tip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid var(--cs-muted); font-size: 10px; color: var(--cs-muted);
+  cursor: help; margin-left: 6px; vertical-align: middle;
+}
+
+/* Pills */
+.credit-sim .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.credit-sim .pill {
+  padding: 8px 16px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: var(--cs-muted);
+  font-size: 13px; cursor: pointer; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.credit-sim .pill:hover { border-color: var(--cs-gold); color: var(--cs-gold); }
+.credit-sim .pill.active { background: var(--cs-gold-dim); border-color: var(--cs-gold); color: var(--cs-gold); }
+
+/* Results */
+.credit-sim .results-card {
+  background: linear-gradient(135deg, var(--cs-bg2) 0%, var(--cs-bg3) 100%);
+  border: 1px solid var(--cs-border); border-radius: 20px; padding: 40px;
+}
+.credit-sim .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+@media(max-width:600px) { .credit-sim .results-grid { grid-template-columns: 1fr; } }
+.credit-sim .result-item { position: relative; }
+.credit-sim .result-item + .result-item::before {
+  content: ''; position: absolute; left: -12px; top: 10%; bottom: 10%;
+  width: 1px; background: var(--cs-border);
+}
+@media(max-width:600px) { .credit-sim .result-item + .result-item::before { display: none; } }
+.credit-sim .result-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cs-muted); margin-bottom: 10px; }
+.credit-sim .result-value {
+  font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 600; line-height: 1;
+}
+.credit-sim .result-value.highlight { color: var(--cs-gold); }
+.credit-sim .result-value.green { color: var(--cs-green); }
+.credit-sim .result-value small {
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--cs-muted);
+  font-weight: 300; display: block; margin-top: 4px;
+}
+
+/* Donut */
+.credit-sim .chart-section { display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: center; padding-top: 32px; border-top: 1px solid var(--cs-border); }
+@media(max-width:550px) { .credit-sim .chart-section { grid-template-columns: 1fr; } }
+.credit-sim .donut-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; }
+.credit-sim .donut-wrap svg { transform: rotate(-90deg); }
+.credit-sim .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.credit-sim .donut-pct { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+.credit-sim .donut-lbl { font-size: 10px; color: var(--cs-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.credit-sim .legend { display: flex; flex-direction: column; gap: 14px; }
+.credit-sim .legend-item { display: flex; align-items: center; gap: 14px; }
+.credit-sim .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.credit-sim .legend-text { font-size: 13px; }
+.credit-sim .legend-text strong {
+  display: block; font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; font-weight: 600; margin-top: 2px;
+}
+
+/* Bar chart */
+.credit-sim .bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 80px; margin-top: 20px; }
+.credit-sim .bar-group { flex: 1; display: flex; gap: 1px; align-items: flex-end; min-width: 0; cursor: pointer; }
+.credit-sim .bar { flex: 1; border-radius: 2px 2px 0 0; transition: opacity 0.2s; min-height: 2px; }
+.credit-sim .bar-group:hover .bar { opacity: 0.75; }
+
+/* Table */
+.credit-sim .table-card {
+  background: var(--cs-bg2); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 32px; margin-top: 24px;
+}
+.credit-sim .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.credit-sim .table-actions { display: flex; gap: 8px; }
+.credit-sim .btn-sm {
+  padding: 8px 16px; border-radius: 100px; border: 1px solid var(--cs-border);
+  background: var(--cs-gold-dim); color: var(--cs-gold); font-size: 12px;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.credit-sim .btn-sm:hover { background: rgba(201,168,76,0.25); }
+.credit-sim .btn-sm.active { background: var(--cs-gold); color: #0A0C0F; border-color: var(--cs-gold); }
+.credit-sim .table-scroll { overflow-x: auto; max-height: 320px; overflow-y: auto; }
+.credit-sim table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.credit-sim thead th {
+  text-align: left; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--cs-muted); padding: 0 12px 14px; font-weight: 500;
+  position: sticky; top: 0; background: var(--cs-bg2);
+}
+.credit-sim tbody tr { border-top: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+.credit-sim tbody tr:hover { background: rgba(255,255,255,0.03); }
+.credit-sim tbody td { padding: 10px 12px; color: var(--cs-text); font-variant-numeric: tabular-nums; }
+.credit-sim tbody td:first-child { color: var(--cs-muted); font-size: 12px; }
+.credit-sim .td-principal { color: var(--cs-green) !important; }
+.credit-sim .td-dobanda { color: var(--cs-gold) !important; }
+
+.credit-sim .bar-legend {
+  display: flex; gap: 16px; justify-content: flex-end; margin-top: 8px; font-size: 11px; color: var(--cs-muted);
+}
+.credit-sim .bar-legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+
+@keyframes csPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
