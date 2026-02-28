@@ -257,7 +257,20 @@ const Footer = () => {
             </div>
           </div>
         </div>
-
+        {/* Trustpilot Widget */}
+        <div className="py-6 max-w-6xl mx-auto">
+          <div 
+            className="trustpilot-widget" 
+            data-locale="en-US" 
+            data-template-id="56278e9abfbbba0bdcd568bc" 
+            data-businessunit-id="69a352c6e12ef9724a882ef0" 
+            data-style-height="59px" 
+            data-style-width="100%"
+            data-token="f1c5a477-f549-46aa-b8c6-cd1e0c6bae45"
+          >
+            <a href="https://www.trustpilot.com/review/mvaimobiliare.ro" target="_blank" rel="noopener">Trustpilot</a>
+          </div>
+        </div>
 
         <Separator className="bg-gold/20" />
 
