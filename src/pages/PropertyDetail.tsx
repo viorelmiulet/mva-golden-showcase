@@ -100,26 +100,29 @@ interface Property {
 // Auto-generate extended description from property characteristics
 const generateAutoDescription = (p: Property): string => {
   const parts: string[] = [];
-  
+
   const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
-  const tipProp = p.property_type || 'apartament';
-  
-  parts.push(`${tipProp.charAt(0).toUpperCase() + tipProp.slice(1)} de ${tipTranzactie} situat${tipProp === 'casă' || tipProp === 'garsonieră' ? 'ă' : ''} în ${p.zone || p.location || 'București'}${p.city ? `, ${p.city}` : ''}.`);
-  
-  if (p.rooms || p.surface_min) {
-    let details = 'Proprietatea dispune de';
-    const detailParts: string[] = [];
-    if (p.rooms) detailParts.push(`${p.rooms} ${p.rooms === 1 ? 'cameră' : 'camere'}`);
-    if (p.surface_min) detailParts.push(`o suprafață utilă de ${p.surface_min} mp`);
-    if (p.surface_land) detailParts.push(`teren de ${p.surface_land} mp`);
-    details += ' ' + detailParts.join(', ') + '.';
-    parts.push(details);
-  }
+  const tipProp = p.property_type || 'Apartament';
+  const tipCapitalized = tipProp.charAt(0).toUpperCase() + tipProp.slice(1);
+  const zona = p.zone || p.location || 'București';
+  const sector = p.city || 'Sector 6 București';
 
+  // Opening sentence
+  parts.push(`${tipCapitalized} cu ${p.rooms || ''} ${(p.rooms || 0) === 1 ? 'cameră' : 'camere'} de ${tipTranzactie} în cartierul Militari, zona ${zona}, ${sector}.`);
+
+  // Surface & floor
+  const imobilParts: string[] = [];
+  if (p.surface_min) imobilParts.push(`o suprafață utilă de ${p.surface_min} mp`);
+  if (p.surface_land) imobilParts.push(`teren de ${p.surface_land} mp`);
   if (p.floor !== null && p.floor !== undefined) {
-    parts.push(`Situat${tipProp === 'casă' || tipProp === 'garsonieră' ? 'ă' : ''} la etajul ${p.floor}${p.total_floors ? ` din ${p.total_floors}` : ''}.`);
+    imobilParts.push(`se află la etajul ${p.floor}${p.total_floors ? ` dintr-un bloc cu ${p.total_floors} etaje` : ''}`);
+  }
+  if (p.year_built) imobilParts.push(`construit în ${p.year_built}`);
+  if (imobilParts.length > 0) {
+    parts.push(`Imobilul are ${imobilParts.join(', ')}.`);
   }
 
+  // Amenities / features
   const dotari: string[] = [];
   if (p.bathrooms) dotari.push(`${p.bathrooms} ${p.bathrooms === 1 ? 'baie' : 'băi'}`);
   if (p.balconies) dotari.push(`${p.balconies} ${p.balconies === 1 ? 'balcon' : 'balcoane'}`);
@@ -128,22 +131,21 @@ const generateAutoDescription = (p: Property): string => {
   if (p.furnished) dotari.push(p.furnished === 'da' ? 'mobilat complet' : p.furnished === 'partial' ? 'mobilat parțial' : `mobilare: ${p.furnished}`);
   if (p.compartment) dotari.push(`compartimentare ${p.compartment}`);
   if (p.comfort) dotari.push(`confort ${p.comfort}`);
-  if (dotari.length > 0) {
-    parts.push(`Dotări: ${dotari.join(', ')}.`);
-  }
-
-  if (p.building_type) parts.push(`Tip construcție: ${p.building_type}.`);
-  if (p.year_built) parts.push(`Anul construcției: ${p.year_built}.`);
-
+  if (p.building_type) dotari.push(`construcție tip ${p.building_type}`);
   if (p.amenities && Array.isArray(p.amenities) && p.amenities.length > 0) {
-    parts.push(`Facilități: ${(p.amenities as string[]).join(', ')}.`);
+    dotari.push(...(p.amenities as string[]));
+  }
+  if (dotari.length > 0) {
+    parts.push(`Apartamentul beneficiază de: ${dotari.join(', ')}.`);
   }
 
+  // Price
   if (p.price_min) {
-    parts.push(`Preț: ${p.price_min.toLocaleString('ro-RO')} ${p.currency || 'EUR'}.`);
+    parts.push(`Prețul de ${tipTranzactie} este de ${p.price_min.toLocaleString('ro-RO')} ${p.currency || 'EUR'}.`);
   }
 
-  parts.push('Contactați MVA Imobiliare pentru vizionare și detalii suplimentare.');
+  // CTA
+  parts.push('Pentru programarea unei vizionări gratuite, contactați agenții MVA Imobiliare.');
 
   return parts.join(' ');
 };
@@ -632,7 +634,7 @@ const PropertyDetail = () => {
                   const desc = property.description || '';
                   const wordCount = desc.trim().split(/\s+/).filter(Boolean).length;
                   const fullDescription = property.descriere_lunga 
-                    || (wordCount < 150 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
+                    || (wordCount < 100 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
                   
                   return fullDescription ? (
                     <Card className="border-gold/20">
