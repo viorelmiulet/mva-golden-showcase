@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,14 +41,16 @@ import {
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { Helmet } from "react-helmet-async";
-import { ApartmentImageGallery } from "@/components/ApartmentImageGallery";
-import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
-import { TiltCard } from "@/components/TiltCard";
-import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
-import MortgageCalculator from "@/components/MortgageCalculator";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+
+// Lazy load heavy below-fold components
+const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
+const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then(m => ({ default: m.ScheduleViewingDialog })));
+const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
+const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
+const MortgageCalculator = lazy(() => import("@/components/MortgageCalculator"));
 
 interface Property {
   id: string;
@@ -497,17 +499,19 @@ const PropertyDetail = () => {
 
               {/* Images Gallery - SECOND */}
               <section aria-label="Imagini proprietate" className="w-full">
-                <ApartmentImageGallery 
-                  images={property.images || []} 
-                  title={property.title}
-                  propertyDetails={{
-                    rooms: property.rooms,
-                    zone: property.zone || property.location,
-                    city: property.city || 'București',
-                    surface: property.surface_min,
-                    transactionType: property.transaction_type === 'rent' ? 'închiriere' : 'vânzare',
-                  }}
-                />
+                <Suspense fallback={<div className="aspect-video bg-muted animate-pulse rounded-xl" />}>
+                  <ApartmentImageGallery 
+                    images={property.images || []} 
+                    title={property.title}
+                    propertyDetails={{
+                      rooms: property.rooms,
+                      zone: property.zone || property.location,
+                      city: property.city || 'București',
+                      surface: property.surface_min,
+                      transactionType: property.transaction_type === 'rent' ? 'închiriere' : 'vânzare',
+                    }}
+                  />
+                </Suspense>
               </section>
 
               {/* Price & Details - THIRD */}
@@ -748,17 +752,19 @@ const PropertyDetail = () => {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <ScheduleViewingDialog
-                    propertyTitle={property.title}
-                    propertyId={property.id}
-                    trigger={
-                      <Button className="w-full" size="default" variant="luxury">
-                        <Calendar className="w-4 h-4 mr-1.5" />
-                        <span className="hidden sm:inline">Programează</span>
-                        <span className="sm:hidden">Vizionare</span>
-                      </Button>
-                    }
-                  />
+                  <Suspense fallback={null}>
+                    <ScheduleViewingDialog
+                      propertyTitle={property.title}
+                      propertyId={property.id}
+                      trigger={
+                        <Button className="w-full" size="default" variant="luxury">
+                          <Calendar className="w-4 h-4 mr-1.5" />
+                          <span className="hidden sm:inline">Programează</span>
+                          <span className="sm:hidden">Vizionare</span>
+                        </Button>
+                      }
+                    />
+                  </Suspense>
 
                   <Button
                     onClick={contactWhatsApp}
@@ -816,12 +822,14 @@ const PropertyDetail = () => {
             </article>
 
             {/* Mortgage Calculator Section */}
-            <section className="mt-8 sm:mt-12" aria-label="Calculator credit">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
-                Estimează Rata Lunară
-              </h2>
-              <MortgageCalculator defaultPrice={property.price_min} />
-            </section>
+            <Suspense fallback={<div className="mt-8 sm:mt-12 h-64 bg-muted animate-pulse rounded-xl" />}>
+              <section className="mt-8 sm:mt-12" aria-label="Calculator credit">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
+                  Estimează Rata Lunară
+                </h2>
+                <MortgageCalculator defaultPrice={property.price_min} />
+              </section>
+            </Suspense>
 
             {/* Contact Section */}
             <Card className="mt-8 sm:mt-12 border-gold/20">
@@ -926,11 +934,13 @@ const PropertyDetail = () => {
             )}
 
             {/* Recently Viewed Section */}
-            <RecentlyViewed 
-              excludePropertyId={property.id} 
-              className="mt-12 border-t border-border pt-8"
-              maxItems={6}
-            />
+            <Suspense fallback={<div className="mt-12 h-48 bg-muted animate-pulse rounded-xl" />}>
+              <RecentlyViewed 
+                excludePropertyId={property.id} 
+                className="mt-12 border-t border-border pt-8"
+                maxItems={6}
+              />
+            </Suspense>
 
           </div>
         </main>

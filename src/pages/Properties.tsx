@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -39,10 +39,12 @@ import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
-import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { ImageLightbox } from "@/components/ImageLightbox"
+
+// Lazy load heavy components
+const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
+const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
 interface ScrapedProperty {
   title: string
@@ -639,7 +641,9 @@ const Properties = () => {
             </div>
 
             {/* Recently Viewed Section */}
-            <RecentlyViewed className="mb-8" maxItems={6} />
+            <Suspense fallback={<div className="mb-8 h-32 bg-muted animate-pulse rounded-xl" />}>
+              <RecentlyViewed className="mb-8" maxItems={6} />
+            </Suspense>
 
             {/* Properties List */}
             {isLoadingProperties ? (
@@ -892,12 +896,14 @@ const Properties = () => {
         </main>
 
       {/* Image Gallery - Optimized Lightbox with swipe */}
-      <ImageLightbox
-        images={selectedProperty?.images || []}
-        isOpen={!!selectedProperty}
-        onClose={closeGallery}
-        initialIndex={galleryInitialIndex}
-      />
+      <Suspense fallback={null}>
+        <ImageLightbox
+          images={selectedProperty?.images || []}
+          isOpen={!!selectedProperty}
+          onClose={closeGallery}
+          initialIndex={galleryInitialIndex}
+        />
+      </Suspense>
 
       <Footer />
     </div>
