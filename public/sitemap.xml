@@ -1,158 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
-  <!-- Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mvaimobiliare.ro/</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>daily</changefreq>
+    <lastmod>2025-03-01</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://mvaimobiliare.ro/mva-logo-luxury.svg</image:loc>
-      <image:title>MVA Imobiliare - Agenție Imobiliară Premium București</image:title>
-    </image:image>
   </url>
-
-  <!-- Proprietăți -->
   <url>
-    <loc>https://mvaimobiliare.ro/proprietati</loc>
-    <lastmod>2026-02-28</lastmod>
+    <loc>https://mvaimobiliare.ro/vanzari</loc>
+    <lastmod>2025-03-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- Complexe -->
   <url>
-    <loc>https://mvaimobiliare.ro/complexe</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://mvaimobiliare.ro/inchirieri</loc>
+    <lastmod>2025-03-01</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- Despre Noi -->
-  <url>
-    <loc>https://mvaimobiliare.ro/despre-noi</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Servicii -->
-  <url>
-    <loc>https://mvaimobiliare.ro/servicii</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- De Ce Să Ne Alegi -->
-  <url>
-    <loc>https://mvaimobiliare.ro/de-ce-sa-ne-alegi</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Contact -->
-  <url>
-    <loc>https://mvaimobiliare.ro/contact</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Blog -->
-  <url>
-    <loc>https://mvaimobiliare.ro/blog</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Calculator Credit -->
-  <url>
-    <loc>https://mvaimobiliare.ro/calculator-credit</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- FAQ -->
   <url>
     <loc>https://mvaimobiliare.ro/intrebari-frecvente</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2025-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-
-  <!-- Regim Hotelier -->
   <url>
-    <loc>https://mvaimobiliare.ro/regim-hotelier</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Carieră -->
-  <url>
-    <loc>https://mvaimobiliare.ro/cariera</loc>
-    <lastmod>2026-02-28</lastmod>
+    <loc>https://mvaimobiliare.ro/contact</loc>
+    <lastmod>2025-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-
-  <!-- Carte Vizită -->
   <url>
-    <loc>https://mvaimobiliare.ro/carte-vizita</loc>
-    <lastmod>2026-02-28</lastmod>
+    <loc>https://mvaimobiliare.ro/despre-noi</loc>
+    <lastmod>2025-03-01</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
-
-  <!-- Politica Confidențialitate -->
-  <url>
-    <loc>https://mvaimobiliare.ro/politica-confidentialitate</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <!-- Termeni și Condiții -->
-  <url>
-    <loc>https://mvaimobiliare.ro/termeni-conditii</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <!-- Blog Posts -->
-  <url>
-    <loc>https://mvaimobiliare.ro/blog/ghidul-complet-cumparare-proprietate-bucuresti</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://mvaimobiliare.ro/blog/tendinte-piata-imobiliara-2025</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://mvaimobiliare.ro/blog/cum-pregatesti-casa-pentru-vanzare</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://mvaimobiliare.ro/blog/investitii-imobiliare-ghid-incepatori</loc>
-    <lastmod>2025-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
 </urlset>
