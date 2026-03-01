@@ -312,16 +312,18 @@ const PropertyDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{property.title} | MVA Imobiliare</title>
-        <meta name="description" content={property.description} />
-        <meta name="keywords" content={`${property.location}, ${property.rooms} camere, ${formatSurface(property.surface_min, property.surface_max)}, apartamente de vânzare, imobiliare București, ${property.project_name || ''}`} />
+        <title>{`${property.rooms || ''} camere ${property.zone || property.location || ''}, ${property.surface_min || ''}mp – MVA Imobiliare`}</title>
+        <meta name="description" content={`Apartament ${property.rooms || ''} camere de vânzare în ${property.zone || property.location || ''}, ${property.city || 'București'}. Suprafață ${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}. Preț ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro. Contactează MVA Imobiliare pentru vizionare gratuită.`} />
+        <meta name="robots" content="index, follow" />
+        <meta name="keywords" content={`${property.zone || property.location || ''}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
-        <meta property="og:title" content={`${property.title} | MVA Imobiliare`} />
-        <meta property="og:description" content={property.description} />
+        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
+        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''} Militari. Detalii și vizionare la MVA Imobiliare.`} />
+        <meta property="og:locale" content="ro_RO" />
         <meta property="og:site_name" content="MVA Imobiliare" />
         {property.images?.[0] && (
           <meta property="og:image" content={property.images[0]} />
@@ -330,8 +332,8 @@ const PropertyDetail = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
-        <meta name="twitter:title" content={`${property.title} | MVA Imobiliare`} />
-        <meta name="twitter:description" content={property.description} />
+        <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
+        <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''}. Vizionare gratuită.`} />
         {property.images?.[0] && (
           <meta name="twitter:image" content={property.images[0]} />
         )}
