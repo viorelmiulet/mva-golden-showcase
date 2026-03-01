@@ -19,38 +19,97 @@ const FAQ = () => {
   const faqStructuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqItems.map(item => ({
-      "@type": "Question",
-      "name": item.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": item.answer
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Care este prețul mediu al unui apartament cu 2 camere în cartierul Militari?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Prețul mediu al unui apartament cu 2 camere în Militari variază între 75.000 și 120.000 de euro, în funcție de zonă, etaj și finisaje. Contactați MVA Imobiliare pentru o evaluare gratuită."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ce documente sunt necesare pentru cumpărarea unui apartament?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cumpărătorul are nevoie de act de identitate și dovada finanțării. Vânzătorul trebuie să prezinte actul de proprietate, extras de carte funciară actualizat, adeverință de la asociația de proprietari, certificat energetic și acordul băncii dacă imobilul este ipotecat."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Cât este comisionul agenției MVA Imobiliare?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Comisionul standard este de 2% + TVA din valoarea tranzacției, plătit la semnarea contractului la notar. Include evaluare, promovare, vizionări, negociere și asistență completă."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Cât timp durează procesul de vânzare a unui apartament în Militari?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Durata medie este de 30–90 de zile. Apartamentele corect evaluate se vând în 3–6 săptămâni. Procesul notarial durează 1–3 săptămâni după găsirea cumpărătorului."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ce impozite se plătesc la vânzarea unui apartament?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vânzătorul plătește 3% impozit dacă deține imobilul sub 3 ani, sau 1% dacă îl deține peste 3 ani. Cumpărătorul plătește taxa notarială și taxa de intabulare de 0,15%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Pot obține credit ipotecar pentru un apartament din Militari?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Da, apartamentele din Militari sunt eligibile pentru credit ipotecar la toate băncile. Avans minim recomandat: 15–25%. MVA Imobiliare colaborează cu consultanți financiari care oferă preaprobari gratuit."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Care sunt cele mai bune zone din Militari pentru cumpărat?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Gorjului și Lujerului — acces la metrou. Iuliu Maniu — școli și comerciale. Pacii și Apusului — liniștit, spații verzi. Virtutii și Uverturii — prețuri accesibile cu potențial de creștere."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Gestionați și proprietăți de închiriat în Militari?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Da. Oferim servicii complete: promovare, selectare chiriași, contract și asistență. Chirii medii: garsoniere 300–500 €/lună, 2 camere 400–650 €/lună, 3 camere 550–850 €/lună."
+        }
       }
-    }))
+    ]
   };
 
   return (
     <>
       <BreadcrumbSchema items={[
         { name: "Acasă", url: "/" },
-        { name: t.faq.title, url: "/faq" }
+        { name: "Întrebări Frecvente", url: "/intrebari-frecvente" }
       ]} />
       <Helmet>
-        <title>{t.faq.title} - Întrebări Frecvente | MVA Imobiliare</title>
-        <meta name="description" content={t.faq.subtitle} />
-        <meta name="keywords" content="întrebări frecvente imobiliare, FAQ agenție imobiliară, comision agenție, vânzare casă, cumpărare apartament" />
+        <title>Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare</title>
+        <meta name="description" content="Răspunsuri la întrebările frecvente despre cumpărarea, vânzarea și închirierea apartamentelor în cartierul Militari, Sector 6 București." />
+        <meta name="robots" content="index, follow" />
+        <meta name="keywords" content="întrebări frecvente imobiliare Militari, FAQ agenție imobiliară, comision agenție, vânzare apartament Militari, cumpărare apartament Sector 6" />
         <link rel="canonical" href="https://mvaimobiliare.ro/intrebari-frecvente" />
         
-        <meta property="og:title" content={`${t.faq.title} - Întrebări Frecvente | MVA Imobiliare`} />
-        <meta property="og:description" content={t.faq.subtitle} />
+        <meta property="og:title" content="Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare" />
+        <meta property="og:description" content="Răspunsuri la întrebările frecvente despre cumpărarea, vânzarea și închirierea apartamentelor în cartierul Militari, Sector 6 București." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/intrebari-frecvente" />
+        <meta property="og:locale" content="ro_RO" />
         <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${t.faq.title} - FAQ | MVA Imobiliare`} />
-        <meta name="twitter:description" content={t.faq.subtitle} />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta name="twitter:title" content="Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare" />
+        <meta name="twitter:description" content="Răspunsuri la întrebările frecvente despre apartamentele din cartierul Militari." />
         
         <script type="application/ld+json">
           {JSON.stringify(faqStructuredData)}
