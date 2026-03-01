@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
       { loc: '/contact', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/blog', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/calculator-credit', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
-      { loc: '/faq', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
+      { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/carte-vizita', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
