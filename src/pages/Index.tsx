@@ -156,31 +156,33 @@ const Index = () => {
     <>
       <BreadcrumbSchema items={[{ name: "Acasă", url: "/" }]} />
       <Helmet>
-        <title>Apartamente de Vânzare Militari – MVA Imobiliare</title>
-        <meta name="description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
-        <meta name="keywords" content="agenție imobiliară București, apartamente Chiajna, case premium vest București, Militari Residence, vânzare apartamente, cumpărare proprietăți, agent imobiliar București" />
+        <title>Apartamente de Vânzare și Închiriere Militari – MVA Imobiliare</title>
+        <meta name="description" content="Agenție imobiliară specializată în cartierul Militari, Sector 6 București. Apartamente de vânzare și închiriere în Gorjului, Lujerului, Iuliu Maniu, Pacii. Evaluare gratuită. Sună acum!" />
+        <meta name="robots" content="index, follow" />
+        <meta name="keywords" content="agenție imobiliară București, apartamente Militari, apartamente Gorjului, apartamente Lujerului, apartamente Iuliu Maniu, apartamente Pacii, vânzare apartamente Sector 6, agent imobiliar București" />
         <link rel="canonical" href="https://mvaimobiliare.ro/" />
         
         {/* Sitemaps */}
         <link rel="sitemap" type="application/xml" href="https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap" />
         
         {/* AI Crawler Optimization */}
-        <meta name="summary" content="MVA Imobiliare este o agenție imobiliară specializată în zona Chiajna și vestul Bucureștiului, oferind servicii de vânzare și cumpărare proprietăți premium, consultanță expertă, evaluări gratuite și asistență completă în tranzacții imobiliare. Contact: 0767941512, email: contact@mvaimobiliare.ro" />
+        <meta name="summary" content="MVA Imobiliare este o agenție imobiliară specializată în zona Militari și vestul Bucureștiului, oferind servicii de vânzare și cumpărare proprietăți, consultanță expertă, evaluări gratuite și asistență completă în tranzacții imobiliare. Contact: 0767941512, email: contact@mvaimobiliare.ro" />
         <meta name="category" content="Real Estate Agency" />
-        <meta name="coverage" content="București, Chiajna, Ilfov, Romania" />
+        <meta name="coverage" content="București, Militari, Sector 6, Romania" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/" />
         <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
-        <meta property="og:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
+        <meta property="og:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
+        <meta property="og:locale" content="ro_RO" />
         <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
         <meta property="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
-        <meta property="twitter:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
+        <meta property="twitter:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
         <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Structured Data for AI */}
