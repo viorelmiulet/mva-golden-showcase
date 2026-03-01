@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Preload critical assets for LCP -->
-    <link rel="preload" href="/src/assets/hero-property.jpg" as="image" fetchpriority="high" />
+    <!-- Preload critical hero image with responsive srcset -->
+    <link rel="preload" as="image" href="/hero-mobile.webp" imagesrcset="/hero-mobile.webp 768w, /hero-desktop.webp 1440w" imagesizes="(max-width: 768px) 100vw, 1440px" fetchpriority="high" />
     <link rel="preload" href="/mva-logo-luxury-horizontal.svg" as="image" />
+    
+    <!-- Preconnect to own domain -->
+    <link rel="preconnect" href="https://mvaimobiliare.ro" crossorigin />
     
     <!-- DNS Prefetch for external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
