@@ -136,16 +136,26 @@ const useResponsiveImageSize = () => {
   return { screenSize, imageSizes };
 };
 
+interface PropertyImageDetails {
+  rooms?: number | null;
+  zone?: string | null;
+  city?: string | null;
+  surface?: number | null;
+  transactionType?: string | null;
+}
+
 interface ApartmentImageGalleryProps {
   images: string[];
   title?: string;
   className?: string;
+  propertyDetails?: PropertyImageDetails;
 }
 
 export const ApartmentImageGallery = ({ 
   images, 
   title = "Apartament",
-  className 
+  className,
+  propertyDetails
 }: ApartmentImageGalleryProps) => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -165,6 +175,15 @@ export const ApartmentImageGallery = ({
   const minSwipeDistance = 50;
 
   const validImages = images?.filter(img => img && img.trim() !== '') || [];
+
+  // Generate descriptive alt text for SEO
+  const getImageAlt = (index: number) => {
+    const d = propertyDetails;
+    const base = d
+      ? `Apartament ${d.rooms || ''} camere ${d.transactionType || 'vânzare'} ${d.zone || ''} ${d.city || 'București'}${d.surface ? ` ${d.surface}mp` : ''}`
+      : title;
+    return index === 0 ? base : `${base} - imagine ${index + 1}`;
+  };
 
   // Preload adjacent images for faster navigation
   useEffect(() => {
@@ -356,7 +375,7 @@ export const ApartmentImageGallery = ({
               width={imageSizes.main}
               quality={85}
               sizes="(min-width: 1024px) 66vw, 100vw"
-              alt={title}
+              alt={getImageAlt(0)}
               className="w-full h-full object-cover transition-transform duration-500 ease-out"
               style={{
                 transform: `translate(${parallax.x}px, ${parallax.y}px) scale(1.05)`,
@@ -405,7 +424,7 @@ export const ApartmentImageGallery = ({
                     src={img}
                     width={400}
                     quality={75}
-                    alt={`${title} - ${idx + 2}`}
+                    alt={getImageAlt(idx + 1)}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200" />
@@ -444,7 +463,7 @@ export const ApartmentImageGallery = ({
               width={imageSizes.main}
               quality={85}
               sizes="100vw"
-              alt={title}
+              alt={getImageAlt(0)}
               className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
               priority={true}
               onLoad={() => setImageLoaded(prev => ({ ...prev, [0]: true }))}
@@ -486,7 +505,7 @@ export const ApartmentImageGallery = ({
                     src={img}
                     width={imageSizes.thumbnail}
                     quality={60}
-                    alt={`${title} - ${idx + 1}`}
+                    alt={getImageAlt(idx)}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -617,7 +636,7 @@ export const ApartmentImageGallery = ({
                         src={img}
                         width={300}
                         quality={70}
-                        alt={`${title} - ${idx + 1}`}
+                        alt={getImageAlt(idx)}
                         className="w-full h-full object-cover"
                       />
                     </button>
@@ -701,7 +720,7 @@ export const ApartmentImageGallery = ({
                             src={img}
                             width={imageSizes.thumbnail}
                             quality={60}
-                            alt={`Thumbnail ${idx + 1}`}
+                            alt={getImageAlt(idx)}
                             className="w-full h-full object-cover"
                           />
                         </button>
