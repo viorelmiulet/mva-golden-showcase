@@ -431,6 +431,13 @@ const PropertyDetail = () => {
                 <ApartmentImageGallery 
                   images={property.images || []} 
                   title={property.title}
+                  propertyDetails={{
+                    rooms: property.rooms,
+                    zone: property.zone || property.location,
+                    city: property.city || 'București',
+                    surface: property.surface_min,
+                    transactionType: property.transaction_type === 'rent' ? 'închiriere' : 'vânzare',
+                  }}
                 />
               </section>
 

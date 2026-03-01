@@ -37,6 +37,7 @@ import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
+import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
 import { RecentlyViewed } from "@/components/RecentlyViewed"
 import { PropertyGridSkeleton } from "@/components/skeletons"
@@ -686,14 +687,14 @@ const Properties = () => {
                       
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                        <div className="aspect-video mb-4 overflow-hidden rounded-lg">
-                          <img 
+                        <div className="mb-4 overflow-hidden rounded-lg">
+                          <OptimizedPropertyImage 
                             src={(property.images as string[])[0]} 
-                            alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}, preț ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
+                            alt={`Apartament ${property.rooms || ''} camere ${property.transaction_type === 'rent' ? 'închiriere' : 'vânzare'} ${property.zone || property.location || 'București'}${property.surface_min ? ` ${property.surface_min}mp` : ''}`}
                             title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                            itemProp="image"
+                            className="group-hover:scale-105 transition-transform duration-300"
+                            aspectRatio="video"
+                            priority={false}
                           />
                         </div>
                       )}
