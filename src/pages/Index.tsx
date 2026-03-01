@@ -28,45 +28,35 @@ const Index = () => {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": "MVA Imobiliare",
-    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "logo": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
     "url": "https://mvaimobiliare.ro",
+    "logo": "https://mvaimobiliare.ro/logo.png",
+    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "description": "Agenție imobiliară specializată în cartierul Militari, Sector 6, București. Vânzări, cumpărări și închirieri de apartamente.",
     "telephone": "+40767941512",
     "email": "contact@mvaimobiliare.ro",
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "Chiajna",
-      "addressRegion": "Ilfov",
+      "addressLocality": "București",
+      "addressRegion": "Sector 6",
       "addressCountry": "RO"
+    },
+    "areaServed": {
+      "@type": "Place",
+      "name": "Militari, Sector 6, București"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "Romanian"
     },
     "geo": {
       "@type": "GeoCoordinates",
       "latitude": "44.4268",
       "longitude": "25.9667"
     },
-    "areaServed": [
-      {
-        "@type": "City",
-        "name": "București"
-      },
-      {
-        "@type": "City", 
-        "name": "Chiajna"
-      }
-    ],
-    "serviceType": [
-      "Vânzare apartamente",
-      "Cumpărare proprietăți",
-      "Consultanță imobiliară",
-      "Evaluare proprietăți",
-      "Management proprietăți"
-    ],
-    "priceRange": "€€€",
-    "knowsAbout": [
-      "Piața imobiliară București",
-      "Apartamente premium",
-      "Investiții imobiliare",
-      "Tranzacții imobiliare"
+    "sameAs": [
+      "https://www.facebook.com/mvaimobiliare",
+      "https://www.instagram.com/mvaimobiliare"
     ]
   };
 
