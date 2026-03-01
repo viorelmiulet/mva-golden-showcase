@@ -151,6 +151,7 @@ const App = () => {
               <Route path="/regim-hotelier" element={<RegimHotelier />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
+              <Route path="/intrebari-frecvente" element={<FAQ />} />
               <Route path="/sign/:token" element={<SignContract />} />
               
               {/* Mobile App Routes */}
