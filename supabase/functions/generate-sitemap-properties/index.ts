@@ -17,11 +17,12 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all published properties
+    // Fetch only active/available published properties (exclude sold/inactive)
     const { data: properties, error: propertiesError } = await supabase
       .from('catalog_offers')
-      .select('id, title, updated_at')
+      .select('id, title, updated_at, availability_status')
       .eq('is_published', true)
+      .eq('availability_status', 'available')
       .order('updated_at', { ascending: false })
       .limit(5000);
 

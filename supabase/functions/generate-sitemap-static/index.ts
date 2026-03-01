@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
       { loc: '/', priority: '1.0', changefreq: 'daily', lastmod: currentDate },
       { loc: '/proprietati', priority: '0.9', changefreq: 'daily', lastmod: currentDate },
       { loc: '/complexe', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/regim-hotelier', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/despre-noi', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/servicii', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/de-ce-sa-ne-alegi', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
@@ -26,7 +27,6 @@ Deno.serve(async (req) => {
       { loc: '/calculator-credit', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
-      { loc: '/carte-vizita', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       // Blog posts
