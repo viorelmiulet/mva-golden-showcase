@@ -363,27 +363,29 @@ const Properties = () => {
   return (
     <>
       <Helmet>
-        <title>Proprietăți de Vânzare - Apartamente și Case | MVA Imobiliare</title>
-        <meta name="description" content="Descoperă portofoliul nostru de apartamente și case premium de vânzare în Chiajna și vestul Bucureștiului. Proprietăți verificate cu finisaje de lux, preturi competitive și consultanță expertă." />
-        <meta name="keywords" content="apartamente de vânzare București, case premium Chiajna, proprietăți vest București, apartamente noi, vânzare imobiliare, oferte apartamente" />
+        <title>Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare</title>
+        <meta name="description" content="Vezi toate apartamentele de vânzare din cartierul Militari: garsoniere, 2 camere, 3 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate, agenție locală." />
+        <meta name="robots" content="index, follow" />
+        <meta name="keywords" content="apartamente vânzare Militari, garsoniere Gorjului, 2 camere Lujerului, 3 camere Iuliu Maniu, apartamente Sector 6, Pacii, agent imobiliar Militari" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
         
         {/* AI Crawler Optimization */}
-        <meta name="summary" content="Catalog complet de proprietăți imobiliare în București și Chiajna disponibile pentru vânzare și închiriere. Include apartamente cu 1-4 camere, case și proprietăți premium cu prețuri de la 30.000€ până la 200.000€+. Fiecare proprietate include detalii complete: suprafață, număr camere, locație, preț, fotografii și caracteristici. Contact direct: 0767941512." />
+        <meta name="summary" content="Catalog complet de apartamente de vânzare în cartierul Militari, Sector 6 București. Include garsoniere, apartamente cu 2-4 camere în Gorjului, Lujerului, Iuliu Maniu, Pacii. Prețuri actualizate. Contact direct: 0767941512." />
         <meta name="category" content="Real Estate Listings" />
         <meta name="inventory-size" content={`${filteredProperties.length} properties`} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/proprietati" />
-        <meta property="og:title" content="Proprietăți de Vânzare - MVA Imobiliare" />
-        <meta property="og:description" content={`${filteredProperties.length} proprietăți disponibile în Chiajna și vestul Bucureștiului`} />
-        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://mva-imobiliare.lovable.app/mva-logo-luxury-horizontal.svg"} />
+        <meta property="og:title" content="Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare" />
+        <meta property="og:description" content="Vezi toate apartamentele de vânzare din cartierul Militari: garsoniere, 2 camere, 3 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate, agenție locală." />
+        <meta property="og:locale" content="ro_RO" />
+        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Proprietăți de Vânzare" />
-        <meta property="twitter:description" content={`${filteredProperties.length} proprietăți verificate în București`} />
+        <meta property="twitter:title" content="Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare" />
+        <meta property="twitter:description" content="Apartamente de vânzare în Militari: garsoniere, 2 camere, 3 camere. Prețuri actualizate." />
 
         {/* Structured Data */}
         <script type="application/ld+json">
