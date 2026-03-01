@@ -15,11 +15,10 @@ Deno.serve(async (req) => {
     console.log('Notifying Google and Bing about sitemap update');
 
     const siteUrl = 'https://mvaimobiliare.ro';
-    const sitemapUrl = 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index';
     const staticSitemapUrl = `${siteUrl}/sitemap.xml`;
 
-    // 1. Notify Google
-    const googlePingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
+    // 1. Notify Google via ping
+    const googlePingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(staticSitemapUrl)}`;
     const googleResponse = await fetch(googlePingUrl, { method: 'GET' });
     console.log('Google:', googleResponse.status);
 
@@ -76,7 +75,7 @@ Deno.serve(async (req) => {
               `${siteUrl}/contact`,
               `${siteUrl}/blog`,
               `${siteUrl}/calculator-credit`,
-              `${siteUrl}/faq`,
+              `${siteUrl}/intrebari-frecvente`,
             ]
           })
         });
@@ -94,7 +93,7 @@ Deno.serve(async (req) => {
         google: { success: googleResponse.ok, status: googleResponse.status },
         bing: bingResult,
         indexNow: indexNowResult,
-        sitemaps: { dynamic: sitemapUrl, static: staticSitemapUrl }
+        sitemap: staticSitemapUrl
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
