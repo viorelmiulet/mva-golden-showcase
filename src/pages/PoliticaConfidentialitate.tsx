@@ -23,6 +23,17 @@ const PoliticaConfidentialitate = () => {
         } />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://mvaimobiliare.ro/politica-confidentialitate" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/politica-confidentialitate" />
+        <meta property="og:title" content={isRomanian ? 'Politica de Confidențialitate | MVA Imobiliare' : 'Privacy Policy | MVA Imobiliare'} />
+        <meta property="og:description" content={isRomanian 
+          ? "Politica de confidențialitate MVA Imobiliare. Află cum protejăm și procesăm datele tale personale conform GDPR."
+          : "MVA Imobiliare privacy policy. Learn how we protect and process your personal data in compliance with GDPR."
+        } />
+        
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={isRomanian ? 'Politica de Confidențialitate | MVA Imobiliare' : 'Privacy Policy | MVA Imobiliare'} />
       </Helmet>
       
       <div className="min-h-screen bg-background">

@@ -22,8 +22,18 @@ const CalculatorIpotecar = () => {
           content="Simulează creditul tău imobiliar sau de nevoi personale. Calculează rata lunară, dobânda totală și vezi planul de amortizare complet."
         />
         <meta name="keywords" content="simulator credit, calculator credit, credit imobiliar, rata lunara, avans, dobanda, plan amortizare" />
-        <link rel="canonical" href="https://mvaperfect.ro/calculator-credit" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/calculator-credit" />
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/calculator-credit" />
+        <meta property="og:title" content="Simulator Credit Imobiliar | MVA Imobiliare" />
+        <meta property="og:description" content="Simulează creditul tău imobiliar sau de nevoi personale. Calculează rata lunară, dobânda totală și vezi planul de amortizare complet." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Simulator Credit Imobiliar | MVA Imobiliare" />
+        <meta name="twitter:description" content="Calculează rata lunară pentru creditul tău imobiliar. Simulator complet cu plan de amortizare." />
       </Helmet>
 
       <div className="min-h-screen" style={{ background: '#0A0C0F' }}>

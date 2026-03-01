@@ -23,6 +23,17 @@ const TermeniConditii = () => {
         } />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://mvaimobiliare.ro/termeni-conditii" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/termeni-conditii" />
+        <meta property="og:title" content={isRomanian ? 'Termeni și Condiții | MVA Imobiliare' : 'Terms and Conditions | MVA Imobiliare'} />
+        <meta property="og:description" content={isRomanian 
+          ? "Termenii și condițiile de utilizare ale site-ului MVA Imobiliare."
+          : "Terms and conditions of use for the MVA Imobiliare website."
+        } />
+        
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={isRomanian ? 'Termeni și Condiții | MVA Imobiliare' : 'Terms and Conditions | MVA Imobiliare'} />
       </Helmet>
       
       <div className="min-h-screen bg-background">
