@@ -374,6 +374,22 @@ const RegimHotelier = () => {
           } 
         />
         <link rel="canonical" href="https://mvaimobiliare.ro/regim-hotelier" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/regim-hotelier" />
+        <meta property="og:title" content={language === "ro" ? "Regim Hotelier - Apartamente București | MVA Imobiliare" : "Short-Term Rentals - Bucharest Apartments | MVA Imobiliare"} />
+        <meta property="og:description" content={language === "ro" 
+          ? "Închiriază apartamente în regim hotelier în București. Proprietăți complet utilate pentru sejururi scurte." 
+          : "Rent apartments for short stays in Bucharest. Fully equipped properties."
+        } />
+        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={language === "ro" ? "Regim Hotelier | MVA Imobiliare" : "Short-Term Rentals | MVA Imobiliare"} />
+        <meta name="twitter:description" content={language === "ro" 
+          ? "Apartamente în regim hotelier în București cu disponibilitate în timp real." 
+          : "Short-term rental apartments in Bucharest with real-time availability."
+        } />
       </Helmet>
 
       <Header />
