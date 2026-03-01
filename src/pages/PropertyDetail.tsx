@@ -93,7 +93,60 @@ interface Property {
   virtual_tour?: string | null;
   contact_info?: any;
   transaction_type?: string | null;
+  descriere_lunga?: string | null;
+  floor_plan?: string | null;
 }
+
+// Auto-generate extended description from property characteristics
+const generateAutoDescription = (p: Property): string => {
+  const parts: string[] = [];
+  
+  const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
+  const tipProp = p.property_type || 'apartament';
+  
+  parts.push(`${tipProp.charAt(0).toUpperCase() + tipProp.slice(1)} de ${tipTranzactie} situat${tipProp === 'casă' || tipProp === 'garsonieră' ? 'ă' : ''} în ${p.zone || p.location || 'București'}${p.city ? `, ${p.city}` : ''}.`);
+  
+  if (p.rooms || p.surface_min) {
+    let details = 'Proprietatea dispune de';
+    const detailParts: string[] = [];
+    if (p.rooms) detailParts.push(`${p.rooms} ${p.rooms === 1 ? 'cameră' : 'camere'}`);
+    if (p.surface_min) detailParts.push(`o suprafață utilă de ${p.surface_min} mp`);
+    if (p.surface_land) detailParts.push(`teren de ${p.surface_land} mp`);
+    details += ' ' + detailParts.join(', ') + '.';
+    parts.push(details);
+  }
+
+  if (p.floor !== null && p.floor !== undefined) {
+    parts.push(`Situat${tipProp === 'casă' || tipProp === 'garsonieră' ? 'ă' : ''} la etajul ${p.floor}${p.total_floors ? ` din ${p.total_floors}` : ''}.`);
+  }
+
+  const dotari: string[] = [];
+  if (p.bathrooms) dotari.push(`${p.bathrooms} ${p.bathrooms === 1 ? 'baie' : 'băi'}`);
+  if (p.balconies) dotari.push(`${p.balconies} ${p.balconies === 1 ? 'balcon' : 'balcoane'}`);
+  if (p.parking) dotari.push(`${p.parking} ${p.parking === 1 ? 'loc de parcare' : 'locuri de parcare'}`);
+  if (p.heating) dotari.push(`încălzire ${p.heating}`);
+  if (p.furnished) dotari.push(p.furnished === 'da' ? 'mobilat complet' : p.furnished === 'partial' ? 'mobilat parțial' : `mobilare: ${p.furnished}`);
+  if (p.compartment) dotari.push(`compartimentare ${p.compartment}`);
+  if (p.comfort) dotari.push(`confort ${p.comfort}`);
+  if (dotari.length > 0) {
+    parts.push(`Dotări: ${dotari.join(', ')}.`);
+  }
+
+  if (p.building_type) parts.push(`Tip construcție: ${p.building_type}.`);
+  if (p.year_built) parts.push(`Anul construcției: ${p.year_built}.`);
+
+  if (p.amenities && Array.isArray(p.amenities) && p.amenities.length > 0) {
+    parts.push(`Facilități: ${(p.amenities as string[]).join(', ')}.`);
+  }
+
+  if (p.price_min) {
+    parts.push(`Preț: ${p.price_min.toLocaleString('ro-RO')} ${p.currency || 'EUR'}.`);
+  }
+
+  parts.push('Contactați MVA Imobiliare pentru vizionare și detalii suplimentare.');
+
+  return parts.join(' ');
+};
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -575,16 +628,23 @@ const PropertyDetail = () => {
                 })()}
 
                 {/* Description */}
-                {property.description && (
-                  <Card className="border-gold/20">
-                    <CardContent className="p-3 sm:p-4 md:p-5">
-                      <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Descriere</h2>
-                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {property.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                {(() => {
+                  const desc = property.description || '';
+                  const wordCount = desc.trim().split(/\s+/).filter(Boolean).length;
+                  const fullDescription = property.descriere_lunga 
+                    || (wordCount < 150 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
+                  
+                  return fullDescription ? (
+                    <Card className="border-gold/20">
+                      <CardContent className="p-3 sm:p-4 md:p-5">
+                        <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Descriere</h2>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
+                          {fullDescription}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : null;
+                })()}
 
                 {/* Agent / Agency / Contact Info */}
                 {(property.agent || property.agency || property.contact_info) && (
