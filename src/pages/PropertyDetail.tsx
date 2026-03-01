@@ -652,7 +652,7 @@ const PropertyDetail = () => {
                   const desc = property.description || '';
                   const wordCount = desc.trim().split(/\s+/).filter(Boolean).length;
                   const fullDescription = property.descriere_lunga 
-                    || (wordCount < 100 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
+                    || (wordCount < 150 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
                   
                   return fullDescription ? (
                     <Card className="border-gold/20">
