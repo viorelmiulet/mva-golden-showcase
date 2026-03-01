@@ -156,8 +156,8 @@ const Index = () => {
     <>
       <BreadcrumbSchema items={[{ name: "Acasă", url: "/" }]} />
       <Helmet>
-        <title>MVA Imobiliare - Agenție Imobiliară Premium în Chiajna și Vestul Bucureștiului</title>
-        <meta name="description" content="MVA Imobiliare - Agenție imobiliară de încredere specializată în apartamente și case premium în Chiajna, Militari Residence și vestul Bucureștiului. Consultanță expertă în vânzare și cumpărare proprietăți." />
+        <title>Apartamente de Vânzare Militari – MVA Imobiliare</title>
+        <meta name="description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
         <meta name="keywords" content="agenție imobiliară București, apartamente Chiajna, case premium vest București, Militari Residence, vânzare apartamente, cumpărare proprietăți, agent imobiliar București" />
         <link rel="canonical" href="https://mvaimobiliare.ro/" />
         
@@ -172,15 +172,15 @@ const Index = () => {
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/" />
-        <meta property="og:title" content="MVA Imobiliare - Agenție Imobiliară Premium în Chiajna" />
-        <meta property="og:description" content="Apartamente și case premium în Chiajna și vestul Bucureștiului. Consultanță expertă în tranzacții imobiliare." />
+        <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
+        <meta property="og:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
         <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
-        <meta property="twitter:title" content="MVA Imobiliare - Agenție Imobiliară Premium" />
-        <meta property="twitter:description" content="Apartamente și case premium în Chiajna și vestul Bucureștiului." />
+        <meta property="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
+        <meta property="twitter:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
         <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
         {/* Structured Data for AI */}
