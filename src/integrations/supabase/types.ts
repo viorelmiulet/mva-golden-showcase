@@ -114,6 +114,7 @@ export type Database = {
           contact_info: Json | null
           created_at: string
           currency: string | null
+          descriere_lunga: string | null
           description: string | null
           external_id: string | null
           features: string[] | null
@@ -166,6 +167,7 @@ export type Database = {
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
+          descriere_lunga?: string | null
           description?: string | null
           external_id?: string | null
           features?: string[] | null
@@ -218,6 +220,7 @@ export type Database = {
           contact_info?: Json | null
           created_at?: string
           currency?: string | null
+          descriere_lunga?: string | null
           description?: string | null
           external_id?: string | null
           features?: string[] | null
