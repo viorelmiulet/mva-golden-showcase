@@ -2,23 +2,17 @@ import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowDown, Sparkles, MapPin, Phone, UserPlus } from "lucide-react"
-import heroProperty from "@/assets/hero-property.jpg"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { CollaborationForm } from "@/components/CollaborationForm"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { addPreloadLink } from "@/hooks/useImagePreload"
 
 const Hero = () => {
   const { trackEvent, trackContact } = useGoogleAnalytics();
   const { data: stats, isLoading } = useRealEstateStats();
   const { t, language } = useLanguage();
 
-  // Preload hero image immediately for LCP optimization
-  useEffect(() => {
-    addPreloadLink(heroProperty, { width: 1920, quality: 85, priority: 'high' });
-  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -42,15 +36,17 @@ const Hero = () => {
         
         <div className="absolute inset-0 z-10" style={{ background: 'var(--gradient-hero-glass)' }}></div>
         <img 
-          src={heroProperty} 
-          alt="Apartamente premium MVA Imobiliare - complexe rezidențiale moderne în Chiajna, vestul Bucureștiului cu finisaje de lux și facilități complete" 
+          src="/hero-mobile.webp"
+          srcSet="/hero-mobile.webp 768w, /hero-desktop.webp 1440w"
+          sizes="(max-width: 768px) 100vw, 1440px"
+          alt="Apartamente de vânzare Militari București – MVA Imobiliare" 
           className="w-full h-full object-cover scale-105 animate-fade-in"
           loading="eager"
           fetchPriority="high"
           decoding="async"
           itemProp="image"
-          width={1920}
-          height={1080}
+          width={1440}
+          height={810}
         />
         <div className="absolute inset-0 backdrop-blur-[1px] z-5"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10"></div>
