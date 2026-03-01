@@ -56,6 +56,8 @@ export const compressImage = (
     format = 'webp' // Default to WebP for better compression
   } = options;
 
+  const MAX_FILE_SIZE = 200 * 1024; // 200KB max
+
   return new Promise((resolve, reject) => {
     const img = new Image();
     const canvas = document.createElement('canvas');
@@ -91,39 +93,45 @@ export const compressImage = (
         // Draw the image
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to blob - try WebP first, fallback to JPEG
         const mimeType = format === 'webp' ? 'image/webp' : 
                          format === 'png' ? 'image/png' : 'image/jpeg';
-        
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const reduction = Math.round((1 - blob.size / file.size) * 100);
-              console.log(`Image compressed to ${format.toUpperCase()}: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB (${reduction}% reduction)`);
-              resolve(blob);
-            } else {
-              // Fallback to JPEG if WebP fails
-              if (format === 'webp') {
+
+        // Iteratively reduce quality until under MAX_FILE_SIZE
+        const tryCompress = (currentQuality: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                if (blob.size > MAX_FILE_SIZE && currentQuality > 0.3) {
+                  // Reduce quality and try again
+                  tryCompress(currentQuality - 0.1);
+                  return;
+                }
+                const reduction = Math.round((1 - blob.size / file.size) * 100);
+                console.log(`Image compressed to ${format.toUpperCase()}: ${(file.size / 1024).toFixed(1)}KB → ${(blob.size / 1024).toFixed(1)}KB (${reduction}% reduction, q=${currentQuality.toFixed(1)})`);
+                resolve(blob);
+              } else if (format === 'webp') {
+                // Fallback to JPEG if WebP fails
                 canvas.toBlob(
                   (jpegBlob) => {
                     if (jpegBlob) {
-                      console.log(`WebP failed, used JPEG: ${(file.size / 1024).toFixed(1)}KB → ${(jpegBlob.size / 1024).toFixed(1)}KB`);
                       resolve(jpegBlob);
                     } else {
                       reject(new Error('Failed to compress image'));
                     }
                   },
                   'image/jpeg',
-                  quality
+                  currentQuality
                 );
               } else {
                 reject(new Error('Failed to compress image'));
               }
-            }
-          },
-          mimeType,
-          quality
-        );
+            },
+            mimeType,
+            currentQuality
+          );
+        };
+
+        tryCompress(quality);
       } catch (error) {
         reject(error);
       }

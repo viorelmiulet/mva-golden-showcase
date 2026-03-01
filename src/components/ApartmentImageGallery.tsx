@@ -85,6 +85,8 @@ const OptimizedGalleryImage = ({
         <img
           src={optimizedSrc}
           alt={alt}
+          width={width || 800}
+          height={Math.round((width || 800) * 0.667)}
           className={cn(
             className, 
             'transition-all duration-500 ease-out',
@@ -93,6 +95,7 @@ const OptimizedGalleryImage = ({
           style={style}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
           onLoad={handleImageLoad}
           onError={handleError}
         />
