@@ -36,15 +36,15 @@ const FAQ = () => {
         { name: t.faq.title, url: "/faq" }
       ]} />
       <Helmet>
-        <title>{t.faq.title} - FAQ | MVA Imobiliare</title>
+        <title>{t.faq.title} - Întrebări Frecvente | MVA Imobiliare</title>
         <meta name="description" content={t.faq.subtitle} />
         <meta name="keywords" content="întrebări frecvente imobiliare, FAQ agenție imobiliară, comision agenție, vânzare casă, cumpărare apartament" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/faq" />
+        <link rel="canonical" href="https://mvaimobiliare.ro/intrebari-frecvente" />
         
-        <meta property="og:title" content={`${t.faq.title} - FAQ | MVA Imobiliare`} />
+        <meta property="og:title" content={`${t.faq.title} - Întrebări Frecvente | MVA Imobiliare`} />
         <meta property="og:description" content={t.faq.subtitle} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/faq" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/intrebari-frecvente" />
         <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
         
         <meta name="twitter:card" content="summary_large_image" />
