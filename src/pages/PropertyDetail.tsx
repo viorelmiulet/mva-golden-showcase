@@ -428,6 +428,18 @@ const PropertyDetail = () => {
               </Link>
             </nav>
 
+              {/* Sold / Inactive Banner */}
+              {property.availability_status && property.availability_status !== 'available' && (
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 sm:p-6 text-center space-y-2">
+                  <p className="text-lg sm:text-xl font-bold text-destructive">
+                    {property.availability_status === 'sold' ? 'Această proprietate a fost vândută' : 'Această proprietate nu mai este disponibilă'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Conținutul paginii este păstrat ca referință. Vezi mai jos proprietăți similare disponibile.
+                  </p>
+                </div>
+              )}
+
             <article className="space-y-6 sm:space-y-8">
               
               {/* Title & Location - FIRST */}
