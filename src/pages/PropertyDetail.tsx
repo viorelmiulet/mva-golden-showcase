@@ -299,19 +299,27 @@ const PropertyDetail = () => {
     return `${min} - ${max} mp`;
   };
 
-  // Structured Data for Property
+  // Helper variables for SEO
+  const zona = property.zone || property.location || 'București';
+  const camere = property.rooms || '';
+  const suprafata = property.surface_min || '';
+  const etaj = property.floor ?? '-';
+  const pret = property.price_min ? property.price_min.toLocaleString('ro-RO') : '-';
+  const tipTranzactie = property.transaction_type === 'rent' ? 'Închiriere' : 'Vânzare';
+
+  // Structured Data - RealEstateListing
   const propertySchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    "name": property.title,
-    "description": property.description,
+    "@type": "RealEstateListing",
+    "name": `Apartament ${camere} camere ${zona}`,
+    "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
+    "url": `https://mvaimobiliare.ro/proprietati/${property.id}`,
     "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "datePosted": new Date().toISOString(),
     "offers": {
       "@type": "Offer",
-      "url": `https://mvaimobiliare.ro/proprietati/${property.id}`,
-      "priceCurrency": property.currency || "EUR",
       "price": property.price_min,
-      "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+      "priceCurrency": property.currency || "EUR",
       "availability": property.availability_status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "RealEstateAgent",
@@ -319,24 +327,18 @@ const PropertyDetail = () => {
         "url": "https://mvaimobiliare.ro"
       }
     },
-    "category": "Real Estate",
-    "additionalProperty": [
-      {
-        "@type": "PropertyValue",
-        "name": "Suprafață",
-        "value": `${property.surface_min}${property.surface_max !== property.surface_min ? `-${property.surface_max}` : ''} mp`
-      },
-      {
-        "@type": "PropertyValue",
-        "name": "Camere",
-        "value": property.rooms
-      },
-      {
-        "@type": "PropertyValue",
-        "name": "Locație",
-        "value": property.location
-      }
-    ]
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "București",
+      "addressRegion": "Sector 6",
+      "streetAddress": zona,
+      "addressCountry": "RO"
+    },
+    "floorSize": {
+      "@type": "QuantitativeValue",
+      "value": property.surface_min,
+      "unitCode": "MTK"
+    }
   };
 
   const breadcrumbSchema = {
@@ -367,8 +369,8 @@ const PropertyDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{`${property.rooms || ''} camere ${property.zone || property.location || ''}, ${property.surface_min || ''}mp – MVA Imobiliare`}</title>
-        <meta name="description" content={`Apartament ${property.rooms || ''} camere de vânzare în ${property.zone || property.location || ''}, ${property.city || 'București'}. Suprafață ${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}. Preț ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro. Contactează MVA Imobiliare pentru vizionare gratuită.`} />
+        <title>{`${camere} camere ${zona} etaj ${etaj} ${suprafata}mp – ${tipTranzactie} ${pret}€ | MVA Imobiliare`}</title>
+        <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content={`${property.zone || property.location || ''}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
