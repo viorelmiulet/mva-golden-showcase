@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
@@ -144,7 +144,7 @@ const App = () => {
               <Route path="/cariera" element={<Cariera />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/faq" element={<FAQ />} />
+              <Route path="/faq" element={<Navigate to="/intrebari-frecvente" replace />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
@@ -164,6 +164,15 @@ const App = () => {
                 <Route path="proprietate/:id" element={<MobilePropertyDetail />} />
                 <Route path="complex/:id" element={<MobileComplexDetail />} />
               </Route>
+              
+              {/* Legacy URL redirects (301-like) */}
+              <Route path="/anunturi" element={<Navigate to="/proprietati" replace />} />
+              <Route path="/oferte" element={<Navigate to="/proprietati" replace />} />
+              <Route path="/apartamente" element={<Navigate to="/proprietati" replace />} />
+              <Route path="/proiecte" element={<Navigate to="/complexe" replace />} />
+              <Route path="/about" element={<Navigate to="/despre-noi" replace />} />
+              <Route path="/services" element={<Navigate to="/servicii" replace />} />
+              <Route path="/properties" element={<Navigate to="/proprietati" replace />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<Index />} />
