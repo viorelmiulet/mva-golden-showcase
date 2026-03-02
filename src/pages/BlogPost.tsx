@@ -17,6 +17,8 @@ const blogPosts: Record<string, {
   categoryId: string;
   readTime: string;
   content: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }> = {
   "ghidul-complet-cumparare-proprietate": {
     title: "Ghidul Complet pentru Cumpărarea unei Proprietăți în București",
@@ -918,6 +920,76 @@ const blogPosts: Record<string, {
       <p>Contactați-ne pentru a beneficia de experiența noastră în negocieri imobiliare!</p>
     `,
   },
+  "apartamente-militari-residence-ghid-cumparatori-2025": {
+    title: "Ghid Complet pentru Cumpărători în Militari Residence 2025",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    category: "Ghiduri",
+    categoryId: "ghiduri",
+    readTime: "15 min",
+    metaTitle: "Ghid Complet pentru Cumpărători în Militari Residence 2025 – Prețuri, Zone, Sfaturi | MVA Imobiliare",
+    metaDescription: "Tot ce trebuie să știi înainte să cumperi un apartament în Militari Residence în 2025. Prețuri reale, cele mai bune zone, sfaturi de la agenți locali cu experiență din 2016.",
+    content: `
+      <p>Militari Residence a devenit în ultimii ani una dintre cele mai căutate destinații imobiliare din vestul Bucureștiului. Cu mii de apartamente livrate și o comunitate activă, ansamblul din Chiajna atrage cumpărători care caută locuințe noi la prețuri accesibile, aproape de capitală.</p>
+
+      <p>Dacă ești în căutarea unui apartament în Militari Residence, acest ghid îți oferă tot ce trebuie să știi în 2025: prețuri reale, cele mai bune zone din ansamblu, ce să verifici înainte să cumperi și cum să eviți capcanele frecvente.</p>
+
+      <h2>Ce este Militari Residence și unde se află</h2>
+      <p>Militari Residence este situat în comuna Chiajna, județul Ilfov, la granița cu Sectorul 6 al Bucureștiului. Deși adresa este tehnic în Ilfov, zona este practic continuarea cartierului Militari — la 5 minute de Bulevardul Iuliu Maniu și la 15 minute de centrul Bucureștiului în condiții normale de trafic.</p>
+
+      <p>Ansamblul se întinde pe o suprafață mare și include blocuri de apartamente moderne, spații comerciale la parter, grădinițe, școli și zone verzi. Este una dintre cele mai mari comunități rezidențiale din jurul Bucureștiului.</p>
+
+      <h2>Prețuri apartamente Militari Residence în 2025</h2>
+      <p>Prețurile în Militari Residence variază în funcție de tipul apartamentului, etaj, orientare și starea finisajelor. Iată o imagine de ansamblu pentru 2025:</p>
+
+      <h3>Garsoniere: 50.000 – 65.000€</h3>
+      <p>Prețul mediu pentru o garsonieră de 28-38 mp. Reprezintă o opțiune excelentă pentru prima locuință sau pentru investiție în vederea închirierii.</p>
+
+      <h3>Apartamente 2 camere: 70.000 – 85.000€</h3>
+      <p>Cel mai căutat tip în Militari Residence. Suprafețele variază între 45 și 58 mp. Apartamentele la etaje intermediare (3-6) cu orientare spre exterior se vând cel mai repede.</p>
+
+      <h3>Apartamente 3 camere: 82.000 – 95.000€</h3>
+      <p>Ideale pentru familii. Suprafețe între 62 și 78 mp, cu balcon și loc de parcare inclus în multe cazuri.</p>
+
+      <p>Prețurile au crescut constant în ultimii 3 ani și tendința pentru 2025 este de stabilizare cu o ușoară creștere de 3-5% anuală.</p>
+
+      <h2>Ce să verifici înainte să cumperi în Militari Residence</h2>
+      <p>Înainte să semnezi orice contract, verifică obligatoriu:</p>
+      <ul>
+        <li><strong>Cartea funciară</strong> — extrasul actualizat să nu aibă sarcini sau ipoteci. Costă 20 lei și se obține online de la ANCPI.</li>
+        <li><strong>Datoriile la asociație</strong> — cere adeverință că nu există restanțe la întreținere, apă sau alte utilități.</li>
+        <li><strong>Certificatul energetic</strong> — obligatoriu prin lege. Apartamentele noi din Militari Residence au în general clasa A sau B energetică.</li>
+        <li><strong>Regulamentul ansamblului</strong> — citește-l cu atenție. Unele reguli privind animalele de companie, parcarea sau renovările pot fi restrictive.</li>
+        <li><strong>Developeri și administrare</strong> — verifică cine administrează blocul și care sunt costurile lunare de întreținere reale, nu cele estimate.</li>
+      </ul>
+
+      <h2>Militari Residence — avantaje și dezavantaje</h2>
+
+      <h3>Avantaje</h3>
+      <ul>
+        <li>Prețuri mai accesibile față de apartamente similare în interiorul Bucureștiului</li>
+        <li>Apartamente noi cu finisaje moderne</li>
+        <li>Comunitate mare și infrastructură completă</li>
+        <li>Proximitate față de București fără taxe de oraș (Ilfov)</li>
+        <li>Potențial bun de apreciere a valorii</li>
+      </ul>
+
+      <h3>Dezavantaje</h3>
+      <ul>
+        <li>Trafic intens pe Iuliu Maniu în orele de vârf</li>
+        <li>Lipsa unui metrou direct (M6 în construcție)</li>
+        <li>Densitate mare de locuire în unele zone</li>
+        <li>Costuri de întreținere variabile în funcție de bloc</li>
+      </ul>
+
+      <h2>De ce să colaborezi cu MVA Imobiliare</h2>
+      <p>MVA Imobiliare activează în zona Militari Residence din 2016 — suntem printre puținii agenți care cunosc în profunzime fiecare bloc, fiecare dezvoltator și fiecare preț real tranzacționat în ansamblu.</p>
+
+      <p>Îți oferim acces la oferte exclusive, negocierea celui mai bun preț și asistență completă până la semnarea actelor la notar — totul cu un comision transparent, fără surprize.</p>
+
+      <p><a href="/militari-residence"><strong>Caută apartamentul potrivit în Militari Residence →</strong></a></p>
+    `,
+  },
 };
 
 const relatedPosts = [
@@ -925,6 +997,7 @@ const relatedPosts = [
   { slug: "tendinte-piata-imobiliara-2025", title: "Tendințe pe Piața Imobiliară în 2025" },
   { slug: "investitii-imobiliare-ghid", title: "Investiții Imobiliare: Ce Trebuie să Știi" },
   { slug: "prima-casa-vs-credit-standard", title: "Prima Casă vs Credit Standard" },
+  { slug: "apartamente-militari-residence-ghid-cumparatori-2025", title: "Ghid Complet pentru Cumpărători în Militari Residence 2025" },
 ];
 
 const getCategoryIcon = (categoryId: string) => {
@@ -1024,8 +1097,8 @@ const BlogPost = () => {
         { name: post.title, url: `/blog/${slug}` }
       ]} />
       <Helmet>
-        <title>{post.title} | MVA Imobiliare Blog</title>
-        <meta name="description" content={post.title} />
+        <title>{post.metaTitle || `${post.title} | MVA Imobiliare Blog`}</title>
+        <meta name="description" content={post.metaDescription || post.title} />
         <meta name="keywords" content="imobiliare, ghid, sfaturi, București, proprietăți" />
         <link rel="canonical" href={`https://mvaimobiliare.ro/blog/${slug}`} />
         

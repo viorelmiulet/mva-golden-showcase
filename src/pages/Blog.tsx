@@ -140,6 +140,18 @@ const blogPosts = [
     readTime: "7 min",
     featured: false
   },
+  {
+    id: 11,
+    slug: "apartamente-militari-residence-ghid-cumparatori-2025",
+    title: "Ghid Complet pentru Cumpărători în Militari Residence 2025",
+    excerpt: "Tot ce trebuie să știi înainte să cumperi un apartament în Militari Residence în 2025. Prețuri reale, cele mai bune zone, sfaturi de la agenți locali cu experiență din 2016.",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    categoryId: "ghiduri",
+    category: "Ghiduri",
+    readTime: "15 min",
+    featured: true
+  },
 ];
 
 const Blog = () => {
