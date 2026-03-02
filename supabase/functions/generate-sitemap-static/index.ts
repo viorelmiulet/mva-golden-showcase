@@ -28,6 +28,9 @@ Deno.serve(async (req) => {
       { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
+      { loc: '/militari-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/renew-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/eurocasa-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       // Blog posts
       { loc: '/blog/ghidul-complet-cumparare-proprietate-bucuresti', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
