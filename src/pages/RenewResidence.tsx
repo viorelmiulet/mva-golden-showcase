@@ -74,7 +74,7 @@ const RenewResidence = () => {
                 </h1>
 
                 <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Apartamente noi cu finisaje premium, prețuri actualizate și vizionare gratuită prin MVA Imobiliare.
+                  MVA Imobiliare oferă apartamente de vânzare în Renew Residence — garsoniere, 2 și 3 camere. Vizionare gratuită, asistență completă până la notar.
                 </p>
               </header>
             </ScrollReveal>
@@ -86,34 +86,28 @@ const RenewResidence = () => {
                     Despre <span className="text-gradient-gold">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Renew Residence este un ansamblu rezidențial modern, dezvoltat în zona Militari din București, care se remarcă prin arhitectura contemporană și calitatea finisajelor. Proiectul oferă apartamente cu 1, 2 și 3 camere, concepute pentru un stil de viață confortabil și eficient. Fiecare unitate locuibilă beneficiază de compartimentare funcțională, lumină naturală abundentă și materiale de construcție de înaltă calitate, ceea ce face din Renew Residence o alegere excelentă atât pentru familii, cât și pentru tineri profesioniști.
+                    Renew Residence este un ansamblu rezidențial modern situat în zona Militari, Chiajna, ce se remarcă prin arhitectura contemporană și calitatea finisajelor. Proiectul oferă apartamente bine compartimentate cu acces la facilități moderne și spații verzi generoase.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mt-4">
+                    Localizarea excelentă asigură acces rapid la bulevardul Iuliu Maniu, la transportul în comun și la toate serviciile din zonă — școli, grădinițe, centre comerciale și unități medicale.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Localizare și <span className="text-gradient-gold">Acces</span>
+                    Apartamente disponibile în <span className="text-gradient-gold">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Amplasat strategic în zona Militari, Renew Residence beneficiază de acces rapid la bulevardul Iuliu Maniu și la principalele artere rutiere ale sectorului 6. Transportul în comun este la câțiva pași, cu stații de autobuz și metrou în apropiere, facilitând naveta zilnică către orice zonă a capitalei. În vecinătate se află centre comerciale precum Militari Shopping Center, hipermarketuri, farmacii, clinici medicale și instituții de învățământ, asigurând toate necesitățile zilnice la distanță mică.
+                    MVA Imobiliare oferă garsoniere, apartamente cu 2 camere și apartamente cu 3 camere în Renew Residence, în intervalul de prețuri 70.000–90.000€. Toate proprietățile sunt în blocuri noi cu finisaje de calitate, locuri de parcare și spații comune îngrijite.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Facilități și <span className="text-gradient-gold">Dotări</span>
+                    De ce MVA Imobiliare pentru <span className="text-gradient-gold">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Renew Residence pune la dispoziția rezidenților spații verzi amenajate, locuri de joacă pentru copii, parcări subterane și supraterane, precum și zone de socializare. Clădirile sunt dotate cu lifturi moderne, sisteme de securitate și interfonie video. Apartamentele dispun de tâmplărie cu geam tripan, izolație termică și fonică superioară, încălzire în pardoseală și instalații sanitare premium. Aceste dotări asigură un confort ridicat și costuri reduse de întreținere pe termen lung.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    De ce să alegi <span className="text-gradient-gold">MVA Imobiliare</span>
-                  </h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    MVA Imobiliare este agenția imobiliară cu cea mai mare experiență în zona Militari, activând pe piață din 2016. Cunoaștem în detaliu ansamblul Renew Residence — de la planurile de compartimentare ale fiecărui tip de apartament, la prețurile reale tranzacționate și condițiile de plată disponibile. Oferim evaluare gratuită, asistență juridică completă și transparență totală pe parcursul întregului proces de achiziție, de la prima vizionare până la semnarea actelor la notar.
+                    Suntem specializați în ansamblurile rezidențiale din zona Chiajna–Militari din 2016. Cunoaștem Renew Residence în detaliu și vă oferim acces la oferte exclusive, evaluare gratuită și asistență completă în procesul de cumpărare.
                   </p>
                 </section>
               </article>
