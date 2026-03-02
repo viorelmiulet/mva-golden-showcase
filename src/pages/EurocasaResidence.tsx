@@ -73,7 +73,7 @@ const EurocasaResidence = () => {
                 </h1>
 
                 <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Apartamente noi cu finisaje de calitate în Eurocasa Residence. Vizionare gratuită prin MVA Imobiliare.
+                  MVA Imobiliare oferă apartamente de vânzare în Eurocasa Residence, zona Militari–Chiajna. Garsoniere, 2 și 3 camere, 70.000–90.000€. Evaluare și vizionare gratuită.
                 </p>
               </header>
             </ScrollReveal>
@@ -85,34 +85,28 @@ const EurocasaResidence = () => {
                     Despre <span className="text-gradient-gold">Eurocasa Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Eurocasa Residence este un ansamblu rezidențial modern situat în Chiajna, județul Ilfov, în imediata apropiere a sectorului 6 din București. Proiectul a fost conceput pentru a oferi locuințe de calitate la prețuri accesibile, într-un cadru urbanistic bine organizat. Ansamblul cuprinde apartamente cu 1, 2 și 3 camere, fiecare unitate fiind proiectată cu atenție la detalii, spații generoase și compartimentare eficientă, ideale atât pentru familii, cât și pentru tineri la prima achiziție imobiliară.
+                    Eurocasa Residence este un ansamblu rezidențial din zona Militari–Chiajna, ce oferă apartamente moderne cu prețuri accesibile și calitate bună a construcției. Ansamblul beneficiază de infrastructură completă și acces facil la principalele artere ale Bucureștiului.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mt-4">
+                    Zona se remarcă prin comunitate activă, administrare eficientă și costuri rezonabile de întreținere — factori esențiali pentru cumpărătorii care caută o locuință practică și confortabilă.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Localizare și <span className="text-gradient-gold">Conectivitate</span>
+                    Oferte disponibile în <span className="text-gradient-gold">Eurocasa Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Eurocasa Residence se bucură de o poziție strategică, cu acces facil la bulevardul Iuliu Maniu și la principalele rute de transport din vestul Bucureștiului. Stațiile de autobuz și metrou sunt la distanță mică, permițând deplasarea rapidă către centrul capitalei. În zonă se regăsesc centre comerciale precum Militari Shopping Center, hipermarketuri Cora și Auchan, precum și grădinițe, școli și clinici medicale. Apropierea de centura Bucureștiului și de autostrada A1 reprezintă un avantaj suplimentar pentru cei care navighează frecvent în afara orașului.
+                    Portofoliul MVA Imobiliare include constant garsoniere, apartamente cu 2 și 3 camere în Eurocasa Residence. Prețurile pornesc de la 70.000€ pentru apartamente cu 2 camere, în funcție de etaj și orientare.
                   </p>
                 </section>
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Facilități și <span className="text-gradient-gold">Standarde de Construcție</span>
+                    Contactează <span className="text-gradient-gold">MVA Imobiliare</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    Apartamentele din Eurocasa Residence sunt construite conform standardelor actuale de eficiență energetică, cu izolație termică și fonică de înaltă performanță. Rezidenții beneficiază de parcări dedicate, spații verzi amenajate și zone de recreere. Clădirile dispun de lift, interfonie video și sisteme moderne de securitate. Finisajele interioare includ tâmplărie cu geam termoizolant, gresie și faianță premium, instalații sanitare de calitate și pregătire pentru aer condiționat, oferind un nivel ridicat de confort imediat după mutare.
-                  </p>
-                </section>
-
-                <section>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    De ce să alegi <span className="text-gradient-gold">MVA Imobiliare</span>
-                  </h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Cu sediul în Chiajna și experiență din 2016 pe piața imobiliară din zona Militari, MVA Imobiliare este partenerul ideal pentru achiziția unui apartament în Eurocasa Residence. Cunoaștem ansamblul în detaliu, de la planuri de compartimentare la istoricul tranzacțiilor din fiecare bloc. Oferim consultanță gratuită, vizionări personalizate și suport juridic complet pe tot parcursul procesului de cumpărare, de la identificarea apartamentului potrivit până la semnarea actelor la notar.
+                    Pentru o listă actualizată a apartamentelor disponibile în Eurocasa Residence și o evaluare gratuită, contactați echipa MVA Imobiliare. Suntem la dispoziția dvs. de luni până sâmbătă.
                   </p>
                 </section>
               </article>
