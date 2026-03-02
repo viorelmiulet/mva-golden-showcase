@@ -73,6 +73,7 @@ const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
+const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
@@ -151,6 +152,7 @@ const App = () => {
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               <Route path="/regim-hotelier" element={<RegimHotelier />} />
               <Route path="/militari-residence" element={<MilitariResidence />} />
+              <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
