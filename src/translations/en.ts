@@ -5,7 +5,7 @@ export const en: TranslationKeys = {
   nav: {
     home: "Home",
     properties: "Properties",
-    complexes: "Complexes",
+    complexes: "Residential Complexes",
     projects: "Projects",
     about: "About Us",
     contact: "Contact",

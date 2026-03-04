@@ -3,7 +3,7 @@ export const ro = {
   nav: {
     home: "Acasă",
     properties: "Proprietăți",
-    complexes: "Complexe",
+    complexes: "Ansambluri Rezidențiale",
     projects: "Proiecte",
     about: "Despre noi",
     contact: "Contact",
@@ -55,7 +55,7 @@ export const ro = {
   
   // Complexes
   complexes: {
-    title: "Complexe Rezidențiale",
+    title: "Ansambluri Rezidențiale",
     subtitle: "Proiecte noi în dezvoltare",
     apartments: "apartamente",
     startingFrom: "De la",
@@ -378,7 +378,7 @@ export const ro = {
   mobile: {
     home: "Acasă",
     search: "Caută",
-    complexes: "Complexe",
+    complexes: "Ansambluri",
     favorites: "Favorite",
     account: "Cont",
     welcome: "Bine ai venit!",

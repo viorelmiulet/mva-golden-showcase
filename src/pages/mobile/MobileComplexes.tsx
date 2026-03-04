@@ -50,7 +50,7 @@ const MobileComplexes = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <MobileHeader title={language === 'ro' ? 'Complexe rezidențiale' : 'Residential Complexes'} showBack />
+      <MobileHeader title={language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential Complexes'} showBack />
       
       <div className="pt-14 px-4 pb-4">
         {/* Results count */}
