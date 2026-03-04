@@ -163,7 +163,7 @@ const MobileHome = () => {
               <Sparkles className="w-5 h-5 text-gold" />
             </div>
             <span className="text-xs font-medium text-center">
-              {language === 'ro' ? 'Complexe' : 'Complexes'}
+              {language === 'ro' ? 'Ansambluri' : 'Complexes'}
             </span>
           </Link>
         </div>
@@ -272,7 +272,7 @@ const MobileHome = () => {
         <section className="pb-6">
           <div className="flex items-center justify-between mb-3 px-4">
             <h2 className="text-lg font-semibold">
-              {language === 'ro' ? 'Complexe rezidențiale' : 'Residential Complexes'}
+              {language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential Complexes'}
             </h2>
             <Link to="/app/complexe" className="text-sm text-gold font-medium flex items-center gap-1">
               {language === 'ro' ? 'Vezi toate' : 'View all'}

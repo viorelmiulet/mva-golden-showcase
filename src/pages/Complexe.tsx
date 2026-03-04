@@ -65,7 +65,7 @@ const Complexe = () => {
   return (
     <>
       <Helmet>
-        <title>Complexe Rezidențiale Premium București | MVA Imobiliare</title>
+        <title>Ansambluri Rezidențiale Premium București | MVA Imobiliare</title>
         <meta name="description" content="Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi. Apartamente noi cu finisaje premium în complexe rezidențiale de top cu toate facilitățile." />
         <meta name="keywords" content="complexe rezidențiale București, ansambluri rezidențiale noi, apartamente noi complexe, locuințe moderne București, Renew Residence, Eurocasa Residence" />
         <link rel="canonical" href="https://mvaimobiliare.ro/complexe" />
@@ -155,7 +155,7 @@ const Complexe = () => {
           <div className="text-center space-y-3 sm:space-y-4 md:space-y-6 mb-8 sm:mb-12 md:mb-16">
             <Badge className="glass px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium border-primary/20 mb-2 sm:mb-4">
               <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-              {projects?.length || 0} {language === 'ro' ? 'Complexe Disponibile' : 'Available Complexes'}
+              {projects?.length || 0} {language === 'ro' ? 'Ansambluri Disponibile' : 'Available Complexes'}
             </Badge>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gradient-gold drop-shadow-lg px-2">
               {t.complexes?.title || 'Complexe Rezidențiale'}
