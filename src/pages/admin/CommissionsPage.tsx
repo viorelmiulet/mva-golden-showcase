@@ -792,6 +792,17 @@ const CommissionsPage = () => {
                       outerRadius={70}
                       paddingAngle={3}
                       dataKey="value"
+                      label={({ cx, cy, midAngle, outerRadius: or, value, name }) => {
+                        const RADIAN = Math.PI / 180;
+                        const radius = or + 18;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        return (
+                          <text x={x} y={y} fill="hsl(var(--foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+                            €{value.toLocaleString()}
+                          </text>
+                        );
+                      }}
                     >
                       <Cell fill="#22c55e" />
                       <Cell fill="#3b82f6" />
