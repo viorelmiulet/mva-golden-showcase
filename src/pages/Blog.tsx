@@ -164,6 +164,18 @@ const blogPosts = [
     readTime: "12 min",
     featured: true
   },
+  {
+    id: 13,
+    slug: "top-ansambluri-rezidentiale-zona-militari-2026",
+    title: "Top Ansambluri Rezidențiale Zona Militari 2026 — Ghid Complet pentru Cumpărători",
+    excerpt: "Care sunt cele mai bune ansambluri rezidențiale din zona Militari și Chiajna în 2026? Comparație completă: prețuri, facilități, avantaje și dezavantaje. Ghid de la MVA Imobiliare.",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    categoryId: "complexe",
+    category: "Complexe Noi",
+    readTime: "10 min",
+    featured: true
+  },
 ];
 
 const Blog = () => {
