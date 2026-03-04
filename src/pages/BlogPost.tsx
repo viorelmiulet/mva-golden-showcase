@@ -1147,6 +1147,129 @@ const blogPosts: Record<string, {
       <p><a href="/proprietati"><strong>Vezi toate apartamentele disponibile în zona Militari →</strong></a></p>
     `,
   },
+  "credit-ipotecar-apartamente-noi-2026": {
+    title: "Credit Ipotecar pentru Apartamente Noi în 2026 — Ghid Complet pas cu pas",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    category: "Legal & Financiar",
+    categoryId: "legal",
+    readTime: "14 min",
+    metaTitle: "Credit Ipotecar pentru Apartamente Noi 2026 — Ghid Complet | MVA Imobiliare",
+    metaDescription: "Tot ce trebuie să știi despre creditul ipotecar pentru apartamente noi în 2026. Dobânzi actuale, avans minim, documente necesare și sfaturi pentru aprobarea rapidă. Ghid MVA Imobiliare.",
+    content: `
+      <p>Cumpărarea unui apartament nou prin credit ipotecar este decizia financiară cea mai importantă pentru majoritatea familiilor. În 2026, condițiile de creditare s-au îmbunătățit față de vârfurile din 2023, iar dobânzile sunt în scădere treptată. Echipa MVA Imobiliare, care a asistat sute de clienți prin procesul de achiziție în zona Militari–Chiajna, îți prezintă ghidul complet pentru obținerea unui credit ipotecar în 2026.</p>
+
+      <h2>Condiții de creditare în 2026 — ce s-a schimbat</h2>
+      <p>Față de 2023-2024, piața creditelor ipotecare în România arată mai bine în 2026:</p>
+      <ul>
+        <li><strong>Dobânzi:</strong> ROBOR 3M a scăzut față de vârfurile din 2023. Dobânzile efective la creditele ipotecare în RON se situează între 6,5% și 8,5% anual în funcție de bancă și profil.</li>
+        <li><strong>Avans minim:</strong> 15% pentru apartamente noi la creditele standard. Prin programul Noua Casă avansul poate fi de 5% pentru prima locuință.</li>
+        <li><strong>Grad de îndatorare:</strong> maxim 40% din venitul net lunar conform normelor BNR — rata lunară nu poate depăși 40% din venit.</li>
+        <li><strong>Vârsta maximă:</strong> suma dintre vârsta solicitantului și durata creditului nu poate depăși 75 de ani la cele mai multe bănci.</li>
+      </ul>
+
+      <h2>Cât costă lunar un credit ipotecar pentru un apartament în Militari Residence</h2>
+      <p>Calcul orientativ pentru un apartament cu 2 camere de 80.000€ în Militari Residence:</p>
+      <h3>Avans 15% (12.000€) — credit 68.000€:</h3>
+      <ul>
+        <li>Rata lunară aproximativă: 480-520€/lună</li>
+        <li>Durata: 25 ani</li>
+        <li>Dobândă variabilă ROBOR + marjă bancă</li>
+      </ul>
+      <h3>Avans 25% (20.000€) — credit 60.000€:</h3>
+      <ul>
+        <li>Rata lunară aproximativă: 420-460€/lună</li>
+        <li>Durata: 25 ani</li>
+      </ul>
+      <h3>Avans 30% (24.000€) — credit 56.000€:</h3>
+      <ul>
+        <li>Rata lunară aproximativă: 390-430€/lună</li>
+        <li>Durata: 25 ani</li>
+      </ul>
+      <p><strong>Concluzie:</strong> pentru un venit net lunar de minim 1.200-1.300€ (individual sau cumulat cu partenerul), un apartament de 80.000€ în Militari Residence este accesibil prin credit ipotecar.</p>
+
+      <h2>Documente necesare pentru creditul ipotecar</h2>
+      <p>Documentele standard cerute de bănci în 2026:</p>
+      <h3>Pentru angajați:</h3>
+      <ul>
+        <li>Buletin de identitate</li>
+        <li>Adeverință de salariu (model bancă)</li>
+        <li>Fluturași de salariu ultimele 3-6 luni</li>
+        <li>Contract de muncă</li>
+        <li>Extras de cont ultimele 3-6 luni</li>
+      </ul>
+      <h3>Pentru PFA / independenți:</h3>
+      <ul>
+        <li>Buletin de identitate</li>
+        <li>Declarație unică (D212) ultimii 2 ani</li>
+        <li>Extras de cont ultimele 6 luni</li>
+        <li>Certificat de înregistrare fiscală</li>
+      </ul>
+      <h3>Pentru proprietate:</h3>
+      <ul>
+        <li>Extras de carte funciară actualizat</li>
+        <li>Actul de proprietate al vânzătorului</li>
+        <li>Certificat energetic</li>
+        <li>Adeverință asociație proprietari</li>
+      </ul>
+      <p>MVA Imobiliare vă ajută să pregătiți dosarul complet și să evitați respingerea din motive administrative.</p>
+
+      <h2>Programul Noua Casă 2026 — mai merită?</h2>
+      <p>Programul Noua Casă (fostul Prima Casă) continuă în 2026 cu câteva condiții cheie:</p>
+      <ul>
+        <li><strong>Avans minim:</strong> 5% din valoarea imobilului</li>
+        <li><strong>Valoare maximă imobil:</strong> 140.000€</li>
+        <li><strong>Condiție:</strong> prima locuință în proprietate</li>
+        <li><strong>Garanție:</strong> statul român garantează 50% din valoarea creditului</li>
+      </ul>
+      <p><strong>Avantaje față de credit standard:</strong></p>
+      <ul>
+        <li>Avans mult mai mic (5% vs 15-25%)</li>
+        <li>Dobândă puțin mai mică datorită garanției</li>
+        <li>Accesibil pentru cumpărătorii cu economii limitate</li>
+      </ul>
+      <p><strong>Dezavantaje:</strong></p>
+      <ul>
+        <li>Imobilul nu poate fi vândut sau închiriat fără acordul băncii în primii 5 ani</li>
+        <li>Birocrație mai mare</li>
+        <li>Nu toate băncile participă în program</li>
+      </ul>
+      <p>Apartamentele din Militari Residence, Renew Residence și Eurocasa Residence sunt în general eligibile pentru programul Noua Casă dacă prețul nu depășește 140.000€.</p>
+
+      <h2>La ce bancă să aplici — cum compari ofertele</h2>
+      <p>Nu aplica la prima bancă fără să compari. Iată ce să urmărești:</p>
+      <ul>
+        <li><strong>DAE (Dobânda Anuală Efectivă)</strong> — nu dobânda nominală. DAE include toate costurile: dobândă, comisioane, asigurări obligatorii.</li>
+        <li><strong>Asigurarea de viață</strong> — unele bănci o impun la asigurătorii proprii la prețuri mai mari. Verifică dacă poți aduce asigurare externă.</li>
+        <li><strong>Comisionul de rambursare anticipată</strong> — important dacă vrei să plătești înainte de termen.</li>
+        <li><strong>Perioada de grație</strong> — unele bănci oferă 3-6 luni fără rată la început.</li>
+      </ul>
+      <p><strong>Sfat:</strong> folosește un broker de credite independent — compară 10-15 bănci simultan și negociază în numele tău, de obicei gratuit (comisionul îl plătește banca).</p>
+      <p>MVA Imobiliare colaborează cu consultanți financiari independenți care îți pot obține preaprobarea în 24-48 ore, gratuit.</p>
+
+      <h2>Pașii concreți pentru cumpărarea prin credit în 2026</h2>
+      <ul>
+        <li><strong>1. Preaprobarea creditului — primul pas.</strong> Înainte să cauți apartamentul, obține o preaprobarea de la bancă sau broker. Durează 24-48 ore și îți arată exact ce buget ai disponibil.</li>
+        <li><strong>2. Găsește apartamentul potrivit.</strong> Cu preaprobarea în mână ești un cumpărător serios — vânzătorii negociază mai bine cu tine.</li>
+        <li><strong>3. Semnează antecontractul (promisiunea de vânzare-cumpărare).</strong> Avans uzual: 10% din prețul imobilului. Asigură-te că antecontractul conține clauza de returnare a avansului dacă banca refuză creditul.</li>
+        <li><strong>4. Dosarul de credit complet.</strong> Banca evaluează imobilul (cost: 200-400€) și analizează dosarul. Durată: 2-4 săptămâni.</li>
+        <li><strong>5. Aprobarea și semnarea la notar.</strong> Odată aprobat creditul, notarul programează semnarea. Banca virează suma direct vânzătorului.</li>
+      </ul>
+      <p><strong>Durată totală estimată:</strong> 4-8 săptămâni de la preaprobarea la cheile în mână.</p>
+
+      <h2>Greșeli frecvente la creditul ipotecar</h2>
+      <p>Din experiența cu clienții MVA Imobiliare, acestea sunt cele mai frecvente greșeli:</p>
+      <ul>
+        <li><strong>Aplicarea la mai multe bănci simultan</strong> — fiecare interogare în Biroul de Credit îți scade scorul. Folosește un broker care aplică o singură dată.</li>
+        <li><strong>Schimbarea locului de muncă în timpul procesului</strong> — banca poate anula aprobarea dacă angajatorul se schimbă înainte de semnare.</li>
+        <li><strong>Antecontract fără clauza de returnare avans</strong> — dacă banca refuză, pierzi avansul.</li>
+        <li><strong>Ignorarea costurilor ascunse</strong> — evaluarea imobilului, taxa notarială, asigurările și intabularea pot adăuga 2.000-4.000€ la costul total.</li>
+        <li><strong>Buget calculat la limită</strong> — lasă o marjă de 10-15% peste rata lunară pentru cheltuieli neprevăzute.</li>
+      </ul>
+
+      <p><a href="/contact"><strong>Contactează MVA Imobiliare pentru consultanță gratuită și acces la consultanți financiari parteneri →</strong></a></p>
+    `,
+  },
 };
 
 const relatedPosts = [
@@ -1157,6 +1280,7 @@ const relatedPosts = [
   { slug: "apartamente-militari-residence-ghid-cumparatori-2025", title: "Ghid Complet pentru Cumpărători în Militari Residence 2025" },
   { slug: "preturi-apartamente-militari-residence-2026", title: "Prețuri Apartamente Militari Residence 2026" },
   { slug: "top-ansambluri-rezidentiale-zona-militari-2026", title: "Top Ansambluri Rezidențiale Zona Militari 2026" },
+  { slug: "credit-ipotecar-apartamente-noi-2026", title: "Credit Ipotecar pentru Apartamente Noi 2026" },
 ];
 
 const getCategoryIcon = (categoryId: string) => {

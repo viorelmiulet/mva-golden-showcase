@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
       { loc: '/blog/apartamente-militari-residence-ghid-cumparatori-2025', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
       { loc: '/blog/preturi-apartamente-militari-residence-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
       { loc: '/blog/top-ansambluri-rezidentiale-zona-militari-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
+      { loc: '/blog/credit-ipotecar-apartamente-noi-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
     ];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

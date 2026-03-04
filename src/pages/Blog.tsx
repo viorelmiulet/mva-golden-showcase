@@ -176,6 +176,18 @@ const blogPosts = [
     readTime: "10 min",
     featured: true
   },
+  {
+    id: 14,
+    slug: "credit-ipotecar-apartamente-noi-2026",
+    title: "Credit Ipotecar pentru Apartamente Noi în 2026 — Ghid Complet pas cu pas",
+    excerpt: "Tot ce trebuie să știi despre creditul ipotecar pentru apartamente noi în 2026. Dobânzi actuale, avans minim, documente necesare și sfaturi pentru aprobarea rapidă.",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    categoryId: "legal",
+    category: "Legal & Financiar",
+    readTime: "14 min",
+    featured: true
+  },
 ];
 
 const Blog = () => {
