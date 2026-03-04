@@ -152,6 +152,18 @@ const blogPosts = [
     readTime: "15 min",
     featured: true
   },
+  {
+    id: 12,
+    slug: "preturi-apartamente-militari-residence-2026",
+    title: "Prețuri Apartamente Militari Residence 2026 — Evoluție și Prognoze",
+    excerpt: "Care sunt prețurile reale ale apartamentelor în Militari Residence în 2026? Evoluție față de 2025, prognoze și când e momentul potrivit să cumperi. Analiză de la MVA Imobiliare.",
+    date: "2 Martie 2026",
+    author: "MVA Imobiliare",
+    categoryId: "piata",
+    category: "Piața Imobiliară",
+    readTime: "12 min",
+    featured: true
+  },
 ];
 
 const Blog = () => {

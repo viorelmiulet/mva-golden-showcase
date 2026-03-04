@@ -38,6 +38,7 @@ Deno.serve(async (req) => {
       { loc: '/blog/cum-pregatesti-casa-pentru-vanzare', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
       { loc: '/blog/investitii-imobiliare-ghid-incepatori', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
       { loc: '/blog/apartamente-militari-residence-ghid-cumparatori-2025', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
+      { loc: '/blog/preturi-apartamente-militari-residence-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
     ];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
