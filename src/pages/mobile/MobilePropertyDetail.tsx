@@ -288,18 +288,25 @@ const MobilePropertyDetail = () => {
         </div>
 
         {/* Description */}
-        {property.description && (
-          <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold mb-2">
-                {language === 'ro' ? 'Descriere' : 'Description'}
-              </h2>
-              <p className="text-sm text-muted-foreground whitespace-pre-line">
-                {property.description}
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {(() => {
+          const desc = property.description || '';
+          const wordCount = desc.trim().split(/\s+/).filter(Boolean).length;
+          const fullDescription = property.descriere_lunga 
+            || (wordCount < 150 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
+          
+          return fullDescription ? (
+            <Card>
+              <CardContent className="p-4">
+                <h2 className="font-semibold mb-2">
+                  {language === 'ro' ? 'Descriere' : 'Description'}
+                </h2>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                  {fullDescription}
+                </p>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
 
         {/* Features */}
         {property.features && property.features.length > 0 && (
