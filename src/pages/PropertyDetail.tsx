@@ -104,27 +104,29 @@ const generateAutoDescription = (p: Property): string => {
   const parts: string[] = [];
 
   const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
-  const tipProp = p.property_type || 'Apartament';
-  const tipCapitalized = tipProp.charAt(0).toUpperCase() + tipProp.slice(1);
-  const zona = p.zone || p.location || 'București';
-  const sector = p.city || 'Sector 6 București';
+  const numarCamere = p.rooms || 1;
+  const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
+  const ansamblu = p.project_name || 'zonă rezidențială';
+  const zona = p.zone || p.location || 'Militari';
+  const suprafata = p.surface_min || '';
+  const etaj = p.floor ?? '';
+  const totalEtaje = p.total_floors ?? '';
+  const pret = p.price_min ? p.price_min.toLocaleString('ro-RO') : '';
 
   // Opening sentence
-  parts.push(`${tipCapitalized} cu ${p.rooms || ''} ${(p.rooms || 0) === 1 ? 'cameră' : 'camere'} de ${tipTranzactie} în cartierul Militari, zona ${zona}, ${sector}.`);
+  parts.push(`Apartament cu ${numarCamere} ${camereTxt} de ${tipTranzactie} în ${ansamblu}, ${zona}, Chiajna, Ilfov.`);
 
   // Surface & floor
-  const imobilParts: string[] = [];
-  if (p.surface_min) imobilParts.push(`o suprafață utilă de ${p.surface_min} mp`);
-  if (p.surface_land) imobilParts.push(`teren de ${p.surface_land} mp`);
-  if (p.floor !== null && p.floor !== undefined) {
-    imobilParts.push(`se află la etajul ${p.floor}${p.total_floors ? ` dintr-un bloc cu ${p.total_floors} etaje` : ''}`);
-  }
-  if (p.year_built) imobilParts.push(`construit în ${p.year_built}`);
-  if (imobilParts.length > 0) {
-    parts.push(`Imobilul are ${imobilParts.join(', ')}.`);
+  if (suprafata) {
+    let surfaceLine = `Suprafață utilă ${suprafata} mp`;
+    if (etaj !== '') {
+      surfaceLine += `, etaj ${etaj}${totalEtaje ? `/${totalEtaje}` : ''}`;
+    }
+    surfaceLine += '.';
+    parts.push(surfaceLine);
   }
 
-  // Amenities / features
+  // Features / amenities as dotări
   const dotari: string[] = [];
   if (p.bathrooms) dotari.push(`${p.bathrooms} ${p.bathrooms === 1 ? 'baie' : 'băi'}`);
   if (p.balconies) dotari.push(`${p.balconies} ${p.balconies === 1 ? 'balcon' : 'balcoane'}`);
@@ -137,17 +139,24 @@ const generateAutoDescription = (p: Property): string => {
   if (p.amenities && Array.isArray(p.amenities) && p.amenities.length > 0) {
     dotari.push(...(p.amenities as string[]));
   }
+  if (p.features && Array.isArray(p.features) && p.features.length > 0) {
+    dotari.push(...(p.features as string[]));
+  }
   if (dotari.length > 0) {
-    parts.push(`Apartamentul beneficiază de: ${dotari.join(', ')}.`);
+    parts.push(`Dotări incluse: ${dotari.join(', ')}.`);
   }
 
   // Price
-  if (p.price_min) {
-    parts.push(`Prețul de ${tipTranzactie} este de ${p.price_min.toLocaleString('ro-RO')} ${p.currency || 'EUR'}.`);
+  if (pret) {
+    const tipFinantare = p.transaction_type === 'rent' ? 'chirie lunară' : 'cash sau credit';
+    parts.push(`Preț ${pret} euro, ${tipFinantare}.`);
   }
 
-  // CTA
-  parts.push('Pentru programarea unei vizionări gratuite, contactați agenții MVA Imobiliare.');
+  // Complex paragraph
+  parts.push(`Proprietatea face parte din ansamblul rezidențial ${ansamblu}, unul dintre cele mai căutate complexe din zona Militari–Chiajna.`);
+
+  // CTA paragraph
+  parts.push(`MVA Imobiliare oferă asistență completă pentru această proprietate, de la vizionare gratuită până la semnarea actelor la notar. Pentru mai multe detalii și programarea unei vizionări, contactați-ne la 0767 941 512.`);
 
   return parts.join(' ');
 };
