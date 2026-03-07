@@ -25,6 +25,47 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// Auto-generate extended description for SEO (min 150 words)
+const generateAutoDescription = (p: any): string => {
+  const parts: string[] = [];
+  const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
+  const numarCamere = p.rooms || 1;
+  const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
+  const ansamblu = p.project_name || 'zonă rezidențială';
+  const zona = p.zone || p.location || 'Militari';
+  const suprafata = p.surface_min || '';
+  const etaj = p.floor ?? '';
+  const totalEtaje = p.total_floors ?? '';
+  const pret = p.price_min ? p.price_min.toLocaleString('ro-RO') : '';
+
+  parts.push(`Apartament cu ${numarCamere} ${camereTxt} de ${tipTranzactie} în ${ansamblu}, ${zona}, Chiajna, Ilfov.`);
+
+  if (suprafata) {
+    let surfaceLine = `Suprafață utilă ${suprafata} mp`;
+    if (etaj !== '') surfaceLine += `, etaj ${etaj}${totalEtaje ? `/${totalEtaje}` : ''}`;
+    surfaceLine += '.';
+    parts.push(surfaceLine);
+  }
+
+  const dotari: string[] = [];
+  if (p.bathrooms) dotari.push(`${p.bathrooms} ${p.bathrooms === 1 ? 'baie' : 'băi'}`);
+  if (p.balconies) dotari.push(`${p.balconies} ${p.balconies === 1 ? 'balcon' : 'balcoane'}`);
+  if (p.parking) dotari.push(`${p.parking} ${p.parking === 1 ? 'loc de parcare' : 'locuri de parcare'}`);
+  if (p.heating) dotari.push(`încălzire ${p.heating}`);
+  if (p.features && Array.isArray(p.features) && p.features.length > 0) dotari.push(...p.features);
+  if (dotari.length > 0) parts.push(`Dotări incluse: ${dotari.join(', ')}.`);
+
+  if (pret) {
+    const tipFinantare = p.transaction_type === 'rent' ? 'chirie lunară' : 'cash sau credit';
+    parts.push(`Preț ${pret} euro, ${tipFinantare}.`);
+  }
+
+  parts.push(`Proprietatea face parte din ansamblul rezidențial ${ansamblu}, unul dintre cele mai căutate complexe din zona Militari–Chiajna.`);
+  parts.push(`MVA Imobiliare oferă asistență completă pentru această proprietate, de la vizionare gratuită până la semnarea actelor la notar. Pentru mai multe detalii și programarea unei vizionări, contactați-ne la 0767 941 512.`);
+
+  return parts.join(' ');
+};
+
 const MobilePropertyDetail = () => {
   const { id } = useParams();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -247,18 +288,25 @@ const MobilePropertyDetail = () => {
         </div>
 
         {/* Description */}
-        {property.description && (
-          <Card>
-            <CardContent className="p-4">
-              <h2 className="font-semibold mb-2">
-                {language === 'ro' ? 'Descriere' : 'Description'}
-              </h2>
-              <p className="text-sm text-muted-foreground whitespace-pre-line">
-                {property.description}
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {(() => {
+          const desc = property.description || '';
+          const wordCount = desc.trim().split(/\s+/).filter(Boolean).length;
+          const fullDescription = property.descriere_lunga 
+            || (wordCount < 150 ? (desc ? desc + '\n\n' : '') + generateAutoDescription(property) : desc);
+          
+          return fullDescription ? (
+            <Card>
+              <CardContent className="p-4">
+                <h2 className="font-semibold mb-2">
+                  {language === 'ro' ? 'Descriere' : 'Description'}
+                </h2>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                  {fullDescription}
+                </p>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
 
         {/* Features */}
         {property.features && property.features.length > 0 && (
