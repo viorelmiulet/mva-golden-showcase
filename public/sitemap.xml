@@ -2,18 +2,14 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-static</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-07</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-properties</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-07</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-complexes</loc>
-    <lastmod>2026-03-01</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-images</loc>
-    <lastmod>2026-03-01</lastmod>
+    <lastmod>2026-03-07</lastmod>
   </sitemap>
 </sitemapindex>
