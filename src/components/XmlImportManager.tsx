@@ -347,6 +347,33 @@ const WebsiteScrapingManager = () => {
   // Get saved mapping for current URL
   const currentSourceMapping = xmlSources.find(s => s.url === xmlUrl)?.last_mapping;
 
+  const handleFixZones = async (dryRun = false) => {
+    setIsFixingZones(true);
+    setZoneFixResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('fix-property-zones', {
+        body: { dry_run: dryRun, limit: 50 },
+      });
+      if (error) throw error;
+      setZoneFixResult(data);
+      toast({
+        title: dryRun ? 'Verificare completă' : 'Zone corectate',
+        description: data?.message || 'Operațiune finalizată',
+      });
+      if (!dryRun) {
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Eroare',
+        description: err.message || 'Eroare la corectarea zonelor',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsFixingZones(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* ID Scraping Section */}
