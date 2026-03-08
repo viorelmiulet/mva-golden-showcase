@@ -354,7 +354,7 @@ const Properties = () => {
         "image": property.images?.[0] || "",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": property.location,
+          "addressLocality": getDisplayLocation(property),
           "addressRegion": "București",
           "addressCountry": "RO"
         },
@@ -709,7 +709,7 @@ const Properties = () => {
                         <div className="mb-4 overflow-hidden rounded-lg">
                           <OptimizedPropertyImage 
                             src={(property.images as string[])[0]} 
-                            alt={`Apartament ${property.rooms || ''} camere ${property.transaction_type === 'rent' ? 'închiriere' : 'vânzare'} ${property.zone || property.location || 'București'}${property.surface_min ? ` ${property.surface_min}mp` : ''}`}
+                            alt={`Apartament ${property.rooms || ''} camere ${property.transaction_type === 'rent' ? 'închiriere' : 'vânzare'} ${getDisplayLocation(property)}${property.surface_min ? ` ${property.surface_min}mp` : ''}`}
                             title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
                             className="group-hover:scale-105 transition-transform duration-300"
                             aspectRatio="video"
@@ -731,12 +731,10 @@ const Properties = () => {
                           )}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          {property.location && (
-                            <div className="flex items-center text-muted-foreground">
+                          <div className="flex items-center text-muted-foreground">
                               <MapPin className="w-4 h-4 mr-2 text-gold" />
-                              <span>{property.location}</span>
+                              <span>{getDisplayLocation(property)}</span>
                             </div>
-                          )}
                           <Badge 
                             variant={detectTransactionType(property) === 'rent' ? 'default' : 'secondary'}
                             className={detectTransactionType(property) === 'rent' 
