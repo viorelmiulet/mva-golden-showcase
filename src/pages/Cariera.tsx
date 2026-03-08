@@ -205,6 +205,36 @@ const Cariera = () => {
             </p>
           </header>
 
+          {/* About the Role - SEO Content */}
+          <section className="max-w-4xl mx-auto mb-8 sm:mb-12 md:mb-16">
+            <Card className="card-responsive p-4 sm:p-6 md:p-8">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-foreground">
+                De ce să alegi o carieră în imobiliare la MVA Imobiliare?
+              </h2>
+              <div className="space-y-3 text-sm sm:text-base text-muted-foreground">
+                <p>
+                  Piața imobiliară din București și Ilfov este una dintre cele mai dinamice din România, iar zona Militari–Chiajna 
+                  se află în plin avânt cu numeroase ansambluri rezidențiale noi. La MVA Imobiliare, agenții noștri beneficiază de un 
+                  portofoliu exclusiv de proprietăți în cele mai căutate complexe: Militari Residence, Renew Residence și Eurocasa Residence.
+                </p>
+                <p>
+                  Oferim un program complet de formare profesională care include: tehnici avansate de vânzare, marketing digital, 
+                  negociere, legislație imobiliară și utilizarea instrumentelor digitale de ultimă generație. Indiferent dacă ai 
+                  experiență anterioară sau nu, echipa noastră te va ghida pas cu pas pentru a deveni un consultant imobiliar de succes.
+                </p>
+                <p>
+                  Sistemul nostru de comisioane este transparent și motivant, cu posibilități reale de câștig între 3.000 și 10.000 euro 
+                  pe lună, în funcție de performanță. Beneficiezi de suport marketing complet, generare de lead-uri și acces la o bază 
+                  de clienți deja construită. Lucrezi într-un mediu profesional, cu o echipă tânără și ambițioasă.
+                </p>
+                <p>
+                  Dacă ești o persoană comunicativă, orientată spre rezultate și pasionată de domeniul imobiliar, te așteptăm în echipa MVA Imobiliare. 
+                  Completează formularul de mai jos sau contactează-ne la <a href="tel:+40767941512" className="text-gold font-semibold hover:underline">0767 941 512</a>.
+                </p>
+              </div>
+            </Card>
+          </section>
+
           {/* Benefits Section */}
           <section className="max-w-6xl mx-auto mb-8 sm:mb-12 md:mb-16">
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">

@@ -16,75 +16,18 @@ const FAQ = () => {
   
   const faqItems = t.faq.items;
 
+  // Build FAQ schema from actual displayed items
   const faqStructuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Care este prețul mediu al unui apartament cu 2 camere în cartierul Militari?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Prețul mediu al unui apartament cu 2 camere în Militari variază între 75.000 și 120.000 de euro, în funcție de zonă, etaj și finisaje. Contactați MVA Imobiliare pentru o evaluare gratuită."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Ce documente sunt necesare pentru cumpărarea unui apartament?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Cumpărătorul are nevoie de act de identitate și dovada finanțării. Vânzătorul trebuie să prezinte actul de proprietate, extras de carte funciară actualizat, adeverință de la asociația de proprietari, certificat energetic și acordul băncii dacă imobilul este ipotecat."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Cât este comisionul agenției MVA Imobiliare?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Comisionul standard este de 2% + TVA din valoarea tranzacției, plătit la semnarea contractului la notar. Include evaluare, promovare, vizionări, negociere și asistență completă."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Cât timp durează procesul de vânzare a unui apartament în Militari?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Durata medie este de 30–90 de zile. Apartamentele corect evaluate se vând în 3–6 săptămâni. Procesul notarial durează 1–3 săptămâni după găsirea cumpărătorului."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Ce impozite se plătesc la vânzarea unui apartament?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Vânzătorul plătește 3% impozit dacă deține imobilul sub 3 ani, sau 1% dacă îl deține peste 3 ani. Cumpărătorul plătește taxa notarială și taxa de intabulare de 0,15%."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Pot obține credit ipotecar pentru un apartament din Militari?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Da, apartamentele din Militari sunt eligibile pentru credit ipotecar la toate băncile. Avans minim recomandat: 15–25%. MVA Imobiliare colaborează cu consultanți financiari care oferă preaprobari gratuit."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Care sunt cele mai bune zone din Militari pentru cumpărat?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Gorjului și Lujerului — acces la metrou. Iuliu Maniu — școli și comerciale. Pacii și Apusului — liniștit, spații verzi. Virtutii și Uverturii — prețuri accesibile cu potențial de creștere."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Gestionați și proprietăți de închiriat în Militari?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Da. Oferim servicii complete: promovare, selectare chiriași, contract și asistență. Chirii medii: garsoniere 300–500 €/lună, 2 camere 400–650 €/lună, 3 camere 550–850 €/lună."
-        }
+    "mainEntity": faqItems.map((item) => ({
+      "@type": "Question",
+      "name": item.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer
       }
-    ]
+    }))
   };
 
   return (
@@ -128,9 +71,20 @@ const FAQ = () => {
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                 {t.faq.title}
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground px-4 sm:px-2 mb-6">
                 {t.faq.subtitle}
               </p>
+              <div className="text-left max-w-3xl mx-auto text-sm sm:text-base text-muted-foreground space-y-3 px-4 sm:px-2">
+                <p>
+                  MVA Imobiliare este o agenție imobiliară specializată în tranzacții cu proprietăți din zona Militari, Sector 6 București și Chiajna, Ilfov. 
+                  De-a lungul activității noastre, am răspuns la sute de întrebări din partea clienților care doresc să cumpere, să vândă sau să închirieze un apartament în această zonă.
+                </p>
+                <p>
+                  Mai jos am compilat cele mai frecvente întrebări și răspunsurile detaliate ale consultanților noștri. Fie că sunteți la prima tranzacție imobiliară 
+                  sau sunteți un investitor experimentat, veți găsi informații utile despre comisioane, documente necesare, evaluarea proprietăților, procesul de vânzare-cumpărare, 
+                  asistența juridică și serviciile noastre de închiriere. Dacă nu găsiți răspunsul căutat, nu ezitați să ne contactați direct.
+                </p>
+              </div>
             </div>
 
             <div className="max-w-4xl mx-auto px-2 sm:px-0">
