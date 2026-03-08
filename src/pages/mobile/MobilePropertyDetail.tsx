@@ -26,6 +26,20 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID } from "@/lib/propertySlug";
 
+// Check if a string looks like GPS coordinates
+const isCoordinates = (str: string): boolean => {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim());
+};
+
+const getDisplayLocation = (p: any): string => {
+  if (p.zone && !isCoordinates(p.zone)) return p.zone;
+  if (p.location && !isCoordinates(p.location)) return p.location;
+  if (p.city && !isCoordinates(p.city)) return p.city;
+  if (p.project_name) return p.project_name;
+  return 'București';
+};
+
 // Auto-generate extended description for SEO (min 150 words)
 const generateAutoDescription = (p: any): string => {
   const parts: string[] = [];
@@ -33,7 +47,7 @@ const generateAutoDescription = (p: any): string => {
   const numarCamere = p.rooms || 1;
   const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
   const ansamblu = p.project_name || 'zonă rezidențială';
-  const zona = p.zone || p.location || 'Militari';
+  const zona = getDisplayLocation(p);
   const suprafata = p.surface_min || '';
   const etaj = p.floor ?? '';
   const totalEtaje = p.total_floors ?? '';
@@ -242,7 +256,7 @@ const MobilePropertyDetail = () => {
           {images.length > 0 ? (
               <OptimizedPropertyImage
                 src={images[currentImageIndex]}
-                alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
+                alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${getDisplayLocation(property)}`}
                 title={property.title}
                 containerClassName="w-full h-full"
                 aspectRatio="auto"
@@ -271,7 +285,7 @@ const MobilePropertyDetail = () => {
           <h1 className="text-xl font-bold mb-2">{property.title}</h1>
           <p className="text-sm text-muted-foreground flex items-center gap-1 mb-3">
             <MapPin className="w-4 h-4" />
-            {property.location || 'București'}
+            {getDisplayLocation(property)}
           </p>
           <p className="text-2xl font-bold text-gold">
             {formatPrice(property.price_min || 0, property.currency || 'EUR')}
