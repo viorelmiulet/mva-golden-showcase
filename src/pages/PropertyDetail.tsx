@@ -532,13 +532,13 @@ const PropertyDetail = () => {
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
                     <span className="text-sm sm:text-base md:text-lg">{getDisplayLocation(property)}</span>
                   </div>
-                  {property.zone && property.zone !== property.location && (
+                  {property.zone && !isCoordinates(property.zone) && property.zone !== getDisplayLocation(property) && (
                     <div className="flex items-center">
                       <MapPinned className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 text-gold flex-shrink-0" />
                       <span className="text-xs sm:text-sm">{property.zone}</span>
                     </div>
                   )}
-                  {property.city && property.city !== property.location && (
+                  {property.city && !isCoordinates(property.city) && property.city !== getDisplayLocation(property) && (
                     <span className="text-xs sm:text-sm text-muted-foreground">• {property.city}</span>
                   )}
                 </div>
