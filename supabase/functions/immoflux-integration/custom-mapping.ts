@@ -51,7 +51,7 @@ export async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, 
     console.log('XML Content fetched, length:', xmlContent.length);
     
     // Parse XML using custom mapping
-    const properties = parseXmlWithCustomMapping(xmlContent, fieldMapping);
+    const properties = await parseXmlWithCustomMapping(xmlContent, fieldMapping);
     
     if (properties.length === 0) {
       return new Response(
