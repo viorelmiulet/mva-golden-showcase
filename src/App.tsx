@@ -167,7 +167,7 @@ const App = () => {
                 <Route path="complexe" element={<MobileComplexes />} />
                 <Route path="favorite" element={<MobileFavorites />} />
                 <Route path="cont" element={<MobileAccount />} />
-                <Route path="proprietate/:id" element={<MobilePropertyDetail />} />
+                <Route path="proprietate/:slug" element={<MobilePropertyDetail />} />
                 <Route path="complex/:id" element={<MobileComplexDetail />} />
               </Route>
               
