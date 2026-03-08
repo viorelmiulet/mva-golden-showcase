@@ -58,8 +58,8 @@ export const generatePropertySlug = (property: {
  * Extract the short ID (last segment, 4 chars) from a property slug.
  */
 export const extractShortIdFromSlug = (slug: string): string => {
-  const parts = slug.split('-');
-  return parts[parts.length - 1];
+  // The short ID is always the last 4 characters of the slug
+  return slug.slice(-4);
 };
 
 /**
