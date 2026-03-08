@@ -258,7 +258,7 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
           amenities: features,
           contact_info: contact,
           transaction_type: transactionType,
-          availability_status: extractedData.availability_status || 'available',
+          availability_status: normalizeAvailabilityStatus(extractedData.availability_status),
           is_featured: false,
           source: 'api',
           project_name: null,
