@@ -38,12 +38,15 @@ export const generatePropertySlug = (property: {
     parts.push(toKebab(property.project_name));
   }
 
-  // 3. Zone
+  // 3. Zone — only if NOT GPS coordinates
   const zone = property.zone || property.location;
   if (zone) {
-    const kebabZone = toKebab(zone.split(',')[0].trim());
-    if (kebabZone && !parts.some(p => p.includes(kebabZone))) {
-      parts.push(kebabZone);
+    const isCoordinates = /^\d|.*\d{2,}\.\d{3,}/.test(zone);
+    if (!isCoordinates) {
+      const kebabZone = toKebab(zone.split(',')[0].trim());
+      if (kebabZone && kebabZone.length > 2 && !parts.some(p => p.includes(kebabZone))) {
+        parts.push(kebabZone);
+      }
     }
   }
 
