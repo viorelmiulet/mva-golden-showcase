@@ -36,6 +36,7 @@ const MobileSearch = () => {
         .from('catalog_offers')
         .select('*')
         .is('project_id', null)
+        .eq('availability_status', 'available')
         .order('created_at', { ascending: false });
       
       if (error) throw error;

@@ -237,6 +237,12 @@ const PropertyDetail = () => {
         return;
       }
 
+      if (match.availability_status !== 'available') {
+        toast.info('Această proprietate nu mai este disponibilă');
+        navigate('/proprietati');
+        return;
+      }
+
       setProperty(match as Property);
     } catch (error) {
       console.error("Error fetching property:", error);
