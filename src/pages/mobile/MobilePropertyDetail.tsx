@@ -97,17 +97,14 @@ const MobilePropertyDetail = () => {
         throw new Error('Not found');
       }
 
-      // Resolve slug to property
-      const shortId = extractShortIdFromSlug(slug);
+      // Fetch all properties and find exact slug match
       const { data: allProperties, error } = await supabase
         .from('catalog_offers')
-        .select('*');
+        .select('*')
+        .limit(1000);
       
       if (error) throw error;
-      const match = allProperties?.find(p => {
-        const pShortId = p.id.replace(/-/g, '').substring(0, 4);
-        return pShortId === shortId && generatePropertySlug(p) === slug;
-      });
+      const match = allProperties?.find(p => generatePropertySlug(p) === slug);
       if (!match) throw new Error('Not found');
       return match;
     },
