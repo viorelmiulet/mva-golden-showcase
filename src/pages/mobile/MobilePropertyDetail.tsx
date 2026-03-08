@@ -99,13 +99,15 @@ const MobilePropertyDetail = () => {
 
       // Resolve slug to property
       const shortId = extractShortIdFromSlug(slug);
-      const { data: candidates, error } = await supabase
+      const { data: allProperties, error } = await supabase
         .from('catalog_offers')
-        .select('*')
-        .ilike('id', `${shortId}%`);
+        .select('*');
       
       if (error) throw error;
-      const match = candidates?.find(p => generatePropertySlug(p) === slug);
+      const match = allProperties?.find(p => {
+        const pShortId = p.id.replace(/-/g, '').substring(0, 4);
+        return pShortId === shortId && generatePropertySlug(p) === slug;
+      });
       if (!match) throw new Error('Not found');
       return match;
     },
