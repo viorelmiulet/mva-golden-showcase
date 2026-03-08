@@ -1160,6 +1160,27 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
   }
 }
 
+// Normalize availability status from CRM values to our standard values
+function normalizeAvailabilityStatus(raw: string | null | undefined): string {
+  if (!raw) return 'available';
+  const s = raw.toLowerCase().trim();
+  
+  // Sold
+  if (s.includes('vandut') || s.includes('vândut') || s.includes('sold') || s === 'vanzare finalizata' || s === 'vândut') {
+    return 'sold';
+  }
+  // Inactive / unavailable
+  if (s.includes('inactiv') || s.includes('inactive') || s.includes('unavailable') || s.includes('indisponibil') || s.includes('retras') || s.includes('expirat') || s.includes('expired')) {
+    return 'inactive';
+  }
+  // Available
+  if (s.includes('activ') || s.includes('available') || s.includes('disponibil') || s === 'active' || s === 'available') {
+    return 'available';
+  }
+  // Default
+  return 'available';
+}
+
 // Enhanced helper functions for Immoflux XML parsing
 function extractImmofluxField(xmlBlock: string, possibleTags: string[]): string | null {
   for (const tag of possibleTags) {
