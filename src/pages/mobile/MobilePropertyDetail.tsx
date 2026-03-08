@@ -106,10 +106,6 @@ const MobilePropertyDetail = () => {
       if (error) throw error;
       const match = allProperties?.find(p => generatePropertySlug(p) === slug);
       if (!match) throw new Error('Not found');
-      if (match.availability_status !== 'available') {
-        navigate('/app/proprietati');
-        return null;
-      }
       return match;
     },
     enabled: !!slug
