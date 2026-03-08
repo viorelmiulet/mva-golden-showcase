@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X, Plus, CheckCircle } from 'lucide-react';
+import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X, Plus, CheckCircle, MapPin } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { XmlFieldMappingDialog } from './XmlFieldMappingDialog';
@@ -38,6 +38,8 @@ const WebsiteScrapingManager = () => {
   const [propertyIds, setPropertyIds] = useState(Array(3).fill(""));
   const [isScrapingLoading, setIsScrapingLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState(Array(3).fill(false));
+  const [isFixingZones, setIsFixingZones] = useState(false);
+  const [zoneFixResult, setZoneFixResult] = useState<any>(null);
   
   const { 
     importXmlFeed,
@@ -345,6 +347,33 @@ const WebsiteScrapingManager = () => {
   // Get saved mapping for current URL
   const currentSourceMapping = xmlSources.find(s => s.url === xmlUrl)?.last_mapping;
 
+  const handleFixZones = async (dryRun = false) => {
+    setIsFixingZones(true);
+    setZoneFixResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('fix-property-zones', {
+        body: { dry_run: dryRun, limit: 50 },
+      });
+      if (error) throw error;
+      setZoneFixResult(data);
+      toast({
+        title: dryRun ? 'Verificare completă' : 'Zone corectate',
+        description: data?.message || 'Operațiune finalizată',
+      });
+      if (!dryRun) {
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Eroare',
+        description: err.message || 'Eroare la corectarea zonelor',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsFixingZones(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* ID Scraping Section */}
@@ -646,6 +675,57 @@ const WebsiteScrapingManager = () => {
           savedMapping={currentSourceMapping || undefined}
         />
       )}
+
+      {/* Fix Property Zones */}
+      <Card className="border-gold/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MapPin className="h-4 w-4 text-gold" />
+            Corectează Zone Proprietăți
+          </CardTitle>
+          <CardDescription>
+            Convertește coordonatele GPS din câmpul zonă în numele cartierului folosind reverse geocoding
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => handleFixZones(true)}
+              disabled={isFixingZones}
+              variant="outline"
+              size="sm"
+              className="flex-1"
+            >
+              {isFixingZones ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
+              Verifică (dry run)
+            </Button>
+            <Button
+              onClick={() => handleFixZones(false)}
+              disabled={isFixingZones}
+              size="sm"
+              className="flex-1 bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold"
+            >
+              {isFixingZones ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <MapPin className="w-4 h-4 mr-2" />}
+              Corectează Zone
+            </Button>
+          </div>
+          {zoneFixResult && (
+            <div className="rounded-lg border p-3 text-sm space-y-1 bg-muted/50">
+              <p className="font-medium">{zoneFixResult.message}</p>
+              {zoneFixResult.fixed !== undefined && (
+                <p className="text-muted-foreground">
+                  ✓ Corectate: {zoneFixResult.fixed} | ✗ Eșuate: {zoneFixResult.failed} | Total: {zoneFixResult.total}
+                </p>
+              )}
+              {zoneFixResult.count !== undefined && (
+                <p className="text-muted-foreground">
+                  Proprietăți afectate: {zoneFixResult.count}
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

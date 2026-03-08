@@ -1,3 +1,41 @@
+// Check if a string looks like GPS coordinates
+function isCoordinates(str: string): boolean {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(str.trim());
+}
+
+// Reverse geocode coordinates to zone name using Google Maps API
+async function getZoneFromCoordinates(lat: number, lng: number): Promise<string> {
+  try {
+    const googleApiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!googleApiKey) return '';
+    
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=ro&result_type=sublocality|neighborhood|locality&key=${googleApiKey}`
+    );
+    if (!response.ok) return '';
+    const data = await response.json();
+    if (data.status !== 'OK' || !data.results?.length) return '';
+    
+    for (const result of data.results) {
+      for (const component of result.address_components || []) {
+        const types = component.types || [];
+        if (types.includes('sublocality') || types.includes('sublocality_level_1') || types.includes('neighborhood')) {
+          return component.long_name;
+        }
+      }
+    }
+    // Fallback to locality
+    for (const component of data.results[0].address_components || []) {
+      if (component.types?.includes('locality')) return component.long_name;
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+
 // Import XML with custom field mapping
 export async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, fieldMapping: Record<string, string>) {
   try {
@@ -121,7 +159,7 @@ function normalizeAvailabilityStatus(raw: string | null | undefined): string {
   return 'available';
 }
 
-function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<string, string>): any[] {
+async function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<string, string>): Promise<any[]> {
   const properties: any[] = [];
   
   try {
@@ -156,7 +194,8 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
     // Extract broker/agency info from the feed header for contact enrichment
     const brokerInfo = extractBrokerInfo(cleanXml);
     
-    propertyBlocks.forEach((block, index) => {
+    for (let index = 0; index < propertyBlocks.length; index++) {
+      const block = propertyBlocks[index];
       try {
         // Extract values based on custom mapping
         const extractedData: any = {};
@@ -305,6 +344,23 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
           }
         });
         
+        // Reverse geocode if zone/location contains coordinates
+        if ((!property.zone || isCoordinates(property.zone)) && latitude && longitude) {
+          try {
+            const geocodedZone = await getZoneFromCoordinates(latitude, longitude);
+            if (geocodedZone) {
+              property.zone = geocodedZone;
+              if (!property.location || isCoordinates(property.location)) {
+                property.location = geocodedZone;
+              }
+              console.log(`  Geocoded zone: ${geocodedZone}`);
+            }
+            // Google Maps API doesn't have strict rate limits like Nominatim
+          } catch (geoErr) {
+            console.warn(`  Geocoding failed for ${latitude},${longitude}`);
+          }
+        }
+        
         // Validate minimum required fields - relaxed: accept if has title
         if (property.title && (property.price_min > 0 || property.rooms > 0)) {
           properties.push(property);
@@ -316,8 +372,8 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
       } catch (blockError: any) {
         console.error(`Error parsing property block ${index + 1}:`, blockError.message);
       }
-    });
-    
+    }
+
     console.log(`Successfully parsed ${properties.length} properties with custom mapping`);
     return properties;
     
