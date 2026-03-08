@@ -421,14 +421,14 @@ const PropertyDetail = () => {
         <title>{`${camere} camere ${zona} etaj ${etaj} ${suprafata}mp – ${tipTranzactie} ${pret}€ | MVA Imobiliare`}</title>
         <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
         <meta name="robots" content="index, follow" />
-        <meta name="keywords" content={`${property.zone || property.location || ''}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
+        <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
-        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''} Militari. Detalii și vizionare la MVA Imobiliare.`} />
+        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
+        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`} />
         <meta property="og:locale" content="ro_RO" />
         <meta property="og:site_name" content="MVA Imobiliare" />
         {property.images?.[0] && (
