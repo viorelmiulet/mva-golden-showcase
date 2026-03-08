@@ -74,7 +74,8 @@ const getDisplayLocation = (p: any): string => {
   return 'București';
 };
 
-  const Properties = () => {
+const Properties = () => {
+  const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
   
   const [priceMin, setPriceMin] = useState<string>("")
