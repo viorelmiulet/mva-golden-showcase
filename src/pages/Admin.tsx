@@ -46,6 +46,7 @@ import { FurnishedImageGenerator } from "@/components/FurnishedImageGenerator";
 import RenewApartmentsImporter from "@/components/RenewApartmentsImporter";
 import { ExcelApartmentImporter } from "@/components/ExcelApartmentImporter";
 import { ApartmentStatusManager } from "@/components/ApartmentStatusManager";
+import { getPropertyUrl } from "@/lib/propertySlug";
 
 
 const Admin = () => {
