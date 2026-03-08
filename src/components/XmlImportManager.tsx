@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useWebsiteScraper } from '../hooks/useWebsiteScraper';
-import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X, Plus, CheckCircle } from 'lucide-react';
+import { Loader2, Download, FileText, Settings, History, Trash2, Clock, Pencil, Check, X, Plus, CheckCircle, MapPin } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { XmlFieldMappingDialog } from './XmlFieldMappingDialog';
@@ -38,6 +38,8 @@ const WebsiteScrapingManager = () => {
   const [propertyIds, setPropertyIds] = useState(Array(3).fill(""));
   const [isScrapingLoading, setIsScrapingLoading] = useState(false);
   const [loadingStates, setLoadingStates] = useState(Array(3).fill(false));
+  const [isFixingZones, setIsFixingZones] = useState(false);
+  const [zoneFixResult, setZoneFixResult] = useState<any>(null);
   
   const { 
     importXmlFeed,
