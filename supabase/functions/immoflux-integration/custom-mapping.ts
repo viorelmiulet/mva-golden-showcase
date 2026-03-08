@@ -1,3 +1,30 @@
+// Check if a string looks like GPS coordinates
+function isCoordinates(str: string): boolean {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(str.trim());
+}
+
+// Reverse geocode coordinates to zone name using Nominatim
+async function getZoneFromCoordinates(lat: number, lng: number): Promise<string> {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ro&zoom=16`,
+      { headers: { 'User-Agent': 'MVAImobiliare/1.0 (contact@mvaimobiliare.ro)' } }
+    );
+    if (!response.ok) return '';
+    const data = await response.json();
+    return data.address?.suburb || data.address?.neighbourhood || data.address?.quarter ||
+           data.address?.residential || data.address?.city_district || data.address?.town ||
+           data.address?.village || '';
+  } catch {
+    return '';
+  }
+}
+
+function delayMs(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Import XML with custom field mapping
 export async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, fieldMapping: Record<string, string>) {
   try {
