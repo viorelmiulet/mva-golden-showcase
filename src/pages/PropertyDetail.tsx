@@ -100,7 +100,21 @@ interface Property {
   floor_plan?: string | null;
 }
 
-// Auto-generate extended description from property characteristics
+// Check if a string looks like GPS coordinates
+const isCoordinates = (str: string): boolean => {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim());
+};
+
+// Get display-friendly location (fallback to zone/city if location contains coordinates)
+const getDisplayLocation = (p: Property): string => {
+  if (p.zone && !isCoordinates(p.zone)) return p.zone;
+  if (p.location && !isCoordinates(p.location)) return p.location;
+  if (p.city && !isCoordinates(p.city)) return p.city;
+  if (p.project_name) return p.project_name;
+  return 'București';
+};
+
 const generateAutoDescription = (p: Property): string => {
   const parts: string[] = [];
 
@@ -108,7 +122,7 @@ const generateAutoDescription = (p: Property): string => {
   const numarCamere = p.rooms || 1;
   const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
   const ansamblu = p.project_name || 'zonă rezidențială';
-  const zona = p.zone || p.location || 'Militari';
+  const zona = getDisplayLocation(p);
   const suprafata = p.surface_min || '';
   const etaj = p.floor ?? '';
   const totalEtaje = p.total_floors ?? '';
@@ -335,7 +349,7 @@ const PropertyDetail = () => {
   };
 
   // Helper variables for SEO
-  const zona = property.zone || property.location || 'București';
+  const zona = property ? getDisplayLocation(property) : 'București';
   const camere = property.rooms || '';
   const suprafata = property.surface_min || '';
   const etaj = property.floor ?? '-';
@@ -407,14 +421,14 @@ const PropertyDetail = () => {
         <title>{`${camere} camere ${zona} etaj ${etaj} ${suprafata}mp – ${tipTranzactie} ${pret}€ | MVA Imobiliare`}</title>
         <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
         <meta name="robots" content="index, follow" />
-        <meta name="keywords" content={`${property.zone || property.location || ''}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
+        <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
-        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''} Militari. Detalii și vizionare la MVA Imobiliare.`} />
+        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
+        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`} />
         <meta property="og:locale" content="ro_RO" />
         <meta property="og:site_name" content="MVA Imobiliare" />
         {property.images?.[0] && (
@@ -424,8 +438,8 @@ const PropertyDetail = () => {
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
-        <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''}. Vizionare gratuită.`} />
+        <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
+        <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona}. Vizionare gratuită.`} />
         {property.images?.[0] && (
           <meta name="twitter:image" content={property.images[0]} />
         )}
@@ -516,15 +530,15 @@ const PropertyDetail = () => {
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-muted-foreground">
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
-                    <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
+                    <span className="text-sm sm:text-base md:text-lg">{getDisplayLocation(property)}</span>
                   </div>
-                  {property.zone && property.zone !== property.location && (
+                  {property.zone && !isCoordinates(property.zone) && property.zone !== getDisplayLocation(property) && (
                     <div className="flex items-center">
                       <MapPinned className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 text-gold flex-shrink-0" />
                       <span className="text-xs sm:text-sm">{property.zone}</span>
                     </div>
                   )}
-                  {property.city && property.city !== property.location && (
+                  {property.city && !isCoordinates(property.city) && property.city !== getDisplayLocation(property) && (
                     <span className="text-xs sm:text-sm text-muted-foreground">• {property.city}</span>
                   )}
                 </div>
