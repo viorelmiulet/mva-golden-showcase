@@ -1128,7 +1128,7 @@ const Admin = () => {
                         {/* Actions */}
                         <div className="flex flex-col gap-2">
                           <div className="flex gap-2">
-                            <Link to={`/proprietati/${property.id}`} className="flex-1">
+                            <Link to={getPropertyUrl(property)} className="flex-1">
                               <Button 
                                 variant="default" 
                                 size="sm" 
