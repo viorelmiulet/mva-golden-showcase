@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
+import { getPropertyUrl } from "@/lib/propertySlug"
 import ScrollReveal from "@/components/ScrollReveal"
 
 const Properties = () => {
@@ -74,7 +75,7 @@ const Properties = () => {
   const renderOffers = (offers: any[]) => (
     <div className="grid gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8 xl:gap-6">
       {offers.map((property) => (
-        <Link to={`/proprietati/${property.id}`} key={property.id}>
+        <Link to={getPropertyUrl(property)} key={property.id}>
           <Card 
             className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full"
           >

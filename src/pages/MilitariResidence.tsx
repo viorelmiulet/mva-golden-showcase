@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Euro, ArrowRight, Sparkles, Loader2, Phone } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getPropertyUrl } from "@/lib/propertySlug";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import ScrollReveal from "@/components/ScrollReveal";
 
@@ -249,7 +250,7 @@ const MilitariResidence = () => {
                 ) : (
                   <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                     {properties.map((property) => (
-                      <Link to={`/proprietati/${property.id}`} key={property.id}>
+                      <Link to={getPropertyUrl(property)} key={property.id}>
                         <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
                           {property.is_featured && (
                             <div className="absolute top-3 left-3 z-10">

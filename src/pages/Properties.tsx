@@ -41,6 +41,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { getPropertyUrl } from "@/lib/propertySlug"
 
 // Lazy load heavy components
 const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
@@ -880,7 +881,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={`/proprietati/${property.id}`}>
+                          <Link to={getPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>

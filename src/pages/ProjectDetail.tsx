@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { getPropertyUrl } from "@/lib/propertySlug";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -398,7 +399,7 @@ const ProjectDetail = () => {
                                       Contact
                                     </Button>
                                   </a>
-                                  <Link to={`/proprietati/${apartment.id}`}>
+                                  <Link to={getPropertyUrl(apartment)}>
                                     <Button 
                                       variant="default" 
                                       size="sm" 

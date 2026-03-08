@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/hooks/useFavorites";
+import { getPropertyUrl } from "@/lib/propertySlug";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -272,7 +273,7 @@ const PropertyCard = ({ property, onRemove }: { property: any; onRemove: () => v
         </div>
       )}
       
-      <Link to={`/proprietati/${property.id}`}>
+      <Link to={getPropertyUrl(property)}>
         <Button variant="outline" size="sm" className="w-full">
           Vezi Detalii
           <ArrowRight className="ml-2 h-4 w-4" />

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { getPropertyUrl } from "@/lib/propertySlug";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -79,7 +80,7 @@ export const RecentlyViewed = ({
           <div className="flex gap-3 pb-4">
             {displayItems.map((property) => (
               <div key={property.id} className="relative group flex-shrink-0 w-[200px] sm:w-[240px]">
-                <Link to={`/proprietati/${property.id}`}>
+                <Link to={getPropertyUrl(property)}>
                   <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg">
                     <div className="relative overflow-hidden">
                       <OptimizedPropertyImage
@@ -135,7 +136,7 @@ export const RecentlyViewed = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {displayItems.map((property) => (
             <div key={property.id} className="relative group">
-              <Link to={`/proprietati/${property.id}`}>
+              <Link to={getPropertyUrl(property)}>
                 <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg h-full">
                   <div className="relative overflow-hidden">
                     <OptimizedPropertyImage
