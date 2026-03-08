@@ -148,7 +148,7 @@ function normalizeAvailabilityStatus(raw: string | null | undefined): string {
   return 'available';
 }
 
-function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<string, string>): any[] {
+async function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<string, string>): Promise<any[]> {
   const properties: any[] = [];
   
   try {
@@ -183,7 +183,8 @@ function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<stri
     // Extract broker/agency info from the feed header for contact enrichment
     const brokerInfo = extractBrokerInfo(cleanXml);
     
-    propertyBlocks.forEach((block, index) => {
+    for (let index = 0; index < propertyBlocks.length; index++) {
+      const block = propertyBlocks[index];
       try {
         // Extract values based on custom mapping
         const extractedData: any = {};
