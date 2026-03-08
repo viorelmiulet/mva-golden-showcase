@@ -91,7 +91,6 @@ const Properties = () => {
         .select('*')
         .is('project_id', null)
         .neq('is_published', false)
-        .eq('availability_status', 'available')
         .order('created_at', { ascending: false })
       
       if (error) throw error
