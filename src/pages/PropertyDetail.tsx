@@ -220,7 +220,7 @@ const PropertyDetail = () => {
       const { data: candidates, error } = await supabase
         .from("catalog_offers")
         .select("*")
-        .ilike("id", `${shortId}%`);
+        .filter("id::text", "ilike", `${shortId}%`);
 
       if (error) throw error;
 
