@@ -4,18 +4,32 @@ function isCoordinates(str: string): boolean {
   return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(str.trim());
 }
 
-// Reverse geocode coordinates to zone name using Nominatim
+// Reverse geocode coordinates to zone name using Google Maps API
 async function getZoneFromCoordinates(lat: number, lng: number): Promise<string> {
   try {
+    const googleApiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!googleApiKey) return '';
+    
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ro&zoom=16`,
-      { headers: { 'User-Agent': 'MVAImobiliare/1.0 (contact@mvaimobiliare.ro)' } }
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=ro&result_type=sublocality|neighborhood|locality&key=${googleApiKey}`
     );
     if (!response.ok) return '';
     const data = await response.json();
-    return data.address?.suburb || data.address?.neighbourhood || data.address?.quarter ||
-           data.address?.residential || data.address?.city_district || data.address?.town ||
-           data.address?.village || '';
+    if (data.status !== 'OK' || !data.results?.length) return '';
+    
+    for (const result of data.results) {
+      for (const component of result.address_components || []) {
+        const types = component.types || [];
+        if (types.includes('sublocality') || types.includes('sublocality_level_1') || types.includes('neighborhood')) {
+          return component.long_name;
+        }
+      }
+    }
+    // Fallback to locality
+    for (const component of data.results[0].address_components || []) {
+      if (component.types?.includes('locality')) return component.long_name;
+    }
+    return '';
   } catch {
     return '';
   }
