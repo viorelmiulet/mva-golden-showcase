@@ -346,7 +346,7 @@ const PropertyDetail = () => {
     "@type": "RealEstateListing",
     "name": `Apartament ${camere} camere ${zona}`,
     "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
-    "url": `https://mvaimobiliare.ro/proprietati/${property.id}`,
+    "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
     "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
     "datePosted": new Date().toISOString(),
     "offers": {
@@ -394,7 +394,7 @@ const PropertyDetail = () => {
         "@type": "ListItem",
         "position": 3,
         "name": property.title,
-        "item": `https://mvaimobiliare.ro/proprietati/${property.id}`
+        "item": `https://mvaimobiliare.ro${getPropertyUrl(property)}`
       }
     ]
   };
@@ -406,11 +406,11 @@ const PropertyDetail = () => {
         <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content={`${property.zone || property.location || ''}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
-        <link rel="canonical" href={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
+        <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
+        <meta property="og:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
         <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''} Militari. Detalii și vizionare la MVA Imobiliare.`} />
         <meta property="og:locale" content="ro_RO" />
@@ -911,7 +911,7 @@ const PropertyDetail = () => {
                   {similarProperties.map((prop) => (
                     <Link 
                       key={prop.id} 
-                      to={`/proprietati/${prop.id}`}
+                      to={getPropertyUrl(prop)}
                       className="block"
                     >
                       <TiltCard tiltIntensity={12} glareEnabled={true}>
