@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import {
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { generatePropertySlug, extractShortIdFromSlug, isUUID } from "@/lib/propertySlug";
 
 // Auto-generate extended description for SEO (min 150 words)
 const generateAutoDescription = (p: any): string => {
@@ -67,7 +68,8 @@ const generateAutoDescription = (p: any): string => {
 };
 
 const MobilePropertyDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -76,18 +78,38 @@ const MobilePropertyDetail = () => {
   const { language } = useLanguage();
 
   const { data: property, isLoading } = useQuery({
-    queryKey: ['mobile-property', id],
+    queryKey: ['mobile-property', slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!slug) throw new Error('No slug');
+
+      // Handle old UUID URLs — redirect
+      if (isUUID(slug)) {
+        const { data } = await supabase
+          .from('catalog_offers')
+          .select('*')
+          .eq('id', slug)
+          .single();
+        if (data) {
+          const newSlug = generatePropertySlug(data);
+          navigate(`/app/proprietate/${newSlug}`, { replace: true });
+          return null;
+        }
+        throw new Error('Not found');
+      }
+
+      // Resolve slug to property
+      const shortId = extractShortIdFromSlug(slug);
+      const { data: candidates, error } = await supabase
         .from('catalog_offers')
         .select('*')
-        .eq('id', id)
-        .single();
+        .ilike('id', `${shortId}%`);
       
       if (error) throw error;
-      return data;
+      const match = candidates?.find(p => generatePropertySlug(p) === slug);
+      if (!match) throw new Error('Not found');
+      return match;
     },
-    enabled: !!id
+    enabled: !!slug
   });
 
   const formatPrice = (price: number, currency: string = 'EUR') => {

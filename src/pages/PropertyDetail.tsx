@@ -44,6 +44,7 @@ import { Helmet } from "react-helmet-async";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
@@ -162,7 +163,7 @@ const generateAutoDescription = (p: Property): string => {
 };
 
 const PropertyDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
@@ -172,19 +173,17 @@ const PropertyDetail = () => {
   const { trackProperty, trackContact } = usePlausible();
 
   useEffect(() => {
-    if (!id) {
+    if (!slug) {
       navigate("/proprietati");
       return;
     }
     fetchProperty();
-  }, [id]);
+  }, [slug]);
 
   useEffect(() => {
     if (property) {
       fetchSimilarProperties();
-      // Track property view in Plausible
       trackProperty('view', property.id, property.title);
-      // Track property view in recently viewed
       addToRecentlyViewed({
         id: property.id,
         title: property.title,
@@ -199,21 +198,44 @@ const PropertyDetail = () => {
 
   const fetchProperty = async () => {
     try {
-      const { data, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (!data) {
+      // Check if slug is a UUID (old URL format) — redirect to new slug
+      if (isUUID(slug!)) {
+        const { data } = await supabase
+          .from("catalog_offers")
+          .select("*")
+          .eq("id", slug)
+          .maybeSingle();
+        if (data) {
+          const newSlug = generatePropertySlug(data as Property);
+          navigate(`/proprietati/${newSlug}`, { replace: true });
+          return;
+        }
         toast.error("Proprietatea nu a fost găsită");
         navigate("/proprietati");
         return;
       }
 
-      setProperty(data as Property);
+      // Extract short ID from slug (last 4 chars)
+      const shortId = extractShortIdFromSlug(slug!);
+      const { data: candidates, error } = await supabase
+        .from("catalog_offers")
+        .select("*")
+        .ilike("id", `${shortId}%`);
+
+      if (error) throw error;
+
+      // Find the property whose generated slug matches
+      const match = candidates?.find(
+        (p) => generatePropertySlug(p as Property) === slug
+      );
+
+      if (!match) {
+        toast.error("Proprietatea nu a fost găsită");
+        navigate("/proprietati");
+        return;
+      }
+
+      setProperty(match as Property);
     } catch (error) {
       console.error("Error fetching property:", error);
       toast.error("Eroare la încărcarea proprietății");
