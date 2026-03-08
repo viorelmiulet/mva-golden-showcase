@@ -1034,7 +1034,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
           const uniqueFeatures = Array.from(new Set(featuresArr)).slice(0, 10);
 
           const statusRaw = (extractImmofluxField(block, ['status']) || 'activ').toLowerCase();
-          const availability = statusRaw.includes('activ') || statusRaw.includes('available') ? 'available' : 'unavailable';
+          const availability = normalizeAvailabilityStatus(statusRaw);
 
           property = {
             title: titleFinal || title,
@@ -1100,7 +1100,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
             contact_info: contactFinal,
             project_name: null,
             currency: currencyR,
-            availability_status: 'available',
+            availability_status: normalizeAvailabilityStatus(extractImmofluxField(block, ['status', 'ad__status']) || 'available'),
             is_featured: false,
             source: 'api'
           };
@@ -1120,7 +1120,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
             contact_info: contact,
             project_name: null,
             currency: currency,
-            availability_status: 'available',
+            availability_status: normalizeAvailabilityStatus(extractImmofluxField(block, ['status', 'availability', 'stare']) || 'available'),
             is_featured: false,
             source: 'api'
           };
