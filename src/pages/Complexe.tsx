@@ -339,6 +339,78 @@ const Complexe = () => {
               </p>
             </div>
           )}
+
+          {/* Featured Residential Complexes - SEO Content */}
+          <section className="mt-12 sm:mt-16 md:mt-20 max-w-4xl mx-auto" aria-label="Ansambluri rezidențiale recomandate">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 text-foreground text-center">
+              Ansambluri Rezidențiale Recomandate în zona Militari–Chiajna
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
+              MVA Imobiliare colaborează cu cei mai importanți dezvoltatori imobiliari din zona de vest a Bucureștiului. 
+              Fiecare ansamblu rezidențial din portofoliul nostru a fost verificat și evaluat de echipa noastră de specialiști, 
+              astfel încât să vă putem oferi informații complete și actualizate despre disponibilitate, prețuri și facilități.
+            </p>
+            
+            <div className="grid gap-6 sm:gap-8">
+              {/* Militari Residence */}
+              <Link to="/militari-residence" className="group">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                    Militari Residence
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3">
+                    Cel mai mare ansamblu rezidențial din vestul Bucureștiului, situat în Chiajna, Ilfov. 
+                    Oferă apartamente cu 1, 2 și 3 camere cu finisaje moderne, acces rapid la metrou Păcii și Preciziei, 
+                    și facilități complete: locuri de joacă, parcări, spații comerciale. Prețuri accesibile și posibilitate de finanțare prin credit ipotecar.
+                  </p>
+                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                    Vezi apartamente disponibile →
+                  </span>
+                </Card>
+              </Link>
+
+              {/* Renew Residence */}
+              <Link to="/renew-residence" className="group">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                    Renew Residence
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3">
+                    Ansamblu rezidențial modern în Chiajna, cu arhitectură contemporană și apartamente luminoase. 
+                    Garsoniere și apartamente cu 2 camere, finisate la cheie, cu materiale premium. 
+                    Amplasare strategică cu acces facil la șoseaua de centură și transportul în comun. Ideal pentru tineri profesioniști și familii.
+                  </p>
+                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                    Descoperă Renew Residence →
+                  </span>
+                </Card>
+              </Link>
+
+              {/* Eurocasa Residence */}
+              <Link to="/eurocasa-residence" className="group">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                    Eurocasa Residence
+                  </h3>
+                  <p className="text-sm sm:text-base text-muted-foreground mb-3">
+                    Complex rezidențial de calitate superioară în zona Militari–Chiajna. Apartamente spațioase cu 
+                    compartimentări eficiente, balcoane generoase și finisaje de înaltă calitate. Beneficiază de zone verzi amenajate, 
+                    securitate 24/7 și proximitate față de școli, grădinițe și centre comerciale.
+                  </p>
+                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                    Explorează Eurocasa Residence →
+                  </span>
+                </Card>
+              </Link>
+            </div>
+
+            <p className="text-sm text-muted-foreground mt-8 text-center">
+              Toate proprietățile din aceste ansambluri sunt verificate și actualizate zilnic de echipa MVA Imobiliare. 
+              Oferim vizionări gratuite, asistență la obținerea creditului ipotecar și suport complet până la semnarea actelor la notar. 
+              Contactați-ne la <a href="tel:+40767941512" className="text-gold font-semibold hover:underline">0767 941 512</a> pentru 
+              programarea unei vizionări sau pentru informații suplimentare despre apartamentele disponibile.
+            </p>
+          </section>
         </main>
 
         <Footer />
