@@ -11,38 +11,53 @@ function isCoordinates(str: string): boolean {
   return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(str.trim());
 }
 
-// Reverse geocode coordinates to zone name using Nominatim
+// Reverse geocode coordinates to zone name using Google Maps API
 async function getZoneFromCoordinates(lat: number, lng: number): Promise<string> {
   try {
+    const googleApiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    if (!googleApiKey) {
+      console.warn('GOOGLE_MAPS_API_KEY not set, skipping geocoding');
+      return '';
+    }
+    
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ro&zoom=16`,
-      {
-        headers: {
-          'User-Agent': 'MVAImobiliare/1.0 (contact@mvaimobiliare.ro)',
-        },
-      }
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=ro&result_type=sublocality|neighborhood|locality&key=${googleApiKey}`
     );
     
     if (!response.ok) {
-      console.warn(`Nominatim returned ${response.status} for ${lat},${lng}`);
+      console.warn(`Google Geocoding returned ${response.status} for ${lat},${lng}`);
       return '';
     }
     
     const data = await response.json();
     
-    // Extract the most relevant zone name
-    const zone =
-      data.address?.suburb ||
-      data.address?.neighbourhood ||
-      data.address?.quarter ||
-      data.address?.residential ||
-      data.address?.city_district ||
-      data.address?.town ||
-      data.address?.village ||
-      '';
+    if (data.status !== 'OK' || !data.results?.length) {
+      console.warn(`No results for ${lat},${lng}: ${data.status}`);
+      return '';
+    }
     
-    console.log(`Geocoded ${lat},${lng} → "${zone}"`);
-    return zone;
+    // Extract neighborhood/sublocality from address components
+    for (const result of data.results) {
+      for (const component of result.address_components || []) {
+        const types = component.types || [];
+        if (types.includes('sublocality') || types.includes('sublocality_level_1') || 
+            types.includes('neighborhood') || types.includes('route')) {
+          const zone = component.long_name;
+          console.log(`Geocoded ${lat},${lng} → "${zone}"`);
+          return zone;
+        }
+      }
+    }
+    
+    // Fallback: use first result's formatted address locality part
+    const firstResult = data.results[0];
+    for (const component of firstResult.address_components || []) {
+      if (component.types?.includes('locality')) {
+        return component.long_name;
+      }
+    }
+    
+    return '';
   } catch (error) {
     console.error(`Geocoding error for ${lat},${lng}:`, error);
     return '';
