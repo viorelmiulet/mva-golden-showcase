@@ -421,7 +421,7 @@ const PropertyDetail = () => {
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={`https://mvaimobiliare.ro/proprietati/${property.id}`} />
+        <meta name="twitter:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${property.zone || property.location || ''} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
         <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${property.zone || property.location || ''}. Vizionare gratuită.`} />
         {property.images?.[0] && (
