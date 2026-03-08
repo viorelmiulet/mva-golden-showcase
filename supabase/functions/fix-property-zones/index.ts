@@ -64,7 +64,7 @@ async function getZoneFromCoordinates(lat: number, lng: number): Promise<string>
   }
 }
 
-// Rate-limit delay (Nominatim requires 1 req/sec)
+// Small delay between requests to avoid hammering the API
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
