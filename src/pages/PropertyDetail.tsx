@@ -100,7 +100,21 @@ interface Property {
   floor_plan?: string | null;
 }
 
-// Auto-generate extended description from property characteristics
+// Check if a string looks like GPS coordinates
+const isCoordinates = (str: string): boolean => {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim());
+};
+
+// Get display-friendly location (fallback to zone/city if location contains coordinates)
+const getDisplayLocation = (p: Property): string => {
+  if (p.zone && !isCoordinates(p.zone)) return p.zone;
+  if (p.location && !isCoordinates(p.location)) return p.location;
+  if (p.city && !isCoordinates(p.city)) return p.city;
+  if (p.project_name) return p.project_name;
+  return 'București';
+};
+
 const generateAutoDescription = (p: Property): string => {
   const parts: string[] = [];
 
