@@ -215,18 +215,20 @@ const PropertyDetail = () => {
         return;
       }
 
-      // Extract short ID from slug (last 4 chars)
+      // Extract short ID from slug (last 4 chars) and find matching property
       const shortId = extractShortIdFromSlug(slug!);
-      const { data: candidates, error } = await supabase
+      const { data: allProperties, error } = await supabase
         .from("catalog_offers")
-        .select("*")
-        .filter("id::text", "ilike", `${shortId}%`);
+        .select("*");
 
       if (error) throw error;
 
-      // Find the property whose generated slug matches
-      const match = candidates?.find(
-        (p) => generatePropertySlug(p as Property) === slug
+      // Filter candidates whose UUID starts with the short ID, then match slug
+      const match = allProperties?.find(
+        (p) => {
+          const pShortId = p.id.replace(/-/g, '').substring(0, 4);
+          return pShortId === shortId && generatePropertySlug(p as Property) === slug;
+        }
       );
 
       if (!match) {
