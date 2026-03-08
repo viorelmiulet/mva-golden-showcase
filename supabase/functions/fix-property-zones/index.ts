@@ -89,20 +89,19 @@ Deno.serve(async (req) => {
 
     console.log(`Fix property zones — dry_run: ${dryRun}, limit: ${limit}`);
 
-    // Fetch properties with GPS coordinates in location field and no proper zone
+    // Fetch all properties that have coordinates
     const { data: properties, error } = await supabase
       .from('catalog_offers')
       .select('id, zone, location, latitude, longitude, project_name')
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
-      .or('zone.is.null,zone.eq.')
       .limit(limit);
 
     if (error) throw error;
 
-    // Also find properties where location contains coordinates
+    // Filter: zone is missing, empty, or contains GPS coordinates
     const propsWithCoordLocation = (properties || []).filter(
-      p => !p.zone && p.latitude && p.longitude && (!p.location || isCoordinates(p.location))
+      p => p.latitude && p.longitude && (!p.zone || p.zone.trim() === '' || isCoordinates(p.zone))
     );
 
     console.log(`Found ${propsWithCoordLocation.length} properties needing zone fix`);
