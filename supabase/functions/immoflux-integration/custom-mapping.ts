@@ -35,9 +35,6 @@ async function getZoneFromCoordinates(lat: number, lng: number): Promise<string>
   }
 }
 
-function delayMs(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 // Import XML with custom field mapping
 export async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, fieldMapping: Record<string, string>) {
@@ -358,7 +355,7 @@ async function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Recor
               }
               console.log(`  Geocoded zone: ${geocodedZone}`);
             }
-            await delayMs(1100); // Nominatim rate limit
+            // Google Maps API doesn't have strict rate limits like Nominatim
           } catch (geoErr) {
             console.warn(`  Geocoding failed for ${latitude},${longitude}`);
           }
