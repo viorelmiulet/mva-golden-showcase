@@ -111,6 +111,16 @@ export async function importXmlWithCustomMapping(supabase: any, xmlUrl: string, 
   }
 }
 
+// Normalize availability status from CRM values
+function normalizeAvailabilityStatus(raw: string | null | undefined): string {
+  if (!raw) return 'available';
+  const s = raw.toLowerCase().trim();
+  if (s.includes('vandut') || s.includes('vândut') || s.includes('sold') || s === 'vanzare finalizata') return 'sold';
+  if (s.includes('inactiv') || s.includes('inactive') || s.includes('unavailable') || s.includes('indisponibil') || s.includes('retras') || s.includes('expirat')) return 'inactive';
+  if (s.includes('activ') || s.includes('available') || s.includes('disponibil')) return 'available';
+  return 'available';
+}
+
 function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Record<string, string>): any[] {
   const properties: any[] = [];
   
