@@ -60,7 +60,20 @@ interface ScrapedProperty {
   features: string[]
 }
 
-const Properties = () => {
+// Check if a string looks like GPS coordinates
+const isCoordinates = (str: string): boolean => {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim());
+};
+
+const getDisplayLocation = (p: any): string => {
+  if (p.zone && !isCoordinates(p.zone)) return p.zone;
+  if (p.location && !isCoordinates(p.location)) return p.location;
+  if (p.city && !isCoordinates(p.city)) return p.city;
+  if (p.project_name) return p.project_name;
+  return 'București';
+};
+
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
   
