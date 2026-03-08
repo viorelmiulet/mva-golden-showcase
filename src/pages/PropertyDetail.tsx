@@ -122,7 +122,7 @@ const generateAutoDescription = (p: Property): string => {
   const numarCamere = p.rooms || 1;
   const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
   const ansamblu = p.project_name || 'zonă rezidențială';
-  const zona = p.zone || p.location || 'Militari';
+  const zona = getDisplayLocation(p);
   const suprafata = p.surface_min || '';
   const etaj = p.floor ?? '';
   const totalEtaje = p.total_floors ?? '';
@@ -349,7 +349,7 @@ const PropertyDetail = () => {
   };
 
   // Helper variables for SEO
-  const zona = property.zone || property.location || 'București';
+  const zona = property ? getDisplayLocation(property) : 'București';
   const camere = property.rooms || '';
   const suprafata = property.surface_min || '';
   const etaj = property.floor ?? '-';
@@ -530,7 +530,7 @@ const PropertyDetail = () => {
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-muted-foreground">
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-gold flex-shrink-0" />
-                    <span className="text-sm sm:text-base md:text-lg">{property.location}</span>
+                    <span className="text-sm sm:text-base md:text-lg">{getDisplayLocation(property)}</span>
                   </div>
                   {property.zone && property.zone !== property.location && (
                     <div className="flex items-center">
