@@ -333,6 +333,23 @@ async function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Recor
           }
         });
         
+        // Reverse geocode if zone/location contains coordinates
+        if ((!property.zone || isCoordinates(property.zone)) && latitude && longitude) {
+          try {
+            const geocodedZone = await getZoneFromCoordinates(latitude, longitude);
+            if (geocodedZone) {
+              property.zone = geocodedZone;
+              if (!property.location || isCoordinates(property.location)) {
+                property.location = geocodedZone;
+              }
+              console.log(`  Geocoded zone: ${geocodedZone}`);
+            }
+            await delayMs(1100); // Nominatim rate limit
+          } catch (geoErr) {
+            console.warn(`  Geocoding failed for ${latitude},${longitude}`);
+          }
+        }
+        
         // Validate minimum required fields - relaxed: accept if has title
         if (property.title && (property.price_min > 0 || property.rooms > 0)) {
           properties.push(property);
@@ -344,8 +361,8 @@ async function parseXmlWithCustomMapping(xmlContent: string, fieldMapping: Recor
       } catch (blockError: any) {
         console.error(`Error parsing property block ${index + 1}:`, blockError.message);
       }
-    });
-    
+    }
+
     console.log(`Successfully parsed ${properties.length} properties with custom mapping`);
     return properties;
     
