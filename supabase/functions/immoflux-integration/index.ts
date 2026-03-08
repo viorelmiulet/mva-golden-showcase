@@ -1034,7 +1034,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
           const uniqueFeatures = Array.from(new Set(featuresArr)).slice(0, 10);
 
           const statusRaw = (extractImmofluxField(block, ['status']) || 'activ').toLowerCase();
-          const availability = statusRaw.includes('activ') || statusRaw.includes('available') ? 'available' : 'unavailable';
+          const availability = normalizeAvailabilityStatus(statusRaw);
 
           property = {
             title: titleFinal || title,
@@ -1100,7 +1100,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
             contact_info: contactFinal,
             project_name: null,
             currency: currencyR,
-            availability_status: 'available',
+            availability_status: normalizeAvailabilityStatus(extractImmofluxField(block, ['status', 'ad__status']) || 'available'),
             is_featured: false,
             source: 'api'
           };
@@ -1120,7 +1120,7 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
             contact_info: contact,
             project_name: null,
             currency: currency,
-            availability_status: 'available',
+            availability_status: normalizeAvailabilityStatus(extractImmofluxField(block, ['status', 'availability', 'stare']) || 'available'),
             is_featured: false,
             source: 'api'
           };
@@ -1158,6 +1158,27 @@ function parseImmofluxXmlProperties(xmlContent: string): any[] {
     console.log('XML content that caused error:', xmlContent.substring(0, 1000));
     return [];
   }
+}
+
+// Normalize availability status from CRM values to our standard values
+function normalizeAvailabilityStatus(raw: string | null | undefined): string {
+  if (!raw) return 'available';
+  const s = raw.toLowerCase().trim();
+  
+  // Sold
+  if (s.includes('vandut') || s.includes('vândut') || s.includes('sold') || s === 'vanzare finalizata' || s === 'vândut') {
+    return 'sold';
+  }
+  // Inactive / unavailable
+  if (s.includes('inactiv') || s.includes('inactive') || s.includes('unavailable') || s.includes('indisponibil') || s.includes('retras') || s.includes('expirat') || s.includes('expired')) {
+    return 'inactive';
+  }
+  // Available
+  if (s.includes('activ') || s.includes('available') || s.includes('disponibil') || s === 'active' || s === 'available') {
+    return 'available';
+  }
+  // Default
+  return 'available';
 }
 
 // Enhanced helper functions for Immoflux XML parsing
