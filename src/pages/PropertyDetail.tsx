@@ -198,16 +198,20 @@ const PropertyDetail = () => {
 
   const fetchProperty = async () => {
     try {
-      // Check if slug is a UUID (old URL format) — redirect to new slug
-      if (isUUID(slug!)) {
+      if (!slug) {
+        navigate("/proprietati");
+        return;
+      }
+
+      // 1. If UUID — redirect to new slug
+      if (isUUID(slug)) {
         const { data } = await supabase
           .from("catalog_offers")
           .select("*")
           .eq("id", slug)
           .maybeSingle();
         if (data) {
-          const newSlug = generatePropertySlug(data as Property);
-          navigate(`/proprietati/${newSlug}`, { replace: true });
+          navigate(`/proprietati/${generatePropertySlug(data as Property)}`, { replace: true });
           return;
         }
         toast.error("Proprietatea nu a fost găsită");
@@ -215,20 +219,16 @@ const PropertyDetail = () => {
         return;
       }
 
-      // Extract short ID from slug (last 4 chars) and find matching property
-      const shortId = extractShortIdFromSlug(slug!);
+      // 2. Fetch all properties and find exact slug match
       const { data: allProperties, error } = await supabase
         .from("catalog_offers")
-        .select("*");
+        .select("*")
+        .limit(1000);
 
       if (error) throw error;
 
-      // Filter candidates whose UUID starts with the short ID, then match slug
       const match = allProperties?.find(
-        (p) => {
-          const pShortId = p.id.replace(/-/g, '').substring(0, 4);
-          return pShortId === shortId && generatePropertySlug(p as Property) === slug;
-        }
+        (p) => generatePropertySlug(p as Property) === slug
       );
 
       if (!match) {
