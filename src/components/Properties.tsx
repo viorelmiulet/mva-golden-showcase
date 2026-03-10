@@ -135,7 +135,7 @@ const Properties = () => {
                 
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                  <span className="font-medium text-xs sm:text-sm line-clamp-1">{property.location}</span>
+                  <span className="font-medium text-xs sm:text-sm line-clamp-1">{getDisplayLocation(property)}</span>
                 </div>
               </div>
               
