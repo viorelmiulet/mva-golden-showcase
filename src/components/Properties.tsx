@@ -16,6 +16,19 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { getPropertyUrl } from "@/lib/propertySlug"
 import ScrollReveal from "@/components/ScrollReveal"
 
+const isCoordinates = (str: string | null | undefined): boolean => {
+  if (!str) return false;
+  return /^\d{2,}\.\d{3,}/.test(str.trim());
+};
+
+const getDisplayLocation = (p: any): string => {
+  if (p.zone && !isCoordinates(p.zone)) return p.zone;
+  if (p.location && !isCoordinates(p.location)) return p.location;
+  if (p.city && !isCoordinates(p.city)) return p.city;
+  if (p.project_name) return p.project_name;
+  return 'București';
+};
+
 const Properties = () => {
   // Fetch 12 random offers from catalog_offers (exclude apartments from residential complexes)
   const { data: randomOffers = [], isLoading } = useQuery({
@@ -122,7 +135,7 @@ const Properties = () => {
                 
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                  <span className="font-medium text-xs sm:text-sm line-clamp-1">{property.location}</span>
+                  <span className="font-medium text-xs sm:text-sm line-clamp-1">{getDisplayLocation(property)}</span>
                 </div>
               </div>
               
