@@ -1,14 +1,7 @@
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { 
-  MapPin, 
-  Euro,
-  ArrowRight,
-  Sparkles,
-  Star,
-  Loader2
-} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { MapPin, Euro, ArrowRight, Sparkles, Loader2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
@@ -30,7 +23,6 @@ const getDisplayLocation = (p: any): string => {
 };
 
 const Properties = () => {
-  // Fetch 12 random offers from catalog_offers (exclude apartments from residential complexes)
   const { data: randomOffers = [], isLoading } = useQuery({
     queryKey: ['random_offers_home'],
     queryFn: async () => {
@@ -39,21 +31,17 @@ const Properties = () => {
         .select('*')
         .is('project_id', null)
         .limit(100);
-      
       if (error) throw error;
-      
-      // Shuffle and take 12
       const shuffled = (data || []).sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 12);
+      return shuffled.slice(0, 8);
     },
     refetchOnWindowFocus: false,
-  })
+  });
 
-  // Structured Data for Properties
   const propertiesStructuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": randomOffers.slice(0, 10).map((property, index) => ({
+    "itemListElement": randomOffers.slice(0, 8).map((property, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
@@ -61,219 +49,98 @@ const Properties = () => {
         "name": property.title,
         "description": property.description,
         "image": property.images?.[0] || "",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": property.location,
-          "addressCountry": "RO"
-        },
-        "offers": {
-          "@type": "Offer",
-          "priceCurrency": property.currency || "EUR",
-          "price": property.price_min,
-          "seller": {
-            "@type": "RealEstateAgent",
-            "name": "MVA Imobiliare"
-          }
-        },
-        "floorSize": {
-          "@type": "QuantitativeValue",
-          "value": property.surface_min || property.surface_max,
-          "unitCode": "MTK"
-        },
+        "address": { "@type": "PostalAddress", "addressLocality": property.location, "addressCountry": "RO" },
+        "offers": { "@type": "Offer", "priceCurrency": property.currency || "EUR", "price": property.price_min },
         "numberOfRooms": property.rooms
       }
     }))
-  }
-
-  const renderOffers = (offers: any[]) => (
-    <div className="grid gap-4 sm:gap-6 lg:grid-cols-4 lg:gap-8 xl:gap-6">
-      {offers.map((property) => (
-        <Link to={getPropertyUrl(property)} key={property.id}>
-          <Card 
-            className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full"
-          >
-            {property.is_featured && (
-              <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
-                <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Recomandat
-                </Badge>
-              </div>
-            )}
-            
-            {/* Image */}
-            <div className="relative overflow-hidden">
-              <OptimizedPropertyImage
-                src={property.images?.[0]}
-                alt={`${property.title} - apartament ${property.rooms || ''} camere${property.surface_min ? `, ${property.surface_min} mp` : ''} în ${property.location || 'București'}`}
-                title={`${property.title} - ${property.price_min?.toLocaleString()} ${property.currency || 'EUR'}`}
-                className="group-hover:scale-110 transition-transform duration-700"
-                aspectRatio="video"
-                width={640}
-                height={360}
-                quality={75}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              {/* Price Badge */}
-              <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
-                <div className="flex items-center text-gold font-bold">
-                  <Euro className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                  <span className="text-xs sm:text-sm">
-                    {property.price_min?.toLocaleString()} {property.currency || 'EUR'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <CardContent className="p-4 space-y-3">
-              {/* Title & Location */}
-              <div className="space-y-2">
-                <h3 className="text-base sm:text-lg font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
-                  {property.title}
-                </h3>
-                
-                <div className="flex items-center text-muted-foreground">
-                  <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                  <span className="font-medium text-xs sm:text-sm line-clamp-1">{getDisplayLocation(property)}</span>
-                </div>
-              </div>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
-                  <div className="text-xs text-muted-foreground">Preț</div>
-                  <div className="text-xs font-semibold text-foreground">
-                    {property.price_min?.toLocaleString()}
-                  </div>
-                </div>
-                
-                <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
-                  <div className="text-xs text-muted-foreground">mp</div>
-                  <div className="text-xs font-semibold text-foreground">
-                    {property.surface_min || property.surface_max || '-'}
-                  </div>
-                </div>
-                
-                <div className="text-center p-2 rounded-lg hover:bg-gold/5 transition-colors">
-                  <div className="text-xs text-muted-foreground">Camere</div>
-                  <div className="text-xs font-semibold text-foreground">{property.rooms}</div>
-                </div>
-              </div>
-              
-              {/* CTA Button */}
-              <Button 
-                variant="luxuryOutline" 
-                className="w-full group h-9 text-sm"
-              >
-                Vezi Detalii
-                <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </CardContent>
-          </Card>
-        </Link>
-      ))}
-    </div>
-  )
+  };
 
   return (
-    <section id="proprietati" className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-section">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/3 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
-      </div>
+    <section id="proprietati" className="py-16 sm:py-20 lg:py-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(propertiesStructuredData) }} />
       
-      {/* Structured Data */}
-      <script 
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(propertiesStructuredData) }}
-      />
-      
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="max-w-6xl mx-auto">
           
-          {/* Header */}
           <ScrollReveal>
-            <header className="text-center mb-12 sm:mb-16 lg:mb-20">
-              <div className="inline-flex items-center justify-center mb-4 sm:mb-6">
-                <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent to-gold/50 mr-3"></div>
-                <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-xs sm:text-sm font-semibold">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                  Proiecte Exclusive
-                </Badge>
-                <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent to-gold/50 ml-3"></div>
-              </div>
-              
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8">
+            <header className="text-center mb-10 lg:mb-14">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                 <span className="text-foreground">Descoperă </span>
                 <span className="text-gradient-gold">Proprietățile</span>
-              </h1>
-              
-              <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-                Descoperă selecția noastră de apartamente și case din București și împrejurimi, 
-                cu finisaje moderne și prețuri competitive.
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-6">
+                Selecția noastră de apartamente și case din București și împrejurimi.
               </p>
-              
-              {/* Navigation CTAs */}
-              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link to="/proprietati">
-                  <Button 
-                    variant="luxury" 
-                    size="lg" 
-                    className="group h-11 sm:h-12 lg:h-14 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto glow-gold"
-                  >
-                    Vezi toate proprietățile
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
+              <Link to="/proprietati">
+                <Button variant="luxury" size="lg" className="group h-11 px-6 text-sm">
+                  Vezi toate proprietățile
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </header>
           </ScrollReveal>
 
-          {/* Properties Grid */}
-          <ScrollReveal delay={0.2}>
-            <div className="mb-12 sm:mb-16">
-              {isLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-gold" />
-                </div>
-              ) : randomOffers.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">Nu sunt disponibile proprietăți momentan.</p>
-                </div>
-              ) : (
-                renderOffers(randomOffers)
-              )}
-            </div>
-          </ScrollReveal>
-
-          {/* CTA Section */}
-          <ScrollReveal delay={0.3}>
-            <footer className="text-center">
-              <div className="card-modern border-glow rounded-2xl lg:rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto">
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">
-                  <span className="text-foreground">Vrei să </span>
-                  <span className="text-gradient-gold">Explorezi Mai Mult?</span>
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed px-4 sm:px-0">
-                  Vezi toate proprietățile disponibile și descoperă oferta noastră premium.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                  <Link to="/proprietati">
-                    <Button variant="luxury" size="lg" className="group px-6 sm:px-8 h-11 sm:h-12 lg:h-14 text-sm sm:text-base w-full sm:w-auto glow-gold">
-                      Toate proprietățile
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                </div>
+          <ScrollReveal delay={0.15}>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-gold" />
               </div>
-            </footer>
+            ) : randomOffers.length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">Nu sunt disponibile proprietăți momentan.</p>
+            ) : (
+              <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {randomOffers.map((property) => (
+                  <Link to={getPropertyUrl(property)} key={property.id}>
+                    <Card className="group overflow-hidden glass border border-border/50 hover:border-gold/30 transition-colors h-full">
+                      {property.is_featured && (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="bg-gold text-primary-foreground text-xs">
+                            <Sparkles className="w-3 h-3 mr-1" />Recomandat
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="relative overflow-hidden">
+                        <OptimizedPropertyImage
+                          src={property.images?.[0]}
+                          alt={`${property.title} - ${property.rooms || ''} camere`}
+                          className="group-hover:scale-105 transition-transform duration-500"
+                          aspectRatio="video"
+                          width={640}
+                          height={360}
+                          quality={75}
+                        />
+                        <div className="absolute bottom-2 right-2 glass rounded-lg px-2.5 py-1.5 border border-border/50">
+                          <div className="flex items-center text-gold font-bold text-xs">
+                            <Euro className="w-3 h-3 mr-1" />
+                            {property.price_min?.toLocaleString()} {property.currency || 'EUR'}
+                          </div>
+                        </div>
+                      </div>
+                      <CardContent className="p-4 space-y-2">
+                        <h3 className="text-sm font-bold text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                          {property.title}
+                        </h3>
+                        <div className="flex items-center text-muted-foreground text-xs">
+                          <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                          <span className="line-clamp-1">{getDisplayLocation(property)}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 pt-1">
+                          <div className="text-center"><span className="text-[10px] text-muted-foreground block">Preț</span><span className="text-xs font-semibold text-foreground">{property.price_min?.toLocaleString()}</span></div>
+                          <div className="text-center"><span className="text-[10px] text-muted-foreground block">mp</span><span className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || '-'}</span></div>
+                          <div className="text-center"><span className="text-[10px] text-muted-foreground block">Camere</span><span className="text-xs font-semibold text-foreground">{property.rooms}</span></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </ScrollReveal>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Properties
+export default Properties;
