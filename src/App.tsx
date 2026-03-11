@@ -134,7 +134,7 @@ const App = () => {
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
-                <Route path="regim-hotelier" element={<ShortTermRentalsPage />} />
+                
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
                 <Route path="inbox" element={<InboxPage />} />
