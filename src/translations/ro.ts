@@ -15,7 +15,7 @@ export const ro = {
     faq: "FAQ",
     whyUs: "De ce noi",
     career: "Carieră",
-    shortTermRentals: "Regim Hotelier",
+    
   },
   
   // Hero Section

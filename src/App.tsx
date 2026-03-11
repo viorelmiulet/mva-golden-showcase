@@ -149,7 +149,7 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
-              <Route path="/regim-hotelier" element={<RegimHotelier />} />
+              
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
