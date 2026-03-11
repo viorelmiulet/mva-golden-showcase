@@ -71,7 +71,6 @@ const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPa
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
-const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
