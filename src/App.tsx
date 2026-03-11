@@ -71,11 +71,9 @@ const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPa
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
-const RegimHotelier = lazy(() => import("./pages/RegimHotelier"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
-const ShortTermRentalsPage = lazy(() => import("./pages/admin/ShortTermRentalsPage"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
@@ -136,7 +134,7 @@ const App = () => {
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
-                <Route path="regim-hotelier" element={<ShortTermRentalsPage />} />
+                
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
                 <Route path="inbox" element={<InboxPage />} />
@@ -151,7 +149,7 @@ const App = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
-              <Route path="/regim-hotelier" element={<RegimHotelier />} />
+              
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
