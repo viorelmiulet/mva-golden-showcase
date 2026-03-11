@@ -163,7 +163,7 @@ const popupHtml = `<!DOCTYPE html>
       <div class="menu-item" data-url="/admin/analytics"><span class="icon">📈</span><span class="label">Analytics</span></div>
       <div class="menu-item" data-url="/admin/proprietati"><span class="icon">🏠</span><span class="label">Proprietăți</span></div>
       <div class="menu-item" data-url="/admin/complexe"><span class="icon">🏢</span><span class="label">Complexe</span></div>
-      <div class="menu-item" data-url="/admin/regim-hotelier"><span class="icon">🏨</span><span class="label">Regim Hotelier</span></div>
+      
       <div class="menu-item" data-url="/admin/comisioane"><span class="icon">💰</span><span class="label">Comisioane</span></div>
     </div>
     <div class="section-title">👥 CRM & Clienți</div>
