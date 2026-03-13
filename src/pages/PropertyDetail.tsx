@@ -764,65 +764,18 @@ const PropertyDetail = () => {
                   ) : null;
                 })()}
 
-                {/* Agent / Agency / Contact Info */}
-                {(property.agent || property.agency || property.contact_info) && (
+                {/* SEO Content Section - always visible in DOM for crawlers */}
+                <section className="prose prose-sm max-w-none" aria-label="Informații detaliate proprietate">
                   <Card className="border-gold/20">
                     <CardContent className="p-3 sm:p-4 md:p-5">
-                      <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Informații Contact</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-                        {property.agent && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                            <User className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground">Agent</div>
-                              <div className="text-xs sm:text-sm font-medium truncate">{property.agent}</div>
-                            </div>
-                          </div>
-                        )}
-                        {property.agency && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                            <Briefcase className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground">Agenție</div>
-                              <div className="text-xs sm:text-sm font-medium truncate">{property.agency}</div>
-                            </div>
-                          </div>
-                        )}
-                        {property.contact_info?.phone && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                            <Phone className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground">Telefon</div>
-                              <a href={`tel:${property.contact_info.phone}`} className="text-xs sm:text-sm font-medium hover:text-gold transition-colors truncate block">
-                                {property.contact_info.phone}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                        {property.contact_info?.email && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                            <Mail className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground">Email</div>
-                              <a href={`mailto:${property.contact_info.email}`} className="text-xs sm:text-sm font-medium hover:text-gold transition-colors truncate block">
-                                {property.contact_info.email}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                        {property.contact_info?.name && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                            <User className="w-4 h-4 text-gold flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] text-muted-foreground">Contact</div>
-                              <div className="text-xs sm:text-sm font-medium truncate">{property.contact_info.name}</div>
-                            </div>
-                          </div>
-                        )}
+                      <h2 className="text-base sm:text-lg font-bold mb-2 sm:mb-3">Informații Proprietate</h2>
+                      <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {generateSeoSection(property)}
                       </div>
                     </CardContent>
                   </Card>
-                )}
+                </section>
+
 
                 {/* External Reference */}
                 {(property.external_id || property.source_url) && (
