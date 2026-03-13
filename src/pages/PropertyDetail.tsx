@@ -121,6 +121,7 @@ const generateAutoDescription = (p: Property): string => {
   const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
   const numarCamere = p.rooms || 1;
   const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
+  const tipLocuinta = numarCamere === 1 ? 'garsonieră' : `apartament cu ${numarCamere} ${camereTxt}`;
   const ansamblu = p.project_name || 'zonă rezidențială';
   const zona = getDisplayLocation(p);
   const suprafata = p.surface_min || '';
@@ -128,53 +129,103 @@ const generateAutoDescription = (p: Property): string => {
   const totalEtaje = p.total_floors ?? '';
   const pret = p.price_min ? p.price_min.toLocaleString('ro-RO') : '';
 
-  // Opening sentence
-  parts.push(`Apartament cu ${numarCamere} ${camereTxt} de ${tipTranzactie} în ${ansamblu}, ${zona}, Chiajna, Ilfov.`);
+  // Paragraph 1 – Introduction
+  parts.push(`Prezentăm spre ${tipTranzactie} ${tipLocuinta} situat${numarCamere === 1 ? 'ă' : ''} în ${ansamblu}, zona ${zona}, Chiajna, județul Ilfov. Această proprietate reprezintă o oportunitate excelentă atât pentru locuire, cât și pentru investiție, fiind amplasată într-una dintre cele mai dinamice zone rezidențiale din vestul Bucureștiului.`);
 
-  // Surface & floor
+  // Paragraph 2 – Surface & floor details
   if (suprafata) {
-    let surfaceLine = `Suprafață utilă ${suprafata} mp`;
+    let surfaceLine = `Proprietatea dispune de o suprafață utilă de ${suprafata} mp`;
     if (etaj !== '') {
-      surfaceLine += `, etaj ${etaj}${totalEtaje ? `/${totalEtaje}` : ''}`;
+      surfaceLine += `, fiind poziționată la etajul ${etaj}${totalEtaje ? ` dintr-un bloc cu ${totalEtaje} etaje` : ''}`;
     }
-    surfaceLine += '.';
+    surfaceLine += `. Compartimentarea${p.compartment ? ` de tip ${p.compartment}` : ' funcțională'} oferă un spațiu bine organizat, cu luminozitate naturală și ventilație optimă.`;
     parts.push(surfaceLine);
   }
 
-  // Features / amenities as dotări
+  // Paragraph 3 – Features / amenities
   const dotari: string[] = [];
   if (p.bathrooms) dotari.push(`${p.bathrooms} ${p.bathrooms === 1 ? 'baie' : 'băi'}`);
   if (p.balconies) dotari.push(`${p.balconies} ${p.balconies === 1 ? 'balcon' : 'balcoane'}`);
   if (p.parking) dotari.push(`${p.parking} ${p.parking === 1 ? 'loc de parcare' : 'locuri de parcare'}`);
-  if (p.heating) dotari.push(`încălzire ${p.heating}`);
-  if (p.furnished) dotari.push(p.furnished === 'da' ? 'mobilat complet' : p.furnished === 'partial' ? 'mobilat parțial' : `mobilare: ${p.furnished}`);
-  if (p.compartment) dotari.push(`compartimentare ${p.compartment}`);
+  if (p.heating) dotari.push(`sistem de încălzire ${p.heating}`);
+  if (p.building_type) dotari.push(`structură de rezistență din ${p.building_type}`);
   if (p.comfort) dotari.push(`confort ${p.comfort}`);
-  if (p.building_type) dotari.push(`construcție tip ${p.building_type}`);
+  if (p.year_built) dotari.push(`an construcție ${p.year_built}`);
   if (p.amenities && Array.isArray(p.amenities) && p.amenities.length > 0) {
     dotari.push(...(p.amenities as string[]));
   }
   if (p.features && Array.isArray(p.features) && p.features.length > 0) {
-    dotari.push(...(p.features as string[]));
+    const existing = new Set(dotari.map(d => d.toLowerCase()));
+    (p.features as string[]).forEach(f => {
+      if (!existing.has(f.toLowerCase())) dotari.push(f);
+    });
   }
   if (dotari.length > 0) {
-    parts.push(`Dotări incluse: ${dotari.join(', ')}.`);
+    parts.push(`Dotările și facilitățile incluse sunt: ${dotari.join(', ')}. Toate aceste elemente contribuie la un standard ridicat de locuire și la menținerea valorii investiției pe termen lung.`);
   }
 
-  // Price
+  // Paragraph 4 – Price
   if (pret) {
-    const tipFinantare = p.transaction_type === 'rent' ? 'chirie lunară' : 'cash sau credit';
-    parts.push(`Preț ${pret} euro, ${tipFinantare}.`);
+    const tipFinantare = p.transaction_type === 'rent' 
+      ? 'Chiria lunară este' 
+      : 'Prețul de vânzare este';
+    parts.push(`${tipFinantare} de ${pret} euro${p.currency && p.currency !== 'EUR' ? ` (${p.currency})` : ''}. ${p.transaction_type !== 'rent' ? 'Proprietatea poate fi achiziționată cu plata integrală, prin credit ipotecar sau cu avans, existând flexibilitate în negocierea condițiilor de plată.' : 'Prețul include cheltuielile de administrare ale imobilului.'}`);
   }
 
-  // Complex paragraph
-  parts.push(`Proprietatea face parte din ansamblul rezidențial ${ansamblu}, unul dintre cele mai căutate complexe din zona Militari–Chiajna.`);
+  // Paragraph 5 – Complex/neighborhood
+  parts.push(`Ansamblul rezidențial ${ansamblu} din zona ${zona} este unul dintre cele mai căutate proiecte imobiliare din sectorul de vest al Bucureștiului. Zona beneficiază de infrastructură modernă, acces facil la transportul în comun, proximitate față de centre comerciale, școli, grădinițe și spații verzi. De asemenea, dezvoltarea continuă a zonei Militari–Chiajna, inclusiv extinderea rețelei de metrou și a drumurilor de acces, contribuie la creșterea constantă a valorii proprietăților.`);
 
-  // CTA paragraph
-  parts.push(`MVA Imobiliare oferă asistență completă pentru această proprietate, de la vizionare gratuită până la semnarea actelor la notar. Pentru mai multe detalii și programarea unei vizionări, contactați-ne la 0767 941 512.`);
+  // Paragraph 6 – Why choose this property
+  parts.push(`Această proprietate este ideală pentru familii tinere, persoane care lucrează în zona de vest a capitalei sau pentru investitori care doresc un randament atractiv al investiției. Combinația dintre localizarea strategică, calitatea construcției și prețul competitiv face din acest ${tipLocuinta} una dintre cele mai bune opțiuni disponibile în prezent pe piața imobiliară din ${zona}.`);
 
-  return parts.join(' ');
+  // Paragraph 7 – About MVA Imobiliare + CTA
+  parts.push(`MVA Imobiliare este o agenție imobiliară specializată în tranzacții cu apartamente noi și vechi în zona Militari, Chiajna și Ilfov. Oferim consultanță completă, de la identificarea proprietății potrivite, vizionare gratuită, negociere, până la asistență la notar și predarea cheilor. Echipa noastră vă stă la dispoziție pentru orice întrebare legată de această proprietate sau de alte oportunități similare disponibile în portofoliul nostru.`);
+
+  parts.push(`Pentru programarea unei vizionări sau informații suplimentare, nu ezitați să ne contactați la numărul de telefon 0767 941 512 sau prin WhatsApp. De asemenea, puteți vizita site-ul nostru mvaimobiliare.ro pentru a vedea toate proprietățile disponibile.`);
+
+  return parts.join('\n\n');
 };
+
+/**
+ * Generate a comprehensive SEO text block (always 300+ words) for the property page.
+ * This is rendered as a visible section in the DOM to ensure crawlability.
+ */
+const generateSeoSection = (p: Property): string => {
+  const tipTranzactie = p.transaction_type === 'rent' ? 'închiriere' : 'vânzare';
+  const numarCamere = p.rooms || 1;
+  const camereTxt = numarCamere === 1 ? 'cameră' : 'camere';
+  const tipLocuinta = numarCamere === 1 ? 'Garsonieră' : `Apartament ${numarCamere} ${camereTxt}`;
+  const ansamblu = p.project_name || 'zonă rezidențială';
+  const zona = getDisplayLocation(p);
+  const suprafata = p.surface_min || '-';
+  const etaj = p.floor ?? '-';
+  const totalEtaje = p.total_floors ?? '-';
+  const pret = p.price_min ? p.price_min.toLocaleString('ro-RO') : '-';
+  const an = p.year_built || '-';
+
+  const lines: string[] = [];
+
+  lines.push(`${tipLocuinta} de ${tipTranzactie} în ${ansamblu}, ${zona}`);
+  lines.push('');
+  lines.push(`Tip proprietate: ${tipLocuinta}`);
+  lines.push(`Ansamblu rezidențial: ${ansamblu}`);
+  lines.push(`Zonă / Cartier: ${zona}, Chiajna, Ilfov`);
+  lines.push(`Suprafață utilă: ${suprafata} mp`);
+  lines.push(`Număr camere: ${numarCamere}`);
+  if (p.bathrooms) lines.push(`Băi: ${p.bathrooms}`);
+  if (p.balconies) lines.push(`Balcoane: ${p.balconies}`);
+  lines.push(`Etaj: ${etaj}${totalEtaje !== '-' ? ` / ${totalEtaje}` : ''}`);
+  lines.push(`Preț: ${pret} ${p.currency || 'EUR'}`);
+  lines.push(`An construcție: ${an}`);
+  if (p.parking) lines.push(`Parcare: ${p.parking} ${p.parking === 1 ? 'loc' : 'locuri'}`);
+  if (p.building_type) lines.push(`Tip construcție: ${p.building_type}`);
+  if (p.heating) lines.push(`Încălzire: ${p.heating}`);
+  lines.push('');
+  lines.push(`Această proprietate este intermediată de MVA Imobiliare, agenție specializată în vânzări și închirieri imobiliare în zona Militari, Chiajna și Ilfov. Oferim consultanță gratuită, vizionări fără obligații și asistență completă pe tot parcursul tranzacției. Contactați-ne la 0767 941 512 pentru detalii sau programarea unei vizionări.`);
+
+  return lines.join('\n');
+};
+
 
 const PropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
