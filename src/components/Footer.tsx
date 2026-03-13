@@ -57,9 +57,7 @@ const Footer = () => {
     : ['Apartment Sales', 'Investment Consulting', 'Professional Valuations', 'Property Management', 'Legal Consulting'];
 
   return (
-    <>
-      <GoogleReviews />
-      <footer className="border-t border-border/50">
+    <footer className="border-t border-border/50">
       <div className="container mx-auto px-4 lg:px-6">
         
         <div className="py-10 lg:py-14">
@@ -108,6 +106,8 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Google Reviews */}
+        <GoogleReviews />
 
 
         <Separator className="bg-border/30" />
@@ -124,7 +124,6 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-    </>
   );
 };
 
