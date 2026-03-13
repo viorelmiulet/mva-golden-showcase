@@ -415,7 +415,8 @@ const PropertyDetail = () => {
     "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
     "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
     "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "datePosted": new Date().toISOString(),
+    "datePosted": property.created_at || new Date().toISOString(),
+    "numberOfRooms": property.rooms,
     "offers": {
       "@type": "Offer",
       "price": property.price_min,
@@ -424,7 +425,8 @@ const PropertyDetail = () => {
       "seller": {
         "@type": "RealEstateAgent",
         "name": "MVA Imobiliare",
-        "url": "https://mvaimobiliare.ro"
+        "url": "https://mvaimobiliare.ro",
+        "telephone": "+40767941512"
       }
     },
     "address": {
