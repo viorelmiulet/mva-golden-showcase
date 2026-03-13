@@ -106,6 +106,9 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Google Reviews */}
+        <GoogleReviews />
+
         {/* Trustpilot */}
         <div className="py-4 max-w-5xl mx-auto">
           <div className="bg-white rounded-xl p-3">
