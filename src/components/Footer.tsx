@@ -106,8 +106,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Google Reviews */}
-        <GoogleReviews />
 
 
         <Separator className="bg-border/30" />
