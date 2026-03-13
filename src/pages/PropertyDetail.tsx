@@ -98,6 +98,7 @@ interface Property {
   transaction_type?: string | null;
   descriere_lunga?: string | null;
   floor_plan?: string | null;
+  created_at?: string | null;
 }
 
 // Check if a string looks like GPS coordinates
