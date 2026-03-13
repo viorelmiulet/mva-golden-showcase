@@ -4,6 +4,7 @@ import { ArrowUp, Download } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { useLanguage } from "@/contexts/LanguageContext"
+import GoogleReviews from "@/components/GoogleReviews"
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -104,6 +105,9 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {/* Google Reviews */}
+        <GoogleReviews />
 
         {/* Trustpilot */}
         <div className="py-4 max-w-5xl mx-auto">
