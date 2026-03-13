@@ -167,7 +167,7 @@ const GoogleReviews = () => {
         {/* Google link */}
         <div className="text-center mt-6">
           <a
-            href="https://www.google.com/maps/place/?q=place_id:ChIJ0z61LKEBskARIoiIxFyR1rY"
+            href="https://maps.app.goo.gl/MVA_Imobiliare"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground hover:text-gold transition-colors underline underline-offset-2"
