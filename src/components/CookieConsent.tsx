@@ -4,12 +4,48 @@ import { Card } from "@/components/ui/card";
 import { X, Cookie } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const COOKIE_CONSENT_KEY = "cookieConsent";
+
+type ConsentValue = "accepted" | "rejected";
+
+const getConsentFromCookie = () => {
+  if (typeof document === "undefined") return null;
+
+  const cookie = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${COOKIE_CONSENT_KEY}=`));
+
+  return cookie ? cookie.split("=")[1] : null;
+};
+
+const getStoredConsent = () => {
+  try {
+    return localStorage.getItem(COOKIE_CONSENT_KEY) || getConsentFromCookie();
+  } catch {
+    return getConsentFromCookie();
+  }
+};
+
+const setStoredConsent = (value: ConsentValue) => {
+  try {
+    localStorage.setItem(COOKIE_CONSENT_KEY, value);
+  } catch {
+    // Ignore storage errors (e.g. strict/incognito environments)
+  }
+
+  if (typeof document !== "undefined") {
+    document.cookie = `${COOKIE_CONSENT_KEY}=${value}; path=/; max-age=31536000; SameSite=Lax`;
+  }
+};
+
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookieConsent");
+    const consent = getStoredConsent();
+
     if (!consent) {
       const timer = setTimeout(() => setIsVisible(true), 2000);
       return () => clearTimeout(timer);
@@ -17,12 +53,12 @@ const CookieConsent = () => {
   }, []);
 
   const acceptCookies = () => {
-    localStorage.setItem("cookieConsent", "accepted");
+    setStoredConsent("accepted");
     setIsVisible(false);
   };
 
   const rejectCookies = () => {
-    localStorage.setItem("cookieConsent", "rejected");
+    setStoredConsent("rejected");
     setIsVisible(false);
   };
 
@@ -30,30 +66,21 @@ const CookieConsent = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:max-w-md">
-      <Card className="p-4 bg-background/95 backdrop-blur-sm border shadow-lg">
+      <Card className="border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
         <div className="flex items-start gap-3">
-          <Cookie className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+          <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
           <div className="flex-1">
-            <h3 className="font-semibold text-sm mb-2">
-              {t.cookies?.message?.split('.')[0] || "Cookie Consent"}
+            <h3 className="mb-2 text-sm font-semibold">
+              {t.cookies?.message?.split(".")[0] || "Cookie Consent"}
             </h3>
-            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
               {t.cookies?.message || "We use cookies to improve your experience on our site."}
             </p>
-            <div className="flex gap-2 flex-wrap">
-              <Button 
-                onClick={acceptCookies} 
-                size="sm"
-                className="text-xs"
-              >
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={acceptCookies} size="sm" className="text-xs">
                 {t.cookies?.accept || "Accept"}
               </Button>
-              <Button 
-                onClick={rejectCookies} 
-                variant="outline" 
-                size="sm"
-                className="text-xs"
-              >
+              <Button onClick={rejectCookies} variant="outline" size="sm" className="text-xs">
                 {t.cookies?.decline || "Decline"}
               </Button>
             </div>
