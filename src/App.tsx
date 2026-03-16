@@ -178,6 +178,26 @@ const AppRoutes = () => {
             <PhoneButton />
             <CookieConsent />
             <ScrollIndicator />
+    </>
+  );
+};
+
+const App = () => {
+  // Preload critical routes after initial render
+  usePreloadCriticalRoutes();
+  
+  // Report Core Web Vitals to analytics
+  useWebVitals();
+
+  return (
+  <HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>
