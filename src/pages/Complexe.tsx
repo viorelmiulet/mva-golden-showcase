@@ -342,6 +342,32 @@ const Complexe = () => {
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
+                            {/* Per-Corp Breakdown */}
+                            {stats.corpStats.length > 0 && (
+                              <div className="space-y-1.5 pt-1">
+                                {stats.corpStats.map((corp) => (
+                                  <div key={corp.name} className="space-y-0.5">
+                                    <div className="flex items-center justify-between text-[9px] sm:text-[10px] md:text-xs">
+                                      <span className="text-muted-foreground">{corp.name}</span>
+                                      <span className="font-medium">
+                                        {corp.soldPercentage}% {language === 'ro' ? 'vândut' : 'sold'}
+                                        <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
+                                      </span>
+                                    </div>
+                                    <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden glass">
+                                      <div 
+                                        className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
+                                        style={{ width: `${100 - corp.soldPercentage}%` }}
+                                      />
+                                      <div 
+                                        className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-300" 
+                                        style={{ width: `${corp.soldPercentage}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
