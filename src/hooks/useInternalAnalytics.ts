@@ -35,9 +35,9 @@ export const useInternalAnalytics = () => {
   const { trackPageView, trackEvent: trackGA4 } = useGoogleAnalytics();
   const prevPath = useRef('');
   const startTime = useRef(Date.now());
+  const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-    if (location.pathname.startsWith('/admin')) return;
     if (prevPath.current === location.pathname) return;
 
     const sessionId = getSessionId();
@@ -50,16 +50,20 @@ export const useInternalAnalytics = () => {
         .eq('page_path', prevPath.current)
         .order('created_at', { ascending: false })
         .limit(1)
-        .then(() => {});
+        .then(({ error }) => {
+          if (error) console.error('[Analytics] Duration update error:', error.message);
+        });
     }
 
     startTime.current = Date.now();
     prevPath.current = location.pathname;
 
-    // Track pageview in GA4
-    trackPageView(document.title, location.pathname);
+    // Track pageview in GA4 (skip admin)
+    if (!isAdmin) {
+      trackPageView(document.title, location.pathname);
+    }
 
-    // Track pageview in Supabase
+    // Track pageview in Supabase (all pages for internal dashboard)
     const params = new URLSearchParams(window.location.search);
     supabase.from('page_views').insert({
       session_id: sessionId,
@@ -71,22 +75,26 @@ export const useInternalAnalytics = () => {
       device_type: getDeviceType(),
       browser: getBrowser(),
       duration_seconds: 0,
-    }).then(() => {});
+    }).then(({ error }) => {
+      if (error) console.error('[Analytics] Insert error:', error.message);
+    });
   }, [location.pathname]);
 
   const trackEvent = useCallback((eventType: string, eventData?: Record<string, any>) => {
-    if (location.pathname.startsWith('/admin')) return;
+    // GA4 - skip admin
+    if (!location.pathname.startsWith('/admin')) {
+      trackGA4(eventType, 'engagement', eventData ? JSON.stringify(eventData) : undefined);
+    }
 
-    // GA4
-    trackGA4(eventType, 'engagement', eventData ? JSON.stringify(eventData) : undefined);
-
-    // Supabase
+    // Supabase - always track
     supabase.from('events').insert({
       session_id: getSessionId(),
       event_type: eventType,
       event_data: eventData || {},
       page_path: location.pathname,
-    }).then(() => {});
+    }).then(({ error }) => {
+      if (error) console.error('[Analytics] Event error:', error.message);
+    });
   }, [location.pathname, trackGA4]);
 
   return { trackEvent };
