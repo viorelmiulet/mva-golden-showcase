@@ -5,6 +5,7 @@ import { X, Cookie } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const COOKIE_CONSENT_KEY = "cookieConsent";
+const GA_ID = "G-HLZFTKHC80";
 
 type ConsentValue = "accepted" | "rejected";
 
@@ -39,12 +40,45 @@ const setStoredConsent = (value: ConsentValue) => {
   }
 };
 
+let ga4Loaded = false;
+
+const loadGA4 = () => {
+  if (ga4Loaded || typeof document === "undefined") return;
+  ga4Loaded = true;
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+  document.head.appendChild(script);
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () {
+    // eslint-disable-next-line prefer-rest-params
+    window.dataLayer!.push(arguments);
+  };
+  window.gtag("js", new Date());
+  window.gtag("config", GA_ID);
+};
+
+// Declare global types
+declare global {
+  interface Window {
+    dataLayer?: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
     const consent = getStoredConsent();
+
+    if (consent === "accepted") {
+      loadGA4();
+      return;
+    }
 
     if (!consent) {
       const timer = setTimeout(() => setIsVisible(true), 2000);
@@ -54,6 +88,7 @@ const CookieConsent = () => {
 
   const acceptCookies = () => {
     setStoredConsent("accepted");
+    loadGA4();
     setIsVisible(false);
   };
 
