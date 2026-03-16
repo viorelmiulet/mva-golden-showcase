@@ -42,7 +42,7 @@ const Complexe = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('catalog_offers')
-        .select('id, project_id, availability_status')
+        .select('id, project_id, availability_status, features')
         .not('project_id', 'is', null);
 
       if (error) throw error;
