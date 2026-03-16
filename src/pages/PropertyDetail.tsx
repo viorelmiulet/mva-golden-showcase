@@ -252,6 +252,11 @@ const PropertyDetail = () => {
     if (property) {
       fetchSimilarProperties();
       trackProperty('view', property.id, property.title);
+      trackEvent('property_view', {
+        property_id: property.id,
+        property_name: property.title,
+        project: property.project_name,
+      });
       addToRecentlyViewed({
         id: property.id,
         title: property.title,
