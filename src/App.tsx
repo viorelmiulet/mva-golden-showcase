@@ -91,6 +91,9 @@ const App = () => {
   // Report Core Web Vitals to analytics
   useWebVitals();
 
+  // Internal analytics tracking
+  useInternalAnalytics();
+
   return (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>

@@ -1,10 +1,12 @@
 import { useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePlausible } from '@/hooks/usePlausible';
+import { useInternalAnalytics } from '@/hooks/useInternalAnalytics';
 
 const PhoneButton = () => {
   const location = useLocation();
   const { trackContact } = usePlausible();
+  const { trackEvent } = useInternalAnalytics();
   
   // Hide on admin routes
   if (location.pathname.startsWith('/admin')) {
@@ -13,6 +15,7 @@ const PhoneButton = () => {
 
   const handleClick = () => {
     trackContact('phone', 'floating_button');
+    trackEvent('contact_phone', { page: location.pathname });
   };
 
   return (
