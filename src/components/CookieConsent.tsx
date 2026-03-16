@@ -60,13 +60,6 @@ const loadGA4 = () => {
   window.gtag("config", GA_ID);
 };
 
-// Declare global types
-declare global {
-  interface Window {
-    dataLayer?: any[];
-    gtag: (...args: any[]) => void;
-  }
-}
 
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
