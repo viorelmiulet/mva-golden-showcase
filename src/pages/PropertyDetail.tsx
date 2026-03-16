@@ -238,6 +238,7 @@ const PropertyDetail = () => {
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
+  const { trackEvent } = useInternalAnalytics();
 
   useEffect(() => {
     if (!slug) {
