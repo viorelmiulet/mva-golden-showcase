@@ -51,15 +51,49 @@ const Complexe = () => {
   });
 
   const getProjectStats = (projectId: string) => {
-    if (!allApartments) return { total: 0, available: 0, sold: 0, percentage: 0 };
+    if (!allApartments) return { total: 0, available: 0, sold: 0, percentage: 0, corpStats: [] as { name: string; total: number; available: number; sold: number; soldPercentage: number }[] };
     
     const projectApartments = allApartments.filter(apt => apt.project_id === projectId);
     const total = projectApartments.length;
     const available = projectApartments.filter(apt => apt.availability_status === 'available').length;
     const sold = total - available;
     const percentage = total > 0 ? Math.round((available / total) * 100) : 0;
+
+    // Per-corp stats
+    const corpMap = new Map<string, { available: number; sold: number }>();
+    projectApartments.forEach(apt => {
+      const corpFeature = (apt.features as string[] | null)?.find(
+        (f: string) => f.startsWith('Corpul ') || f.startsWith('Scara ')
+      );
+      if (corpFeature) {
+        const entry = corpMap.get(corpFeature) || { available: 0, sold: 0 };
+        if (apt.availability_status === 'sold') {
+          entry.sold += 1;
+        } else if (apt.availability_status === 'available') {
+          entry.available += 1;
+        }
+        corpMap.set(corpFeature, entry);
+      }
+    });
+
+    const corpStats: { name: string; total: number; available: number; sold: number; soldPercentage: number }[] = [];
+    if (corpMap.size > 1) {
+      const sorted = Array.from(corpMap.entries()).sort((a, b) =>
+        a[0].localeCompare(b[0], 'ro', { numeric: true })
+      );
+      for (const [name, vals] of sorted) {
+        const ct = vals.available + vals.sold;
+        corpStats.push({
+          name,
+          total: ct,
+          available: vals.available,
+          sold: vals.sold,
+          soldPercentage: ct > 0 ? Math.round((vals.sold / ct) * 100) : 0,
+        });
+      }
+    }
     
-    return { total, available, sold, percentage };
+    return { total, available, sold, percentage, corpStats };
   };
 
   return (
