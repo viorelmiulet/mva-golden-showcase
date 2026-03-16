@@ -42,7 +42,7 @@ const Complexe = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('catalog_offers')
-        .select('id, project_id, availability_status')
+        .select('id, project_id, availability_status, features')
         .not('project_id', 'is', null);
 
       if (error) throw error;
@@ -51,15 +51,49 @@ const Complexe = () => {
   });
 
   const getProjectStats = (projectId: string) => {
-    if (!allApartments) return { total: 0, available: 0, sold: 0, percentage: 0 };
+    if (!allApartments) return { total: 0, available: 0, sold: 0, percentage: 0, corpStats: [] as { name: string; total: number; available: number; sold: number; soldPercentage: number }[] };
     
     const projectApartments = allApartments.filter(apt => apt.project_id === projectId);
     const total = projectApartments.length;
     const available = projectApartments.filter(apt => apt.availability_status === 'available').length;
     const sold = total - available;
     const percentage = total > 0 ? Math.round((available / total) * 100) : 0;
+
+    // Per-corp stats
+    const corpMap = new Map<string, { available: number; sold: number }>();
+    projectApartments.forEach(apt => {
+      const corpFeature = (apt.features as string[] | null)?.find(
+        (f: string) => f.startsWith('Corpul ') || f.startsWith('Scara ')
+      );
+      if (corpFeature) {
+        const entry = corpMap.get(corpFeature) || { available: 0, sold: 0 };
+        if (apt.availability_status === 'sold') {
+          entry.sold += 1;
+        } else if (apt.availability_status === 'available') {
+          entry.available += 1;
+        }
+        corpMap.set(corpFeature, entry);
+      }
+    });
+
+    const corpStats: { name: string; total: number; available: number; sold: number; soldPercentage: number }[] = [];
+    if (corpMap.size > 1) {
+      const sorted = Array.from(corpMap.entries()).sort((a, b) =>
+        a[0].localeCompare(b[0], 'ro', { numeric: true })
+      );
+      for (const [name, vals] of sorted) {
+        const ct = vals.available + vals.sold;
+        corpStats.push({
+          name,
+          total: ct,
+          available: vals.available,
+          sold: vals.sold,
+          soldPercentage: ct > 0 ? Math.round((vals.sold / ct) * 100) : 0,
+        });
+      }
+    }
     
-    return { total, available, sold, percentage };
+    return { total, available, sold, percentage, corpStats };
   };
 
   return (
@@ -308,6 +342,32 @@ const Complexe = () => {
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
+                            {/* Per-Corp Breakdown */}
+                            {stats.corpStats.length > 0 && (
+                              <div className="space-y-1.5 pt-1">
+                                {stats.corpStats.map((corp) => (
+                                  <div key={corp.name} className="space-y-0.5">
+                                    <div className="flex items-center justify-between text-[9px] sm:text-[10px] md:text-xs">
+                                      <span className="text-muted-foreground">{corp.name}</span>
+                                      <span className="font-medium">
+                                        {corp.soldPercentage}% {language === 'ro' ? 'vândut' : 'sold'}
+                                        <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
+                                      </span>
+                                    </div>
+                                    <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden glass">
+                                      <div 
+                                        className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
+                                        style={{ width: `${100 - corp.soldPercentage}%` }}
+                                      />
+                                      <div 
+                                        className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-300" 
+                                        style={{ width: `${corp.soldPercentage}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
 
