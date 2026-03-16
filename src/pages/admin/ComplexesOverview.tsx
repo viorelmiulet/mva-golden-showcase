@@ -462,6 +462,24 @@ const ComplexesOverview = () => {
                   <Progress value={project.soldPercentage} className="h-1.5 md:h-2" />
                 </div>
 
+                {/* Per-Corp Breakdown */}
+                {project.corpStats.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    {project.corpStats.map((corp) => (
+                      <div key={corp.name} className="space-y-0.5">
+                        <div className="flex items-center justify-between text-[10px] md:text-xs">
+                          <span className="text-muted-foreground">{corp.name}</span>
+                          <span className="font-medium">
+                            {corp.soldPercentage}%
+                            <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
+                          </span>
+                        </div>
+                        <Progress value={corp.soldPercentage} className="h-1" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Statistics */}
                 <div className="grid grid-cols-2 gap-2 md:gap-4 pt-2 md:pt-4 border-t">
                   <div className="space-y-0.5 md:space-y-1">
