@@ -33,6 +33,14 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
+interface CorpStats {
+  name: string;
+  total: number;
+  available: number;
+  sold: number;
+  soldPercentage: number;
+}
+
 interface ProjectStats {
   id: string;
   name: string;
@@ -43,6 +51,7 @@ interface ProjectStats {
   sold: number;
   soldPercentage: number;
   is_published: boolean;
+  corpStats: CorpStats[];
 }
 
 const ComplexesOverview = () => {
