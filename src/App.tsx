@@ -84,27 +84,15 @@ const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  // Preload critical routes after initial render
-  usePreloadCriticalRoutes();
-  
-  // Report Core Web Vitals to analytics
-  useWebVitals();
-
-  // Internal analytics tracking
+// Inner component that has access to Router context
+const AppRoutes = () => {
   useInternalAnalytics();
 
   return (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-              <div className="animate-pulse text-gold">Se încarcă...</div>
-            </div>}>
+    <>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-gold">Se încarcă...</div>
+      </div>}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
