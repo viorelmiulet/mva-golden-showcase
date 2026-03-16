@@ -44,6 +44,7 @@ import { Helmet } from "react-helmet-async";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 
 // Lazy load heavy below-fold components
@@ -237,6 +238,7 @@ const PropertyDetail = () => {
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
+  const { trackEvent } = useInternalAnalytics();
 
   useEffect(() => {
     if (!slug) {
@@ -250,6 +252,11 @@ const PropertyDetail = () => {
     if (property) {
       fetchSimilarProperties();
       trackProperty('view', property.id, property.title);
+      trackEvent('property_view', {
+        property_id: property.id,
+        property_name: property.title,
+        project: property.project_name,
+      });
       addToRecentlyViewed({
         id: property.id,
         title: property.title,

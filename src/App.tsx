@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
+import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // Direct imports for always-rendered components
@@ -89,6 +90,9 @@ const App = () => {
   
   // Report Core Web Vitals to analytics
   useWebVitals();
+
+  // Internal analytics tracking
+  useInternalAnalytics();
 
   return (
   <HelmetProvider>

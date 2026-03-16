@@ -1,10 +1,12 @@
 import { useLocation } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { usePlausible } from '@/hooks/usePlausible';
+import { useInternalAnalytics } from '@/hooks/useInternalAnalytics';
 
 const WhatsAppButton = () => {
   const location = useLocation();
   const { trackContact } = usePlausible();
+  const { trackEvent } = useInternalAnalytics();
   
   // Hide on admin routes
   if (location.pathname.startsWith('/admin')) {
@@ -13,6 +15,7 @@ const WhatsAppButton = () => {
 
   const handleClick = () => {
     trackContact('whatsapp', 'floating_button');
+    trackEvent('contact_whatsapp', { page: location.pathname });
   };
 
   return (
