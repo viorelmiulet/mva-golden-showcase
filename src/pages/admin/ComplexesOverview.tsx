@@ -33,6 +33,14 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
+interface CorpStats {
+  name: string;
+  total: number;
+  available: number;
+  sold: number;
+  soldPercentage: number;
+}
+
 interface ProjectStats {
   id: string;
   name: string;
@@ -43,6 +51,7 @@ interface ProjectStats {
   sold: number;
   soldPercentage: number;
   is_published: boolean;
+  corpStats: CorpStats[];
 }
 
 const ComplexesOverview = () => {
@@ -107,7 +116,7 @@ const ComplexesOverview = () => {
       // Get all properties
       const { data: properties, error: propertiesError } = await supabase
         .from('catalog_offers')
-        .select('project_id, availability_status, available_units');
+        .select('project_id, availability_status, available_units, features');
 
       if (propertiesError) throw propertiesError;
 
@@ -126,6 +135,42 @@ const ComplexesOverview = () => {
         const total = available + sold;
         const soldPercentage = total > 0 ? Math.round((sold / total) * 100) : 0;
 
+        // Calculate per-corp/scara stats
+        const corpMap = new Map<string, { available: number; sold: number }>();
+        projectProperties.forEach(p => {
+          const corpFeature = (p.features as string[] | null)?.find(
+            (f: string) => f.startsWith('Corpul ') || f.startsWith('Scara ')
+          );
+          if (corpFeature) {
+            const entry = corpMap.get(corpFeature) || { available: 0, sold: 0 };
+            const units = p.available_units || 1;
+            if (p.availability_status === 'sold') {
+              entry.sold += units;
+            } else if (p.availability_status === 'available') {
+              entry.available += units;
+            }
+            corpMap.set(corpFeature, entry);
+          }
+        });
+
+        const corpStats: CorpStats[] = [];
+        if (corpMap.size > 1) {
+          // Sort corps naturally
+          const sortedCorps = Array.from(corpMap.entries()).sort((a, b) =>
+            a[0].localeCompare(b[0], 'ro', { numeric: true })
+          );
+          for (const [name, vals] of sortedCorps) {
+            const corpTotal = vals.available + vals.sold;
+            corpStats.push({
+              name,
+              total: corpTotal,
+              available: vals.available,
+              sold: vals.sold,
+              soldPercentage: corpTotal > 0 ? Math.round((vals.sold / corpTotal) * 100) : 0,
+            });
+          }
+        }
+
         return {
           id: project.id,
           name: project.name,
@@ -135,7 +180,8 @@ const ComplexesOverview = () => {
           available,
           sold,
           soldPercentage,
-          is_published: project.is_published !== false
+          is_published: project.is_published !== false,
+          corpStats,
         };
       });
 
@@ -415,6 +461,24 @@ const ComplexesOverview = () => {
                   </div>
                   <Progress value={project.soldPercentage} className="h-1.5 md:h-2" />
                 </div>
+
+                {/* Per-Corp Breakdown */}
+                {project.corpStats.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    {project.corpStats.map((corp) => (
+                      <div key={corp.name} className="space-y-0.5">
+                        <div className="flex items-center justify-between text-[10px] md:text-xs">
+                          <span className="text-muted-foreground">{corp.name}</span>
+                          <span className="font-medium">
+                            {corp.soldPercentage}%
+                            <span className="text-muted-foreground ml-1">({corp.sold}/{corp.total})</span>
+                          </span>
+                        </div>
+                        <Progress value={corp.soldPercentage} className="h-1" />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Statistics */}
                 <div className="grid grid-cols-2 gap-2 md:gap-4 pt-2 md:pt-4 border-t">
