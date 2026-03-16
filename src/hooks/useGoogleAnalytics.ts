@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 // Declare gtag function for TypeScript
 declare global {
   interface Window {
+    dataLayer?: any[];
     gtag: (command: string, ...args: any[]) => void;
   }
 }
