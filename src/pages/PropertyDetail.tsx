@@ -44,6 +44,7 @@ import { Helmet } from "react-helmet-async";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 
 // Lazy load heavy below-fold components
