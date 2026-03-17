@@ -241,6 +241,7 @@ const PropertyDetail = () => {
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
   const { trackEvent } = useInternalAnalytics();
+  const { trackPropertyView } = useGA4();
 
   useEffect(() => {
     if (!slug) {
