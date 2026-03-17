@@ -277,7 +277,7 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 1. If UUID — redirect to new slug
+      // 1. If UUID — redirect to new slug if property exists, or show 410 Gone
       if (isUUID(slug)) {
         const { data } = await supabase
           .from("catalog_offers")
@@ -288,8 +288,9 @@ const PropertyDetail = () => {
           navigate(`/proprietati/${generatePropertySlug(data as Property)}`, { replace: true });
           return;
         }
-        toast.error("Proprietatea nu a fost găsită");
-        navigate("/proprietati");
+        // Property no longer exists — show 410 Gone page
+        setIsGone(true);
+        setIsLoading(false);
         return;
       }
 
