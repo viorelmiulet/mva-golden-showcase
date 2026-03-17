@@ -66,8 +66,9 @@ const AnalyticsPage = () => {
         supabase.from('events').select('*').gte('created_at', since).order('created_at', { ascending: true }),
       ]);
 
-      const pageViews = (pvRes.data || []) as any[];
-      const events = (evRes.data || []) as any[];
+      // Filter out admin traffic
+      const pageViews = (pvRes.data || []).filter((pv: any) => !pv.page_path?.startsWith('/admin')) as any[];
+      const events = (evRes.data || []).filter((ev: any) => !ev.page_path?.startsWith('/admin')) as any[];
 
       // Unique visitors
       const uniqueSessions = new Set(pageViews.map(pv => pv.session_id));
