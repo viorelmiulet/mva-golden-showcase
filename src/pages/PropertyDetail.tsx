@@ -235,6 +235,7 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGone, setIsGone] = useState(false);
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
@@ -276,7 +277,7 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 1. If UUID — redirect to new slug
+      // 1. If UUID — redirect to new slug if property exists, or show 410 Gone
       if (isUUID(slug)) {
         const { data } = await supabase
           .from("catalog_offers")
@@ -287,8 +288,9 @@ const PropertyDetail = () => {
           navigate(`/proprietati/${generatePropertySlug(data as Property)}`, { replace: true });
           return;
         }
-        toast.error("Proprietatea nu a fost găsită");
-        navigate("/proprietati");
+        // Property no longer exists — show 410 Gone page
+        setIsGone(true);
+        setIsLoading(false);
         return;
       }
 
@@ -388,6 +390,35 @@ const PropertyDetail = () => {
         <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
           <div className="container mx-auto max-w-6xl">
             <PropertyDetailSkeleton />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // 410 Gone page for old UUID URLs where property no longer exists
+  if (isGone) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>Proprietate eliminată | MVA Imobiliare</title>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta name="prerender-status-code" content="410" />
+        </Helmet>
+        <Header />
+        <main className="pt-24 pb-16 px-4">
+          <div className="container mx-auto max-w-2xl text-center py-20">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Această proprietate nu mai există</h1>
+            <p className="text-muted-foreground mb-8">
+              Proprietatea a fost vândută sau retrasă de pe piață. Vă invităm să explorați celelalte oferte disponibile.
+            </p>
+            <Link to="/proprietati">
+              <Button variant="default" size="lg">
+                <Home className="mr-2 h-4 w-4" />
+                Vezi proprietăți disponibile
+              </Button>
+            </Link>
           </div>
         </main>
         <Footer />
