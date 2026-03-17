@@ -87,6 +87,7 @@ const queryClient = new QueryClient();
 // Inner component that has access to Router context
 const AppRoutes = () => {
   useInternalAnalytics();
+  useGA4();
 
   return (
     <>
