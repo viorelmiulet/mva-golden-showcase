@@ -18,6 +18,7 @@ const WhatsAppButton = () => {
   const handleClick = () => {
     trackContact('whatsapp', 'floating_button');
     trackEvent('contact_whatsapp', { page: location.pathname });
+    trackGA4Contact('whatsapp');
   };
 
   return (

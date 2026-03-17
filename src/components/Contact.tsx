@@ -32,6 +32,7 @@ const Contact = () => {
       const { data, error } = await supabase.functions.invoke('send-contact-email', { body: formData });
       if (error) throw new Error('Eroare la trimiterea email-ului.');
       trackContact('form', 'contact_page');
+      trackGA4Contact('form');
       toast({ title: "Mesaj trimis cu succes!", description: "Vă vom contacta în cel mai scurt timp posibil." });
       setFormData({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
     } catch (error: any) {

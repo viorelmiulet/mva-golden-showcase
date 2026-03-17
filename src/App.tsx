@@ -8,6 +8,7 @@ import { lazy, Suspense } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
+import { useGA4 } from "@/hooks/useGA4";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // Direct imports for always-rendered components

@@ -18,6 +18,7 @@ const PhoneButton = () => {
   const handleClick = () => {
     trackContact('phone', 'floating_button');
     trackEvent('contact_phone', { page: location.pathname });
+    trackGA4Contact('phone');
   };
 
   return (
