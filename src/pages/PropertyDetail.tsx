@@ -45,6 +45,7 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
+import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 
 // Lazy load heavy below-fold components
