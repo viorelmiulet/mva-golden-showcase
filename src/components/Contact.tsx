@@ -16,6 +16,7 @@ import ScrollReveal from "@/components/ScrollReveal"
 const Contact = () => {
   const { data: settings } = useSiteSettings();
   const { trackContact } = usePlausible();
+  const { trackContact: trackGA4Contact } = useGA4();
   const { t, language } = useLanguage();
   const [formData, setFormData] = useState({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
