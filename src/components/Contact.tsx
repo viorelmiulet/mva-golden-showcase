@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { usePlausible } from "@/hooks/usePlausible"
+import { useGA4 } from "@/hooks/useGA4"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
@@ -15,6 +16,7 @@ import ScrollReveal from "@/components/ScrollReveal"
 const Contact = () => {
   const { data: settings } = useSiteSettings();
   const { trackContact } = usePlausible();
+  const { trackContact: trackGA4Contact } = useGA4();
   const { t, language } = useLanguage();
   const [formData, setFormData] = useState({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +32,7 @@ const Contact = () => {
       const { data, error } = await supabase.functions.invoke('send-contact-email', { body: formData });
       if (error) throw new Error('Eroare la trimiterea email-ului.');
       trackContact('form', 'contact_page');
+      trackGA4Contact('form');
       toast({ title: "Mesaj trimis cu succes!", description: "Vă vom contacta în cel mai scurt timp posibil." });
       setFormData({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
     } catch (error: any) {

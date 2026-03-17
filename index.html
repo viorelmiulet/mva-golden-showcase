@@ -82,7 +82,14 @@
       }
     </style>
 
-    <!-- Google Analytics - loaded dynamically only after cookie consent -->
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLZFTKHC80"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HLZFTKHC80', { send_page_view: false });
+    </script>
 
     <!-- Privacy-friendly analytics by Plausible -->
     <script async src="https://plausible.io/js/pa-f5f3NmrOiA-HrfgXtStSS.js"></script>
