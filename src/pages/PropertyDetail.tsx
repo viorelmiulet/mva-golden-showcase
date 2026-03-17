@@ -255,6 +255,7 @@ const PropertyDetail = () => {
     if (property) {
       fetchSimilarProperties();
       trackProperty('view', property.id, property.title);
+      trackPropertyView(property.id, property.title, property.project_name || 'Unknown');
       trackEvent('property_view', {
         property_id: property.id,
         property_name: property.title,
