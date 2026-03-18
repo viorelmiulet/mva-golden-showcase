@@ -78,6 +78,7 @@ const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
+const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
@@ -131,6 +132,7 @@ const AppRoutes = () => {
                 
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
+                <Route path="blog" element={<BlogAdminPage />} />
                 <Route path="inbox" element={<InboxPage />} />
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
               </Route>

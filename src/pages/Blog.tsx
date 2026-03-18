@@ -6,6 +6,8 @@ import { Calendar, User, ArrowRight, Clock, TrendingUp, Home, Lightbulb, PiggyBa
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
@@ -19,189 +21,52 @@ const categories = [
   { id: "complexe", name: "Complexe Noi", icon: Building2 },
 ];
 
-const blogPosts = [
-  {
-    id: 1,
-    slug: "ghidul-complet-cumparare-proprietate",
-    title: "Ghidul Complet pentru Cumpărarea unei Proprietăți în București",
-    excerpt: "Tot ce trebuie să știi despre procesul de achiziție imobiliară în capitală, de la căutare până la semnarea actelor. Descoperă pașii esențiali pentru a face cea mai bună investiție!",
-    date: "15 Octombrie 2025",
-    author: "Viorel Miulet",
-    categoryId: "ghiduri",
-    category: "Ghiduri",
-    readTime: "8 min",
-    featured: true
-  },
-  {
-    id: 2,
-    slug: "tendinte-piata-imobiliara-2025",
-    title: "Tendințe pe Piața Imobiliară în 2025",
-    excerpt: "Analiză detaliată a evoluției prețurilor și a celor mai căutate zone din București și Ilfov. Află unde merită să investești acum!",
-    date: "10 Octombrie 2025",
-    author: "MVA Imobiliare",
-    categoryId: "piata",
-    category: "Piața Imobiliară",
-    readTime: "6 min",
-    featured: true
-  },
-  {
-    id: 3,
-    slug: "pregatirea-casei-pentru-vanzare",
-    title: "Cum Pregătești Casa pentru Vânzare: 10 Sfaturi Esențiale",
-    excerpt: "Strategii dovedite pentru a-ți maximiza șansele de vânzare și pentru a obține cel mai bun preț. Transformă casa ta într-un magnet pentru cumpărători!",
-    date: "5 Octombrie 2025",
-    author: "Viorel Miulet",
-    categoryId: "sfaturi",
-    category: "Sfaturi",
-    readTime: "10 min",
-    featured: false
-  },
-  {
-    id: 4,
-    slug: "investitii-imobiliare-ghid",
-    title: "Investiții Imobiliare: Ce Trebuie să Știi Înainte să Începi",
-    excerpt: "Ghid pentru investitori: analiza rentabilității, zonele promițătoare și riscurile de evitat. Construiește-ți averea prin imobiliare!",
-    date: "1 Octombrie 2025",
-    author: "MVA Imobiliare",
-    categoryId: "investitii",
-    category: "Investiții",
-    readTime: "12 min",
-    featured: false
-  },
-  {
-    id: 5,
-    slug: "prima-casa-vs-credit-standard",
-    title: "Prima Casă vs Credit Standard: Care Este Mai Avantajos în 2025?",
-    excerpt: "Comparație detaliată între programul Prima Casă și creditele ipotecare standard. Află care opțiune se potrivește situației tale financiare.",
-    date: "28 Septembrie 2025",
-    author: "MVA Imobiliare",
-    categoryId: "legal",
-    category: "Legal & Financiar",
-    readTime: "7 min",
-    featured: false
-  },
-  {
-    id: 6,
-    slug: "complexe-rezidentiale-nord-bucuresti",
-    title: "Top 5 Complexe Rezidențiale din Nordul Bucureștiului în 2025",
-    excerpt: "Analiză a celor mai noi și apreciate complexe rezidențiale din zona de nord. Pipera, Băneasa, Voluntari - unde să investești?",
-    date: "25 Septembrie 2025",
-    author: "Viorel Miulet",
-    categoryId: "complexe",
-    category: "Complexe Noi",
-    readTime: "9 min",
-    featured: false
-  },
-  {
-    id: 7,
-    slug: "erori-cumparatori-prima-casa",
-    title: "7 Greșeli Frecvente ale Cumpărătorilor la Prima Casă",
-    excerpt: "Evită capcanele comune care pot transforma visul casei tale într-un coșmar financiar. Învață din experiențele altora!",
-    date: "20 Septembrie 2025",
-    author: "Viorel Miulet",
-    categoryId: "ghiduri",
-    category: "Ghiduri",
-    readTime: "6 min",
-    featured: false
-  },
-  {
-    id: 8,
-    slug: "verificarea-actelor-proprietate",
-    title: "Cum Verifici Actele unei Proprietăți: Ghid Complet",
-    excerpt: "Tot ce trebuie să știi despre verificarea documentelor legale înainte de cumpărare. Carte funciară, autorizații, ipoteci și sarcini.",
-    date: "15 Septembrie 2025",
-    author: "MVA Imobiliare",
-    categoryId: "legal",
-    category: "Legal & Financiar",
-    readTime: "11 min",
-    featured: false
-  },
-  {
-    id: 9,
-    slug: "chirii-vs-cumparare-2025",
-    title: "Chirie vs Cumpărare: Ce Este Mai Rentabil în 2025?",
-    excerpt: "Analiză financiară completă: când merită să plătești chirie și când este momentul să cumperi propria locuință.",
-    date: "10 Septembrie 2025",
-    author: "MVA Imobiliare",
-    categoryId: "investitii",
-    category: "Investiții",
-    readTime: "8 min",
-    featured: false
-  },
-  {
-    id: 10,
-    slug: "negocierea-pretului-imobiliar",
-    title: "Arta Negocierii: Cum Obții Cel Mai Bun Preț la Cumpărare",
-    excerpt: "Tehnici și strategii de negociere folosite de profesioniști. Economisește mii de euro la următoarea achiziție imobiliară.",
-    date: "5 Septembrie 2025",
-    author: "Viorel Miulet",
-    categoryId: "sfaturi",
-    category: "Sfaturi",
-    readTime: "7 min",
-    featured: false
-  },
-  {
-    id: 11,
-    slug: "apartamente-militari-residence-ghid-cumparatori-2025",
-    title: "Ghid Complet pentru Cumpărători în Militari Residence 2025",
-    excerpt: "Tot ce trebuie să știi înainte să cumperi un apartament în Militari Residence în 2025. Prețuri reale, cele mai bune zone, sfaturi de la agenți locali cu experiență din 2016.",
-    date: "2 Martie 2026",
-    author: "MVA Imobiliare",
-    categoryId: "ghiduri",
-    category: "Ghiduri",
-    readTime: "15 min",
-    featured: true
-  },
-  {
-    id: 12,
-    slug: "preturi-apartamente-militari-residence-2026",
-    title: "Prețuri Apartamente Militari Residence 2026 — Evoluție și Prognoze",
-    excerpt: "Care sunt prețurile reale ale apartamentelor în Militari Residence în 2026? Evoluție față de 2025, prognoze și când e momentul potrivit să cumperi. Analiză de la MVA Imobiliare.",
-    date: "2 Martie 2026",
-    author: "MVA Imobiliare",
-    categoryId: "piata",
-    category: "Piața Imobiliară",
-    readTime: "12 min",
-    featured: true
-  },
-  {
-    id: 13,
-    slug: "top-ansambluri-rezidentiale-zona-militari-2026",
-    title: "Top Ansambluri Rezidențiale Zona Militari 2026 — Ghid Complet pentru Cumpărători",
-    excerpt: "Care sunt cele mai bune ansambluri rezidențiale din zona Militari și Chiajna în 2026? Comparație completă: prețuri, facilități, avantaje și dezavantaje. Ghid de la MVA Imobiliare.",
-    date: "2 Martie 2026",
-    author: "MVA Imobiliare",
-    categoryId: "complexe",
-    category: "Complexe Noi",
-    readTime: "10 min",
-    featured: true
-  },
-  {
-    id: 14,
-    slug: "credit-ipotecar-apartamente-noi-2026",
-    title: "Credit Ipotecar pentru Apartamente Noi în 2026 — Ghid Complet pas cu pas",
-    excerpt: "Tot ce trebuie să știi despre creditul ipotecar pentru apartamente noi în 2026. Dobânzi actuale, avans minim, documente necesare și sfaturi pentru aprobarea rapidă.",
-    date: "2 Martie 2026",
-    author: "MVA Imobiliare",
-    categoryId: "legal",
-    category: "Legal & Financiar",
-    readTime: "14 min",
-    featured: true
-  },
-];
+interface BlogPostItem {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  author: string;
+  category_id: string;
+  category: string;
+  read_time: string | null;
+  featured: boolean | null;
+  created_at: string;
+}
 
 const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  const { data: blogPosts = [] } = useQuery({
+    queryKey: ["blog-posts-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, author, category_id, category, read_time, featured, created_at")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as BlogPostItem[];
+    },
+  });
+
   const filteredPosts = selectedCategory === "all" 
     ? blogPosts 
-    : blogPosts.filter(post => post.categoryId === selectedCategory);
+    : blogPosts.filter(post => post.category_id === selectedCategory);
 
   const featuredPosts = blogPosts.filter(post => post.featured);
 
   const getCategoryIcon = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     return category?.icon || FileText;
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("ro-RO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   return (
@@ -254,7 +119,7 @@ const Blog = () => {
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2">
                   {featuredPosts.map((post) => {
-                    const CategoryIcon = getCategoryIcon(post.categoryId);
+                    const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
                         <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-gradient-to-br from-gold/5 to-transparent">
@@ -266,7 +131,7 @@ const Blog = () => {
                               </Badge>
                               <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground flex-shrink-0">
                                 <Clock className="h-3 w-3" />
-                                <span>{post.readTime}</span>
+                                <span>{post.read_time}</span>
                               </div>
                             </div>
                             <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2 group-hover:text-gold transition-colors leading-tight">
@@ -281,7 +146,7 @@ const Blog = () => {
                               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground w-full sm:w-auto">
                                 <div className="flex items-center gap-1.5">
                                   <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                                  <span>{post.date}</span>
+                                  <span>{formatDate(post.created_at)}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                   <User className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -329,7 +194,7 @@ const Blog = () => {
               {/* Articles Grid */}
               <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredPosts.map((post) => {
-                  const CategoryIcon = getCategoryIcon(post.categoryId);
+                  const CategoryIcon = getCategoryIcon(post.category_id);
                   return (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
                       <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border hover:border-gold/50">
@@ -341,7 +206,7 @@ const Blog = () => {
                             </Badge>
                             <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-shrink-0">
                               <Clock className="h-3 w-3" />
-                              <span>{post.readTime}</span>
+                              <span>{post.read_time}</span>
                             </div>
                           </div>
                           <CardTitle className="text-base sm:text-lg group-hover:text-gold transition-colors leading-tight line-clamp-2">
@@ -355,7 +220,7 @@ const Blog = () => {
                           <div className="flex items-center justify-between pt-3 border-t border-border">
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                               <Calendar className="h-3 w-3" />
-                              <span>{post.date}</span>
+                              <span>{formatDate(post.created_at)}</span>
                             </div>
                             <ArrowRight className="h-4 w-4 text-gold group-hover:translate-x-1 transition-transform" />
                           </div>
