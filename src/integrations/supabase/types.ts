@@ -62,6 +62,63 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author: string
+          category: string
+          category_id: string
+          content: string | null
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          featured: boolean | null
+          id: string
+          is_published: boolean | null
+          meta_description: string | null
+          meta_title: string | null
+          read_time: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string
+          category?: string
+          category_id?: string
+          content?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          read_time?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          category_id?: string
+          content?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured?: boolean | null
+          id?: string
+          is_published?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
+          read_time?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       business_cards: {
         Row: {
           back_svg: string
