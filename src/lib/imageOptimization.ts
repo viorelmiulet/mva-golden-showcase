@@ -196,32 +196,9 @@ export const getOptimizedImageUrl = (
 ): string => {
   if (!url) return '';
 
-  // Check if it's a Supabase storage URL
-  if (url.includes('supabase.co/storage/v1/object/public/')) {
-    // Extract bucket and path from the URL
-    const match = url.match(/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
-    if (match) {
-      const [, bucket, path] = match;
-      return getSupabaseTransformUrl(bucket, path, { 
-        width, 
-        quality,
-        format: 'webp'
-      });
-    }
-  }
-
-  // For URLs that already have render endpoint, ensure WebP format
-  if (url.includes('supabase.co/storage/v1/render/')) {
-    const baseUrl = url.split('?')[0];
-    const params = new URLSearchParams();
-    params.append('width', width.toString());
-    params.append('quality', quality.toString());
-    params.append('resize', 'contain');
-    params.append('format', 'webp');
-    return `${baseUrl}?${params.toString()}`;
-  }
-
-  // For other URLs, return as-is
+  // Return original URL as-is — the /render/image/ endpoint is not available
+  // on all Supabase plans and can return corrupted (green) images.
+  // Images are already compressed on upload via compressImageToFile.
   return url;
 };
 
