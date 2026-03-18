@@ -84,7 +84,7 @@ const Hero = () => {
           <aside className="grid grid-cols-2 gap-4 max-w-sm mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie' : 'Key stats'}>
             {[
               { value: isLoading ? "..." : stats?.propertiesCount || 0, label: language === 'ro' ? 'Proprietăți listate' : 'Listed properties' },
-              { value: isLoading ? "..." : stats?.projectsCount || 0, label: language === 'ro' ? 'Complexe disponibile' : 'Available complexes' },
+              { value: isLoading ? "..." : stats?.projectsCount || 0, label: language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential complexes' },
               { value: "1-3", label: language === 'ro' ? 'Camere · 30-75 mp' : 'Rooms · 30-75 sqm' },
               { value: language === 'ro' ? 'Vest' : 'West', label: language === 'ro' ? 'București' : 'Bucharest' },
             ].map((stat, i) => (
