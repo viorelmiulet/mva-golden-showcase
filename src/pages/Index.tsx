@@ -190,11 +190,11 @@ const Index = () => {
         <Header />
         <main>
           <Hero />
-          <About />
-          <Services />
           <Suspense fallback={<div className="py-24" />}>
             <Properties />
           </Suspense>
+          <About />
+          <Services />
           <Suspense fallback={<div className="py-24" />}>
             <Contact />
           </Suspense>
