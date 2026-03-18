@@ -132,6 +132,7 @@ const AppRoutes = () => {
                 
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
+                <Route path="blog" element={<BlogAdminPage />} />
                 <Route path="inbox" element={<InboxPage />} />
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
               </Route>
