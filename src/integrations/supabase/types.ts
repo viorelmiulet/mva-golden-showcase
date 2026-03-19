@@ -158,39 +158,60 @@ export type Database = {
       catalog_offers: {
         Row: {
           agency: string | null
+          agency_id: string | null
           agent: string | null
           amenities: string[] | null
+          appartment_type: string | null
           availability_status: string | null
           available_units: number | null
           balconies: number | null
           bathrooms: number | null
+          broker_id: string | null
+          build_materials: string | null
           building_type: string | null
           city: string | null
           comfort: string | null
+          commission_type: string | null
+          commission_value: number | null
           compartment: string | null
           contact_info: Json | null
           created_at: string
+          crm_source: string | null
           currency: string | null
+          date_added: string | null
           descriere_lunga: string | null
           description: string | null
+          exclusivity: boolean | null
           external_id: string | null
           features: string[] | null
           floor: number | null
           floor_plan: string | null
           furnished: string | null
+          has_ac: boolean | null
+          has_electricity: boolean | null
+          has_gas: boolean | null
+          has_internet: boolean | null
+          has_phone: boolean | null
+          has_security: boolean | null
+          has_tv: boolean | null
+          has_water: boolean | null
+          has_wood_floors: boolean | null
           heating: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null
           is_published: boolean | null
+          kitchens: number | null
           latitude: number | null
           location: string | null
           longitude: number | null
           parking: number | null
           price_max: number | null
           price_min: number | null
+          price_type: string | null
           project_id: string | null
           project_name: string | null
+          property_subtype: string | null
           property_type: string | null
           rooms: number | null
           source: string | null
@@ -211,39 +232,60 @@ export type Database = {
         }
         Insert: {
           agency?: string | null
+          agency_id?: string | null
           agent?: string | null
           amenities?: string[] | null
+          appartment_type?: string | null
           availability_status?: string | null
           available_units?: number | null
           balconies?: number | null
           bathrooms?: number | null
+          broker_id?: string | null
+          build_materials?: string | null
           building_type?: string | null
           city?: string | null
           comfort?: string | null
+          commission_type?: string | null
+          commission_value?: number | null
           compartment?: string | null
           contact_info?: Json | null
           created_at?: string
+          crm_source?: string | null
           currency?: string | null
+          date_added?: string | null
           descriere_lunga?: string | null
           description?: string | null
+          exclusivity?: boolean | null
           external_id?: string | null
           features?: string[] | null
           floor?: number | null
           floor_plan?: string | null
           furnished?: string | null
+          has_ac?: boolean | null
+          has_electricity?: boolean | null
+          has_gas?: boolean | null
+          has_internet?: boolean | null
+          has_phone?: boolean | null
+          has_security?: boolean | null
+          has_tv?: boolean | null
+          has_water?: boolean | null
+          has_wood_floors?: boolean | null
           heating?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          kitchens?: number | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
           parking?: number | null
           price_max?: number | null
           price_min?: number | null
+          price_type?: string | null
           project_id?: string | null
           project_name?: string | null
+          property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
           source?: string | null
@@ -264,39 +306,60 @@ export type Database = {
         }
         Update: {
           agency?: string | null
+          agency_id?: string | null
           agent?: string | null
           amenities?: string[] | null
+          appartment_type?: string | null
           availability_status?: string | null
           available_units?: number | null
           balconies?: number | null
           bathrooms?: number | null
+          broker_id?: string | null
+          build_materials?: string | null
           building_type?: string | null
           city?: string | null
           comfort?: string | null
+          commission_type?: string | null
+          commission_value?: number | null
           compartment?: string | null
           contact_info?: Json | null
           created_at?: string
+          crm_source?: string | null
           currency?: string | null
+          date_added?: string | null
           descriere_lunga?: string | null
           description?: string | null
+          exclusivity?: boolean | null
           external_id?: string | null
           features?: string[] | null
           floor?: number | null
           floor_plan?: string | null
           furnished?: string | null
+          has_ac?: boolean | null
+          has_electricity?: boolean | null
+          has_gas?: boolean | null
+          has_internet?: boolean | null
+          has_phone?: boolean | null
+          has_security?: boolean | null
+          has_tv?: boolean | null
+          has_water?: boolean | null
+          has_wood_floors?: boolean | null
           heating?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          kitchens?: number | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
           parking?: number | null
           price_max?: number | null
           price_min?: number | null
+          price_type?: string | null
           project_id?: string | null
           project_name?: string | null
+          property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
           source?: string | null
