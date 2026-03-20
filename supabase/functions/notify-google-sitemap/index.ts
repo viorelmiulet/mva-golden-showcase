@@ -1,8 +1,31 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const INDEXNOW_KEY = 'eigr05fz1t3k1y20luvs3bh4yqd7u73d';
+const SITE_URL = 'https://mvaimobiliare.ro';
+const DEFAULT_URLS = [
+  SITE_URL,
+  `${SITE_URL}/proprietati`,
+  `${SITE_URL}/complexe`,
+  `${SITE_URL}/despre-noi`,
+  `${SITE_URL}/servicii`,
+  `${SITE_URL}/contact`,
+  `${SITE_URL}/blog`,
+  `${SITE_URL}/calculator-credit`,
+  `${SITE_URL}/intrebari-frecvente`,
+];
+
+const normalizeUrls = (input: unknown): string[] => {
+  if (!Array.isArray(input)) return DEFAULT_URLS;
+
+  const validUrls = input
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => value.trim())
+    .filter((value) => value.startsWith(SITE_URL));
+
+  return validUrls.length > 0 ? [...new Set(validUrls)] : DEFAULT_URLS;
 };
 
 Deno.serve(async (req) => {
@@ -12,10 +35,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Notifying Google and Bing about sitemap update');
+    const requestBody = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+    const targetUrls = normalizeUrls(requestBody?.targetUrls);
 
-    const siteUrl = 'https://mvaimobiliare.ro';
-    const staticSitemapUrl = `${siteUrl}/sitemap.xml`;
+    console.log('Notifying Google and Bing about sitemap update');
+    console.log('Target URLs:', targetUrls.length);
+
+    const staticSitemapUrl = `${SITE_URL}/sitemap.xml`;
 
     // 1. Notify Google via ping
     const googlePingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(staticSitemapUrl)}`;
@@ -34,16 +60,8 @@ Deno.serve(async (req) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify({
-            siteUrl: siteUrl,
-            urlList: [
-              siteUrl,
-              `${siteUrl}/proprietati`,
-              `${siteUrl}/complexe`,
-              `${siteUrl}/despre-noi`,
-              `${siteUrl}/servicii`,
-              `${siteUrl}/contact`,
-              `${siteUrl}/blog`,
-            ]
+            siteUrl: SITE_URL,
+            urlList: targetUrls,
           })
         });
         const bingBody = await bingResponse.text();
@@ -55,36 +73,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. IndexNow (accepted by Bing, Yandex, Seznam)
-    let indexNowResult = { success: false, message: 'skipped' };
-    if (bingApiKey) {
-      try {
-        const indexNowResponse = await fetch('https://api.indexnow.org/indexnow', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=utf-8' },
-          body: JSON.stringify({
-            host: 'mvaimobiliare.ro',
-            key: bingApiKey,
-            keyLocation: `${siteUrl}/${bingApiKey}.txt`,
-            urlList: [
-              siteUrl,
-              `${siteUrl}/proprietati`,
-              `${siteUrl}/complexe`,
-              `${siteUrl}/despre-noi`,
-              `${siteUrl}/servicii`,
-              `${siteUrl}/contact`,
-              `${siteUrl}/blog`,
-              `${siteUrl}/calculator-credit`,
-              `${siteUrl}/intrebari-frecvente`,
-            ]
-          })
-        });
-        console.log('IndexNow:', indexNowResponse.status);
-        indexNowResult = { success: indexNowResponse.ok || indexNowResponse.status === 202, message: `Status: ${indexNowResponse.status}` };
-      } catch (inError) {
-        console.error('IndexNow error:', inError);
-        indexNowResult = { success: false, message: inError.message };
-      }
+    // 3. IndexNow for Bing
+    let indexNowResult = { success: false, message: 'not_sent' };
+    try {
+      const indexNowResponse = await fetch('https://www.bing.com/indexnow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({
+          host: 'mvaimobiliare.ro',
+          key: INDEXNOW_KEY,
+          keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`,
+          urlList: targetUrls,
+        })
+      });
+      const indexNowBody = await indexNowResponse.text();
+      console.log('IndexNow:', indexNowResponse.status, indexNowBody);
+      indexNowResult = {
+        success: indexNowResponse.ok || indexNowResponse.status === 202,
+        message: `Status: ${indexNowResponse.status}`,
+      };
+    } catch (inError) {
+      console.error('IndexNow error:', inError);
+      indexNowResult = { success: false, message: inError.message };
     }
 
     return new Response(
@@ -93,6 +103,7 @@ Deno.serve(async (req) => {
         google: { success: googleResponse.ok, status: googleResponse.status },
         bing: bingResult,
         indexNow: indexNowResult,
+        urls: targetUrls,
         sitemap: staticSitemapUrl
       }),
       {

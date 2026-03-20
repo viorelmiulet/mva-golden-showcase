@@ -5,6 +5,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const DEFAULT_URLS = [
+  'https://mvaimobiliare.ro',
+  'https://mvaimobiliare.ro/proprietati',
+  'https://mvaimobiliare.ro/complexe',
+  'https://mvaimobiliare.ro/blog',
+];
+
+const extractTargetUrls = (notifications: Array<{ metadata?: { target_urls?: unknown } }>) => {
+  const urls = notifications.flatMap((notification) => {
+    const targetUrls = notification?.metadata?.target_urls;
+    return Array.isArray(targetUrls)
+      ? targetUrls.filter((url): url is string => typeof url === 'string')
+      : [];
+  });
+
+  return urls.length > 0 ? [...new Set(urls)] : DEFAULT_URLS;
+};
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -43,17 +61,19 @@ Deno.serve(async (req) => {
           }
 
           console.log(`[process-sitemap-queue] Processing ${notifications.length} notifications`);
+          const targetUrls = extractTargetUrls(notifications);
+          console.log(`[process-sitemap-queue] Sending ${targetUrls.length} URLs to notification function`);
 
           // Call notify-google-sitemap function
           const { data: notifyResult, error: notifyError } = await supabase.functions.invoke(
             'notify-google-sitemap',
-            { body: {} }
+            { body: { targetUrls } }
           );
 
           if (notifyError) {
             console.error('[process-sitemap-queue] Notify error:', notifyError);
           } else {
-            console.log('[process-sitemap-queue] Successfully notified Google:', notifyResult);
+            console.log('[process-sitemap-queue] Successfully notified search engines:', notifyResult);
           }
 
           // Delete processed notifications
