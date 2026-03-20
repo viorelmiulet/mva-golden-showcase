@@ -1931,6 +1931,16 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      generate_property_slug_db: {
+        Args: {
+          property_id: string
+          property_location: string
+          property_project_name: string
+          property_rooms: number
+          property_zone: string
+        }
+        Returns: string
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1951,7 +1961,9 @@ export type Database = {
         }
         Returns: number
       }
-      notify_google_sitemap: { Args: never; Returns: undefined }
+      notify_google_sitemap:
+        | { Args: never; Returns: undefined }
+        | { Args: { target_urls?: Json }; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -1960,6 +1972,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      slugify_text: { Args: { input_text: string }; Returns: string }
       trigger_scheduled_social_post: { Args: never; Returns: undefined }
     }
     Enums: {
