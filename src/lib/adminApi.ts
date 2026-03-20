@@ -9,7 +9,9 @@ export const adminApi = {
 
     if (error) {
       console.error('Admin insert error:', error);
-      return { success: false, error: error.message };
+      // Try to extract the actual error message from the response
+      const errorMsg = typeof error === 'object' && error.message ? error.message : String(error);
+      return { success: false, error: errorMsg };
     }
 
     return result;
