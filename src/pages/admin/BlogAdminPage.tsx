@@ -90,7 +90,12 @@ const BlogAdminPage = () => {
         if (!result.success) throw new Error(result.error);
       } else {
         const result = await adminApi.insert("blog_posts", postData);
-        if (!result.success) throw new Error(result.error);
+        if (!result.success) {
+          if (result.error?.includes('slug') || result.error?.includes('duplicate')) {
+            throw new Error("Slug-ul există deja. Schimbă titlul sau slug-ul.");
+          }
+          throw new Error(result.error || "Eroare la salvare");
+        }
       }
     },
     onSuccess: () => {
@@ -98,7 +103,7 @@ const BlogAdminPage = () => {
       toast.success(editingPost ? "Articol actualizat!" : "Articol creat!");
       closeDialog();
     },
-    onError: (err: Error) => toast.error("Eroare: " + err.message),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   const deleteMutation = useMutation({
