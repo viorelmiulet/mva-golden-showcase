@@ -68,7 +68,7 @@ serve(async (req) => {
         return await analyzeXmlStructure(xml_url);
       
       case 'import_xml_feed':
-        return await importXmlFeed(supabase, xml_url);
+        return await importXmlWithCustomMapping(supabase, xml_url, {});
       
       case 'import_xml_with_mapping':
         return await importXmlWithCustomMapping(supabase, xml_url, requestBody.field_mapping);
