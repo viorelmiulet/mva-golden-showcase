@@ -197,9 +197,10 @@ Deno.serve(async (req) => {
 
         if (error) {
           console.error("Insert error:", error);
+          const status = error.code === '23505' ? 400 : 500;
           return new Response(
             JSON.stringify({ success: false, error: error.message }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
