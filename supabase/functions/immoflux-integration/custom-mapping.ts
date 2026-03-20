@@ -262,24 +262,46 @@ async function mapSingleProperty(block: string, index: number, fieldMapping: Rec
     }
   }
 
-  // Parse price from nested <price><price>X</price><currency>Y</currency></price>
-  const priceBlock = block.match(/<price[^>]*>[\s\S]*?<\/price>/gi);
+  // Parse price - try multiple approaches
   let priceVal = 0;
   let currency = 'EUR';
   let priceType: string | null = null;
-  if (priceBlock) {
-    const lastPriceBlock = priceBlock[priceBlock.length - 1];
-    // Try nested price value
-    const innerPrice = extractFieldValue(lastPriceBlock, 'price');
-    if (innerPrice) {
-      const num = parseFloat(innerPrice.replace(/[^\d.,]/g, '').replace(',', '.'));
-      if (!isNaN(num)) priceVal = Math.round(num);
+  
+  // Approach 1: Look for exact <price> wrapper with nested values (not <price_type> etc.)
+  const priceWrapperMatch = block.match(/<price>[\s\S]*?<\/price>/gi);
+  if (priceWrapperMatch) {
+    for (const pw of priceWrapperMatch) {
+      // Skip very short matches that are just the inner number
+      if (pw.includes('<currency>') || pw.includes('<price_type>')) {
+        // This is the outer wrapper - extract inner values
+        // Inner price: find <price>NUMBER</price> pattern (no nested tags)
+        const innerPriceMatch = pw.match(/<price>(\d[\d.,]*)<\/price>/i);
+        if (innerPriceMatch) {
+          const num = parseFloat(innerPriceMatch[1].replace(/[^\d.,]/g, '').replace(',', '.'));
+          if (!isNaN(num) && num > 0) priceVal = Math.round(num);
+        }
+        const curMatch = pw.match(/<currency>([^<]+)<\/currency>/i);
+        if (curMatch) currency = curMatch[1].trim().toUpperCase();
+        const ptMatch = pw.match(/<price_type>([^<]+)<\/price_type>/i);
+        if (ptMatch) priceType = ptMatch[1].trim();
+        break;
+      } else {
+        // Simple <price>NUMBER</price>
+        const numStr = pw.replace(/<[^>]+>/g, '').trim();
+        const num = parseFloat(numStr.replace(/[^\d.,]/g, '').replace(',', '.'));
+        if (!isNaN(num) && num > 0) priceVal = Math.round(num);
+      }
     }
-    const cur = extractFieldValue(lastPriceBlock, 'currency');
-    if (cur) currency = cur.toUpperCase();
-    const pt = extractFieldValue(lastPriceBlock, 'price_type');
+  }
+  
+  // Approach 2: Try currency/price_type at block level if not found
+  if (!priceType) {
+    const pt = extractFieldValue(block, 'price_type');
     if (pt) priceType = pt;
   }
+  const curDirect = extractFieldValue(block, 'currency');
+  if (curDirect) currency = curDirect.toUpperCase();
+  
   // Override with direct mapping if available
   if (d.price) {
     const num = parseFloat(d.price.replace(/[^\d.,]/g, '').replace(',', '.'));
