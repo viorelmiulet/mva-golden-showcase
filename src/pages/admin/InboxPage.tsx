@@ -22,7 +22,9 @@ import {
   Trash2,
   ArrowLeft,
   RotateCcw,
-  Inbox
+   Inbox,
+   Maximize2,
+   Minimize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -113,6 +115,7 @@ const InboxPage = () => {
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [emailListCollapsed, setEmailListCollapsed] = useState(false);
+  const [isReadingFullscreen, setIsReadingFullscreen] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -728,6 +731,7 @@ const InboxPage = () => {
 
   const handleBackToList = () => {
     setMobileView('list');
+    setIsReadingFullscreen(false);
     setSelectedEmail(null);
     setSelectedThreadId(null);
   };
@@ -1226,36 +1230,38 @@ ${originalBody}`;
         />
 
         <div className="flex min-h-0 flex-1">
-          <GmailSidebar
-            filter={filter}
-            setFilter={setFilter}
-            emailsCount={emails?.length || 0}
-            unreadCount={unreadCount}
-            starredCount={starredCount}
-            archivedCount={archivedCount}
-            sentCount={sentCount}
-            trashCount={trashCount}
-            draftsCount={drafts?.length || 0}
-            onCompose={handleOpenCompose}
-            onShowDrafts={() => setShowDrafts(true)}
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-          />
+          {!isReadingFullscreen && (
+            <GmailSidebar
+              filter={filter}
+              setFilter={setFilter}
+              emailsCount={emails?.length || 0}
+              unreadCount={unreadCount}
+              starredCount={starredCount}
+              archivedCount={archivedCount}
+              sentCount={sentCount}
+              trashCount={trashCount}
+              draftsCount={drafts?.length || 0}
+              onCompose={handleOpenCompose}
+              onShowDrafts={() => setShowDrafts(true)}
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+            />
+          )}
 
           <div className="flex min-w-0 flex-1 bg-background">
             {isLoading ? (
               <div className={cn(
                 "transition-all duration-300",
-                emailListCollapsed ? "w-0 overflow-hidden" : "w-full max-w-[460px] border-r border-border/20 p-4"
+                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden" : "w-full max-w-[460px] border-r border-border/20 p-4"
               )}>
-                {!emailListCollapsed && <EmailListSkeleton count={10} />}
+                {!emailListCollapsed && !isReadingFullscreen && <EmailListSkeleton count={10} />}
               </div>
             ) : (
               <div className={cn(
                 "relative border-r border-border/20 transition-all duration-300",
-                emailListCollapsed ? "w-0 overflow-hidden border-r-0" : "w-full max-w-[460px]"
+                emailListCollapsed || isReadingFullscreen ? "w-0 overflow-hidden border-r-0" : "w-full max-w-[460px]"
               )}>
-                {!emailListCollapsed && (
+                {!emailListCollapsed && !isReadingFullscreen && (
                   <GmailEmailList
                     emails={filteredEmails || []}
                     selectedEmailId={selectedEmail?.id || null}
@@ -1298,18 +1304,35 @@ ${originalBody}`;
             )}
 
             <div className="relative min-w-0 flex-1 bg-muted/10">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setEmailListCollapsed(!emailListCollapsed)}
-                className="absolute left-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
-              >
-                {emailListCollapsed ? (
-                  <PanelLeftOpen className="h-4 w-4" />
-                ) : (
-                  <PanelLeftClose className="h-4 w-4" />
-                )}
-              </Button>
+              {!isReadingFullscreen && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setEmailListCollapsed(!emailListCollapsed)}
+                  className="absolute left-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
+                >
+                  {emailListCollapsed ? (
+                    <PanelLeftOpen className="h-4 w-4" />
+                  ) : (
+                    <PanelLeftClose className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+
+              {(selectedEmail || currentThread) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsReadingFullscreen(!isReadingFullscreen)}
+                  className="absolute right-3 top-3 z-10 h-9 w-9 rounded-xl border border-border/20 bg-background hover:bg-muted"
+                >
+                  {isReadingFullscreen ? (
+                    <Minimize2 className="h-4 w-4" />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
 
               {currentThread && currentThread.emails.length > 1 ? (
                 <EmailThreadView
