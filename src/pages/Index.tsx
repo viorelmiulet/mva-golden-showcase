@@ -153,7 +153,7 @@ const Index = () => {
         <link rel="canonical" href="https://mvaimobiliare.ro/" />
         
         {/* Sitemaps */}
-        <link rel="sitemap" type="application/xml" href="https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap" />
+        <link rel="sitemap" type="application/xml" href="https://mvaimobiliare.ro/sitemap.xml" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content="MVA Imobiliare este o agenție imobiliară specializată în zona Militari și vestul Bucureștiului, oferind servicii de vânzare și cumpărare proprietăți, consultanță expertă, evaluări gratuite și asistență completă în tranzacții imobiliare. Contact: 0767941512, email: contact@mvaimobiliare.ro" />
