@@ -1,7 +1,6 @@
 import Header from "@/components/Header"
 import Hero from "@/components/Hero"
 import About from "@/components/About"
-import TrustBadges from "@/components/TrustBadges"
 import Services from "@/components/Services"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect, lazy, Suspense } from "react"
@@ -195,7 +194,6 @@ const Index = () => {
             <Properties />
           </Suspense>
           <About />
-          <TrustBadges />
           <Services />
           <Suspense fallback={<div className="py-24" />}>
             <Contact />
