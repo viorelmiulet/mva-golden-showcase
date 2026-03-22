@@ -33,6 +33,18 @@ interface EmailFunctionSetting {
   is_active: boolean;
 }
 
+const MAIN_SITE_URLS = [
+  "https://mvaimobiliare.ro",
+  "https://mvaimobiliare.ro/proprietati",
+  "https://mvaimobiliare.ro/complexe",
+  "https://mvaimobiliare.ro/despre-noi",
+  "https://mvaimobiliare.ro/servicii",
+  "https://mvaimobiliare.ro/contact",
+  "https://mvaimobiliare.ro/blog",
+  "https://mvaimobiliare.ro/calculator-credit",
+  "https://mvaimobiliare.ro/intrebari-frecvente",
+];
+
 const defaultSettings: SiteSettings = {
   companyName: "MVA Imobiliare",
   phone: "+40767941512",
@@ -165,6 +177,33 @@ const SettingsPage = () => {
     onError: (error) => {
       console.error('Error saving email settings:', error);
       toast.error("Nu s-au putut salva setările email");
+    }
+  });
+
+  const sendIndexNowMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('notify-google-sitemap', {
+        body: {
+          targetUrls: MAIN_SITE_URLS,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Nu s-a putut trimite notificarea către Bing');
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Răspuns invalid de la funcția de notificare');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('IndexNow a fost trimis către Bing cu succes!');
+    },
+    onError: (error) => {
+      console.error('Error sending IndexNow notification:', error);
+      toast.error(error instanceof Error ? error.message : 'Eroare la trimiterea IndexNow către Bing');
     }
   });
 
@@ -476,6 +515,52 @@ const SettingsPage = () => {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="relative group lg:col-span-2">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
+            <div className="p-6 border-b border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/5 text-blue-400">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">IndexNow către Bing</h3>
+                  <p className="text-sm text-muted-foreground">Trimite manual URL-urile principale ale site-ului pentru reindexare rapidă.</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => sendIndexNowMutation.mutate()}
+                disabled={sendIndexNowMutation.isPending}
+                className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+              >
+                {sendIndexNowMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Se trimite...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Trimite IndexNow către Bing
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="p-6">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="mb-3 text-sm text-muted-foreground">Vor fi notificate aceste URL-uri principale:</p>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {MAIN_SITE_URLS.map((url) => (
+                    <div key={url} className="rounded-lg border border-white/10 bg-background/30 px-3 py-2 text-xs text-muted-foreground break-all">
+                      {url}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
