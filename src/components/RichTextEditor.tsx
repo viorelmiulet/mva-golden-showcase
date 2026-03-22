@@ -140,6 +140,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('bold') && "bg-muted")}
           onClick={() => editor.chain().focus().toggleBold().run()}
+          aria-label="Text îngroșat"
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -149,6 +150,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('italic') && "bg-muted")}
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          aria-label="Text italic"
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -158,6 +160,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('underline') && "bg-muted")}
           onClick={() => editor.chain().focus().toggleUnderline().run()}
+          aria-label="Text subliniat"
         >
           <UnderlineIcon className="h-4 w-4" />
         </Button>
@@ -170,6 +173,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('bulletList') && "bg-muted")}
           onClick={() => editor.chain().focus().toggleBulletList().run()}
+          aria-label="Listă cu buline"
         >
           <List className="h-4 w-4" />
         </Button>
@@ -179,6 +183,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('orderedList') && "bg-muted")}
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          aria-label="Listă numerotată"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -191,6 +196,7 @@ const RichTextEditor = ({
           size="icon"
           className={cn("h-8 w-8", editor.isActive('link') && "bg-muted")}
           onClick={addLink}
+          aria-label="Adaugă link"
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
@@ -204,6 +210,7 @@ const RichTextEditor = ({
           className="h-8 w-8"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
+          aria-label="Anulează ultima acțiune"
         >
           <Undo className="h-4 w-4" />
         </Button>
@@ -214,6 +221,7 @@ const RichTextEditor = ({
           className="h-8 w-8"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
+          aria-label="Refă ultima acțiune"
         >
           <Redo className="h-4 w-4" />
         </Button>
