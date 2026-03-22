@@ -43,6 +43,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { downloadEmailAttachment, getAttachmentName, getAttachmentUrl } from "./attachment-download";
 
 interface Email {
   id: string;
@@ -289,14 +290,15 @@ export const GmailEmailDetail = ({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {email.attachments.map((attachment, idx) => {
-                  const FileIcon = getFileIcon(attachment.filename || attachment.name);
+                  const attachmentName = getAttachmentName(attachment);
+                  const attachmentUrl = getAttachmentUrl(attachment);
+                  const FileIcon = getFileIcon(attachmentName);
                   return (
-                    <a
+                    <button
+                      type="button"
                       key={idx}
-                      href={attachment.url}
-                      download={attachment.filename || attachment.name}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={() => void downloadEmailAttachment(attachment)}
+                      disabled={!attachmentUrl}
                       className="flex items-center gap-3 p-3 bg-muted/10 border border-border/10 rounded-lg hover:bg-muted/25 transition-colors group"
                     >
                       <div className="p-2 bg-background rounded-md">
@@ -304,14 +306,14 @@ export const GmailEmailDetail = ({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">
-                          {attachment.filename || attachment.name}
+                          {attachmentName}
                         </p>
                         {attachment.size && (
                           <p className="text-[10px] text-muted-foreground/50">{formatFileSize(attachment.size)}</p>
                         )}
                       </div>
                       <Download className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors" />
-                    </a>
+                    </button>
                   );
                 })}
               </div>

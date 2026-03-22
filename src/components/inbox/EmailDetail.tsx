@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { downloadEmailAttachment, getAttachmentName, getAttachmentUrl } from "./attachment-download";
 
 interface Email {
   id: string;
@@ -317,7 +318,9 @@ export const EmailDetail = ({
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {email.attachments.map((att: any, idx: number) => {
-                        const FileIcon = getFileIcon(att.name || 'file');
+                        const attachmentName = getAttachmentName(att);
+                        const attachmentUrl = getAttachmentUrl(att);
+                        const FileIcon = getFileIcon(attachmentName);
                         return (
                           <motion.div
                             key={idx}
@@ -325,12 +328,10 @@ export const EmailDetail = ({
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.3 + idx * 0.05 }}
                           >
-                            {att.url ? (
-                              <a 
-                                href={att.url} 
-                                download={att.name}
-                                target="_blank" 
-                                rel="noopener noreferrer"
+                            {attachmentUrl ? (
+                              <button
+                                type="button"
+                                onClick={() => void downloadEmailAttachment(att)}
                                 className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/5 hover:border-gold/30 hover:bg-gold/5 transition-all duration-200"
                               >
                                 <div className="shrink-0 w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
@@ -338,7 +339,7 @@ export const EmailDetail = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium truncate text-foreground">
-                                    {att.name}
+                                    {attachmentName}
                                   </p>
                                   {att.size && (
                                     <p className="text-xs text-muted-foreground">
@@ -347,7 +348,7 @@ export const EmailDetail = ({
                                   )}
                                 </div>
                                 <Download className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
-                              </a>
+                              </button>
                             ) : (
                               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 opacity-50">
                                 <div className="shrink-0 w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
@@ -355,7 +356,7 @@ export const EmailDetail = ({
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium truncate text-muted-foreground">
-                                    {att.name}
+                                    {attachmentName}
                                   </p>
                                   <p className="text-xs text-muted-foreground/60">
                                     Nedisponibil

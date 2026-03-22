@@ -46,6 +46,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { downloadEmailAttachment, getAttachmentName, getAttachmentUrl } from "./attachment-download";
 
 interface ThreadEmail {
   id: string;
@@ -454,21 +455,22 @@ export const EmailThreadView = ({
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                   {email.attachments.map((attachment, idx) => {
-                                    const FileIcon = getFileIcon(attachment.filename || attachment.name);
+                                    const attachmentName = getAttachmentName(attachment);
+                                    const attachmentUrl = getAttachmentUrl(attachment);
+                                    const FileIcon = getFileIcon(attachmentName);
                                     return (
-                                      <a
+                                      <button
+                                        type="button"
                                         key={idx}
-                                        href={attachment.url}
-                                        download={attachment.filename || attachment.name}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        onClick={() => void downloadEmailAttachment(attachment)}
+                                        disabled={!attachmentUrl}
                                         className="flex items-center gap-2 px-3 py-2 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors text-sm"
                                       >
                                         <FileIcon className="h-5 w-5 text-muted-foreground" />
                                         <span className="truncate max-w-[120px]">
-                                          {attachment.filename || attachment.name}
+                                          {attachmentName}
                                         </span>
-                                      </a>
+                                      </button>
                                     );
                                   })}
                                 </div>
