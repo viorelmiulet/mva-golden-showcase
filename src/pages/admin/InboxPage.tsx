@@ -1214,6 +1214,7 @@ ${originalBody}`;
 
   // Desktop Layout - Outlook-style reading pane
   return (
+    <>
     <div className="h-[calc(100vh-80px)] bg-muted/30 p-3">
       <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border/30 bg-background shadow-sm">
         <GmailHeader
@@ -1787,7 +1788,7 @@ ${originalBody}`;
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 
