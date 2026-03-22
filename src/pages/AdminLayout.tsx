@@ -199,6 +199,7 @@ const AdminHeader = ({
             size="icon" 
             className="h-10 w-10 touch-manipulation active:scale-95 rounded-xl hover:bg-white/5"
             title="Înapoi la site"
+            aria-label="Înapoi la site"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
