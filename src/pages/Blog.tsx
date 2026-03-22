@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const categories = [
   { id: "all", name: "Toate", icon: FileText },
@@ -26,6 +27,7 @@ interface BlogPostItem {
   slug: string;
   title: string;
   excerpt: string | null;
+  cover_image: string | null;
   author: string;
   category_id: string;
   category: string;
@@ -42,7 +44,7 @@ const Blog = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, slug, title, excerpt, author, category_id, category, read_time, featured, created_at")
+        .select("id, slug, title, excerpt, cover_image, author, category_id, category, read_time, featured, created_at")
         .eq("is_published", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -123,6 +125,16 @@ const Blog = () => {
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
                         <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-gradient-to-br from-gold/5 to-transparent">
+                          {post.cover_image && (
+                            <OptimizedImage
+                              src={post.cover_image}
+                              alt={post.title}
+                              className="h-56 w-full"
+                              width={1200}
+                              height={800}
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          )}
                           <CardHeader className="space-y-2 sm:space-y-3 p-4 sm:p-6">
                             <div className="flex items-center justify-between gap-2">
                               <Badge className="text-xs sm:text-sm font-medium bg-gold/20 text-gold border-gold/30 hover:bg-gold/30">
@@ -198,6 +210,16 @@ const Blog = () => {
                   return (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
                       <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border hover:border-gold/50">
+                        {post.cover_image && (
+                          <OptimizedImage
+                            src={post.cover_image}
+                            alt={post.title}
+                            className="h-48 w-full"
+                            width={1200}
+                            height={800}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        )}
                         <CardHeader className="space-y-2 p-4">
                           <div className="flex items-center justify-between gap-2">
                             <Badge variant="secondary" className="text-xs font-medium">

@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const getCategoryIcon = (categoryId: string) => {
   const icons: Record<string, typeof Home> = {
@@ -101,7 +102,7 @@ const BlogPost = () => {
     "@type": "Article",
     "headline": post.title,
     "description": post.meta_description || post.excerpt || post.title,
-    "image": "https://mvaimobiliare.ro/mva-logo-luxury.svg",
+    "image": post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg",
     "datePublished": post.created_at,
     "dateModified": post.updated_at,
     "author": {
@@ -149,14 +150,14 @@ const BlogPost = () => {
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`https://mvaimobiliare.ro/blog/${slug}`} />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="og:image" content={post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg"} />
         <meta property="article:published_time" content={post.created_at} />
         <meta property="article:author" content={post.author} />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${post.title} | MVA Imobiliare`} />
         <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta name="twitter:image" content={post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg"} />
 
         <script type="application/ld+json">
           {JSON.stringify(articleStructuredData)}
@@ -202,6 +203,20 @@ const BlogPost = () => {
                   </div>
                 </div>
               </header>
+
+              {post.cover_image && (
+                <div className="mb-8 overflow-hidden rounded-2xl border border-border bg-muted/30">
+                  <OptimizedImage
+                    src={post.cover_image}
+                    alt={post.title}
+                    className="w-full"
+                    width={1600}
+                    height={900}
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 1024px"
+                  />
+                </div>
+              )}
 
               {post.content && (
                 <div 
