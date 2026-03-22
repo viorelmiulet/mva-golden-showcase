@@ -123,25 +123,25 @@ const Contact = () => {
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-medium text-foreground mb-1 block">Nume *</label>
-                        <Input name="nume" value={formData.nume} onChange={handleChange} placeholder="Numele tău" className={inputClass} required />
+                        <label htmlFor="nume" className="text-xs font-medium text-foreground mb-1 block">Nume *</label>
+                        <Input id="nume" name="nume" autoComplete="family-name" value={formData.nume} onChange={handleChange} placeholder="Numele tău" className={inputClass} required />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-foreground mb-1 block">Prenume *</label>
-                        <Input name="prenume" value={formData.prenume} onChange={handleChange} placeholder="Prenumele tău" className={inputClass} required />
+                        <label htmlFor="prenume" className="text-xs font-medium text-foreground mb-1 block">Prenume *</label>
+                        <Input id="prenume" name="prenume" autoComplete="given-name" value={formData.prenume} onChange={handleChange} placeholder="Prenumele tău" className={inputClass} required />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-foreground mb-1 block">Email *</label>
-                      <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@exemplu.com" className={inputClass} required />
+                      <label htmlFor="email" className="text-xs font-medium text-foreground mb-1 block">Email *</label>
+                      <Input id="email" type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} placeholder="email@exemplu.com" className={inputClass} required />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-foreground mb-1 block">Telefon *</label>
-                      <Input name="telefon" value={formData.telefon} onChange={handleChange} placeholder="+40767 941 512" className={inputClass} required />
+                      <label htmlFor="telefon" className="text-xs font-medium text-foreground mb-1 block">Telefon *</label>
+                      <Input id="telefon" name="telefon" autoComplete="tel" value={formData.telefon} onChange={handleChange} placeholder="+40767 941 512" className={inputClass} required />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-foreground mb-1 block">Mesaj *</label>
-                      <Textarea name="mesaj" value={formData.mesaj} onChange={handleChange} placeholder="Descrie-ne ce cauți..." rows={4} className="bg-background border-border/50 focus:border-gold focus:ring-1 focus:ring-gold/20 resize-none text-sm" required />
+                      <label htmlFor="mesaj" className="text-xs font-medium text-foreground mb-1 block">Mesaj *</label>
+                      <Textarea id="mesaj" name="mesaj" value={formData.mesaj} onChange={handleChange} placeholder="Descrie-ne ce cauți..." rows={4} className="bg-background border-border/50 focus:border-gold focus:ring-1 focus:ring-gold/20 resize-none text-sm" required />
                     </div>
                     <Button type="submit" variant="luxury" size="lg" className="w-full h-11 text-sm font-bold" disabled={isSubmitting}>
                       {isSubmitting ? 'Se trimite...' : <><Send className="w-4 h-4 mr-2" />Trimite mesajul</>}
