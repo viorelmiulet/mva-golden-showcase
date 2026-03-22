@@ -82,7 +82,7 @@ const About = () => {
             <ScrollReveal direction="right">
               <div>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
-                  {language === 'ro' ? 'De ce să ne alegi' : 'Why Choose Us'}
+                  {language === 'ro' ? 'De Ce Să Ne Alegi' : 'Why Choose Us'}
                 </h3>
                 <div className="space-y-3">
                   {values.map((value, i) => (
