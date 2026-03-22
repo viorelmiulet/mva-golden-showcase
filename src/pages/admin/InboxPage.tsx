@@ -1367,6 +1367,8 @@ ${originalBody}`;
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
       {/* Drafts Dialog */}
       <Dialog open={showDrafts} onOpenChange={setShowDrafts}>
