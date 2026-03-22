@@ -122,6 +122,53 @@ const Footer = () => {
             </button>
           </div>
         </div>
+
+        <div className="pb-4 max-w-5xl mx-auto flex flex-col items-center gap-3 text-center">
+          <p className="text-xs text-muted-foreground">
+            MVA PERFECT BUSINESS S.R.L. · CUI: 50477503 · Nr. Reg. Com.: J23/18361/2024
+          </p>
+
+          <div className="flex items-center gap-3">
+            <a
+              href="https://anpc.ro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-border/50 bg-muted/10 px-2 py-1 hover:bg-muted/20 transition-colors"
+              aria-label="ANPC"
+            >
+              <img
+                src="https://anpc.ro/wp-content/uploads/2022/08/ANPC-logo.png"
+                alt="ANPC"
+                loading="lazy"
+                className="h-7 w-auto"
+              />
+            </a>
+
+            <a
+              href="https://ec.europa.eu/consumers/odr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-border/50 bg-muted/10 px-2 py-1 hover:bg-muted/20 transition-colors"
+              aria-label="SOL"
+            >
+              <img
+                src="https://ec.europa.eu/consumers/odr/main/img/odrs35.png"
+                alt="SOL"
+                loading="lazy"
+                className="h-7 w-auto"
+              />
+            </a>
+          </div>
+
+          <a
+            href="https://anpc.ro/categorie/sal/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-gold transition-colors"
+          >
+            Soluționare Alternativă a Litigiilor (SAL)
+          </a>
+        </div>
       </div>
     </footer>
   );
