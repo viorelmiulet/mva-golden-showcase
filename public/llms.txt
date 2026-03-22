@@ -55,4 +55,4 @@
 ## API și Date Structurate
 
 - Sitemap XML: https://mvaimobiliare.ro/sitemap.xml
-- Sitemap Dinamic: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-index
+- Sitemap Dinamic: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap
