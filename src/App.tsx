@@ -10,6 +10,7 @@ import { useWebVitals } from "@/hooks/useWebVitals";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { useGA4 } from "@/hooks/useGA4";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import NotFound from "./pages/NotFound";
 
 // Direct imports for always-rendered components
 import CookieConsent from "@/components/CookieConsent";
@@ -153,6 +154,7 @@ const AppRoutes = () => {
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
               <Route path="/sign/:token" element={<SignContract />} />
+              <Route path="/404" element={<NotFound />} />
               
               {/* Mobile App Routes */}
               <Route path="/app" element={<MobileAppLayout />}>
@@ -175,7 +177,7 @@ const AppRoutes = () => {
               <Route path="/properties" element={<Navigate to="/proprietati" replace />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
             <WhatsAppButton />
