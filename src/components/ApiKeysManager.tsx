@@ -121,7 +121,7 @@ const ApiKeyCard: React.FC<ApiKeyCardProps> = ({ apiKey, onToggle, onDelete }) =
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" aria-label="Șterge cheia API">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </AlertDialogTrigger>
@@ -162,6 +162,7 @@ const ApiKeyCard: React.FC<ApiKeyCardProps> = ({ apiKey, onToggle, onDelete }) =
               variant="outline"
               size="icon"
               onClick={() => setShowKey(!showKey)}
+              aria-label={showKey ? "Ascunde cheia API" : "Afișează cheia API"}
             >
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
@@ -169,6 +170,7 @@ const ApiKeyCard: React.FC<ApiKeyCardProps> = ({ apiKey, onToggle, onDelete }) =
               variant="outline"
               size="icon"
               onClick={() => copyToClipboard(apiKey.api_key)}
+              aria-label="Copiază cheia API"
             >
               <Copy className="h-4 w-4" />
             </Button>
