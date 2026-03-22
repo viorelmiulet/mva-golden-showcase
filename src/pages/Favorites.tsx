@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFavorites } from "@/hooks/useFavorites";
 import { getPropertyUrl } from "@/lib/propertySlug";
+import { getComplexUrl } from "@/lib/complexSlug";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -325,7 +326,7 @@ const ComplexCard = ({ complex, onRemove }: { complex: any; onRemove: () => void
         )}
       </div>
       
-      <Link to={`/complexe/${complex.id}`}>
+      <Link to={getComplexUrl(complex)}>
         <Button variant="outline" size="sm" className="w-full">
           Vezi Complex
           <ArrowRight className="ml-2 h-4 w-4" />

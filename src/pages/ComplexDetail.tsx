@@ -521,8 +521,8 @@ const ComplexDetail = () => {
               {/* Rooms Filter */}
               <Select value={filterRooms} onValueChange={(value) => {
                 setFilterRooms(value);
-                if (value !== "all" && id) {
-                  trackComplex('filter', id, project?.name);
+                if (value !== "all" && project?.id) {
+                  trackComplex('filter', project.id, project?.name);
                 }
               }}>
                 <SelectTrigger className="w-[130px] sm:w-[150px] h-8 sm:h-9 text-xs sm:text-sm">
