@@ -291,6 +291,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
               onClick={toggleSidebar}
               className="h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors"
               title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
+              aria-label={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
             >
               <motion.div
                 animate={{ rotate: collapsed ? 180 : 0 }}
