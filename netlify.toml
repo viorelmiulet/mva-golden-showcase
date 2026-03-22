@@ -3,20 +3,8 @@
   command = "npm run build"
 
 [[redirects]]
-  from = "/sitemaps/static.xml"
-  to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-static"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/sitemaps/properties.xml"
-  to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-properties"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/sitemaps/complexes.xml"
-  to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-complexes"
+  from = "/sitemap.xml"
+  to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap"
   status = 200
   force = true
 

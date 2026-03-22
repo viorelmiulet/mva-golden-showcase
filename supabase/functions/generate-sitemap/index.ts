@@ -7,16 +7,74 @@ const corsHeaders = {
 
 interface Project {
   id: string;
+  name?: string | null;
   updated_at: string;
 }
 
 interface Property {
   id: string;
+  rooms?: number | null;
+  project_name?: string | null;
+  zone?: string | null;
+  location?: string | null;
   updated_at: string;
 }
 
+interface BlogPost {
+  slug: string;
+  updated_at: string;
+}
+
+const SITE_URL = 'https://mvaimobiliare.ro';
+
+const toKebab = (str: string): string =>
+  str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const generatePropertySlug = (property: Property): string => {
+  const parts: string[] = [];
+  const rooms = property.rooms || 1;
+
+  if (rooms <= 1) {
+    parts.push('garsoniera');
+  } else {
+    parts.push(`apartament-${rooms}-camere`);
+  }
+
+  if (property.project_name) {
+    parts.push(toKebab(property.project_name));
+  }
+
+  const zone = property.zone || property.location;
+  if (zone) {
+    const isCoordinates = /^\d|.*\d{2,}\.\d{3,}/.test(zone);
+    if (!isCoordinates) {
+      const kebabZone = toKebab(zone.split(',')[0].trim());
+      if (kebabZone && kebabZone.length > 2 && !parts.some((part) => part.includes(kebabZone))) {
+        parts.push(kebabZone);
+      }
+    }
+  }
+
+  const shortId = property.id.replace(/-/g, '').substring(0, 4);
+  parts.push(shortId);
+
+  return parts.join('-');
+};
+
+const xmlEscape = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,67 +82,79 @@ Deno.serve(async (req) => {
   try {
     console.log('Generating dynamic sitemap.xml');
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all projects (complexes)
-    const { data: projects, error: projectsError } = await supabase
-      .from('real_estate_projects')
-      .select('id, updated_at')
-      .order('updated_at', { ascending: false });
+    const [projectsResult, propertiesResult, blogPostsResult] = await Promise.all([
+      supabase
+        .from('real_estate_projects')
+        .select('id, name, updated_at')
+        .eq('is_published', true)
+        .order('updated_at', { ascending: false }),
+      supabase
+        .from('catalog_offers')
+        .select('id, updated_at, rooms, project_name, zone, location')
+        .eq('is_published', true)
+        .eq('availability_status', 'available')
+        .order('updated_at', { ascending: false })
+        .limit(5000),
+      supabase
+        .from('blog_posts')
+        .select('slug, updated_at')
+        .eq('is_published', true)
+        .order('updated_at', { ascending: false }),
+    ]);
 
-    if (projectsError) {
-      console.error('Error fetching projects:', projectsError);
-      throw projectsError;
+    if (projectsResult.error) {
+      console.error('Error fetching projects:', projectsResult.error);
+      throw projectsResult.error;
     }
 
-    // Fetch all properties (without project_id - standalone properties)
-    const { data: properties, error: propertiesError } = await supabase
-      .from('catalog_offers')
-      .select('id, updated_at')
-      .is('project_id', null)
-      .order('updated_at', { ascending: false });
-
-    if (propertiesError) {
-      console.error('Error fetching properties:', propertiesError);
-      throw propertiesError;
+    if (propertiesResult.error) {
+      console.error('Error fetching properties:', propertiesResult.error);
+      throw propertiesResult.error;
     }
 
-    console.log(`Found ${projects?.length || 0} complexes and ${properties?.length || 0} properties`);
+    if (blogPostsResult.error) {
+      console.error('Error fetching blog posts:', blogPostsResult.error);
+      throw blogPostsResult.error;
+    }
 
-    // Build sitemap XML
-    const baseUrl = 'https://mvaimobiliare.ro';
+    const projects = (projectsResult.data || []) as Project[];
+    const properties = (propertiesResult.data || []) as Property[];
+    const blogPosts = (blogPostsResult.data || []) as BlogPost[];
+
+    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts`);
+
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Static pages with priority and changefreq
     const staticPages = [
       { loc: '/', priority: '1.0', changefreq: 'daily', lastmod: currentDate },
       { loc: '/proprietati', priority: '0.9', changefreq: 'daily', lastmod: currentDate },
       { loc: '/complexe', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/militari-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/renew-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/eurocasa-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/despre-noi', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
+      { loc: '/servicii', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/de-ce-sa-ne-alegi', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/contact', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/blog', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/calculator-credit', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
-      { loc: '/carte-vizita', priority: '0.5', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
-      // Blog posts
-      { loc: '/blog/ghidul-complet-cumparare-proprietate-bucuresti', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/tendinte-piata-imobiliara-2025', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/cum-pregatesti-casa-pentru-vanzare', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/investitii-imobiliare-ghid-incepatori', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
+      { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
+      { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
     ];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
-    // Add static pages
     for (const page of staticPages) {
       sitemap += `  <url>
-    <loc>${baseUrl}${page.loc}</loc>
+    <loc>${SITE_URL}${page.loc}</loc>
     <lastmod>${page.lastmod}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
@@ -92,50 +162,60 @@ Deno.serve(async (req) => {
 `;
     }
 
-    // Add complex detail pages
-    if (projects && projects.length > 0) {
-      for (const project of projects) {
-        const lastmod = project.updated_at 
-          ? new Date(project.updated_at).toISOString().split('T')[0]
-          : currentDate;
-        
-        sitemap += `  <url>
-    <loc>${baseUrl}/complexe/${project.id}</loc>
+    for (const blogPost of blogPosts) {
+      if (!blogPost.slug) continue;
+
+      const lastmod = blogPost.updated_at
+        ? new Date(blogPost.updated_at).toISOString().split('T')[0]
+        : currentDate;
+
+      sitemap += `  <url>
+    <loc>${SITE_URL}/blog/${xmlEscape(blogPost.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 `;
-      }
     }
 
-    // Add property detail pages
-    if (properties && properties.length > 0) {
-      for (const property of properties) {
-        const lastmod = property.updated_at 
-          ? new Date(property.updated_at).toISOString().split('T')[0]
-          : currentDate;
-        
-        sitemap += `  <url>
-    <loc>${baseUrl}/proprietati/${property.id}</loc>
+    for (const project of projects) {
+      const lastmod = project.updated_at
+        ? new Date(project.updated_at).toISOString().split('T')[0]
+        : currentDate;
+
+      sitemap += `  <url>
+    <loc>${SITE_URL}/complexe/${project.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 `;
-      }
+    }
+
+    for (const property of properties) {
+      const lastmod = property.updated_at
+        ? new Date(property.updated_at).toISOString().split('T')[0]
+        : currentDate;
+      const slug = generatePropertySlug(property);
+
+      sitemap += `  <url>
+    <loc>${SITE_URL}/proprietati/${xmlEscape(slug)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
     }
 
     sitemap += `</urlset>`;
 
     console.log('Sitemap generated successfully');
 
-    // Return XML response
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Type': 'application/xml; charset=UTF-8',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
       },
     });
 
