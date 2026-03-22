@@ -315,7 +315,7 @@ const Header = () => {
           {/* Mobile Menu - Visible on mobile/tablet */}
           <Sheet>
             <SheetTrigger asChild className="xl:hidden">
-              <Button variant="ghost" size="icon" className="relative w-10 h-10">
+              <Button variant="ghost" size="icon" className="relative w-10 h-10" aria-label="Deschide meniul">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>

@@ -252,6 +252,7 @@ const PropertyCard = ({ property, onRemove }: { property: any; onRemove: () => v
           size="icon"
           onClick={onRemove}
           className="text-destructive hover:text-destructive"
+          aria-label="Elimină din favorite"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -309,6 +310,7 @@ const ComplexCard = ({ complex, onRemove }: { complex: any; onRemove: () => void
           size="icon"
           onClick={onRemove}
           className="text-destructive hover:text-destructive"
+          aria-label="Elimină din favorite"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

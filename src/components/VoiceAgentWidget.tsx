@@ -170,7 +170,7 @@ export const VoiceAgentWidget = ({
                       <div className={`h-3 w-3 rounded-full ${isConnected ? (isSpeaking ? "bg-green-500 animate-pulse" : "bg-green-500") : "bg-gray-400"}`} />
                       Asistent Vocal AI
                     </CardTitle>
-                    <Button variant="ghost" size="icon" onClick={() => setIsExpanded(false)}>
+                    <Button variant="ghost" size="icon" onClick={() => setIsExpanded(false)} aria-label="Închide">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -212,6 +212,7 @@ export const VoiceAgentWidget = ({
                         size="icon"
                         onClick={toggleMute}
                         className="rounded-full"
+                        aria-label={isMuted ? "Activează microfonul" : "Dezactivează microfonul"}
                       >
                         {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                       </Button>
@@ -308,7 +309,7 @@ export const VoiceAgentWidget = ({
           </Button>
 
           {isConnected && (
-            <Button variant="outline" size="icon" onClick={toggleMute}>
+            <Button variant="outline" size="icon" onClick={toggleMute} aria-label={isMuted ? "Activează microfonul" : "Dezactivează microfonul"}>
               {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
           )}

@@ -1010,13 +1010,13 @@ const CommissionsPage = () => {
                                   <MobileCardActions>
                                     {commission.invoice_file_url && (
                                       <>
-                                        <Button variant="ghost" size="icon" onClick={() => setPreviewPdfUrl(commission.invoice_file_url)}><Eye className="h-4 w-4 text-primary" /></Button>
-                                        <Button variant="ghost" size="icon" asChild><a href={commission.invoice_file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a></Button>
+                                        <Button variant="ghost" size="icon" onClick={() => setPreviewPdfUrl(commission.invoice_file_url)} aria-label="Previzualizează factura"><Eye className="h-4 w-4 text-primary" /></Button>
+                                        <Button variant="ghost" size="icon" asChild aria-label="Descarcă factura"><a href={commission.invoice_file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a></Button>
                                       </>
                                     )}
-                                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(commission)}><Edit className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(commission)} aria-label="Editează comisionul"><Edit className="h-4 w-4" /></Button>
                                     <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon" aria-label="Șterge comisionul"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader><AlertDialogTitle>Șterge comisionul</AlertDialogTitle><AlertDialogDescription>Ești sigur că vrei să ștergi acest comision?</AlertDialogDescription></AlertDialogHeader>
                                         <AlertDialogFooter><AlertDialogCancel>Anulează</AlertDialogCancel><AlertDialogAction onClick={() => deleteMutation.mutate(commission.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Șterge</AlertDialogAction></AlertDialogFooter>
@@ -1064,13 +1064,13 @@ const CommissionsPage = () => {
                                         <div className="flex items-center justify-end gap-1">
                                           {commission.invoice_file_url && (
                                             <>
-                                              <Button variant="ghost" size="icon" onClick={() => setPreviewPdfUrl(commission.invoice_file_url)} title="Previzualizare"><Eye className="h-4 w-4" /></Button>
-                                              <Button variant="ghost" size="icon" asChild title="Descarcă"><a href={commission.invoice_file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a></Button>
+                                              <Button variant="ghost" size="icon" onClick={() => setPreviewPdfUrl(commission.invoice_file_url)} title="Previzualizare" aria-label="Previzualizează factura"><Eye className="h-4 w-4" /></Button>
+                                              <Button variant="ghost" size="icon" asChild title="Descarcă" aria-label="Descarcă factura"><a href={commission.invoice_file_url} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a></Button>
                                             </>
                                           )}
-                                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(commission)}><Edit className="h-4 w-4" /></Button>
+                                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(commission)} aria-label="Editează comisionul"><Edit className="h-4 w-4" /></Button>
                                           <AlertDialog>
-                                            <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                            <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" aria-label="Șterge comisionul"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
                                             <AlertDialogContent>
                                               <AlertDialogHeader><AlertDialogTitle>Șterge comisionul</AlertDialogTitle><AlertDialogDescription>Ești sigur că vrei să ștergi acest comision de {commission.amount.toLocaleString()} {commission.currency}?</AlertDialogDescription></AlertDialogHeader>
                                               <AlertDialogFooter><AlertDialogCancel>Anulează</AlertDialogCancel><AlertDialogAction onClick={() => deleteMutation.mutate(commission.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Șterge</AlertDialogAction></AlertDialogFooter>

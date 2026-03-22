@@ -336,6 +336,7 @@ const EditComplex = () => {
                         setImagePreview(null);
                         setFormData({ ...formData, main_image: "" });
                       }}
+                      aria-label="Elimină imaginea"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -485,6 +486,7 @@ const EditComplex = () => {
                               className="h-6 w-6"
                               onClick={() => moveVideoUp(index)}
                               disabled={index === 0}
+                              aria-label="Mută videoclipul mai sus"
                             >
                               <ChevronUp className="h-4 w-4" />
                             </Button>
@@ -495,6 +497,7 @@ const EditComplex = () => {
                               className="h-6 w-6"
                               onClick={() => moveVideoDown(index)}
                               disabled={index === videos.length - 1}
+                              aria-label="Mută videoclipul mai jos"
                             >
                               <ChevronDown className="h-4 w-4" />
                             </Button>
@@ -525,6 +528,7 @@ const EditComplex = () => {
                                   size="icon"
                                   className="h-8 w-8 text-green-600"
                                   onClick={saveVideoTitle}
+                                  aria-label="Salvează titlul videoclipului"
                                 >
                                   <Check className="h-4 w-4" />
                                 </Button>
@@ -534,6 +538,7 @@ const EditComplex = () => {
                                   size="icon"
                                   className="h-8 w-8"
                                   onClick={cancelEditingVideo}
+                                  aria-label="Anulează editarea titlului"
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -551,6 +556,7 @@ const EditComplex = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => startEditingVideo(index)}
+                              aria-label="Editează titlul videoclipului"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -561,6 +567,7 @@ const EditComplex = () => {
                             size="icon"
                             className="text-destructive hover:text-destructive"
                             onClick={() => removeVideo(index)}
+                            aria-label="Șterge videoclipul"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
