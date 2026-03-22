@@ -164,6 +164,7 @@ const MobileFavorites = () => {
                                 size="icon"
                                 className="h-8 w-8 text-destructive"
                                 onClick={() => removeFavorite(property.id, 'property')}
+                                aria-label="Elimină din favorite"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -213,6 +214,7 @@ const MobileFavorites = () => {
                                 size="icon"
                                 className="h-8 w-8 text-destructive"
                                 onClick={() => removeFavorite(complex.id, 'complex')}
+                                aria-label="Elimină din favorite"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>

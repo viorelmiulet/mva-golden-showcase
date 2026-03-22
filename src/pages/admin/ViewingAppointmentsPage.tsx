@@ -348,6 +348,7 @@ const ViewingAppointmentsPage = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleWhatsApp(apt)}
+                          aria-label="Trimite mesaj pe WhatsApp"
                         >
                           <MessageSquare className="w-4 h-4 text-green-600" />
                         </Button>
@@ -355,6 +356,7 @@ const ViewingAppointmentsPage = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleCall(apt.customer_phone)}
+                          aria-label="Apelează clientul"
                         >
                           <Phone className="w-4 h-4 text-blue-600" />
                         </Button>
@@ -362,6 +364,7 @@ const ViewingAppointmentsPage = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(apt)}
+                          aria-label="Editează programarea"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -373,6 +376,7 @@ const ViewingAppointmentsPage = () => {
                               deleteMutation.mutate(apt.id);
                             }
                           }}
+                          aria-label="Șterge programarea"
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
@@ -462,6 +466,7 @@ const ViewingAppointmentsPage = () => {
                                 size="icon"
                                 onClick={() => handleWhatsApp(apt)}
                                 title="WhatsApp"
+                                aria-label="Trimite mesaj pe WhatsApp"
                               >
                                 <MessageSquare className="w-4 h-4 text-green-600" />
                               </Button>
@@ -470,6 +475,7 @@ const ViewingAppointmentsPage = () => {
                                 size="icon"
                                 onClick={() => handleCall(apt.customer_phone)}
                                 title="Apelează"
+                                aria-label="Apelează clientul"
                               >
                                 <Phone className="w-4 h-4 text-blue-600" />
                               </Button>
@@ -478,6 +484,7 @@ const ViewingAppointmentsPage = () => {
                                 size="icon"
                                 onClick={() => handleEdit(apt)}
                                 title="Editează"
+                                aria-label="Editează programarea"
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
