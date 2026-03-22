@@ -543,6 +543,7 @@ export default function VirtualStagingPage() {
                             e.stopPropagation();
                             handleRemoveImage(img.id);
                           }}
+                          aria-label="Elimină imaginea"
                         >
                           <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
                         </Button>
@@ -652,7 +653,7 @@ export default function VirtualStagingPage() {
                   </>
                 )}
               </Button>
-              <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
+                <Button variant="outline" onClick={handleReset} disabled={isProcessing} aria-label="Resetează">
                 <RefreshCw className="h-4 w-4" />
               </Button>
             </div>
@@ -710,7 +711,7 @@ export default function VirtualStagingPage() {
                       Original
                     </div>
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="secondary" className="h-7 w-7">
+                      <Button size="icon" variant="secondary" className="h-7 w-7" aria-label="Mărește imaginea originală">
                         <ZoomIn className="h-4 w-4" />
                       </Button>
                     </div>
@@ -728,7 +729,7 @@ export default function VirtualStagingPage() {
                       Mobilat
                     </div>
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="secondary" className="h-7 w-7">
+                      <Button size="icon" variant="secondary" className="h-7 w-7" aria-label="Mărește imaginea mobilată">
                         <ZoomIn className="h-4 w-4" />
                       </Button>
                     </div>
@@ -893,6 +894,7 @@ export default function VirtualStagingPage() {
                             link.download = img.name;
                             link.click();
                           }}
+                          aria-label="Descarcă imaginea salvată"
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -901,6 +903,7 @@ export default function VirtualStagingPage() {
                           variant="destructive"
                           className="h-8 w-8"
                           onClick={() => handleDeleteSavedImage(img.name)}
+                          aria-label="Șterge imaginea salvată"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

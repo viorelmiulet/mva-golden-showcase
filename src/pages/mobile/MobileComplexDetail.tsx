@@ -142,6 +142,7 @@ const MobileComplexDetail = () => {
               size="icon"
               className="h-9 w-9"
               onClick={handleShare}
+              aria-label="Distribuie"
             >
               <Share2 className="w-5 h-5" />
             </Button>
@@ -150,6 +151,7 @@ const MobileComplexDetail = () => {
               size="icon"
               className="h-9 w-9"
               onClick={() => toggleFavorite(complex.id, 'complex')}
+              aria-label="Adaugă la favorite"
             >
               <Heart 
                 className={`w-5 h-5 ${isFavorite(complex.id, 'complex') ? 'fill-gold text-gold' : ''}`}
