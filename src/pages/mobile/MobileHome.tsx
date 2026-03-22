@@ -291,7 +291,7 @@ const MobileHome = () => {
               complexes.map((complex) => (
                 <Link 
                   key={complex.id} 
-                  to={`/app/complex/${complex.id}`}
+                  to={`/app/complex/${complex.slug || complex.id}`}
                   className="flex-shrink-0 w-64 snap-start"
                 >
                   <Card className="overflow-hidden h-36 relative">

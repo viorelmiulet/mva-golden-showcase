@@ -28,4 +28,4 @@ export const generateComplexSlug = (complex: ComplexSlugSource): string => {
 };
 
 export const getComplexUrl = (complex: ComplexSlugSource): string =>
-  `/ansambluri-rezidentiale/${generateComplexSlug(complex)}`;
+  `/complexe/${generateComplexSlug(complex)}`;

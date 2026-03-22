@@ -189,7 +189,7 @@ const MobileFavorites = () => {
                     <Card key={complex.id} className="overflow-hidden">
                       <CardContent className="p-0">
                         <div className="flex gap-3">
-                          <Link to={`/app/complex/${complex.id}`} className="w-28 h-28 flex-shrink-0">
+                          <Link to={`/app/complex/${complex.slug || complex.id}`} className="w-28 h-28 flex-shrink-0">
                             <img
                               src={complex.main_image || '/placeholder.svg'}
                               alt={complex.name}
@@ -198,7 +198,7 @@ const MobileFavorites = () => {
                           </Link>
                           <div className="py-3 pr-3 flex-1 flex flex-col justify-between">
                             <div>
-                              <Link to={`/app/complex/${complex.id}`}>
+                              <Link to={`/app/complex/${complex.slug || complex.id}`}>
                                 <h3 className="font-medium text-sm line-clamp-2 mb-1">
                                   {complex.name}
                                 </h3>
