@@ -155,6 +155,7 @@ const ImageUploadDialog = ({ open, onOpenChange, propertyIds, onSuccess }: Image
                     setSelectedFile(null);
                     setPreviewUrl(null);
                   }}
+                aria-label="Elimină imaginea selectată"
                 >
                   <X className="h-4 w-4" />
                 </Button>
