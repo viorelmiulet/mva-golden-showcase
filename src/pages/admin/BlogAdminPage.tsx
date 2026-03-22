@@ -237,7 +237,7 @@ const BlogAdminPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="outline" size="icon" onClick={() => openEdit(post)}>
+                  <Button variant="outline" size="icon" onClick={() => openEdit(post)} aria-label="Editează articolul">
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
@@ -249,6 +249,7 @@ const BlogAdminPage = () => {
                         deleteMutation.mutate(post.id);
                       }
                     }}
+                    aria-label="Șterge articolul"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
