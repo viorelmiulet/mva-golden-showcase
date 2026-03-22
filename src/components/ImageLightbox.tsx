@@ -82,6 +82,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
             size="icon"
             onClick={onClose}
             className="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] text-white h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
+            aria-label="Închide imaginea"
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
@@ -106,6 +107,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
                   size="icon"
                   onClick={goToPrevious}
                   className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60"
+                  aria-label="Imaginea anterioară"
                 >
                   <ChevronLeft className="w-8 h-8" />
                 </Button>
@@ -114,6 +116,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
                   size="icon"
                   onClick={goToNext}
                   className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-50 text-white hover:bg-white/20 h-12 w-12 rounded-full bg-black/60"
+                  aria-label="Imaginea următoare"
                 >
                   <ChevronRight className="w-8 h-8" />
                 </Button>
