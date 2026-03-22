@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import GoogleReviews from "@/components/GoogleReviews"
 
 const LEGAL_BADGE_FALLBACKS = {
-  anpc: "/anpc-badge.svg",
-  sol: "/sol-badge.svg",
+  anpc: "/anpc-badge.png",
+  sol: "/sol-badge.png",
 }
 
 interface BeforeInstallPromptEvent extends Event {
@@ -142,13 +142,9 @@ const Footer = () => {
               aria-label="ANPC"
             >
               <img
-                src="https://anpc.ro/wp-content/uploads/2022/08/ANPC-logo.png"
+                src={LEGAL_BADGE_FALLBACKS.anpc}
                 alt="ANPC"
                 loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.onerror = null
-                  e.currentTarget.src = LEGAL_BADGE_FALLBACKS.anpc
-                }}
                 className="h-7 w-auto"
               />
             </a>
@@ -161,13 +157,9 @@ const Footer = () => {
               aria-label="SOL"
             >
               <img
-                src="https://ec.europa.eu/consumers/odr/main/img/odrs35.png"
+                src={LEGAL_BADGE_FALLBACKS.sol}
                 alt="SOL"
                 loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.onerror = null
-                  e.currentTarget.src = LEGAL_BADGE_FALLBACKS.sol
-                }}
                 className="h-7 w-auto"
               />
             </a>
