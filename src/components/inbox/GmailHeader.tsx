@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { 
-  Search, 
+import {
+  Search,
   Menu,
   Settings,
   Grid3X3,
@@ -8,7 +8,7 @@ import {
   RefreshCw,
   SlidersHorizontal,
   X,
-  Camera
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,54 +99,55 @@ export const GmailHeader = ({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <header className="h-14 border-b border-border/10 flex items-center gap-2 px-3 bg-background/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="sticky top-0 z-50 flex h-16 items-center gap-3 border-b border-border/20 bg-background px-4">
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
 
-        {/* Left */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-9 w-9 rounded-lg hover:bg-muted/50 transition-colors">
+              <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-10 w-10 rounded-xl border border-transparent hover:border-border/30 hover:bg-muted">
                 <Menu className="h-[18px] w-[18px]" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Meniu</TooltipContent>
           </Tooltip>
-          
-          <div className="flex items-center gap-2 pl-1">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-xs">M</span>
+
+          <div className="flex items-center gap-3 pl-1">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <span className="text-sm font-bold">M</span>
             </div>
-            <span className="text-sm font-semibold text-foreground/90 hidden md:block tracking-tight">Mail</span>
+            <div className="hidden md:block">
+              <p className="text-sm font-semibold text-foreground">Inbox</p>
+              <p className="text-xs text-muted-foreground">Vizualizare tip Outlook</p>
+            </div>
           </div>
         </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-xl mx-4">
+        <div className="mx-2 flex-1">
           <div className={cn(
-            "relative flex items-center transition-all duration-200 rounded-lg h-10",
-            searchFocused 
-              ? "bg-background shadow-md border border-border/40" 
-              : "bg-muted/40 hover:bg-muted/60 border border-transparent"
+            "relative flex h-11 items-center rounded-2xl border px-1 transition-all duration-200",
+            searchFocused
+              ? "border-border/40 bg-background shadow-sm"
+              : "border-border/20 bg-muted/35 hover:bg-muted/50",
           )}>
-            <Search className="h-4 w-4 text-muted-foreground ml-3 shrink-0" />
+            <Search className="ml-3 h-4 w-4 shrink-0 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Caută în mail..."
+              placeholder="Caută în inbox"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-10 text-sm placeholder:text-muted-foreground/50"
+              className="h-10 border-0 bg-transparent text-sm placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0"
             />
             {searchQuery && (
-              <Button variant="ghost" size="icon" onClick={() => setSearchQuery("")} className="h-7 w-7 mr-1 rounded-md hover:bg-destructive/10 hover:text-destructive">
+              <Button variant="ghost" size="icon" onClick={() => setSearchQuery("")} className="mr-1 h-8 w-8 rounded-xl hover:bg-muted">
                 <X className="h-3.5 w-3.5" />
               </Button>
             )}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md shrink-0 mr-1 hover:bg-muted/80">
+                <Button variant="ghost" size="icon" className="mr-1 h-9 w-9 shrink-0 rounded-xl hover:bg-muted">
                   <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </TooltipTrigger>
@@ -155,38 +156,37 @@ export const GmailHeader = ({
           </div>
         </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1 rounded-2xl border border-border/20 bg-muted/20 px-2 py-1.5">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onRefresh} disabled={isRefreshing} className="h-9 w-9 rounded-lg hover:bg-muted/50 hidden sm:flex">
+              <Button variant="ghost" size="icon" onClick={onRefresh} disabled={isRefreshing} className="hidden h-9 w-9 rounded-xl hover:bg-muted sm:flex">
                 <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Reîmprospătează</TooltipContent>
           </Tooltip>
-          
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => toast.info("Ajutor va fi disponibil în curând")} className="h-9 w-9 rounded-lg hover:bg-muted/50 hidden sm:flex">
+              <Button variant="ghost" size="icon" onClick={() => toast.info("Ajutor va fi disponibil în curând")} className="hidden h-9 w-9 rounded-xl hover:bg-muted sm:flex">
                 <HelpCircle className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Ajutor</TooltipContent>
           </Tooltip>
-          
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => navigate("/admin/setari")} className="h-9 w-9 rounded-lg hover:bg-muted/50 hidden sm:flex">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/admin/setari")} className="hidden h-9 w-9 rounded-xl hover:bg-muted sm:flex">
                 <Settings className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Setări</TooltipContent>
           </Tooltip>
-          
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="h-9 w-9 rounded-lg hover:bg-muted/50 hidden sm:flex">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="hidden h-9 w-9 rounded-xl hover:bg-muted sm:flex">
                 <Grid3X3 className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -195,18 +195,18 @@ export const GmailHeader = ({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg ml-1 p-0 overflow-hidden hover:ring-2 hover:ring-gold/30 transition-all" disabled={isUploading}>
-                <Avatar className="h-7 w-7">
+              <Button variant="ghost" size="icon" className="ml-1 h-10 w-10 overflow-hidden rounded-xl border border-border/30 p-0 hover:bg-muted" disabled={isUploading}>
+                <Avatar className="h-8 w-8">
                   <AvatarImage src={avatarUrl || undefined} alt="Profil" className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-gold/30 to-gold-dark/30 text-gold text-xs font-semibold">
+                  <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">
                     {isUploading ? "..." : userInitial}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 bg-popover border-border/50 rounded-lg">
+            <DropdownMenuContent align="end" className="w-52 rounded-xl border-border/50 bg-popover">
               <DropdownMenuItem onClick={() => fileInputRef.current?.click()} className="cursor-pointer text-sm">
-                <Camera className="h-4 w-4 mr-2" />
+                <Camera className="mr-2 h-4 w-4" />
                 Schimbă poza de profil
               </DropdownMenuItem>
               <DropdownMenuSeparator />
