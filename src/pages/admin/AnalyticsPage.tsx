@@ -226,7 +226,7 @@ const AnalyticsPage = () => {
               <SelectItem value="90">Ultimele 90 zile</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} className="border-white/10 hover:bg-white/5">
+          <Button variant="outline" size="icon" onClick={() => refetch()} disabled={isFetching} className="border-white/10 hover:bg-white/5" aria-label="Reîmprospătează datele">
             <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
           </Button>
         </div>

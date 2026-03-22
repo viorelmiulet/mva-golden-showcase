@@ -179,6 +179,7 @@ const AddComplex = () => {
                           setImageFile(null);
                           setImagePreview(null);
                         }}
+                        aria-label="Elimină imaginea"
                       >
                         <X className="h-4 w-4" />
                       </Button>

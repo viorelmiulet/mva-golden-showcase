@@ -247,6 +247,7 @@ const Complexe = () => {
                             toggleFavorite(project.id, 'complex');
                             trackComplex('favorite', project.id, project.name);
                           }}
+                          aria-label="Adaugă la favorite"
                         >
                           <Heart 
                             className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
