@@ -220,6 +220,7 @@ export const ApartmentComparison = ({
                       size="icon"
                       className="absolute top-2 right-2 z-10"
                       onClick={() => onRemoveApartment(apt.id)}
+                      aria-label="Elimină apartamentul din comparație"
                     >
                       <X className="h-4 w-4" />
                     </Button>
