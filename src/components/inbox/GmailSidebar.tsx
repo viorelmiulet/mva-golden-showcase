@@ -59,7 +59,7 @@ export const GmailSidebar = ({
 
   const secondaryItems = [
     { key: 'archived' as const, label: 'Arhivă', count: archivedCount, icon: Archive },
-    { key: 'trash' as const, label: 'Șterse', count: trashCount, icon: Trash2 },
+    { key: 'trash' as const, label: 'Coș de gunoi', count: trashCount, icon: Trash2 },
   ];
 
   const renderItem = (
