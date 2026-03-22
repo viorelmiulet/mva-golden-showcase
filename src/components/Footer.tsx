@@ -6,6 +6,11 @@ import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { useLanguage } from "@/contexts/LanguageContext"
 import GoogleReviews from "@/components/GoogleReviews"
 
+const LEGAL_BADGE_FALLBACKS = {
+  anpc: "/anpc-badge.svg",
+  sol: "/sol-badge.svg",
+}
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
@@ -140,6 +145,10 @@ const Footer = () => {
                 src="https://anpc.ro/wp-content/uploads/2022/08/ANPC-logo.png"
                 alt="ANPC"
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null
+                  e.currentTarget.src = LEGAL_BADGE_FALLBACKS.anpc
+                }}
                 className="h-7 w-auto"
               />
             </a>
@@ -155,6 +164,10 @@ const Footer = () => {
                 src="https://ec.europa.eu/consumers/odr/main/img/odrs35.png"
                 alt="SOL"
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null
+                  e.currentTarget.src = LEGAL_BADGE_FALLBACKS.sol
+                }}
                 className="h-7 w-auto"
               />
             </a>
