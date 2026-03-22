@@ -1,9 +1,30 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "npm:zod@3.25.76";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const complexSchema = z.object({
+  name: z.string().trim().min(1),
+  slug: z
+    .string()
+    .trim()
+    .min(1)
+    .max(120)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  location: z.string().trim().min(1),
+  description: z.string().nullable().optional(),
+  developer: z.string().nullable().optional(),
+  price_range: z.string().nullable().optional(),
+  surface_range: z.string().nullable().optional(),
+  rooms_range: z.string().nullable().optional(),
+  completion_date: z.string().nullable().optional(),
+  status: z.string().optional(),
+  main_image: z.string().nullable().optional(),
+  videos: z.array(z.unknown()).optional(),
+});
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
@@ -150,20 +171,44 @@ Deno.serve(async (req) => {
           );
         }
 
+        const parsedComplex = complexSchema.safeParse(data);
+        if (!parsedComplex.success) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Date invalide pentru complex" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const complexData = parsedComplex.data;
+
+        const { data: existingSlug } = await supabase
+          .from("real_estate_projects")
+          .select("id")
+          .eq("slug", complexData.slug)
+          .limit(1);
+
+        if (existingSlug && existingSlug.length > 0) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Slug-ul există deja" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
         const { data: insertedData, error } = await supabase
           .from("real_estate_projects")
           .insert({
-            name: data.name,
-            location: data.location,
-            description: data.description,
-            developer: data.developer,
-            price_range: data.price_range,
-            surface_range: data.surface_range,
-            rooms_range: data.rooms_range,
-            completion_date: data.completion_date,
-            status: data.status || "available",
-            main_image: data.main_image,
-            videos: data.videos || [],
+            name: complexData.name,
+            slug: complexData.slug,
+            location: complexData.location,
+            description: complexData.description,
+            developer: complexData.developer,
+            price_range: complexData.price_range,
+            surface_range: complexData.surface_range,
+            rooms_range: complexData.rooms_range,
+            completion_date: complexData.completion_date,
+            status: complexData.status || "available",
+            main_image: complexData.main_image,
+            videos: complexData.videos || [],
           })
           .select();
 

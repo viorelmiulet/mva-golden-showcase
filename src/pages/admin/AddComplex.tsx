@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Building2, ArrowLeft, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { z } from "zod";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -25,13 +26,33 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
+const slugSchema = z
+  .string()
+  .trim()
+  .min(1, "Slug-ul este obligatoriu")
+  .max(120, "Slug-ul este prea lung")
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug-ul trebuie să conțină doar litere mici, cifre și cratime");
+
+const slugifyComplexName = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+
 const AddComplex = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    slug: "",
     location: "",
     description: "",
     developer: "",
@@ -41,6 +62,65 @@ const AddComplex = () => {
     completion_date: "",
     status: "available",
   });
+
+  const finalUrlPreview = useMemo(
+    () => `mvaimobiliare.ro/complexe/${formData.slug || "slug-complex"}`,
+    [formData.slug]
+  );
+
+  useEffect(() => {
+    if (isSlugManuallyEdited) return;
+
+    setFormData((current) => {
+      const nextSlug = slugifyComplexName(current.name);
+      return current.slug === nextSlug ? current : { ...current, slug: nextSlug };
+    });
+  }, [formData.name, isSlugManuallyEdited]);
+
+  useEffect(() => {
+    const trimmedSlug = formData.slug.trim();
+
+    if (!trimmedSlug) {
+      setSlugError(null);
+      setIsCheckingSlug(false);
+      return;
+    }
+
+    const validation = slugSchema.safeParse(trimmedSlug);
+    if (!validation.success) {
+      setSlugError(validation.error.issues[0]?.message ?? "Slug invalid");
+      setIsCheckingSlug(false);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsCheckingSlug(true);
+
+    const timeoutId = window.setTimeout(async () => {
+      const { data, error } = await supabase
+        .from("real_estate_projects")
+        .select("id")
+        .eq("slug", trimmedSlug)
+        .limit(1);
+
+      if (isCancelled) return;
+
+      if (error) {
+        setSlugError("Nu am putut verifica unicitatea slug-ului");
+      } else if (data && data.length > 0) {
+        setSlugError("Slug-ul există deja");
+      } else {
+        setSlugError(null);
+      }
+
+      setIsCheckingSlug(false);
+    }, 300);
+
+    return () => {
+      isCancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [formData.slug]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,9 +166,28 @@ const AddComplex = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const trimmedSlug = formData.slug.trim();
+    const validatedSlug = slugSchema.safeParse(trimmedSlug);
     
     if (!formData.name.trim() || !formData.location.trim()) {
       toast.error("Numele și locația sunt obligatorii");
+      return;
+    }
+
+    if (!validatedSlug.success) {
+      setSlugError(validatedSlug.error.issues[0]?.message ?? "Slug invalid");
+      toast.error("Verifică slug-ul URL");
+      return;
+    }
+
+    if (slugError) {
+      toast.error(slugError);
+      return;
+    }
+
+    if (isCheckingSlug) {
+      toast.error("Așteaptă verificarea slug-ului");
       return;
     }
 
@@ -101,6 +200,7 @@ const AddComplex = () => {
       // Create the complex using admin API
       const result = await adminApi.insertComplex({
         name: formData.name.trim(),
+        slug: validatedSlug.data,
         location: formData.location.trim(),
         description: formData.description.trim() || null,
         developer: formData.developer.trim() || null,
@@ -216,6 +316,31 @@ const AddComplex = () => {
                     required
                     className="bg-background/50 border-border/50"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug URL *</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => {
+                      setIsSlugManuallyEdited(true);
+                      setFormData({ ...formData, slug: slugifyComplexName(e.target.value) });
+                    }}
+                    placeholder="Ex: renew-residence"
+                    required
+                    className="bg-background/50 border-border/50"
+                  />
+                  <p className="text-xs text-muted-foreground break-all">
+                    {finalUrlPreview}
+                  </p>
+                  {isCheckingSlug ? (
+                    <p className="text-xs text-muted-foreground">Verific disponibilitatea slug-ului...</p>
+                  ) : slugError ? (
+                    <p className="text-xs text-destructive">{slugError}</p>
+                  ) : formData.slug ? (
+                    <p className="text-xs text-primary">Slug disponibil</p>
+                  ) : null}
                 </div>
 
                 <div className="space-y-2">
