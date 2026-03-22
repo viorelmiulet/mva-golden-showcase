@@ -42,6 +42,7 @@ import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
   const { slug } = useParams<{ slug: string }>();
+  const isLegacyUuid = slug ? isUUID(slug) : false;
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
@@ -79,8 +80,6 @@ const ComplexDetail = () => {
     queryFn: async () => {
       if (!slug) return null;
 
-      if (isUUID(slug)) return null;
-
       const { data, error } = await supabase
         .from('real_estate_projects')
         .select('*')
@@ -90,7 +89,7 @@ const ComplexDetail = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!slug,
+    enabled: !!slug && !isLegacyUuid,
   });
 
   const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
@@ -114,7 +113,7 @@ const ComplexDetail = () => {
     refetchOnMount: 'always',
   });
 
-  if (project && slug && isUUID(slug)) {
+  if (isLegacyUuid) {
     return <Navigate to="/404" replace />;
   }
 
