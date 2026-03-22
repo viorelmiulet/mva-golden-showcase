@@ -43,13 +43,13 @@ const badges: TrustBadge[] = [
 
 const TrustBadges = () => {
   return (
-    <section className="border-y border-border/50 bg-background py-10 sm:py-12" aria-label="Trust badges">
+    <section className="border-y border-border/50 bg-background py-8 sm:py-10" aria-label="Trust badges">
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="grid grid-cols-3 gap-x-4 gap-y-8 lg:grid-cols-6 lg:gap-x-6">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-8">
           {badges.map((badge, index) => {
             const Icon = badge.icon;
             const content = (
-              <div className="flex flex-col items-center text-center">
+              <div className="mx-auto flex max-w-[11rem] flex-col items-center text-center">
                 <Icon
                   className={`mb-3 h-5 w-5 text-gold ${badge.filled ? "fill-current" : ""}`}
                   aria-hidden="true"
