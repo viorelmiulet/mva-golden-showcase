@@ -37,6 +37,7 @@ const DespreNoi = () => {
       <main className="min-h-screen pt-16 sm:pt-20">
         <div className="container mx-auto px-3 sm:px-4">
           <Breadcrumbs items={[{ label: t.about.title }]} />
+          <h1 className="sr-only">Despre MVA Imobiliare - Agenție Imobiliară din 2016</h1>
         </div>
         <About />
       </main>
