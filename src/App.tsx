@@ -17,6 +17,7 @@ import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import PhoneButton from "@/components/PhoneButton";
 import ScrollIndicator from "@/components/ScrollIndicator";
+import NavigateToComplex from "@/components/NavigateToComplex";
 
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
@@ -108,6 +109,7 @@ const AppRoutes = () => {
               <Route path="/proiecte/:id" element={<ProjectDetail />} />
               <Route path="/complexe" element={<Complexe />} />
               <Route path="/complexe/:slug" element={<ComplexDetailPublic />} />
+              <Route path="/ansambluri-rezidentiale/:slug" element={<NavigateToComplex />} />
               <Route path="/adauga" element={<AddProperty />} />
               <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<DashboardPage />} />
