@@ -1311,6 +1311,7 @@ export type Database = {
           payment_plans: string[] | null
           price_range: string | null
           rooms_range: string | null
+          slug: string | null
           status: string | null
           surface_range: string | null
           updated_at: string
@@ -1334,6 +1335,7 @@ export type Database = {
           payment_plans?: string[] | null
           price_range?: string | null
           rooms_range?: string | null
+          slug?: string | null
           status?: string | null
           surface_range?: string | null
           updated_at?: string
@@ -1357,6 +1359,7 @@ export type Database = {
           payment_plans?: string[] | null
           price_range?: string | null
           rooms_range?: string | null
+          slug?: string | null
           status?: string | null
           surface_range?: string | null
           updated_at?: string
