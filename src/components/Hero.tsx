@@ -38,7 +38,7 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-20 container mx-auto px-4 lg:px-6 pt-20">
+      <div className="relative z-20 container mx-auto px-4 lg:px-6 pt-10 md:pt-20">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
           
           {/* Left - Main Content */}
@@ -58,9 +58,9 @@ const Hero = () => {
                 : 'Discover the most selective real estate projects in western Bucharest. Safe investments with premium finishes and strategic locations.'}
             </p>
             
-            <div className="flex flex-col xs:flex-row gap-3" aria-label="Call to action buttons">
+            <div className="flex flex-col md:flex-row gap-3" aria-label="Call to action buttons">
               <CollaborationForm>
-                <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full xs:w-auto">
+                <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
                   <UserPlus className="mr-2 h-4 w-4" />
                   {language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}
                 </Button>
@@ -71,17 +71,18 @@ const Hero = () => {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 onClick={handleWhatsAppClick}
+                className="w-full md:w-auto"
               >
-                <Button variant="luxuryOutline" size="lg" className="w-full xs:w-auto px-6 h-12 font-semibold">
+                <Button variant="luxuryOutline" size="lg" className="w-full md:w-auto px-6 h-12 font-semibold">
                   <WhatsAppIcon className="mr-2 h-4 w-4" />
-                  <span className="hidden xs:inline">{language === 'ro' ? 'Contactează-ne pe ' : 'Contact us on '}</span>WhatsApp
+                  <span className="hidden md:inline">{language === 'ro' ? 'Contactează-ne pe ' : 'Contact us on '}</span>WhatsApp
                 </Button>
               </a>
             </div>
           </header>
 
           {/* Right - Stats */}
-          <aside className="grid grid-cols-2 gap-4 max-w-sm mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie' : 'Key stats'}>
+          <aside className="hidden md:grid grid-cols-2 gap-4 max-w-sm mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie' : 'Key stats'}>
             {[
               { value: isLoading ? "..." : stats?.propertiesCount || 0, label: language === 'ro' ? 'Proprietăți listate' : 'Listed properties' },
               { value: isLoading ? "..." : stats?.projectsCount || 0, label: language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential complexes' },
