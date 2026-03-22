@@ -478,6 +478,7 @@ const WebsiteScrapingManager = () => {
                               size="icon"
                               className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-100"
                               onClick={handleConfirmRename}
+                              aria-label="Confirmă redenumirea"
                             >
                               <Check className="h-4 w-4" />
                             </Button>
@@ -486,6 +487,7 @@ const WebsiteScrapingManager = () => {
                               size="icon"
                               className="h-7 w-7 text-muted-foreground hover:text-foreground"
                               onClick={handleCancelRename}
+                              aria-label="Anulează redenumirea"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -525,6 +527,7 @@ const WebsiteScrapingManager = () => {
                           className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                           onClick={(e) => handleStartRename(e, source)}
                           title="Redenumește"
+                          aria-label="Redenumește sursa"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -537,6 +540,7 @@ const WebsiteScrapingManager = () => {
                             deleteSourceMutation.mutate(source.id);
                           }}
                           title="Șterge"
+                          aria-label="Șterge sursa"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
