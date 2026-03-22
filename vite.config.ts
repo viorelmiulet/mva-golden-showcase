@@ -15,15 +15,20 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core — încărcat întotdeauna
           'vendor': ['react', 'react-dom'],
           'router': ['react-router-dom'],
           'query': ['@tanstack/react-query'],
-          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tooltip', '@radix-ui/react-tabs', '@radix-ui/react-select'],
-          'charts': ['recharts'],
+          // UI — split separat față de vendor
+          'ui-radix': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tooltip', '@radix-ui/react-tabs', '@radix-ui/react-select'],
           'forms': ['react-hook-form', 'zod'],
+          // Lazy chunks — încărcate doar când sunt folosite
+          'charts': ['recharts'],
           'pdf': ['jspdf', 'jspdf-autotable'],
           'excel': ['xlsx'],
-          'three': ['three', '@react-three/fiber', '@react-three/drei'],
+          // Three.js e cel mai mare chunk (~500KB) — chunk separat pentru lazy import
+          'three-core': ['three'],
+          'three-fiber': ['@react-three/fiber', '@react-three/drei'],
         }
       }
     },
@@ -35,8 +40,17 @@ export default defineConfig(({ mode }) => ({
         drop_console: true,
         drop_debugger: true,
         pure_funcs: ['console.log', 'console.info'],
-      }
+        passes: 2, // A doua trecere reduce și mai mult dimensiunea
+      },
+      mangle: {
+        safari10: true,
+      },
     },
+    // Activează CSS code splitting
+    cssCodeSplit: true,
+    // Raport detaliat pentru analiza bundle-ului
+    reportCompressedSize: false, // Dezactivat pentru build mai rapid
+    sourcemap: false, // Nu genera sourcemaps în producție
   },
   plugins: [
     react(),
@@ -93,10 +107,10 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff,woff2}'],
-        // Skip caching for large chunks that change frequently
         globIgnores: ['**/node_modules/**/*'],
+        // Crește limita pentru chunks mari (three.js etc.)
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
         runtimeCaching: [
-          // Cache-first for static assets (images, fonts, etc.)
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',
@@ -104,14 +118,11 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
-          // Cache-first for Google Fonts stylesheets
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -121,12 +132,9 @@ export default defineConfig(({ mode }) => ({
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
-          // Cache-first for Google Fonts files
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
@@ -136,12 +144,9 @@ export default defineConfig(({ mode }) => ({
                 maxEntries: 20,
                 maxAgeSeconds: 60 * 60 * 24 * 365
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
-          // Cache-first for JS/CSS chunks (versioned by build)
           {
             urlPattern: /\.(?:js|css)$/i,
             handler: 'CacheFirst',
@@ -149,30 +154,24 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'static-resources',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
-          // Stale-while-revalidate for Supabase API calls
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            urlPattern: /^https:\/\/.*\.supabase\.co\/(?!storage).*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 minutes
+                maxAgeSeconds: 60 * 5
               },
               networkTimeoutSeconds: 10,
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           },
-          // Stale-while-revalidate for Supabase storage (images)
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
             handler: 'CacheFirst',
@@ -180,24 +179,20 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'supabase-storage-cache',
               expiration: {
                 maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+                maxAgeSeconds: 60 * 60 * 24 * 7
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           }
         ]
       }
     }),
-    // Gzip compression for assets
     viteCompression({
       algorithm: 'gzip',
       ext: '.gz',
-      threshold: 1024, // Only compress files > 1KB
+      threshold: 1024,
       deleteOriginFile: false,
     }),
-    // Brotli compression for assets (better compression ratio)
     viteCompression({
       algorithm: 'brotliCompress',
       ext: '.br',
@@ -212,5 +207,7 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
+    // Exclude librăriile mari din pre-bundling — vor fi lazy loaded
+    exclude: ['three', '@react-three/fiber', '@react-three/drei'],
   },
 }));
