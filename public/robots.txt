@@ -2,4 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api
+Disallow: /proprietati?search=
+Disallow: /proprietati?*search=
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
