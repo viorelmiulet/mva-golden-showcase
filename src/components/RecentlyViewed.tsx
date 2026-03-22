@@ -124,6 +124,7 @@ export const RecentlyViewed = ({
                     removeFromRecentlyViewed(property.id);
                   }}
                   className="absolute top-2 left-2 h-6 w-6 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                  aria-label="Elimină din vizualizate recent"
                 >
                   <X className="w-3 h-3" />
                 </Button>
@@ -166,6 +167,7 @@ export const RecentlyViewed = ({
                   removeFromRecentlyViewed(property.id);
                 }}
                 className="absolute top-1 left-1 h-5 w-5 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                aria-label="Elimină din vizualizate recent"
               >
                 <X className="w-2.5 h-2.5" />
               </Button>
