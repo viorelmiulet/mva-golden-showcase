@@ -96,6 +96,22 @@ const Properties = () => {
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
   const { t, language } = useLanguage()
 
+  const pageText = useMemo(() => ({
+    transactionType: language === 'ro' ? 'Tip tranzacție' : 'Transaction type',
+    selectTransactionType: language === 'ro' ? 'Selectează tipul' : 'Select transaction type',
+    zone: language === 'ro' ? 'Zonă' : 'Zone',
+    allZones: language === 'ro' ? 'Toate zonele' : 'All zones',
+    showAdvancedFilters: language === 'ro' ? 'Arată filtre avansate' : 'Show advanced filters',
+    hideAdvancedFilters: language === 'ro' ? 'Ascunde filtre avansate' : 'Hide advanced filters',
+    resultsCount: language === 'ro' ? 'proprietăți găsite' : 'properties found',
+    resetFilters: language === 'ro' ? 'Resetează filtrele' : 'Reset filters',
+    noFilteredResultsTitle: language === 'ro' ? 'Nu s-au găsit proprietăți' : 'No properties found',
+    noFilteredResultsDescription: language === 'ro' ? 'Modifică filtrele pentru a găsi proprietăți' : 'Adjust the filters to find properties',
+    noPropertiesTitle: language === 'ro' ? 'Nu există proprietăți' : 'No properties available',
+    noPropertiesDescription: language === 'ro' ? 'Proprietățile vor apărea aici după ce sunt adăugate' : 'Properties will appear here after they are added',
+    call: language === 'ro' ? 'Sună' : 'Call',
+  }), [language])
+
   // Fetch existing properties (exclude properties from residential complexes and hidden ones)
   const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
     queryKey: ['catalog_offers'],
@@ -444,11 +460,11 @@ const Properties = () => {
                       {/* Transaction Type Filter */}
                       <div className="col-span-2 sm:col-span-1">
                         <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {language === 'ro' ? 'Tip tranzacție' : 'Transaction type'}
+                          {pageText.transactionType}
                         </label>
                         <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder={language === 'ro' ? 'Selectează tipul' : 'Select type'} />
+                            <SelectValue placeholder={pageText.selectTransactionType} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
@@ -508,14 +524,14 @@ const Properties = () => {
                       {/* Zone Filter */}
                       <div>
                         <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {language === 'ro' ? 'Zonă' : 'Zone'}
+                          {pageText.zone}
                         </label>
                         <Select value={locationFilter} onValueChange={setLocationFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder={language === 'ro' ? 'Zonă' : 'Zone'} />
+                            <SelectValue placeholder={pageText.zone} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">{language === 'ro' ? 'Toate zonele' : 'All zones'}</SelectItem>
+                            <SelectItem value="all">{pageText.allZones}</SelectItem>
                             {uniqueZones.map((zone) => (
                               <SelectItem key={zone} value={zone}>
                                 {zone}
@@ -536,8 +552,8 @@ const Properties = () => {
                       >
                         <Filter className="w-3.5 h-3.5 mr-1.5" />
                         {showAdvancedFilters 
-                          ? (language === 'ro' ? 'Ascunde filtre avansate' : 'Hide advanced filters')
-                          : (language === 'ro' ? 'Arată filtre avansate' : 'Show advanced filters')
+                          ? pageText.hideAdvancedFilters
+                          : pageText.showAdvancedFilters
                         }
                       </Button>
                     </div>
@@ -630,7 +646,7 @@ const Properties = () => {
                     {/* Clear Filters */}
                     <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                       <div className="text-xs sm:text-sm text-muted-foreground">
-                        {filteredProperties.length} proprietăți găsite
+                        {filteredProperties.length} {pageText.resultsCount}
                       </div>
                       <Button 
                         variant="outline" 
@@ -648,7 +664,7 @@ const Properties = () => {
                         }}
                         className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
                       >
-                        Resetează filtrele
+                        {pageText.resetFilters}
                       </Button>
                     </div>
                   </CardContent>
@@ -667,16 +683,16 @@ const Properties = () => {
               <Card className="max-w-2xl mx-auto glass border-[0.5px]">
                 <CardContent className="py-12 text-center">
                   <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nu s-au găsit proprietăți</h3>
-                  <p className="text-muted-foreground">Modifică filtrele pentru a găsi proprietăți</p>
+                    <h3 className="text-lg font-semibold mb-2">{pageText.noFilteredResultsTitle}</h3>
+                    <p className="text-muted-foreground">{pageText.noFilteredResultsDescription}</p>
                 </CardContent>
               </Card>
             ) : properties.length === 0 ? (
               <Card className="max-w-2xl mx-auto glass border-[0.5px]">
                 <CardContent className="py-12 text-center">
                   <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nu există proprietăți</h3>
-                  <p className="text-muted-foreground">Proprietățile vor apărea aici după ce sunt adăugate</p>
+                    <h3 className="text-lg font-semibold mb-2">{pageText.noPropertiesTitle}</h3>
+                    <p className="text-muted-foreground">{pageText.noPropertiesDescription}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -871,7 +887,7 @@ const Properties = () => {
                           >
                             <a href="tel:0767941512">
                               <Phone className="w-3 h-3 mr-1" />
-                              Sună
+                              {pageText.call}
                             </a>
                           </Button>
                           

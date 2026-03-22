@@ -93,7 +93,7 @@ const CookieConsent = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:max-w-md">
+    <div className="fixed bottom-4 left-4 right-4 z-50 sm:right-auto sm:w-full sm:max-w-sm xl:max-w-md">
       <Card className="border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
