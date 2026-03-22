@@ -173,6 +173,7 @@ const BulkFloorPlanUploadDialog = ({
                     setSelectedFile(null);
                     setPreviewUrl(null);
                   }}
+                  aria-label="Elimină schița selectată"
                 >
                   <X className="h-4 w-4" />
                 </Button>
