@@ -552,6 +552,7 @@ export const ApartmentImageGallery = ({
               size="icon"
               onClick={() => setIsLightboxOpen(false)}
               className="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] text-white h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
+              aria-label="Închide galeria"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
@@ -579,6 +580,7 @@ export const ApartmentImageGallery = ({
                       onClick={handleZoomOut}
                       disabled={zoomLevel <= 1}
                       className="text-white hover:bg-white/20 h-10 w-10 rounded-full disabled:opacity-30"
+                      aria-label="Micșorează imaginea"
                     >
                       <ZoomOut className="w-5 h-5" />
                     </Button>
@@ -588,6 +590,7 @@ export const ApartmentImageGallery = ({
                       onClick={handleZoomIn}
                       disabled={zoomLevel >= 3}
                       className="text-white hover:bg-white/20 h-10 w-10 rounded-full disabled:opacity-30"
+                      aria-label="Mărește imaginea"
                     >
                       <ZoomIn className="w-5 h-5" />
                     </Button>
@@ -610,6 +613,7 @@ export const ApartmentImageGallery = ({
                     }}
                     className="text-white hover:bg-white/20 h-10 w-10 rounded-full"
                     title="Descarcă imaginea"
+                    aria-label="Descarcă imaginea"
                   >
                     <Download className="w-5 h-5" />
                   </Button>
@@ -664,6 +668,7 @@ export const ApartmentImageGallery = ({
                         size="icon"
                         onClick={goToPrevious}
                         className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                        aria-label="Imaginea anterioară"
                       >
                         <ChevronLeft className="w-7 h-7 lg:w-8 lg:h-8" />
                       </Button>
@@ -672,6 +677,7 @@ export const ApartmentImageGallery = ({
                         size="icon"
                         onClick={goToNext}
                         className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                        aria-label="Imaginea următoare"
                       >
                         <ChevronRight className="w-7 h-7 lg:w-8 lg:h-8" />
                       </Button>
