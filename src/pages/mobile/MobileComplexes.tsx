@@ -9,6 +9,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { MapPin, Heart, Building2 } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { generateComplexSlug } from "@/lib/complexSlug";
 
 const MobileComplexes = () => {
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -87,7 +88,7 @@ const MobileComplexes = () => {
             </div>
           ) : (
             complexes.map((complex) => (
-              <Link key={complex.id} to={`/app/complex/${complex.id}`}>
+              <Link key={complex.id} to={`/app/complex/${generateComplexSlug(complex)}`}>
                 <Card className="overflow-hidden hover:border-gold/30 transition-colors">
                   <div className="relative">
                     <OptimizedPropertyImage
