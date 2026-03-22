@@ -342,6 +342,7 @@ export default function ClientsAdminPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(client)}
+                          aria-label="Editează clientul"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -349,6 +350,7 @@ export default function ClientsAdminPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDelete(client.id)}
+                          aria-label="Șterge clientul"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -406,6 +408,7 @@ export default function ClientsAdminPage() {
                               size="icon"
                               onClick={() => handleOpenPreferences(client)}
                               title="Preferințe & Recomandări AI"
+                              aria-label="Preferințe și recomandări AI"
                             >
                               <Sparkles className="h-4 w-4 text-primary" />
                             </Button>
@@ -413,6 +416,7 @@ export default function ClientsAdminPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleOpenDialog(client)}
+                              aria-label="Editează clientul"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -420,6 +424,7 @@ export default function ClientsAdminPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDelete(client.id)}
+                              aria-label="Șterge clientul"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>

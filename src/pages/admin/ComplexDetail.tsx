@@ -517,7 +517,7 @@ const ComplexDetail = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="flex items-center gap-4 flex-1">
           <Link to="/admin/complexe">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Înapoi la complexe">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
