@@ -1,7 +1,16 @@
 import ScrollReveal from "@/components/ScrollReveal";
 import { Building2, Clock3, Handshake, Scale, Star } from "lucide-react";
 
-const badges = [
+type TrustBadge = {
+  icon: typeof Scale;
+  title: string;
+  subtitle: string;
+  href?: string;
+  external?: boolean;
+  filled?: boolean;
+};
+
+const badges: TrustBadge[] = [
   {
     icon: Scale,
     title: "Protecția Consumatorului",
@@ -30,7 +39,7 @@ const badges = [
     title: "500+ Tranzacții",
     subtitle: "Finalizate cu succes",
   },
-] as const;
+];
 
 const TrustBadges = () => {
   return (
@@ -71,8 +80,6 @@ const TrustBadges = () => {
               </ScrollReveal>
             );
           })}
-
-          <div className="hidden lg:block" aria-hidden="true" />
         </div>
       </div>
     </section>
