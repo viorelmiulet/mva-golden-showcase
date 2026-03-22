@@ -263,9 +263,9 @@ export const EmailThreadView = ({
                             {isSent ? <span>către {email.recipient || 'destinatar necunoscut'}</span> : <span>către mine</span>}
                           </div>
 
-                          <div className="pl-[52px]">
+                          <div className="overflow-hidden pl-[52px]">
                             {email.body_html ? (
-                              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-headings:my-3" dangerouslySetInnerHTML={{ __html: email.body_html }} />
+                              <div className="prose prose-sm max-w-none overflow-x-auto break-words dark:prose-invert prose-p:my-2 prose-headings:my-3 [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:table-auto [&_table]:w-full [&_td]:break-words [&_th]:break-words [&_iframe]:max-w-full" dangerouslySetInnerHTML={{ __html: email.body_html }} />
                             ) : (
                               <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                                 {email.body_plain || email.stripped_text || 'Nu există conținut'}
