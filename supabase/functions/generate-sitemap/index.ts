@@ -20,51 +20,16 @@ interface Property {
   updated_at: string;
 }
 
+interface PropertyWithSlug extends Property {
+  slug: string;
+}
+
 interface BlogPost {
   slug: string;
   updated_at: string;
 }
 
 const SITE_URL = 'https://mvaimobiliare.ro';
-
-const toKebab = (str: string): string =>
-  str
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-const generatePropertySlug = (property: Property): string => {
-  const parts: string[] = [];
-  const rooms = property.rooms || 1;
-
-  if (rooms <= 1) {
-    parts.push('garsoniera');
-  } else {
-    parts.push(`apartament-${rooms}-camere`);
-  }
-
-  if (property.project_name) {
-    parts.push(toKebab(property.project_name));
-  }
-
-  const zone = property.zone || property.location;
-  if (zone) {
-    const isCoordinates = /^\d|.*\d{2,}\.\d{3,}/.test(zone);
-    if (!isCoordinates) {
-      const kebabZone = toKebab(zone.split(',')[0].trim());
-      if (kebabZone && kebabZone.length > 2 && !parts.some((part) => part.includes(kebabZone))) {
-        parts.push(kebabZone);
-      }
-    }
-  }
-
-  const shortId = property.id.replace(/-/g, '').substring(0, 4);
-  parts.push(shortId);
-
-  return parts.join('-');
-};
 
 const xmlEscape = (value: string) =>
   value
@@ -73,6 +38,43 @@ const xmlEscape = (value: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+
+const mapPropertySlugs = async (
+  supabase: ReturnType<typeof createClient>,
+  properties: Property[],
+): Promise<PropertyWithSlug[]> => {
+  const chunkSize = 100;
+  const propertiesWithSlugs: PropertyWithSlug[] = [];
+
+  for (let index = 0; index < properties.length; index += chunkSize) {
+    const chunk = properties.slice(index, index + chunkSize);
+    const slugChunk = await Promise.all(
+      chunk.map(async (property) => {
+        const { data: slug, error } = await supabase.rpc('generate_property_slug_db', {
+          property_id: property.id,
+          property_rooms: property.rooms ?? null,
+          property_project_name: property.project_name ?? null,
+          property_zone: property.zone ?? null,
+          property_location: property.location ?? null,
+        });
+
+        if (error || !slug) {
+          console.error('Error generating property slug:', property.id, error);
+          return null;
+        }
+
+        return {
+          ...property,
+          slug,
+        } satisfies PropertyWithSlug;
+      }),
+    );
+
+    propertiesWithSlugs.push(...slugChunk.filter((property): property is PropertyWithSlug => Boolean(property)));
+  }
+
+  return propertiesWithSlugs;
+};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -83,7 +85,7 @@ Deno.serve(async (req) => {
     console.log('Generating dynamic sitemap.xml');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const [projectsResult, propertiesResult, blogPostsResult] = await Promise.all([
@@ -124,8 +126,9 @@ Deno.serve(async (req) => {
     const projects = (projectsResult.data || []) as Project[];
     const properties = (propertiesResult.data || []) as Property[];
     const blogPosts = (blogPostsResult.data || []) as BlogPost[];
+    const propertiesWithSlugs = await mapPropertySlugs(supabase, properties);
 
-    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts`);
+    console.log(`Found ${projects.length} complexes, ${propertiesWithSlugs.length} properties, ${blogPosts.length} blog posts`);
 
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -142,7 +145,7 @@ Deno.serve(async (req) => {
       { loc: '/contact', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/blog', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/calculator-credit', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
-      { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
+      { loc: '/faq', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
@@ -192,14 +195,13 @@ Deno.serve(async (req) => {
 `;
     }
 
-    for (const property of properties) {
+    for (const property of propertiesWithSlugs) {
       const lastmod = property.updated_at
         ? new Date(property.updated_at).toISOString().split('T')[0]
         : currentDate;
-      const slug = generatePropertySlug(property);
 
       sitemap += `  <url>
-    <loc>${SITE_URL}/proprietati/${xmlEscape(slug)}</loc>
+    <loc>${SITE_URL}/proprietati/${xmlEscape(property.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
