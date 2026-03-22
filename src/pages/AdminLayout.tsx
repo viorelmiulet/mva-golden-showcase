@@ -56,6 +56,7 @@ const AdminHeader = ({
               variant="ghost" 
               size="icon" 
               className="shrink-0 h-10 w-10 touch-manipulation active:scale-95 rounded-xl hover:bg-white/5"
+              aria-label="Deschide meniul"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -102,6 +103,7 @@ const AdminHeader = ({
               variant="ghost" 
               size="icon"
               className="h-10 w-10 text-muted-foreground hover:text-foreground touch-manipulation active:scale-95"
+              aria-label="Setări"
             >
               <Settings className="w-4 h-4" />
             </Button>
@@ -127,6 +129,7 @@ const AdminHeader = ({
                     size="icon"
                     className="absolute right-0 top-0 h-full px-3"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    aria-label={showCurrentPassword ? "Ascunde parola curentă" : "Afișează parola curentă"}
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
@@ -148,6 +151,7 @@ const AdminHeader = ({
                     size="icon"
                     className="absolute right-0 top-0 h-full px-3"
                     onClick={() => setShowNewPassword(!showNewPassword)}
+                    aria-label={showNewPassword ? "Ascunde parola nouă" : "Afișează parola nouă"}
                   >
                     {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
@@ -185,6 +189,7 @@ const AdminHeader = ({
           onClick={onLogout}
           className="h-10 w-10 text-muted-foreground hover:text-foreground touch-manipulation active:scale-95"
           title="Ieșire"
+          aria-label="Ieșire"
         >
           <LogOut className="w-4 h-4" />
         </Button>
