@@ -129,7 +129,7 @@ const Blog = () => {
                             <OptimizedImage
                               src={post.cover_image}
                               alt={post.title}
-                              className="h-56 w-full"
+                              className="h-56 w-full object-cover"
                               width={1200}
                               height={800}
                               sizes="(max-width: 768px) 100vw, 50vw"
@@ -214,7 +214,7 @@ const Blog = () => {
                           <OptimizedImage
                             src={post.cover_image}
                             alt={post.title}
-                            className="h-48 w-full"
+                            className="h-48 w-full object-cover"
                             width={1200}
                             height={800}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -209,7 +209,7 @@ const BlogPost = () => {
                   <OptimizedImage
                     src={post.cover_image}
                     alt={post.title}
-                    className="w-full"
+                    className="h-64 w-full object-cover sm:h-80 lg:h-[32rem]"
                     width={1600}
                     height={900}
                     priority
