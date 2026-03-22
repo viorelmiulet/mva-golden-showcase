@@ -520,11 +520,11 @@ const SettingsPage = () => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="relative group lg:col-span-2">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/20 to-gold-light/10 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
           <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
             <div className="p-6 border-b border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-white/5 text-blue-400">
+                <div className="p-2 rounded-xl bg-white/5 text-gold">
                   <Globe className="h-5 w-5" />
                 </div>
                 <div>
