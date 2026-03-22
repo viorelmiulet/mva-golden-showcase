@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -37,10 +37,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 import { ComplexDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
+import { generateComplexSlug, isUUID } from "@/lib/complexSlug";
 
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
   const [selectedFloorPlan, setSelectedFloorPlan] = useState<string | null>(null);
   const [editingApartment, setEditingApartment] = useState<any>(null);
@@ -68,42 +69,63 @@ const ComplexDetail = () => {
 
   // Track complex view
   useEffect(() => {
-    if (id) {
-      trackComplex('view', id);
+    if (slug) {
+      trackComplex('view', slug);
     }
-  }, [id, trackComplex]);
+  }, [slug, trackComplex]);
 
   const { data: project, isLoading: projectLoading } = useQuery({
-    queryKey: ['public-project', id],
+    queryKey: ['public-project', slug],
     queryFn: async () => {
+      if (!slug) return null;
+
+      if (isUUID(slug)) {
+        const { data, error } = await supabase
+          .from('real_estate_projects')
+          .select('*')
+          .eq('id', slug)
+          .maybeSingle();
+
+        if (error) throw error;
+        return data;
+      }
+
       const { data, error } = await supabase
         .from('real_estate_projects')
         .select('*')
-        .eq('id', id)
+        .eq('slug', slug)
         .maybeSingle();
       
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!slug,
   });
 
   const { data: properties, isLoading: propertiesLoading, refetch } = useQuery({
-    queryKey: ['public-project-properties', id],
+    queryKey: ['public-project-properties', project?.id],
     queryFn: async () => {
+      if (!project?.id) return [];
+
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('*')
-        .eq('project_id', id)
+        .eq('project_id', project.id)
         .order('title');
       
       if (error) throw error;
       console.log('[ComplexDetail] Fetched properties:', data?.length, 'with floor_plan:', data?.filter(p => p.floor_plan).length);
       return data;
     },
+    enabled: !!project?.id,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',
   });
+
+  if (project && slug && isUUID(slug)) {
+    return <Navigate to={`/complexe/${generateComplexSlug(project)}`} replace />;
+  }
 
   if (projectLoading || propertiesLoading) {
     return (
@@ -268,7 +290,7 @@ const ComplexDetail = () => {
         <title>{project.name} - Apartamente Disponibile | MVA Imobiliare</title>
         <meta name="description" content={project.description || `Explorează toate apartamentele disponibile în ${project.name}. Prețuri, planuri, detalii complete și fotografii pentru fiecare unitate.`} />
         <meta name="keywords" content={`${project.name}, apartamente ${project.location}, ${project.rooms_range || 'apartamente'}, ${project.price_range || 'preț competitiv'}, complex rezidențial București`} />
-        <link rel="canonical" href={`https://mvaimobiliare.ro/complexe/${project.id}`} />
+        <link rel="canonical" href={`https://mvaimobiliare.ro/complexe/${generateComplexSlug(project)}`} />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content={`Complex rezidențial ${project.name} în ${project.location}. ${properties?.length || 0} apartamente totale, ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile. Preț: ${project.price_range || 'la cerere'}. Suprafață: ${project.surface_range || 'variată'}. Camere: ${project.rooms_range || 'diverse opțiuni'}. ${project.completion_date ? `Finalizare: ${project.completion_date}` : ''}. Developer: ${project.developer || 'verificat'}. Contact: 0767941512.`} />
@@ -276,7 +298,7 @@ const ComplexDetail = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro/complexe/${project.id}`} />
+        <meta property="og:url" content={`https://mvaimobiliare.ro/complexe/${generateComplexSlug(project)}`} />
         <meta property="og:title" content={`${project.name} - Apartamente Disponibile`} />
         <meta property="og:description" content={`${properties?.length || 0} apartamente în ${project.location}. ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile acum!`} />
         <meta property="og:image" content={project.main_image || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
@@ -345,7 +367,7 @@ const ComplexDetail = () => {
                 "@type": "ListItem",
                 "position": 3,
                 "name": project.name,
-                "item": `https://mvaimobiliare.ro/complexe/${project.id}`
+                "item": `https://mvaimobiliare.ro/complexe/${generateComplexSlug(project)}`
               }
             ]
           })}
@@ -499,8 +521,8 @@ const ComplexDetail = () => {
               {/* Rooms Filter */}
               <Select value={filterRooms} onValueChange={(value) => {
                 setFilterRooms(value);
-                if (value !== "all" && id) {
-                  trackComplex('filter', id, project?.name);
+                if (value !== "all" && project?.id) {
+                  trackComplex('filter', project.id, project?.name);
                 }
               }}>
                 <SelectTrigger className="w-[130px] sm:w-[150px] h-8 sm:h-9 text-xs sm:text-sm">

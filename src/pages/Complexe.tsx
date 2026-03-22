@@ -14,6 +14,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { ComplexGridSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getComplexUrl } from "@/lib/complexSlug";
 
 const Complexe = () => {
   const { trackComplex } = usePlausible();
@@ -133,7 +134,7 @@ const Complexe = () => {
               "position": index + 1,
               "item": {
                 "@type": "Residence",
-                "@id": `https://mvaimobiliare.ro/complexe/${project.id}`,
+                "@id": `https://mvaimobiliare.ro${getComplexUrl(project)}`,
                 "name": project.name,
                 "description": project.description,
                 "image": project.main_image,
@@ -213,7 +214,7 @@ const Complexe = () => {
                 return (
                   <Link 
                     key={project.id} 
-                    to={`/complexe/${project.id}`}
+                    to={getComplexUrl(project)}
                     className="group"
                     onClick={() => trackComplex('click_details', project.id, project.name)}
                   >
