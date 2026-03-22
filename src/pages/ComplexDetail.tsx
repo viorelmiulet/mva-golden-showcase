@@ -138,19 +138,7 @@ const ComplexDetail = () => {
   }
 
   if (!project) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-24">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground">Proiectul nu a fost găsit</p>
-            </CardContent>
-          </Card>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
   // Helper function to extract apartment number numerically
