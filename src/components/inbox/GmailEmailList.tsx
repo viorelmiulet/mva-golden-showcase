@@ -1,17 +1,13 @@
-import { motion } from "framer-motion";
-import { 
-  Star, 
-  Paperclip, 
+import {
+  Star,
+  Paperclip,
   Square,
   CheckSquare,
   Trash2,
   Archive,
   MailOpen,
-  MoreVertical,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
-  RotateCcw
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -85,16 +81,15 @@ export const GmailEmailList = ({
   const someSelected = selectedIds.size > 0;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="h-10 border-b border-border/10 flex items-center justify-between px-2 shrink-0">
-        <div className="flex items-center gap-0.5">
+    <div className="flex h-full flex-col bg-background">
+      <div className="flex h-14 items-center justify-between border-b border-border/20 bg-muted/15 px-3 shrink-0">
+        <div className="flex items-center gap-1.5">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={() => allSelected ? onDeselectAll() : onSelectAll()}
-                  className="p-1.5 hover:bg-muted/40 rounded-md transition-colors"
+                  className="rounded-xl p-2 transition-colors hover:bg-muted"
                 >
                   {allSelected ? (
                     <CheckSquare className="h-4 w-4 text-primary" />
@@ -103,12 +98,12 @@ export const GmailEmailList = ({
                   )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent className="text-xs">{allSelected ? "Deselectează" : "Selectează tot"}</TooltipContent>
+              <TooltipContent>{allSelected ? "Deselectează" : "Selectează tot"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           {someSelected ? (
-            <div className="flex items-center gap-0.5 animate-in fade-in duration-150">
+            <div className="flex items-center gap-1 animate-in fade-in duration-150">
               {!isTrashView && (
                 <>
                   <ActionBtn icon={Archive} tooltip="Arhivează" onClick={onBulkArchive} />
@@ -122,32 +117,32 @@ export const GmailEmailList = ({
                   <ActionBtn icon={Trash2} tooltip="Șterge definitiv" onClick={onBulkDelete} destructive />
                 </>
               )}
-              <span className="text-xs text-muted-foreground ml-1.5 tabular-nums">{selectedIds.size} sel.</span>
+              <span className="ml-1.5 rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
+                {selectedIds.size} selectate
+              </span>
             </div>
           ) : (
-            <>
-              <ActionBtn icon={RefreshCw} tooltip="Reîmprospătează" onClick={onRefresh} spinning={isLoading} />
-            </>
+            <ActionBtn icon={RefreshCw} tooltip="Reîmprospătează" onClick={onRefresh} spinning={isLoading} />
           )}
         </div>
 
-        <div className="flex items-center gap-1 text-xs text-muted-foreground/70">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="hidden rounded-full border border-border/30 bg-background px-2.5 py-1 sm:inline-flex">Inbox</span>
           <span className="tabular-nums">1–{emails.length} din {totalCount}</span>
         </div>
       </div>
 
-      {/* Email List */}
       <div className="flex-1 overflow-y-auto">
         {emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-16">
-            <div className="w-20 h-20 rounded-2xl bg-muted/20 flex items-center justify-center mb-4">
+          <div className="flex h-full flex-col items-center justify-center py-16 text-muted-foreground">
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl border border-border/20 bg-muted/20">
               <Archive className="h-10 w-10 text-muted-foreground/20" />
             </div>
-            <p className="text-base font-medium mb-1">Nu există email-uri</p>
+            <p className="mb-1 text-base font-medium">Nu există email-uri</p>
             <p className="text-xs text-muted-foreground/50">Inbox-ul tău este gol</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/5">
+          <div className="divide-y divide-border/10">
             {emails.map((email) => (
               <GmailEmailRow
                 key={email.id}
@@ -172,7 +167,6 @@ export const GmailEmailList = ({
   );
 };
 
-// Small action button helper
 const ActionBtn = ({ icon: Icon, tooltip, onClick, destructive, spinning }: {
   icon: any; tooltip: string; onClick: () => void; destructive?: boolean; spinning?: boolean;
 }) => (
@@ -184,14 +178,14 @@ const ActionBtn = ({ icon: Icon, tooltip, onClick, destructive, spinning }: {
           size="icon"
           onClick={onClick}
           className={cn(
-            "h-7 w-7 rounded-md transition-colors",
-            destructive ? "hover:bg-destructive/10 hover:text-destructive" : "hover:bg-muted/50"
+            "h-8 w-8 rounded-xl transition-colors",
+            destructive ? "hover:bg-destructive/10 hover:text-destructive" : "hover:bg-muted",
           )}
         >
           <Icon className={cn("h-4 w-4", spinning && "animate-spin")} />
         </Button>
       </TooltipTrigger>
-      <TooltipContent className="text-xs">{tooltip}</TooltipContent>
+      <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
   </TooltipProvider>
 );
@@ -227,83 +221,87 @@ const GmailEmailRow = ({
 }: GmailEmailRowProps) => {
   return (
     <div
+      onClick={onSelect}
       className={cn(
-        "group flex items-center h-10 px-2 cursor-pointer transition-colors duration-100",
-        "hover:bg-muted/25",
-        isSelected && "bg-primary/8 border-l-2 border-l-primary",
-        isChecked && "bg-primary/6",
-        !email.is_read && "bg-muted/15"
+        "group grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 px-3 py-3 transition-colors duration-100",
+        "hover:bg-muted/35",
+        isSelected && "bg-secondary",
+        isChecked && "bg-primary/8",
+        !email.is_read && "bg-muted/20",
       )}
     >
-      {/* Checkbox & Star */}
-      <div className="flex items-center shrink-0 gap-0">
+      <div className="flex items-start gap-0.5 pt-0.5">
         <button
           onClick={(e) => { e.stopPropagation(); onToggleCheck(); }}
-          className="p-1.5 rounded-md hover:bg-muted/40 transition-colors"
+          className="rounded-lg p-1.5 transition-colors hover:bg-muted"
         >
           {isChecked ? (
             <CheckSquare className="h-4 w-4 text-primary" />
           ) : (
-            <Square className="h-4 w-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors" />
+            <Square className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground" />
           )}
         </button>
-        
-        <button onClick={onToggleStar} className="p-1 rounded-md hover:bg-muted/40 transition-colors">
+
+        <button onClick={onToggleStar} className="rounded-lg p-1.5 transition-colors hover:bg-muted">
           <Star className={cn(
             "h-4 w-4 transition-colors",
-            email.is_starred 
-              ? "fill-gold text-gold"
-              : "text-muted-foreground/30 group-hover:text-muted-foreground/60 hover:text-gold"
+            email.is_starred
+              ? "fill-primary text-primary"
+              : "text-muted-foreground/40 group-hover:text-muted-foreground",
           )} />
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex items-center gap-3 min-w-0 py-1" onClick={onSelect}>
-        <span className={cn(
-          "w-40 shrink-0 truncate text-[13px]",
-          !email.is_read ? "font-semibold text-foreground" : "text-muted-foreground"
-        )}>
-          {extractSenderName(email.sender)}
-        </span>
+      <div className="min-w-0 space-y-1">
+        <div className="flex items-center gap-3">
+          <span className={cn(
+            "min-w-0 max-w-[220px] truncate text-[13px]",
+            !email.is_read ? "font-semibold text-foreground" : "text-foreground",
+          )}>
+            {extractSenderName(email.sender)}
+          </span>
 
-        <div className="flex-1 flex items-center gap-1.5 min-w-0">
+          {!email.is_read && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
+
+          {email.attachments && email.attachments.length > 0 && (
+            <Paperclip className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+          )}
+        </div>
+
+        <div className="flex min-w-0 items-center gap-1.5">
           <span className={cn(
             "truncate text-[13px]",
-            !email.is_read ? "font-medium text-foreground" : "text-foreground/70"
+            !email.is_read ? "font-medium text-foreground" : "text-foreground/85",
           )}>
             {email.subject || '(Fără subiect)'}
           </span>
           {email.body_plain && (
             <>
-              <span className="text-muted-foreground/30 text-[13px] shrink-0">—</span>
-              <span className="text-muted-foreground/50 text-[13px] truncate">
-                {email.body_plain.substring(0, 60)}
+              <span className="shrink-0 text-[13px] text-muted-foreground/40">—</span>
+              <span className="truncate text-[12px] text-muted-foreground">
+                {email.body_plain.substring(0, 90)}
               </span>
             </>
           )}
         </div>
+      </div>
 
-        {email.attachments && email.attachments.length > 0 && (
-          <Paperclip className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-        )}
-
+      <div className="flex items-start gap-2">
         <span className={cn(
-          "text-[11px] shrink-0 tabular-nums",
-          !email.is_read ? "font-semibold text-foreground" : "text-muted-foreground/60"
+          "pt-1 text-[11px] tabular-nums text-muted-foreground",
+          !email.is_read && "font-semibold text-foreground",
         )}>
           {formatEmailDate(email.received_at)}
         </span>
-      </div>
 
-      {/* Hover actions */}
-      <div className="hidden group-hover:flex items-center gap-0.5 ml-1 shrink-0">
-        {isTrashView && onRestore ? (
-          <ActionBtn icon={RotateCcw} tooltip="Restaurează" onClick={() => { onRestore(); }} />
-        ) : (
-          <ActionBtn icon={Archive} tooltip="Arhivează" onClick={() => { onArchive(); }} />
-        )}
-        <ActionBtn icon={Trash2} tooltip={isTrashView ? "Șterge definitiv" : "Șterge"} onClick={() => { onDelete(); }} destructive />
+        <div className="hidden items-center gap-0.5 group-hover:flex">
+          {isTrashView && onRestore ? (
+            <ActionBtn icon={RotateCcw} tooltip="Restaurează" onClick={onRestore} />
+          ) : (
+            <ActionBtn icon={Archive} tooltip="Arhivează" onClick={onArchive} />
+          )}
+          <ActionBtn icon={Trash2} tooltip={isTrashView ? "Șterge definitiv" : "Șterge"} onClick={onDelete} destructive />
+        </div>
       </div>
     </div>
   );

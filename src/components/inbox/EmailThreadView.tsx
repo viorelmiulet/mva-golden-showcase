@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   ArrowLeft,
   Star,
   Reply,
   Forward,
-  MoreVertical,
   Archive,
   Trash2,
   Printer,
   ExternalLink,
-  Download,
   Paperclip,
   RotateCcw,
   Clock,
@@ -20,7 +18,7 @@ import {
   FileText,
   Image as ImageIcon,
   File,
-  Send as SendIcon
+  Send as SendIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,23 +27,11 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { downloadEmailAttachment, getAttachmentName, getAttachmentUrl } from "./attachment-download";
 
 interface ThreadEmail {
@@ -97,7 +83,6 @@ export const EmailThreadView = ({
   extractSenderName,
   extractSenderInitials,
 }: EmailThreadViewProps) => {
-  // Track which messages are expanded - last message is expanded by default
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
     const set = new Set<string>();
     if (thread.length > 0) {
@@ -107,7 +92,7 @@ export const EmailThreadView = ({
   });
 
   const toggleExpanded = (id: string) => {
-    setExpandedIds(prev => {
+    setExpandedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
         newSet.delete(id);
@@ -118,70 +103,46 @@ export const EmailThreadView = ({
     });
   };
 
-  const expandAll = () => {
-    setExpandedIds(new Set(thread.map(e => e.id)));
-  };
-
+  const expandAll = () => setExpandedIds(new Set(thread.map((e) => e.id)));
   const collapseAll = () => {
     const lastEmail = thread[thread.length - 1];
     setExpandedIds(new Set([lastEmail?.id].filter(Boolean)));
   };
 
-  const extractEmail = (sender: string) => {
-    const match = sender.match(/<([^>]+)>/);
-    return match ? match[1] : sender;
-  };
-
   const getFileIcon = (filename: string) => {
     const ext = filename.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) {
-      return ImageIcon;
-    }
-    if (['pdf'].includes(ext || '')) {
-      return FileText;
-    }
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext || "")) return ImageIcon;
+    if (["pdf"].includes(ext || "")) return FileText;
     return File;
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   if (thread.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-background">
-        <div className="w-32 h-32 rounded-full bg-muted/10 flex items-center justify-center mb-6">
-          <svg className="w-20 h-20 text-muted-foreground/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+      <div className="flex h-full flex-col items-center justify-center bg-background text-muted-foreground">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl border border-border/20 bg-muted/10">
+          <svg className="h-12 w-12 text-muted-foreground/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <path d="M22 6l-10 7L2 6" />
           </svg>
         </div>
-        <p className="text-xl font-medium mb-2">Selectează un email pentru a-l citi</p>
+        <p className="mb-2 text-xl font-medium">Selectează un email pentru a-l citi</p>
         <p className="text-sm text-muted-foreground/60">Alege un mesaj din listă</p>
       </div>
     );
   }
 
-  const isStarred = thread.some(e => e.is_starred);
+  const isStarred = thread.some((e) => e.is_starred);
   const lastEmail = thread[thread.length - 1];
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Header Toolbar */}
-      <div className="h-12 border-b border-border/30 flex items-center justify-between px-2 shrink-0">
+    <div className="flex h-full flex-col bg-background">
+      <div className="flex h-14 items-center justify-between border-b border-border/20 bg-muted/15 px-3 shrink-0">
         <div className="flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="h-9 w-9"
-                >
-                  <ArrowLeft className="h-5 w-5" />
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-9 w-9 rounded-xl hover:bg-muted">
+                  <ArrowLeft className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Înapoi</TooltipContent>
@@ -189,135 +150,38 @@ export const EmailThreadView = ({
           </TooltipProvider>
 
           {isTrashView && onRestore ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onRestore}
-                    className="h-9 w-9"
-                  >
-                    <RotateCcw className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Restaurează</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <ToolbarBtn icon={RotateCcw} tooltip="Restaurează" onClick={onRestore} />
           ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={isArchived ? onUnarchive : onArchive}
-                    className="h-9 w-9"
-                  >
-                    <Archive className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{isArchived ? "Dezarhivează" : "Arhivează"}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <ToolbarBtn icon={Archive} tooltip={isArchived ? "Dezarhivează" : "Arhivează"} onClick={isArchived ? onUnarchive! : onArchive} />
           )}
+          <ToolbarBtn icon={Trash2} tooltip={isTrashView ? "Șterge definitiv" : "Șterge"} onClick={onDelete} />
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onDelete}
-                  className="h-9 w-9"
-                >
-                  <Trash2 className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{isTrashView ? "Șterge definitiv" : "Șterge"}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <div className="h-5 w-px bg-border mx-1" />
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <Clock className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Amână</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <Tag className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Etichete</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="mx-1 h-4 w-px bg-border/30" />
+          <ToolbarBtn icon={Clock} tooltip="Amână" onClick={() => {}} />
+          <ToolbarBtn icon={Tag} tooltip="Etichete" onClick={() => {}} />
         </div>
 
         <div className="flex items-center gap-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <Printer className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Printează</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Deschide în fereastră nouă</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <ToolbarBtn icon={Printer} tooltip="Printează" onClick={() => {}} />
+          <ToolbarBtn icon={ExternalLink} tooltip="Deschide în fereastră nouă" onClick={() => {}} />
         </div>
       </div>
 
-      {/* Thread Content */}
       <ScrollArea className="flex-1">
-        <div className="max-w-4xl mx-auto p-6">
-          {/* Subject */}
-          <div className="flex items-start justify-between mb-4">
+        <div className="mx-auto max-w-5xl p-6">
+          <div className="mb-5 flex items-start justify-between rounded-3xl border border-border/20 bg-muted/15 p-6">
             <div className="flex-1">
-              <h1 className="text-2xl font-normal text-foreground pr-4">
-                {subject || '(Fără subiect)'}
-              </h1>
-              {thread.length > 1 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {thread.length} mesaje în conversație
-                </p>
-              )}
+              <div className="mb-3 flex items-center gap-2">
+                <span className="rounded-full border border-border/30 bg-background px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Conversație
+                </span>
+                {thread.length > 1 && (
+                  <span className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground">
+                    {thread.length} mesaje
+                  </span>
+                )}
+              </div>
+              <h1 className="pr-4 text-2xl font-semibold text-foreground">{subject || '(Fără subiect)'}</h1>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {thread.length > 1 && (
@@ -325,31 +189,21 @@ export const EmailThreadView = ({
                   variant="ghost"
                   size="sm"
                   onClick={expandedIds.size === thread.length ? collapseAll : expandAll}
-                  className="text-xs"
+                  className="rounded-xl border border-border/30 bg-background text-xs hover:bg-muted"
                 >
                   {expandedIds.size === thread.length ? "Restrânge tot" : "Extinde tot"}
                 </Button>
               )}
-              <button onClick={() => onToggleStar(lastEmail)} className="p-1">
-                <Star 
-                  className={cn(
-                    "h-6 w-6 transition-colors",
-                    isStarred 
-                      ? "fill-gold text-gold"
-                      : "text-muted-foreground hover:text-gold"
-                  )} 
-                />
+              <button onClick={() => onToggleStar(lastEmail)} className="rounded-2xl border border-border/30 bg-background p-3 transition-colors hover:bg-muted">
+                <Star className={cn("h-5 w-5 transition-colors", isStarred ? "fill-primary text-primary" : "text-muted-foreground/50 hover:text-primary")} />
               </button>
             </div>
           </div>
 
-          {/* Thread messages */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {thread.map((email, index) => {
               const isExpanded = expandedIds.has(email.id);
-              const isLast = index === thread.length - 1;
               const isSent = email.type === 'sent';
-
               return (
                 <motion.div
                   key={email.id}
@@ -357,61 +211,44 @@ export const EmailThreadView = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className={cn(
-                    "border rounded-xl overflow-hidden transition-colors",
-                    isExpanded ? "border-border bg-background" : "border-border/50 bg-muted/20 hover:bg-muted/30"
+                    "overflow-hidden rounded-3xl border transition-colors",
+                    isExpanded ? "border-border/30 bg-background shadow-sm" : "border-border/20 bg-muted/15 hover:bg-muted/25",
                   )}
                 >
-                  {/* Message header - always visible */}
-                  <div
-                    className="flex items-center gap-3 p-4 cursor-pointer"
-                    onClick={() => toggleExpanded(email.id)}
-                  >
+                  <div className="flex cursor-pointer items-center gap-3 p-4" onClick={() => toggleExpanded(email.id)}>
                     <Avatar className="h-10 w-10 shrink-0">
                       <AvatarFallback className={cn(
                         "text-sm font-medium",
-                        isSent 
-                          ? "bg-primary/20 text-primary" 
-                          : "bg-primary text-primary-foreground"
+                        isSent ? "bg-primary/15 text-primary" : "bg-secondary text-foreground",
                       )}>
                         {isSent ? "EU" : extractSenderInitials(email.sender)}
                       </AvatarFallback>
                     </Avatar>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">
-                          {isSent ? "Eu" : extractSenderName(email.sender)}
-                        </span>
+                        <span className="font-medium text-foreground">{isSent ? "Eu" : extractSenderName(email.sender)}</span>
                         {isSent && (
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                          <span className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                             <SendIcon className="h-3 w-3" />
                             Trimis
                           </span>
                         )}
-                        {email.is_starred && (
-                          <Star className="h-4 w-4 fill-gold text-gold" />
-                        )}
+                        {email.is_starred && <Star className="h-4 w-4 fill-primary text-primary" />}
                       </div>
                       {!isExpanded && (
-                        <p className="text-sm text-muted-foreground truncate mt-0.5">
+                        <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {email.body_plain?.substring(0, 100) || '(Fără conținut)'}
                         </p>
                       )}
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(email.received_at), "d MMM, HH:mm", { locale: ro })}
-                      </span>
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      <span className="text-xs text-muted-foreground">{format(new Date(email.received_at), "d MMM, HH:mm", { locale: ro })}</span>
+                      {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                     </div>
                   </div>
 
-                  {/* Expanded content */}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -422,32 +259,22 @@ export const EmailThreadView = ({
                         className="overflow-hidden"
                       >
                         <div className="px-4 pb-4 pt-0">
-                          {/* To/From details */}
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 pl-[52px]">
-                            {isSent ? (
-                              <span>către {email.recipient || 'destinatar necunoscut'}</span>
-                            ) : (
-                              <span>către mine</span>
-                            )}
+                          <div className="mb-4 flex items-center gap-2 pl-[52px] text-sm text-muted-foreground">
+                            {isSent ? <span>către {email.recipient || 'destinatar necunoscut'}</span> : <span>către mine</span>}
                           </div>
 
-                          {/* Email body */}
                           <div className="pl-[52px]">
                             {email.body_html ? (
-                              <div 
-                                className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-headings:my-3"
-                                dangerouslySetInnerHTML={{ __html: email.body_html }}
-                              />
+                              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-headings:my-3" dangerouslySetInnerHTML={{ __html: email.body_html }} />
                             ) : (
-                              <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                              <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                                 {email.body_plain || email.stripped_text || 'Nu există conținut'}
                               </div>
                             )}
 
-                            {/* Attachments */}
                             {email.attachments && email.attachments.length > 0 && (
-                              <div className="mt-4 pt-4 border-t border-border/30">
-                                <div className="flex items-center gap-2 mb-3">
+                              <div className="mt-4 border-t border-border/20 pt-4">
+                                <div className="mb-3 flex items-center gap-2">
                                   <Paperclip className="h-4 w-4 text-muted-foreground" />
                                   <span className="text-sm text-muted-foreground">
                                     {email.attachments.length} atașament{email.attachments.length > 1 ? 'e' : ''}
@@ -464,12 +291,10 @@ export const EmailThreadView = ({
                                         key={idx}
                                         onClick={() => void downloadEmailAttachment(attachment)}
                                         disabled={!attachmentUrl}
-                                        className="flex items-center gap-2 px-3 py-2 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                                        className="flex items-center gap-2 rounded-2xl border border-border/20 bg-muted/10 px-3 py-2 text-sm transition-colors hover:bg-muted/30"
                                       >
                                         <FileIcon className="h-5 w-5 text-muted-foreground" />
-                                        <span className="truncate max-w-[120px]">
-                                          {attachmentName}
-                                        </span>
+                                        <span className="max-w-[120px] truncate">{attachmentName}</span>
                                       </button>
                                     );
                                   })}
@@ -477,23 +302,12 @@ export const EmailThreadView = ({
                               </div>
                             )}
 
-                            {/* Quick actions */}
-                            <div className="flex items-center gap-2 mt-4">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => { e.stopPropagation(); onReply(email); }}
-                                className="gap-1.5"
-                              >
+                            <div className="mt-4 flex items-center gap-2">
+                              <Button variant="default" size="sm" onClick={(e) => { e.stopPropagation(); onReply(email); }} className="gap-1.5 rounded-xl">
                                 <Reply className="h-4 w-4" />
                                 Răspunde
                               </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => { e.stopPropagation(); onForward(email); }}
-                                className="gap-1.5"
-                              >
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onForward(email); }} className="gap-1.5 rounded-xl border-border/30 hover:bg-muted">
                                 <Forward className="h-4 w-4" />
                                 Redirecționează
                               </Button>
@@ -508,12 +322,8 @@ export const EmailThreadView = ({
             })}
           </div>
 
-          {/* Reply box at bottom */}
-          <div className="mt-6 border border-border/50 rounded-2xl p-4">
-            <button 
-              onClick={() => onReply(lastEmail)}
-              className="w-full text-left text-muted-foreground hover:text-foreground transition-colors"
-            >
+          <div className="mt-6 rounded-3xl border border-border/20 bg-background p-4">
+            <button onClick={() => onReply(lastEmail)} className="w-full rounded-2xl border border-border/20 bg-muted/10 px-4 py-4 text-left text-muted-foreground transition-colors hover:bg-muted/20 hover:text-foreground">
               Click aici pentru a răspunde...
             </button>
           </div>
@@ -522,3 +332,16 @@ export const EmailThreadView = ({
     </div>
   );
 };
+
+const ToolbarBtn = ({ icon: Icon, tooltip, onClick }: { icon: any; tooltip: string; onClick: () => void }) => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={onClick} className="h-9 w-9 rounded-xl hover:bg-muted">
+          <Icon className="h-4 w-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+);
