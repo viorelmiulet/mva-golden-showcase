@@ -147,6 +147,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
           size="icon"
           className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
           onClick={handleZoomOut}
+          aria-label="Micșorează schița"
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
@@ -155,6 +156,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
           size="icon"
           className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
           onClick={handleZoomIn}
+          aria-label="Mărește schița"
         >
           <ZoomIn className="h-4 w-4" />
         </Button>
@@ -163,6 +165,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
           size="icon"
           className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
           onClick={handleReset}
+          aria-label="Resetează zoom-ul"
         >
           <RotateCcw className="h-4 w-4" />
         </Button>
