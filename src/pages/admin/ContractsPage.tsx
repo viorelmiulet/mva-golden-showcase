@@ -360,6 +360,7 @@ const ContractsPage = () => {
               className="h-8 w-8"
               onClick={() => paginate(-1)}
               disabled={mobileCardIndex === 0}
+              aria-label="Cardul anterior"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -386,6 +387,7 @@ const ContractsPage = () => {
               className="h-8 w-8"
               onClick={() => paginate(1)}
               disabled={mobileCardIndex === contractTypes.length - 1}
+              aria-label="Cardul următor"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
