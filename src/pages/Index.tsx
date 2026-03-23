@@ -191,19 +191,31 @@ const Index = () => {
         <Header />
         <main>
           <Hero />
-          <Suspense fallback={<div className="py-24" />}>
-            <Properties />
-          </Suspense>
-          <About />
-          <TrustBadges />
-          <Services />
-          <Suspense fallback={<div className="py-24" />}>
-            <Contact />
-          </Suspense>
+          <div style={{ contentVisibility: "auto" }}>
+            <Suspense fallback={<div className="py-24" />}>
+              <Properties />
+            </Suspense>
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <About />
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <TrustBadges />
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <Services />
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <Suspense fallback={<div className="py-24" />}>
+              <Contact />
+            </Suspense>
+          </div>
         </main>
-        <Suspense fallback={<div />}>
-          <Footer />
-        </Suspense>
+        <div style={{ contentVisibility: "auto" }}>
+          <Suspense fallback={<div />}>
+            <Footer />
+          </Suspense>
+        </div>
         <Suspense fallback={null}>
           <PWAInstallBanner />
         </Suspense>
