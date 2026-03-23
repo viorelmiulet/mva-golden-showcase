@@ -12,6 +12,15 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import ScrollReveal from "@/components/ScrollReveal"
+import { z } from "zod"
+
+const contactSchema = z.object({
+  nume: z.string().trim().min(1, 'Câmp obligatoriu').max(100, 'Maximum 100 caractere'),
+  prenume: z.string().trim().min(1, 'Câmp obligatoriu').max(100, 'Maximum 100 caractere'),
+  email: z.string().trim().email('Adresă de email invalidă').max(255, 'Maximum 255 caractere'),
+  telefon: z.string().trim().regex(/^\+?[0-9\s]{7,20}$/, 'Număr de telefon invalid'),
+  mesaj: z.string().trim().min(10, 'Minim 10 caractere').max(2000, 'Maximum 2000 caractere'),
+});
 
 const Contact = () => {
   const { data: settings } = useSiteSettings();
