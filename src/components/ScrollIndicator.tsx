@@ -2,38 +2,48 @@ import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 const ScrollIndicator = () => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [canScroll, setCanScroll] = useState(false);
   const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
+    let ticking = false;
+
+    const updateScrollability = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      
-      // Calculate opacity based on scroll position (fade out over first 15% of viewport)
-      const fadeThreshold = windowHeight * 0.15;
-      const newOpacity = Math.max(0, 1 - (scrollTop / fadeThreshold));
-      setOpacity(newOpacity);
-      
-      // Hide completely after threshold
-      if (scrollTop > fadeThreshold) {
-        setIsVisible(false);
-      } else {
-        // Only show if page is longer than viewport
-        setIsVisible(documentHeight > windowHeight * 1.5);
-      }
+      setCanScroll(documentHeight > windowHeight * 1.5);
     };
 
-    // Initial check
+    const handleScroll = () => {
+      if (ticking) return;
+
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const fadeThreshold = window.innerHeight * 0.15;
+        setOpacity(Math.max(0, 1 - scrollTop / fadeThreshold));
+        ticking = false;
+      });
+    };
+
+    const handleResize = () => {
+      updateScrollability();
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fadeThreshold = windowHeight * 0.15;
+      setOpacity(Math.max(0, 1 - scrollTop / fadeThreshold));
+    };
+
+    updateScrollability();
     handleScroll();
     
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -44,7 +54,7 @@ const ScrollIndicator = () => {
     });
   };
 
-  if (!isVisible) return null;
+  if (!canScroll || opacity <= 0.02) return null;
 
   return (
     <button
