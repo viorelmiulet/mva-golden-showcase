@@ -147,6 +147,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff,woff2}'],
         // Skip caching for large chunks that change frequently
         globIgnores: [
@@ -204,21 +207,6 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 20,
                 maxAgeSeconds: 60 * 60 * 24 * 365
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          // Cache-first for JS/CSS chunks (versioned by build)
-          {
-            urlPattern: /\.(?:js|css)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
               },
               cacheableResponse: {
                 statuses: [0, 200]
