@@ -92,7 +92,7 @@ const AppRoutes = () => {
   useEffect(() => {
     const enableDeferredUi = () => setShowDeferredUi(true);
     const enableDeferredAnalytics = () => setShowDeferredAnalytics(true);
-    let analyticsTimeoutId: number | null = null;
+    let analyticsTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let analyticsIdleId: number | null = null;
 
     const scheduleDeferredAnalytics = () => {
