@@ -18,9 +18,6 @@ const Hero = () => {
 
     const loadStats = async () => {
       setIsStatsLoading(true)
-      const { useRealEstateStats } = await import("@/hooks/useRealEstateStats")
-
-      if (!isMounted) return
 
       const { supabase } = await import("@/integrations/supabase/client")
       const [{ count: propertiesCount }, { count: projectsCount }] = await Promise.all([
