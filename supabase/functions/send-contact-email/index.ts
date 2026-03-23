@@ -68,10 +68,43 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Processing POST request...");
     
     const requestBody = await req.text();
-    console.log("Request body:", requestBody);
     
-    const { nume, prenume, email, telefon, mesaj }: ContactFormData = JSON.parse(requestBody);
-    console.log("Parsed form data:", { nume, prenume, email, telefon });
+    const raw = JSON.parse(requestBody);
+
+    // Server-side validation
+    const nume = String(raw.nume ?? '').trim().slice(0, 100);
+    const prenume = String(raw.prenume ?? '').trim().slice(0, 100);
+    const email = String(raw.email ?? '').trim().slice(0, 255);
+    const telefon = String(raw.telefon ?? '').trim().slice(0, 20);
+    const mesaj = String(raw.mesaj ?? '').trim().slice(0, 2000);
+
+    if (!nume || !prenume || !mesaj) {
+      return new Response(JSON.stringify({ success: false, error: 'Câmpuri obligatorii lipsesc.' }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return new Response(JSON.stringify({ success: false, error: 'Adresă de email invalidă.' }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    if (!/^\+?[0-9\s]{7,20}$/.test(telefon)) {
+      return new Response(JSON.stringify({ success: false, error: 'Număr de telefon invalid.' }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // HTML escape helper
+    const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+    const safeNume = esc(nume);
+    const safePrenume = esc(prenume);
+    const safeEmail = esc(email);
+    const safeTelefon = esc(telefon);
+    const safeMesaj = esc(mesaj);
+
+    console.log("Validated form data:", { nume, prenume, email: safeEmail, telefon });
 
     // Get email sender settings from database
     const fromAddress = await getFromAddressForFunction('contact');
