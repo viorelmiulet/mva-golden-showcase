@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
@@ -13,18 +13,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
-import { useUserRoles } from "@/hooks/useUserRoles"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
 
-import { GoogleTranslate } from "@/components/GoogleTranslate"
+const GoogleTranslate = lazy(() =>
+  import("@/components/GoogleTranslate").then((module) => ({ default: module.GoogleTranslate }))
+)
+
+const TranslateControlFallback = ({ mobile = false }: { mobile?: boolean }) => (
+  <div
+    aria-hidden="true"
+    className={mobile ? "h-9 w-9 rounded-md bg-muted/40" : "h-9 w-9 md:w-28 rounded-md bg-muted/40"}
+  />
+)
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showTranslateControl, setShowTranslateControl] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAdmin } = useUserRoles()
   const { prefetchOnHover } = usePrefetch()
   const { t } = useLanguage()
 
@@ -49,15 +58,69 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
+    let isMounted = true
+
+    const syncAuthState = async (nextUser?: any | null) => {
+      const sessionUser = nextUser === undefined
+        ? (await supabase.auth.getSession()).data.session?.user ?? null
+        : nextUser
+
+      if (!isMounted) return
+
+      setUser(sessionUser)
+
+      if (!sessionUser) {
+        setIsAdmin(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", sessionUser.id)
+        .maybeSingle()
+
+      if (!isMounted) return
+
+      if (error) {
+        setIsAdmin(false)
+        return
+      }
+
+      setIsAdmin(data?.role === "admin")
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
+      void syncAuthState(session?.user ?? null)
     })
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null)
-    })
+    void syncAuthState()
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  useEffect(() => {
+    let timeoutId: number | null = null
+
+    const enableTranslateControl = () => {
+      timeoutId = window.setTimeout(() => setShowTranslateControl(true), 1200)
+    }
+
+    if (document.readyState === "complete") {
+      enableTranslateControl()
+    } else {
+      window.addEventListener("load", enableTranslateControl, { once: true })
+    }
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+      }
+      window.removeEventListener("load", enableTranslateControl)
+    }
   }, [])
 
   const handleLogout = async () => {
@@ -261,7 +324,13 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <GoogleTranslate />
+            {showTranslateControl ? (
+              <Suspense fallback={<TranslateControlFallback />}>
+                <GoogleTranslate />
+              </Suspense>
+            ) : (
+              <TranslateControlFallback />
+            )}
             {user ? (
               <>
                 <Link to="/favorite">
@@ -329,7 +398,13 @@ const Header = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <GoogleTranslate />
+                    {showTranslateControl ? (
+                      <Suspense fallback={<TranslateControlFallback mobile />}>
+                        <GoogleTranslate />
+                      </Suspense>
+                    ) : (
+                      <TranslateControlFallback mobile />
+                    )}
                   </div>
                 </div>
 
