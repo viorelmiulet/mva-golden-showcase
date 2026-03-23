@@ -118,7 +118,7 @@ const Footer = () => {
         <Separator className="bg-border/30" />
 
         <div className="py-4 max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-muted-foreground text-xs">© 2025 {companyName}. {t.footer.rights}.</p>
+          <p className="text-muted-foreground text-xs">© {new Date().getFullYear()} {companyName}. {t.footer.rights}.</p>
           <div className="flex items-center gap-4">
             <Link to="/politica-confidentialitate" className="text-xs text-muted-foreground hover:text-gold transition-colors">{t.footer.privacy}</Link>
             <Link to="/termeni-conditii" className="text-xs text-muted-foreground hover:text-gold transition-colors">{t.footer.terms}</Link>
