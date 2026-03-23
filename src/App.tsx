@@ -92,30 +92,41 @@ const AppRoutes = () => {
   useEffect(() => {
     const enableDeferredUi = () => setShowDeferredUi(true);
     const enableDeferredAnalytics = () => setShowDeferredAnalytics(true);
+    let analyticsTimeoutId: number | null = null;
+    let analyticsIdleId: number | null = null;
+
+    const scheduleDeferredAnalytics = () => {
+      if ('requestIdleCallback' in window) {
+        analyticsIdleId = window.requestIdleCallback(enableDeferredAnalytics, { timeout: 2500 });
+        return;
+      }
+
+      analyticsTimeoutId = window.setTimeout(enableDeferredAnalytics, 1500);
+    };
+
+    const clearDeferredAnalytics = () => {
+      if (analyticsIdleId !== null && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(analyticsIdleId);
+      }
+
+      if (analyticsTimeoutId !== null) {
+        window.clearTimeout(analyticsTimeoutId);
+      }
+    };
 
     if (document.readyState === 'complete') {
       const idleId = window.setTimeout(enableDeferredUi, 0);
-      const analyticsId = 'requestIdleCallback' in window
-        ? window.requestIdleCallback(enableDeferredAnalytics, { timeout: 2500 })
-        : window.setTimeout(enableDeferredAnalytics, 1500);
+      scheduleDeferredAnalytics();
 
       return () => {
         window.clearTimeout(idleId);
-        if ('cancelIdleCallback' in window) {
-          window.cancelIdleCallback(analyticsId as number);
-        } else {
-          window.clearTimeout(analyticsId as number);
-        }
+        clearDeferredAnalytics();
       };
     }
 
     window.addEventListener('load', enableDeferredUi, { once: true });
     const loadHandler = () => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(enableDeferredAnalytics, { timeout: 2500 });
-      } else {
-        window.setTimeout(enableDeferredAnalytics, 1500);
-      }
+      scheduleDeferredAnalytics();
     };
 
     window.addEventListener('load', loadHandler, { once: true });
