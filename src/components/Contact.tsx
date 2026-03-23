@@ -35,10 +35,8 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      if (!formData.nume || !formData.prenume || !formData.email || !formData.telefon || !formData.mesaj) {
-        throw new Error('Vă rugăm să completați toate câmpurile obligatorii');
-      }
-      const { data, error } = await supabase.functions.invoke('send-contact-email', { body: formData });
+      const validated = contactSchema.parse(formData);
+      const { data, error } = await supabase.functions.invoke('send-contact-email', { body: validated });
       if (error) throw new Error('Eroare la trimiterea email-ului.');
       trackContact('form', 'contact_page');
       trackGA4Contact('form');
