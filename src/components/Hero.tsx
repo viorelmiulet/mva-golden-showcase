@@ -1,15 +1,58 @@
 import { Button } from "@/components/ui/button"
 import { UserPlus } from "lucide-react"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
-import { CollaborationForm } from "@/components/CollaborationForm"
-import { useRealEstateStats } from "@/hooks/useRealEstateStats"
+import { lazy, Suspense, useEffect, useState } from "react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { useLanguage } from "@/contexts/LanguageContext"
 
+const CollaborationForm = lazy(() => import("@/components/CollaborationForm").then((module) => ({ default: module.CollaborationForm })))
+
 const Hero = () => {
-  const { trackEvent, trackContact } = useGoogleAnalytics();
-  const { data: stats, isLoading } = useRealEstateStats();
+  const { trackContact } = useGoogleAnalytics();
   const { language } = useLanguage();
+  const [stats, setStats] = useState<{ propertiesCount: number; projectsCount: number } | null>(null)
+  const [isStatsLoading, setIsStatsLoading] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadStats = async () => {
+      setIsStatsLoading(true)
+      const { useRealEstateStats } = await import("@/hooks/useRealEstateStats")
+
+      if (!isMounted) return
+
+      const { supabase } = await import("@/integrations/supabase/client")
+      const [{ count: propertiesCount }, { count: projectsCount }] = await Promise.all([
+        supabase.from("catalog_offers").select("*", { count: "exact", head: true }),
+        supabase.from("real_estate_projects").select("*", { count: "exact", head: true }),
+      ])
+
+      if (isMounted) {
+        setStats({
+          propertiesCount: propertiesCount || 0,
+          projectsCount: projectsCount || 0,
+        })
+        setIsStatsLoading(false)
+      }
+    }
+
+    const start = () => {
+      if (window.innerWidth < 768) return
+      window.setTimeout(loadStats, 1200)
+    }
+
+    if (document.readyState === "complete") {
+      start()
+    } else {
+      window.addEventListener("load", start, { once: true })
+    }
+
+    return () => {
+      isMounted = false
+      window.removeEventListener("load", start)
+    }
+  }, [])
 
   const handleWhatsAppClick = () => {
     trackContact('whatsapp', 'hero_cta');
@@ -59,12 +102,14 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col md:flex-row gap-3" aria-label="Call to action buttons">
-              <CollaborationForm>
-                <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  {language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}
-                </Button>
-              </CollaborationForm>
+              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><UserPlus className="mr-2 h-4 w-4" />{language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}</Button>}>
+                <CollaborationForm>
+                  <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    {language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}
+                  </Button>
+                </CollaborationForm>
+              </Suspense>
               
               <a 
                 href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
@@ -84,8 +129,8 @@ const Hero = () => {
           {/* Right - Stats */}
           <aside className="hidden md:grid grid-cols-2 gap-4 max-w-sm mx-auto lg:ml-auto lg:mr-0" aria-label={language === 'ro' ? 'Statistici cheie' : 'Key stats'}>
             {[
-              { value: isLoading ? "..." : stats?.propertiesCount || 0, label: language === 'ro' ? 'Proprietăți listate' : 'Listed properties' },
-              { value: isLoading ? "..." : stats?.projectsCount || 0, label: language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential complexes' },
+              { value: isStatsLoading ? "..." : stats?.propertiesCount ?? "—", label: language === 'ro' ? 'Proprietăți listate' : 'Listed properties' },
+              { value: isStatsLoading ? "..." : stats?.projectsCount ?? "—", label: language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential complexes' },
               { value: "1-3", label: language === 'ro' ? 'Camere · 30-75 mp' : 'Rooms · 30-75 sqm' },
               { value: language === 'ro' ? 'Vest' : 'West', label: language === 'ro' ? 'București' : 'Bucharest' },
             ].map((stat, i) => (
