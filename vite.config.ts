@@ -149,7 +149,21 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff,woff2}'],
         // Skip caching for large chunks that change frequently
-        globIgnores: ['**/node_modules/**/*'],
+        globIgnores: [
+          '**/node_modules/**/*',
+          '**/assets/charts-*.js',
+          '**/assets/charts-*.js.gz',
+          '**/assets/charts-*.js.br',
+          '**/assets/documents-*.js',
+          '**/assets/documents-*.js.gz',
+          '**/assets/documents-*.js.br',
+          '**/assets/spreadsheet-*.js',
+          '**/assets/spreadsheet-*.js.gz',
+          '**/assets/spreadsheet-*.js.br',
+          '**/assets/three-*.js',
+          '**/assets/three-*.js.gz',
+          '**/assets/three-*.js.br',
+        ],
         runtimeCaching: [
           // Cache-first for static assets (images, fonts, etc.)
           {

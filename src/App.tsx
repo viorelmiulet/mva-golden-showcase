@@ -1,6 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -81,6 +78,7 @@ const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const PhoneButton = lazy(() => import("@/components/PhoneButton"));
 const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
+const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
 const queryClient = new QueryClient();
 
@@ -227,6 +225,7 @@ const AppRoutes = () => {
       </Suspense>
       {showDeferredUi && (
         <Suspense fallback={null}>
+          <DeferredShell />
           <WhatsAppButton />
           <PhoneButton />
           <CookieConsent />
@@ -247,13 +246,9 @@ const App = () => {
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
       </LanguageProvider>
     </QueryClientProvider>
   </HelmetProvider>
