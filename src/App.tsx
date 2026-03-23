@@ -101,7 +101,7 @@ const AppRoutes = () => {
         return;
       }
 
-      analyticsTimeoutId = window.setTimeout(enableDeferredAnalytics, 1500);
+      analyticsTimeoutId = globalThis.setTimeout(enableDeferredAnalytics, 1500);
     };
 
     const clearDeferredAnalytics = () => {
@@ -115,7 +115,7 @@ const AppRoutes = () => {
     };
 
     if (document.readyState === 'complete') {
-      const idleId = window.setTimeout(enableDeferredUi, 0);
+      const idleId = globalThis.setTimeout(enableDeferredUi, 0);
       scheduleDeferredAnalytics();
 
       return () => {
