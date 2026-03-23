@@ -1,14 +1,14 @@
 import Header from "@/components/Header"
 import Hero from "@/components/Hero"
-import About from "@/components/About"
-import TrustBadges from "@/components/TrustBadges"
-import Services from "@/components/Services"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect, lazy, Suspense } from "react"
 import { Helmet } from "react-helmet-async"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 
 // Lazy load components that are below the fold
+const About = lazy(() => import("@/components/About"))
+const TrustBadges = lazy(() => import("@/components/TrustBadges"))
+const Services = lazy(() => import("@/components/Services"))
 const Properties = lazy(() => import("@/components/Properties"))
 const Contact = lazy(() => import("@/components/Contact"))
 const Footer = lazy(() => import("@/components/Footer"))
@@ -197,13 +197,19 @@ const Index = () => {
             </Suspense>
           </div>
           <div style={{ contentVisibility: "auto" }}>
-            <About />
+            <Suspense fallback={<div className="py-24" />}>
+              <About />
+            </Suspense>
           </div>
           <div style={{ contentVisibility: "auto" }}>
-            <TrustBadges />
+            <Suspense fallback={<div className="py-16" />}>
+              <TrustBadges />
+            </Suspense>
           </div>
           <div style={{ contentVisibility: "auto" }}>
-            <Services />
+            <Suspense fallback={<div className="py-24" />}>
+              <Services />
+            </Suspense>
           </div>
           <div style={{ contentVisibility: "auto" }}>
             <Suspense fallback={<div className="py-24" />}>
