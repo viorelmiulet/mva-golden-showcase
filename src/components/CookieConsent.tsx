@@ -140,6 +140,7 @@ const CookieConsent = () => {
             variant="ghost"
             size="sm"
             onClick={rejectCookies}
+            aria-label="Închide bannerul de cookies"
             className="h-auto p-1 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
