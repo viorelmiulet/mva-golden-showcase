@@ -14,17 +14,71 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom'],
-          'router': ['react-router-dom'],
-          'query': ['@tanstack/react-query'],
-          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tooltip', '@radix-ui/react-tabs', '@radix-ui/react-select'],
-          'charts': ['recharts'],
-          'forms': ['react-hook-form', 'zod'],
-          'pdf': ['jspdf', 'jspdf-autotable'],
-          'excel': ['xlsx'],
-          'three': ['three', '@react-three/fiber', '@react-three/drei'],
-        }
+        manualChunks: (id) => {
+          if (!id.includes("node_modules")) return undefined;
+
+          if (id.includes("react-dom") || id.includes("scheduler") || id.includes("react/jsx-runtime") || /node_modules\/react\//.test(id)) {
+            return "react-core";
+          }
+
+          if (id.includes("react-router") || id.includes("@remix-run")) {
+            return "router";
+          }
+
+          if (id.includes("@tanstack/react-query")) {
+            return "query";
+          }
+
+          if (id.includes("@supabase/supabase-js") || id.includes("@supabase/auth-js") || id.includes("@supabase/postgrest-js") || id.includes("@supabase/realtime-js") || id.includes("@supabase/functions-js") || id.includes("@supabase/storage-js")) {
+            return "backend";
+          }
+
+          if (id.includes("lucide-react")) {
+            return "icons";
+          }
+
+          if (id.includes("@radix-ui")) {
+            return "radix-ui";
+          }
+
+          if (id.includes("framer-motion")) {
+            return "motion";
+          }
+
+          if (id.includes("recharts") || id.includes("d3-")) {
+            return "charts";
+          }
+
+          if (id.includes("react-hook-form") || id.includes("@hookform/resolvers") || id.includes("zod")) {
+            return "forms";
+          }
+
+          if (id.includes("@tiptap")) {
+            return "editor";
+          }
+
+          if (id.includes("jspdf") || id.includes("jspdf-autotable") || id.includes("docx") || id.includes("jszip") || id.includes("pdf-parse")) {
+            return "documents";
+          }
+
+          if (id.includes("xlsx")) {
+            return "spreadsheet";
+          }
+
+          if (id.includes("three") || id.includes("@react-three")) {
+            return "three";
+          }
+
+          if (id.includes("date-fns")) {
+            return "date-utils";
+          }
+
+          if (id.includes("react-helmet-async") || id.includes("sonner") || id.includes("next-themes")) {
+            return "app-shell";
+          }
+
+          return "vendor";
+        },
       }
     },
     chunkSizeWarningLimit: 400,
