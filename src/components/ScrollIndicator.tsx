@@ -30,6 +30,7 @@ const ScrollIndicator = () => {
     const handleResize = () => {
       updateScrollability();
       const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
       const fadeThreshold = windowHeight * 0.15;
       setOpacity(Math.max(0, 1 - scrollTop / fadeThreshold));
     };
