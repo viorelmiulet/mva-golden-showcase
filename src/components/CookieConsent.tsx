@@ -57,7 +57,30 @@ const loadGA4 = () => {
     window.dataLayer!.push(arguments);
   };
   window.gtag("js", new Date());
-  window.gtag("config", GA_ID);
+  window.gtag("config", GA_ID, { send_page_view: false });
+};
+
+const scheduleGA4Load = () => {
+  if (ga4Loaded || typeof window === "undefined") return;
+
+  const start = () => {
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+    };
+
+    if (idleWindow.requestIdleCallback) {
+      idleWindow.requestIdleCallback(() => loadGA4(), { timeout: 4000 });
+    } else {
+      window.setTimeout(() => loadGA4(), 1500);
+    }
+  };
+
+  if (document.readyState === "complete") {
+    start();
+    return;
+  }
+
+  window.addEventListener("load", start, { once: true });
 };
 
 
@@ -69,7 +92,7 @@ const CookieConsent = () => {
     const consent = getStoredConsent();
 
     if (consent === "accepted") {
-      loadGA4();
+      scheduleGA4Load();
       return;
     }
 
@@ -81,7 +104,7 @@ const CookieConsent = () => {
 
   const acceptCookies = () => {
     setStoredConsent("accepted");
-    loadGA4();
+    scheduleGA4Load();
     setIsVisible(false);
   };
 
