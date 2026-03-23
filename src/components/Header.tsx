@@ -126,7 +126,7 @@ const Header = () => {
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo - Optimized for mobile */}
-          <Link to="/" className="flex items-center space-x-2 sm:space-x-4 group cursor-pointer" onClick={handleLogoClick}>
+          <Link to="/" aria-label="Mergi la pagina principală MVA" className="flex items-center space-x-2 sm:space-x-4 group cursor-pointer" onClick={handleLogoClick}>
             <div className="relative flex items-center justify-center">
               {/* Ultra Luxury Premium Logo */}
               <div className="relative">
