@@ -12,6 +12,15 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import ScrollReveal from "@/components/ScrollReveal"
+import { z } from "zod"
+
+const contactSchema = z.object({
+  nume: z.string().trim().min(1, 'Câmp obligatoriu').max(100, 'Maximum 100 caractere'),
+  prenume: z.string().trim().min(1, 'Câmp obligatoriu').max(100, 'Maximum 100 caractere'),
+  email: z.string().trim().email('Adresă de email invalidă').max(255, 'Maximum 255 caractere'),
+  telefon: z.string().trim().regex(/^\+?[0-9\s]{7,20}$/, 'Număr de telefon invalid'),
+  mesaj: z.string().trim().min(10, 'Minim 10 caractere').max(2000, 'Maximum 2000 caractere'),
+});
 
 const Contact = () => {
   const { data: settings } = useSiteSettings();
@@ -26,17 +35,18 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      if (!formData.nume || !formData.prenume || !formData.email || !formData.telefon || !formData.mesaj) {
-        throw new Error('Vă rugăm să completați toate câmpurile obligatorii');
-      }
-      const { data, error } = await supabase.functions.invoke('send-contact-email', { body: formData });
+      const validated = contactSchema.parse(formData);
+      const { data, error } = await supabase.functions.invoke('send-contact-email', { body: validated });
       if (error) throw new Error('Eroare la trimiterea email-ului.');
       trackContact('form', 'contact_page');
       trackGA4Contact('form');
       toast({ title: "Mesaj trimis cu succes!", description: "Vă vom contacta în cel mai scurt timp posibil." });
       setFormData({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
     } catch (error: any) {
-      toast({ title: "Eroare", description: error.message || "Vă rugăm să încercați din nou.", variant: "destructive" });
+      const msg = error instanceof z.ZodError
+        ? error.errors.map((e: z.ZodIssue) => e.message).join(', ')
+        : error.message || "Vă rugăm să încercați din nou.";
+      toast({ title: "Eroare", description: msg, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
