@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'inline',
       includeAssets: ['favicon-mva.svg', 'favicon.png', 'mva-logo-complete.svg'],
       manifest: {
         name: 'MVA Imobiliare',
