@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "./pages/NotFound";
 
 import NavigateToComplex from "@/components/NavigateToComplex";
@@ -246,9 +247,11 @@ const App = () => {
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
       </LanguageProvider>
     </QueryClientProvider>
   </HelmetProvider>
