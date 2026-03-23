@@ -5,9 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { useWebVitals } from "@/hooks/useWebVitals";
-import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
-import { useGA4 } from "@/hooks/useGA4";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import NotFound from "./pages/NotFound";
 
@@ -83,25 +80,60 @@ const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const PhoneButton = lazy(() => import("@/components/PhoneButton"));
 const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
+const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 
 const queryClient = new QueryClient();
 
 // Inner component that has access to Router context
 const AppRoutes = () => {
-  useInternalAnalytics();
-  useGA4();
   const [showDeferredUi, setShowDeferredUi] = useState(false);
+  const [showDeferredAnalytics, setShowDeferredAnalytics] = useState(false);
 
   useEffect(() => {
     const enableDeferredUi = () => setShowDeferredUi(true);
+    const enableDeferredAnalytics = () => setShowDeferredAnalytics(true);
+    let analyticsTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let analyticsIdleId: number | null = null;
+
+    const scheduleDeferredAnalytics = () => {
+      if ('requestIdleCallback' in window) {
+        analyticsIdleId = window.requestIdleCallback(enableDeferredAnalytics, { timeout: 2500 });
+        return;
+      }
+
+      analyticsTimeoutId = globalThis.setTimeout(enableDeferredAnalytics, 1500);
+    };
+
+    const clearDeferredAnalytics = () => {
+      if (analyticsIdleId !== null && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(analyticsIdleId);
+      }
+
+      if (analyticsTimeoutId !== null) {
+        window.clearTimeout(analyticsTimeoutId);
+      }
+    };
 
     if (document.readyState === 'complete') {
-      const idleId = window.setTimeout(enableDeferredUi, 0);
-      return () => window.clearTimeout(idleId);
+      const idleId = globalThis.setTimeout(enableDeferredUi, 0);
+      scheduleDeferredAnalytics();
+
+      return () => {
+        window.clearTimeout(idleId);
+        clearDeferredAnalytics();
+      };
     }
 
     window.addEventListener('load', enableDeferredUi, { once: true });
-    return () => window.removeEventListener('load', enableDeferredUi);
+    const loadHandler = () => {
+      scheduleDeferredAnalytics();
+    };
+
+    window.addEventListener('load', loadHandler, { once: true });
+    return () => {
+      window.removeEventListener('load', enableDeferredUi);
+      window.removeEventListener('load', loadHandler);
+    };
   }, []);
 
   return (
@@ -201,14 +233,16 @@ const AppRoutes = () => {
           <ScrollIndicator />
         </Suspense>
       )}
+      {showDeferredAnalytics && (
+        <Suspense fallback={null}>
+          <DeferredAnalytics />
+        </Suspense>
+      )}
     </>
   );
 };
 
 const App = () => {
-  // Report Core Web Vitals to analytics
-  useWebVitals();
-
   return (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
