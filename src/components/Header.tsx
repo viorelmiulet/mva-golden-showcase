@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
@@ -15,23 +15,12 @@ import {
 import { toast } from "sonner"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
-
-const GoogleTranslate = lazy(() =>
-  import("@/components/GoogleTranslate").then((module) => ({ default: module.GoogleTranslate }))
-)
-
-const TranslateControlFallback = ({ mobile = false }: { mobile?: boolean }) => (
-  <div
-    aria-hidden="true"
-    className={mobile ? "h-9 w-9 rounded-md bg-muted/40" : "h-9 w-9 md:w-28 rounded-md bg-muted/40"}
-  />
-)
+import { LanguageToggle } from "@/components/LanguageToggle"
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
-  const [showTranslateControl, setShowTranslateControl] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const { prefetchOnHover } = usePrefetch()
@@ -99,27 +88,6 @@ const Header = () => {
     return () => {
       isMounted = false
       subscription.unsubscribe()
-    }
-  }, [])
-
-  useEffect(() => {
-    let timeoutId: number | null = null
-
-    const enableTranslateControl = () => {
-      timeoutId = window.setTimeout(() => setShowTranslateControl(true), 1200)
-    }
-
-    if (document.readyState === "complete") {
-      enableTranslateControl()
-    } else {
-      window.addEventListener("load", enableTranslateControl, { once: true })
-    }
-
-    return () => {
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId)
-      }
-      window.removeEventListener("load", enableTranslateControl)
     }
   }, [])
 
@@ -324,13 +292,7 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            {showTranslateControl ? (
-              <Suspense fallback={<TranslateControlFallback />}>
-                <GoogleTranslate />
-              </Suspense>
-            ) : (
-              <TranslateControlFallback />
-            )}
+            <LanguageToggle />
             {user ? (
               <>
                 <Link to="/favorite">
@@ -398,13 +360,7 @@ const Header = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {showTranslateControl ? (
-                      <Suspense fallback={<TranslateControlFallback mobile />}>
-                        <GoogleTranslate />
-                      </Suspense>
-                    ) : (
-                      <TranslateControlFallback mobile />
-                    )}
+                    <LanguageToggle />
                   </div>
                 </div>
 
