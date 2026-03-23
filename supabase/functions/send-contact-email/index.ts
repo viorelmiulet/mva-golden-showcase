@@ -122,14 +122,14 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #333; margin-top: 0;">Informații contact:</h3>
             
-            <p><strong>Nume:</strong> ${nume}</p>
-            <p><strong>Prenume:</strong> ${prenume}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Telefon:</strong> <a href="tel:${telefon}">${telefon}</a></p>
+            <p><strong>Nume:</strong> ${safeNume}</p>
+            <p><strong>Prenume:</strong> ${safePrenume}</p>
+            <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+            <p><strong>Telefon:</strong> <a href="tel:${safeTelefon}">${safeTelefon}</a></p>
             
             <h3 style="color: #333; margin-top: 30px;">Mesaj:</h3>
             <div style="background-color: white; padding: 15px; border-left: 4px solid #DAA520; margin-top: 10px;">
-              ${mesaj.replace(/\n/g, '<br>')}
+              ${safeMesaj.replace(/\n/g, '<br>')}
             </div>
           </div>
           

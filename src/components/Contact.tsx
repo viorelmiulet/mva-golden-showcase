@@ -43,7 +43,10 @@ const Contact = () => {
       toast({ title: "Mesaj trimis cu succes!", description: "Vă vom contacta în cel mai scurt timp posibil." });
       setFormData({ nume: '', prenume: '', email: '', telefon: '', mesaj: '' });
     } catch (error: any) {
-      toast({ title: "Eroare", description: error.message || "Vă rugăm să încercați din nou.", variant: "destructive" });
+      const msg = error instanceof z.ZodError
+        ? error.errors.map((e: z.ZodIssue) => e.message).join(', ')
+        : error.message || "Vă rugăm să încercați din nou.";
+      toast({ title: "Eroare", description: msg, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
