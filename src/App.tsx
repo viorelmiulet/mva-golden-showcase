@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 import NotFound from "./pages/NotFound";
 
 import NavigateToComplex from "@/components/NavigateToComplex";
@@ -225,18 +226,22 @@ const AppRoutes = () => {
             </Routes>
       </Suspense>
       {showDeferredUi && (
-        <Suspense fallback={null}>
-          <DeferredShell />
-          <WhatsAppButton />
-          <PhoneButton />
-          <CookieConsent />
-          <ScrollIndicator />
-        </Suspense>
+        <AppErrorBoundary>
+          <Suspense fallback={null}>
+            <DeferredShell />
+            <WhatsAppButton />
+            <PhoneButton />
+            <CookieConsent />
+            <ScrollIndicator />
+          </Suspense>
+        </AppErrorBoundary>
       )}
       {showDeferredAnalytics && (
-        <Suspense fallback={null}>
-          <DeferredAnalytics />
-        </Suspense>
+        <AppErrorBoundary>
+          <Suspense fallback={null}>
+            <DeferredAnalytics />
+          </Suspense>
+        </AppErrorBoundary>
       )}
     </>
   );
