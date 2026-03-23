@@ -66,15 +66,9 @@ const getCurrentLanguageFromCookie = (): string => {
 export const GoogleTranslate = ({ className }: { className?: string }) => {
   const [currentLanguage, setCurrentLanguage] = useState(() => getCurrentLanguageFromCookie());
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [isLoadingScript, setIsLoadingScript] = useState(false);
 
-  // Load Google Translate script once
-  useEffect(() => {
-    if (document.getElementById('google-translate-script')) {
-      setIsScriptLoaded(true);
-      return;
-    }
-
-    // Create hidden container
+  const ensureTranslateInfrastructure = () => {
     if (!document.getElementById('google_translate_element')) {
       const container = document.createElement('div');
       container.id = 'google_translate_element';
@@ -82,7 +76,6 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
       document.body.appendChild(container);
     }
 
-    // Add global styles to completely hide Google Translate UI
     if (!document.getElementById('google-translate-hide-styles')) {
       const style = document.createElement('style');
       style.id = 'google-translate-hide-styles';
@@ -118,8 +111,19 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
       `;
       document.head.appendChild(style);
     }
+  };
 
-    // Define init callback
+  const loadTranslateScript = () => {
+    if (isScriptLoaded || isLoadingScript) return;
+
+    if (document.getElementById('google-translate-script')) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
+    setIsLoadingScript(true);
+    ensureTranslateInfrastructure();
+
     (window as any).googleTranslateElementInit = function() {
       new (window as any).google.translate.TranslateElement({
         pageLanguage: 'ro',
@@ -129,14 +133,34 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
         multilanguagePage: true,
       }, 'google_translate_element');
       setIsScriptLoaded(true);
+      setIsLoadingScript(false);
     };
 
-    // Load script
     const script = document.createElement('script');
     script.id = 'google-translate-script';
     script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
+    script.onerror = () => setIsLoadingScript(false);
     document.body.appendChild(script);
+  };
+
+  useEffect(() => {
+    if (document.getElementById('google-translate-script')) {
+      ensureTranslateInfrastructure();
+      setIsScriptLoaded(true);
+      return;
+    }
+
+    if (currentLanguage !== 'ro') {
+      const startLoading = () => window.setTimeout(loadTranslateScript, 0);
+
+      if (document.readyState === 'complete') {
+        startLoading();
+      } else {
+        window.addEventListener('load', startLoading, { once: true });
+        return () => window.removeEventListener('load', startLoading);
+      }
+    }
   }, []);
 
   const changeLanguage = (langCode: string) => {
@@ -176,6 +200,10 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
         <Button 
           variant="ghost" 
           size="sm" 
+          onMouseEnter={loadTranslateScript}
+          onFocus={loadTranslateScript}
+          onClick={loadTranslateScript}
+          onTouchStart={loadTranslateScript}
           className={cn(
             "h-9 px-2.5 gap-1.5 text-xs font-medium hover:bg-gold/10 hover:text-gold transition-all duration-300",
             className
