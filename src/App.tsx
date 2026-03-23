@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { useGA4 } from "@/hooks/useGA4";
@@ -207,9 +206,6 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  // Preload critical routes after initial render
-  usePreloadCriticalRoutes();
-  
   // Report Core Web Vitals to analytics
   useWebVitals();
 
