@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { usePreloadCriticalRoutes } from "@/hooks/usePrefetch";
 import { useWebVitals } from "@/hooks/useWebVitals";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
@@ -12,11 +12,6 @@ import { useGA4 } from "@/hooks/useGA4";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import NotFound from "./pages/NotFound";
 
-// Direct imports for always-rendered components
-import CookieConsent from "@/components/CookieConsent";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import PhoneButton from "@/components/PhoneButton";
-import ScrollIndicator from "@/components/ScrollIndicator";
 import NavigateToComplex from "@/components/NavigateToComplex";
 
 // Lazy load all pages including Index for better initial load
@@ -85,6 +80,10 @@ const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
+const CookieConsent = lazy(() => import("@/components/CookieConsent"));
+const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
+const PhoneButton = lazy(() => import("@/components/PhoneButton"));
+const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 
 const queryClient = new QueryClient();
 
@@ -92,6 +91,19 @@ const queryClient = new QueryClient();
 const AppRoutes = () => {
   useInternalAnalytics();
   useGA4();
+  const [showDeferredUi, setShowDeferredUi] = useState(false);
+
+  useEffect(() => {
+    const enableDeferredUi = () => setShowDeferredUi(true);
+
+    if (document.readyState === 'complete') {
+      const idleId = window.setTimeout(enableDeferredUi, 0);
+      return () => window.clearTimeout(idleId);
+    }
+
+    window.addEventListener('load', enableDeferredUi, { once: true });
+    return () => window.removeEventListener('load', enableDeferredUi);
+  }, []);
 
   return (
     <>
@@ -181,11 +193,15 @@ const AppRoutes = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-            </Suspense>
-            <WhatsAppButton />
-            <PhoneButton />
-            <CookieConsent />
-            <ScrollIndicator />
+      </Suspense>
+      {showDeferredUi && (
+        <Suspense fallback={null}>
+          <WhatsAppButton />
+          <PhoneButton />
+          <CookieConsent />
+          <ScrollIndicator />
+        </Suspense>
+      )}
     </>
   );
 };
