@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import GoogleReviews from "@/components/GoogleReviews"
 
 const LEGAL_BADGE_FALLBACKS = {
-  anpc: "https://anpc.ro/wp-content/uploads/2022/08/ANPC-logo.png",
-  sol: "https://ec.europa.eu/consumers/odr/main/img/odrs35.png",
+  anpc: "/anpc-badge.svg",
+  sol: "/sol-badge.svg",
 }
 
 interface BeforeInstallPromptEvent extends Event {
