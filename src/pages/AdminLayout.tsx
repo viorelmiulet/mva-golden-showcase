@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AdminPWAInstallBanner from "@/components/AdminPWAInstallBanner";
 import { motion, AnimatePresence } from "framer-motion";
+import "@/styles/admin.css";
 
 const DEFAULT_PASSWORD = "123456";
 
