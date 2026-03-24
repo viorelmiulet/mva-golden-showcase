@@ -7,6 +7,24 @@ if (!rootElement) {
   throw new Error('Root element #root was not found')
 }
 
+const cleanupLegacyServiceWorkers = async () => {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map((registration) => registration.unregister()))
+
+    if ('caches' in window) {
+      const cacheKeys = await caches.keys()
+      await Promise.all(cacheKeys.map((cacheKey) => caches.delete(cacheKey)))
+    }
+  } catch (error) {
+    console.warn('Service worker cleanup failed', error)
+  }
+}
+
 const renderFatalFallback = (error?: unknown) => {
   const root = document.getElementById('root')
   if (!root) return
@@ -58,6 +76,8 @@ window.addEventListener('unhandledrejection', (event) => {
 
 const bootstrap = async () => {
   try {
+    await cleanupLegacyServiceWorkers()
+
     const [{ default: App }, { default: AppErrorBoundary }] = await Promise.all([
       import('./App.tsx'),
       import('@/components/AppErrorBoundary'),
