@@ -2,10 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Home, MapPin, Heart } from "lucide-react";
+import { Building2, Home, MapPin, Heart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { Helmet } from "react-helmet-async";
@@ -373,8 +374,23 @@ const Complexe = () => {
                           </div>
                         )}
 
-                        {/* Call to Action */}
-                        <div className="pt-2.5 sm:pt-3 md:pt-4">
+                        {/* Schedule Viewing + CTA */}
+                        <div className="pt-2.5 sm:pt-3 md:pt-4 space-y-2">
+                          <ScheduleViewingDialog
+                            propertyTitle={project.name}
+                            propertyId={project.id}
+                            trigger={
+                              <Button 
+                                variant="default"
+                                size="sm" 
+                                className="w-full text-xs sm:text-sm h-8 sm:h-9 bg-primary hover:bg-primary/90"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                              >
+                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                                {language === 'ro' ? 'Solicită vizionare' : 'Schedule viewing'}
+                              </Button>
+                            }
+                          />
                           <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
                             <span className="font-semibold text-xs sm:text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}

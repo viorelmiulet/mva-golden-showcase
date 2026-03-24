@@ -42,6 +42,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getPropertyUrl } from "@/lib/propertySlug"
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 // Lazy load heavy components
 const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
@@ -877,6 +878,21 @@ const Properties = () => {
 
                       {/* Actions */}
                       <div className="flex flex-col gap-2">
+                        <ScheduleViewingDialog
+                          propertyTitle={property.title}
+                          propertyId={property.id}
+                          trigger={
+                            <Button 
+                              variant="default"
+                              size="sm" 
+                              className="w-full text-xs h-8 bg-primary hover:bg-primary/90"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Calendar className="w-3 h-3 mr-1" />
+                              Solicită vizionare
+                            </Button>
+                          }
+                        />
                         <div className="grid grid-cols-2 gap-2">
                           {/* Call Now Button */}
                           <Button 
