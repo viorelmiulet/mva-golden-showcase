@@ -8,6 +8,7 @@ import { Link } from "react-router-dom"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { getPropertyUrl } from "@/lib/propertySlug"
 import ScrollReveal from "@/components/ScrollReveal"
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 const isCoordinates = (str: string | null | undefined): boolean => {
   if (!str) return false;
