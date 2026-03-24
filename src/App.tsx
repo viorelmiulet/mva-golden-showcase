@@ -74,6 +74,7 @@ const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
+const ExtensionPrivacyPolicy = lazy(() => import("./pages/ExtensionPrivacyPolicy"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
