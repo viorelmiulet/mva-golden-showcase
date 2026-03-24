@@ -131,6 +131,18 @@ const Properties = () => {
                           <div className="text-center"><span className="text-[10px] text-muted-foreground block">mp</span><span className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || '-'}</span></div>
                           <div className="text-center"><span className="text-[10px] text-muted-foreground block">Camere</span><span className="text-xs font-semibold text-foreground">{property.rooms}</span></div>
                         </div>
+                        <div className="pt-2" onClick={(e) => e.preventDefault()}>
+                          <ScheduleViewingDialog
+                            propertyTitle={property.title}
+                            propertyId={property.id}
+                            trigger={
+                              <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-primary hover:bg-primary/90">
+                                <Calendar className="w-3 h-3 mr-1" />
+                                Solicită vizionare
+                              </Button>
+                            }
+                          />
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>
