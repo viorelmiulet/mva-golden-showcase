@@ -197,6 +197,7 @@ const AppRoutes = () => {
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
+              <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
               <Route path="/sign/:token" element={<SignContract />} />
