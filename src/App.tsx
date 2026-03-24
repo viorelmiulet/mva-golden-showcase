@@ -74,6 +74,7 @@ const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
+const ExtensionPrivacyPolicy = lazy(() => import("./pages/ExtensionPrivacyPolicy"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
@@ -196,6 +197,7 @@ const AppRoutes = () => {
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
+              <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
               <Route path="/sign/:token" element={<SignContract />} />
