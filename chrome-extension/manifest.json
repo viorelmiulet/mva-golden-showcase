@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "MVA Admin Panel",
-  "version": "1.2.0",
-  "description": "Acces rapid la panoul de administrare MVA - vizionări, clienți, proprietăți, contracte și notificări",
+  "version": "2.0.0",
+  "description": "Notificări push pentru emailuri noi și vizionări programate — MVA Imobiliare",
   "permissions": [
     "notifications",
     "alarms",

@@ -1,70 +1,88 @@
-# MVA Admin - Extensie Chrome
+# MVA Admin — Extensie Chrome
 
-Extensie Chrome pentru notificări și acces rapid la panoul de administrare MVA.
+Extensie Chrome pentru notificări push când apar emailuri noi sau vizionări programate în panoul de administrare MVA.
 
 ## Funcționalități
 
-- 🔔 **Notificări automate** pentru vizionări noi și clienți noi
-- 📊 **Statistici rapide** - vizionări de azi și clienți noi
-- 🚀 **Acces rapid** la panoul de administrare
-- ⚙️ **Control notificări** - activează/dezactivează din popup
+- 📧 **Notificări emailuri noi** — din tabelul `received_emails` (necitite, neșterse, nearhivate)
+- 📅 **Notificări vizionări noi** — din tabelul `viewing_appointments`
+- 🔢 **Badge count** — număr de emailuri necitite pe iconița extensiei (culoare #DAA520)
+- 🚀 **Acces rapid** — meniu complet către toate secțiunile admin
+- ⚙️ **Control notificări** — activează/dezactivează din popup
+- 🔄 **Polling la 60 secunde** — verificare automată fără duplicate
 
 ## Instalare
 
-### Metoda 1: Încărcare ca extensie nepachetată (Development)
+### 1. Pregătire fișiere
+
+Asigură-te că ai iconițe PNG în folderul `icons/`:
+- `icon16.png` — 16×16 px
+- `icon48.png` — 48×48 px
+- `icon128.png` — 128×128 px
+
+### 2. Configurare Supabase (opțional — deja configurat)
+
+Extensia vine pre-configurată cu URL-ul și cheia anonimă Supabase. Dacă vrei să le schimbi:
+
+1. Deschide `background.js` și `popup.js`
+2. Modifică `SUPABASE_URL` cu URL-ul proiectului tău Supabase
+3. Modifică `SUPABASE_ANON_KEY` cu cheia anonimă (publishable key) — o găsești în **Project Settings → API → Project API keys → anon / public**
+
+> ⚠️ Cheia anonimă (anon key) este sigură pentru utilizare client-side. Nu folosi niciodată `service_role` key în extensie.
+
+### 3. Încărcare în Chrome
 
 1. Deschide Chrome și navighează la `chrome://extensions/`
-2. Activează **Developer mode** (colțul dreapta sus)
+2. Activează **Developer mode** (toggle dreapta sus)
 3. Click pe **Load unpacked**
-4. Selectează folderul `chrome-extension` din proiect
-5. Extensia va apărea în bara de instrumente Chrome
+4. Selectează folderul `chrome-extension/` din proiect
+5. Extensia apare în bara de instrumente Chrome
 
-### Metoda 2: Publicare în Chrome Web Store
+### 4. Fixare în bară (recomandat)
 
-1. Creează un cont de dezvoltator la [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
-2. Arhivează folderul `chrome-extension` ca ZIP
-3. Încarcă arhiva în dashboard
-4. Completează descrierea și capturile de ecran
-5. Trimite pentru revizuire
+1. Click pe iconița puzzle 🧩 din dreapta barei de adrese
+2. Găsește „MVA Admin Panel" și apasă pe 📌 (pin)
+
+## Cum funcționează
+
+| Ce verifică | Tabel Supabase | Filtru | La click |
+|---|---|---|---|
+| Emailuri noi | `received_emails` | `is_read=false`, `is_deleted=false`, `is_archived=false` | Deschide `/admin/inbox` |
+| Vizionări noi | `viewing_appointments` | `created_at > ultimul check` | Deschide `/admin/vizionari` |
+
+- Polling interval: **60 secunde**
+- Fără duplicate: timestamp-ul ultimei notificări e salvat în `chrome.storage.local`
+- Badge pe iconiță: afișează nr. emailuri necitite, culoare auriu (#DAA520)
 
 ## Structura fișierelor
 
 ```
 chrome-extension/
-├── manifest.json      # Configurația extensiei
-├── background.js      # Service worker pentru notificări
+├── manifest.json      # Manifest V3
+├── background.js      # Service worker — polling + notificări
 ├── popup.html         # Interfața popup
-├── popup.js          # Logica popup-ului
-├── icons/            # Iconițe pentru extensie
+├── popup.js           # Logica popup-ului
+├── icons/             # Iconițe PNG
 │   ├── icon16.png
 │   ├── icon48.png
 │   └── icon128.png
 └── README.md
 ```
 
-## Configurare icoane
+## Compatibilitate
 
-Trebuie să adaugi 3 icoane PNG în folderul `icons/`:
+Funcționează pe orice browser bazat pe Chromium:
+- Google Chrome
+- Microsoft Edge
+- Brave
+- Arc
+- Opera
 
-- `icon16.png` - 16x16 pixeli
-- `icon48.png` - 48x48 pixeli  
-- `icon128.png` - 128x128 pixeli
+## Permisiuni
 
-Poți folosi logo-ul MVA sau creezi icoane noi.
-
-## Cum funcționează
-
-1. Extensia verifică la fiecare 5 minute pentru:
-   - Vizionări noi programate
-   - Clienți noi adăugați
-
-2. Când detectează ceva nou, trimite o notificare Chrome
-
-3. Click pe notificare → deschide pagina relevantă din admin
-
-## Permisiuni necesare
-
-- `notifications` - pentru a afișa notificări
-- `alarms` - pentru verificări periodice
-- `storage` - pentru salvarea setărilor
-- `host_permissions` - acces la API-ul Supabase
+| Permisiune | De ce |
+|---|---|
+| `notifications` | Afișare notificări push |
+| `alarms` | Verificare periodică (polling) |
+| `storage` | Salvare setări și timestamps |
+| `host_permissions` | Acces API Supabase |
