@@ -42,6 +42,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getPropertyUrl } from "@/lib/propertySlug"
+import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 // Lazy load heavy components
 const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
