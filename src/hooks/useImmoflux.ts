@@ -60,6 +60,7 @@ export interface ImmofluxProperty {
   agent_info?: ImmofluxAgentInfo;
   publicare: number;
   top: number;
+  poleposition?: number;
   tiplocuinta: string;
   nrbai: number;
   anconstructie: number;
