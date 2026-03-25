@@ -70,7 +70,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed inset-0 !translate-x-0 !translate-y-0 !top-0 !left-0 max-w-none w-screen h-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[100] [&>button]:hidden" aria-describedby={undefined}>
+      <DialogContent className="fixed inset-0 !translate-x-0 !translate-y-0 !top-0 !left-0 max-w-none w-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[200] [&>button]:hidden" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Galerie imagini</DialogTitle>
         </VisuallyHidden>
