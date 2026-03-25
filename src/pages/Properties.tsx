@@ -197,13 +197,25 @@ const Properties = () => {
         is_published: true,
         _immoflux_id: p.idnum,
         _immoflux_slug: generateImmofluxSlug(p),
+        _immoflux_top: p.top === 1,
+        _immoflux_pole: p.poleposition === 1,
       }));
     },
     staleTime: 5 * 60 * 1000,
   });
 
   const isLoadingProperties = isLoadingCatalog || isLoadingImmoflux;
-  const properties = useMemo(() => [...catalogProperties, ...immofluxProperties], [catalogProperties, immofluxProperties]);
+  const properties = useMemo(() => {
+    const all = [...catalogProperties, ...immofluxProperties] as any[];
+    // Sort: pole position first, then top, then rest
+    return all.sort((a: any, b: any) => {
+      const aPole = a._immoflux_pole ? 2 : 0;
+      const bPole = b._immoflux_pole ? 2 : 0;
+      const aTop = a._immoflux_top ? 1 : 0;
+      const bTop = b._immoflux_top ? 1 : 0;
+      return (bPole + bTop) - (aPole + aTop);
+    });
+  }, [catalogProperties, immofluxProperties]);
 
   // Helper: detect transaction type from text when missing or incorrect
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
@@ -794,9 +806,25 @@ const Properties = () => {
                         </button>
                       )}
                       
+                      {/* Promotion badges */}
+                      {(property._immoflux_pole || property._immoflux_top) && (
+                        <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
+                          {property._immoflux_pole && (
+                            <Badge className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg shadow-purple-600/30 border-0">
+                              ⚡ POLE POSITION
+                            </Badge>
+                          )}
+                          {property._immoflux_top && !property._immoflux_pole && (
+                            <Badge className="bg-gold hover:bg-gold/90 text-black font-bold text-xs shadow-lg shadow-gold/30 border-0">
+                              ★ TOP
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                        <div className="mb-4 overflow-hidden rounded-lg">
+                        <div className={`mb-4 overflow-hidden rounded-lg ${property._immoflux_pole ? 'ring-2 ring-purple-500/50' : property._immoflux_top ? 'ring-2 ring-gold/50' : ''}`}>
                           <OptimizedPropertyImage 
                             src={(property.images as string[])[0]} 
                             alt={`Apartament ${property.rooms || ''} camere ${property.transaction_type === 'rent' ? 'închiriere' : 'vânzare'} ${getDisplayLocation(property)}${property.surface_min ? ` ${property.surface_min}mp` : ''}`}
