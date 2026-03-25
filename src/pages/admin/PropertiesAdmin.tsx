@@ -24,7 +24,15 @@ import {
   Share2,
   Eye,
   EyeOff,
+  ExternalLink,
+  Building2,
+  BedDouble,
+  Maximize,
+  MapPin,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
+import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { Switch } from "@/components/ui/switch";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -38,6 +46,9 @@ const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // IMMOFLUX properties
+  const [immofluxPage, setImmofluxPage] = useState(1);
+  const { data: immofluxData, isLoading: immofluxLoading } = useProperties(immofluxPage);
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isUpdating, setIsUpdating] = useState(false);
@@ -915,7 +926,193 @@ const PropertiesAdmin = () => {
         </CardContent>
       </Card>
 
-      {/* Edit Dialog */}
+      {/* IMMOFLUX Properties Section */}
+      <Card className="glass border-purple-500/20">
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-base md:text-lg">
+              <Building2 className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+              Proprietăți IMMOFLUX ({immofluxData?.total || 0})
+            </div>
+            <Badge variant="outline" className="border-purple-500/30 text-purple-400 text-xs w-fit">
+              Sincronizate din CRM
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          {immofluxLoading ? (
+            <div className="text-center py-6 md:py-8">
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-purple-400" />
+              <p className="text-muted-foreground mt-2 text-sm">Se încarcă proprietățile IMMOFLUX...</p>
+            </div>
+          ) : immofluxData && immofluxData.data.length > 0 ? (
+            <>
+              <div className="grid gap-3 md:gap-4">
+                {immofluxData.data.map((property: ImmofluxProperty) => {
+                  const isSale = property.devanzare === 1;
+                  const surface = getSurface(property);
+                  return (
+                    <Card
+                      key={`immoflux-${property.idnum}`}
+                      className="border-border/30 hover:border-purple-500/30 transition-colors"
+                    >
+                      <CardContent className="p-3 md:p-4">
+                        {/* Mobile Layout */}
+                        <div className="md:hidden">
+                          <div className="relative -mx-3 -mt-3 mb-3">
+                            <img
+                              src={getMainImage(property)}
+                              alt={getTitle(property)}
+                              className="w-full h-40 object-cover rounded-t-lg"
+                              loading="lazy"
+                            />
+                            <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
+                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
+                                {isSale ? "Vânzare" : "Închiriere"}
+                              </Badge>
+                              {property.top === 1 && (
+                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                              )}
+                              {isPoleProperty(property) && (
+                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                              )}
+                            </div>
+                            <div className="absolute bottom-2 right-2">
+                              <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                                {formatPrice(property)}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="space-y-2.5">
+                            <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                              {getTitle(property)}
+                            </h3>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                              {property.nrcamere > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <BedDouble className="w-3.5 h-3.5" />
+                                  {property.nrcamere} cam.
+                                </span>
+                              )}
+                              {surface > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <Maximize className="w-3.5 h-3.5" />
+                                  {surface} mp
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              {[property.zona, property.localitate].filter(Boolean).join(', ')}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-end mt-4 pt-3 border-t border-border/20">
+                            <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-gold">
+                                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                                Vezi pe site
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout */}
+                        <div className="hidden md:flex gap-4">
+                          <img
+                            src={getMainImage(property)}
+                            alt={getTitle(property)}
+                            className="w-24 h-24 object-cover rounded-lg shrink-0"
+                            loading="lazy"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
+                                {isSale ? "Vânzare" : "Închiriere"}
+                              </Badge>
+                              {property.top === 1 && (
+                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                              )}
+                              {isPoleProperty(property) && (
+                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                              )}
+                            </div>
+                            <h3 className="font-semibold text-lg mb-1 line-clamp-1">
+                              {getTitle(property)}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                              <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                <Euro className="w-3 h-3 mr-0.5" />
+                                {formatPrice(property)}
+                              </Badge>
+                              {surface > 0 && (
+                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                  <Ruler className="w-3 h-3 mr-0.5" />
+                                  {surface}mp
+                                </Badge>
+                              )}
+                              {property.nrcamere > 0 && (
+                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                  <Home className="w-3 h-3 mr-0.5" />
+                                  {property.nrcamere}cam
+                                </Badge>
+                              )}
+                              <span className="flex items-center gap-1 text-xs">
+                                <MapPin className="w-3 h-3" />
+                                {[property.zona, property.localitate].filter(Boolean).join(', ')}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center shrink-0">
+                            <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                              <Button variant="outline" size="sm" className="border-purple-500/30 hover:bg-purple-500/10 h-8 text-xs">
+                                <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                                Vezi
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {immofluxData.last_page > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={immofluxPage <= 1}
+                    onClick={() => setImmofluxPage((p) => p - 1)}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Pagina {immofluxData.current_page} din {immofluxData.last_page}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={immofluxPage >= immofluxData.last_page}
+                    onClick={() => setImmofluxPage((p) => p + 1)}
+                  >
+                    Următor
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-6 md:py-8">
+              <Building2 className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
+              <p className="text-muted-foreground text-sm">Nu sunt proprietăți IMMOFLUX disponibile</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Dialog open={!!editingProperty} onOpenChange={closeEditModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
