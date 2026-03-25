@@ -127,6 +127,9 @@ const MobilePropertyDetail = () => {
     enabled: !!slug
   });
 
+  const propertyPath = property ? getPropertyUrl(property) : undefined;
+  const { data: viewCount } = usePropertyViews(propertyPath);
+
   const formatPrice = (price: number, currency: string = 'EUR') => {
     // Ensure valid ISO currency code (LEI is not valid, use RON)
     const validCurrency = currency === 'LEI' ? 'RON' : (currency || 'EUR');
