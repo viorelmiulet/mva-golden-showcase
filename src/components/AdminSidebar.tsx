@@ -22,6 +22,7 @@ import {
   Stamp,
   Inbox,
   Mic,
+  CalendarCheck,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ const menuItems = [
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Complexe", url: "/admin/complexe", icon: Layers },
   
+  { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
