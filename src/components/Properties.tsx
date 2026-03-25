@@ -140,7 +140,7 @@ const Properties = () => {
             ) : (
               <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {randomOffers.map((property: any) => (
-                  <Link to={property._immoflux_slug ? getImmofluxPropertyUrl(property._immoflux_slug) : getPropertyUrl(property)} key={property.id}>
+                  <Link to={property._immoflux_slug ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property)} key={property.id}>
                     <Card className={`group overflow-hidden glass border transition-colors h-full relative ${property._immoflux_pole ? 'border-purple-500/40 hover:border-purple-500/60' : property._immoflux_top ? 'border-gold/40 hover:border-gold/60' : 'border-border/50 hover:border-gold/30'}`}>
                       {property._immoflux_pole ? (
                         <div className="absolute top-3 left-3 z-10">
