@@ -211,7 +211,7 @@ export const ScheduleViewingDialog = ({
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-muted-foreground" />
-              {t.viewing?.yourEmail || t.contact?.email} ({t.common?.none || 'opțional'})
+              {t.viewing?.yourEmail || t.contact?.email}
             </Label>
             <Input
               id="email"
