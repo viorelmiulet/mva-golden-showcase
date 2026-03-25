@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
-import { generateImmofluxSlug, getImmofluxPropertyUrl } from "@/hooks/useImmoflux"
+import { type ImmofluxProperty } from "@/hooks/useImmoflux"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
