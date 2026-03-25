@@ -142,7 +142,7 @@ const ImmofluxPropertiesAdmin = () => {
       {data && filteredProperties.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {data.data.map((property: ImmofluxProperty) => {
+            {filteredProperties.map((property: ImmofluxProperty) => {
               const isSale = property.devanzare === 1;
               const surface = getSurface(property);
               return (
