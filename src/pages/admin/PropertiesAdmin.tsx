@@ -24,7 +24,15 @@ import {
   Share2,
   Eye,
   EyeOff,
+  ExternalLink,
+  Building2,
+  BedDouble,
+  Maximize,
+  MapPin,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
+import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { Switch } from "@/components/ui/switch";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
