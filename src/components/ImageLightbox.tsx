@@ -134,13 +134,13 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
           {/* Thumbnail Strip */}
           {images.length > 1 && (
-            <div className="flex-shrink-0 py-1.5 pb-4 sm:py-3 sm:pb-8 px-1 sm:px-4">
-              <div className="flex gap-1 sm:gap-2 justify-center overflow-x-auto max-w-full">
+            <div className="flex-shrink-0 py-2 pb-3 sm:py-3 sm:pb-6 px-2 sm:px-4">
+              <div className="flex gap-1.5 sm:gap-2 justify-start sm:justify-center overflow-x-auto max-w-full scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
+                    className={`flex-shrink-0 w-11 h-11 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                       currentIndex === idx
                         ? "border-gold scale-110"
                         : "border-white/30 opacity-70 hover:opacity-100"
