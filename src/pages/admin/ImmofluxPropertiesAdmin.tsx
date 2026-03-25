@@ -72,6 +72,7 @@ const ImmofluxPropertiesAdmin = () => {
     setSearch("");
     setTransactionFilter("all");
     setRoomsFilter("all");
+    setPromoFilter("all");
   };
 
   return (
