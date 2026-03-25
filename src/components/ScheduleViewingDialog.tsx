@@ -169,7 +169,7 @@ export const ScheduleViewingDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()} className="space-y-4 mt-4">
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
