@@ -188,7 +188,7 @@ const Properties = () => {
         project_name: null,
         features: null,
         agent: null,
-        agency: 'IMMOFLUX',
+        agency: null,
         property_type: p.tiplocuinta || null,
         total_floors: null,
         parking: null,
