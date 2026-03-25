@@ -42,7 +42,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getPropertyUrl } from "@/lib/propertySlug"
+import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 // Lazy load heavy components
