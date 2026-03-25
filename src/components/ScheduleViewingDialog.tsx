@@ -85,7 +85,7 @@ export const ScheduleViewingDialog = ({
       const { error: dbError } = await supabase
         .from('viewing_appointments')
         .insert({
-          property_id: propertyId,
+          property_id: propertyId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(propertyId) ? propertyId : null,
           property_title: propertyTitle,
           customer_name: formData.name.trim(),
           customer_phone: formData.phone.trim(),
