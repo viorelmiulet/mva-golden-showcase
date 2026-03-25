@@ -116,14 +116,23 @@ const PropertyViewsPage = () => {
   const { data: dailyTrend } = useQuery({
     queryKey: ["property-views-trend", days],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("page_views")
-        .select("created_at")
-        .like("page_path", "/proprietati/%")
-        .neq("page_path", "/proprietati")
-        .gte("created_at", since);
-
-      if (error) throw error;
+      const allRows: { created_at: string }[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      while (true) {
+        const { data, error } = await supabase
+          .from("page_views")
+          .select("created_at")
+          .like("page_path", "/proprietati/%")
+          .neq("page_path", "/proprietati")
+          .gte("created_at", since)
+          .range(from, from + batchSize - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allRows.push(...data);
+        if (data.length < batchSize) break;
+        from += batchSize;
+      }
 
       const dayMap = new Map<string, number>();
       for (let i = 0; i < daysNum; i++) {
