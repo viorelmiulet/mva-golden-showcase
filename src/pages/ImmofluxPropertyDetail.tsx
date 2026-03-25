@@ -87,7 +87,6 @@ const ImmofluxPropertyDetail = () => {
     { icon: Calendar, label: 'Stadiu construcție', value: p.stadiuconstructie },
     { icon: Home, label: 'Destinație', value: p.destinatie },
     { icon: Calendar, label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
-    { icon: MapPin, label: 'Adresă', value: p.adresa?.trim() },
     { icon: MapPin, label: 'Localitate', value: property.localitate },
     { icon: MapPin, label: 'Zonă', value: property.zona },
   ].filter(d => d.value);
