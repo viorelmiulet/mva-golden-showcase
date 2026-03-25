@@ -122,6 +122,16 @@ const ImmofluxPropertiesAdmin = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={promoFilter} onValueChange={setPromoFilter}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Promovare" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate</SelectItem>
+            <SelectItem value="top">Top</SelectItem>
+            <SelectItem value="pole">Pole Position</SelectItem>
+          </SelectContent>
+        </Select>
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={resetFilters} className="text-destructive gap-1">
             <X className="h-4 w-4" />
