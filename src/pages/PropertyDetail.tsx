@@ -47,6 +47,8 @@ import { usePlausible } from "@/hooks/usePlausible";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
+import { usePropertyViews } from "@/hooks/usePropertyViews";
+import { Eye } from "lucide-react";
 
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
