@@ -166,6 +166,7 @@ const PropertiesPage = () => {
         >
           {selectedSection === "proprietati" && <PropertiesAdmin />}
           {selectedSection === "import-xml" && <XmlImportPage />}
+          {selectedSection === "immoflux" && <ImmofluxPropertiesAdmin />}
         </Suspense>
       </div>
     );
