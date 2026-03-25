@@ -286,6 +286,7 @@ export const ScheduleViewingDialog = ({
             type="submit" 
             className="w-full bg-primary hover:bg-primary/90"
             disabled={isSubmitting}
+            onClick={(e) => e.stopPropagation()}
           >
             {isSubmitting ? (
               <>
