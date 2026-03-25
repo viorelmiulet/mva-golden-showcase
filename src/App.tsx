@@ -68,6 +68,8 @@ const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
+const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
+const ImmofluxPropertyDetail = lazy(() => import("./pages/ImmofluxPropertyDetail"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
