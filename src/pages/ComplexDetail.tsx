@@ -774,6 +774,7 @@ const ComplexDetail = () => {
                                   <ScheduleViewingDialog
                                     propertyTitle={`${project.name} - Ap. ${aptNumber}`}
                                     propertyId={apt.id}
+                                    propertyUrl={getComplexUrl(project)}
                                     trigger={
                                       <Button 
                                         size="sm" 

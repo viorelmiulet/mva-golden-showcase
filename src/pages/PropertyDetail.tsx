@@ -827,6 +827,7 @@ const PropertyDetail = () => {
                     <ScheduleViewingDialog
                       propertyTitle={property.title}
                       propertyId={property.id}
+                      propertyUrl={getPropertyUrl(property)}
                       trigger={
                         <Button className="w-full" size="default" variant="luxury">
                           <Calendar className="w-4 h-4 mr-1.5" />
