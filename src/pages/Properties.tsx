@@ -205,7 +205,17 @@ const Properties = () => {
   });
 
   const isLoadingProperties = isLoadingCatalog || isLoadingImmoflux;
-  const properties = useMemo(() => [...catalogProperties, ...immofluxProperties], [catalogProperties, immofluxProperties]);
+  const properties = useMemo(() => {
+    const all = [...catalogProperties, ...immofluxProperties];
+    // Sort: pole position first, then top, then rest
+    return all.sort((a, b) => {
+      const aPole = a._immoflux_pole ? 2 : 0;
+      const bPole = b._immoflux_pole ? 2 : 0;
+      const aTop = a._immoflux_top ? 1 : 0;
+      const bTop = b._immoflux_top ? 1 : 0;
+      return (bPole + bTop) - (aPole + aTop);
+    });
+  }, [catalogProperties, immofluxProperties]);
 
   // Helper: detect transaction type from text when missing or incorrect
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
