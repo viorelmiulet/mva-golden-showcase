@@ -94,7 +94,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
           {/* Main Image Container */}
           <div 
-            className="flex-1 flex items-center justify-center px-2 sm:px-20 py-12 sm:py-16"
+            className="flex-1 min-h-0 flex items-center justify-center px-2 sm:px-20 py-2 sm:py-4"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -127,7 +127,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
             <img
               src={images[currentIndex]}
               alt={`Imagine ${currentIndex + 1} din ${images.length}`}
-              className="max-w-full max-h-full w-auto h-auto object-contain animate-fade-in"
+              className="max-w-full max-h-full w-auto h-auto object-contain"
               loading="eager"
             />
           </div>
