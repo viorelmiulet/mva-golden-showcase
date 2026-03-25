@@ -24,6 +24,7 @@ const ImmofluxPropertiesAdmin = () => {
   const [search, setSearch] = useState("");
   const [transactionFilter, setTransactionFilter] = useState<string>("all");
   const [roomsFilter, setRoomsFilter] = useState<string>("all");
+  const [promoFilter, setPromoFilter] = useState<string>("all");
 
   // Get unique zones/rooms for filter options
   const roomOptions = useMemo(() => {
@@ -56,16 +57,22 @@ const ImmofluxPropertiesAdmin = () => {
       if (roomsFilter !== "all" && property.nrcamere !== Number(roomsFilter)) {
         return false;
       }
+      // Promotion filter
+      if (promoFilter !== "all") {
+        if (promoFilter === "top" && property.top !== 1) return false;
+        if (promoFilter === "pole" && property.poleposition !== 1) return false;
+      }
       return true;
     });
   }, [data, search, transactionFilter, roomsFilter]);
 
-  const activeFiltersCount = [transactionFilter !== "all", roomsFilter !== "all", search.length > 0].filter(Boolean).length;
+  const activeFiltersCount = [transactionFilter !== "all", roomsFilter !== "all", promoFilter !== "all", search.length > 0].filter(Boolean).length;
 
   const resetFilters = () => {
     setSearch("");
     setTransactionFilter("all");
     setRoomsFilter("all");
+    setPromoFilter("all");
   };
 
   return (
@@ -115,6 +122,16 @@ const ImmofluxPropertiesAdmin = () => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={promoFilter} onValueChange={setPromoFilter}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Promovare" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate</SelectItem>
+            <SelectItem value="top">Top</SelectItem>
+            <SelectItem value="pole">Pole Position</SelectItem>
+          </SelectContent>
+        </Select>
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={resetFilters} className="text-destructive gap-1">
             <X className="h-4 w-4" />
@@ -154,12 +171,15 @@ const ImmofluxPropertiesAdmin = () => {
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
-                    <div className="absolute top-2 left-2 flex gap-1.5">
+                    <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
                       <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
                         {isSale ? "Vânzare" : "Închiriere"}
                       </Badge>
                       {property.top === 1 && (
                         <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                      )}
+                      {property.poleposition === 1 && (
+                        <Badge className="bg-purple-600 text-white font-bold text-[10px]">POLE POSITION</Badge>
                       )}
                     </div>
                   </div>
