@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Upload, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Home, Upload, Check, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, PanInfo, useReducedMotion } from "framer-motion";
@@ -9,8 +9,9 @@ import { AnimatedSkeleton } from "@/components/ui/skeleton";
 // Lazy load the pages
 const PropertiesAdmin = lazy(() => import("./PropertiesAdmin"));
 const XmlImportPage = lazy(() => import("./XmlImportPage"));
+const ImmofluxPropertiesAdmin = lazy(() => import("./ImmofluxPropertiesAdmin"));
 
-type SectionType = "selection" | "proprietati" | "import-xml";
+type SectionType = "selection" | "proprietati" | "import-xml" | "immoflux";
 
 const sectionTypes = [
   {
@@ -42,6 +43,21 @@ const sectionTypes = [
     ],
     iconBg: "bg-emerald-500/20",
     iconColor: "text-emerald-400",
+  },
+  {
+    id: "immoflux" as const,
+    title: "Proprietăți IMMOFLUX",
+    shortTitle: "IMMOFLUX",
+    description: "Vizualizează proprietățile sincronizate din IMMOFLUX CRM",
+    icon: Building2,
+    features: [
+      "Sincronizare CRM",
+      "Proprietăți live",
+      "Paginare automată",
+      "Link-uri directe",
+    ],
+    iconBg: "bg-purple-500/20",
+    iconColor: "text-purple-400",
   },
 ];
 
@@ -150,6 +166,7 @@ const PropertiesPage = () => {
         >
           {selectedSection === "proprietati" && <PropertiesAdmin />}
           {selectedSection === "import-xml" && <XmlImportPage />}
+          {selectedSection === "immoflux" && <ImmofluxPropertiesAdmin />}
         </Suspense>
       </div>
     );
