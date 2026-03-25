@@ -75,7 +75,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
           <DialogTitle>Galerie imagini</DialogTitle>
         </VisuallyHidden>
         
-        <div className="relative flex flex-col h-full h-[100dvh] w-full">
+        <div className="relative flex flex-col h-[100dvh] w-full overflow-hidden">
           {/* Close Button - Fixed top right */}
           <Button
             variant="ghost"
