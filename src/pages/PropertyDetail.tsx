@@ -244,6 +244,8 @@ const PropertyDetail = () => {
   const { trackProperty, trackContact } = usePlausible();
   const { trackEvent } = useInternalAnalytics();
   const { trackPropertyView } = useGA4();
+  const propertyPath = property ? getPropertyUrl(property) : undefined;
+  const { data: viewCount } = usePropertyViews(propertyPath);
 
   useEffect(() => {
     if (!slug) {
