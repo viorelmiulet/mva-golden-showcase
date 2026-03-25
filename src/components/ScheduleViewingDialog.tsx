@@ -70,13 +70,13 @@ export const ScheduleViewingDialog = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setErrors({});
 
-    // Validate form data
     const result = scheduleSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      result.error.errors.forEach(err => {
+      result.error.errors.forEach((err) => {
         if (err.path[0]) {
           fieldErrors[err.path[0] as string] = err.message;
         }
@@ -89,11 +89,13 @@ export const ScheduleViewingDialog = ({
     setIsSubmitting(true);
 
     try {
-      // Save to database
+      const normalizedPropertyId = propertyId?.trim() || "";
+      const isUuidPropertyId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedPropertyId);
+
       const { error: dbError } = await supabase
-        .from('viewing_appointments')
+        .from("viewing_appointments")
         .insert({
-          property_id: propertyId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(propertyId) ? propertyId : null,
+          property_id: isUuidPropertyId ? normalizedPropertyId : null,
           property_title: propertyTitle,
           customer_name: formData.name.trim(),
           customer_phone: formData.phone.trim(),
@@ -101,19 +103,20 @@ export const ScheduleViewingDialog = ({
           preferred_date: formData.preferredDate,
           preferred_time: formData.preferredTime,
           message: formData.message?.trim() || null,
-          status: 'pending'
+          status: "pending",
         });
 
       if (dbError) {
-        console.error('Error saving appointment:', dbError);
+        console.error("Error saving appointment:", dbError);
         toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
-        setIsSubmitting(false);
         return;
       }
 
-      // Send email notification
-      const propertyLink = `${window.location.origin}/proprietati/${propertyId}`;
-      const { error: emailError } = await supabase.functions.invoke('send-viewing-notification', {
+      const propertyLink = isUuidPropertyId
+        ? `${window.location.origin}/proprietati/${normalizedPropertyId}`
+        : window.location.href;
+
+      const { error: emailError } = await supabase.functions.invoke("send-viewing-notification", {
         body: {
           propertyTitle,
           propertyLink,
@@ -123,22 +126,19 @@ export const ScheduleViewingDialog = ({
           preferredDate: formData.preferredDate,
           preferredTime: formData.preferredTime,
           message: formData.message?.trim() || undefined,
-        }
+        },
       });
 
       if (emailError) {
-        console.error('Error sending email notification:', emailError);
-        // Don't fail the whole operation if email fails, appointment is already saved
+        console.error("Error sending email notification:", emailError);
       }
 
-      // Track successful viewing scheduled
-      trackViewingScheduled(propertyId, propertyTitle);
-
+      trackViewingScheduled(normalizedPropertyId, propertyTitle);
       toast.success("Cererea de vizionare a fost trimisă cu succes! Veți fi contactat în curând.");
       setOpen(false);
       setFormData(getInitialFormData());
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
     } finally {
       setIsSubmitting(false);
@@ -169,7 +169,7 @@ export const ScheduleViewingDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()} className="space-y-4 mt-4">
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
@@ -286,6 +286,7 @@ export const ScheduleViewingDialog = ({
             type="submit" 
             className="w-full bg-primary hover:bg-primary/90"
             disabled={isSubmitting}
+            onClick={(e) => e.stopPropagation()}
           >
             {isSubmitting ? (
               <>
