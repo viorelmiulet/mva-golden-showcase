@@ -40,6 +40,7 @@ const MarketingAIPage = lazy(() => import("./pages/admin/MarketingAIPage"));
 const ViewingAppointmentsPage = lazy(() => import("./pages/admin/ViewingAppointmentsPage"));
 const CommissionsPage = lazy(() => import("./pages/admin/CommissionsPage"));
 const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
+const PropertyViewsPage = lazy(() => import("./pages/admin/PropertyViewsPage"));
 const ComplexesOverview = lazy(() => import("./pages/admin/ComplexesOverview"));
 const ComplexDetailAdmin = lazy(() => import("./pages/admin/ComplexDetail"));
 const AddComplex = lazy(() => import("./pages/admin/AddComplex"));
