@@ -31,10 +31,10 @@
     <meta name="application-name" content="MVA Imobiliare">
     
     <!-- Primary Meta Tags -->
-    <title>Apartamente de Vânzare Militari – MVA Imobiliare</title>
-    <meta name="title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
-    <meta name="description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!">
-    <meta name="keywords" content="apartamente Chiajna, imobiliare București, proprietăți premium, apartamente noi, MVA Imobiliare, Renew Residence, Eurocasa Residence">
+    <title>MVA Imobiliare | Apartamente și Ansambluri Rezidențiale</title>
+    <meta name="title" content="MVA Imobiliare | Apartamente și Ansambluri Rezidențiale" />
+    <meta name="description" content="Descoperă apartamente de vânzare, ansambluri rezidențiale și servicii imobiliare în București și împrejurimi cu MVA Imobiliare." />
+    <meta name="keywords" content="imobiliare București, apartamente de vânzare, ansambluri rezidențiale, proprietăți premium, MVA Imobiliare" />
     <meta name="author" content="MVA IMOBILIARE" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large" />
@@ -44,9 +44,31 @@
     <meta name="geo.position" content="44.4268;25.9667" />
     <meta name="ICBM" content="44.4268, 25.9667" />
     <meta name="msvalidate.01" content="61211F66C499AA2A96C0CBC828ECEE20" />
-    
+
     <link rel="canonical" href="https://mvaimobiliare.ro/" />
     <link rel="alternate" type="text/plain" href="https://mvaimobiliare.ro/llms.txt" title="LLM Context" />
+
+    <script>
+      (() => {
+        const siteUrl = 'https://mvaimobiliare.ro';
+        const rawPath = window.location.pathname || '/';
+        const normalizedPath = rawPath === '/' ? '/' : rawPath.replace(/\/+$/, '');
+        const currentUrl = `${siteUrl}${normalizedPath}`;
+
+        const setContent = (selector, attribute, value) => {
+          const element = document.querySelector(selector);
+          if (element) {
+            element.setAttribute(attribute, value);
+          }
+        };
+
+        if (!normalizedPath.startsWith('/admin') && !normalizedPath.startsWith('/api')) {
+          setContent('link[rel="canonical"]', 'href', currentUrl);
+          setContent('meta[property="og:url"]', 'content', currentUrl);
+          setContent('meta[name="twitter:url"]', 'content', currentUrl);
+        }
+      })();
+    </script>
     
     <!-- Google Fonts with optimized loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -102,19 +124,17 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mvaimobiliare.ro/" />
-    <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
-    <meta property="og:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!" />
+    <meta property="og:title" content="MVA Imobiliare | Apartamente și Ansambluri Rezidențiale" />
+    <meta property="og:description" content="Descoperă apartamente de vânzare, ansambluri rezidențiale și servicii imobiliare în București și împrejurimi cu MVA Imobiliare." />
     <meta property="og:site_name" content="MVA Imobiliare" />
-    
-    
     <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
     <meta property="og:locale" content="ro_RO" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://mvaimobiliare.ro/" />
-    
-    
+    <meta name="twitter:title" content="MVA Imobiliare | Apartamente și Ansambluri Rezidențiale" />
+    <meta name="twitter:description" content="Descoperă apartamente de vânzare, ansambluri rezidențiale și servicii imobiliare în București și împrejurimi cu MVA Imobiliare." />
     <meta name="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
 
     <!-- Structured Data - Organization -->
@@ -151,10 +171,6 @@
       }
     }
     </script>
-    <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare">
-  <meta name="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare">
-  <meta property="og:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!">
-  <meta name="twitter:description" content="Găsești apartamente de vânzare și închiriere în cartierul Militari, Sector 6 București. Agenție imobiliară locală cu experiență. Sună acum!">
 </head>
 
   <body>
