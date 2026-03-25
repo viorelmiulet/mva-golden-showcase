@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
-import { useProperties, formatPrice as immoFormatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux"
+import { useProperties, formatPrice as immoFormatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -198,7 +198,7 @@ const Properties = () => {
         _immoflux_id: p.idnum,
         _immoflux_slug: generateImmofluxSlug(p),
         _immoflux_top: p.top === 1,
-        _immoflux_pole: p.poleposition === 1,
+         _immoflux_pole: isPoleProperty(p),
       }));
     },
     staleTime: 5 * 60 * 1000,

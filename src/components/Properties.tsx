@@ -10,7 +10,7 @@ import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/
 import ScrollReveal from "@/components/ScrollReveal"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 import { useMemo } from "react"
-import { type ImmofluxProperty, getTitle, getMainImage, getSurface } from "@/hooks/useImmoflux"
+import { type ImmofluxProperty, getTitle, getMainImage, getSurface, isPoleProperty } from "@/hooks/useImmoflux"
 
 const isCoordinates = (str: string | null | undefined): boolean => {
   if (!str) return false;
@@ -68,7 +68,7 @@ const Properties = () => {
         source: 'immoflux',
         _immoflux_id: p.idnum,
         _immoflux_slug: generateImmofluxSlug(p),
-        _immoflux_pole: p.poleposition === 1,
+         _immoflux_pole: isPoleProperty(p),
         _immoflux_top: p.top === 1,
       }));
     },
