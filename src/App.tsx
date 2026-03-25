@@ -70,6 +70,7 @@ const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
 const ImmofluxPropertyDetail = lazy(() => import("./pages/ImmofluxPropertyDetail"));
+const OfertaRedirect = lazy(() => import("./components/OfertaRedirect"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
