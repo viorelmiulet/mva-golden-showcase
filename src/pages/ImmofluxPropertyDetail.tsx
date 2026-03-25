@@ -180,6 +180,14 @@ const ImmofluxPropertyDetail = () => {
           </div>
         </div>
       </main>
+      <Suspense fallback={null}>
+        <ImageLightbox
+          images={images.map(img => img.src)}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          initialIndex={lightboxIndex}
+        />
+      </Suspense>
       <Footer />
     </>
   );
