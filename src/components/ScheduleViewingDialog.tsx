@@ -112,9 +112,12 @@ export const ScheduleViewingDialog = ({
         return;
       }
 
-      const propertyLink = isUuidPropertyId
-        ? `${window.location.origin}/proprietati/${normalizedPropertyId}`
-        : window.location.href;
+      // Use current page URL if we're on a property detail page, otherwise construct from origin
+      const currentPath = window.location.pathname;
+      const isOnPropertyPage = currentPath.startsWith('/proprietati/') || currentPath.startsWith('/immoflux/');
+      const propertyLink = isOnPropertyPage
+        ? `${window.location.origin}${currentPath}`
+        : `${window.location.origin}/proprietati/${normalizedPropertyId}`;
 
       const { error: emailError } = await supabase.functions.invoke("send-viewing-notification", {
         body: {
