@@ -139,7 +139,7 @@ const ImmofluxPropertiesAdmin = () => {
         </p>
       )}
 
-      {data && data.data.length > 0 && (
+      {data && filteredProperties.length > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {data.data.map((property: ImmofluxProperty) => {
