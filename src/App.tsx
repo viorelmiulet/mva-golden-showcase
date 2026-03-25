@@ -68,6 +68,9 @@ const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
+const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
+const ImmofluxPropertyDetail = lazy(() => import("./pages/ImmofluxPropertyDetail"));
+const OfertaRedirect = lazy(() => import("./components/OfertaRedirect"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
@@ -196,6 +199,8 @@ const AppRoutes = () => {
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
+              <Route path="/proprietate/:id" element={<ImmofluxPropertyDetail />} />
+              <Route path="/oferta-:id" element={<OfertaRedirect />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
