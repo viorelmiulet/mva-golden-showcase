@@ -1,16 +1,72 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PropertyGridSkeleton } from "@/components/skeletons";
-import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink } from "lucide-react";
+import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink, Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+
+  // Filters
+  const [search, setSearch] = useState("");
+  const [transactionFilter, setTransactionFilter] = useState<string>("all");
+  const [roomsFilter, setRoomsFilter] = useState<string>("all");
+
+  // Get unique zones/rooms for filter options
+  const roomOptions = useMemo(() => {
+    if (!data?.data) return [];
+    const rooms = [...new Set(data.data.map(p => p.nrcamere).filter(Boolean))].sort((a, b) => a - b);
+    return rooms;
+  }, [data]);
+
+  // Apply client-side filters
+  const filteredProperties = useMemo(() => {
+    if (!data?.data) return [];
+    return data.data.filter((property) => {
+      // Search filter
+      if (search) {
+        const q = search.toLowerCase();
+        const title = getTitle(property).toLowerCase();
+        const zone = (property.zona || "").toLowerCase();
+        const city = (property.localitate || "").toLowerCase();
+        if (!title.includes(q) && !zone.includes(q) && !city.includes(q) && !String(property.idnum).includes(q)) {
+          return false;
+        }
+      }
+      // Transaction type
+      if (transactionFilter !== "all") {
+        const isSale = property.devanzare === 1;
+        if (transactionFilter === "sale" && !isSale) return false;
+        if (transactionFilter === "rent" && isSale) return false;
+      }
+      // Rooms
+      if (roomsFilter !== "all" && property.nrcamere !== Number(roomsFilter)) {
+        return false;
+      }
+      return true;
+    });
+  }, [data, search, transactionFilter, roomsFilter]);
+
+  const activeFiltersCount = [transactionFilter !== "all", roomsFilter !== "all", search.length > 0].filter(Boolean).length;
+
+  const resetFilters = () => {
+    setSearch("");
+    setTransactionFilter("all");
+    setRoomsFilter("all");
+  };
 
   return (
     <div className="space-y-6">
@@ -20,8 +76,51 @@ const ImmofluxPropertiesAdmin = () => {
           <p className="text-sm text-muted-foreground">
             Proprietăți sincronizate din CRM-ul IMMOFLUX
             {data && ` • ${data.total} total`}
+            {data && filteredProperties.length !== data.data.length && ` • ${filteredProperties.length} afișate`}
           </p>
         </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Caută după titlu, zonă, localitate sau ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={transactionFilter} onValueChange={setTransactionFilter}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Tip tranzacție" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate tipurile</SelectItem>
+            <SelectItem value="sale">Vânzare</SelectItem>
+            <SelectItem value="rent">Închiriere</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={roomsFilter} onValueChange={setRoomsFilter}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Camere" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate camerele</SelectItem>
+            {roomOptions.map((r) => (
+              <SelectItem key={r} value={String(r)}>
+                {r} {r === 1 ? "cameră" : "camere"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {activeFiltersCount > 0 && (
+          <Button variant="ghost" size="sm" onClick={resetFilters} className="text-destructive gap-1">
+            <X className="h-4 w-4" />
+            Resetează ({activeFiltersCount})
+          </Button>
+        )}
       </div>
 
       {isLoading && <PropertyGridSkeleton count={6} />}
