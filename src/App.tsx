@@ -170,6 +170,7 @@ const AppRoutes = () => {
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="vizualizari-proprietati" element={<PropertyViewsPage />} />
                 <Route path="rapoarte" element={<ReportsPage />} />
                 <Route path="setari" element={<SettingsPage />} />
                 <Route path="carti-vizita" element={<BusinessCardsPage />} />
