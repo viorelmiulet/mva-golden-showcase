@@ -20,7 +20,43 @@ function getBaseUrl(): string {
   return url;
 }
 
-async function proxyGet(path: string): Promise<Response> {
+// In-memory cache with TTL
+const cache = new Map<string, { data: string; expires: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function getCached(key: string): string | null {
+  const entry = cache.get(key);
+  if (entry && entry.expires > Date.now()) {
+    return entry.data;
+  }
+  if (entry) cache.delete(key);
+  return null;
+}
+
+function setCache(key: string, data: string): void {
+  cache.set(key, { data, expires: Date.now() + CACHE_TTL_MS });
+  // Evict old entries if cache grows too large
+  if (cache.size > 100) {
+    const now = Date.now();
+    for (const [k, v] of cache) {
+      if (v.expires < now) cache.delete(k);
+    }
+  }
+}
+
+async function proxyGet(path: string, useCache = true): Promise<Response> {
+  const cacheKey = `GET:${path}`;
+  
+  if (useCache) {
+    const cached = getCached(cacheKey);
+    if (cached) {
+      console.log(`[immoflux-proxy] Cache HIT: ${path}`);
+      return new Response(cached, {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+      });
+    }
+  }
+
   const url = `${getBaseUrl()}${path}`;
   console.log(`[immoflux-proxy] GET ${url}`);
   const resp = await fetch(url, {
@@ -30,9 +66,14 @@ async function proxyGet(path: string): Promise<Response> {
     },
   });
   const body = await resp.text();
+  
+  if (resp.ok && useCache) {
+    setCache(cacheKey, body);
+  }
+
   return new Response(body, {
     status: resp.status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
   });
 }
 
@@ -63,8 +104,6 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
-    // Edge function is mounted at /immoflux-proxy, so strip that prefix
-    // pathParts after stripping: e.g. ["properties"], ["properties","123"], ["agents"], ["webhook"], ["contact"], ["visit"]
     const subPath = pathParts.slice(pathParts.indexOf('immoflux-proxy') + 1);
     const action = subPath[0] || '';
 
@@ -87,7 +126,6 @@ serve(async (req) => {
     if (req.method === 'POST' && action === 'webhook') {
       const body = await req.json();
       console.log('[immoflux-proxy] Webhook received:', JSON.stringify(body));
-      // Process webhook notification – for now just acknowledge
       return new Response(JSON.stringify({ success: true, message: 'Webhook received' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -114,7 +152,6 @@ serve(async (req) => {
           },
           body: JSON.stringify(body),
         });
-        // Always return success - visit tracking is best-effort
         if (!resp.ok) {
           console.log(`[immoflux-proxy] Visit endpoint returned ${resp.status}, ignoring`);
         }
