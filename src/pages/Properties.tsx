@@ -1,4 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
+import { useProperties, formatPrice as immoFormatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -940,6 +941,9 @@ const Properties = () => {
           </div>
         </main>
 
+        {/* IMMOFLUX Properties Section */}
+        <ImmofluxSection />
+
       {/* Image Gallery - Optimized Lightbox with swipe */}
       <Suspense fallback={null}>
         <ImageLightbox
@@ -955,5 +959,105 @@ const Properties = () => {
     </>
   )
 }
+
+const ImmofluxSection = () => {
+  const [immoPage, setImmoPage] = useState(1);
+  const { data: immoData, isLoading: immoLoading, isError: immoError } = useProperties(immoPage);
+
+  return (
+    <section className="py-12 bg-muted/30">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+          Proprietăți <span className="text-gold">IMMOFLUX</span>
+        </h2>
+
+        {immoLoading && <PropertyGridSkeleton count={6} />}
+
+        {immoError && (
+          <p className="text-center text-muted-foreground py-8">Nu am putut încărca proprietățile IMMOFLUX.</p>
+        )}
+
+        {immoData && immoData.data.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {immoData.data.map((property: ImmofluxProperty) => {
+                const isSale = property.devanzare === 1;
+                const surface = getSurface(property);
+                return (
+                  <Link to={`/proprietate/${property.idnum}`} key={property.idnum}>
+                    <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300 h-full border-border/50 hover:border-gold/30">
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={getMainImage(property)}
+                          alt={getTitle(property)}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          width={400}
+                          height={192}
+                        />
+                        <div className="absolute top-2 left-2 flex gap-1.5">
+                          <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
+                            {isSale ? "De vânzare" : "De închiriat"}
+                          </Badge>
+                          {property.top === 1 && (
+                            <Badge className="bg-gold text-primary-foreground font-bold">TOP</Badge>
+                          )}
+                        </div>
+                      </div>
+                      <CardContent className="p-4 space-y-2">
+                        <h3 className="font-semibold text-foreground line-clamp-2 text-sm group-hover:text-gold transition-colors">
+                          {getTitle(property)}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{[property.zona, property.localitate].filter(Boolean).join(', ')}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          {property.nrcamere > 0 && (
+                            <span className="flex items-center gap-1"><Home className="h-3 w-3" />{property.nrcamere} cam.</span>
+                          )}
+                          {surface > 0 && (
+                            <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{surface} mp</span>
+                          )}
+                        </div>
+                        <div className="pt-2 border-t border-border/50">
+                          <span className="text-sm font-bold text-gold">{immoFormatPrice(property)}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {immoData.last_page > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={immoPage <= 1}
+                  onClick={() => setImmoPage((p) => p - 1)}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Pagina {immoData.current_page} din {immoData.last_page}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={immoPage >= immoData.last_page}
+                  onClick={() => setImmoPage((p) => p + 1)}
+                >
+                  Următor <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
 
 export default Properties
