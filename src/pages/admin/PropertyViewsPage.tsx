@@ -59,22 +59,31 @@ const PropertyViewsPage = () => {
   const { data: propertyStats, isLoading } = useQuery({
     queryKey: ["property-view-stats", days],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("page_views")
-        .select("page_path, session_id, duration_seconds, page_title")
-        .like("page_path", "/proprietati/%")
-        .gte("created_at", since);
+      // Fetch all rows in batches of 1000 to avoid the default limit
+      const allRows: { page_path: string; session_id: string; duration_seconds: number | null; page_title: string | null }[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      
+      while (true) {
+        const { data, error } = await supabase
+          .from("page_views")
+          .select("page_path, session_id, duration_seconds, page_title")
+          .like("page_path", "/proprietati/%")
+          .neq("page_path", "/proprietati")
+          .gte("created_at", since)
+          .range(from, from + batchSize - 1);
 
-      if (error) throw error;
-
-      // Only property detail pages (must have slug after /proprietati/)
-      const detailViews = (data || []).filter(
-        (v) => v.page_path !== "/proprietati" && v.page_path.split("/").length >= 3
-      );
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allRows.push(...data);
+        if (data.length < batchSize) break;
+        from += batchSize;
+      }
 
       // Aggregate
       const map = new Map<string, { views: number; sessions: Set<string>; totalDuration: number; title: string }>();
-      for (const v of detailViews) {
+      for (const v of allRows) {
+        if (v.page_path.split("/").length < 3) continue;
         const existing = map.get(v.page_path);
         if (existing) {
           existing.views++;
@@ -85,7 +94,7 @@ const PropertyViewsPage = () => {
             views: 1,
             sessions: new Set([v.session_id]),
             totalDuration: v.duration_seconds || 0,
-            title: v.page_title || v.page_path.split("/").pop() || "",
+            title: v.page_title || v.page_path.split("/").pop()?.replace(/-/g, " ") || "",
           });
         }
       }
@@ -107,21 +116,30 @@ const PropertyViewsPage = () => {
   const { data: dailyTrend } = useQuery({
     queryKey: ["property-views-trend", days],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("page_views")
-        .select("created_at")
-        .like("page_path", "/proprietati/%")
-        .neq("page_path", "/proprietati")
-        .gte("created_at", since);
-
-      if (error) throw error;
+      const allRows: { created_at: string }[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      while (true) {
+        const { data, error } = await supabase
+          .from("page_views")
+          .select("created_at")
+          .like("page_path", "/proprietati/%")
+          .neq("page_path", "/proprietati")
+          .gte("created_at", since)
+          .range(from, from + batchSize - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allRows.push(...data);
+        if (data.length < batchSize) break;
+        from += batchSize;
+      }
 
       const dayMap = new Map<string, number>();
       for (let i = 0; i < daysNum; i++) {
         const d = format(subDays(new Date(), i), "yyyy-MM-dd");
         dayMap.set(d, 0);
       }
-      for (const v of data || []) {
+      for (const v of allRows) {
         const d = format(parseISO(v.created_at), "yyyy-MM-dd");
         dayMap.set(d, (dayMap.get(d) || 0) + 1);
       }
