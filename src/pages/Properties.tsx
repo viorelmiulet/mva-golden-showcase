@@ -150,8 +150,8 @@ const Properties = () => {
       allProperties.push(...(firstData.data || []));
       lastPage = firstData.last_page || 1;
 
-      // Fetch remaining pages (limit to 5 pages max for performance)
-      const maxPages = Math.min(lastPage, 5);
+      // Fetch all remaining pages
+      const maxPages = lastPage;
       const promises = [];
       for (let p = 2; p <= maxPages; p++) {
         promises.push(
