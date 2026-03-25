@@ -92,8 +92,6 @@ const MobilePropertyDetail = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { language } = useLanguage();
-  const propertyPath = property ? getPropertyUrl(property) : undefined;
-  const { data: viewCount } = usePropertyViews(propertyPath);
 
   const { data: property, isLoading } = useQuery({
     queryKey: ['mobile-property', slug],
