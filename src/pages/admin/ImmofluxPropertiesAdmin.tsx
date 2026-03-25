@@ -24,6 +24,7 @@ const ImmofluxPropertiesAdmin = () => {
   const [search, setSearch] = useState("");
   const [transactionFilter, setTransactionFilter] = useState<string>("all");
   const [roomsFilter, setRoomsFilter] = useState<string>("all");
+  const [promoFilter, setPromoFilter] = useState<string>("all");
 
   // Get unique zones/rooms for filter options
   const roomOptions = useMemo(() => {
