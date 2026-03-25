@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useProperty, useSubmitContact, formatPrice, getTitle, type ImmofluxContactData } from "@/hooks/useImmoflux";
+import { useProperty, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData } from "@/hooks/useImmoflux";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,12 +59,14 @@ const ImmofluxPropertyDetail = () => {
 
   const images = [...(property.images || [])].sort((a, b) => a.pozitie - b.pozitie);
   const title = getTitle(property);
-  const isSale = property.devanzare;
+  const description = getDescription(property);
+  const isSale = property.devanzare === 1;
+  const surface = getSurface(property);
 
   const details = [
     { icon: BedDouble, label: 'Camere', value: property.nrcamere },
     { icon: Bath, label: 'Băi', value: property.nrbai },
-    { icon: Maximize, label: 'Suprafață utilă', value: property.suprafatautila ? `${property.suprafatautila} mp` : null },
+    { icon: Maximize, label: 'Suprafață utilă', value: surface ? `${surface} mp` : null },
     { icon: Maximize, label: 'Teren', value: property.suprafatateren ? `${property.suprafatateren} mp` : null },
     { icon: Building, label: 'Etaj', value: property.etaj },
     { icon: Calendar, label: 'An construcție', value: property.anconstructie },
@@ -76,17 +78,15 @@ const ImmofluxPropertyDetail = () => {
     <>
       <Helmet>
         <title>{title} | MVA Imobiliare</title>
-        <meta name="description" content={property.descrierero?.substring(0, 160) || title} />
+        <meta name="description" content={description?.substring(0, 160) || title} />
       </Helmet>
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Back */}
           <Link to="/proprietati" className="inline-flex items-center text-sm text-muted-foreground hover:text-gold mb-6">
             <ArrowLeft className="h-4 w-4 mr-1" /> Înapoi la proprietăți
           </Link>
 
-          {/* Gallery */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
               {images.slice(0, 1).map((img, i) => (
@@ -99,7 +99,6 @@ const ImmofluxPropertyDetail = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main content */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
@@ -111,7 +110,6 @@ const ImmofluxPropertyDetail = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">{title}</h1>
               <p className="text-2xl font-bold text-gold">{formatPrice(property)}</p>
 
-              {/* Details grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {details.map((d, i) => (
                   <div key={i} className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
@@ -124,16 +122,14 @@ const ImmofluxPropertyDetail = () => {
                 ))}
               </div>
 
-              {/* Description */}
-              {property.descrierero && (
+              {description && (
                 <div className="prose prose-sm max-w-none text-muted-foreground">
                   <h2 className="text-lg font-semibold text-foreground mb-2">Descriere</h2>
-                  <p className="whitespace-pre-line">{property.descrierero}</p>
+                  <p className="whitespace-pre-line">{description}</p>
                 </div>
               )}
             </div>
 
-            {/* Contact form */}
             <div className="lg:col-span-1">
               <div className="sticky top-28 rounded-xl border bg-card p-6 space-y-4 shadow-sm">
                 <h2 className="text-lg font-semibold text-foreground">Solicită informații</h2>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { useProperties, formatPrice, getTitle, getMainImage, type ImmofluxProperty } from "@/hooks/useImmoflux";
+import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { PropertyGridSkeleton } from "@/components/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
-  const isSale = property.devanzare;
+  const isSale = property.devanzare === 1;
+  const surface = getSurface(property);
   return (
     <Link to={`/proprietate/${property.idnum}`}>
       <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
@@ -45,8 +46,8 @@ const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
             {property.nrcamere > 0 && (
               <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{property.nrcamere} cam.</span>
             )}
-            {property.suprafatautila > 0 && (
-              <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{property.suprafatautila} mp</span>
+            {surface > 0 && (
+              <span className="flex items-center gap-1"><Maximize className="h-3.5 w-3.5" />{surface} mp</span>
             )}
           </div>
           <div className="pt-2 border-t">
@@ -87,11 +88,17 @@ const ImmofluxProperties = () => {
 
           {data && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {data.data.map((p) => (
-                  <ImmofluxPropertyCard key={p.idnum} property={p} />
-                ))}
-              </div>
+              {data.data.length === 0 ? (
+                <div className="text-center py-16">
+                  <p className="text-lg text-muted-foreground">Nu sunt proprietăți disponibile momentan.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {data.data.map((p) => (
+                    <ImmofluxPropertyCard key={p.idnum} property={p} />
+                  ))}
+                </div>
+              )}
 
               {data.last_page > 1 && (
                 <div className="flex items-center justify-center gap-4 mt-10">
