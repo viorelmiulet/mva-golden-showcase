@@ -81,3 +81,67 @@ export const getPropertyUrl = (property: {
   zone?: string | null;
   location?: string | null;
 }): string => `/proprietati/${generatePropertySlug(property)}`;
+
+/**
+ * Generate SEO-friendly slug for an Immoflux property.
+ * Format: apartament-2-camere-militari-zona-253931
+ * Uses the numeric idnum as unique suffix.
+ */
+export const generateImmofluxSlug = (property: {
+  idnum: number;
+  nrcamere?: number;
+  zona?: string;
+  localitate?: string;
+  titlu?: { ro?: string } | string;
+}): string => {
+  const parts: string[] = [];
+
+  // 1. Property type
+  const rooms = property.nrcamere || 1;
+  if (rooms <= 1) {
+    parts.push('garsoniera');
+  } else {
+    parts.push(`apartament-${rooms}-camere`);
+  }
+
+  // 2. Zone
+  if (property.zona) {
+    const kebabZone = toKebab(property.zona.split(',')[0].trim());
+    if (kebabZone && kebabZone.length > 2 && !parts.some(p => p.includes(kebabZone))) {
+      parts.push(kebabZone);
+    }
+  }
+
+  // 3. Localitate if different from zona
+  if (property.localitate) {
+    const kebabCity = toKebab(property.localitate.split(',')[0].trim());
+    if (kebabCity && kebabCity.length > 2 && !parts.some(p => p.includes(kebabCity))) {
+      parts.push(kebabCity);
+    }
+  }
+
+  // 4. Numeric ID for uniqueness
+  parts.push(String(property.idnum));
+
+  return parts.join('-');
+};
+
+/**
+ * Extract the Immoflux numeric ID from a slug.
+ * The ID is always the last numeric segment.
+ */
+export const extractImmofluxIdFromSlug = (slug: string): string | null => {
+  const match = slug.match(/(\d+)$/);
+  return match ? match[1] : null;
+};
+
+/**
+ * Generate URL for an Immoflux property.
+ */
+export const getImmofluxPropertyUrl = (property: {
+  idnum: number;
+  nrcamere?: number;
+  zona?: string;
+  localitate?: string;
+  titlu?: { ro?: string } | string;
+}): string => `/proprietate/${generateImmofluxSlug(property)}`;
