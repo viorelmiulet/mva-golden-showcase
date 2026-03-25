@@ -51,7 +51,7 @@ const Properties = () => {
       const data = await res.json();
       const allProps: ImmofluxProperty[] = data.data || [];
       // Filter pole position and top properties
-      return allProps.filter((p: any) => p.poleposition === 1 || p.top === 1).map((p: any) => ({
+      return allProps.filter((p: any) => isPoleProperty(p) || p.top === 1).map((p: any) => ({
         id: `immoflux-${p.idnum}`,
         title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
         description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
