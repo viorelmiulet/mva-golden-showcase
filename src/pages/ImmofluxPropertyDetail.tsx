@@ -94,11 +94,19 @@ const ImmofluxPropertyDetail = () => {
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
               {images.slice(0, 1).map((img, i) => (
-                <img key={i} src={img.src} alt={title} className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover" loading="eager" />
+                <img key={i} src={img.src} alt={title} className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="eager" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} />
               ))}
               {images.slice(1, 5).map((img, i) => (
-                <img key={i + 1} src={img.src} alt={`${title} ${i + 2}`} className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover" loading="lazy" />
+                <img key={i + 1} src={img.src} alt={`${title} ${i + 2}`} className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="lazy" onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }} />
               ))}
+              {images.length > 5 && (
+                <button
+                  onClick={() => { setLightboxIndex(5); setLightboxOpen(true); }}
+                  className="relative w-full h-32 md:h-[calc(12rem-0.25rem)] bg-muted flex items-center justify-center text-foreground font-semibold hover:bg-muted/80 transition-colors"
+                >
+                  +{images.length - 5} imagini
+                </button>
+              )}
             </div>
           )}
 
