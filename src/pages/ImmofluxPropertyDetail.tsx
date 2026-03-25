@@ -20,6 +20,8 @@ const ImmofluxPropertyDetail = () => {
   const contactMutation = useSubmitContact();
 
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const handleContact = (e: React.FormEvent) => {
     e.preventDefault();
