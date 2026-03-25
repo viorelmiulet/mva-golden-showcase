@@ -19,12 +19,14 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Check
+  Check,
+  Eye
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { generatePropertySlug, extractShortIdFromSlug, isUUID } from "@/lib/propertySlug";
+import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
+import { usePropertyViews } from "@/hooks/usePropertyViews";
 
 // Check if a string looks like GPS coordinates
 const isCoordinates = (str: string): boolean => {
@@ -124,6 +126,9 @@ const MobilePropertyDetail = () => {
     },
     enabled: !!slug
   });
+
+  const propertyPath = property ? getPropertyUrl(property) : undefined;
+  const { data: viewCount } = usePropertyViews(propertyPath);
 
   const formatPrice = (price: number, currency: string = 'EUR') => {
     // Ensure valid ISO currency code (LEI is not valid, use RON)
@@ -287,9 +292,17 @@ const MobilePropertyDetail = () => {
             <MapPin className="w-4 h-4" />
             {getDisplayLocation(property)}
           </p>
-          <p className="text-2xl font-bold text-gold">
-            {formatPrice(property.price_min || 0, property.currency || 'EUR')}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-2xl font-bold text-gold">
+              {formatPrice(property.price_min || 0, property.currency || 'EUR')}
+            </p>
+            {viewCount !== undefined && viewCount > 0 && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Eye className="w-4 h-4" />
+                <span>{viewCount} {language === 'ro' ? 'vizualizări' : 'views'}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Quick info */}

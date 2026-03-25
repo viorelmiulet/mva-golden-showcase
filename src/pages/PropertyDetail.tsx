@@ -47,6 +47,8 @@ import { usePlausible } from "@/hooks/usePlausible";
 import { useInternalAnalytics } from "@/hooks/useInternalAnalytics";
 import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
+import { usePropertyViews } from "@/hooks/usePropertyViews";
+import { Eye } from "lucide-react";
 
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
@@ -242,6 +244,8 @@ const PropertyDetail = () => {
   const { trackProperty, trackContact } = usePlausible();
   const { trackEvent } = useInternalAnalytics();
   const { trackPropertyView } = useGA4();
+  const propertyPath = property ? getPropertyUrl(property) : undefined;
+  const { data: viewCount } = usePropertyViews(propertyPath);
 
   useEffect(() => {
     if (!slug) {
@@ -638,7 +642,7 @@ const PropertyDetail = () => {
                 {/* Compact Stats Bar */}
                 <Card className="border-gold/20 overflow-hidden">
                   <CardContent className="p-0">
-                    <div className="grid grid-cols-3 sm:grid-cols-3 divide-x divide-border">
+                    <div className="grid grid-cols-4 divide-x divide-border">
                       <div className="p-3 sm:p-4 text-center">
                         <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Preț</div>
                         <div className="text-sm sm:text-lg md:text-xl font-bold text-gold">
@@ -655,6 +659,15 @@ const PropertyDetail = () => {
                         <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Camere</div>
                         <div className="text-sm sm:text-lg md:text-xl font-bold text-foreground">
                           {property.rooms}
+                        </div>
+                      </div>
+                      <div className="p-3 sm:p-4 text-center">
+                        <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">
+                          <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline mr-0.5" />
+                          Vizualizări
+                        </div>
+                        <div className="text-sm sm:text-lg md:text-xl font-bold text-foreground">
+                          {viewCount ?? '–'}
                         </div>
                       </div>
                     </div>
