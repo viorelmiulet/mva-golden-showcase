@@ -38,16 +38,23 @@ export const ScheduleViewingDialog = ({
   propertyId,
   trigger 
 }: ScheduleViewingDialogProps) => {
+  const getInitialFormData = () => {
+    const today = new Date();
+    const defaultDate = today.toISOString().split('T')[0];
+
+    return {
+      name: "",
+      phone: "",
+      email: "",
+      preferredDate: defaultDate,
+      preferredTime: "10:00",
+      message: "",
+    };
+  };
+
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    preferredDate: "",
-    preferredTime: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState(getInitialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { trackViewingScheduled } = usePlausible();
   const { t } = useLanguage();
@@ -75,6 +82,7 @@ export const ScheduleViewingDialog = ({
         }
       });
       setErrors(fieldErrors);
+      toast.error("Completează toate câmpurile obligatorii pentru a trimite cererea.");
       return;
     }
 
@@ -128,14 +136,7 @@ export const ScheduleViewingDialog = ({
 
       toast.success("Cererea de vizionare a fost trimisă cu succes! Veți fi contactat în curând.");
       setOpen(false);
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        preferredDate: "",
-        preferredTime: "",
-        message: "",
-      });
+      setFormData(getInitialFormData());
     } catch (error) {
       console.error('Error:', error);
       toast.error("A apărut o eroare. Vă rugăm încercați din nou.");
@@ -241,6 +242,7 @@ export const ScheduleViewingDialog = ({
                 onChange={handleChange}
                 className={errors.preferredDate ? "border-destructive" : ""}
                 disabled={isSubmitting}
+                required
               />
               {errors.preferredDate && <p className="text-xs text-destructive">{errors.preferredDate}</p>}
             </div>
@@ -258,6 +260,7 @@ export const ScheduleViewingDialog = ({
                 onChange={handleChange}
                 className={errors.preferredTime ? "border-destructive" : ""}
                 disabled={isSubmitting}
+                required
               />
               {errors.preferredTime && <p className="text-xs text-destructive">{errors.preferredTime}</p>}
             </div>
