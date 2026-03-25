@@ -57,6 +57,11 @@ const ImmofluxPropertiesAdmin = () => {
       if (roomsFilter !== "all" && property.nrcamere !== Number(roomsFilter)) {
         return false;
       }
+      // Promotion filter
+      if (promoFilter !== "all") {
+        if (promoFilter === "top" && property.top !== 1) return false;
+        if (promoFilter === "pole" && property.poleposition !== 1) return false;
+      }
       return true;
     });
   }, [data, search, transactionFilter, roomsFilter]);
