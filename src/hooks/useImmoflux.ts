@@ -60,6 +60,7 @@ export interface ImmofluxProperty {
   agent_info?: ImmofluxAgentInfo;
   publicare: number;
   top: number;
+  pole?: number;
   poleposition?: number;
   tiplocuinta: string;
   nrbai: number;
@@ -174,6 +175,10 @@ export function getSurface(property: ImmofluxProperty): number {
   if (typeof val === 'number') return val;
   if (typeof val === 'string') return parseFloat(val) || 0;
   return 0;
+}
+
+export function isPoleProperty(property: Pick<ImmofluxProperty, 'pole' | 'poleposition'>): boolean {
+  return property.pole === 1 || property.poleposition === 1;
 }
 
 // ── Hooks ──────────────────────────────────────────────

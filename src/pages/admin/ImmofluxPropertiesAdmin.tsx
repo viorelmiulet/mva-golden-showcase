@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
+import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ const ImmofluxPropertiesAdmin = () => {
       // Promotion filter
       if (promoFilter !== "all") {
         if (promoFilter === "top" && property.top !== 1) return false;
-        if (promoFilter === "pole" && property.poleposition !== 1) return false;
+        if (promoFilter === "pole" && !isPoleProperty(property)) return false;
       }
       return true;
     });
@@ -178,7 +178,7 @@ const ImmofluxPropertiesAdmin = () => {
                       {property.top === 1 && (
                         <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
                       )}
-                      {property.poleposition === 1 && (
+                      {isPoleProperty(property) && (
                         <Badge className="bg-purple-600 text-white font-bold text-[10px]">POLE POSITION</Badge>
                       )}
                     </div>

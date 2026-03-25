@@ -10,7 +10,7 @@ import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/
 import ScrollReveal from "@/components/ScrollReveal"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 import { useMemo } from "react"
-import { type ImmofluxProperty, getTitle, getMainImage, getSurface } from "@/hooks/useImmoflux"
+import { type ImmofluxProperty, getTitle, getMainImage, getSurface, isPoleProperty } from "@/hooks/useImmoflux"
 
 const isCoordinates = (str: string | null | undefined): boolean => {
   if (!str) return false;
@@ -51,7 +51,7 @@ const Properties = () => {
       const data = await res.json();
       const allProps: ImmofluxProperty[] = data.data || [];
       // Filter pole position and top properties
-      return allProps.filter((p: any) => p.poleposition === 1 || p.top === 1).map((p: any) => ({
+      return allProps.filter((p: any) => isPoleProperty(p) || p.top === 1).map((p: any) => ({
         id: `immoflux-${p.idnum}`,
         title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
         description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
@@ -68,7 +68,7 @@ const Properties = () => {
         source: 'immoflux',
         _immoflux_id: p.idnum,
         _immoflux_slug: generateImmofluxSlug(p),
-        _immoflux_pole: p.poleposition === 1,
+         _immoflux_pole: isPoleProperty(p),
         _immoflux_top: p.top === 1,
       }));
     },
