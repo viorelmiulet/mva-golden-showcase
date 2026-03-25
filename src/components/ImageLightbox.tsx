@@ -135,7 +135,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
           {/* Thumbnail Strip */}
           {images.length > 1 && (
             <div className="flex-shrink-0 py-2 pb-3 sm:py-3 sm:pb-6 px-2 sm:px-4">
-              <div className="flex gap-1.5 sm:gap-2 justify-start sm:justify-center overflow-x-auto max-w-full scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex gap-1.5 sm:gap-2 justify-start sm:justify-center overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
                 {images.map((img, idx) => (
                   <button
                     key={idx}
