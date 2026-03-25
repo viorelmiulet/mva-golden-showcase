@@ -997,7 +997,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={property._immoflux_id ? `/proprietate/${property._immoflux_id}` : getPropertyUrl(property)}>
+                          <Link to={(property as any)._immoflux_id ? `/proprietate/${(property as any)._immoflux_id}` : getPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>
