@@ -115,7 +115,7 @@ const Properties = () => {
   }), [language])
 
   // Fetch existing properties (exclude properties from residential complexes and hidden ones)
-  const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
+  const { data: catalogProperties = [], isLoading: isLoadingCatalog } = useQuery({
     queryKey: ['catalog_offers'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -128,10 +128,81 @@ const Properties = () => {
       if (error) throw error
       return data
     },
-    staleTime: 0, // Force fresh data
+    staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true
   })
+
+  // Fetch IMMOFLUX properties and normalize to catalog format
+  const { data: immofluxProperties = [], isLoading: isLoadingImmoflux } = useQuery({
+    queryKey: ['immoflux-all-properties'],
+    queryFn: async () => {
+      const allProperties: ImmofluxProperty[] = [];
+      let page = 1;
+      let lastPage = 1;
+      
+      // Fetch first page to get total pages
+      const firstRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=1`, {
+        headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
+      });
+      if (!firstRes.ok) return [];
+      const firstData = await firstRes.json();
+      allProperties.push(...(firstData.data || []));
+      lastPage = firstData.last_page || 1;
+
+      // Fetch remaining pages (limit to 5 pages max for performance)
+      const maxPages = Math.min(lastPage, 5);
+      const promises = [];
+      for (let p = 2; p <= maxPages; p++) {
+        promises.push(
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=${p}`, {
+            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
+          }).then(r => r.ok ? r.json() : { data: [] })
+        );
+      }
+      const results = await Promise.all(promises);
+      results.forEach(r => allProperties.push(...(r.data || [])));
+
+      // Normalize to catalog_offers-like format
+      return allProperties.map((p) => ({
+        id: `immoflux-${p.idnum}`,
+        title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
+        description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
+        price_min: p.devanzare === 1 ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare),
+        price_max: null,
+        currency: p.devanzare === 1 ? (p.monedavanzare || 'EUR') : (p.monedainchiriere || 'EUR'),
+        rooms: p.nrcamere,
+        surface_min: typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) || null : p.suprafatautila,
+        surface_max: null,
+        surface_land: typeof p.suprafatateren === 'string' ? parseFloat(p.suprafatateren) || null : (p.suprafatateren || null),
+        images: (p.images || []).sort((a, b) => a.pozitie - b.pozitie).map(img => img.src),
+        location: p.localitate,
+        zone: p.zona,
+        city: p.localitate,
+        floor: typeof p.etaj === 'string' ? parseInt(p.etaj) || null : null,
+        bathrooms: p.nrbai,
+        year_built: p.anconstructie,
+        transaction_type: p.devanzare === 1 ? 'sale' : 'rent',
+        is_featured: p.top === 1,
+        source: 'immoflux',
+        project_name: null,
+        features: null,
+        agent: null,
+        agency: 'IMMOFLUX',
+        property_type: p.tiplocuinta || null,
+        total_floors: null,
+        parking: null,
+        heating: null,
+        building_type: null,
+        is_published: true,
+        _immoflux_id: p.idnum,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isLoadingProperties = isLoadingCatalog || isLoadingImmoflux;
+  const properties = useMemo(() => [...catalogProperties, ...immofluxProperties], [catalogProperties, immofluxProperties]);
 
   // Helper: detect transaction type from text when missing or incorrect
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
