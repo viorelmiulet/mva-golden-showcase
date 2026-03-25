@@ -13,7 +13,11 @@ function getBasicAuth(): string {
 }
 
 function getBaseUrl(): string {
-  return (Deno.env.get('IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
+  let url = (Deno.env.get('IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  return url;
 }
 
 async function proxyGet(path: string): Promise<Response> {
