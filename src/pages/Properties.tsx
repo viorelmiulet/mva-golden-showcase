@@ -196,6 +196,7 @@ const Properties = () => {
         building_type: null,
         is_published: true,
         _immoflux_id: p.idnum,
+        _immoflux_slug: generateImmofluxSlug(p),
       }));
     },
     staleTime: 5 * 60 * 1000,
