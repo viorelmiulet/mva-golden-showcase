@@ -19,12 +19,14 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Check
+  Check,
+  Eye
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { generatePropertySlug, extractShortIdFromSlug, isUUID } from "@/lib/propertySlug";
+import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
+import { usePropertyViews } from "@/hooks/usePropertyViews";
 
 // Check if a string looks like GPS coordinates
 const isCoordinates = (str: string): boolean => {
