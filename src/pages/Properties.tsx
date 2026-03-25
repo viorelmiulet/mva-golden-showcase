@@ -206,9 +206,9 @@ const Properties = () => {
 
   const isLoadingProperties = isLoadingCatalog || isLoadingImmoflux;
   const properties = useMemo(() => {
-    const all = [...catalogProperties, ...immofluxProperties];
+    const all = [...catalogProperties, ...immofluxProperties] as any[];
     // Sort: pole position first, then top, then rest
-    return all.sort((a, b) => {
+    return all.sort((a: any, b: any) => {
       const aPole = a._immoflux_pole ? 2 : 0;
       const bPole = b._immoflux_pole ? 2 : 0;
       const aTop = a._immoflux_top ? 1 : 0;
