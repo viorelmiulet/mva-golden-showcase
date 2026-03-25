@@ -169,14 +169,6 @@ const ImmofluxPropertyDetail = () => {
                 ))}
               </div>
 
-              {/* Descriere */}
-              {description && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground">Descriere</h2>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">{description}</p>
-                </div>
-              )}
-
               {/* Utilități */}
               {utilitati && (
                 <div className="space-y-2">
@@ -230,6 +222,14 @@ const ImmofluxPropertyDetail = () => {
                       <Badge key={i} variant="secondary" className="text-xs">{item.trim()}</Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Descriere */}
+              {description && (
+                <div className="space-y-2">
+                  <h2 className="text-lg font-semibold text-foreground">Descriere</h2>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">{description}</p>
                 </div>
               )}
 
