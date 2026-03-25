@@ -9,8 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BedDouble, Bath, Maximize, Building, Calendar, MapPin, AlertCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
+
+const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
 const ImmofluxPropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +20,8 @@ const ImmofluxPropertyDetail = () => {
   const contactMutation = useSubmitContact();
 
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const handleContact = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,11 +94,19 @@ const ImmofluxPropertyDetail = () => {
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
               {images.slice(0, 1).map((img, i) => (
-                <img key={i} src={img.src} alt={title} className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover" loading="eager" />
+                <img key={i} src={img.src} alt={title} className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="eager" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} />
               ))}
               {images.slice(1, 5).map((img, i) => (
-                <img key={i + 1} src={img.src} alt={`${title} ${i + 2}`} className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover" loading="lazy" />
+                <img key={i + 1} src={img.src} alt={`${title} ${i + 2}`} className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="lazy" onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }} />
               ))}
+              {images.length > 5 && (
+                <button
+                  onClick={() => { setLightboxIndex(5); setLightboxOpen(true); }}
+                  className="relative w-full h-32 md:h-[calc(12rem-0.25rem)] bg-muted flex items-center justify-center text-foreground font-semibold hover:bg-muted/80 transition-colors"
+                >
+                  +{images.length - 5} imagini
+                </button>
+              )}
             </div>
           )}
 
@@ -168,6 +180,14 @@ const ImmofluxPropertyDetail = () => {
           </div>
         </div>
       </main>
+      <Suspense fallback={null}>
+        <ImageLightbox
+          images={images.map(img => img.src)}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          initialIndex={lightboxIndex}
+        />
+      </Suspense>
       <Footer />
     </>
   );
