@@ -14,23 +14,41 @@ export interface ImmofluxImage {
   src: string;
   tip: string;
   pozitie: number;
+  descriere?: string;
+}
+
+export interface ImmofluxLocalized {
+  ro: string;
+  en: string;
+  de?: string;
+  fr?: string;
+  it?: string;
+}
+
+export interface ImmofluxAgentInfo {
+  agentid: number;
+  nume: string;
+  email: string;
+  phone?: string;
+  telefon?: string;
+  src?: string;
+  functie?: ImmofluxLocalized;
 }
 
 export interface ImmofluxProperty {
   idnum: number;
   idstr: string;
-  titluro: string;
-  titluen: string;
-  descrierero: string;
-  descriereen: string;
+  titlu: ImmofluxLocalized;
+  descriere: ImmofluxLocalized;
   pretvanzare: number;
-  pretinchiriere: number;
+  pretinchiriere?: number;
   monedavanzare: string;
-  monedainchiriere: string;
-  devanzare: boolean;
+  monedainchiriere?: string;
+  devanzare: number; // 1 = sale, 0 = rent
   nrcamere: number;
-  suprafatautila: number;
-  suprafatateren: number;
+  suprafatautila: string | number;
+  suprafatateren?: string | number;
+  suprafataconstruita?: string | number;
   etaj: string;
   localitate: string;
   judet: string;
@@ -38,21 +56,27 @@ export interface ImmofluxProperty {
   latitudine: number;
   longitudine: number;
   images: ImmofluxImage[];
-  agent: string;
-  publicare: boolean;
+  agent: number;
+  agent_info?: ImmofluxAgentInfo;
+  publicare: number;
   top: number;
   tiplocuinta: string;
   nrbai: number;
   anconstructie: number;
   status: string;
+  nrbalcoane?: number;
+  tipcompartimentare?: string;
+  structurarezistenta?: string;
+  adresa?: string;
 }
 
 export interface ImmofluxAgent {
-  id: number;
-  name: string;
+  agentid: number;
+  nume: string;
   email: string;
-  phone: string;
-  photo: string;
+  phone?: string;
+  telefon?: string;
+  src?: string;
 }
 
 export interface ImmofluxContactData {
@@ -110,23 +134,45 @@ async function sendVisit(propertyId: number): Promise<void> {
 
 // ── Helpers ────────────────────────────────────────────
 export function formatPrice(property: ImmofluxProperty): string {
-  if (property.devanzare && property.pretvanzare) {
-    return `${property.pretvanzare.toLocaleString('ro-RO')} ${property.monedavanzare || 'EUR'}`;
+  if (property.devanzare === 1 && property.pretvanzare) {
+    return `${Number(property.pretvanzare).toLocaleString('ro-RO')} ${property.monedavanzare || 'EUR'}`;
   }
   if (property.pretinchiriere) {
-    return `${property.pretinchiriere.toLocaleString('ro-RO')} ${property.monedainchiriere || 'EUR'}/lună`;
+    return `${Number(property.pretinchiriere).toLocaleString('ro-RO')} ${property.monedainchiriere || 'EUR'}/lună`;
+  }
+  if (property.pretvanzare) {
+    return `${Number(property.pretvanzare).toLocaleString('ro-RO')} ${property.monedavanzare || 'EUR'}`;
   }
   return 'Preț la cerere';
 }
 
 export function getTitle(property: ImmofluxProperty): string {
-  return property.titluro || property.titluen || `Proprietate #${property.idnum}`;
+  if (typeof property.titlu === 'object' && property.titlu?.ro) {
+    return property.titlu.ro;
+  }
+  if (typeof property.titlu === 'string') return property.titlu;
+  return `Proprietate #${property.idnum}`;
+}
+
+export function getDescription(property: ImmofluxProperty): string {
+  if (typeof property.descriere === 'object' && property.descriere?.ro) {
+    return property.descriere.ro;
+  }
+  if (typeof property.descriere === 'string') return property.descriere;
+  return '';
 }
 
 export function getMainImage(property: ImmofluxProperty): string {
   if (!property.images || property.images.length === 0) return '/placeholder.svg';
   const sorted = [...property.images].sort((a, b) => a.pozitie - b.pozitie);
   return sorted[0].src;
+}
+
+export function getSurface(property: ImmofluxProperty): number {
+  const val = property.suprafatautila;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string') return parseFloat(val) || 0;
+  return 0;
 }
 
 // ── Hooks ──────────────────────────────────────────────
