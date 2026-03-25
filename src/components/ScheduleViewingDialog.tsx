@@ -30,12 +30,14 @@ const scheduleSchema = z.object({
 interface ScheduleViewingDialogProps {
   propertyTitle: string;
   propertyId: string;
+  propertyUrl?: string;
   trigger?: React.ReactNode;
 }
 
 export const ScheduleViewingDialog = ({ 
   propertyTitle, 
   propertyId,
+  propertyUrl,
   trigger 
 }: ScheduleViewingDialogProps) => {
   const getInitialFormData = () => {
@@ -112,12 +114,12 @@ export const ScheduleViewingDialog = ({
         return;
       }
 
-      // Use current page URL if we're on a property detail page, otherwise construct from origin
       const currentPath = window.location.pathname;
-      const isOnPropertyPage = currentPath.startsWith('/proprietati/') || currentPath.startsWith('/immoflux/');
-      const propertyLink = isOnPropertyPage
-        ? `${window.location.origin}${currentPath}`
-        : `${window.location.origin}/proprietati/${normalizedPropertyId}`;
+      const normalizedPropertyUrl = propertyUrl?.trim();
+      const fallbackPropertyPath = currentPath.startsWith('/')
+        ? currentPath
+        : `/proprietati/${normalizedPropertyId}`;
+      const propertyLink = `${window.location.origin}${normalizedPropertyUrl || fallbackPropertyPath}`;
 
       const { error: emailError } = await supabase.functions.invoke("send-viewing-notification", {
         body: {
