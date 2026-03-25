@@ -42,7 +42,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug"
+import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 // Lazy load heavy components
@@ -982,6 +982,15 @@ const Properties = () => {
                         <ScheduleViewingDialog
                           propertyTitle={property.title}
                           propertyId={property.id}
+                          propertyUrl={property.source === 'immoflux' || property._immoflux_slug
+                            ? getImmofluxPropertyUrl({
+                                idnum: property._immoflux_id || Number(String(property.id).replace('immoflux-', '')),
+                                nrcamere: property.rooms,
+                                zona: property.zone,
+                                localitate: property.city || property.location,
+                                titlu: property.title,
+                              })
+                            : getPropertyUrl(property)}
                           trigger={
                             <Button 
                               variant="default"

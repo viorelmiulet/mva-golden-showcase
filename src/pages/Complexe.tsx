@@ -379,6 +379,7 @@ const Complexe = () => {
                           <ScheduleViewingDialog
                             propertyTitle={project.name}
                             propertyId={project.id}
+                            propertyUrl={getComplexUrl(project)}
                             trigger={
                               <Button 
                                 variant="default"
