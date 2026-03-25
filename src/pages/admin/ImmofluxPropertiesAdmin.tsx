@@ -171,12 +171,15 @@ const ImmofluxPropertiesAdmin = () => {
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />
-                    <div className="absolute top-2 left-2 flex gap-1.5">
+                    <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
                       <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
                         {isSale ? "Vânzare" : "Închiriere"}
                       </Badge>
                       {property.top === 1 && (
                         <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                      )}
+                      {property.poleposition === 1 && (
+                        <Badge className="bg-purple-600 text-white font-bold text-[10px]">POLE POSITION</Badge>
                       )}
                     </div>
                   </div>
