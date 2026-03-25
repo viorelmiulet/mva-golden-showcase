@@ -197,6 +197,8 @@ const Properties = () => {
         is_published: true,
         _immoflux_id: p.idnum,
         _immoflux_slug: generateImmofluxSlug(p),
+        _immoflux_top: p.top === 1,
+        _immoflux_pole: p.poleposition === 1,
       }));
     },
     staleTime: 5 * 60 * 1000,
