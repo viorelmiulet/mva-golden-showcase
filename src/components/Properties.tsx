@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Euro, ArrowRight, Sparkles, Loader2, Calendar } from "lucide-react"
+import { MapPin, Euro, ArrowRight, Sparkles, Loader2, Calendar, Zap } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
-import { getPropertyUrl } from "@/lib/propertySlug"
+import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug"
 import ScrollReveal from "@/components/ScrollReveal"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
+import { useMemo } from "react"
+import { type ImmofluxProperty, getTitle, getMainImage, getSurface } from "@/hooks/useImmoflux"
 
 const isCoordinates = (str: string | null | undefined): boolean => {
   if (!str) return false;
@@ -24,7 +26,7 @@ const getDisplayLocation = (p: any): string => {
 };
 
 const Properties = () => {
-  const { data: randomOffers = [], isLoading } = useQuery({
+  const { data: catalogOffers = [], isLoading: isLoadingCatalog } = useQuery({
     queryKey: ['random_offers_home'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -33,11 +35,57 @@ const Properties = () => {
         .is('project_id', null)
         .limit(100);
       if (error) throw error;
-      const shuffled = (data || []).sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 8);
+      return (data || []).sort(() => Math.random() - 0.5);
     },
     refetchOnWindowFocus: false,
   });
+
+  // Fetch IMMOFLUX pole position / top properties
+  const { data: immofluxFeatured = [], isLoading: isLoadingImmoflux } = useQuery({
+    queryKey: ['immoflux-featured-home'],
+    queryFn: async () => {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=1`, {
+        headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const allProps: ImmofluxProperty[] = data.data || [];
+      // Filter pole position and top properties
+      return allProps.filter((p: any) => p.poleposition === 1 || p.top === 1).map((p: any) => ({
+        id: `immoflux-${p.idnum}`,
+        title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
+        description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
+        price_min: p.devanzare === 1 ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare),
+        currency: p.devanzare === 1 ? (p.monedavanzare || 'EUR') : (p.monedainchiriere || 'EUR'),
+        rooms: p.nrcamere,
+        surface_min: typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) || null : p.suprafatautila,
+        surface_max: null,
+        images: (p.images || []).sort((a: any, b: any) => a.pozitie - b.pozitie).map((img: any) => img.src),
+        location: p.localitate,
+        zone: p.zona,
+        city: p.localitate,
+        is_featured: true,
+        source: 'immoflux',
+        _immoflux_id: p.idnum,
+        _immoflux_slug: generateImmofluxSlug(p),
+        _immoflux_pole: p.poleposition === 1,
+        _immoflux_top: p.top === 1,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const isLoading = isLoadingCatalog || isLoadingImmoflux;
+
+  // Merge: pole position first, then top, then random catalog offers
+  const randomOffers = useMemo(() => {
+    const poleProps = immofluxFeatured.filter((p: any) => p._immoflux_pole);
+    const topProps = immofluxFeatured.filter((p: any) => p._immoflux_top && !p._immoflux_pole);
+    const remainingSlots = 8 - poleProps.length - topProps.length;
+    const catalogSlice = catalogOffers.slice(0, Math.max(0, remainingSlots));
+    return [...poleProps, ...topProps, ...catalogSlice].slice(0, 8);
+  }, [immofluxFeatured, catalogOffers]);
 
   const propertiesStructuredData = {
     "@context": "https://schema.org",
@@ -91,16 +139,28 @@ const Properties = () => {
               <p className="text-center text-muted-foreground py-12">Nu sunt disponibile proprietăți momentan.</p>
             ) : (
               <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {randomOffers.map((property) => (
-                  <Link to={getPropertyUrl(property)} key={property.id}>
-                    <Card className="group overflow-hidden glass border border-border/50 hover:border-gold/30 transition-colors h-full">
-                      {property.is_featured && (
+                {randomOffers.map((property: any) => (
+                  <Link to={property._immoflux_slug ? getImmofluxPropertyUrl(property._immoflux_slug) : getPropertyUrl(property)} key={property.id}>
+                    <Card className={`group overflow-hidden glass border transition-colors h-full relative ${property._immoflux_pole ? 'border-purple-500/40 hover:border-purple-500/60' : property._immoflux_top ? 'border-gold/40 hover:border-gold/60' : 'border-border/50 hover:border-gold/30'}`}>
+                      {property._immoflux_pole ? (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="bg-purple-600 text-white text-xs font-bold border-0 shadow-lg shadow-purple-600/30">
+                            <Zap className="w-3 h-3 mr-1" />POLE POSITION
+                          </Badge>
+                        </div>
+                      ) : property._immoflux_top ? (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="bg-gold text-black text-xs font-bold border-0 shadow-lg shadow-gold/30">
+                            <Sparkles className="w-3 h-3 mr-1" />TOP
+                          </Badge>
+                        </div>
+                      ) : property.is_featured ? (
                         <div className="absolute top-3 left-3 z-10">
                           <Badge className="bg-gold text-primary-foreground text-xs">
                             <Sparkles className="w-3 h-3 mr-1" />Recomandat
                           </Badge>
                         </div>
-                      )}
+                      ) : null}
                       <div className="relative overflow-hidden">
                         <OptimizedPropertyImage
                           src={property.images?.[0]}
