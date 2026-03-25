@@ -115,7 +115,7 @@ const Properties = () => {
   }), [language])
 
   // Fetch existing properties (exclude properties from residential complexes and hidden ones)
-  const { data: properties = [], isLoading: isLoadingProperties } = useQuery({
+  const { data: catalogProperties = [], isLoading: isLoadingCatalog } = useQuery({
     queryKey: ['catalog_offers'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -128,10 +128,81 @@ const Properties = () => {
       if (error) throw error
       return data
     },
-    staleTime: 0, // Force fresh data
+    staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true
   })
+
+  // Fetch IMMOFLUX properties and normalize to catalog format
+  const { data: immofluxProperties = [], isLoading: isLoadingImmoflux } = useQuery({
+    queryKey: ['immoflux-all-properties'],
+    queryFn: async () => {
+      const allProperties: ImmofluxProperty[] = [];
+      let page = 1;
+      let lastPage = 1;
+      
+      // Fetch first page to get total pages
+      const firstRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=1`, {
+        headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
+      });
+      if (!firstRes.ok) return [];
+      const firstData = await firstRes.json();
+      allProperties.push(...(firstData.data || []));
+      lastPage = firstData.last_page || 1;
+
+      // Fetch remaining pages (limit to 5 pages max for performance)
+      const maxPages = Math.min(lastPage, 5);
+      const promises = [];
+      for (let p = 2; p <= maxPages; p++) {
+        promises.push(
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=${p}`, {
+            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
+          }).then(r => r.ok ? r.json() : { data: [] })
+        );
+      }
+      const results = await Promise.all(promises);
+      results.forEach(r => allProperties.push(...(r.data || [])));
+
+      // Normalize to catalog_offers-like format
+      return allProperties.map((p) => ({
+        id: `immoflux-${p.idnum}`,
+        title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
+        description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
+        price_min: p.devanzare === 1 ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare),
+        price_max: null,
+        currency: p.devanzare === 1 ? (p.monedavanzare || 'EUR') : (p.monedainchiriere || 'EUR'),
+        rooms: p.nrcamere,
+        surface_min: typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) || null : p.suprafatautila,
+        surface_max: null,
+        surface_land: typeof p.suprafatateren === 'string' ? parseFloat(p.suprafatateren) || null : (p.suprafatateren || null),
+        images: (p.images || []).sort((a, b) => a.pozitie - b.pozitie).map(img => img.src),
+        location: p.localitate,
+        zone: p.zona,
+        city: p.localitate,
+        floor: typeof p.etaj === 'string' ? parseInt(p.etaj) || null : null,
+        bathrooms: p.nrbai,
+        year_built: p.anconstructie,
+        transaction_type: p.devanzare === 1 ? 'sale' : 'rent',
+        is_featured: p.top === 1,
+        source: 'immoflux',
+        project_name: null,
+        features: null,
+        agent: null,
+        agency: 'IMMOFLUX',
+        property_type: p.tiplocuinta || null,
+        total_floors: null,
+        parking: null,
+        heating: null,
+        building_type: null,
+        is_published: true,
+        _immoflux_id: p.idnum,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isLoadingProperties = isLoadingCatalog || isLoadingImmoflux;
+  const properties = useMemo(() => [...catalogProperties, ...immofluxProperties], [catalogProperties, immofluxProperties]);
 
   // Helper: detect transaction type from text when missing or incorrect
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
@@ -926,7 +997,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={getPropertyUrl(property)}>
+                          <Link to={(property as any)._immoflux_id ? `/proprietate/${(property as any)._immoflux_id}` : getPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>
@@ -941,8 +1012,6 @@ const Properties = () => {
           </div>
         </main>
 
-        {/* IMMOFLUX Properties Section */}
-        <ImmofluxSection />
 
       {/* Image Gallery - Optimized Lightbox with swipe */}
       <Suspense fallback={null}>
@@ -959,105 +1028,5 @@ const Properties = () => {
     </>
   )
 }
-
-const ImmofluxSection = () => {
-  const [immoPage, setImmoPage] = useState(1);
-  const { data: immoData, isLoading: immoLoading, isError: immoError } = useProperties(immoPage);
-
-  return (
-    <section className="py-12 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-          Proprietăți <span className="text-gold">IMMOFLUX</span>
-        </h2>
-
-        {immoLoading && <PropertyGridSkeleton count={6} />}
-
-        {immoError && (
-          <p className="text-center text-muted-foreground py-8">Nu am putut încărca proprietățile IMMOFLUX.</p>
-        )}
-
-        {immoData && immoData.data.length > 0 && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {immoData.data.map((property: ImmofluxProperty) => {
-                const isSale = property.devanzare === 1;
-                const surface = getSurface(property);
-                return (
-                  <Link to={`/proprietate/${property.idnum}`} key={property.idnum}>
-                    <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300 h-full border-border/50 hover:border-gold/30">
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={getMainImage(property)}
-                          alt={getTitle(property)}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                          width={400}
-                          height={192}
-                        />
-                        <div className="absolute top-2 left-2 flex gap-1.5">
-                          <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
-                            {isSale ? "De vânzare" : "De închiriat"}
-                          </Badge>
-                          {property.top === 1 && (
-                            <Badge className="bg-gold text-primary-foreground font-bold">TOP</Badge>
-                          )}
-                        </div>
-                      </div>
-                      <CardContent className="p-4 space-y-2">
-                        <h3 className="font-semibold text-foreground line-clamp-2 text-sm group-hover:text-gold transition-colors">
-                          {getTitle(property)}
-                        </h3>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{[property.zona, property.localitate].filter(Boolean).join(', ')}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          {property.nrcamere > 0 && (
-                            <span className="flex items-center gap-1"><Home className="h-3 w-3" />{property.nrcamere} cam.</span>
-                          )}
-                          {surface > 0 && (
-                            <span className="flex items-center gap-1"><Ruler className="h-3 w-3" />{surface} mp</span>
-                          )}
-                        </div>
-                        <div className="pt-2 border-t border-border/50">
-                          <span className="text-sm font-bold text-gold">{immoFormatPrice(property)}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {immoData.last_page > 1 && (
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={immoPage <= 1}
-                  onClick={() => setImmoPage((p) => p - 1)}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  Pagina {immoData.current_page} din {immoData.last_page}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={immoPage >= immoData.last_page}
-                  onClick={() => setImmoPage((p) => p + 1)}
-                >
-                  Următor <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </section>
-  );
-};
 
 export default Properties
