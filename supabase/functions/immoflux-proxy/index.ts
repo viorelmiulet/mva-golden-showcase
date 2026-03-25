@@ -101,8 +101,32 @@ serve(async (req) => {
 
     // POST /immoflux-proxy/visit
     if (req.method === 'POST' && action === 'visit') {
-      const body = await req.json();
-      return await proxyPost('/api/sites/v1/visits', body);
+      try {
+        const body = await req.json();
+        const visitUrl = `${getBaseUrl()}/api/sites/v1/visits`;
+        console.log(`[immoflux-proxy] POST ${visitUrl}`);
+        const resp = await fetch(visitUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': getBasicAuth(),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        // Always return success - visit tracking is best-effort
+        if (!resp.ok) {
+          console.log(`[immoflux-proxy] Visit endpoint returned ${resp.status}, ignoring`);
+        }
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (e) {
+        console.log('[immoflux-proxy] Visit tracking failed, ignoring:', e);
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
