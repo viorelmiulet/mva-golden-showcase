@@ -672,8 +672,20 @@ const Properties = () => {
 
                     {/* Clear Filters */}
                     <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {filteredProperties.length} {pageText.resultsCount}
+                      <div className="text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="font-medium">{filteredProperties.length} {pageText.resultsCount}</span>
+                        {(() => {
+                          const localCount = filteredProperties.filter((p: any) => p.crm_source !== 'immoflux' && p.source !== 'immoflux').length;
+                          const immofluxCount = filteredProperties.filter((p: any) => p.crm_source === 'immoflux' || p.source === 'immoflux').length;
+                          return (
+                            <>
+                              <span className="text-muted-foreground/60">•</span>
+                              <span>{localCount} {language === 'ro' ? 'locale' : 'local'}</span>
+                              <span className="text-muted-foreground/60">+</span>
+                              <span>{immofluxCount} CRM</span>
+                            </>
+                          );
+                        })()}
                       </div>
                       <Button 
                         variant="outline" 
