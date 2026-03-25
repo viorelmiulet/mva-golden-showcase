@@ -66,7 +66,7 @@ const ImmofluxPropertiesAdmin = () => {
     });
   }, [data, search, transactionFilter, roomsFilter]);
 
-  const activeFiltersCount = [transactionFilter !== "all", roomsFilter !== "all", search.length > 0].filter(Boolean).length;
+  const activeFiltersCount = [transactionFilter !== "all", roomsFilter !== "all", promoFilter !== "all", search.length > 0].filter(Boolean).length;
 
   const resetFilters = () => {
     setSearch("");
