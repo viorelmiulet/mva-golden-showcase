@@ -200,7 +200,7 @@ const AppRoutes = () => {
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/proprietate/:id" element={<ImmofluxPropertyDetail />} />
-              <Route path="/oferta-:id" element={<Navigate to={window.location.pathname.replace('/oferta-', '/proprietate/')} replace />} />
+              <Route path="/oferta-:id" element={<OfertaRedirect />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
