@@ -9,8 +9,9 @@ import { AnimatedSkeleton } from "@/components/ui/skeleton";
 // Lazy load the pages
 const PropertiesAdmin = lazy(() => import("./PropertiesAdmin"));
 const XmlImportPage = lazy(() => import("./XmlImportPage"));
+const ImmofluxPropertiesAdmin = lazy(() => import("./ImmofluxPropertiesAdmin"));
 
-type SectionType = "selection" | "proprietati" | "import-xml";
+type SectionType = "selection" | "proprietati" | "import-xml" | "immoflux";
 
 const sectionTypes = [
   {
