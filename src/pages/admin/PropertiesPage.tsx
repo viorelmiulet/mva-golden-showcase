@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Upload, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Home, Upload, Check, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, PanInfo, useReducedMotion } from "framer-motion";
