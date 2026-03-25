@@ -133,8 +133,10 @@ const ImmofluxPropertiesAdmin = () => {
         </div>
       )}
 
-      {data && data.data.length === 0 && (
-        <p className="text-center text-muted-foreground py-12">Nu sunt proprietăți IMMOFLUX disponibile.</p>
+      {data && filteredProperties.length === 0 && (
+        <p className="text-center text-muted-foreground py-12">
+          {data.data.length === 0 ? "Nu sunt proprietăți IMMOFLUX disponibile." : "Nicio proprietate nu corespunde filtrelor selectate."}
+        </p>
       )}
 
       {data && data.data.length > 0 && (
