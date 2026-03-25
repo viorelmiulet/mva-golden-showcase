@@ -140,15 +140,27 @@ const Properties = () => {
             ) : (
               <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {randomOffers.map((property) => (
-                  <Link to={getPropertyUrl(property)} key={property.id}>
-                    <Card className="group overflow-hidden glass border border-border/50 hover:border-gold/30 transition-colors h-full">
-                      {property.is_featured && (
+                  <Link to={property._immoflux_slug ? getImmofluxPropertyUrl(property._immoflux_slug) : getPropertyUrl(property)} key={property.id}>
+                    <Card className={`group overflow-hidden glass border transition-colors h-full relative ${property._immoflux_pole ? 'border-purple-500/40 hover:border-purple-500/60' : property._immoflux_top ? 'border-gold/40 hover:border-gold/60' : 'border-border/50 hover:border-gold/30'}`}>
+                      {property._immoflux_pole ? (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="bg-purple-600 text-white text-xs font-bold border-0 shadow-lg shadow-purple-600/30">
+                            <Zap className="w-3 h-3 mr-1" />POLE POSITION
+                          </Badge>
+                        </div>
+                      ) : property._immoflux_top ? (
+                        <div className="absolute top-3 left-3 z-10">
+                          <Badge className="bg-gold text-black text-xs font-bold border-0 shadow-lg shadow-gold/30">
+                            <Sparkles className="w-3 h-3 mr-1" />TOP
+                          </Badge>
+                        </div>
+                      ) : property.is_featured ? (
                         <div className="absolute top-3 left-3 z-10">
                           <Badge className="bg-gold text-primary-foreground text-xs">
                             <Sparkles className="w-3 h-3 mr-1" />Recomandat
                           </Badge>
                         </div>
-                      )}
+                      ) : null}
                       <div className="relative overflow-hidden">
                         <OptimizedPropertyImage
                           src={property.images?.[0]}
