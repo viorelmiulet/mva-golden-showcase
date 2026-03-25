@@ -1012,8 +1012,6 @@ const Properties = () => {
           </div>
         </main>
 
-        {/* IMMOFLUX Properties Section */}
-        <ImmofluxSection />
 
       {/* Image Gallery - Optimized Lightbox with swipe */}
       <Suspense fallback={null}>
