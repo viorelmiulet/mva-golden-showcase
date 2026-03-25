@@ -70,12 +70,12 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed inset-0 !translate-x-0 !translate-y-0 !top-0 !left-0 max-w-none w-screen h-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[100] [&>button]:hidden" aria-describedby={undefined}>
+      <DialogContent className="fixed inset-0 !translate-x-0 !translate-y-0 !top-0 !left-0 max-w-none w-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[200] [&>button]:hidden" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Galerie imagini</DialogTitle>
         </VisuallyHidden>
         
-        <div className="relative flex flex-col h-full h-[100dvh] w-full">
+        <div className="relative flex flex-col h-[100dvh] w-full overflow-hidden">
           {/* Close Button - Fixed top right */}
           <Button
             variant="ghost"
@@ -94,7 +94,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
 
           {/* Main Image Container */}
           <div 
-            className="flex-1 flex items-center justify-center px-2 sm:px-20 py-12 sm:py-16"
+            className="flex-1 min-h-0 flex items-center justify-center px-2 sm:px-20 py-2 sm:py-4"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -127,20 +127,20 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
             <img
               src={images[currentIndex]}
               alt={`Imagine ${currentIndex + 1} din ${images.length}`}
-              className="max-w-full max-h-full w-auto h-auto object-contain animate-fade-in"
+              className="max-w-full max-h-full w-auto h-auto object-contain"
               loading="eager"
             />
           </div>
 
           {/* Thumbnail Strip */}
           {images.length > 1 && (
-            <div className="flex-shrink-0 py-1.5 pb-4 sm:py-3 sm:pb-8 px-1 sm:px-4">
-              <div className="flex gap-1 sm:gap-2 justify-center overflow-x-auto max-w-full">
+            <div className="flex-shrink-0 py-2 pb-3 sm:py-3 sm:pb-6 px-2 sm:px-4">
+              <div className="flex gap-1.5 sm:gap-2 justify-start sm:justify-center overflow-x-auto max-w-full scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
                 {images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
+                    className={`flex-shrink-0 w-11 h-11 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                       currentIndex === idx
                         ? "border-gold scale-110"
                         : "border-white/30 opacity-70 hover:opacity-100"
