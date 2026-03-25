@@ -44,6 +44,21 @@ const sectionTypes = [
     iconBg: "bg-emerald-500/20",
     iconColor: "text-emerald-400",
   },
+  {
+    id: "immoflux" as const,
+    title: "Proprietăți IMMOFLUX",
+    shortTitle: "IMMOFLUX",
+    description: "Vizualizează proprietățile sincronizate din IMMOFLUX CRM",
+    icon: Building2,
+    features: [
+      "Sincronizare CRM",
+      "Proprietăți live",
+      "Paginare automată",
+      "Link-uri directe",
+    ],
+    iconBg: "bg-purple-500/20",
+    iconColor: "text-purple-400",
+  },
 ];
 
 const PropertiesPage = () => {
