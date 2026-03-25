@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useProperty, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData } from "@/hooks/useImmoflux";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
@@ -11,12 +11,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
+import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
 const ImmofluxPropertyDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const { data: property, isLoading, isError } = useProperty(id || '');
+  const { slug } = useParams<{ slug: string }>();
+  
+  // Support both old numeric IDs and new SEO slugs
+  const propertyId = slug ? (extractImmofluxIdFromSlug(slug) || slug) : '';
+  const { data: property, isLoading, isError } = useProperty(propertyId);
   const contactMutation = useSubmitContact();
 
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });

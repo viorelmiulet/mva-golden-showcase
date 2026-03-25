@@ -42,7 +42,7 @@ import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { useFavorites } from "@/hooks/useFavorites"
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { getPropertyUrl } from "@/lib/propertySlug"
+import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 
 // Lazy load heavy components
@@ -196,6 +196,7 @@ const Properties = () => {
         building_type: null,
         is_published: true,
         _immoflux_id: p.idnum,
+        _immoflux_slug: generateImmofluxSlug(p),
       }));
     },
     staleTime: 5 * 60 * 1000,
@@ -997,7 +998,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={(property as any)._immoflux_id ? `/proprietate/${(property as any)._immoflux_id}` : getPropertyUrl(property)}>
+                          <Link to={(property as any)._immoflux_id ? `/proprietate/${(property as any)._immoflux_slug}` : getPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PropertyGridSkeleton } from "@/components/skeletons";
 import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
@@ -79,7 +80,7 @@ const ImmofluxPropertiesAdmin = () => {
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-border/50">
                       <span className="text-sm font-bold text-gold">{formatPrice(property)}</span>
-                      <Link to={`/proprietate/${property.idnum}`} target="_blank">
+                      <Link to={getImmofluxPropertyUrl(property)} target="_blank">
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-gold">
                           <ExternalLink className="h-3 w-3 mr-1" />
                           Vezi

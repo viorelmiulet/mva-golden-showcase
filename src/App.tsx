@@ -199,7 +199,7 @@ const AppRoutes = () => {
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
-              <Route path="/proprietate/:id" element={<ImmofluxPropertyDetail />} />
+              <Route path="/proprietate/:slug" element={<ImmofluxPropertyDetail />} />
               <Route path="/oferta-:id" element={<OfertaRedirect />} />
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
