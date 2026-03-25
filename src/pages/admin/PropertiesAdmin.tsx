@@ -46,6 +46,9 @@ const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // IMMOFLUX properties
+  const [immofluxPage, setImmofluxPage] = useState(1);
+  const { data: immofluxData, isLoading: immofluxLoading } = useProperties(immofluxPage);
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [isUpdating, setIsUpdating] = useState(false);
