@@ -139,7 +139,7 @@ const PropertyViewsPage = () => {
         const d = format(subDays(new Date(), i), "yyyy-MM-dd");
         dayMap.set(d, 0);
       }
-      for (const v of data || []) {
+      for (const v of allRows) {
         const d = format(parseISO(v.created_at), "yyyy-MM-dd");
         dayMap.set(d, (dayMap.get(d) || 0) + 1);
       }
