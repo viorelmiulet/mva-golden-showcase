@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PropertyGridSkeleton } from "@/components/skeletons";
 import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
