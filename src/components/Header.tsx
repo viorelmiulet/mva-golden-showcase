@@ -51,10 +51,10 @@ const Header = () => {
   useEffect(() => {
     let isMounted = true
 
-    const syncAuthState = async (nextUser?: any | null) => {
-      const sessionUser = nextUser === undefined
-        ? (await supabase.auth.getSession()).data.session?.user ?? null
-        : nextUser
+    const syncAuthState = async () => {
+      const supabase = await getSupabase()
+
+      const sessionUser = (await supabase.auth.getSession()).data.session?.user ?? null
 
       if (!isMounted) return
 
@@ -79,25 +79,44 @@ const Header = () => {
       }
 
       setIsAdmin(data?.role === "admin")
+
+      // Set up auth listener after initial check
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!isMounted) return
+        const nextUser = session?.user ?? null
+        setUser(nextUser)
+        if (!nextUser) {
+          setIsAdmin(false)
+          return
+        }
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", nextUser.id)
+          .maybeSingle()
+        if (isMounted) {
+          setIsAdmin(roleData?.role === "admin")
+        }
+      })
+
+      return subscription
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      void syncAuthState(session?.user ?? null)
-    })
-
-    void syncAuthState()
+    let subscription: any
+    syncAuthState().then(sub => { subscription = sub })
 
     return () => {
       isMounted = false
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
   }, [])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
+    const supabase = await getSupabase()
     await supabase.auth.signOut()
     toast.success(t.auth.logout)
     navigate("/")
-  }
+  }, [t.auth.logout, navigate])
 
 
   const scrollToSection = (sectionId: string) => {
