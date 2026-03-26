@@ -301,15 +301,17 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 2. Fetch all properties and find exact slug match
-      const { data: allProperties, error } = await supabase
+      // 2. Extract short ID from slug and query only matching properties
+      const shortId = extractShortIdFromSlug(slug);
+      const { data: candidates, error } = await supabase
         .from("catalog_offers")
         .select("*")
-        .limit(1000);
+        .ilike("id", `${shortId}%`)
+        .limit(10);
 
       if (error) throw error;
 
-      const match = allProperties?.find(
+      const match = candidates?.find(
         (p) => generatePropertySlug(p as Property) === slug
       );
 
