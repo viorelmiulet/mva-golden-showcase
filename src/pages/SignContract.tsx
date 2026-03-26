@@ -872,37 +872,8 @@ const SignContract = () => {
           </Card>
         )}
 
-        {/* Contract Clauses */}
-        {contractClauses.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <ScrollText className="h-5 w-5 text-primary" />
-                <CardTitle className="text-lg">Clauze Contractuale</CardTitle>
-              </div>
-              <CardDescription>
-                Citiți cu atenție toate clauzele contractului înainte de semnare
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="multiple" className="w-full">
-                {contractClauses.map((clause) => (
-                  <AccordionItem key={clause.id} value={clause.id}>
-                    <AccordionTrigger className="text-sm font-medium">
-                      {clause.section_title}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div 
-                        className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: clause.content }}
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
-        )}
+
+
 
         {contractType === 'inchiriere' && inventoryItems.length > 0 && (
           <Card>
