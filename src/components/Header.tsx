@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { supabase } from "@/integrations/supabase/client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +15,9 @@ import { toast } from "sonner"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageToggle } from "@/components/LanguageToggle"
+
+// Lazy import supabase to keep it out of the critical rendering path
+const getSupabase = () => import("@/integrations/supabase/client").then(m => m.supabase);
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -49,10 +51,10 @@ const Header = () => {
   useEffect(() => {
     let isMounted = true
 
-    const syncAuthState = async (nextUser?: any | null) => {
-      const sessionUser = nextUser === undefined
-        ? (await supabase.auth.getSession()).data.session?.user ?? null
-        : nextUser
+    const syncAuthState = async () => {
+      const supabase = await getSupabase()
+
+      const sessionUser = (await supabase.auth.getSession()).data.session?.user ?? null
 
       if (!isMounted) return
 
@@ -77,25 +79,44 @@ const Header = () => {
       }
 
       setIsAdmin(data?.role === "admin")
+
+      // Set up auth listener after initial check
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (!isMounted) return
+        const nextUser = session?.user ?? null
+        setUser(nextUser)
+        if (!nextUser) {
+          setIsAdmin(false)
+          return
+        }
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", nextUser.id)
+          .maybeSingle()
+        if (isMounted) {
+          setIsAdmin(roleData?.role === "admin")
+        }
+      })
+
+      return subscription
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      void syncAuthState(session?.user ?? null)
-    })
-
-    void syncAuthState()
+    let subscription: any
+    syncAuthState().then(sub => { subscription = sub })
 
     return () => {
       isMounted = false
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
   }, [])
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
+    const supabase = await getSupabase()
     await supabase.auth.signOut()
     toast.success(t.auth.logout)
     navigate("/")
-  }
+  }, [t.auth.logout, navigate])
 
 
   const scrollToSection = (sectionId: string) => {
