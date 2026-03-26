@@ -3291,95 +3291,6 @@ const ContractGeneratorPage = () => {
         </Card>
       </div>
 
-      {/* Electronic Signatures - Full Width */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-primary">
-            <PenTool className="h-5 w-5" />
-            Semnaturi Digitale
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Proprietar Signature */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-primary">Semnatura Proprietar</span>
-                {contractData.semnatura_proprietar && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setContractData(prev => ({ ...prev, semnatura_proprietar: "" }))}
-                    className="h-7 text-xs"
-                  >
-                    <Eraser className="h-3 w-3 mr-1" />
-                    Șterge
-                  </Button>
-                )}
-              </div>
-              {contractData.semnatura_proprietar ? (
-                <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
-                  <img 
-                    src={contractData.semnatura_proprietar} 
-                    alt="Semnătură Proprietar" 
-                    className="max-h-40"
-                  />
-                </div>
-              ) : (
-                <SignaturePad
-                  title=""
-                  savedSignature=""
-                  onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_proprietar: sig }))}
-                />
-              )}
-              <p className="text-xs text-muted-foreground text-center">
-                Desenați semnătura cu mouse-ul sau degetul
-              </p>
-            </div>
-
-            {/* Chirias Signature */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-primary">Semnatura Chirias</span>
-                {contractData.semnatura_chirias && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setContractData(prev => ({ ...prev, semnatura_chirias: "" }))}
-                    className="h-7 text-xs"
-                  >
-                    <Eraser className="h-3 w-3 mr-1" />
-                    Șterge
-                  </Button>
-                )}
-              </div>
-              {contractData.semnatura_chirias ? (
-                <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
-                  <img 
-                    src={contractData.semnatura_chirias} 
-                    alt="Semnătură Chiriași" 
-                    className="max-h-40"
-                  />
-                </div>
-              ) : (
-                <SignaturePad
-                  title=""
-                  savedSignature=""
-                  onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_chirias: sig }))}
-                />
-              )}
-              <p className="text-xs text-muted-foreground text-center">
-                Desenați semnătura cu mouse-ul sau degetul
-              </p>
-            </div>
-          </div>
-          
-          <p className="text-sm text-muted-foreground text-center pt-2 border-t">
-            Semnăturile digitale vor fi incluse în documentele PDF și Word generate
-          </p>
-        </CardContent>
-      </Card>
-
       {/* Inventory Section */}
       <Card>
         <CardHeader>
@@ -3612,6 +3523,95 @@ const ContractGeneratorPage = () => {
               <p className="text-xs">Adăugați articole manual sau folosiți butonul "Adaugă articole standard"</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Electronic Signatures - Full Width */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-primary">
+            <PenTool className="h-5 w-5" />
+            Semnaturi Digitale
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Proprietar Signature */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-primary">Semnatura Proprietar</span>
+                {contractData.semnatura_proprietar && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setContractData(prev => ({ ...prev, semnatura_proprietar: "" }))}
+                    className="h-7 text-xs"
+                  >
+                    <Eraser className="h-3 w-3 mr-1" />
+                    Șterge
+                  </Button>
+                )}
+              </div>
+              {contractData.semnatura_proprietar ? (
+                <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
+                  <img 
+                    src={contractData.semnatura_proprietar} 
+                    alt="Semnătură Proprietar" 
+                    className="max-h-40"
+                  />
+                </div>
+              ) : (
+                <SignaturePad
+                  title=""
+                  savedSignature=""
+                  onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_proprietar: sig }))}
+                />
+              )}
+              <p className="text-xs text-muted-foreground text-center">
+                Desenați semnătura cu mouse-ul sau degetul
+              </p>
+            </div>
+
+            {/* Chirias Signature */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-primary">Semnatura Chirias</span>
+                {contractData.semnatura_chirias && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setContractData(prev => ({ ...prev, semnatura_chirias: "" }))}
+                    className="h-7 text-xs"
+                  >
+                    <Eraser className="h-3 w-3 mr-1" />
+                    Șterge
+                  </Button>
+                )}
+              </div>
+              {contractData.semnatura_chirias ? (
+                <div className="border-2 border-dashed rounded-lg p-4 bg-white min-h-[200px] flex items-center justify-center">
+                  <img 
+                    src={contractData.semnatura_chirias} 
+                    alt="Semnătură Chiriași" 
+                    className="max-h-40"
+                  />
+                </div>
+              ) : (
+                <SignaturePad
+                  title=""
+                  savedSignature=""
+                  onSave={(sig) => setContractData(prev => ({ ...prev, semnatura_chirias: sig }))}
+                />
+              )}
+              <p className="text-xs text-muted-foreground text-center">
+                Desenați semnătura cu mouse-ul sau degetul
+              </p>
+            </div>
+          </div>
+          
+          <p className="text-sm text-muted-foreground text-center pt-2 border-t">
+            Semnăturile digitale vor fi incluse în documentele PDF și Word generate
+          </p>
         </CardContent>
       </Card>
 
