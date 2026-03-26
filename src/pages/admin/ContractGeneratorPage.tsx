@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
 import { fetchContractClauses, type ContractClause } from "@/hooks/useContractClauses";
 import { replaceDiacritics } from "@/lib/utils";
+import { getSignedContractUrl } from "@/lib/storageUrl";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -588,27 +589,13 @@ const ContractGeneratorPage = () => {
     }
 
     try {
-      // Check if it's a full URL or just a path
-      if (fileUrl.startsWith('http')) {
-        // Full URL - open directly
-        window.open(fileUrl, '_blank');
-      } else {
-        // Relative path - download via Supabase
-        const { data, error } = await supabase.storage
-          .from('contracts')
-          .download(fileUrl);
+      const signedUrl = await getSignedContractUrl(fileUrl);
 
-        if (error) throw error;
-
-        const url = URL.createObjectURL(data);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileUrl.split('/').pop() || `contract.${type}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      if (!signedUrl) {
+        throw new Error('Signed URL unavailable');
       }
+
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
       console.error('Error downloading contract:', error);
       toast.error('Eroare la descărcarea contractului');
@@ -1287,37 +1274,20 @@ const ContractGeneratorPage = () => {
     setEmailDialogOpen(true);
   };
 
-  // Helper to extract relative path from full storage URL
-  const getRelativeStoragePath = (fullUrl: string): string => {
-    // Extract the filename from the full Supabase storage URL
-    // URL format: https://xxx.supabase.co/storage/v1/object/public/contracts/filename.pdf
-    const match = fullUrl.match(/\/contracts\/(.+)$/);
-    return match ? match[1] : fullUrl;
-  };
-
   const openPreviewDialog = async (contract: SavedContract) => {
-    // Try to use stored pdf_url with signed URL
     if (contract.pdf_url) {
       try {
-        const relativePath = getRelativeStoragePath(contract.pdf_url);
-        const { data, error } = await supabase.storage
-          .from('contracts')
-          .createSignedUrl(relativePath, 3600);
-        
-        if (data?.signedUrl && !error) {
-          // Verify the URL actually works before showing it
-          const testResponse = await fetch(data.signedUrl, { method: 'HEAD' });
-          if (testResponse.ok) {
-            setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
-            setPreviewPdfUrl(data.signedUrl);
-            setPreviewDialogOpen(true);
-            return;
-          }
+        const signedUrl = await getSignedContractUrl(contract.pdf_url);
+
+        if (signedUrl) {
+          setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
+          setPreviewPdfUrl(signedUrl);
+          setPreviewDialogOpen(true);
+          return;
         }
       } catch (error) {
         console.error('Signed URL failed, falling back to in-memory PDF generation:', error);
       }
-      // Fall through to in-memory generation if signed URL fails
     }
 
     // If no pdf_url but contract has signatures, generate PDF in memory for preview

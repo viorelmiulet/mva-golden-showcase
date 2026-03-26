@@ -10,6 +10,7 @@ import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
+import { getSignedContractUrl } from "@/lib/storageUrl";
 
 interface InventoryItem {
   id: string;
@@ -126,11 +127,13 @@ const SignContract = () => {
 
   const generatePdfPreview = useCallback(async () => {
     if (pdfBlobUrl || isGeneratingPdf) return;
-    
-    // If pdf_url exists, use it directly
+
     if (contractInfo?.pdf_url) {
-      setPdfBlobUrl(contractInfo.pdf_url);
-      return;
+      const signedUrl = await getSignedContractUrl(contractInfo.pdf_url);
+      if (signedUrl) {
+        setPdfBlobUrl(signedUrl);
+        return;
+      }
     }
 
     // Only generate for rental/intermediere contracts from the contracts table
