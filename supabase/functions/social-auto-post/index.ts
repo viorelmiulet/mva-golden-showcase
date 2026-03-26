@@ -446,8 +446,8 @@ ${hashtags}`;
 
 👉 Detalii: ${propertyUrl}`;
 
-        // SINGLE IMAGE ONLY
-        const allImages = property.images || [];
+        // FIRST 5 IMAGES
+        const allImages = (property.images || []).slice(0, 5);
         const firstImageUrl = allImages[0] || '';
         
         payload = {
@@ -461,7 +461,7 @@ ${hashtags}`;
             rooms: property.rooms,
             surface_min: property.surface_min,
             surface_max: property.surface_max,
-            images: firstImageUrl ? [firstImageUrl] : [],
+            images: allImages,
             description: shortDescription,
             currency: property.currency,
           },
@@ -483,25 +483,29 @@ ${hashtags}`;
           instagram_caption: instagramCaption,
           tiktok_caption: tiktokCaption,
           google_caption: googleCaption,
-          // SINGLE IMAGE ONLY
+          // First image as primary
           media: firstImageUrl,
           media_url: firstImageUrl,
           image_url: firstImageUrl,
           photo_url: firstImageUrl,
           photo: firstImageUrl,
           url: propertyUrl,
-          // Only single image
-          all_images: firstImageUrl ? [firstImageUrl] : [],
-          images_count: firstImageUrl ? 1 : 0,
-          image_1: firstImageUrl || undefined,
+          // All 5 images
+          all_images: allImages,
+          images_count: allImages.length,
+          image_1: allImages[0] || undefined,
+          image_2: allImages[1] || undefined,
+          image_3: allImages[2] || undefined,
+          image_4: allImages[3] || undefined,
+          image_5: allImages[4] || undefined,
           instagram_carousel: {
-            enabled: false,
-            images: firstImageUrl ? [firstImageUrl] : [],
-            images_count: firstImageUrl ? 1 : 0,
+            enabled: allImages.length > 1,
+            images: allImages,
+            images_count: allImages.length,
             caption: instagramCaption,
           },
-          carousel_images_csv: firstImageUrl || '',
-          carousel_images_json: JSON.stringify(firstImageUrl ? [firstImageUrl] : []),
+          carousel_images_csv: allImages.join(','),
+          carousel_images_json: JSON.stringify(allImages),
         };
       }
 
