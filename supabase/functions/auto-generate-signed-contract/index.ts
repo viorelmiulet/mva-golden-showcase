@@ -127,10 +127,10 @@ serve(async (req) => {
       );
     }
 
-    // Fetch signatures
+    // Fetch signatures (including emails)
     const { data: signatures, error: sigError } = await supabase
       .from('contract_signatures')
-      .select('party_type, signature_data, signer_name')
+      .select('party_type, signature_data, signer_name, signer_email')
       .eq('contract_id', contractId);
 
     if (sigError) {
@@ -141,8 +141,10 @@ serve(async (req) => {
       );
     }
 
-    const proprietarSignature = signatures?.find((s: SignatureData) => s.party_type === 'proprietar')?.signature_data;
-    const chiriasSignature = signatures?.find((s: SignatureData) => s.party_type === 'chirias')?.signature_data;
+    const proprietarSig = signatures?.find((s: any) => s.party_type === 'proprietar');
+    const chiriasSig = signatures?.find((s: any) => s.party_type === 'chirias');
+    const proprietarSignature = proprietarSig?.signature_data;
+    const chiriasSignature = chiriasSig?.signature_data;
 
     if (!proprietarSignature || !chiriasSignature) {
       console.log('Missing signature data');
@@ -184,10 +186,25 @@ serve(async (req) => {
 
     console.log('Contract marked as fully signed, PDF ready for generation');
 
-    // Send notification to both parties that contract is fully signed
+    // Build email recipients list
     const propertyAddress = contract.property_address || "Proprietate";
     const proprietarName = `${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`.trim() || "Proprietar";
     const chiriasName = `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim() || "Chiriaș";
+
+    // Collect all recipient emails
+    const recipientEmails: string[] = ["mvaperfectbusiness@gmail.com"];
+    
+    const proprietarEmail = proprietarSig?.signer_email;
+    const chiriasEmail = chiriasSig?.signer_email;
+    
+    if (proprietarEmail) recipientEmails.push(proprietarEmail);
+    if (chiriasEmail) recipientEmails.push(chiriasEmail);
+
+    // Build the signing page URL (for PDF download)
+    const proprietarToken = signatures?.find((s: any) => s.party_type === 'proprietar')?.signature_token;
+    const signPageUrl = proprietarToken 
+      ? `https://mvaimobiliare.ro/sign/${proprietarToken}`
+      : `https://mvaimobiliare.ro/admin/contracte`;
 
     const completionHtml = `
       <!DOCTYPE html>
@@ -216,13 +233,13 @@ serve(async (req) => {
               
               <p style="color: #4a4a4a; line-height: 1.6; margin: 20px 0;">
                 Contractul de închiriere a fost semnat digital de ambele părți și este acum valid. 
-                Puteți descărca documentul PDF final din panoul de administrare.
+                Puteți previzualiza și descărca contractul semnat folosind butonul de mai jos.
               </p>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://mvaimobiliare.ro/admin/contracte" 
+                <a href="${signPageUrl}" 
                    style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
-                  Vezi Contract în Admin
+                  Descarcă Contractul Semnat
                 </a>
               </div>
             </div>
@@ -238,10 +255,11 @@ serve(async (req) => {
       </html>
     `;
 
-    // Send email notification to admin
+    // Send email notification to all parties
     try {
+      console.log("Sending completion notification to:", recipientEmails);
       const emailResponse = await sendMailgunEmail(
-        ["contact@mvaimobiliare.ro"],
+        recipientEmails,
         `✓ Contract Complet Semnat - ${propertyAddress}`,
         completionHtml
       );
