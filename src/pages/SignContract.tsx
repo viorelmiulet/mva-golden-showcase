@@ -128,13 +128,7 @@ const SignContract = () => {
   const generatePdfPreview = useCallback(async () => {
     if (pdfBlobUrl || isGeneratingPdf) return;
 
-    if (contractInfo?.pdf_url) {
-      const signedUrl = await getSignedContractUrl(contractInfo.pdf_url);
-      if (signedUrl) {
-        setPdfBlobUrl(signedUrl);
-        return;
-      }
-    }
+    // Always generate PDF in memory for reliable preview (storage signed URLs may fail for anonymous users)
 
     // Only generate for rental/intermediere contracts from the contracts table
     if (!contractInfo || !contractType || (contractType !== 'inchiriere' && contractType !== 'intermediere')) return;
