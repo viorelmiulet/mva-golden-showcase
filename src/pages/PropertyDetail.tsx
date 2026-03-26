@@ -301,15 +301,17 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 2. Fetch all properties and find exact slug match
-      const { data: allProperties, error } = await supabase
+      // 2. Extract short ID from slug and query only matching properties
+      const shortId = extractShortIdFromSlug(slug);
+      const { data: candidates, error } = await supabase
         .from("catalog_offers")
         .select("*")
-        .limit(1000);
+        .ilike("id", `${shortId}%`)
+        .limit(10);
 
       if (error) throw error;
 
-      const match = allProperties?.find(
+      const match = candidates?.find(
         (p) => generatePropertySlug(p as Property) === slug
       );
 
@@ -908,7 +910,7 @@ const PropertyDetail = () => {
 
             {/* Mortgage Calculator Section */}
             <Suspense fallback={<div className="mt-8 sm:mt-12 h-64 bg-muted animate-pulse rounded-xl" />}>
-              <section className="mt-8 sm:mt-12" aria-label="Calculator credit">
+              <section className="mt-8 sm:mt-12" aria-label="Calculator credit" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
                   Estimează Rata Lunară
                 </h2>
@@ -957,7 +959,7 @@ const PropertyDetail = () => {
 
             {/* Similar Properties Section */}
             {similarProperties.length > 0 && (
-              <section className="mt-8 sm:mt-12" aria-label="Proprietăți similare">
+              <section className="mt-8 sm:mt-12" aria-label="Proprietăți similare" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
                   Proprietăți Similare
                 </h2>
