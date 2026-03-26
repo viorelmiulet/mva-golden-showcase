@@ -3344,14 +3344,11 @@ const ContractGeneratorPage = () => {
               </Select>
             </div>
             <div>
-              <Input
-                placeholder="Locație"
-                value={newInventoryItem.location}
-                onChange={(e) => setNewInventoryItem(prev => ({ ...prev, location: e.target.value }))}
-                className="h-9"
-              />
+              <Button onClick={addInventoryItem} className="w-full h-9">
+                <Plus className="h-4 w-4 mr-1" />
+                Adaugă
+              </Button>
             </div>
-            <div>
               <Button onClick={addInventoryItem} className="w-full h-9">
                 <Plus className="h-4 w-4 mr-1" />
                 Adaugă
