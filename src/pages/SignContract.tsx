@@ -559,6 +559,8 @@ const SignContract = () => {
       setAlreadySigned(true);
       setSignatureData(signatureDataUrl);
       setSignedAt(now);
+      // Reset PDF so it regenerates with the new signature included
+      setPdfBlobUrl(null);
     } catch (err) {
       console.error('Error signing contract:', err);
       toast.error("Eroare la semnarea contractului");
