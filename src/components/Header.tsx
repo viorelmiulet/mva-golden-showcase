@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { supabase } from "@/integrations/supabase/client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +15,9 @@ import { toast } from "sonner"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageToggle } from "@/components/LanguageToggle"
+
+// Lazy import supabase to keep it out of the critical rendering path
+const getSupabase = () => import("@/integrations/supabase/client").then(m => m.supabase);
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
