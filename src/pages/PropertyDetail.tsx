@@ -390,6 +390,16 @@ const PropertyDetail = () => {
     );
   }, [property?.id, property?.title, trackContact]);
 
+  const formatPrice = useCallback((min: number, max: number) => {
+    if (min === max) return `€${min.toLocaleString("de-DE")}`;
+    return `€${min.toLocaleString("de-DE")} - €${max.toLocaleString("de-DE")}`;
+  }, []);
+
+  const formatSurface = useCallback((min: number, max: number) => {
+    if (min === max) return `${min} mp`;
+    return `${min} - ${max} mp`;
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
@@ -410,16 +420,6 @@ const PropertyDetail = () => {
   }
 
   if (!property) return null;
-
-  const formatPrice = useCallback((min: number, max: number) => {
-    if (min === max) return `€${min.toLocaleString("de-DE")}`;
-    return `€${min.toLocaleString("de-DE")} - €${max.toLocaleString("de-DE")}`;
-  }, []);
-
-  const formatSurface = useCallback((min: number, max: number) => {
-    if (min === max) return `${min} mp`;
-    return `${min} - ${max} mp`;
-  }, []);
 
   // Helper variables for SEO
   const zona = property ? getDisplayLocation(property) : 'București';
