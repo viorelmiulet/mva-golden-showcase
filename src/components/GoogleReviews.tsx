@@ -71,7 +71,7 @@ const GoogleReviews = () => {
 
       {/* Reviews carousel */}
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-        {data.reviews.map((review, index) => (
+        {[...data.reviews].sort((a, b) => b.time - a.time).map((review, index) => (
           <div
             key={index}
             className="flex-shrink-0 w-72 snap-start glass rounded-xl p-4 border border-border/50"
