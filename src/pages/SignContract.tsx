@@ -98,8 +98,8 @@ const SignContract = () => {
   const [alreadySigned, setAlreadySigned] = useState(false);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [signedAt, setSignedAt] = useState<string | null>(null);
-
-  // Resize canvas to fit container
+  const [contractClauses, setContractClauses] = useState<ContractClause[]>([]);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const updateCanvasSize = useCallback(() => {
     if (containerRef.current) {
       const width = containerRef.current.offsetWidth - 4;
