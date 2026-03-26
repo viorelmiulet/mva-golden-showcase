@@ -10,6 +10,7 @@ import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
+import { getSignedContractUrl } from "@/lib/storageUrl";
 
 interface InventoryItem {
   id: string;

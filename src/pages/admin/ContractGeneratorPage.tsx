@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
 import { fetchContractClauses, type ContractClause } from "@/hooks/useContractClauses";
 import { replaceDiacritics } from "@/lib/utils";
+import { getSignedContractUrl } from "@/lib/storageUrl";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
