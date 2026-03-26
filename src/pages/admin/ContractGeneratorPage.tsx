@@ -3307,7 +3307,7 @@ const ContractGeneratorPage = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Add new item form */}
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-2 p-3 bg-muted/50 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-2 p-3 bg-muted/50 rounded-lg">
             <div className="md:col-span-2">
               <Input
                 placeholder="Denumire articol *"
@@ -3342,14 +3342,6 @@ const ContractGeneratorPage = () => {
                   <SelectItem value="uzata">Uzată</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Input
-                placeholder="Locație"
-                value={newInventoryItem.location}
-                onChange={(e) => setNewInventoryItem(prev => ({ ...prev, location: e.target.value }))}
-                className="h-9"
-              />
             </div>
             <div>
               <Button onClick={addInventoryItem} className="w-full h-9">
@@ -3389,7 +3381,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Denumire</TableHead>
                     <TableHead className="w-[70px]">Cant.</TableHead>
                     <TableHead>Stare</TableHead>
-                    <TableHead>Locație</TableHead>
+                    
                     <TableHead>Notițe</TableHead>
                     <TableHead>Fotografii</TableHead>
                     <TableHead className="w-[100px]">Acțiuni</TableHead>
@@ -3447,18 +3439,6 @@ const ContractGeneratorPage = () => {
                             {item.condition === 'satisfacatoare' && 'Satisfăcătoare'}
                             {item.condition === 'uzata' && 'Uzată'}
                           </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingItemId === item.id ? (
-                          <Input
-                            value={item.location}
-                            onChange={(e) => updateInventoryItem(item.id, 'location', e.target.value)}
-                            className="h-8"
-                            placeholder="Ex: Living"
-                          />
-                        ) : (
-                          item.location || '-'
                         )}
                       </TableCell>
                       <TableCell>
