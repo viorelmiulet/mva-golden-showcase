@@ -19,6 +19,14 @@ interface InventoryItem {
   notes: string | null;
 }
 
+interface ContractClause {
+  id: string;
+  section_key: string;
+  section_title: string;
+  content: string;
+  sort_order: number | null;
+}
+
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
 
 interface BaseContractInfo {
