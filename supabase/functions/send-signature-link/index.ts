@@ -126,6 +126,12 @@ const handler = async (req: Request): Promise<Response> => {
       if (signature) {
         signatureToken = signature.signature_token;
         alreadySigned = !!signature.signed_at;
+        // Update signer_email if not already set
+        await supabaseClient
+          .from("contract_signatures")
+          .update({ signer_email: recipientEmail })
+          .eq("contract_id", contractId)
+          .eq("party_type", partyType);
       } else {
         // Create signature entry if not exists
         const { data: newSig, error: createError } = await supabaseClient
@@ -134,6 +140,7 @@ const handler = async (req: Request): Promise<Response> => {
             contract_id: contractId,
             party_type: partyType,
             signer_name: recipientName,
+            signer_email: recipientEmail,
           })
           .select("signature_token")
           .single();
