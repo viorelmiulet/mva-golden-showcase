@@ -104,20 +104,35 @@
       }
     </style>
 
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HLZFTKHC80" crossorigin="anonymous"></script>
+    <!-- Google Analytics 4 - deferred to not block rendering -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-HLZFTKHC80', { send_page_view: false });
+      // Load GA4 script after page load
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-HLZFTKHC80';
+          s.async = true;
+          document.head.appendChild(s);
+        }, 2000);
+      });
     </script>
 
-    <!-- Privacy-friendly analytics by Plausible -->
-    <script async src="https://plausible.io/js/pa-f5f3NmrOiA-HrfgXtStSS.js" crossorigin="anonymous"></script>
+    <!-- Privacy-friendly analytics by Plausible - deferred -->
     <script>
       window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-      plausible.init()
+      plausible.init();
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.src = 'https://plausible.io/js/pa-f5f3NmrOiA-HrfgXtStSS.js';
+          s.async = true;
+          document.head.appendChild(s);
+        }, 2500);
+      });
     </script>
 
     <!-- Open Graph / Facebook -->

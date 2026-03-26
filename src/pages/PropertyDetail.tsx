@@ -411,15 +411,15 @@ const PropertyDetail = () => {
 
   if (!property) return null;
 
-  const formatPrice = (min: number, max: number) => {
+  const formatPrice = useCallback((min: number, max: number) => {
     if (min === max) return `€${min.toLocaleString("de-DE")}`;
     return `€${min.toLocaleString("de-DE")} - €${max.toLocaleString("de-DE")}`;
-  };
+  }, []);
 
-  const formatSurface = (min: number, max: number) => {
+  const formatSurface = useCallback((min: number, max: number) => {
     if (min === max) return `${min} mp`;
     return `${min} - ${max} mp`;
-  };
+  }, []);
 
   // Helper variables for SEO
   const zona = property ? getDisplayLocation(property) : 'București';
