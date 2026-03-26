@@ -214,16 +214,14 @@ export const ApartmentImageGallery = ({
     });
   }, [currentIndex, isLightboxOpen, validImages, imageSizes.lightbox]);
 
-  // Preload first 4 images on mount
+  // Preload only the first image on mount (rest use native lazy loading)
   useEffect(() => {
-    const firstImages = validImages.slice(0, 4);
-    firstImages.forEach(src => {
-      if (src && !preloadedImages.current.has(src)) {
-        const img = new Image();
-        img.src = getOptimizedImageUrl(src, imageSizes.main, 85);
-        preloadedImages.current.add(src);
-      }
-    });
+    const first = validImages[0];
+    if (first && !preloadedImages.current.has(first)) {
+      const img = new Image();
+      img.src = getOptimizedImageUrl(first, imageSizes.main, 85);
+      preloadedImages.current.add(first);
+    }
   }, [validImages, imageSizes.main]);
 
   useEffect(() => {
