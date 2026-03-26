@@ -711,8 +711,41 @@ const SignContract = () => {
               <p className="text-sm text-muted-foreground mt-2 mb-1">Semnatar</p>
               <p className="font-medium">{getPartyLabel()}</p>
             </div>
+
+            {contractInfo?.pdf_url && (
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" className="w-full" onClick={() => setPdfPreviewOpen(true)}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Previzualizează Contractul
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
+                    <Download className="h-4 w-4 mr-2" />
+                    Descarcă Contract PDF
+                  </a>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* PDF Preview Dialog for already-signed view */}
+        <Dialog open={pdfPreviewOpen} onOpenChange={setPdfPreviewOpen}>
+          <DialogContent className="max-w-4xl h-[85vh]">
+            <DialogHeader>
+              <DialogTitle>Previzualizare Contract</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 min-h-0 h-full">
+              {contractInfo?.pdf_url && (
+                <iframe 
+                  src={contractInfo.pdf_url} 
+                  className="w-full h-full rounded-lg border"
+                  title="Contract PDF"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
