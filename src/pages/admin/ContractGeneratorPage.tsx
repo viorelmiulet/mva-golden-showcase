@@ -1275,23 +1275,8 @@ const ContractGeneratorPage = () => {
   };
 
   const openPreviewDialog = async (contract: SavedContract) => {
-    if (contract.pdf_url) {
-      try {
-        const signedUrl = await getSignedContractUrl(contract.pdf_url);
-
-        if (signedUrl) {
-          setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
-          setPreviewPdfUrl(signedUrl);
-          setPreviewDialogOpen(true);
-          return;
-        }
-      } catch (error) {
-        console.error('Signed URL failed, falling back to in-memory PDF generation:', error);
-      }
-    }
-
-    // If no pdf_url but contract has signatures, generate PDF in memory for preview
-    if (contract.proprietar_signed || contract.chirias_signed) {
+    // Always generate PDF in memory for reliable preview
+    if (contract.proprietar_signed || contract.chirias_signed || contract.contract_type === 'inchiriere' || contract.contract_type === 'intermediere') {
       setPreviewingContractId(contract.id);
       setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
       setPreviewPdfUrl(null);
