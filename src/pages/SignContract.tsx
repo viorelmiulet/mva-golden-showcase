@@ -127,11 +127,13 @@ const SignContract = () => {
 
   const generatePdfPreview = useCallback(async () => {
     if (pdfBlobUrl || isGeneratingPdf) return;
-    
-    // If pdf_url exists, use it directly
+
     if (contractInfo?.pdf_url) {
-      setPdfBlobUrl(contractInfo.pdf_url);
-      return;
+      const signedUrl = await getSignedContractUrl(contractInfo.pdf_url);
+      if (signedUrl) {
+        setPdfBlobUrl(signedUrl);
+        return;
+      }
     }
 
     // Only generate for rental/intermediere contracts from the contracts table
