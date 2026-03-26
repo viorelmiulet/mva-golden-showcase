@@ -73,7 +73,7 @@ const Hero = () => {
           width={1440}
           height={810}
         />
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-background/80 md:backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
       </div>
 

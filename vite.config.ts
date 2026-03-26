@@ -76,6 +76,28 @@ export default defineConfig(({ mode }) => ({
             return "app-shell";
           }
 
+          // Voice agent: @elevenlabs pulls livekit-client, hls.js, @mediapipe, stats-gl (~80MB)
+          if (id.includes("@elevenlabs") || id.includes("livekit-client") || id.includes("hls.js") || id.includes("@mediapipe") || id.includes("stats-gl") || id.includes("@livekit")) {
+            return "voice-agent";
+          }
+
+          // Heavy utilities only used in specific pages
+          if (id.includes("html2canvas")) {
+            return "html2canvas";
+          }
+
+          if (id.includes("qrcode")) {
+            return "qrcode";
+          }
+
+          if (id.includes("react-signature-canvas")) {
+            return "signature";
+          }
+
+          if (id.includes("web-vitals")) {
+            return "web-vitals";
+          }
+
           return "vendor";
         },
       }

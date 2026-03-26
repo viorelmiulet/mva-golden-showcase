@@ -190,7 +190,25 @@
 </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Critical HTML skeleton - painted before JS loads for faster FCP -->
+      <div id="ssr-skeleton" style="min-height:100vh;background:hsl(240 10% 3.9%)">
+        <!-- Header skeleton -->
+        <header style="height:64px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid hsla(240,3.7%,15.9%,0.4);background:hsla(240,10%,3.9%,0.95)">
+          <img src="/mva-logo-luxury-horizontal.svg" alt="MVA Imobiliare" width="140" height="32" style="height:32px;width:auto" />
+        </header>
+        <!-- Hero skeleton -->
+        <section style="min-height:85vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,hsl(240 10% 3.9%) 0%,hsl(222 47% 11%) 100%)">
+          <div style="position:relative;z-index:20;max-width:1200px;margin:0 auto;padding:40px 16px">
+            <p style="font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:hsl(43 74% 49%);margin-bottom:16px">MVA Imobiliare</p>
+            <h1 style="font-size:clamp(1.875rem,5vw,3.75rem);font-weight:700;line-height:1.1;color:hsl(0 0% 98%);margin:0 0 16px 0">
+              Soluții Imobiliare<br/><span style="background:linear-gradient(135deg,hsl(43,74%,49%),hsl(36,61%,58%));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Complete</span>
+            </h1>
+            <p style="font-size:16px;color:hsl(240 5% 64.9%);max-width:32rem;line-height:1.6">Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului.</p>
+          </div>
+        </section>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
