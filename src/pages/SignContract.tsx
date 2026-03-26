@@ -1019,11 +1019,11 @@ const SignContract = () => {
 
       {/* PDF Preview Dialog */}
       <Dialog open={pdfPreviewOpen} onOpenChange={setPdfPreviewOpen}>
-        <DialogContent className="max-w-4xl h-[85vh]">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-shrink-0">
             <DialogTitle>Previzualizare Contract</DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0 h-full">
+          <div className="flex-1 min-h-0">
               {isGeneratingPdf ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -1031,7 +1031,7 @@ const SignContract = () => {
               ) : pdfBlobUrl ? (
                 <iframe 
                   src={pdfBlobUrl} 
-                  className="w-full h-full rounded-lg border"
+                  className="w-full h-full border-0"
                   title="Contract PDF"
                 />
               ) : (
