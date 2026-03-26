@@ -696,6 +696,7 @@ export type Database = {
           signature_data: string | null
           signature_token: string
           signed_at: string | null
+          signer_email: string | null
           signer_name: string | null
         }
         Insert: {
@@ -706,6 +707,7 @@ export type Database = {
           signature_data?: string | null
           signature_token?: string
           signed_at?: string | null
+          signer_email?: string | null
           signer_name?: string | null
         }
         Update: {
@@ -716,6 +718,7 @@ export type Database = {
           signature_data?: string | null
           signature_token?: string
           signed_at?: string | null
+          signer_email?: string | null
           signer_name?: string | null
         }
         Relationships: [
