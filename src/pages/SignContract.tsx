@@ -87,7 +87,6 @@ const SignContract = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 400, height: 200 });
