@@ -1296,32 +1296,24 @@ const ContractGeneratorPage = () => {
   };
 
   const openPreviewDialog = async (contract: SavedContract) => {
-    // If we have a pdf_url, use it directly
+    // Try to use stored pdf_url with signed URL
     if (contract.pdf_url) {
-      setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
-      setPreviewPdfUrl(null);
-      setPreviewDialogOpen(true);
-      
       try {
-        // Extract relative path from full URL
         const relativePath = getRelativeStoragePath(contract.pdf_url);
-        
-        const { data } = await supabase.storage
+        const { data, error } = await supabase.storage
           .from('contracts')
-          .createSignedUrl(relativePath, 3600); // 1 hour expiry
+          .createSignedUrl(relativePath, 3600);
         
-        if (data?.signedUrl) {
+        if (data?.signedUrl && !error) {
+          setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
           setPreviewPdfUrl(data.signedUrl);
-        } else {
-          toast.error('Nu s-a putut genera URL-ul de previzualizare');
-          setPreviewDialogOpen(false);
+          setPreviewDialogOpen(true);
+          return;
         }
       } catch (error) {
-        console.error('Error generating preview URL:', error);
-        toast.error('Eroare la generarea previzualizării');
-        setPreviewDialogOpen(false);
+        console.error('Signed URL failed, falling back to in-memory PDF generation:', error);
       }
-      return;
+      // Fall through to in-memory generation if signed URL fails
     }
 
     // If no pdf_url but contract has signatures, generate PDF in memory for preview
