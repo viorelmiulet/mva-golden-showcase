@@ -613,13 +613,24 @@ const ContractGeneratorPage = () => {
         const proprietarSig = signatures?.find(s => s.party_type === 'proprietar')?.signature_data;
         const chiriasSig = signatures?.find(s => s.party_type === 'chirias' || s.party_type === 'client')?.signature_data;
 
+        const { data: siteSettingsData } = await supabase
+          .from('site_settings')
+          .select('key, value');
+        const settingsMap: Record<string, string> = {};
+        siteSettingsData?.forEach((item: any) => { settingsMap[item.key] = item.value || ''; });
+
         const pdf = await generateSignedRentalContractPdf({
           contract,
           contractClauses,
           inventoryItems: savedInventory || [],
           proprietarSignature: proprietarSig,
           chiriasSignature: chiriasSig,
-          siteSettings,
+          siteSettings: {
+            companyName: settingsMap.companyName,
+            phone: settingsMap.phone,
+            email: settingsMap.email,
+            websiteUrl: settingsMap.websiteUrl,
+          },
         });
         pdf.save(`contract-${contract.client_name}-${contract.contract_date}.pdf`);
       } catch (error) {
