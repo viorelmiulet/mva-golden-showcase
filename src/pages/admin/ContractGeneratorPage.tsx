@@ -3381,7 +3381,7 @@ const ContractGeneratorPage = () => {
                     <TableHead>Denumire</TableHead>
                     <TableHead className="w-[70px]">Cant.</TableHead>
                     <TableHead>Stare</TableHead>
-                    <TableHead>Locație</TableHead>
+                    
                     <TableHead>Notițe</TableHead>
                     <TableHead>Fotografii</TableHead>
                     <TableHead className="w-[100px]">Acțiuni</TableHead>
