@@ -18,6 +18,7 @@ interface InventoryItem {
   condition: string | null;
   location: string | null;
   notes: string | null;
+  images: string[];
 }
 
 interface ContractClause {
