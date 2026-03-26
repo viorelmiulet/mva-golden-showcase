@@ -498,6 +498,10 @@ const PropertyDetail = () => {
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
+        {/* Preload hero image for LCP */}
+        {property.images?.[0] && (
+          <link rel="preload" as="image" href={property.images[0]} fetchPriority="high" />
+        )}
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
