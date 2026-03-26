@@ -138,10 +138,33 @@ const SignContract = () => {
 
     setIsGeneratingPdf(true);
     try {
+      // Fetch all signatures for this contract to include in PDF
+      let proprietarSig: string | null = null;
+      let chiriasSig: string | null = null;
+
+      if (contractId) {
+        const { data: allSigs } = await supabase
+          .from('contract_signatures')
+          .select('party_type, signature_data')
+          .eq('contract_id', contractId);
+
+        if (allSigs) {
+          for (const sig of allSigs) {
+            if (sig.party_type === 'proprietar' && sig.signature_data) {
+              proprietarSig = sig.signature_data;
+            } else if ((sig.party_type === 'chirias' || sig.party_type === 'client') && sig.signature_data) {
+              chiriasSig = sig.signature_data;
+            }
+          }
+        }
+      }
+
       const pdf = await generateSignedRentalContractPdf({
         contract: contractInfo,
         contractClauses,
         inventoryItems,
+        proprietarSignature: proprietarSig,
+        chiriasSignature: chiriasSig,
       });
       const blob = pdf.output('blob');
       const url = URL.createObjectURL(blob);
@@ -152,7 +175,7 @@ const SignContract = () => {
     } finally {
       setIsGeneratingPdf(false);
     }
-  }, [contractInfo, contractClauses, inventoryItems, contractType, pdfBlobUrl, isGeneratingPdf]);
+  }, [contractInfo, contractClauses, inventoryItems, contractType, contractId, pdfBlobUrl, isGeneratingPdf]);
 
   const handlePreviewPdf = useCallback(async () => {
     await generatePdfPreview();
@@ -536,6 +559,8 @@ const SignContract = () => {
       setAlreadySigned(true);
       setSignatureData(signatureDataUrl);
       setSignedAt(now);
+      // Reset PDF so it regenerates with the new signature included
+      setPdfBlobUrl(null);
     } catch (err) {
       console.error('Error signing contract:', err);
       toast.error("Eroare la semnarea contractului");
