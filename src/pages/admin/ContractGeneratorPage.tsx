@@ -582,24 +582,54 @@ const ContractGeneratorPage = () => {
   };
 
   const downloadContract = async (contract: SavedContract, type: 'pdf' | 'docx') => {
-    const fileUrl = type === 'pdf' ? contract.pdf_url : contract.docx_url;
-    if (!fileUrl) {
-      toast.error(`Fișierul ${type.toUpperCase()} nu este disponibil`);
+    if (type === 'docx' && contract.docx_url) {
+      try {
+        const signedUrl = await getSignedContractUrl(contract.docx_url);
+        if (signedUrl) {
+          window.open(signedUrl, '_blank', 'noopener,noreferrer');
+          return;
+        }
+      } catch (error) {
+        console.error('Error downloading docx:', error);
+      }
+      toast.error('Fișierul DOCX nu este disponibil');
       return;
     }
 
-    try {
-      const signedUrl = await getSignedContractUrl(fileUrl);
+    // For PDF, generate in memory
+    if (type === 'pdf') {
+      try {
+        // Fetch signatures
+        const { data: signatures } = await supabase
+          .from('contract_signatures')
+          .select('party_type, signature_data')
+          .eq('contract_id', contract.id);
 
-      if (!signedUrl) {
-        throw new Error('Signed URL unavailable');
+        const { data: savedInventory } = await supabase
+          .from('contract_inventory')
+          .select('*')
+          .eq('contract_id', contract.id);
+
+        const proprietarSig = signatures?.find(s => s.party_type === 'proprietar')?.signature_data;
+        const chiriasSig = signatures?.find(s => s.party_type === 'chirias' || s.party_type === 'client')?.signature_data;
+
+        const pdf = await generateSignedRentalContractPdf({
+          contract,
+          contractClauses,
+          inventoryItems: savedInventory || [],
+          proprietarSignature: proprietarSig,
+          chiriasSignature: chiriasSig,
+          siteSettings,
+        });
+        pdf.save(`contract-${contract.client_name}-${contract.contract_date}.pdf`);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        toast.error('Eroare la generarea PDF-ului');
       }
-
-      window.open(signedUrl, '_blank', 'noopener,noreferrer');
-    } catch (error: any) {
-      console.error('Error downloading contract:', error);
-      toast.error('Eroare la descărcarea contractului');
+      return;
     }
+
+    toast.error(`Fișierul ${type.toUpperCase()} nu este disponibil`);
   };
 
   const createSignatureLinks = async (contractId: string) => {
