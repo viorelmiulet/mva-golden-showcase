@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -353,10 +353,9 @@ const PropertyDetail = () => {
     }
   };
 
-  const shareProperty = async () => {
+  const shareProperty = useCallback(async () => {
     const url = window.location.href;
     
-    // Track share event
     trackProperty('share', property?.id || '', property?.title);
     
     if (navigator.share) {
@@ -367,7 +366,7 @@ const PropertyDetail = () => {
           url: url,
         });
       } catch (error) {
-        console.log("Share cancelled");
+        // Share cancelled
       }
     } else {
       try {
@@ -379,10 +378,9 @@ const PropertyDetail = () => {
         toast.error("Nu am putut copia link-ul");
       }
     }
-  };
+  }, [property?.id, property?.title, property?.description, trackProperty]);
 
-  const contactWhatsApp = () => {
-    // Track WhatsApp contact
+  const contactWhatsApp = useCallback(() => {
     trackContact('whatsapp', 'property_detail', property?.id);
     
     const message = `Bună ziua! Sunt interesat de proprietatea: ${property?.title} - ${window.location.href}`;
@@ -390,7 +388,17 @@ const PropertyDetail = () => {
       `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,
       "_blank"
     );
-  };
+  }, [property?.id, property?.title, trackContact]);
+
+  const formatPrice = useCallback((min: number, max: number) => {
+    if (min === max) return `€${min.toLocaleString("de-DE")}`;
+    return `€${min.toLocaleString("de-DE")} - €${max.toLocaleString("de-DE")}`;
+  }, []);
+
+  const formatSurface = useCallback((min: number, max: number) => {
+    if (min === max) return `${min} mp`;
+    return `${min} - ${max} mp`;
+  }, []);
 
   if (isLoading) {
     return (
@@ -412,16 +420,6 @@ const PropertyDetail = () => {
   }
 
   if (!property) return null;
-
-  const formatPrice = (min: number, max: number) => {
-    if (min === max) return `€${min.toLocaleString("de-DE")}`;
-    return `€${min.toLocaleString("de-DE")} - €${max.toLocaleString("de-DE")}`;
-  };
-
-  const formatSurface = (min: number, max: number) => {
-    if (min === max) return `${min} mp`;
-    return `${min} - ${max} mp`;
-  };
 
   // Helper variables for SEO
   const zona = property ? getDisplayLocation(property) : 'București';
@@ -500,6 +498,10 @@ const PropertyDetail = () => {
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
+        {/* Preload hero image for LCP */}
+        {property.images?.[0] && (
+          <link rel="preload" as="image" href={property.images[0]} fetchPriority="high" />
+        )}
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
