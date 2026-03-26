@@ -27,7 +27,7 @@
 }
 
 .credit-sim h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 300; line-height: 1.1; letter-spacing: -0.02em;
 }
@@ -46,7 +46,7 @@
 .credit-sim .sel-btn {
   padding: 13px 26px; background: transparent; color: var(--cs-muted);
   font-size: 14px; font-weight: 500; cursor: pointer; border: none;
-  font-family: 'DM Sans', sans-serif; transition: all 0.2s; white-space: nowrap;
+  font-family: 'Inter', sans-serif; transition: all 0.2s; white-space: nowrap;
 }
 .credit-sim .sel-btn:hover { color: var(--cs-text); background: rgba(255,255,255,0.04); }
 .credit-sim .sel-btn.active { background: var(--cs-gold-dim); color: var(--cs-gold); }
@@ -59,7 +59,7 @@
 .credit-sim .cur-btn {
   padding: 11px 22px; background: transparent; border: none;
   color: var(--cs-muted); font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; font-family: 'Inter', sans-serif;
   transition: all 0.2s; letter-spacing: 0.06em;
 }
 .credit-sim .cur-btn:hover { color: var(--cs-gold); }
@@ -81,7 +81,7 @@
   opacity: 0.4;
 }
 .credit-sim .card-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Playfair Display', serif;
   font-size: 1.1rem; font-weight: 600; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--cs-gold); margin-bottom: 28px;
   display: flex; align-items: center; gap: 10px;
@@ -104,7 +104,7 @@
 .credit-sim .field:last-child { margin-bottom: 0; }
 .credit-sim .field-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
 .credit-sim .field-label { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cs-muted); font-weight: 500; }
-.credit-sim .field-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text); }
+.credit-sim .field-value { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text); }
 .credit-sim .field-value span { font-size: 0.9rem; color: var(--cs-muted); font-weight: 300; }
 
 .credit-sim input[type=range] {
@@ -142,7 +142,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   background: transparent; color: var(--cs-muted);
   font-size: 13px; cursor: pointer; transition: all 0.2s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 .credit-sim .pill:hover { border-color: var(--cs-gold); color: var(--cs-gold); }
 .credit-sim .pill.active { background: var(--cs-gold-dim); border-color: var(--cs-gold); color: var(--cs-gold); }
@@ -162,12 +162,12 @@
 @media(max-width:600px) { .credit-sim .result-item + .result-item::before { display: none; } }
 .credit-sim .result-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cs-muted); margin-bottom: 10px; }
 .credit-sim .result-value {
-  font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 600; line-height: 1;
+  font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 600; line-height: 1;
 }
 .credit-sim .result-value.highlight { color: var(--cs-gold); }
 .credit-sim .result-value.green { color: var(--cs-green); }
 .credit-sim .result-value small {
-  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--cs-muted);
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; color: var(--cs-muted);
   font-weight: 300; display: block; margin-top: 4px;
 }
 
@@ -177,14 +177,14 @@
 .credit-sim .donut-wrap { position: relative; width: 160px; height: 160px; margin: 0 auto; }
 .credit-sim .donut-wrap svg { transform: rotate(-90deg); }
 .credit-sim .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
-.credit-sim .donut-pct { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+.credit-sim .donut-pct { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
 .credit-sim .donut-lbl { font-size: 10px; color: var(--cs-muted); letter-spacing: 0.1em; text-transform: uppercase; }
 .credit-sim .legend { display: flex; flex-direction: column; gap: 14px; }
 .credit-sim .legend-item { display: flex; align-items: center; gap: 14px; }
 .credit-sim .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .credit-sim .legend-text { font-size: 13px; }
 .credit-sim .legend-text strong {
-  display: block; font-family: 'Cormorant Garamond', serif;
+  display: block; font-family: 'Playfair Display', serif;
   font-size: 1.2rem; font-weight: 600; margin-top: 2px;
 }
 
@@ -205,7 +205,7 @@
   padding: 8px 16px; border-radius: 100px; border: 1px solid var(--cs-border);
   background: var(--cs-gold-dim); color: var(--cs-gold); font-size: 12px;
   letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
-  transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s; font-family: 'Inter', sans-serif;
 }
 .credit-sim .btn-sm:hover { background: rgba(201,168,76,0.25); }
 .credit-sim .btn-sm.active { background: var(--cs-gold); color: #0A0C0F; border-color: var(--cs-gold); }
@@ -233,12 +233,12 @@
 /* Inline number inputs */
 .credit-sim .field-value-input {
   display: flex; align-items: baseline; gap: 6px;
-  font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text);
+  font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--cs-text);
 }
 .credit-sim .field-value-input span { font-size: 0.9rem; color: var(--cs-muted); font-weight: 300; }
 .credit-sim .inline-number-input {
   background: transparent; border: none; border-bottom: 1px solid var(--cs-border);
-  color: var(--cs-text); font-family: 'Cormorant Garamond', serif;
+  color: var(--cs-text); font-family: 'Playfair Display', serif;
   font-size: 1.5rem; font-weight: 600; width: 140px; text-align: right;
   outline: none; padding: 0 2px 2px; transition: border-color 0.2s;
   -moz-appearance: textfield;
