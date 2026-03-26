@@ -27,6 +27,7 @@ interface ContractClause {
   section_title: string;
   content: string;
   sort_order: number | null;
+  is_active: boolean | null;
 }
 
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
