@@ -182,11 +182,12 @@ const SignContract = () => {
     }
   }, [pdfBlobUrl, isDownloading, contractInfo]);
 
-
+  useEffect(() => {
     if (token) {
       parseTokenAndFetchContract();
     }
   }, [token]);
+
 
   const parseTokenAndFetchContract = async () => {
     setIsLoading(true);
