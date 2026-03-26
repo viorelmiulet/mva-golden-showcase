@@ -353,10 +353,9 @@ const PropertyDetail = () => {
     }
   };
 
-  const shareProperty = async () => {
+  const shareProperty = useCallback(async () => {
     const url = window.location.href;
     
-    // Track share event
     trackProperty('share', property?.id || '', property?.title);
     
     if (navigator.share) {
@@ -367,7 +366,7 @@ const PropertyDetail = () => {
           url: url,
         });
       } catch (error) {
-        console.log("Share cancelled");
+        // Share cancelled
       }
     } else {
       try {
@@ -379,10 +378,9 @@ const PropertyDetail = () => {
         toast.error("Nu am putut copia link-ul");
       }
     }
-  };
+  }, [property?.id, property?.title, property?.description, trackProperty]);
 
-  const contactWhatsApp = () => {
-    // Track WhatsApp contact
+  const contactWhatsApp = useCallback(() => {
     trackContact('whatsapp', 'property_detail', property?.id);
     
     const message = `Bună ziua! Sunt interesat de proprietatea: ${property?.title} - ${window.location.href}`;
@@ -390,7 +388,7 @@ const PropertyDetail = () => {
       `https://wa.me/40767941512?text=${encodeURIComponent(message)}`,
       "_blank"
     );
-  };
+  }, [property?.id, property?.title, trackContact]);
 
   if (isLoading) {
     return (
