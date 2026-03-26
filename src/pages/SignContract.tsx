@@ -711,6 +711,21 @@ const SignContract = () => {
               <p className="text-sm text-muted-foreground mt-2 mb-1">Semnatar</p>
               <p className="font-medium">{getPartyLabel()}</p>
             </div>
+
+            {contractInfo?.pdf_url && (
+              <div className="flex flex-col gap-2">
+                <Button variant="outline" className="w-full" onClick={() => setPdfPreviewOpen(true)}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Previzualizează Contractul
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
+                    <Download className="h-4 w-4 mr-2" />
+                    Descarcă Contract PDF
+                  </a>
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
