@@ -778,17 +778,15 @@ const SignContract = () => {
               <p className="font-medium">{getPartyLabel()}</p>
             </div>
 
-            {contractInfo?.pdf_url && (
+            {(contractType === 'inchiriere' || contractType === 'intermediere') && (
               <div className="flex flex-col gap-2">
-                <Button variant="outline" className="w-full" onClick={() => setPdfPreviewOpen(true)}>
-                  <Eye className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="w-full" onClick={handlePreviewPdf} disabled={isGeneratingPdf}>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
                   Previzualizează Contractul
                 </Button>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-4 w-4 mr-2" />
-                    Descarcă Contract PDF
-                  </a>
+                <Button variant="outline" className="w-full" onClick={handleDownloadPdf} disabled={isGeneratingPdf}>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                  Descarcă Contract PDF
                 </Button>
               </div>
             )}
