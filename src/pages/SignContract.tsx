@@ -218,6 +218,21 @@ const SignContract = () => {
         setInventoryItems(invData);
       }
     }
+
+    // Fetch contract clauses
+    await fetchContractClauses();
+  };
+
+  const fetchContractClauses = async () => {
+    const { data: clauses } = await supabase
+      .from('contract_clauses')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    
+    if (clauses) {
+      setContractClauses(clauses);
+    }
   };
 
   const fetchContractByType = async (type: ContractType, id: string, party: string) => {
