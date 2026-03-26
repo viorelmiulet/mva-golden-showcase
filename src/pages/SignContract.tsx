@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 
 interface InventoryItem {
   id: string;
