@@ -122,7 +122,67 @@ const SignContract = () => {
     };
   }, [updateCanvasSize]);
 
+  const generatePdfPreview = useCallback(async () => {
+    if (pdfBlobUrl || isGeneratingPdf) return;
+    
+    // If pdf_url exists, use it directly
+    if (contractInfo?.pdf_url) {
+      setPdfBlobUrl(contractInfo.pdf_url);
+      return;
+    }
+
+    // Only generate for rental/intermediere contracts from the contracts table
+    if (!contractInfo || !contractType || (contractType !== 'inchiriere' && contractType !== 'intermediere')) return;
+
+    setIsGeneratingPdf(true);
+    try {
+      const pdf = await generateSignedRentalContractPdf({
+        contract: contractInfo,
+        contractClauses,
+        inventoryItems,
+      });
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+      setPdfBlobUrl(url);
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      toast.error('Nu s-a putut genera previzualizarea PDF');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }, [contractInfo, contractClauses, inventoryItems, contractType, pdfBlobUrl, isGeneratingPdf]);
+
+  const handlePreviewPdf = useCallback(async () => {
+    await generatePdfPreview();
+    setPdfPreviewOpen(true);
+  }, [generatePdfPreview]);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (pdfBlobUrl) {
+      const a = document.createElement('a');
+      a.href = pdfBlobUrl;
+      a.download = `contract-${contractInfo?.id || 'document'}.pdf`;
+      a.click();
+      return;
+    }
+    setIsDownloading(true);
+    await generatePdfPreview();
+    setIsDownloading(false);
+    // Download will happen on next render when pdfBlobUrl is set
+  }, [pdfBlobUrl, contractInfo, generatePdfPreview]);
+
+  // Auto-download after pdfBlobUrl is set from handleDownloadPdf
   useEffect(() => {
+    if (pdfBlobUrl && isDownloading) {
+      const a = document.createElement('a');
+      a.href = pdfBlobUrl;
+      a.download = `contract-${contractInfo?.id || 'document'}.pdf`;
+      a.click();
+      setIsDownloading(false);
+    }
+  }, [pdfBlobUrl, isDownloading, contractInfo]);
+
+
     if (token) {
       parseTokenAndFetchContract();
     }
