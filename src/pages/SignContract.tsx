@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 
 interface InventoryItem {
   id: string;
@@ -17,6 +18,7 @@ interface InventoryItem {
   condition: string | null;
   location: string | null;
   notes: string | null;
+  images: string[];
 }
 
 interface ContractClause {
@@ -25,6 +27,7 @@ interface ContractClause {
   section_title: string;
   content: string;
   sort_order: number | null;
+  is_active: boolean | null;
 }
 
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
@@ -100,6 +103,8 @@ const SignContract = () => {
   const [signedAt, setSignedAt] = useState<string | null>(null);
   const [contractClauses, setContractClauses] = useState<ContractClause[]>([]);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const updateCanvasSize = useCallback(() => {
     if (containerRef.current) {
       const width = containerRef.current.offsetWidth - 4;
@@ -119,11 +124,72 @@ const SignContract = () => {
     };
   }, [updateCanvasSize]);
 
+  const generatePdfPreview = useCallback(async () => {
+    if (pdfBlobUrl || isGeneratingPdf) return;
+    
+    // If pdf_url exists, use it directly
+    if (contractInfo?.pdf_url) {
+      setPdfBlobUrl(contractInfo.pdf_url);
+      return;
+    }
+
+    // Only generate for rental/intermediere contracts from the contracts table
+    if (!contractInfo || !contractType || (contractType !== 'inchiriere' && contractType !== 'intermediere')) return;
+
+    setIsGeneratingPdf(true);
+    try {
+      const pdf = await generateSignedRentalContractPdf({
+        contract: contractInfo,
+        contractClauses,
+        inventoryItems,
+      });
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+      setPdfBlobUrl(url);
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      toast.error('Nu s-a putut genera previzualizarea PDF');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }, [contractInfo, contractClauses, inventoryItems, contractType, pdfBlobUrl, isGeneratingPdf]);
+
+  const handlePreviewPdf = useCallback(async () => {
+    await generatePdfPreview();
+    setPdfPreviewOpen(true);
+  }, [generatePdfPreview]);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (pdfBlobUrl) {
+      const a = document.createElement('a');
+      a.href = pdfBlobUrl;
+      a.download = `contract-${contractInfo?.id || 'document'}.pdf`;
+      a.click();
+      return;
+    }
+    setIsDownloading(true);
+    await generatePdfPreview();
+    setIsDownloading(false);
+    // Download will happen on next render when pdfBlobUrl is set
+  }, [pdfBlobUrl, contractInfo, generatePdfPreview]);
+
+  // Auto-download after pdfBlobUrl is set from handleDownloadPdf
+  useEffect(() => {
+    if (pdfBlobUrl && isDownloading) {
+      const a = document.createElement('a');
+      a.href = pdfBlobUrl;
+      a.download = `contract-${contractInfo?.id || 'document'}.pdf`;
+      a.click();
+      setIsDownloading(false);
+    }
+  }, [pdfBlobUrl, isDownloading, contractInfo]);
+
   useEffect(() => {
     if (token) {
       parseTokenAndFetchContract();
     }
   }, [token]);
+
 
   const parseTokenAndFetchContract = async () => {
     setIsLoading(true);
@@ -712,17 +778,15 @@ const SignContract = () => {
               <p className="font-medium">{getPartyLabel()}</p>
             </div>
 
-            {contractInfo?.pdf_url && (
+            {(contractType === 'inchiriere' || contractType === 'intermediere') && (
               <div className="flex flex-col gap-2">
-                <Button variant="outline" className="w-full" onClick={() => setPdfPreviewOpen(true)}>
-                  <Eye className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="w-full" onClick={handlePreviewPdf} disabled={isGeneratingPdf}>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
                   Previzualizează Contractul
                 </Button>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-4 w-4 mr-2" />
-                    Descarcă Contract PDF
-                  </a>
+                <Button variant="outline" className="w-full" onClick={handleDownloadPdf} disabled={isGeneratingPdf}>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                  Descarcă Contract PDF
                 </Button>
               </div>
             )}
@@ -736,12 +800,20 @@ const SignContract = () => {
               <DialogTitle>Previzualizare Contract</DialogTitle>
             </DialogHeader>
             <div className="flex-1 min-h-0 h-full">
-              {contractInfo?.pdf_url && (
+              {isGeneratingPdf ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : pdfBlobUrl ? (
                 <iframe 
-                  src={contractInfo.pdf_url} 
+                  src={pdfBlobUrl} 
                   className="w-full h-full rounded-lg border"
                   title="Contract PDF"
                 />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Nu s-a putut genera previzualizarea.
+                </div>
               )}
             </div>
           </DialogContent>
@@ -773,27 +845,27 @@ const SignContract = () => {
         </Card>
 
         {/* PDF Preview Button */}
-        {contractInfo?.pdf_url && (
+        {(contractType === 'inchiriere' || contractType === 'intermediere') && (
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  onClick={() => setPdfPreviewOpen(true)}
+                  onClick={handlePreviewPdf}
+                  disabled={isGeneratingPdf}
                 >
-                  <Eye className="h-4 w-4 mr-2" />
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
                   Previzualizează Contractul PDF
                 </Button>
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  asChild
+                  onClick={handleDownloadPdf}
+                  disabled={isGeneratingPdf}
                 >
-                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-4 w-4 mr-2" />
-                    Descarcă PDF
-                  </a>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                  Descarcă PDF
                 </Button>
               </div>
             </CardContent>
@@ -952,14 +1024,22 @@ const SignContract = () => {
             <DialogTitle>Previzualizare Contract</DialogTitle>
           </DialogHeader>
           <div className="flex-1 min-h-0 h-full">
-            {contractInfo?.pdf_url && (
-              <iframe 
-                src={contractInfo.pdf_url} 
-                className="w-full h-full rounded-lg border"
-                title="Contract PDF"
-              />
-            )}
-          </div>
+              {isGeneratingPdf ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : pdfBlobUrl ? (
+                <iframe 
+                  src={pdfBlobUrl} 
+                  className="w-full h-full rounded-lg border"
+                  title="Contract PDF"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Nu s-a putut genera previzualizarea.
+                </div>
+              )}
+            </div>
         </DialogContent>
       </Dialog>
     </div>
