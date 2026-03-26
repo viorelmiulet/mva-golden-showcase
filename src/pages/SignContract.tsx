@@ -87,7 +87,6 @@ const SignContract = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 400, height: 200 });
@@ -187,22 +186,54 @@ const SignContract = () => {
       a.click();
       return;
     }
-    setIsDownloading(true);
-    await generatePdfPreview();
-    setIsDownloading(false);
-    // Download will happen on next render when pdfBlobUrl is set
-  }, [pdfBlobUrl, contractInfo, generatePdfPreview]);
 
-  // Auto-download after pdfBlobUrl is set from handleDownloadPdf
-  useEffect(() => {
-    if (pdfBlobUrl && isDownloading) {
+    // Generate PDF directly and download immediately (avoid race condition with state)
+    if (!contractInfo || !contractType || (contractType !== 'inchiriere' && contractType !== 'intermediere')) return;
+    setIsGeneratingPdf(true);
+    try {
+      let proprietarSig: string | null = null;
+      let chiriasSig: string | null = null;
+
+      if (contractId) {
+        const { data: allSigs } = await supabase
+          .from('contract_signatures')
+          .select('party_type, signature_data')
+          .eq('contract_id', contractId);
+
+        if (allSigs) {
+          for (const sig of allSigs) {
+            if (sig.party_type === 'proprietar' && sig.signature_data) {
+              proprietarSig = sig.signature_data;
+            } else if ((sig.party_type === 'chirias' || sig.party_type === 'client') && sig.signature_data) {
+              chiriasSig = sig.signature_data;
+            }
+          }
+        }
+      }
+
+      const pdf = await generateSignedRentalContractPdf({
+        contract: contractInfo,
+        contractClauses,
+        inventoryItems,
+        proprietarSignature: proprietarSig,
+        chiriasSignature: chiriasSig,
+      });
+      const blob = pdf.output('blob');
+      const url = URL.createObjectURL(blob);
+      setPdfBlobUrl(url);
+
+      // Download immediately
       const a = document.createElement('a');
-      a.href = pdfBlobUrl;
+      a.href = url;
       a.download = `contract-${contractInfo?.id || 'document'}.pdf`;
       a.click();
-      setIsDownloading(false);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      toast.error('Nu s-a putut genera PDF-ul pentru descărcare');
+    } finally {
+      setIsGeneratingPdf(false);
     }
-  }, [pdfBlobUrl, isDownloading, contractInfo]);
+  }, [pdfBlobUrl, contractInfo, contractType, contractId, contractClauses, inventoryItems]);
 
   useEffect(() => {
     if (token) {
