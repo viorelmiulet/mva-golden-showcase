@@ -1305,10 +1305,14 @@ const ContractGeneratorPage = () => {
           .createSignedUrl(relativePath, 3600);
         
         if (data?.signedUrl && !error) {
-          setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
-          setPreviewPdfUrl(data.signedUrl);
-          setPreviewDialogOpen(true);
-          return;
+          // Verify the URL actually works before showing it
+          const testResponse = await fetch(data.signedUrl, { method: 'HEAD' });
+          if (testResponse.ok) {
+            setPreviewContractName(`${contract.client_prenume || ''} ${contract.client_name}`.trim());
+            setPreviewPdfUrl(data.signedUrl);
+            setPreviewDialogOpen(true);
+            return;
+          }
         }
       } catch (error) {
         console.error('Signed URL failed, falling back to in-memory PDF generation:', error);
