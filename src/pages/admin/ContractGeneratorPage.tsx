@@ -589,27 +589,13 @@ const ContractGeneratorPage = () => {
     }
 
     try {
-      // Check if it's a full URL or just a path
-      if (fileUrl.startsWith('http')) {
-        // Full URL - open directly
-        window.open(fileUrl, '_blank');
-      } else {
-        // Relative path - download via Supabase
-        const { data, error } = await supabase.storage
-          .from('contracts')
-          .download(fileUrl);
+      const signedUrl = await getSignedContractUrl(fileUrl);
 
-        if (error) throw error;
-
-        const url = URL.createObjectURL(data);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileUrl.split('/').pop() || `contract.${type}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      if (!signedUrl) {
+        throw new Error('Signed URL unavailable');
       }
+
+      window.open(signedUrl, '_blank', 'noopener,noreferrer');
     } catch (error: any) {
       console.error('Error downloading contract:', error);
       toast.error('Eroare la descărcarea contractului');
