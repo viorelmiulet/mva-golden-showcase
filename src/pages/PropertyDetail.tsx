@@ -960,7 +960,7 @@ const PropertyDetail = () => {
 
             {/* Similar Properties Section */}
             {similarProperties.length > 0 && (
-              <section className="mt-8 sm:mt-12" aria-label="Proprietăți similare">
+              <section className="mt-8 sm:mt-12" aria-label="Proprietăți similare" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 500px' }}>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-foreground">
                   Proprietăți Similare
                 </h2>
