@@ -318,6 +318,9 @@ const SignContract = () => {
         setError("Tip de contract necunoscut.");
         return;
     }
+
+    // Fetch clauses for all contract types
+    await fetchContractClauses();
   };
 
   const handleClear = () => {
