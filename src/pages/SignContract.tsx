@@ -845,27 +845,27 @@ const SignContract = () => {
         </Card>
 
         {/* PDF Preview Button */}
-        {contractInfo?.pdf_url && (
+        {(contractType === 'inchiriere' || contractType === 'intermediere') && (
           <Card>
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  onClick={() => setPdfPreviewOpen(true)}
+                  onClick={handlePreviewPdf}
+                  disabled={isGeneratingPdf}
                 >
-                  <Eye className="h-4 w-4 mr-2" />
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
                   Previzualizează Contractul PDF
                 </Button>
                 <Button 
                   variant="outline" 
                   className="flex-1"
-                  asChild
+                  onClick={handleDownloadPdf}
+                  disabled={isGeneratingPdf}
                 >
-                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-4 w-4 mr-2" />
-                    Descarcă PDF
-                  </a>
+                  {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                  Descarcă PDF
                 </Button>
               </div>
             </CardContent>
