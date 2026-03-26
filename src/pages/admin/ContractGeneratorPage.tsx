@@ -3444,18 +3444,6 @@ const ContractGeneratorPage = () => {
                       <TableCell>
                         {editingItemId === item.id ? (
                           <Input
-                            value={item.location}
-                            onChange={(e) => updateInventoryItem(item.id, 'location', e.target.value)}
-                            className="h-8"
-                            placeholder="Ex: Living"
-                          />
-                        ) : (
-                          item.location || '-'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {editingItemId === item.id ? (
-                          <Input
                             value={item.notes}
                             onChange={(e) => updateInventoryItem(item.id, 'notes', e.target.value)}
                             className="h-8"
