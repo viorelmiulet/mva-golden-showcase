@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface InventoryItem {
   id: string;
@@ -16,6 +17,14 @@ interface InventoryItem {
   condition: string | null;
   location: string | null;
   notes: string | null;
+}
+
+interface ContractClause {
+  id: string;
+  section_key: string;
+  section_title: string;
+  content: string;
+  sort_order: number | null;
 }
 
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
@@ -89,8 +98,8 @@ const SignContract = () => {
   const [alreadySigned, setAlreadySigned] = useState(false);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [signedAt, setSignedAt] = useState<string | null>(null);
-
-  // Resize canvas to fit container
+  const [contractClauses, setContractClauses] = useState<ContractClause[]>([]);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const updateCanvasSize = useCallback(() => {
     if (containerRef.current) {
       const width = containerRef.current.offsetWidth - 4;
@@ -209,6 +218,21 @@ const SignContract = () => {
         setInventoryItems(invData);
       }
     }
+
+    // Fetch contract clauses
+    await fetchContractClauses();
+  };
+
+  const fetchContractClauses = async () => {
+    const { data: clauses } = await supabase
+      .from('contract_clauses')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    
+    if (clauses) {
+      setContractClauses(clauses);
+    }
   };
 
   const fetchContractByType = async (type: ContractType, id: string, party: string) => {
@@ -294,6 +318,9 @@ const SignContract = () => {
         setError("Tip de contract necunoscut.");
         return;
     }
+
+    // Fetch clauses for all contract types
+    await fetchContractClauses();
   };
 
   const handleClear = () => {
@@ -712,7 +739,66 @@ const SignContract = () => {
           </CardContent>
         </Card>
 
-        {/* Inventory Section - only for rental contracts */}
+        {/* PDF Preview Button */}
+        {contractInfo?.pdf_url && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setPdfPreviewOpen(true)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Previzualizează Contractul PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  asChild
+                >
+                  <a href={contractInfo.pdf_url} target="_blank" rel="noopener noreferrer" download>
+                    <Download className="h-4 w-4 mr-2" />
+                    Descarcă PDF
+                  </a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Contract Clauses */}
+        {contractClauses.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <ScrollText className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Clauze Contractuale</CardTitle>
+              </div>
+              <CardDescription>
+                Citiți cu atenție toate clauzele contractului înainte de semnare
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="multiple" className="w-full">
+                {contractClauses.map((clause) => (
+                  <AccordionItem key={clause.id} value={clause.id}>
+                    <AccordionTrigger className="text-sm font-medium">
+                      {clause.section_title}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div 
+                        className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: clause.content }}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+        )}
+
         {contractType === 'inchiriere' && inventoryItems.length > 0 && (
           <Card>
             <CardHeader className="pb-3">
@@ -825,6 +911,24 @@ const SignContract = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={pdfPreviewOpen} onOpenChange={setPdfPreviewOpen}>
+        <DialogContent className="max-w-4xl h-[85vh]">
+          <DialogHeader>
+            <DialogTitle>Previzualizare Contract</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0 h-full">
+            {contractInfo?.pdf_url && (
+              <iframe 
+                src={contractInfo.pdf_url} 
+                className="w-full h-full rounded-lg border"
+                title="Contract PDF"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
