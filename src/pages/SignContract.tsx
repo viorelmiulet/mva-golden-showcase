@@ -1072,6 +1072,14 @@ const SignContract = () => {
                 </div>
               )}
             </div>
+            {pdfBlobUrl && (
+              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
+                <Button onClick={handleDownloadPdf}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Descarcă PDF
+                </Button>
+              </div>
+            )}
         </DialogContent>
       </Dialog>
     </div>
