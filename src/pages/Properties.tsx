@@ -662,17 +662,7 @@ const Properties = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => {
-                          setPriceMin("")
-                          setPriceMax("")
-                          setRoomsFilter("all")
-                          setLocationFilter("all")
-                          setTransactionTypeFilter("all")
-                          setFloorFilter("all")
-                          setBathroomsFilter("all")
-                          setYearBuiltFilter("all")
-                          setPropertyTypeFilter("all")
-                        }}
+                        onClick={resetFilters}
                         className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
                       >
                         {pageText.resetFilters}
