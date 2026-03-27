@@ -23,7 +23,7 @@ const CalculatorIpotecar = () => {
         />
         <meta name="keywords" content="simulator credit, calculator credit, credit imobiliar, rata lunara, avans, dobanda, plan amortizare" />
         <link rel="canonical" href="https://mvaimobiliare.ro/calculator-credit" />
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+        
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/calculator-credit" />
