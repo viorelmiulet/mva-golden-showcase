@@ -756,7 +756,7 @@ const Properties = () => {
                             title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
                             className="group-hover:scale-105 transition-transform duration-300"
                             aspectRatio="video"
-                            priority={false}
+                            priority={index < 4}
                           />
                         </div>
                       )}
