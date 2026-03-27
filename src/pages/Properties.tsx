@@ -979,11 +979,11 @@ const Properties = () => {
                       onClick={() => setVisibleCount(prev => prev + 12)}
                       className="glass hover:glass-hover min-w-[200px]"
                     >
-                      <Loader2 className="w-4 h-4 mr-2 hidden" />
                       Arată mai multe ({filteredProperties.length - visibleCount} rămase)
                     </Button>
                   </div>
                 )}
+              </>
               )}
             </div>
           </div>
