@@ -93,6 +93,7 @@ const Properties = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   
   const [showFilters, setShowFilters] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(12)
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
