@@ -225,7 +225,7 @@ const CreditSimulator = () => {
         <div className="cs-badge">
           <span>Instrument Financiar</span>
         </div>
-        <h1>Simulator Credit <em>Ipotecar</em></h1>
+        <h1>Simulator <em>Credit</em></h1>
         <p className="cs-subtitle">Calculați rata lunară, dobânda totală și planul de amortizare</p>
       </header>
 
