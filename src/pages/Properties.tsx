@@ -93,6 +93,7 @@ const Properties = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   
   const [showFilters, setShowFilters] = useState(true)
+  const [visibleCount, setVisibleCount] = useState(12)
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
@@ -274,72 +275,55 @@ const Properties = () => {
     })
   }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
 
-  // Extract zone from title or description
-  function extractZone(property: any): string | null {
-    const text = `${property.title || ''} ${property.description || ''}`.toUpperCase()
+  // Paginated properties for rendering
+  const visibleProperties = useMemo(() => {
+    return filteredProperties.slice(0, visibleCount)
+  }, [filteredProperties, visibleCount])
+
+  // Reset visible count when filters change
+  const resetFilters = () => {
+    setPriceMin("")
+    setPriceMax("")
+    setRoomsFilter("all")
+    setLocationFilter("all")
+    setTransactionTypeFilter("all")
+    setFloorFilter("all")
+    setBathroomsFilter("all")
+    setYearBuiltFilter("all")
+    setPropertyTypeFilter("all")
+    setVisibleCount(12)
+  }
+
+  // Memoized zone extraction cache
+  const propertyZones = useMemo(() => {
+    const zoneMap = new Map<string, string | null>();
+    const knownZones = [
+      'MILITARI RESIDENCE', 'RENEW RESIDENCE', 'EUROCASA RESIDENCE',
+      'COSMOPOLIS', 'GREENFIELD', 'VALEA CASCADELOR', 'PRELUNGIREA GHENCEA',
+      'PLAZA ROMANIA', '13 SEPTEMBRIE', 'BUCURESTII NOI', 'EROII REVOLUTIEI',
+      'APARATORII PATRIEI', 'POPESTI-LEORDENI', 'POPESTI LEORDENI',
+      'DRUMUL TABEREI', 'AVIATIEI', 'PIPERA', 'BĂNEASA', 'BANEASA',
+      'FLOREASCA', 'RAHOVA', 'GHENCEA', 'TITAN', 'PANTELIMON', 'BERCENI',
+      'UNIRII', 'VITAN', 'DRISTOR', 'IANCULUI', 'OBOR', 'COLENTINA',
+      'METALURGIEI', 'BRAGADIRU', 'VOLUNTARI', 'CHIAJNA', 'MILITARI',
+      'CRANGASI', 'GIULESTI', 'TIMISOARA', 'LUJERULUI', 'GROZAVESTI',
+      'POLITEHNICA', 'COTROCENI', 'DOMENII', 'VICTORIEI', 'ROMANA',
+      'UNIVERSITATE', 'TINERETULUI', 'GIURGIULUI', 'SEBASTIAN', 'ORIZONT'
+    ];
     
-    // Common zones/neighborhoods to look for (ordered by priority - more specific first)
-    const zones = [
-      'MILITARI RESIDENCE',
-      'RENEW RESIDENCE',
-      'EUROCASA RESIDENCE',
-      'COSMOPOLIS',
-      'GREENFIELD',
-      'VALEA CASCADELOR',
-      'PRELUNGIREA GHENCEA',
-      'PLAZA ROMANIA',
-      '13 SEPTEMBRIE',
-      'BUCURESTII NOI',
-      'EROII REVOLUTIEI',
-      'APARATORII PATRIEI',
-      'POPESTI-LEORDENI',
-      'POPESTI LEORDENI',
-      'DRUMUL TABEREI',
-      'AVIATIEI',
-      'PIPERA',
-      'BĂNEASA',
-      'BANEASA',
-      'FLOREASCA',
-      'RAHOVA',
-      'GHENCEA',
-      'TITAN',
-      'PANTELIMON',
-      'BERCENI',
-      'UNIRII',
-      'VITAN',
-      'DRISTOR',
-      'IANCULUI',
-      'OBOR',
-      'COLENTINA',
-      'METALURGIEI',
-      'BRAGADIRU',
-      'VOLUNTARI',
-      'CHIAJNA',
-      'MILITARI',
-      'CRANGASI',
-      'GIULESTI',
-      'TIMISOARA',
-      'LUJERULUI',
-      'GROZAVESTI',
-      'POLITEHNICA',
-      'COTROCENI',
-      'DOMENII',
-      'VICTORIEI',
-      'ROMANA',
-      'UNIVERSITATE',
-      'TINERETULUI',
-      'GIURGIULUI',
-      'SEBASTIAN',
-      'ORIZONT'
-    ]
-    
-    for (const zone of zones) {
-      if (text.includes(zone)) {
-        return zone
+    for (const property of properties) {
+      const text = `${property.title || ''} ${property.description || ''}`.toUpperCase();
+      let found: string | null = null;
+      for (const zone of knownZones) {
+        if (text.includes(zone)) { found = zone; break; }
       }
+      zoneMap.set(property.id, found);
     }
-    
-    return null
+    return zoneMap;
+  }, [properties]);
+
+  function extractZone(property: any): string | null {
+    return propertyZones.get(property.id) ?? null;
   }
 
   // Get unique zones for filter dropdown (using extractZone function)
@@ -678,17 +662,7 @@ const Properties = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => {
-                          setPriceMin("")
-                          setPriceMax("")
-                          setRoomsFilter("all")
-                          setLocationFilter("all")
-                          setTransactionTypeFilter("all")
-                          setFloorFilter("all")
-                          setBathroomsFilter("all")
-                          setYearBuiltFilter("all")
-                          setPropertyTypeFilter("all")
-                        }}
+                        onClick={resetFilters}
                         className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
                       >
                         {pageText.resetFilters}
@@ -723,8 +697,9 @@ const Properties = () => {
                 </CardContent>
               </Card>
             ) : (
+              <>
               <div className="grid lg:grid-cols-4 gap-6">
-                {filteredProperties.map((property) => (
+                {visibleProperties.map((property, index) => (
                   <Card key={property.id} className="group glass hover:glass-hover border-[0.5px] relative">
                     <CardContent className="p-6">
                       {/* Favorite Button */}
@@ -772,7 +747,7 @@ const Properties = () => {
                             title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
                             className="group-hover:scale-105 transition-transform duration-300"
                             aspectRatio="video"
-                            priority={false}
+                            priority={index < 4}
                           />
                         </div>
                       )}
@@ -986,6 +961,20 @@ const Properties = () => {
                   </Card>
                   ))}
                 </div>
+                {/* Load More Button */}
+                {visibleCount < filteredProperties.length && (
+                  <div className="flex justify-center mt-8">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => setVisibleCount(prev => prev + 12)}
+                      className="glass hover:glass-hover min-w-[200px]"
+                    >
+                      Arată mai multe ({filteredProperties.length - visibleCount} rămase)
+                    </Button>
+                  </div>
+                )}
+              </>
               )}
             </div>
           </div>
