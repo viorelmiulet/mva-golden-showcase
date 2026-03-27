@@ -707,6 +707,7 @@ const Properties = () => {
                 </CardContent>
               </Card>
             ) : (
+              <>
               <div className="grid lg:grid-cols-4 gap-6">
                 {visibleProperties.map((property, index) => (
                   <Card key={property.id} className="group glass hover:glass-hover border-[0.5px] relative">
