@@ -294,72 +294,36 @@ const Properties = () => {
     setVisibleCount(12)
   }
 
-  // Extract zone from title or description
-  function extractZone(property: any): string | null {
-    const text = `${property.title || ''} ${property.description || ''}`.toUpperCase()
+  // Memoized zone extraction cache
+  const propertyZones = useMemo(() => {
+    const zoneMap = new Map<string, string | null>();
+    const knownZones = [
+      'MILITARI RESIDENCE', 'RENEW RESIDENCE', 'EUROCASA RESIDENCE',
+      'COSMOPOLIS', 'GREENFIELD', 'VALEA CASCADELOR', 'PRELUNGIREA GHENCEA',
+      'PLAZA ROMANIA', '13 SEPTEMBRIE', 'BUCURESTII NOI', 'EROII REVOLUTIEI',
+      'APARATORII PATRIEI', 'POPESTI-LEORDENI', 'POPESTI LEORDENI',
+      'DRUMUL TABEREI', 'AVIATIEI', 'PIPERA', 'BĂNEASA', 'BANEASA',
+      'FLOREASCA', 'RAHOVA', 'GHENCEA', 'TITAN', 'PANTELIMON', 'BERCENI',
+      'UNIRII', 'VITAN', 'DRISTOR', 'IANCULUI', 'OBOR', 'COLENTINA',
+      'METALURGIEI', 'BRAGADIRU', 'VOLUNTARI', 'CHIAJNA', 'MILITARI',
+      'CRANGASI', 'GIULESTI', 'TIMISOARA', 'LUJERULUI', 'GROZAVESTI',
+      'POLITEHNICA', 'COTROCENI', 'DOMENII', 'VICTORIEI', 'ROMANA',
+      'UNIVERSITATE', 'TINERETULUI', 'GIURGIULUI', 'SEBASTIAN', 'ORIZONT'
+    ];
     
-    // Common zones/neighborhoods to look for (ordered by priority - more specific first)
-    const zones = [
-      'MILITARI RESIDENCE',
-      'RENEW RESIDENCE',
-      'EUROCASA RESIDENCE',
-      'COSMOPOLIS',
-      'GREENFIELD',
-      'VALEA CASCADELOR',
-      'PRELUNGIREA GHENCEA',
-      'PLAZA ROMANIA',
-      '13 SEPTEMBRIE',
-      'BUCURESTII NOI',
-      'EROII REVOLUTIEI',
-      'APARATORII PATRIEI',
-      'POPESTI-LEORDENI',
-      'POPESTI LEORDENI',
-      'DRUMUL TABEREI',
-      'AVIATIEI',
-      'PIPERA',
-      'BĂNEASA',
-      'BANEASA',
-      'FLOREASCA',
-      'RAHOVA',
-      'GHENCEA',
-      'TITAN',
-      'PANTELIMON',
-      'BERCENI',
-      'UNIRII',
-      'VITAN',
-      'DRISTOR',
-      'IANCULUI',
-      'OBOR',
-      'COLENTINA',
-      'METALURGIEI',
-      'BRAGADIRU',
-      'VOLUNTARI',
-      'CHIAJNA',
-      'MILITARI',
-      'CRANGASI',
-      'GIULESTI',
-      'TIMISOARA',
-      'LUJERULUI',
-      'GROZAVESTI',
-      'POLITEHNICA',
-      'COTROCENI',
-      'DOMENII',
-      'VICTORIEI',
-      'ROMANA',
-      'UNIVERSITATE',
-      'TINERETULUI',
-      'GIURGIULUI',
-      'SEBASTIAN',
-      'ORIZONT'
-    ]
-    
-    for (const zone of zones) {
-      if (text.includes(zone)) {
-        return zone
+    for (const property of properties) {
+      const text = `${property.title || ''} ${property.description || ''}`.toUpperCase();
+      let found: string | null = null;
+      for (const zone of knownZones) {
+        if (text.includes(zone)) { found = zone; break; }
       }
+      zoneMap.set(property.id, found);
     }
-    
-    return null
+    return zoneMap;
+  }, [properties]);
+
+  function extractZone(property: any): string | null {
+    return propertyZones.get(property.id) ?? null;
   }
 
   // Get unique zones for filter dropdown (using extractZone function)
