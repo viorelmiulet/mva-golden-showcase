@@ -275,6 +275,25 @@ const Properties = () => {
     })
   }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
 
+  // Paginated properties for rendering
+  const visibleProperties = useMemo(() => {
+    return filteredProperties.slice(0, visibleCount)
+  }, [filteredProperties, visibleCount])
+
+  // Reset visible count when filters change
+  const resetFilters = () => {
+    setPriceMin("")
+    setPriceMax("")
+    setRoomsFilter("all")
+    setLocationFilter("all")
+    setTransactionTypeFilter("all")
+    setFloorFilter("all")
+    setBathroomsFilter("all")
+    setYearBuiltFilter("all")
+    setPropertyTypeFilter("all")
+    setVisibleCount(12)
+  }
+
   // Extract zone from title or description
   function extractZone(property: any): string | null {
     const text = `${property.title || ''} ${property.description || ''}`.toUpperCase()
