@@ -6,6 +6,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function getConfigFromDb(supabase: any, key: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle();
+    return data?.value || null;
+  } catch { return null; }
+}
+
+async function getBasicAuthFromDb(supabase: any): Promise<string> {
+  const user = await getConfigFromDb(supabase, 'integration_immoflux_user') || Deno.env.get('IMMOFLUX_USER') || '';
+  const pass = await getConfigFromDb(supabase, 'integration_immoflux_pass') || Deno.env.get('IMMOFLUX_PASS') || '';
+  return 'Basic ' + btoa(`${user}:${pass}`);
+}
+
+async function getBaseUrlFromDb(supabase: any): Promise<string> {
+  let url = (await getConfigFromDb(supabase, 'integration_immoflux_base_url') || Deno.env.get('IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+  return url;
+}
+
 function getBasicAuth(): string {
   const user = Deno.env.get('IMMOFLUX_USER') || '';
   const pass = Deno.env.get('IMMOFLUX_PASS') || '';
