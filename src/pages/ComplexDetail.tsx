@@ -186,7 +186,7 @@ const ComplexDetail = () => {
 
   // Check if this complex has multiple buildings (Scara/Corpul)
   const hasMultipleBuildings = properties?.some(p => 
-    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul'))
+    p.features?.some(f => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'))
   ) || false;
 
   // Get unique room counts for filter options
