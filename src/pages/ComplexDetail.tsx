@@ -250,7 +250,7 @@ const ComplexDetail = () => {
   });
 
   const floorOrder = ['Demisol', 'Parter', 'Etaj 1', 'Etaj 2', 'Etaj 3', 'Etaj 4', 'Etaj 5', 'Etaj 6', 'Etaj 7', 'Etaj 8', 'Altele'];
-  const buildingOrder = ['Corpul 1', 'Corpul 2', 'Corpul 3', 'Corpul 4', 'Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
+  const buildingOrder = ['Bloc 1', 'Bloc 2', 'Bloc 3', 'Bloc 4', 'Bloc 5', 'Bloc 6', 'Bloc 7', 'Bloc 8', 'Bloc 9', 'Bloc 10', 'Corpul 1', 'Corpul 2', 'Corpul 3', 'Corpul 4', 'Scara 1', 'Scara 2', 'Scara 3', 'Scara 4', 'Altele'];
   
   const sortedBuildings = Object.keys(groupedByBuildingAndFloor || {}).sort((a, b) => {
     const aIndex = buildingOrder.indexOf(a);
