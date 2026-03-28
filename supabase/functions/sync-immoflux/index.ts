@@ -74,9 +74,9 @@ interface ImmofluxProperty {
   structurarezistenta?: string;
 }
 
-async function fetchAllProperties(): Promise<ImmofluxProperty[]> {
-  const baseUrl = getBaseUrl();
-  const auth = getBasicAuth();
+async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
+  const baseUrl = await getBaseUrlFromDb(supabase);
+  const auth = await getBasicAuthFromDb(supabase);
   const headers = { 'Authorization': auth, 'Accept': 'application/json' };
 
   // First page
