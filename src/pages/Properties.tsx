@@ -513,7 +513,7 @@ const Properties = () => {
                       {/* Rooms Filter */}
                       <div>
                         <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {t.properties?.rooms || 'Camere'}
+                          {language === 'ro' ? 'Camere' : 'Rooms'}
                         </label>
                         <Select value={roomsFilter} onValueChange={setRoomsFilter}>
                           <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
