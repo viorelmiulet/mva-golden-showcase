@@ -163,7 +163,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     console.log('[sync-immoflux] Starting sync...');
-    const properties = await fetchAllProperties();
+    const properties = await fetchAllProperties(supabase);
 
     const mapped = properties.map(mapToCatalogOffer);
     console.log(`[sync-immoflux] Mapped ${mapped.length} properties for upsert`);
