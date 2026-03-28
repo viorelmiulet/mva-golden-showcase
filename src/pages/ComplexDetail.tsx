@@ -636,7 +636,7 @@ const ComplexDetail = () => {
                       {floorsInBuilding[floor]?.map((apt) => {
                         const isAvailable = apt.availability_status === 'available';
                         // Match "AP 21", "Apartament 21", "ap21", "- AP 48", etc.
-                        const aptNumberMatch = apt.title.match(/(?:AP|Apartament)\s*(\d+)/i);
+                        const aptNumberMatch = apt.title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
                         const aptNumber = aptNumberMatch ? aptNumberMatch[1] : '';
                         const surface = apt.surface_min;
                         const priceCredit = apt.price_max;
