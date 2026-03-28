@@ -380,7 +380,7 @@ const ComplexDetail = () => {
   // Helper function to extract apartment number numerically
   const getApartmentNumber = (title: string): number => {
     // Match "AP 21", "Apartament 21", "ap21", etc.
-    const match = title.match(/(?:AP|Apartament)\.?\s*(\d+)/i);
+    const match = title.match(/Ap\.?\s*(\d+)/i);
     return match ? parseInt(match[1], 10) : 0;
   };
 
