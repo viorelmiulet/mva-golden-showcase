@@ -177,6 +177,42 @@ const Properties = () => {
       : 'sale'
   }
 
+  // Memoized zone extraction cache
+  const propertyZones = useMemo(() => {
+    const zoneMap = new Map<string, string | null>();
+    const knownZones = [
+      'MILITARI RESIDENCE', 'RENEW RESIDENCE', 'EUROCASA RESIDENCE',
+      'COSMOPOLIS', 'GREENFIELD', 'VALEA CASCADELOR', 'PRELUNGIREA GHENCEA',
+      'PLAZA ROMANIA', '13 SEPTEMBRIE', 'BUCURESTII NOI', 'EROII REVOLUTIEI',
+      'APARATORII PATRIEI', 'POPESTI-LEORDENI', 'POPESTI LEORDENI',
+      'DRUMUL TABEREI', 'AVIATIEI', 'PIPERA', 'BĂNEASA', 'BANEASA',
+      'FLOREASCA', 'RAHOVA', 'GHENCEA', 'TITAN', 'PANTELIMON', 'BERCENI',
+      'UNIRII', 'VITAN', 'DRISTOR', 'IANCULUI', 'OBOR', 'COLENTINA',
+      'METALURGIEI', 'BRAGADIRU', 'VOLUNTARI', 'CHIAJNA', 'MILITARI',
+      'CRANGASI', 'GIULESTI', 'TIMISOARA', 'LUJERULUI', 'GROZAVESTI',
+      'POLITEHNICA', 'COTROCENI', 'DOMENII', 'VICTORIEI', 'ROMANA',
+      'UNIVERSITATE', 'TINERETULUI', 'GIURGIULUI', 'SEBASTIAN', 'ORIZONT'
+    ];
+
+    for (const property of properties) {
+      const text = `${property.title || ''} ${property.description || ''}`.toUpperCase();
+      let found: string | null = null;
+      for (const zone of knownZones) {
+        if (text.includes(zone)) {
+          found = zone;
+          break;
+        }
+      }
+      zoneMap.set(property.id, found);
+    }
+
+    return zoneMap;
+  }, [properties]);
+
+  const extractZone = (property: any): string | null => {
+    return propertyZones.get(property.id) ?? null;
+  }
+
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
@@ -292,38 +328,6 @@ const Properties = () => {
     setYearBuiltFilter("all")
     setPropertyTypeFilter("all")
     setVisibleCount(12)
-  }
-
-  // Memoized zone extraction cache
-  const propertyZones = useMemo(() => {
-    const zoneMap = new Map<string, string | null>();
-    const knownZones = [
-      'MILITARI RESIDENCE', 'RENEW RESIDENCE', 'EUROCASA RESIDENCE',
-      'COSMOPOLIS', 'GREENFIELD', 'VALEA CASCADELOR', 'PRELUNGIREA GHENCEA',
-      'PLAZA ROMANIA', '13 SEPTEMBRIE', 'BUCURESTII NOI', 'EROII REVOLUTIEI',
-      'APARATORII PATRIEI', 'POPESTI-LEORDENI', 'POPESTI LEORDENI',
-      'DRUMUL TABEREI', 'AVIATIEI', 'PIPERA', 'BĂNEASA', 'BANEASA',
-      'FLOREASCA', 'RAHOVA', 'GHENCEA', 'TITAN', 'PANTELIMON', 'BERCENI',
-      'UNIRII', 'VITAN', 'DRISTOR', 'IANCULUI', 'OBOR', 'COLENTINA',
-      'METALURGIEI', 'BRAGADIRU', 'VOLUNTARI', 'CHIAJNA', 'MILITARI',
-      'CRANGASI', 'GIULESTI', 'TIMISOARA', 'LUJERULUI', 'GROZAVESTI',
-      'POLITEHNICA', 'COTROCENI', 'DOMENII', 'VICTORIEI', 'ROMANA',
-      'UNIVERSITATE', 'TINERETULUI', 'GIURGIULUI', 'SEBASTIAN', 'ORIZONT'
-    ];
-    
-    for (const property of properties) {
-      const text = `${property.title || ''} ${property.description || ''}`.toUpperCase();
-      let found: string | null = null;
-      for (const zone of knownZones) {
-        if (text.includes(zone)) { found = zone; break; }
-      }
-      zoneMap.set(property.id, found);
-    }
-    return zoneMap;
-  }, [properties]);
-
-  function extractZone(property: any): string | null {
-    return propertyZones.get(property.id) ?? null;
   }
 
   // Get unique zones for filter dropdown (using extractZone function)
