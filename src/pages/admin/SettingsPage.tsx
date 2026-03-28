@@ -243,6 +243,48 @@ const SettingsPage = () => {
     setHasEmailChanges(true);
   };
 
+  const handleSecretChange = (key: string, value: string) => {
+    setIntegrationSecrets(prev => ({ ...prev, [key]: value }));
+    setHasSecretChanges(true);
+  };
+
+  const toggleSecretVisibility = (key: string) => {
+    setVisibleSecrets(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const saveSecretsMutation = useMutation({
+    mutationFn: async (secrets: Record<string, string>) => {
+      for (const [key, value] of Object.entries(secrets)) {
+        if (value !== undefined) {
+          const { error } = await supabase
+            .from('site_settings')
+            .upsert(
+              { key, value, updated_at: new Date().toISOString() },
+              { onConflict: 'key' }
+            );
+          if (error) throw error;
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['integration_secrets'] });
+      setHasSecretChanges(false);
+      toast.success("Chei API salvate cu succes!");
+    },
+    onError: () => {
+      toast.error("Nu s-au putut salva cheile API");
+    }
+  });
+
+  const handleSaveSecrets = () => {
+    saveSecretsMutation.mutate(integrationSecrets);
+  };
+
+  const handleResetSecrets = () => {
+    if (dbSecrets) setIntegrationSecrets(dbSecrets);
+    setHasSecretChanges(false);
+  };
+
   const handleSave = () => {
     saveMutation.mutate(settings);
   };
