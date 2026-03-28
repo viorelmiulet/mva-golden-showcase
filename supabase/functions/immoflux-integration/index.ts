@@ -21,10 +21,19 @@ serve(async (req) => {
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const immofluxApiKey = Deno.env.get('IMMOFLUX_API_KEY');
-    const immofluxApiUser = Deno.env.get('IMMOFLUX_API_USER');
-
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Read credentials from DB (site_settings) with env var fallback
+    const getConfig = async (settingsKey: string, envKey: string) => {
+      try {
+        const { data } = await supabase.from('site_settings').select('value').eq('key', settingsKey).maybeSingle();
+        if (data?.value) return data.value;
+      } catch {}
+      return Deno.env.get(envKey) || '';
+    };
+
+    const immofluxApiKey = await getConfig('integration_immoflux_pass', 'IMMOFLUX_API_KEY');
+    const immofluxApiUser = await getConfig('integration_immoflux_user', 'IMMOFLUX_API_USER');
 
     console.log('Request body parsing...');
     const requestBody = await req.json();
