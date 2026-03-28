@@ -392,7 +392,7 @@ const ComplexDetail = () => {
     if (!features || features.length === 0) return { building, floor };
     
     // Check for "Scara X" or "Corpul X" in features
-    const buildingFeature = features.find(f => f?.startsWith('Scara') || f?.startsWith('Corpul'));
+    const buildingFeature = features.find(f => f?.startsWith('Scara') || f?.startsWith('Corpul') || f?.startsWith('Bloc'));
     if (buildingFeature) {
       building = buildingFeature;
     }
