@@ -113,6 +113,21 @@ const SettingsPage = () => {
     }
   });
 
+  // Fetch integration secrets from site_settings
+  const { data: dbSecrets } = useQuery({
+    queryKey: ['integration_secrets'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('key, value')
+        .like('key', 'integration_%');
+      if (error) throw error;
+      const obj: Record<string, string> = {};
+      data?.forEach(item => { obj[item.key] = item.value || ''; });
+      return obj;
+    }
+  });
+
   useEffect(() => {
     if (dbSettings) {
       setSettings({ ...defaultSettings, ...dbSettings });
@@ -124,6 +139,12 @@ const SettingsPage = () => {
       setEmailSettings(dbEmailSettings);
     }
   }, [dbEmailSettings]);
+
+  useEffect(() => {
+    if (dbSecrets) {
+      setIntegrationSecrets(dbSecrets);
+    }
+  }, [dbSecrets]);
 
   const saveMutation = useMutation({
     mutationFn: async (newSettings: SiteSettings) => {
