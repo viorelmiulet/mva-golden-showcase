@@ -76,6 +76,9 @@ const SettingsPage = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [emailSettings, setEmailSettings] = useState<EmailFunctionSetting[]>([]);
   const [hasEmailChanges, setHasEmailChanges] = useState(false);
+  const [integrationSecrets, setIntegrationSecrets] = useState<Record<string, string>>({});
+  const [hasSecretChanges, setHasSecretChanges] = useState(false);
+  const [visibleSecrets, setVisibleSecrets] = useState<Record<string, boolean>>({});
   const queryClient = useQueryClient();
 
   const { data: dbSettings, isLoading } = useQuery({
