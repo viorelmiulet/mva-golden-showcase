@@ -585,6 +585,113 @@ const SettingsPage = () => {
           </div>
         </motion.div>
 
+        {/* Integration API Keys */}
+        <motion.div variants={itemVariants} className="relative group lg:col-span-2">
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-white/5 text-emerald-400">
+                  <Key className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Chei API & Integrări</h3>
+                  <p className="text-sm text-muted-foreground">Gestionează credențialele pentru serviciile externe</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleResetSecrets} 
+                  disabled={!hasSecretChanges}
+                  className="border-white/10 hover:bg-white/5"
+                >
+                  <RefreshCw className="mr-2 h-3 w-3" />
+                  Resetare
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={handleSaveSecrets} 
+                  disabled={saveSecretsMutation.isPending || !hasSecretChanges}
+                  className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                >
+                  {saveSecretsMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-3 w-3" />
+                      Salvează
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 space-y-6">
+              {[
+                {
+                  title: "Immoflux CRM",
+                  fields: [
+                    { key: "integration_immoflux_user", label: "User", placeholder: "User hash" },
+                    { key: "integration_immoflux_pass", label: "Key / Password", placeholder: "Key hash" },
+                    { key: "integration_immoflux_base_url", label: "URL de bază", placeholder: "https://web.immoflux.ro" },
+                  ]
+                },
+                {
+                  title: "Email (Mailgun)",
+                  fields: [
+                    { key: "integration_mailgun_api_key", label: "API Key", placeholder: "key-..." },
+                    { key: "integration_mailgun_domain", label: "Domeniu", placeholder: "mg.domeniu.ro" },
+                  ]
+                },
+                {
+                  title: "Google",
+                  fields: [
+                    { key: "integration_google_maps_api_key", label: "Maps API Key", placeholder: "AIza..." },
+                    { key: "integration_ga4_property_id", label: "GA4 Property ID", placeholder: "123456789" },
+                  ]
+                },
+                {
+                  title: "AI & Altele",
+                  fields: [
+                    { key: "integration_openai_api_key", label: "OpenAI API Key", placeholder: "sk-..." },
+                    { key: "integration_firecrawl_api_key", label: "Firecrawl API Key", placeholder: "fc-..." },
+                    { key: "integration_bing_webmaster_api_key", label: "Bing Webmaster API Key", placeholder: "" },
+                  ]
+                },
+              ].map((section) => (
+                <div key={section.title} className="space-y-3">
+                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{section.title}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {section.fields.map((field) => (
+                      <div key={field.key} className="space-y-1.5">
+                        <Label className="text-xs text-muted-foreground">{field.label}</Label>
+                        <div className="flex gap-1">
+                          <Input
+                            type={visibleSecrets[field.key] ? "text" : "password"}
+                            value={integrationSecrets[field.key] || ''}
+                            onChange={(e) => handleSecretChange(field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm font-mono"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => toggleSecretVisibility(field.key)}
+                          >
+                            {visibleSecrets[field.key] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
         <motion.div variants={itemVariants} className="relative group lg:col-span-2">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/20 to-gold-light/10 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
           <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
