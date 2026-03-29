@@ -1,55 +1,17 @@
 import { Button } from "@/components/ui/button"
 import { UserPlus } from "lucide-react"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
-import { lazy, Suspense, useEffect, useState } from "react"
+import { lazy, Suspense } from "react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 
 const CollaborationForm = lazy(() => import("@/components/CollaborationForm").then((module) => ({ default: module.CollaborationForm })))
 
 const Hero = () => {
   const { trackContact } = useGoogleAnalytics();
   const { language } = useLanguage();
-  const [stats, setStats] = useState<{ propertiesCount: number; projectsCount: number } | null>(null)
-  const [isStatsLoading, setIsStatsLoading] = useState(false)
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadStats = async () => {
-      setIsStatsLoading(true)
-
-      const { supabase } = await import("@/integrations/supabase/client")
-      const [{ count: propertiesCount }, { count: projectsCount }] = await Promise.all([
-        supabase.from("catalog_offers").select("*", { count: "exact", head: true }),
-        supabase.from("real_estate_projects").select("*", { count: "exact", head: true }),
-      ])
-
-      if (isMounted) {
-        setStats({
-          propertiesCount: propertiesCount || 0,
-          projectsCount: projectsCount || 0,
-        })
-        setIsStatsLoading(false)
-      }
-    }
-
-    const start = () => {
-      if (window.innerWidth < 768) return
-      window.setTimeout(loadStats, 1200)
-    }
-
-    if (document.readyState === "complete") {
-      start()
-    } else {
-      window.addEventListener("load", start, { once: true })
-    }
-
-    return () => {
-      isMounted = false
-      window.removeEventListener("load", start)
-    }
-  }, [])
+  const { data: stats, isLoading: isStatsLoading } = useRealEstateStats();
 
   const handleWhatsAppClick = () => {
     trackContact('whatsapp', 'hero_cta');
