@@ -204,6 +204,19 @@ const AppRoutes = () => {
                 <Route path="blog" element={<BlogAdminPage />} />
                 <Route path="inbox" element={<InboxPage />} />
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
+                <Route path="gestiune-chirii" element={<RentalLayout />}>
+                  <Route index element={<RentalDashboard />} />
+                  <Route path="proprietati" element={<RentalProperties />} />
+                  <Route path="proprietati/adauga" element={<RentalProperties />} />
+                  <Route path="proprietari" element={<RentalPlaceholder title="Proprietari" description="Gestionează proprietarii imobilelor din portofoliu." />} />
+                  <Route path="chiriasi" element={<RentalTenants />} />
+                  <Route path="utilitati" element={<RentalPlaceholder title="Utilități" description="Monitorizează și gestionează plățile la utilități." />} />
+                  <Route path="calendar" element={<RentalCalendar />} />
+                  <Route path="raport" element={<RentalPlaceholder title="Rapoarte" description="Generează rapoarte de venituri, cheltuieli și ocupare." />} />
+                  <Route path="inventar" element={<RentalPlaceholder title="Inventar" description="Gestionează inventarul imobilelor închiriate." />} />
+                  <Route path="servicii" element={<RentalPlaceholder title="Servicii" description="Administrează serviciile asociate proprietăților." />} />
+                  <Route path="tichete" element={<RentalPlaceholder title="Tichete" description="Urmărește și rezolvă problemele raportate de chiriași." />} />
+                </Route>
               </Route>
               <Route path="/api-keys" element={<ApiKeysAdmin />} />
               <Route path="/carte-vizita" element={<CarteVizita />} />
