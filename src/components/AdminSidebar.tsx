@@ -17,7 +17,7 @@ import {
   Sparkles,
   ScrollText,
   Package,
-  Hotel,
+  
   Chrome,
   Stamp,
   Inbox,

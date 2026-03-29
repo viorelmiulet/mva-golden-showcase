@@ -79,7 +79,7 @@ const TermeniConditii = () => {
                 <li>{isRomanian ? 'Închiriere de apartamente și case' : 'Apartment and house rentals'}</li>
                 <li>{isRomanian ? 'Consultanță imobiliară și evaluări' : 'Real estate consulting and valuations'}</li>
                 <li>{isRomanian ? 'Reprezentare în tranzacții imobiliare' : 'Representation in real estate transactions'}</li>
-                <li>{isRomanian ? 'Servicii de regim hotelier' : 'Short-term rental services'}</li>
+                
               </ul>
             </section>
             
