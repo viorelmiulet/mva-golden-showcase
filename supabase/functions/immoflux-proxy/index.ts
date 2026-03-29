@@ -91,11 +91,12 @@ async function proxyGet(path: string, useCache = true): Promise<Response> {
     }
   }
 
-  const url = `${getBaseUrl()}${path}`;
+  const [baseUrl, auth] = await Promise.all([getBaseUrl(), getBasicAuth()]);
+  const url = `${baseUrl}${path}`;
   console.log(`[immoflux-proxy] GET ${url}`);
   const resp = await fetch(url, {
     headers: {
-      'Authorization': getBasicAuth(),
+      'Authorization': auth,
       'Accept': 'application/json',
     },
   });
