@@ -60,11 +60,11 @@ const RentalProperties = () => {
         deposit_amount: formData.deposit_amount ? Number(formData.deposit_amount) : 0,
       };
       if (editingId) {
-        const { error } = await supabase.from("rental_properties").update(payload).eq("id", editingId);
-        if (error) throw error;
+        const result = await adminApi.update("rental_properties", editingId, payload);
+        if (!result.success) throw new Error(result.error || "Eroare la actualizare");
       } else {
-        const { error } = await supabase.from("rental_properties").insert(payload);
-        if (error) throw error;
+        const result = await adminApi.insert("rental_properties", payload);
+        if (!result.success) throw new Error(result.error || "Eroare la inserare");
       }
     },
     onSuccess: () => {
