@@ -64,7 +64,6 @@ const menuItems = [
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
-  { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
 ];
 
 // Animation variants
