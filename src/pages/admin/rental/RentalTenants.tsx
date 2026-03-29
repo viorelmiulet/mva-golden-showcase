@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,11 +57,11 @@ const RentalTenants = () => {
         contract_end: formData.contract_end || null,
       };
       if (editingId) {
-        const { error } = await supabase.from("rental_tenants").update(payload).eq("id", editingId);
-        if (error) throw error;
+        const result = await adminApi.update("rental_tenants", editingId, payload);
+        if (!result.success) throw new Error(result.error || "Eroare la actualizare");
       } else {
-        const { error } = await supabase.from("rental_tenants").insert(payload);
-        if (error) throw error;
+        const result = await adminApi.insert("rental_tenants", payload);
+        if (!result.success) throw new Error(result.error || "Eroare la inserare");
       }
     },
     onSuccess: () => {
@@ -76,8 +77,8 @@ const RentalTenants = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("rental_tenants").delete().eq("id", id);
-      if (error) throw error;
+      const result = await adminApi.delete("rental_tenants", id);
+      if (!result.success) throw new Error(result.error || "Eroare la ștergere");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rental-tenants"] });
