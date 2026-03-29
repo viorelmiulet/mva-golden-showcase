@@ -139,8 +139,8 @@ const Properties = () => {
             zona: p.zone,
             localitate: p.location || p.city,
           } as any) : null,
-          _immoflux_top: isImmoflux && p.is_featured,
-          _immoflux_pole: isImmoflux && p.is_featured,
+          _immoflux_top: isImmoflux && p.promotion_type === 'top',
+          _immoflux_pole: isImmoflux && p.promotion_type === 'pole_position',
         }
       })
     },
