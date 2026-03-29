@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       { loc: '/', priority: '1.0', changefreq: 'daily', lastmod: currentDate },
       { loc: '/proprietati', priority: '0.9', changefreq: 'daily', lastmod: currentDate },
       { loc: '/complexe', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
-      { loc: '/regim-hotelier', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      
       { loc: '/despre-noi', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/servicii', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/de-ce-sa-ne-alegi', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
