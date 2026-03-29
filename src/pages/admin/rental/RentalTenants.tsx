@@ -57,11 +57,11 @@ const RentalTenants = () => {
         contract_end: formData.contract_end || null,
       };
       if (editingId) {
-        const { error } = await supabase.from("rental_tenants").update(payload).eq("id", editingId);
-        if (error) throw error;
+        const result = await adminApi.update("rental_tenants", editingId, payload);
+        if (!result.success) throw new Error(result.error || "Eroare la actualizare");
       } else {
-        const { error } = await supabase.from("rental_tenants").insert(payload);
-        if (error) throw error;
+        const result = await adminApi.insert("rental_tenants", payload);
+        if (!result.success) throw new Error(result.error || "Eroare la inserare");
       }
     },
     onSuccess: () => {
