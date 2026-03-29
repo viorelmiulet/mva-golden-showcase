@@ -47,6 +47,7 @@ import { Badge } from "@/components/ui/badge";
 const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
   { title: "Inbox", url: "/admin/inbox", icon: Inbox },
+  { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
@@ -63,7 +64,6 @@ const menuItems = [
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
-  { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
 ];
 
 // Animation variants
