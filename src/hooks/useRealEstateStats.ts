@@ -8,7 +8,10 @@ export const useRealEstateStats = () => {
       // Count properties
       const { count: propertiesCount, error: propertiesError } = await supabase
         .from("catalog_offers")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .is("project_id", null)
+        .eq("is_published", true)
+        .eq("availability_status", "available");
 
       if (propertiesError) {
         console.error("Error fetching properties count:", propertiesError);
