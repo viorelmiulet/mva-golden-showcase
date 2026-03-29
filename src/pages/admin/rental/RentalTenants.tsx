@@ -77,8 +77,8 @@ const RentalTenants = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("rental_tenants").delete().eq("id", id);
-      if (error) throw error;
+      const result = await adminApi.delete("rental_tenants", id);
+      if (!result.success) throw new Error(result.error || "Eroare la ștergere");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rental-tenants"] });
