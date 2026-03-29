@@ -1,0 +1,1 @@
+ALTER TABLE public.catalog_offers ADD COLUMN IF NOT EXISTS promotion_type text DEFAULT NULL;

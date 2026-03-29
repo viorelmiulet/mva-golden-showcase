@@ -211,6 +211,7 @@ export type Database = {
           price_type: string | null
           project_id: string | null
           project_name: string | null
+          promotion_type: string | null
           property_subtype: string | null
           property_type: string | null
           rooms: number | null
@@ -285,6 +286,7 @@ export type Database = {
           price_type?: string | null
           project_id?: string | null
           project_name?: string | null
+          promotion_type?: string | null
           property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
@@ -359,6 +361,7 @@ export type Database = {
           price_type?: string | null
           project_id?: string | null
           project_name?: string | null
+          promotion_type?: string | null
           property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
