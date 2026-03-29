@@ -116,6 +116,8 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const surfaceLand = typeof p.suprafatateren === 'string' ? parseFloat(p.suprafatateren as string) || null : (p.suprafatateren || null);
   const images = (p.images || []).sort((a, b) => a.pozitie - b.pozitie).map(img => img.src);
   const isPole = p.pole === 1 || p.poleposition === 1;
+  const isTop = p.top === 1;
+  const promotionType = isPole ? 'pole_position' : (isTop ? 'top' : null);
 
   return {
     external_id: `immoflux-${p.idnum}`,
@@ -139,7 +141,8 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     balconies: p.nrbalcoane || null,
     year_built: p.anconstructie || null,
     transaction_type: isSale ? 'sale' : 'rent',
-    is_featured: p.top === 1 || isPole,
+    is_featured: isTop || isPole,
+    promotion_type: promotionType,
     is_published: true,
     property_type: p.tiplocuinta || null,
     compartment: p.tipcompartimentare || null,
