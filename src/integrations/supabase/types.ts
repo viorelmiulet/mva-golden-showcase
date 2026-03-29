@@ -1430,6 +1430,290 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          due_date: string
+          id: string
+          notes: string | null
+          paid_date: string | null
+          payment_type: string
+          property_id: string | null
+          status: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          due_date: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_type?: string
+          property_id?: string | null
+          status?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_date?: string | null
+          payment_type?: string
+          property_id?: string | null
+          status?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_payments_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "rental_properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "rental_tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_properties: {
+        Row: {
+          address: string
+          city: string | null
+          contract_end: string | null
+          contract_start: string | null
+          created_at: string
+          currency: string | null
+          deposit_amount: number | null
+          features: string[] | null
+          floor: number | null
+          furnished: string | null
+          heating: string | null
+          id: string
+          images: string[] | null
+          landlord_email: string | null
+          landlord_name: string | null
+          landlord_phone: string | null
+          monthly_rent: number
+          name: string
+          notes: string | null
+          property_type: string | null
+          rooms: number | null
+          status: string | null
+          surface: number | null
+          tenant_email: string | null
+          tenant_name: string | null
+          tenant_phone: string | null
+          total_floors: number | null
+          updated_at: string
+          year_built: number | null
+          zone: string | null
+        }
+        Insert: {
+          address: string
+          city?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          currency?: string | null
+          deposit_amount?: number | null
+          features?: string[] | null
+          floor?: number | null
+          furnished?: string | null
+          heating?: string | null
+          id?: string
+          images?: string[] | null
+          landlord_email?: string | null
+          landlord_name?: string | null
+          landlord_phone?: string | null
+          monthly_rent?: number
+          name: string
+          notes?: string | null
+          property_type?: string | null
+          rooms?: number | null
+          status?: string | null
+          surface?: number | null
+          tenant_email?: string | null
+          tenant_name?: string | null
+          tenant_phone?: string | null
+          total_floors?: number | null
+          updated_at?: string
+          year_built?: number | null
+          zone?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          currency?: string | null
+          deposit_amount?: number | null
+          features?: string[] | null
+          floor?: number | null
+          furnished?: string | null
+          heating?: string | null
+          id?: string
+          images?: string[] | null
+          landlord_email?: string | null
+          landlord_name?: string | null
+          landlord_phone?: string | null
+          monthly_rent?: number
+          name?: string
+          notes?: string | null
+          property_type?: string | null
+          rooms?: number | null
+          status?: string | null
+          surface?: number | null
+          tenant_email?: string | null
+          tenant_name?: string | null
+          tenant_phone?: string | null
+          total_floors?: number | null
+          updated_at?: string
+          year_built?: number | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
+      rental_tenants: {
+        Row: {
+          address: string | null
+          cnp: string | null
+          contract_end: string | null
+          contract_start: string | null
+          created_at: string
+          currency: string | null
+          deposit_paid: boolean | null
+          email: string | null
+          id: string
+          monthly_rent: number | null
+          name: string
+          notes: string | null
+          numar_ci: string | null
+          phone: string | null
+          property_id: string | null
+          seria_ci: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          cnp?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          currency?: string | null
+          deposit_paid?: boolean | null
+          email?: string | null
+          id?: string
+          monthly_rent?: number | null
+          name: string
+          notes?: string | null
+          numar_ci?: string | null
+          phone?: string | null
+          property_id?: string | null
+          seria_ci?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          cnp?: string | null
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          currency?: string | null
+          deposit_paid?: boolean | null
+          email?: string | null
+          id?: string
+          monthly_rent?: number | null
+          name?: string
+          notes?: string | null
+          numar_ci?: string | null
+          phone?: string | null
+          property_id?: string | null
+          seria_ci?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_tenants_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "rental_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_tickets: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          notes: string | null
+          priority: string | null
+          property_id: string | null
+          resolved_at: string | null
+          status: string | null
+          tenant_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          property_id?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          property_id?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_tickets_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "rental_properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_tickets_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "rental_tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sent_emails: {
         Row: {
           attachments: Json | null
