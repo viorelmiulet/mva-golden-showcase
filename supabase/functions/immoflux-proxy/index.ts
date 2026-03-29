@@ -113,12 +113,13 @@ async function proxyGet(path: string, useCache = true): Promise<Response> {
 }
 
 async function proxyPost(path: string, payload: unknown): Promise<Response> {
-  const url = `${getBaseUrl()}${path}`;
+  const [baseUrl, auth] = await Promise.all([getBaseUrl(), getBasicAuth()]);
+  const url = `${baseUrl}${path}`;
   console.log(`[immoflux-proxy] POST ${url}`);
   const resp = await fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': getBasicAuth(),
+      'Authorization': auth,
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
