@@ -177,12 +177,13 @@ serve(async (req) => {
     if (req.method === 'POST' && action === 'visit') {
       try {
         const body = await req.json();
-        const visitUrl = `${getBaseUrl()}/api/sites/v1/visits`;
+        const [baseUrl, auth] = await Promise.all([getBaseUrl(), getBasicAuth()]);
+        const visitUrl = `${baseUrl}/api/sites/v1/visits`;
         console.log(`[immoflux-proxy] POST ${visitUrl}`);
         const resp = await fetch(visitUrl, {
           method: 'POST',
           headers: {
-            'Authorization': getBasicAuth(),
+            'Authorization': auth,
             'Accept': 'application/json',
             'Content-Type': 'application/json',
           },
