@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,18 +7,51 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
-function getBasicAuth(): string {
-  const user = Deno.env.get('IMMOFLUX_USER') || '';
-  const pass = Deno.env.get('IMMOFLUX_PASS') || '';
-  return 'Basic ' + btoa(`${user}:${pass}`);
+// DB config helper with env fallback
+let _supabase: any = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  }
+  return _supabase;
 }
 
-function getBaseUrl(): string {
-  let url = (Deno.env.get('IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = 'https://' + url;
+async function getConfig(dbKey: string, envKey: string): Promise<string> {
+  try {
+    const { data } = await getSupabase()
+      .from('site_settings')
+      .select('value')
+      .eq('key', dbKey)
+      .maybeSingle();
+    if (data?.value) return data.value;
+  } catch {}
+  return Deno.env.get(envKey) || '';
+}
+
+// Cached config values (refreshed per cold start)
+let _authPromise: Promise<string> | null = null;
+let _baseUrlPromise: Promise<string> | null = null;
+
+function getBasicAuth(): Promise<string> {
+  if (!_authPromise) {
+    _authPromise = (async () => {
+      const user = await getConfig('integration_immoflux_user', 'IMMOFLUX_USER');
+      const pass = await getConfig('integration_immoflux_pass', 'IMMOFLUX_PASS');
+      return 'Basic ' + btoa(`${user}:${pass}`);
+    })();
   }
-  return url;
+  return _authPromise;
+}
+
+function getBaseUrl(): Promise<string> {
+  if (!_baseUrlPromise) {
+    _baseUrlPromise = (async () => {
+      let url = (await getConfig('integration_immoflux_base_url', 'IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
+      if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+      return url;
+    })();
+  }
+  return _baseUrlPromise;
 }
 
 // In-memory cache with TTL
