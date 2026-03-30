@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { action, id, data, table } = await req.json();
+    const { action, id, data, table, orderBy, ascending } = await req.json();
 
     console.log("Admin action:", action, "table:", table, "id:", id);
 
@@ -257,6 +257,36 @@ Deno.serve(async (req) => {
       }
 
       // ============ GENERIC CRUD OPERATIONS ============
+      case "select": {
+        if (!table) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing table" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        let query = supabase.from(table).select("*");
+
+        if (orderBy) {
+          query = query.order(orderBy, { ascending: ascending ?? false });
+        }
+
+        const { data: selectedData, error } = await query;
+
+        if (error) {
+          console.error("Select error:", error);
+          return new Response(
+            JSON.stringify({ success: false, error: error.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, data: selectedData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       case "insert": {
         if (!table || !data) {
           return new Response(
