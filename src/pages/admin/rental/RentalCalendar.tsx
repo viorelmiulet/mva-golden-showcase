@@ -166,90 +166,89 @@ const RentalCalendar = () => {
           </div>
         </Card>
 
-        {/* Selected date details */}
-        <Card className="admin-glass-card border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              {selectedDate
-                ? format(selectedDate, "d MMMM yyyy", { locale: ro })
-                : "Selectează o zi"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!selectedDate ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Click pe o zi din calendar pentru a vedea detaliile.
-              </p>
-            ) : selectedDatePayments.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Nu sunt plăți programate în această zi.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {selectedDatePayments.map(p => {
-                  const isOverdue = p.status === "pending" && isBefore(parseISO(p.due_date), today);
-                  const isPaid = p.status === "paid";
-                  return (
-                    <div
-                      key={p.id}
-                      className={`flex items-center justify-between p-3 rounded-lg border ${
-                        isOverdue
-                          ? "bg-red-500/5 border-red-500/20"
-                          : isPaid
-                          ? "bg-green-500/5 border-green-500/20"
-                          : "bg-muted/30 border-border/50"
-                      }`}
-                    >
+        {/* Right panel: Rent day info + selected date */}
+        <div className="space-y-6">
+          {/* Rent day per tenant */}
+          <Card className="admin-glass-card border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                💰 Data Chiriei per Chiriaș
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {rentDayInfo.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">Nu sunt chiriași cu data chiriei setată.</p>
+              ) : (
+                <div className="space-y-3">
+                  {rentDayInfo.map(r => (
+                    <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
                       <div>
-                        <p className="text-sm font-medium">{(p as any).rental_properties?.name || "—"}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{p.payment_type}</p>
+                        <p className="text-sm font-medium">{r.name}</p>
+                        <p className="text-xs text-muted-foreground">{r.propertyName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Ziua {r.rentDay} · Următoarea: {format(r.nextRentDate, "d MMMM yyyy", { locale: ro })} · {r.amount} {r.currency}
+                        </p>
                       </div>
-                      <div className="text-right">
-                        <span className={`text-sm font-bold ${isOverdue ? "text-red-400" : isPaid ? "text-green-400" : ""}`}>
-                          {p.amount} {p.currency}
-                        </span>
-                        {isPaid && <p className="text-xs text-green-400">Plătit</p>}
-                        {isOverdue && <p className="text-xs text-red-400">Restant</p>}
-                      </div>
+                      <Badge variant={r.daysLeft <= 3 ? "destructive" : r.daysLeft <= 7 ? "default" : "secondary"} className="text-xs whitespace-nowrap">
+                        {r.daysLeft === 0 ? "Azi" : r.daysLeft === 1 ? "Mâine" : `${r.daysLeft} zile`}
+                      </Badge>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Rent day per tenant */}
-      <Card className="admin-glass-card border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            💰 Data Chiriei per Chiriaș
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {rentDayInfo.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Nu sunt chiriași cu data chiriei setată.</p>
-          ) : (
-            <div className="space-y-3">
-              {rentDayInfo.map(r => (
-                <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                  <div>
-                    <p className="text-sm font-medium">{r.name}</p>
-                    <p className="text-xs text-muted-foreground">{r.propertyName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Ziua {r.rentDay} · Următoarea: {format(r.nextRentDate, "d MMMM yyyy", { locale: ro })} · {r.amount} {r.currency}
-                    </p>
-                  </div>
-                  <Badge variant={r.daysLeft <= 3 ? "destructive" : r.daysLeft <= 7 ? "default" : "secondary"} className="text-xs whitespace-nowrap">
-                    {r.daysLeft === 0 ? "Azi" : r.daysLeft === 1 ? "Mâine" : `${r.daysLeft} zile`}
-                  </Badge>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Selected date details */}
+          {selectedDate && (
+            <Card className="admin-glass-card border-border/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">
+                  {format(selectedDate, "d MMMM yyyy", { locale: ro })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selectedDatePayments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nu sunt plăți programate în această zi.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {selectedDatePayments.map(p => {
+                      const isOverdue = p.status === "pending" && isBefore(parseISO(p.due_date), today);
+                      const isPaid = p.status === "paid";
+                      return (
+                        <div
+                          key={p.id}
+                          className={`flex items-center justify-between p-3 rounded-lg border ${
+                            isOverdue
+                              ? "bg-red-500/5 border-red-500/20"
+                              : isPaid
+                              ? "bg-green-500/5 border-green-500/20"
+                              : "bg-muted/30 border-border/50"
+                          }`}
+                        >
+                          <div>
+                            <p className="text-sm font-medium">{(p as any).rental_properties?.name || "—"}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{p.payment_type}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className={`text-sm font-bold ${isOverdue ? "text-red-400" : isPaid ? "text-green-400" : ""}`}>
+                              {p.amount} {p.currency}
+                            </span>
+                            {isPaid && <p className="text-xs text-green-400">Plătit</p>}
+                            {isOverdue && <p className="text-xs text-red-400">Restant</p>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Expiring contracts */}
       <Card className="admin-glass-card border-border/50">
