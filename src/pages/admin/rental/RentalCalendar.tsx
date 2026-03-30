@@ -13,6 +13,8 @@ import { ro } from "date-fns/locale";
 
 const RentalCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [markingId, setMarkingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: tenants = [] } = useQuery({
     queryKey: ["rental-tenants-calendar"],
