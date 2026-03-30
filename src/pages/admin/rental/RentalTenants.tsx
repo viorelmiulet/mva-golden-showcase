@@ -19,6 +19,7 @@ const emptyForm = {
   name: "", phone: "", email: "", cnp: "", seria_ci: "", numar_ci: "",
   address: "", property_id: "", contract_start: "", contract_end: "",
   monthly_rent: "", currency: "EUR", deposit_paid: false, status: "active", notes: "",
+  rent_day: "1",
 };
 
 const RentalTenants = () => {
@@ -52,6 +53,7 @@ const RentalTenants = () => {
       const payload = {
         ...formData,
         monthly_rent: formData.monthly_rent ? Number(formData.monthly_rent) : null,
+        rent_day: formData.rent_day ? Number(formData.rent_day) : 1,
         property_id: formData.property_id || null,
         contract_start: formData.contract_start || null,
         contract_end: formData.contract_end || null,
@@ -96,6 +98,7 @@ const RentalTenants = () => {
       contract_start: t.contract_start || "", contract_end: t.contract_end || "",
       monthly_rent: t.monthly_rent?.toString() || "", currency: t.currency || "EUR",
       deposit_paid: t.deposit_paid || false, status: t.status || "active", notes: t.notes || "",
+      rent_day: t.rent_day?.toString() || "1",
     });
     setDialogOpen(true);
   };
@@ -146,6 +149,7 @@ const RentalTenants = () => {
                 <div><Label>Început contract</Label><Input type="date" value={form.contract_start} onChange={e => setForm({...form, contract_start: e.target.value})} /></div>
                 <div><Label>Sfârșit contract</Label><Input type="date" value={form.contract_end} onChange={e => setForm({...form, contract_end: e.target.value})} /></div>
                 <div><Label>Chirie lunară</Label><Input type="number" value={form.monthly_rent} onChange={e => setForm({...form, monthly_rent: e.target.value})} /></div>
+                <div><Label>Ziua chiriei (1-31)</Label><Input type="number" min="1" max="31" value={form.rent_day} onChange={e => setForm({...form, rent_day: e.target.value})} placeholder="1" /></div>
                 <div>
                   <Label>Status</Label>
                   <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
