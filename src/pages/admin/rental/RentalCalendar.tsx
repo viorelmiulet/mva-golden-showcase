@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { AlertTriangle, Euro, Clock } from "lucide-react";
-import { format, addDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
+import { format, addDays, differenceInDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const RentalCalendar = () => {
