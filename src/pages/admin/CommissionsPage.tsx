@@ -161,13 +161,13 @@ const CommissionsPage = () => {
   const { data: commissions, isLoading } = useQuery({
     queryKey: ['commissions'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('commissions')
-        .select('*')
-        .order('date', { ascending: false });
-      
-      if (error) throw error;
-      return data as Commission[];
+      const result = await adminApi.select<Commission>('commissions', {
+        orderBy: 'date',
+        ascending: false,
+      });
+
+      if (!result.success) throw new Error(result.error || 'Nu s-au putut încărca comisioanele');
+      return (result.data || []) as Commission[];
     }
   });
 
