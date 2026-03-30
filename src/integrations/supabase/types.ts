@@ -1603,6 +1603,7 @@ export type Database = {
           numar_ci: string | null
           phone: string | null
           property_id: string | null
+          rent_day: number | null
           seria_ci: string | null
           status: string | null
           updated_at: string
@@ -1623,6 +1624,7 @@ export type Database = {
           numar_ci?: string | null
           phone?: string | null
           property_id?: string | null
+          rent_day?: number | null
           seria_ci?: string | null
           status?: string | null
           updated_at?: string
@@ -1643,6 +1645,7 @@ export type Database = {
           numar_ci?: string | null
           phone?: string | null
           property_id?: string | null
+          rent_day?: number | null
           seria_ci?: string | null
           status?: string | null
           updated_at?: string

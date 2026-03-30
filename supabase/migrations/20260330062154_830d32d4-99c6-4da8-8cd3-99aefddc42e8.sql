@@ -1,0 +1,1 @@
+ALTER TABLE public.rental_tenants ADD COLUMN rent_day integer DEFAULT 1;
