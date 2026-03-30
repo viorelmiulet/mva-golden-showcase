@@ -286,18 +286,7 @@ const PropertyDetail = () => {
 
       // 1. If UUID — redirect to new slug if property exists, or show 410 Gone
       if (isUUID(slug)) {
-        const { data } = await supabase
-          .from("catalog_offers")
-          .select("*")
-          .eq("id", slug)
-          .maybeSingle();
-        if (data) {
-          navigate(`/proprietati/${generatePropertySlug(data as Property)}`, { replace: true });
-          return;
-        }
-        // Property no longer exists — show 410 Gone page
-        setIsGone(true);
-        setIsLoading(false);
+        navigate("/404", { replace: true });
         return;
       }
 
