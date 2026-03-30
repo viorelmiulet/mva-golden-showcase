@@ -98,6 +98,7 @@ const RentalTenants = () => {
       contract_start: t.contract_start || "", contract_end: t.contract_end || "",
       monthly_rent: t.monthly_rent?.toString() || "", currency: t.currency || "EUR",
       deposit_paid: t.deposit_paid || false, status: t.status || "active", notes: t.notes || "",
+      rent_day: t.rent_day?.toString() || "1",
     });
     setDialogOpen(true);
   };
