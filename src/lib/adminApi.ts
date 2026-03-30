@@ -3,13 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 // Generic admin API helper that uses edge function with service role
 export const adminApi = {
   async insert<T>(table: string, data: Partial<T>): Promise<{ success: boolean; data?: T[]; error?: string }> {
+    console.log('Admin insert:', table, JSON.stringify(data).substring(0, 200));
     const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
       body: { action: 'insert', table, data }
     });
 
     if (error) {
-      console.error('Admin insert error:', error);
-      // Try to extract the actual error message from the response
+      console.error('Admin insert error:', error, 'result:', result);
       const errorMsg = typeof error === 'object' && error.message ? error.message : String(error);
       return { success: false, error: errorMsg };
     }
