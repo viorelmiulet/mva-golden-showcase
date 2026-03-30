@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { AlertTriangle, Euro, Clock } from "lucide-react";
-import { format, addDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
+import { format, addDays, differenceInDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const RentalCalendar = () => {
@@ -100,6 +100,21 @@ const RentalCalendar = () => {
     [allPayments]
   );
 
+  // Next pending rent payment per property
+  const nextRentPerProperty = useMemo(() => {
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const upcoming = pendingPayments
+      .filter(p => p.due_date && p.payment_type === "rent" && !isBefore(parseISO(p.due_date), todayStart))
+      .sort((a, b) => a.due_date.localeCompare(b.due_date));
+    
+    const map = new Map<string, typeof upcoming[0]>();
+    upcoming.forEach(p => {
+      const propId = p.property_id || "unknown";
+      if (!map.has(propId)) map.set(propId, p);
+    });
+    return Array.from(map.values());
+  }, [pendingPayments]);
+
   return (
     <div className="space-y-6">
       {/* Visual Calendar */}
@@ -192,6 +207,40 @@ const RentalCalendar = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Next rent payment per property */}
+      <Card className="admin-glass-card border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            💰 Data Următoarei Chirii
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {nextRentPerProperty.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">Nu sunt plăți de chirie programate.</p>
+          ) : (
+            <div className="space-y-3">
+              {nextRentPerProperty.map(p => {
+                const dueDate = parseISO(p.due_date);
+                const daysLeft = differenceInDays(dueDate, new Date());
+                return (
+                  <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <div>
+                      <p className="text-sm font-medium">{(p as any).rental_properties?.name || "—"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Scadentă: {format(dueDate, "d MMMM yyyy", { locale: ro })}
+                      </p>
+                    </div>
+                    <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"} className="text-xs whitespace-nowrap">
+                      {daysLeft === 0 ? "Azi" : daysLeft === 1 ? "Mâine" : `${daysLeft} zile rămase`}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Expiring contracts */}
       <Card className="admin-glass-card border-border/50">
