@@ -1,15 +1,20 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { adminApi } from "@/lib/adminApi";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
-import { AlertTriangle, Euro, Clock } from "lucide-react";
+import { AlertTriangle, Euro, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format, addDays, differenceInDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const RentalCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [markingId, setMarkingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: tenants = [] } = useQuery({
     queryKey: ["rental-tenants-calendar"],
@@ -127,6 +132,26 @@ const RentalCalendar = () => {
       .sort((a, b) => a.daysLeft - b.daysLeft);
   }, [tenants]);
 
+  const markAsPaid = async (paymentId: string) => {
+    setMarkingId(paymentId);
+    try {
+      const result = await adminApi.update("rental_payments", paymentId, {
+        status: "paid",
+        paid_date: format(new Date(), "yyyy-MM-dd"),
+      });
+      if (result.success) {
+        toast.success("Plata a fost marcată ca plătită");
+        queryClient.invalidateQueries({ queryKey: ["rental-payments-all-calendar"] });
+      } else {
+        toast.error("Eroare: " + (result.error || "necunoscută"));
+      }
+    } catch (e) {
+      toast.error("Eroare la salvare");
+    } finally {
+      setMarkingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Visual Calendar */}
@@ -232,12 +257,24 @@ const RentalCalendar = () => {
                             <p className="text-sm font-medium">{(p as any).rental_properties?.name || "—"}</p>
                             <p className="text-xs text-muted-foreground capitalize">{p.payment_type}</p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex flex-col items-end gap-1">
                             <span className={`text-sm font-bold ${isOverdue ? "text-red-400" : isPaid ? "text-green-400" : ""}`}>
                               {p.amount} {p.currency}
                             </span>
                             {isPaid && <p className="text-xs text-green-400">Plătit</p>}
                             {isOverdue && <p className="text-xs text-red-400">Restant</p>}
+                            {p.status === "pending" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs gap-1"
+                                disabled={markingId === p.id}
+                                onClick={() => markAsPaid(p.id)}
+                              >
+                                <CheckCircle className="h-3 w-3" />
+                                {markingId === p.id ? "Se salvează..." : "Plătit"}
+                              </Button>
+                            )}
                           </div>
                         </div>
                       );
