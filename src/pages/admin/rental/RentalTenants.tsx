@@ -19,6 +19,7 @@ const emptyForm = {
   name: "", phone: "", email: "", cnp: "", seria_ci: "", numar_ci: "",
   address: "", property_id: "", contract_start: "", contract_end: "",
   monthly_rent: "", currency: "EUR", deposit_paid: false, status: "active", notes: "",
+  rent_day: "1",
 };
 
 const RentalTenants = () => {
