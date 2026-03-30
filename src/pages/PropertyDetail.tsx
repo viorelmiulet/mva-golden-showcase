@@ -305,8 +305,7 @@ const PropertyDetail = () => {
       );
 
       if (!match) {
-        toast.error("Proprietatea nu a fost găsită");
-        navigate("/proprietati");
+        navigate("/404", { replace: true });
         return;
       }
 
