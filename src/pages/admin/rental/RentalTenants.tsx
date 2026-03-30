@@ -149,6 +149,7 @@ const RentalTenants = () => {
                 <div><Label>Început contract</Label><Input type="date" value={form.contract_start} onChange={e => setForm({...form, contract_start: e.target.value})} /></div>
                 <div><Label>Sfârșit contract</Label><Input type="date" value={form.contract_end} onChange={e => setForm({...form, contract_end: e.target.value})} /></div>
                 <div><Label>Chirie lunară</Label><Input type="number" value={form.monthly_rent} onChange={e => setForm({...form, monthly_rent: e.target.value})} /></div>
+                <div><Label>Ziua chiriei (1-31)</Label><Input type="number" min="1" max="31" value={form.rent_day} onChange={e => setForm({...form, rent_day: e.target.value})} placeholder="1" /></div>
                 <div>
                   <Label>Status</Label>
                   <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
