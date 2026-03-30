@@ -2,6 +2,28 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Generic admin API helper that uses edge function with service role
 export const adminApi = {
+  async select<T>(
+    table: string,
+    options?: { orderBy?: string; ascending?: boolean }
+  ): Promise<{ success: boolean; data?: T[]; error?: string }> {
+    const { data: result, error } = await supabase.functions.invoke("admin-complexes", {
+      body: {
+        action: "select",
+        table,
+        orderBy: options?.orderBy,
+        ascending: options?.ascending,
+      },
+    });
+
+    if (error) {
+      console.error("Admin select error:", error);
+      const errorMsg = typeof error === "object" && error.message ? error.message : String(error);
+      return { success: false, error: errorMsg };
+    }
+
+    return result;
+  },
+
   async insert<T>(table: string, data: Partial<T>): Promise<{ success: boolean; data?: T[]; error?: string }> {
     console.log('Admin insert:', table, JSON.stringify(data).substring(0, 200));
     const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
