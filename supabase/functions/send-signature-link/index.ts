@@ -87,17 +87,25 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Auth check
+    // Auth check - JWT first, anon key fallback
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    let isAuthorized = false;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      const authClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
+      const token = authHeader.replace("Bearer ", "");
+      try {
+        const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+        if (!claimsError && claimsData?.claims?.sub) isAuthorized = true;
+      } catch (_) {}
     }
-    const authClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims?.sub) {
+    if (!isAuthorized) {
+      const apikeyHeader = req.headers.get("apikey");
+      if (apikeyHeader === anonKey) isAuthorized = true;
+    }
+    if (!isAuthorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
