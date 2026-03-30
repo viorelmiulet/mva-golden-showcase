@@ -53,6 +53,7 @@ const RentalTenants = () => {
       const payload = {
         ...formData,
         monthly_rent: formData.monthly_rent ? Number(formData.monthly_rent) : null,
+        rent_day: formData.rent_day ? Number(formData.rent_day) : 1,
         property_id: formData.property_id || null,
         contract_start: formData.contract_start || null,
         contract_end: formData.contract_end || null,
