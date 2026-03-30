@@ -100,6 +100,21 @@ const RentalCalendar = () => {
     [allPayments]
   );
 
+  // Next pending rent payment per property
+  const nextRentPerProperty = useMemo(() => {
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const upcoming = pendingPayments
+      .filter(p => p.due_date && p.payment_type === "rent" && !isBefore(parseISO(p.due_date), todayStart))
+      .sort((a, b) => a.due_date.localeCompare(b.due_date));
+    
+    const map = new Map<string, typeof upcoming[0]>();
+    upcoming.forEach(p => {
+      const propId = p.property_id || "unknown";
+      if (!map.has(propId)) map.set(propId, p);
+    });
+    return Array.from(map.values());
+  }, [pendingPayments]);
+
   return (
     <div className="space-y-6">
       {/* Visual Calendar */}
