@@ -132,6 +132,26 @@ const RentalCalendar = () => {
       .sort((a, b) => a.daysLeft - b.daysLeft);
   }, [tenants]);
 
+  const markAsPaid = async (paymentId: string) => {
+    setMarkingId(paymentId);
+    try {
+      const result = await adminApi.update("rental_payments", paymentId, {
+        status: "paid",
+        paid_date: format(new Date(), "yyyy-MM-dd"),
+      });
+      if (result.success) {
+        toast.success("Plata a fost marcată ca plătită");
+        queryClient.invalidateQueries({ queryKey: ["rental-payments-all-calendar"] });
+      } else {
+        toast.error("Eroare: " + (result.error || "necunoscută"));
+      }
+    } catch (e) {
+      toast.error("Eroare la salvare");
+    } finally {
+      setMarkingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Visual Calendar */}
