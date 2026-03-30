@@ -220,35 +220,32 @@ const RentalCalendar = () => {
         </Card>
       </div>
 
-      {/* Next rent payment per property */}
+      {/* Rent day per tenant */}
       <Card className="admin-glass-card border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            💰 Data Următoarei Chirii
+            💰 Data Chiriei per Chiriaș
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {nextRentPerProperty.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Nu sunt plăți de chirie programate.</p>
+          {rentDayInfo.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">Nu sunt chiriași cu data chiriei setată.</p>
           ) : (
             <div className="space-y-3">
-              {nextRentPerProperty.map(p => {
-                const dueDate = parseISO(p.due_date);
-                const daysLeft = differenceInDays(dueDate, new Date());
-                return (
-                  <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <div>
-                      <p className="text-sm font-medium">{(p as any).rental_properties?.name || "—"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Scadentă: {format(dueDate, "d MMMM yyyy", { locale: ro })}
-                      </p>
-                    </div>
-                    <Badge variant={daysLeft <= 3 ? "destructive" : "secondary"} className="text-xs whitespace-nowrap">
-                      {daysLeft === 0 ? "Azi" : daysLeft === 1 ? "Mâine" : `${daysLeft} zile rămase`}
-                    </Badge>
+              {rentDayInfo.map(r => (
+                <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div>
+                    <p className="text-sm font-medium">{r.name}</p>
+                    <p className="text-xs text-muted-foreground">{r.propertyName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Ziua {r.rentDay} · Următoarea: {format(r.nextRentDate, "d MMMM yyyy", { locale: ro })} · {r.amount} {r.currency}
+                    </p>
                   </div>
-                );
-              })}
+                  <Badge variant={r.daysLeft <= 3 ? "destructive" : r.daysLeft <= 7 ? "default" : "secondary"} className="text-xs whitespace-nowrap">
+                    {r.daysLeft === 0 ? "Azi" : r.daysLeft === 1 ? "Mâine" : `${r.daysLeft} zile`}
+                  </Badge>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
