@@ -100,20 +100,32 @@ const RentalCalendar = () => {
     [allPayments]
   );
 
-  // Next pending rent payment per property
-  const nextRentPerProperty = useMemo(() => {
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const upcoming = pendingPayments
-      .filter(p => p.due_date && p.payment_type === "rent" && !isBefore(parseISO(p.due_date), todayStart))
-      .sort((a, b) => a.due_date.localeCompare(b.due_date));
-    
-    const map = new Map<string, typeof upcoming[0]>();
-    upcoming.forEach(p => {
-      const propId = p.property_id || "unknown";
-      if (!map.has(propId)) map.set(propId, p);
-    });
-    return Array.from(map.values());
-  }, [pendingPayments]);
+  // Rent day info per active tenant (from rent_day column)
+  const rentDayInfo = useMemo(() => {
+    return tenants
+      .filter(t => t.rent_day && t.monthly_rent)
+      .map(t => {
+        const rentDay = (t as any).rent_day as number;
+        const now = new Date();
+        // Calculate next rent date
+        let nextRentDate = new Date(now.getFullYear(), now.getMonth(), rentDay);
+        if (nextRentDate <= now) {
+          nextRentDate = new Date(now.getFullYear(), now.getMonth() + 1, rentDay);
+        }
+        const daysLeft = differenceInDays(nextRentDate, new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+        return {
+          id: t.id,
+          name: t.name,
+          propertyName: (t as any).rental_properties?.name || "—",
+          rentDay,
+          nextRentDate,
+          daysLeft,
+          amount: t.monthly_rent,
+          currency: t.currency || "EUR",
+        };
+      })
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [tenants]);
 
   return (
     <div className="space-y-6">
