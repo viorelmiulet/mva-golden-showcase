@@ -312,8 +312,7 @@ const PropertyDetail = () => {
       setProperty(match as Property);
     } catch (error) {
       console.error("Error fetching property:", error);
-      toast.error("Eroare la încărcarea proprietății");
-      navigate("/proprietati");
+      navigate("/404", { replace: true });
     } finally {
       setIsLoading(false);
     }
