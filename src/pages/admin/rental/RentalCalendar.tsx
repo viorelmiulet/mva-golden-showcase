@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
-import { AlertTriangle, Euro, Clock } from "lucide-react";
+import { AlertTriangle, Euro, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format, addDays, differenceInDays, isWithinInterval, parseISO, isBefore, isSameDay } from "date-fns";
 import { ro } from "date-fns/locale";
 
