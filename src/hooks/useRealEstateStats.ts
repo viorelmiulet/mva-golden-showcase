@@ -41,7 +41,8 @@ export const useRealEstateStats = () => {
         projectsCount: projectsCount || 0,
       };
     },
-    refetchInterval: 30000, // Refresh every 30 seconds for real-time feel
-    retry: false, // Don't retry on storage quota errors
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: false,
   });
 };
