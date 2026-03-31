@@ -57,17 +57,11 @@ const Admin = () => {
   const [editingProperty, setEditingProperty] = useState<any>(null)
   const [editForm, setEditForm] = useState<any>({})
   const [isUpdating, setIsUpdating] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('admin_authenticated') === 'true')
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()
   const queryClient = useQueryClient()
-
-  // Check if user is already authenticated on component mount
-  useEffect(() => {
-    const isAuth = localStorage.getItem('admin_authenticated') === 'true'
-    setIsAuthenticated(isAuth)
-  }, [])
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault()
