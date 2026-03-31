@@ -5,9 +5,8 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
-import NotFound from "./pages/NotFound";
-
-import NavigateToComplex from "@/components/NavigateToComplex";
+const NotFound = lazy(() => import("./pages/NotFound"));
+const NavigateToComplex = lazy(() => import("@/components/NavigateToComplex"));
 
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));

@@ -12,8 +12,13 @@ const cleanupLegacyServiceWorkers = async () => {
     return
   }
 
+  // Only run cleanup once per session
+  if (sessionStorage.getItem('sw_cleaned')) return
+  sessionStorage.setItem('sw_cleaned', '1')
+
   try {
     const registrations = await navigator.serviceWorker.getRegistrations()
+    if (registrations.length === 0) return
     await Promise.all(registrations.map((registration) => registration.unregister()))
 
     if ('caches' in window) {
