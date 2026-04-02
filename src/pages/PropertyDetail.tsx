@@ -241,6 +241,7 @@ const PropertyDetail = () => {
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGone, setIsGone] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
