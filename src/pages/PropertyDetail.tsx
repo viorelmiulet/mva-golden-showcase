@@ -408,9 +408,13 @@ const PropertyDetail = () => {
     );
   }
 
-  // Redirect old UUID URLs that no longer exist to the 404 page
-  if (isGone) {
-    return <Navigate to="/404" replace />;
+  // Show 404 inline without redirect (avoids GSC "page with redirect" errors)
+  if (notFound || isGone) {
+    return (
+      <Suspense fallback={null}>
+        <NotFoundInline />
+      </Suspense>
+    );
   }
 
   if (!property) return null;
