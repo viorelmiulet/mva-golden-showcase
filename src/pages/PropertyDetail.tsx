@@ -236,7 +236,6 @@ const generateSeoSection = (p: Property): string => {
 
 const PropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
