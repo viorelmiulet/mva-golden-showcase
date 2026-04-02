@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
-import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +49,8 @@ import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
+
+const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
@@ -234,11 +236,11 @@ const generateSeoSection = (p: Property): string => {
 
 const PropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGone, setIsGone] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const { addToRecentlyViewed } = useRecentlyViewed();
   const { trackProperty, trackContact } = usePlausible();
@@ -249,7 +251,8 @@ const PropertyDetail = () => {
 
   useEffect(() => {
     if (!slug) {
-      navigate("/proprietati");
+      setNotFound(true);
+      setIsLoading(false);
       return;
     }
     fetchProperty();
@@ -280,13 +283,15 @@ const PropertyDetail = () => {
   const fetchProperty = async () => {
     try {
       if (!slug) {
-        navigate("/proprietati");
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
-      // 1. If UUID — redirect to new slug if property exists, or show 410 Gone
+      // 1. If UUID — show 404 inline (no redirect)
       if (isUUID(slug)) {
-        navigate("/404", { replace: true });
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
@@ -305,14 +310,15 @@ const PropertyDetail = () => {
       );
 
       if (!match) {
-        navigate("/404", { replace: true });
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
       setProperty(match as Property);
     } catch (error) {
       console.error("Error fetching property:", error);
-      navigate("/404", { replace: true });
+      setNotFound(true);
     } finally {
       setIsLoading(false);
     }
@@ -401,9 +407,13 @@ const PropertyDetail = () => {
     );
   }
 
-  // Redirect old UUID URLs that no longer exist to the 404 page
-  if (isGone) {
-    return <Navigate to="/404" replace />;
+  // Show 404 inline without redirect (avoids GSC "page with redirect" errors)
+  if (notFound || isGone) {
+    return (
+      <Suspense fallback={null}>
+        <NotFoundInline />
+      </Suspense>
+    );
   }
 
   if (!property) return null;
