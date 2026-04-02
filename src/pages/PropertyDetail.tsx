@@ -284,13 +284,15 @@ const PropertyDetail = () => {
   const fetchProperty = async () => {
     try {
       if (!slug) {
-        navigate("/proprietati");
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
-      // 1. If UUID — redirect to new slug if property exists, or show 410 Gone
+      // 1. If UUID — show 404 inline (no redirect)
       if (isUUID(slug)) {
-        navigate("/404", { replace: true });
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
@@ -309,14 +311,15 @@ const PropertyDetail = () => {
       );
 
       if (!match) {
-        navigate("/404", { replace: true });
+        setNotFound(true);
+        setIsLoading(false);
         return;
       }
 
       setProperty(match as Property);
     } catch (error) {
       console.error("Error fetching property:", error);
-      navigate("/404", { replace: true });
+      setNotFound(true);
     } finally {
       setIsLoading(false);
     }
