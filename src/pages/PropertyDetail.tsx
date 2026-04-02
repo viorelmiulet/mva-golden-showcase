@@ -50,6 +50,8 @@ import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } 
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
 
+const NotFoundInline = lazy(() => import("@/pages/NotFound"));
+
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
 const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then(m => ({ default: m.ScheduleViewingDialog })));
