@@ -252,7 +252,8 @@ const PropertyDetail = () => {
 
   useEffect(() => {
     if (!slug) {
-      navigate("/proprietati");
+      setNotFound(true);
+      setIsLoading(false);
       return;
     }
     fetchProperty();
