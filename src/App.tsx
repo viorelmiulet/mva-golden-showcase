@@ -222,7 +222,7 @@ const AppRoutes = () => {
               <Route path="/cariera" element={<Cariera />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/faq" element={<Navigate to="/intrebari-frecvente" replace />} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />

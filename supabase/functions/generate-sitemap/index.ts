@@ -7,7 +7,8 @@ const corsHeaders = {
 
 interface Project {
   id: string;
-  name?: string | null;
+  name: string;
+  slug?: string | null;
   updated_at: string;
 }
 
@@ -30,6 +31,20 @@ interface BlogPost {
 }
 
 const SITE_URL = 'https://mvaimobiliare.ro';
+
+const toKebab = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const getComplexSlug = (project: Project) => {
+  if (project.slug?.trim()) return project.slug.trim();
+  const shortId = project.id.replace(/-/g, '').slice(0, 4);
+  return `${toKebab(project.name || 'ansamblu-rezidential')}-${shortId}`;
+};
 
 const xmlEscape = (value: string) =>
   value
@@ -91,7 +106,7 @@ Deno.serve(async (req) => {
     const [projectsResult, propertiesResult, blogPostsResult] = await Promise.all([
       supabase
         .from('real_estate_projects')
-        .select('id, name, updated_at')
+        .select('id, name, slug, updated_at')
         .eq('is_published', true)
         .order('updated_at', { ascending: false }),
       supabase
@@ -145,7 +160,7 @@ Deno.serve(async (req) => {
       { loc: '/contact', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/blog', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/calculator-credit', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
-      { loc: '/faq', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
+      { loc: '/intrebari-frecvente', priority: '0.7', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
@@ -187,7 +202,7 @@ Deno.serve(async (req) => {
         : currentDate;
 
       sitemap += `  <url>
-    <loc>${SITE_URL}/complexe/${project.id}</loc>
+    <loc>${SITE_URL}/complexe/${xmlEscape(getComplexSlug(project))}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

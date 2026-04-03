@@ -5,6 +5,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const toKebab = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const getComplexSlug = (project: { id: string; name: string; slug?: string | null }) => {
+  if (project.slug?.trim()) return project.slug.trim();
+  const shortId = project.id.replace(/-/g, '').slice(0, 4);
+  return `${toKebab(project.name || 'ansamblu-rezidential')}-${shortId}`;
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +34,7 @@ Deno.serve(async (req) => {
     // Fetch published projects with their apartments for richer sitemap
     const { data: projects, error: projectsError } = await supabase
       .from('real_estate_projects')
-      .select('id, name, updated_at')
+      .select('id, name, slug, updated_at')
       .eq('is_published', true)
       .order('updated_at', { ascending: false });
 
@@ -45,7 +59,7 @@ Deno.serve(async (req) => {
           : currentDate;
         
         sitemap += `  <url>
-    <loc>${baseUrl}/complexe/${project.id}</loc>
+    <loc>${baseUrl}/complexe/${getComplexSlug(project)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

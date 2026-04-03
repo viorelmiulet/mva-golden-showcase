@@ -5,6 +5,44 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const toKebab = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const getComplexSlug = (project: { id: string; name: string; slug?: string | null }) => {
+  if (project.slug?.trim()) return project.slug.trim();
+  const shortId = project.id.replace(/-/g, '').slice(0, 4);
+  return `${toKebab(project.name || 'ansamblu-rezidential')}-${shortId}`;
+};
+
+const getPropertySlug = (property: { id: string; rooms?: number | null; project_name?: string | null; zone?: string | null; location?: string | null }) => {
+  const parts: string[] = [];
+  const rooms = property.rooms || 1;
+  parts.push(rooms <= 1 ? 'garsoniera' : `apartament-${rooms}-camere`);
+
+  if (property.project_name) {
+    parts.push(toKebab(property.project_name));
+  }
+
+  const zone = property.zone || property.location;
+  if (zone) {
+    const isCoordinates = /^\d|.*\d{2,}\.\d{3,}/.test(zone);
+    if (!isCoordinates) {
+      const zoneSlug = toKebab(zone.split(',')[0].trim());
+      if (zoneSlug && zoneSlug.length > 2 && !parts.some((part) => part.includes(zoneSlug))) {
+        parts.push(zoneSlug);
+      }
+    }
+  }
+
+  parts.push(property.id.replace(/-/g, '').substring(0, 4));
+  return parts.join('-');
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -24,14 +62,14 @@ Deno.serve(async (req) => {
     const [propertiesResult, projectsResult] = await Promise.all([
       supabase
         .from('catalog_offers')
-        .select('id, title, images, updated_at')
+        .select('id, title, images, updated_at, rooms, project_name, zone, location')
         .eq('is_published', true)
         .not('images', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5000),
       supabase
         .from('real_estate_projects')
-        .select('id, name, main_image, updated_at')
+        .select('id, name, slug, main_image, updated_at')
         .eq('is_published', true)
         .not('main_image', 'is', null)
         .order('updated_at', { ascending: false }),
@@ -55,7 +93,7 @@ Deno.serve(async (req) => {
           : currentDate;
 
         sitemap += `  <url>
-    <loc>${escapeXml(`${baseUrl}/proprietati/${property.id}`)}</loc>
+    <loc>${escapeXml(`${baseUrl}/proprietati/${getPropertySlug(property)}`)}</loc>
     <lastmod>${lastmod}</lastmod>
 `;
         
@@ -84,7 +122,7 @@ Deno.serve(async (req) => {
           : currentDate;
         
         sitemap += `  <url>
-    <loc>${escapeXml(`${baseUrl}/complexe/${project.id}`)}</loc>
+    <loc>${escapeXml(`${baseUrl}/complexe/${getComplexSlug(project)}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <image:image>
       <image:loc>${escapeXml(project.main_image)}</image:loc>
