@@ -114,7 +114,7 @@ const ComplexDetail = () => {
   });
 
   if (isLegacyUuid) {
-    return <Navigate to="/404" replace />;
+    return <NotFound />;
   }
 
   if (projectLoading || propertiesLoading) {
@@ -128,7 +128,7 @@ const ComplexDetail = () => {
   }
 
   if (!project) {
-    return <Navigate to="/404" replace />;
+    return <NotFound />;
   }
 
   // Helper function to extract apartment number numerically
