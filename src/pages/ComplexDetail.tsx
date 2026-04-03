@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -38,6 +38,7 @@ import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 import { ComplexDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { getComplexUrl, isUUID } from "@/lib/complexSlug";
+import NotFound from "@/pages/NotFound";
 
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
