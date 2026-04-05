@@ -215,6 +215,7 @@ export type Database = {
           property_subtype: string | null
           property_type: string | null
           rooms: number | null
+          slug: string | null
           source: string | null
           source_url: string | null
           storia_link: string | null
@@ -290,6 +291,7 @@ export type Database = {
           property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
+          slug?: string | null
           source?: string | null
           source_url?: string | null
           storia_link?: string | null
@@ -365,6 +367,7 @@ export type Database = {
           property_subtype?: string | null
           property_type?: string | null
           rooms?: number | null
+          slug?: string | null
           source?: string | null
           source_url?: string | null
           storia_link?: string | null
@@ -2051,6 +2054,7 @@ export type Database = {
           property_subtype: string | null
           property_type: string | null
           rooms: number | null
+          slug: string | null
           source: string | null
           source_url: string | null
           storia_link: string | null
