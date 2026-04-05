@@ -1436,6 +1436,54 @@ const PropertiesAdmin = () => {
                 <Share2 className="h-5 w-5 text-primary" />
                 <span>Toate platformele</span>
               </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12 border-gold/30"
+                onClick={async () => {
+                  if (!propertyToShare) return;
+                  setShareDialogOpen(false);
+                  setSendingToGBP(true);
+                  try {
+                    const { data: settingsData } = await supabase
+                      .from('site_settings')
+                      .select('value')
+                      .eq('key', 'social_webhooks')
+                      .single();
+                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value as string) : {};
+                    const googleWebhookUrl = webhookSettings.google;
+                    if (!googleWebhookUrl) {
+                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                      setSendingToGBP(false);
+                      return;
+                    }
+                    const slug = generatePropertySlug(propertyToShare);
+                    const images = Array.isArray(propertyToShare.images) ? propertyToShare.images : [];
+                    const res = await fetch(googleWebhookUrl, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: propertyToShare.title,
+                        price: propertyToShare.price_min,
+                        rooms: propertyToShare.rooms,
+                        surface: propertyToShare.surface_min,
+                        slug,
+                        url: `https://mvaimobiliare.ro/proprietati/${slug}`,
+                        image: images[0] || "",
+                        description: propertyToShare.description,
+                      }),
+                    });
+                    if (!res.ok) throw new Error("Request failed");
+                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                  } catch {
+                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                  } finally {
+                    setSendingToGBP(false);
+                  }
+                }}
+              >
+                <MapPin className="h-5 w-5 text-amber-500" />
+                <span>Google Business Profile</span>
+              </Button>
             </div>
           </div>
         </DialogContent>
