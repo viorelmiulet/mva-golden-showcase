@@ -253,23 +253,77 @@ serve(async (req) => {
     // Get custom hashtags from settings or use default
     const customHashtags = webhooks.hashtags || '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';
 
+    // Build rich property details with emoji icons
+    const buildPropertyDetails = (prop: any): string => {
+      const lines: string[] = [];
+      
+      // Price per sqm
+      const pricePerSqm = (prop.price_min && prop.surface_min) 
+        ? `(${(prop.price_min / prop.surface_min).toFixed(2).replace('.', ',')} EUR/mp)`
+        : '';
+      const price = prop.price_min 
+        ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'} ${pricePerSqm}`
+        : 'Preț la cerere';
+      lines.push(`💰 ${price}`);
+      
+      // Main specs row
+      if (prop.rooms) lines.push(`🛏 Camere: ${prop.rooms}`);
+      if (prop.bathrooms) lines.push(`🚿 Băi: ${prop.bathrooms}`);
+      if (prop.surface_min) lines.push(`📐 Suprafață utilă: ${prop.surface_min} mp`);
+      if (prop.surface_max && prop.surface_max !== prop.surface_min) lines.push(`📏 Suprafață construită: ${prop.surface_max} mp`);
+      
+      // Building details
+      if (prop.floor !== null && prop.floor !== undefined) lines.push(`🏢 Etaj: ${prop.floor}`);
+      if (prop.total_floors) lines.push(`🔢 Nr. nivele: ${prop.total_floors}`);
+      if (prop.balconies) lines.push(`🌅 Balcoane: ${prop.balconies}`);
+      if (prop.year_built) lines.push(`📅 An construcție: ${prop.year_built}`);
+      
+      // Type & structure
+      if (prop.compartment) lines.push(`🏠 Compartimentare: ${prop.compartment}`);
+      if (prop.comfort) lines.push(`⭐ Confort: ${prop.comfort}`);
+      if (prop.build_materials) lines.push(`🧱 Structură: ${prop.build_materials}`);
+      if (prop.building_type) lines.push(`🏗 Tip locuință: ${prop.building_type}`);
+      if (prop.property_subtype) lines.push(`🏘 Tip imobil: ${prop.property_subtype}`);
+      
+      // Utilities & features  
+      if (prop.heating) lines.push(`🔥 Încălzire: ${prop.heating}`);
+      if (prop.furnished) lines.push(`🪑 Mobilat: ${prop.furnished}`);
+      if (prop.parking) lines.push(`🅿️ Parcare: ${prop.parking}`);
+      
+      // Location
+      if (prop.zone) lines.push(`📍 Zonă: ${prop.zone}`);
+      if (prop.city) lines.push(`🏙 Oraș: ${prop.city}`);
+      if (prop.location) lines.push(`📌 Locație: ${prop.location}`);
+      
+      // Availability
+      if (prop.availability_status) lines.push(`✅ Disponibilitate: ${prop.availability_status}`);
+      if (prop.transaction_type) lines.push(`📋 Tip tranzacție: ${prop.transaction_type === 'sale' ? 'Vânzare' : prop.transaction_type === 'rent' ? 'Închiriere' : prop.transaction_type}`);
+      
+      // Amenities
+      const amenities: string[] = [];
+      if (prop.has_ac) amenities.push('Aer condiționat');
+      if (prop.has_electricity) amenities.push('Curent');
+      if (prop.has_water) amenities.push('Apă');
+      if (prop.has_gas) amenities.push('Gaz');
+      if (prop.has_internet) amenities.push('Internet');
+      if (prop.has_tv) amenities.push('CATV');
+      if (prop.has_security) amenities.push('Pază');
+      if (amenities.length > 0) lines.push(`⚡ Utilități: ${amenities.join(' • ')}`);
+      
+      // Features array
+      if (prop.features?.length) lines.push(`✨ Finisaje: ${prop.features.join(' • ')}`);
+      
+      return lines.join('\n');
+    };
+
     // Generate content for properties
     const generatePropertyContent = (platform: string, prop: any): string => {
-      const price = prop.price_min 
-        ? `${prop.price_min.toLocaleString('ro-RO')} ${prop.currency || 'EUR'}`
-        : 'Preț la cerere';
+      const propertyUrl = `${siteUrl}/proprietati/${prop.slug || prop.id}`;
+      const details = buildPropertyDetails(prop);
 
-      const rooms = prop.rooms ? `${prop.rooms} ${prop.rooms === 1 ? 'cameră' : 'camere'}` : '';
-      const surface = prop.surface_min ? `${prop.surface_min} mp` : '';
-      const location = prop.location || 'Militari Residence';
-      const propertyUrl = `${siteUrl}/proprietati/${prop.id}`;
+      return `🏠 ${prop.title}
 
-      return `${prop.title}
-
-💰 ${price}
-🛏 ${rooms}
-📐 ${surface}
-📍 ${location}
+${details}
 
 📞 0767.941.512
 🌐 mvaimobiliare.ro
