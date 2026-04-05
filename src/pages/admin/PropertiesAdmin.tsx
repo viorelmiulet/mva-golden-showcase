@@ -1210,6 +1210,19 @@ const PropertiesAdmin = () => {
                   if (!editingProperty) return;
                   setSendingToGBP(true);
                   try {
+                    // Read Google webhook URL from settings
+                    const { data: settingsData } = await supabase
+                      .from('site_settings')
+                      .select('value')
+                      .eq('key', 'social_webhooks')
+                      .single();
+                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
+                    const googleWebhookUrl = webhookSettings.google;
+                    if (!googleWebhookUrl) {
+                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                      setSendingToGBP(false);
+                      return;
+                    }
                     const slug = generatePropertySlug({
                       id: editingProperty.id,
                       rooms: editingProperty.rooms,
@@ -1218,7 +1231,7 @@ const PropertiesAdmin = () => {
                       location: editingProperty.location,
                     });
                     const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
-                    const res = await fetch("https://hook.eu1.make.com/a01gu79frmif3gq7ongliuft15hy1js5", {
+                    const res = await fetch(googleWebhookUrl, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
