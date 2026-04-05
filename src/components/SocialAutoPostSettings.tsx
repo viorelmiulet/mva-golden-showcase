@@ -215,6 +215,7 @@ export const SocialAutoPostSettings = () => {
   const platforms = [
     { id: 'facebook', label: 'Facebook', icon: Facebook, color: 'text-blue-500' },
     { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'text-pink-500' },
+    { id: 'google', label: 'Google Business Profile', icon: MapPin, color: 'text-green-500' },
   ];
 
   return (
