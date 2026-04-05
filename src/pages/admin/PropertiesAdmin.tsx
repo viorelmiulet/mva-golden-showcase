@@ -70,6 +70,7 @@ const PropertiesAdmin = () => {
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
   const [sendingToSocial, setSendingToSocial] = useState<string | null>(null);
+  const [sendingToGBP, setSendingToGBP] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<{ id: string; title: string } | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
