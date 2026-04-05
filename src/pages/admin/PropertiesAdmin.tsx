@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
-import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import { getImmofluxPropertyUrl, generatePropertySlug } from "@/lib/propertySlug";
 import { Switch } from "@/components/ui/switch";
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -70,6 +70,7 @@ const PropertiesAdmin = () => {
   const [addImages, setAddImages] = useState<string[]>([]);
   const [editImages, setEditImages] = useState<string[]>([]);
   const [sendingToSocial, setSendingToSocial] = useState<string | null>(null);
+  const [sendingToGBP, setSendingToGBP] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [propertyToShare, setPropertyToShare] = useState<{ id: string; title: string } | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
@@ -1201,7 +1202,53 @@ const PropertiesAdmin = () => {
                 />
               </div>
             </div>
-            <div className="flex gap-2 justify-end">
+            <div className="flex flex-wrap gap-2 justify-end">
+              <Button
+                variant="outline"
+                disabled={sendingToGBP}
+                onClick={async () => {
+                  if (!editingProperty) return;
+                  setSendingToGBP(true);
+                  try {
+                    const slug = generatePropertySlug({
+                      id: editingProperty.id,
+                      rooms: editingProperty.rooms,
+                      project_name: editingProperty.project_name,
+                      zone: editingProperty.zone,
+                      location: editingProperty.location,
+                    });
+                    const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
+                    const res = await fetch("https://hook.eu1.make.com/a01gu79frmif3gq7ongliuft15hy1js5", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: editingProperty.title || "",
+                        price: editingProperty.price_min || 0,
+                        rooms: editingProperty.rooms || 0,
+                        surface: editingProperty.surface_min || 0,
+                        slug,
+                        url: `https://mvaimobiliare.ro/proprietati/${slug}`,
+                        image: images[0] || "",
+                        description: editingProperty.description || "",
+                      }),
+                    });
+                    if (!res.ok) throw new Error("Request failed");
+                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                  } catch {
+                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                  } finally {
+                    setSendingToGBP(false);
+                  }
+                }}
+                className="border-gold text-gold hover:bg-gold hover:text-black transition-all"
+              >
+                {sendingToGBP ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
+                Postează pe Google Business Profile
+              </Button>
               <Button variant="outline" onClick={closeEditModal}>
                 Anulează
               </Button>
