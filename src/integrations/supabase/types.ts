@@ -1990,6 +1990,90 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      find_properties_by_id_prefix: {
+        Args: { prefix: string }
+        Returns: {
+          agency: string | null
+          agency_id: string | null
+          agent: string | null
+          amenities: string[] | null
+          appartment_type: string | null
+          availability_status: string | null
+          available_units: number | null
+          balconies: number | null
+          bathrooms: number | null
+          broker_id: string | null
+          build_materials: string | null
+          building_type: string | null
+          city: string | null
+          comfort: string | null
+          commission_type: string | null
+          commission_value: number | null
+          compartment: string | null
+          contact_info: Json | null
+          created_at: string
+          crm_source: string | null
+          currency: string | null
+          date_added: string | null
+          descriere_lunga: string | null
+          description: string | null
+          exclusivity: boolean | null
+          external_id: string | null
+          features: string[] | null
+          floor: number | null
+          floor_plan: string | null
+          furnished: string | null
+          has_ac: boolean | null
+          has_electricity: boolean | null
+          has_gas: boolean | null
+          has_internet: boolean | null
+          has_phone: boolean | null
+          has_security: boolean | null
+          has_tv: boolean | null
+          has_water: boolean | null
+          has_wood_floors: boolean | null
+          heating: string | null
+          id: string
+          images: string[] | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          kitchens: number | null
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          parking: number | null
+          price_max: number | null
+          price_min: number | null
+          price_type: string | null
+          project_id: string | null
+          project_name: string | null
+          promotion_type: string | null
+          property_subtype: string | null
+          property_type: string | null
+          rooms: number | null
+          source: string | null
+          source_url: string | null
+          storia_link: string | null
+          surface_land: number | null
+          surface_max: number | null
+          surface_min: number | null
+          title: string
+          total_floors: number | null
+          transaction_type: string | null
+          updated_at: string
+          video: string | null
+          virtual_tour: string | null
+          whatsapp_catalog_id: string | null
+          year_built: number | null
+          zone: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "catalog_offers"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       generate_property_slug_db: {
         Args: {
           property_id: string
