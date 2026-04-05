@@ -464,7 +464,7 @@ ${projectHashtags}`;
         const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
         // Fixed location: Militari Residence
         const locationFormatted = 'Militari Residence';
-        const propertyUrl = `${siteUrl}/proprietati/${property.id}`;
+        const propertyUrl = `${siteUrl}/proprietati/${property.slug || property.id}`;
         
         const hashtags = customHashtags;
 
