@@ -107,11 +107,16 @@ export const SocialAutoPostSettings = () => {
     scheduleInterval: raw?.scheduleInterval ?? "daily",
   });
 
+  const getSocialSettingsRow = async () => {
+    const result = await adminApi.select<{ id: string; key: string; value: string | null }>('site_settings');
+    if (!result.success) throw new Error(result.error || 'Load failed');
+
+    return result.data?.find((item) => item.key === 'social_webhooks') || null;
+  };
+
   const loadSettings = async () => {
     try {
-      const result = await adminApi.select<{ id: string; key: string; value: string | null }>('site_settings');
-      if (!result.success) throw new Error(result.error || 'Load failed');
-      const socialSettingsRow = result.data?.find((item) => item.key === 'social_webhooks') || null;
+      const socialSettingsRow = await getSocialSettingsRow();
       setSiteSettingsId(socialSettingsRow?.id || null);
 
       if (socialSettingsRow?.value) {
@@ -130,20 +135,31 @@ export const SocialAutoPostSettings = () => {
     setIsLoading(true);
     try {
       const normalizedSettings = normalizeSettings(settings);
+      const existingRow = siteSettingsId
+        ? { id: siteSettingsId }
+        : await getSocialSettingsRow();
+      const timestamp = new Date().toISOString();
       const payload = {
         key: 'social_webhooks',
         value: JSON.stringify(normalizedSettings),
-        updated_at: new Date().toISOString(),
+        updated_at: timestamp,
       };
 
-      const result = siteSettingsId
-        ? await adminApi.update('site_settings', siteSettingsId, payload)
-        : await adminApi.insert('site_settings', payload);
+      const result = existingRow?.id
+        ? await adminApi.update('site_settings', existingRow.id, payload)
+        : await adminApi.insert('site_settings', {
+            ...payload,
+            created_at: timestamp,
+          });
 
       if (!result.success) throw new Error(result.error || 'Save failed');
 
       const savedRow = result.data?.[0] as { id?: string } | undefined;
-      if (savedRow?.id) setSiteSettingsId(savedRow.id);
+      if (savedRow?.id) {
+        setSiteSettingsId(savedRow.id);
+      } else if (existingRow?.id) {
+        setSiteSettingsId(existingRow.id);
+      }
       setSettings(normalizedSettings);
       toast.success('Setările au fost salvate!');
     } catch (error) {
