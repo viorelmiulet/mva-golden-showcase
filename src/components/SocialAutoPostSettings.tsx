@@ -14,6 +14,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { adminApi } from "@/lib/adminApi";
 
 interface WebhookSettings {
   facebook?: string;
@@ -24,7 +25,7 @@ interface WebhookSettings {
   twitter?: string;
   enabled: boolean;
   scheduled?: boolean;
-  scheduleInterval?: string; // 'hourly' | 'every_3_hours' | 'every_6_hours' | 'daily'
+  scheduleInterval?: string;
   lastScheduledRun?: string;
   hashtags?: string;
 }
@@ -40,24 +41,27 @@ interface AuditLog {
   } | null;
 }
 
+const defaultWebhookSettings: WebhookSettings = {
+  facebook: "",
+  instagram: "",
+  google: "",
+  linkedin: "",
+  twitter: "",
+  enabled: false,
+  scheduled: false,
+  scheduleInterval: "daily",
+  hashtags: "#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi",
+};
+
 export const SocialAutoPostSettings = () => {
   const queryClient = useQueryClient();
-  const [settings, setSettings] = useState<WebhookSettings>({
-    facebook: "",
-    instagram: "",
-    linkedin: "",
-    twitter: "",
-    enabled: false,
-    scheduled: false,
-    scheduleInterval: "daily",
-    hashtags: "#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi",
-  });
+  const [settings, setSettings] = useState<WebhookSettings>(defaultWebhookSettings);
+  const [siteSettingsId, setSiteSettingsId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
 
-  // Fetch properties for manual send
   const { data: properties } = useQuery({
     queryKey: ['properties-for-webhook'],
     queryFn: async () => {
@@ -71,7 +75,6 @@ export const SocialAutoPostSettings = () => {
     }
   });
 
-  // Fetch posting history
   const { data: postingHistory, isLoading: isLoadingHistory } = useQuery({
     queryKey: ['social-post-history'],
     queryFn: async () => {
@@ -90,34 +93,58 @@ export const SocialAutoPostSettings = () => {
     loadSettings();
   }, []);
 
+  const normalizeSettings = (raw?: Partial<WebhookSettings> | null): WebhookSettings => ({
+    ...defaultWebhookSettings,
+    ...raw,
+    facebook: raw?.facebook ?? "",
+    instagram: raw?.instagram ?? "",
+    google: raw?.google ?? "",
+    linkedin: raw?.linkedin ?? "",
+    twitter: raw?.twitter ?? "",
+    hashtags: raw?.hashtags ?? defaultWebhookSettings.hashtags,
+    enabled: raw?.enabled ?? false,
+    scheduled: raw?.scheduled ?? false,
+    scheduleInterval: raw?.scheduleInterval ?? "daily",
+  });
+
   const loadSettings = async () => {
     try {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'social_webhooks')
-        .single();
+      const result = await adminApi.select<{ id: string; key: string; value: string | null }>('site_settings');
+      if (!result.success) throw new Error(result.error || 'Load failed');
+      const socialSettingsRow = result.data?.find((item) => item.key === 'social_webhooks') || null;
+      setSiteSettingsId(socialSettingsRow?.id || null);
 
-      if (data?.value) {
-        setSettings(prev => ({ ...prev, ...JSON.parse(data.value) }));
+      if (socialSettingsRow?.value) {
+        setSettings(normalizeSettings(JSON.parse(socialSettingsRow.value)));
+      } else {
+        setSettings(defaultWebhookSettings);
       }
     } catch (error) {
       console.log('No settings found, using defaults');
+      setSettings(defaultWebhookSettings);
+      setSiteSettingsId(null);
     }
   };
 
   const saveSettings = async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from('site_settings')
-        .upsert({
-          key: 'social_webhooks',
-          value: JSON.stringify(settings),
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'key' });
+      const normalizedSettings = normalizeSettings(settings);
+      const payload = {
+        key: 'social_webhooks',
+        value: JSON.stringify(normalizedSettings),
+        updated_at: new Date().toISOString(),
+      };
 
-      if (error) throw error;
+      const result = siteSettingsId
+        ? await adminApi.update('site_settings', siteSettingsId, payload)
+        : await adminApi.insert('site_settings', payload);
+
+      if (!result.success) throw new Error(result.error || 'Save failed');
+
+      const savedRow = result.data?.[0] as { id?: string } | undefined;
+      if (savedRow?.id) setSiteSettingsId(savedRow.id);
+      setSettings(normalizedSettings);
       toast.success('Setările au fost salvate!');
     } catch (error) {
       console.error('Error saving settings:', error);
