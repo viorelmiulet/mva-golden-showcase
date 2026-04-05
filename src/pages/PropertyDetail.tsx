@@ -288,10 +288,22 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 1. If UUID — show 404 inline (no redirect)
+      // 1. If UUID — redirect to SEO slug
       if (isUUID(slug)) {
-        setNotFound(true);
-        setIsLoading(false);
+        const { data: prop, error: uuidError } = await supabase
+          .from("catalog_offers")
+          .select("*")
+          .eq("id", slug)
+          .maybeSingle();
+
+        if (uuidError || !prop) {
+          setNotFound(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const seoSlug = generatePropertySlug(prop as Property);
+        window.location.replace(`/proprietati/${seoSlug}`);
         return;
       }
 
