@@ -1456,20 +1456,22 @@ const PropertiesAdmin = () => {
                       setSendingToGBP(false);
                       return;
                     }
-                    const slug = generatePropertySlug(propertyToShare);
-                    const images = Array.isArray(propertyToShare.images) ? propertyToShare.images : [];
+                    const fullProperty = properties?.find(p => p.id === propertyToShare.id);
+                    if (!fullProperty) throw new Error("Property not found");
+                    const slug = generatePropertySlug(fullProperty);
+                    const images = Array.isArray(fullProperty.images) ? fullProperty.images : [];
                     const res = await fetch(googleWebhookUrl, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
-                        title: propertyToShare.title,
-                        price: propertyToShare.price_min,
-                        rooms: propertyToShare.rooms,
-                        surface: propertyToShare.surface_min,
+                        title: fullProperty.title,
+                        price: fullProperty.price_min,
+                        rooms: fullProperty.rooms,
+                        surface: fullProperty.surface_min,
                         slug,
                         url: `https://mvaimobiliare.ro/proprietati/${slug}`,
                         image: images[0] || "",
-                        description: propertyToShare.description,
+                        description: fullProperty.description,
                       }),
                     });
                     if (!res.ok) throw new Error("Request failed");
