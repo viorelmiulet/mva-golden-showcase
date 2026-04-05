@@ -295,13 +295,10 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 2. Extract short ID from slug and query only matching properties
+      // 2. Extract short ID from slug and query matching properties via RPC
       const shortId = extractShortIdFromSlug(slug);
       const { data: candidates, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .ilike("id", `${shortId}%`)
-        .limit(10);
+        .rpc("find_properties_by_id_prefix", { prefix: shortId });
 
       if (error) throw error;
 
