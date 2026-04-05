@@ -99,7 +99,7 @@ export const SocialAutoPostSettings = () => {
         .single();
 
       if (data?.value) {
-        setSettings(JSON.parse(data.value));
+        setSettings(prev => ({ ...prev, ...JSON.parse(data.value) }));
       }
     } catch (error) {
       console.log('No settings found, using defaults');
