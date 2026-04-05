@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar, MapPin } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
