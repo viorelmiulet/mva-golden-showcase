@@ -453,8 +453,9 @@ ${projectHashtags}`;
           carousel_images_json: JSON.stringify(projectImage ? [projectImage] : []),
         };
       } else {
-        // Generate property payload - SINGLE IMAGE + MILITARI RESIDENCE
+        // Generate property payload with rich details
         const content = generatePropertyContent(platformName, property);
+        const richDetails = buildPropertyDetails(property);
         
         const priceFormatted = property.price_min 
           ? `${property.price_min.toLocaleString('ro-RO')} ${property.currency || 'EUR'}`
@@ -462,22 +463,17 @@ ${projectHashtags}`;
         
         const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
         const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
-        // Fixed location: Militari Residence
-        const locationFormatted = 'Militari Residence';
+        const locationFormatted = property.location || 'Militari Residence';
         const propertyUrl = `${siteUrl}/proprietati/${property.slug || property.id}`;
         
         const hashtags = customHashtags;
 
-        const shortDescription = (platformName === 'instagram' || platformName === 'tiktok')
-          ? '' 
-          : (property.description || '').substring(0, 500);
+        // Rich description with all property details
+        const richDescription = richDetails;
 
-        const instagramCaption = `${property.title}
+        const instagramCaption = `🏠 ${property.title}
 
-💰 ${priceFormatted}
-🛏 ${roomsFormatted}
-📐 ${surfaceFormatted}
-📍 ${locationFormatted}
+${richDetails}
 
 📞 0767.941.512
 🌐 mvaimobiliare.ro
@@ -488,12 +484,9 @@ ${hashtags}`;
 
         const tiktokCaption = instagramCaption;
 
-        const googleCaption = `${property.title}
+        const googleCaption = `🏠 ${property.title}
 
-💰 ${priceFormatted}
-🛏 ${roomsFormatted}
-📐 ${surfaceFormatted}
-📍 ${locationFormatted}
+${richDetails}
 
 📞 0767.941.512
 🌐 mvaimobiliare.ro
