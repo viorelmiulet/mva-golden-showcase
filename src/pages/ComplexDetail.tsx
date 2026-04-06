@@ -700,17 +700,51 @@ const ComplexDetail = () => {
                                 <span className="font-semibold text-[10px] sm:text-xs md:text-sm">{tipApt}</span>
                               </div>
 
-                              {/* Details */}
-                              <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs md:text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Suprafață:</span>
-                                  <span className="font-semibold">{surface} mp</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Camere:</span>
-                                  <span className="font-semibold">{rooms} {rooms === 1 ? 'cam.' : 'cam.'}</span>
-                                </div>
-                              </div>
+                              {/* Details - Surface Breakdown */}
+                              {(() => {
+                                const surfaceDetails = (apt.contact_info as any)?.surface_details;
+                                if (surfaceDetails && Array.isArray(surfaceDetails)) {
+                                  return (
+                                    <div className="space-y-0.5 sm:space-y-1 text-[10px] sm:text-xs md:text-sm">
+                                      {surfaceDetails.filter((d: any) => d.tip !== 'Total').map((detail: any, idx: number) => (
+                                        <div key={idx} className="flex justify-between">
+                                          <span className="text-muted-foreground">{detail.tip}:</span>
+                                          <span className="font-semibold">
+                                            {detail.suprafata_construita} mp
+                                            {detail.tip_spatiu && detail.tip_spatiu !== 'spatiu exterior' && ` · ${detail.tip_spatiu}`}
+                                          </span>
+                                        </div>
+                                      ))}
+                                      {surfaceDetails.filter((d: any) => d.tip === 'Total').map((detail: any, idx: number) => (
+                                        <div key={`total-${idx}`} className="flex justify-between pt-0.5 border-t border-primary/10 font-bold">
+                                          <span>Total:</span>
+                                          <span>{detail.suprafata_construita} mp</span>
+                                        </div>
+                                      ))}
+                                      {surfaceDetails.filter((d: any) => d.tip === 'Total').map((detail: any, idx: number) => (
+                                        detail.suprafata_utila && (
+                                          <div key={`util-${idx}`} className="flex justify-between text-muted-foreground">
+                                            <span>S. utilă:</span>
+                                            <span className="font-semibold text-foreground">{detail.suprafata_utila} mp</span>
+                                          </div>
+                                        )
+                                      ))}
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div className="space-y-1 sm:space-y-2 text-[10px] sm:text-xs md:text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Suprafață:</span>
+                                      <span className="font-semibold">{surface} mp</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Camere:</span>
+                                      <span className="font-semibold">{rooms} cam.</span>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
 
                               {/* Prices - Hidden for RENEW RESIDENCE and Eurocasa Residence */}
                               {project.name?.toUpperCase() !== "RENEW RESIDENCE" && !project.name?.toUpperCase().includes("EUROCASA") && (
