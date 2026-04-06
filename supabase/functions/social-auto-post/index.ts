@@ -73,17 +73,8 @@ interface WebhookPayload {
   // ALL IMAGES - Array of all property images
   all_images: string[];
   images_count: number;
-  // Individual image URLs for easy Zapier access (up to 10 images)
-  image_1?: string;
-  image_2?: string;
-  image_3?: string;
-  image_4?: string;
-  image_5?: string;
-  image_6?: string;
-  image_7?: string;
-  image_8?: string;
-  image_9?: string;
-  image_10?: string;
+  // Individual image URLs for easy Zapier/Make access (up to 20 images)
+  [key: `image_${number}`]: string | undefined;
   // INSTAGRAM CAROUSEL - Fields for multi-image carousel posts
   instagram_carousel: {
     enabled: boolean;
