@@ -313,7 +313,7 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <LanguageToggle />
+            
             {user ? (
               <>
                 <Link to="/favorite">
@@ -380,9 +380,7 @@ const Header = () => {
                       MVA IMOBILIARE
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <LanguageToggle />
-                  </div>
+                  
                 </div>
 
                 {navItems.map((item) => (
