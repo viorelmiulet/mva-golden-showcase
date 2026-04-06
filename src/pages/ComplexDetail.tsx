@@ -735,8 +735,8 @@ const ComplexDetail = () => {
                                 );
                               })()}
 
-                              {/* Prices - Hidden for RENEW RESIDENCE and Eurocasa Residence */}
-                              {project.name?.toUpperCase() !== "RENEW RESIDENCE" && !project.name?.toUpperCase().includes("EUROCASA") && (
+                              {/* Prices - Hidden for RENEW RESIDENCE, Eurocasa and Viscolului Residence */}
+                              {project.name?.toUpperCase() !== "RENEW RESIDENCE" && !project.name?.toUpperCase().includes("EUROCASA") && !project.name?.toUpperCase().includes("VISCOLULUI") && (
                                 <div className="space-y-1 sm:space-y-2 pt-1.5 sm:pt-2 border-t border-primary/10">
                                   <div className="flex items-center justify-between glass-hover p-1.5 rounded">
                                     <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground">Cash:</span>
