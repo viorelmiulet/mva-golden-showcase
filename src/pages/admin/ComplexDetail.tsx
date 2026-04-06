@@ -975,7 +975,7 @@ const ComplexDetail = () => {
                       const priceCredit = apt.price_max;
                       const priceCash = apt.price_min;
                       const rooms = apt.rooms;
-                      const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+                      const tipApt = apt.rooms ? `${apt.rooms} ${apt.rooms === 1 ? 'cameră' : 'camere'}` : (apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '');
                       const isSelected = selectedProperties.includes(apt.id);
 
                       return (
@@ -1097,10 +1097,7 @@ const ComplexDetail = () => {
                                     {surfaceDetails.filter((d: any) => d.tip !== 'Total').map((detail: any, idx: number) => (
                                       <div key={idx} className="flex justify-between">
                                         <span className="text-muted-foreground">{detail.tip}:</span>
-                                        <span className="font-semibold">
-                                          {detail.suprafata_construita} mp
-                                          {detail.tip_spatiu && detail.tip_spatiu !== 'spatiu exterior' && ` · ${detail.tip_spatiu}`}
-                                        </span>
+                                        <span className="font-semibold">{detail.suprafata_construita} mp</span>
                                       </div>
                                     ))}
                                     {surfaceDetails.filter((d: any) => d.tip === 'Total' && d.suprafata_utila).map((detail: any, idx: number) => (
