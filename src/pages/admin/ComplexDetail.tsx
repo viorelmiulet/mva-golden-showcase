@@ -1123,8 +1123,8 @@ const ComplexDetail = () => {
                               );
                             })()}
 
-                            {/* Prices - Hidden for EUROCASA RESIDENCE */}
-                            {project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && (
+                            {/* Prices - Hidden for EUROCASA RESIDENCE and VISCOLULUI RESIDENCE */}
+                            {project.name?.toUpperCase() !== "EUROCASA RESIDENCE" && !project.name?.toUpperCase().includes("VISCOLULUI") && (
                               <div className="space-y-1.5 md:space-y-2 pt-2 border-t">
                                 <div className="flex items-center justify-between">
                                   <span className="text-[10px] md:text-xs text-muted-foreground">Cash:</span>
