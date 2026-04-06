@@ -643,15 +643,7 @@ const ComplexDetail = () => {
                         const priceCredit = apt.price_max;
                         const priceCash = apt.price_min;
                         const rooms = apt.rooms;
-                        // Extract apartment type from features (look for type like GARSONIERA, STUDIO, AP 2 CAMERE)
-                        const typeFeature = apt.features?.find(f => 
-                          f?.includes('GARSONIERA') || 
-                          f?.includes('STUDIO') || 
-                          f?.includes('CAMERE') ||
-                          f?.includes('Garsoniera') ||
-                          f?.includes('Studio')
-                        );
-                        const tipApt = typeFeature || apt.features?.[2] || '';
+                        const tipApt = apt.rooms ? `${apt.rooms} ${apt.rooms === 1 ? 'cameră' : 'camere'}` : (apt.features?.find((f: string) => f?.startsWith('Tip:'))?.split(': ')[1] || '');
 
                         return (
                           <Card 
