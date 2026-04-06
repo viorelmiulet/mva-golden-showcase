@@ -1103,19 +1103,11 @@ const ComplexDetail = () => {
                                         </span>
                                       </div>
                                     ))}
-                                    {surfaceDetails.filter((d: any) => d.tip === 'Total').map((detail: any, idx: number) => (
-                                      <div key={`total-${idx}`} className="flex justify-between pt-0.5 border-t font-bold">
-                                        <span>Total:</span>
-                                        <span>{detail.suprafata_construita} mp</span>
+                                    {surfaceDetails.filter((d: any) => d.tip === 'Total' && d.suprafata_utila).map((detail: any, idx: number) => (
+                                      <div key={`util-${idx}`} className="flex justify-between pt-0.5 border-t text-muted-foreground">
+                                        <span>S. utilă:</span>
+                                        <span className="font-semibold text-foreground">{detail.suprafata_utila} mp</span>
                                       </div>
-                                    ))}
-                                    {surfaceDetails.filter((d: any) => d.tip === 'Total').map((detail: any, idx: number) => (
-                                      detail.suprafata_utila && (
-                                        <div key={`util-${idx}`} className="flex justify-between text-muted-foreground">
-                                          <span>S. utilă:</span>
-                                          <span className="font-semibold text-foreground">{detail.suprafata_utila} mp</span>
-                                        </div>
-                                      )
                                     ))}
                                   </div>
                                 );
