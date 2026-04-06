@@ -549,13 +549,53 @@ ${richDetails}
         } as WebhookPayload;
       }
 
-      console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
+      // For Facebook, send a simplified payload to avoid "Invalid parameter" errors
+      let finalPayload: any = payload;
+      if (platformName === 'facebook') {
+        finalPayload = {
+          message: payload.message,
+          url: payload.url,
+          title: payload.title,
+          description: payload.description,
+          location: payload.location,
+          price: payload.price,
+          rooms: payload.rooms || undefined,
+          surface: payload.surface || undefined,
+          hashtags: payload.hashtags,
+          website: payload.website,
+          phone: payload.phone,
+          timestamp: payload.timestamp,
+          platform: 'facebook',
+          type: payload.type,
+        };
+        // Only include photo if it's a valid URL
+        if (payload.photo && payload.photo.startsWith('http')) {
+          finalPayload.photo = payload.photo;
+          finalPayload.image_url = payload.photo;
+        }
+        // Include individual image URLs (only valid ones)
+        const validImages = (payload.all_images || []).filter((img: string) => img && img.startsWith('http'));
+        if (validImages.length > 0) {
+          finalPayload.images_count = validImages.length;
+          validImages.forEach((img: string, i: number) => {
+            finalPayload[`image_${i + 1}`] = img;
+          });
+        }
+        // Remove any undefined/empty values
+        Object.keys(finalPayload).forEach(key => {
+          if (finalPayload[key] === undefined || finalPayload[key] === '' || finalPayload[key] === null) {
+            delete finalPayload[key];
+          }
+        });
+      }
+
+      console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(finalPayload).substring(0, 500));
 
       try {
         const response = await fetch(webhookUrl as string, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(finalPayload),
         });
 
         const responseText = await response.text();
