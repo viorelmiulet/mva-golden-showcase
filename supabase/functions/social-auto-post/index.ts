@@ -73,17 +73,8 @@ interface WebhookPayload {
   // ALL IMAGES - Array of all property images
   all_images: string[];
   images_count: number;
-  // Individual image URLs for easy Zapier access (up to 10 images)
-  image_1?: string;
-  image_2?: string;
-  image_3?: string;
-  image_4?: string;
-  image_5?: string;
-  image_6?: string;
-  image_7?: string;
-  image_8?: string;
-  image_9?: string;
-  image_10?: string;
+  // Individual image URLs for easy Zapier/Make access (up to 20 images)
+  [key: `image_${number}`]: string | undefined;
   // INSTAGRAM CAROUSEL - Fields for multi-image carousel posts
   instagram_carousel: {
     enabled: boolean;
@@ -493,9 +484,15 @@ ${richDetails}
 
 👉 Detalii: ${propertyUrl}`;
 
-        // FIRST 5 IMAGES
-        const allImages = (property.images || []).slice(0, 5);
+        // ALL IMAGES - no limit
+        const allImages = property.images || [];
         const firstImageUrl = allImages[0] || '';
+        
+        // Build individual image fields dynamically
+        const imageFields: Record<string, string> = {};
+        allImages.forEach((img: string, i: number) => {
+          imageFields[`image_${i + 1}`] = img;
+        });
         
         payload = {
           type: 'property',
@@ -537,14 +534,10 @@ ${richDetails}
           photo_url: firstImageUrl,
           photo: firstImageUrl,
           url: propertyUrl,
-          // All 5 images
+          // All images
           all_images: allImages,
           images_count: allImages.length,
-          image_1: allImages[0] || undefined,
-          image_2: allImages[1] || undefined,
-          image_3: allImages[2] || undefined,
-          image_4: allImages[3] || undefined,
-          image_5: allImages[4] || undefined,
+          ...imageFields,
           instagram_carousel: {
             enabled: allImages.length > 1,
             images: allImages,
@@ -553,7 +546,7 @@ ${richDetails}
           },
           carousel_images_csv: allImages.join(','),
           carousel_images_json: JSON.stringify(allImages),
-        };
+        } as WebhookPayload;
       }
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
