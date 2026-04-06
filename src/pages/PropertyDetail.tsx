@@ -307,7 +307,19 @@ const PropertyDetail = () => {
         return;
       }
 
-      // 2. Extract short ID from slug and query matching properties via RPC
+      // 2. First try to find by slug column in database
+      const { data: slugMatch } = await supabase
+        .from("catalog_offers")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (slugMatch) {
+        setProperty(slugMatch as Property);
+        return;
+      }
+
+      // 3. Fallback: Extract short ID from slug and query matching properties via RPC
       const shortId = extractShortIdFromSlug(slug);
       const { data: candidates, error } = await supabase
         .rpc("find_properties_by_id_prefix", { prefix: shortId });
