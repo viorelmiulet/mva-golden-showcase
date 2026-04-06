@@ -51,7 +51,7 @@ const menuItems = [
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
-  { title: "Complexe", url: "/admin/complexe", icon: Layers },
+  { title: "Ansambluri Rezidențiale", url: "/admin/complexe", icon: Layers },
   { title: "Vizionări", url: "/admin/vizionari", icon: CalendarCheck },
   { title: "Comisioane", url: "/admin/comisioane", icon: Euro },
   { title: "Contracte", url: "/admin/contracte", icon: ScrollText },
