@@ -484,9 +484,15 @@ ${richDetails}
 
 👉 Detalii: ${propertyUrl}`;
 
-        // FIRST 5 IMAGES
-        const allImages = (property.images || []).slice(0, 5);
+        // ALL IMAGES - no limit
+        const allImages = property.images || [];
         const firstImageUrl = allImages[0] || '';
+        
+        // Build individual image fields dynamically
+        const imageFields: Record<string, string> = {};
+        allImages.forEach((img: string, i: number) => {
+          imageFields[`image_${i + 1}`] = img;
+        });
         
         payload = {
           type: 'property',
@@ -528,14 +534,10 @@ ${richDetails}
           photo_url: firstImageUrl,
           photo: firstImageUrl,
           url: propertyUrl,
-          // All 5 images
+          // All images
           all_images: allImages,
           images_count: allImages.length,
-          image_1: allImages[0] || undefined,
-          image_2: allImages[1] || undefined,
-          image_3: allImages[2] || undefined,
-          image_4: allImages[3] || undefined,
-          image_5: allImages[4] || undefined,
+          ...imageFields,
           instagram_carousel: {
             enabled: allImages.length > 1,
             images: allImages,
@@ -544,7 +546,7 @@ ${richDetails}
           },
           carousel_images_csv: allImages.join(','),
           carousel_images_json: JSON.stringify(allImages),
-        };
+        } as WebhookPayload;
       }
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(payload).substring(0, 500));
