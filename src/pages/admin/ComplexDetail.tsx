@@ -975,7 +975,7 @@ const ComplexDetail = () => {
                       const priceCredit = apt.price_max;
                       const priceCash = apt.price_min;
                       const rooms = apt.rooms;
-                      const tipApt = apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '';
+                      const tipApt = apt.rooms ? `${apt.rooms} ${apt.rooms === 1 ? 'cameră' : 'camere'}` : (apt.features?.find((f: string) => f.startsWith('Tip:'))?.split(': ')[1] || '');
                       const isSelected = selectedProperties.includes(apt.id);
 
                       return (
