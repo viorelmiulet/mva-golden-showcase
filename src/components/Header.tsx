@@ -380,9 +380,7 @@ const Header = () => {
                       MVA IMOBILIARE
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <LanguageToggle />
-                  </div>
+                  
                 </div>
 
                 {navItems.map((item) => (
