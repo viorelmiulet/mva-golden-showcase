@@ -1161,7 +1161,8 @@ const ComplexDetail = () => {
                               {apt.floor_plan ? 'Vezi/Schimbă Schiță' : '+ Schiță Etaj'}
                             </Button>
 
-                            {/* Commission Selection */}
+                            {/* Commission Selection - Hidden for VISCOLULUI RESIDENCE */}
+                            {!project.name?.toUpperCase().includes("VISCOLULUI") && (
                             <div className="pt-2 border-t space-y-2">
                               <div className="flex items-center justify-between">
                                 <span className="text-[10px] md:text-xs text-muted-foreground flex items-center gap-1">
@@ -1216,6 +1217,7 @@ const ComplexDetail = () => {
                                 </div>
                               )}
                             </div>
+                            )}
 
                             {/* Edit Button */}
                             <Button 
