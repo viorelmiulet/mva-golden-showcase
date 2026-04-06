@@ -313,7 +313,7 @@ const Header = () => {
 
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
-            <LanguageToggle />
+            
             {user ? (
               <>
                 <Link to="/favorite">
