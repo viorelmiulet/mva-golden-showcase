@@ -8,17 +8,17 @@
     <link rel="preload" as="image" href="/hero-mobile.webp" imagesrcset="/hero-mobile.webp 768w, /hero-desktop.webp 1440w" imagesizes="(max-width: 768px) 100vw, 1440px" fetchpriority="high" />
     <link rel="preload" href="/mva-logo-luxury-horizontal.svg" as="image" />
     
-    <!-- Preconnect to own domain -->
-    <link rel="preconnect" href="https://mvaimobiliare.ro" crossorigin />
-    <link rel="preconnect" href="https://fdpandnzblzvamhsoukt.supabase.co" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://web.immoflux.ro" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://img.immoflux.ro" crossorigin="anonymous" />
+    <!-- Preconnect to critical origins (with crossorigin for CORS fetch) -->
+    <link rel="preconnect" href="https://fdpandnzblzvamhsoukt.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- DNS Prefetch for external resources -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <!-- DNS Prefetch for secondary origins -->
     <link rel="dns-prefetch" href="https://fdpandnzblzvamhsoukt.supabase.co" />
     <link rel="dns-prefetch" href="https://web.immoflux.ro" />
     <link rel="dns-prefetch" href="https://img.immoflux.ro" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://plausible.io" />
     
     <!-- Favicon - Google requires PNG 48x48+ -->
     <link rel="icon" href="/favicon.ico" sizes="48x48">
