@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import OptimizedImage from "@/components/OptimizedImage";
+import BlogPropertyLinks from "@/components/BlogPropertyLinks";
 
 const getCategoryIcon = (categoryId: string) => {
   const icons: Record<string, typeof Home> = {
@@ -253,6 +254,12 @@ const BlogPost = () => {
                   </Link>
                 </div>
               </div>
+
+              {/* Internal links to properties & complexes */}
+              <BlogPropertyLinks 
+                postContent={post.content} 
+                postCategory={post.category_id} 
+              />
 
               {relatedPosts.length > 0 && (
                 <div className="mt-12">
