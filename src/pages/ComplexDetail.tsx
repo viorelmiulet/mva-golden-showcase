@@ -854,9 +854,21 @@ const ComplexDetail = () => {
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
-        </main>
 
-        <Footer />
+          {/* FAQ Section */}
+          <ComplexFAQ
+            complexName={project.name}
+            location={project.location}
+            priceRange={project.price_range}
+            surfaceRange={project.surface_range}
+            roomsRange={project.rooms_range}
+            totalApartments={properties?.length || 0}
+            availableApartments={properties?.filter(p => p.availability_status === 'available').length || 0}
+            developer={project.developer}
+            completionDate={project.completion_date}
+            amenities={project.amenities}
+          />
+        </main>
       </div>
 
       {/* Floor Plan Dialog */}
