@@ -39,6 +39,7 @@ import { ComplexDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
+import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
