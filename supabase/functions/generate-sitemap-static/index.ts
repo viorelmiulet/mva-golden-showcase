@@ -1,3 +1,5 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -10,6 +12,10 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Generating static pages sitemap.xml');
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const baseUrl = 'https://mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
@@ -32,16 +38,35 @@ Deno.serve(async (req) => {
       { loc: '/renew-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/eurocasa-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
-      // Blog posts
-      { loc: '/blog/ghidul-complet-cumparare-proprietate-bucuresti', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/tendinte-piata-imobiliara-2025', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/cum-pregatesti-casa-pentru-vanzare', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/investitii-imobiliare-ghid-incepatori', priority: '0.7', changefreq: 'monthly', lastmod: '2025-10-21' },
-      { loc: '/blog/apartamente-militari-residence-ghid-cumparatori-2025', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
-      { loc: '/blog/preturi-apartamente-militari-residence-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
-      { loc: '/blog/top-ansambluri-rezidentiale-zona-militari-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
-      { loc: '/blog/credit-ipotecar-apartamente-noi-2026', priority: '0.8', changefreq: 'monthly', lastmod: '2026-03-02' },
     ];
+
+    // Fetch published blog posts dynamically
+    const { data: blogPosts, error: blogError } = await supabase
+      .from('blog_posts')
+      .select('slug, updated_at')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
+
+    if (blogError) {
+      console.error('Error fetching blog posts:', blogError);
+    }
+
+    // Add blog posts to sitemap
+    if (blogPosts && blogPosts.length > 0) {
+      for (const post of blogPosts) {
+        const lastmod = post.updated_at
+          ? new Date(post.updated_at).toISOString().split('T')[0]
+          : currentDate;
+        staticPages.push({
+          loc: `/blog/${post.slug}`,
+          priority: '0.7',
+          changefreq: 'monthly',
+          lastmod,
+        });
+      }
+    }
+
+    console.log(`Generated sitemap with ${staticPages.length} URLs (${blogPosts?.length || 0} blog posts)`);
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
