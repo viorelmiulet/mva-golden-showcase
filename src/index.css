@@ -425,4 +425,21 @@ All colors MUST be HSL.
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Performance: contain layout for independent sections */
+  .contain-layout {
+    contain: layout style;
+  }
+  
+  /* Performance: reduce paint for floating decorations */
+  .animate-float {
+    will-change: transform;
+    contain: layout style;
+  }
+
+  /* Performance: GPU-accelerated transitions */
+  .card-modern,
+  .glass,
+  .stats-card {
+    contain: layout style;
+  }
 }
