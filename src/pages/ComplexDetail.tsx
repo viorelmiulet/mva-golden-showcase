@@ -324,6 +324,22 @@ const ComplexDetail = () => {
             }
           })}
         </script>
+
+        {/* FAQ Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(generateComplexFAQSchema({
+            complexName: project.name,
+            location: project.location,
+            priceRange: project.price_range,
+            surfaceRange: project.surface_range,
+            roomsRange: project.rooms_range,
+            totalApartments: properties?.length || 0,
+            availableApartments: properties?.filter(p => p.availability_status === 'available').length || 0,
+            developer: project.developer,
+            completionDate: project.completion_date,
+            amenities: project.amenities,
+          }))}
+        </script>
         
         {/* Breadcrumb Schema */}
         <script type="application/ld+json">
