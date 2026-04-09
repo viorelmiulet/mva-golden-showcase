@@ -40,6 +40,7 @@ import { usePlausible } from "@/hooks/usePlausible";
 import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
 import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
+import RelatedBlogPosts from "@/components/RelatedBlogPosts";
 
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
@@ -854,6 +855,9 @@ const ComplexDetail = () => {
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
+
+          {/* Related Blog Posts */}
+          <RelatedBlogPosts complexName={project.name} />
 
           {/* FAQ Section */}
           <ComplexFAQ
