@@ -30,7 +30,7 @@ const Hero = () => {
           loading="eager"
           // @ts-ignore
           fetchpriority="high"
-          decoding="async"
+          decoding="sync"
           itemProp="image"
           width={1440}
           height={810}

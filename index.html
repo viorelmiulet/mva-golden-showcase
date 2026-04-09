@@ -8,17 +8,17 @@
     <link rel="preload" as="image" href="/hero-mobile.webp" imagesrcset="/hero-mobile.webp 768w, /hero-desktop.webp 1440w" imagesizes="(max-width: 768px) 100vw, 1440px" fetchpriority="high" />
     <link rel="preload" href="/mva-logo-luxury-horizontal.svg" as="image" />
     
-    <!-- Preconnect to own domain -->
-    <link rel="preconnect" href="https://mvaimobiliare.ro" crossorigin />
-    <link rel="preconnect" href="https://fdpandnzblzvamhsoukt.supabase.co" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://web.immoflux.ro" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://img.immoflux.ro" crossorigin="anonymous" />
+    <!-- Preconnect to critical origins (with crossorigin for CORS fetch) -->
+    <link rel="preconnect" href="https://fdpandnzblzvamhsoukt.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- DNS Prefetch for external resources -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <!-- DNS Prefetch for secondary origins -->
     <link rel="dns-prefetch" href="https://fdpandnzblzvamhsoukt.supabase.co" />
     <link rel="dns-prefetch" href="https://web.immoflux.ro" />
     <link rel="dns-prefetch" href="https://img.immoflux.ro" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://plausible.io" />
     
     <!-- Favicon - Google requires PNG 48x48+ -->
     <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -74,10 +74,10 @@
       })();
     </script>
     
-    <!-- Google Fonts with optimized loading - preconnect already above -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%C4%82%C3%A2%C3%8E%C8%98%C8%9A%C4%83%C3%AE%C8%99%C8%9B" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'" />
+    <!-- Google Fonts - non-blocking with swap -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%C4%82%C3%A2%C3%8E%C8%98%C8%9A%C4%83%C3%AE%C8%99%C8%9B" crossorigin onload="this.onload=null;this.rel='stylesheet'" />
     <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap" crossorigin="anonymous" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&display=swap" crossorigin />
     </noscript>
     
     <!-- Critical CSS for preventing CLS -->

@@ -92,7 +92,16 @@ const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes — avoid refetching on every mount
+      gcTime: 10 * 60 * 1000,   // 10 minutes garbage collection
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Inner component that has access to Router context
 const AppRoutes = () => {
