@@ -869,6 +869,8 @@ const ComplexDetail = () => {
             amenities={project.amenities}
           />
         </main>
+
+        <Footer />
       </div>
 
       {/* Floor Plan Dialog */}
