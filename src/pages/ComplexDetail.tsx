@@ -39,6 +39,7 @@ import { ComplexDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { getComplexUrl, isUUID } from "@/lib/complexSlug";
 import NotFound from "@/pages/NotFound";
+import ComplexFAQ, { generateComplexFAQSchema } from "@/components/ComplexFAQ";
 
 const ComplexDetail = () => {
   const { trackComplex } = usePlausible();
@@ -322,6 +323,22 @@ const ComplexDetail = () => {
               }
             }
           })}
+        </script>
+
+        {/* FAQ Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(generateComplexFAQSchema({
+            complexName: project.name,
+            location: project.location,
+            priceRange: project.price_range,
+            surfaceRange: project.surface_range,
+            roomsRange: project.rooms_range,
+            totalApartments: properties?.length || 0,
+            availableApartments: properties?.filter(p => p.availability_status === 'available').length || 0,
+            developer: project.developer,
+            completionDate: project.completion_date,
+            amenities: project.amenities,
+          }))}
         </script>
         
         {/* Breadcrumb Schema */}
@@ -837,6 +854,20 @@ const ComplexDetail = () => {
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
+
+          {/* FAQ Section */}
+          <ComplexFAQ
+            complexName={project.name}
+            location={project.location}
+            priceRange={project.price_range}
+            surfaceRange={project.surface_range}
+            roomsRange={project.rooms_range}
+            totalApartments={properties?.length || 0}
+            availableApartments={properties?.filter(p => p.availability_status === 'available').length || 0}
+            developer={project.developer}
+            completionDate={project.completion_date}
+            amenities={project.amenities}
+          />
         </main>
 
         <Footer />
