@@ -350,7 +350,7 @@ ${customHashtags}`;
     // Generate content for projects/complexes
     const generateProjectContent = (platform: string, proj: any): string => {
       const location = proj.location || 'București';
-      const projectUrl = `${siteUrl}/complexe/${proj.id}`;
+      const projectUrl = `${siteUrl}/complexe/${proj.slug || proj.id}`;
       const priceRange = proj.price_range || 'Preț la cerere';
       const surfaceRange = proj.surface_range || '';
       const roomsRange = proj.rooms_range || '';
@@ -484,7 +484,8 @@ ${blogHashtags}`;
       } else if (isProject && project) {
         // Generate project payload
         const content = generateProjectContent(platformName, project);
-        const projectUrl = `${siteUrl}/complexe/${project.id}`;
+        const projectSlug = project.slug || project.id;
+        const projectUrl = `${siteUrl}/complexe/${projectSlug}`;
         
         // Convert relative image paths to absolute URLs
         let projectImage = project.main_image || '';
