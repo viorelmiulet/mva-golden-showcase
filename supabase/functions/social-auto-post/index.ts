@@ -55,7 +55,6 @@ interface WebhookPayload {
   propertyUrl: string;
   imageUrl?: string;
   timestamp: string;
-  // Additional fields for easier Zapier integration
   title: string;
   description: string;
   location: string;
@@ -65,41 +64,32 @@ interface WebhookPayload {
   hashtags: string;
   website: string;
   phone: string;
-  // FACEBOOK REQUIRED FIELD - Use this for Facebook Pages "message"
   message: string;
-  // Instagram-specific field - SHORT caption ready to use
   instagram_caption: string;
-  // TikTok-specific field - SHORT caption ready to use
   tiktok_caption: string;
-  // Google Business-specific field - Professional caption for GMB
   google_caption: string;
-  // Google Business title - max 58 characters
   google_title: string;
-  // Media field for Instagram/TikTok/Google Business (required by Zapier)
   media: string;
-  // Alternative media fields for different Zapier actions
   media_url: string;
   image_url: string;
   photo_url: string;
-  // FACEBOOK PAGES REQUIRED FIELD - "Photo" (source)
   photo: string;
-  // URL for Google Business "Learn More" button
   url: string;
-  // ALL IMAGES - Array of all property images
+  sourceUrl?: string;
+  couponCode?: string;
+  sourceType?: string;
+  category?: string;
+  slug?: string;
   all_images: string[];
   images_count: number;
-  // Individual image URLs for easy Zapier/Make access (up to 20 images)
   [key: `image_${number}`]: string | undefined;
-  // INSTAGRAM CAROUSEL - Fields for multi-image carousel posts
   instagram_carousel: {
     enabled: boolean;
     images: string[];
     images_count: number;
     caption: string;
   };
-  // Comma-separated image URLs for carousel (easier for some Zapier integrations)
   carousel_images_csv: string;
-  // JSON string of carousel images for advanced Zapier use
   carousel_images_json: string;
 }
 
@@ -474,6 +464,11 @@ ${blogHashtags}`;
           photo_url: coverImage,
           photo: coverImage,
           url: blogUrl,
+          sourceUrl: blogUrl,
+          couponCode: blogPost.slug || blogPost.id,
+          sourceType: 'blog',
+          category: category,
+          slug: blogPost.slug,
           all_images: coverImage ? [coverImage] : [],
           images_count: coverImage ? 1 : 0,
           image_1: coverImage || undefined,
@@ -673,6 +668,11 @@ ${richDetails}
         finalPayload = {
           message: payload.message,
           url: payload.url,
+          sourceUrl: payload.sourceUrl || payload.url,
+          couponCode: payload.couponCode,
+          sourceType: payload.sourceType || payload.type,
+          category: payload.category,
+          slug: payload.slug,
           title: payload.title,
           description: payload.description,
           location: payload.location,
@@ -707,6 +707,11 @@ ${richDetails}
           google_caption: payload.google_caption || payload.description,
           message: payload.google_caption || payload.message,
           url: payload.url,
+          sourceUrl: payload.sourceUrl || payload.url,
+          couponCode: payload.couponCode,
+          sourceType: payload.sourceType || payload.type,
+          category: payload.category,
+          slug: payload.slug,
           media: payload.media,
           media_url: payload.media_url,
           image_url: payload.image_url,
