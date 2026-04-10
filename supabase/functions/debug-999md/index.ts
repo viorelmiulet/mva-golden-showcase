@@ -13,28 +13,12 @@ serve(async (req) => {
 
   const auth = "Basic " + btoa(`${API_KEY}:`);
 
-  // Pas 1: toate subcategoriile imobiliare
-  const subRes = await fetch(`${API_BASE}/categories/270/subcategories?lang=ro`, {
+  const res = await fetch(`${API_BASE}/categories/270/subcategories?lang=ro`, {
     headers: { Authorization: auth }
   });
-  const subData = await subRes.json();
-  const subcategories = subData.subcategories ?? [];
+  const data = await res.json();
 
-  // Pas 2: pentru fiecare subcategorie, fetch offer-types
-  const results = [];
-  for (const sub of subcategories) {
-    const otRes = await fetch(`${API_BASE}/categories/270/subcategories/${sub.id}/offer-types?lang=ro`, {
-      headers: { Authorization: auth }
-    });
-    const otData = await otRes.json();
-    results.push({
-      subcategory_id: sub.id,
-      subcategory_title: sub.title,
-      offer_types: otData.offer_types ?? otData
-    });
-  }
-
-  return new Response(JSON.stringify(results, null, 2), {
+  return new Response(JSON.stringify(data, null, 2), {
     headers: { ...corsHeaders, "Content-Type": "application/json" }
   });
 });
