@@ -88,9 +88,13 @@ serve(async (req) => {
 
     const data = await res.json();
     if (!res.ok) {
+      const rawError = typeof data === 'object' ? (data.error?.message ?? data.error ?? "Eroare API") : String(data);
+      const errorMsg = rawError === "insufficient balance"
+        ? "Sold insuficient pe contul 999.md. Alimentează contul pentru a publica anunțuri."
+        : String(rawError);
       return new Response(
-        JSON.stringify({ success: false, error: data.error?.message ?? "Eroare API", raw: data }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: errorMsg, raw: data }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
