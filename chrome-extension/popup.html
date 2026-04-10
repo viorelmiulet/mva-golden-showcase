@@ -33,7 +33,7 @@
     .status-dot.offline { background: #ef4444; animation: none; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     .content { padding: 12px; max-height: 480px; overflow-y: auto; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
     .stat-card {
       background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s;
@@ -101,6 +101,11 @@
         <div class="value" id="viewingsCount">-</div>
         <div class="label">Vizionări azi</div>
       </div>
+      <div class="stat-card" data-url="/admin/contracte">
+        <div class="icon">✍️</div>
+        <div class="value" id="signaturesCount">-</div>
+        <div class="label">Semnături în așteptare</div>
+      </div>
       <div class="stat-card" data-url="/admin/proprietati">
         <div class="icon">🏠</div>
         <div class="value" id="propertiesCount">-</div>
@@ -166,7 +171,7 @@
 
   <div class="footer">
     <span>Ultima verificare: <span id="lastCheck">-</span></span>
-    <span>v2.0.0</span>
+    <span>v2.1.0</span>
   </div>
 
   <script src="popup.js"></script>

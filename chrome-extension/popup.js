@@ -6,7 +6,8 @@ const SITE_URL = 'https://mvaimobiliare.ro';
 function getHeaders() {
   return {
     'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
   };
 }
 
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   checkConnectionStatus();
-  await Promise.all([loadStats(), loadUnreadEmailsCount()]);
+  await Promise.all([loadStats(), loadUnreadEmailsCount(), loadPendingSignatures()]);
 
   // Toggle notifications
   toggle.addEventListener('click', async () => {
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loading = document.getElementById('loading');
     loading.classList.add('show');
     await chrome.runtime.sendMessage({ action: 'checkNow' });
-    await Promise.all([loadStats(), loadUnreadEmailsCount()]);
+    await Promise.all([loadStats(), loadUnreadEmailsCount(), loadPendingSignatures()]);
     const now = new Date();
     document.getElementById('lastCheck').textContent = formatDate(now);
     await chrome.storage.local.set({ lastCheckTime: now.toISOString() });
@@ -125,5 +126,21 @@ async function loadUnreadEmailsCount() {
     }
   } catch (error) {
     console.error('Error loading unread emails count:', error);
+  }
+}
+
+async function loadPendingSignatures() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/contract_signatures?signed_at=is.null&select=id&limit=100`,
+      { headers: getHeaders() }
+    );
+    if (response.ok) {
+      const pending = await response.json();
+      const countEl = document.getElementById('signaturesCount');
+      if (countEl) countEl.textContent = pending.length;
+    }
+  } catch (error) {
+    console.error('Error loading pending signatures:', error);
   }
 }
