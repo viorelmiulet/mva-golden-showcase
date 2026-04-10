@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar, MapPin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Zap, Save, TestTube, ExternalLink, Info, Send, History, CheckCircle, XCircle, RefreshCw, Clock, Calendar, MapPin, Building2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -60,7 +60,9 @@ export const SocialAutoPostSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+  const [isSendingProject, setIsSendingProject] = useState(false);
 
   const { data: properties } = useQuery({
     queryKey: ['properties-for-webhook'],
@@ -68,6 +70,19 @@ export const SocialAutoPostSettings = () => {
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('id, title, location')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const { data: projects } = useQuery({
+    queryKey: ['projects-for-webhook'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('real_estate_projects')
+        .select('id, name, location')
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -248,6 +263,37 @@ export const SocialAutoPostSettings = () => {
       toast.error(`Eroare: ${error.message || 'Eroare la trimitere'}`);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const sendProjectToWebhook = async () => {
+    if (!selectedProjectId) {
+      toast.error('Selectează un ansamblu');
+      return;
+    }
+    setIsSendingProject(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+        body: { projectId: selectedProjectId, type: 'project' }
+      });
+      if (error) throw error;
+      if (data.success) {
+        const successPlatforms = Object.entries(data.results || {})
+          .filter(([_, success]) => success)
+          .map(([platform]) => platform);
+        if (successPlatforms.length > 0) {
+          toast.success(`Trimis cu succes către: ${successPlatforms.join(', ')}`);
+        } else {
+          toast.warning('Niciun webhook nu a răspuns cu succes');
+        }
+        queryClient.invalidateQueries({ queryKey: ['social-post-history'] });
+      } else {
+        toast.error(data.error || 'Eroare la trimitere');
+      }
+    } catch (error: any) {
+      toast.error(`Eroare: ${error.message || 'Eroare la trimitere'}`);
+    } finally {
+      setIsSendingProject(false);
     }
   };
 
@@ -454,6 +500,39 @@ export const SocialAutoPostSettings = () => {
             >
               <Send className="h-4 w-4" />
               {isSending ? 'Se trimite...' : 'Trimite'}
+            </Button>
+          </div>
+        </div>
+
+        {/* Manual Send Project/Complex Section */}
+        <div className="p-4 border rounded-lg space-y-3">
+          <h4 className="font-medium text-sm flex items-center gap-2">
+            <Building2 className="h-4 w-4" />
+            Trimite Manual un Ansamblu Rezidențial
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            Selectează un ansamblu rezidențial pentru a-l trimite către webhook-uri (Facebook, Google, etc.)
+          </p>
+          <div className="flex gap-3">
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selectează un ansamblu..." />
+              </SelectTrigger>
+              <SelectContent>
+                {projects?.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name} {project.location ? `- ${project.location}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={sendProjectToWebhook} 
+              disabled={isSendingProject || !selectedProjectId}
+              className="gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSendingProject ? 'Se trimite...' : 'Trimite'}
             </Button>
           </div>
         </div>
