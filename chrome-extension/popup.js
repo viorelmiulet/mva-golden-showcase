@@ -1,5 +1,4 @@
 // MVA Admin Chrome Extension - Popup Script
-const SUPABASE_URL = 'https://fdpandnzblzvamhsoukt.supabase.co';
 const SITE_URL = 'https://mvaimobiliare.ro';
 
 function formatDate(date) {
