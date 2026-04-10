@@ -467,7 +467,7 @@ ${blogHashtags}`;
           instagram_caption: content,
           tiktok_caption: content,
           google_caption: content.replace(blogHashtags, '').trim(),
-          google_title: (blogPost.title || '').substring(0, 58),
+          google_title: (blogPost.title || '').slice(0, 55),
           media: coverImage,
           media_url: coverImage,
           image_url: coverImage,
@@ -539,7 +539,7 @@ ${blogHashtags}`;
           instagram_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           tiktok_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           google_caption: content.replace(projectHashtags, '').replace(project.location || 'București', facebookLocation).trim(),
-          google_title: (project.name || '').substring(0, 55),
+          google_title: (project.name || '').slice(0, 55),
           // SINGLE IMAGE ONLY for Facebook
           media: projectImage,
           media_url: projectImage,
@@ -644,7 +644,7 @@ ${richDetails}
           instagram_caption: instagramCaption,
           tiktok_caption: tiktokCaption,
           google_caption: googleCaption,
-          google_title: (property.title || '').substring(0, 58),
+          google_title: (property.title || '').slice(0, 55),
           // First image as primary
           media: firstImageUrl,
           media_url: firstImageUrl,
