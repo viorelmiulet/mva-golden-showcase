@@ -726,11 +726,14 @@ ${richDetails}
     }
 
     // Log the auto-post attempt
+    const recordId = isBlogPost ? blogPostId : (isProject ? projectId : propertyId);
+    const recordTitle = isBlogPost ? blogPost?.title : (isProject ? project?.name : property?.title);
+    const recordType = isBlogPost ? 'blog' : (isProject ? 'project' : 'property');
     await supabase.from('audit_logs').insert({
       action_type: 'social_auto_post',
-      record_id: isProject ? projectId : propertyId,
-      record_title: isProject ? project?.name : property?.title,
-      metadata: { type: isProject ? 'project' : 'property', results, webhooks: Object.keys(webhooks) },
+      record_id: recordId,
+      record_title: recordTitle,
+      metadata: { type: recordType, results, webhooks: Object.keys(webhooks) },
     });
 
     return new Response(
