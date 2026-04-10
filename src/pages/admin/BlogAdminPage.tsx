@@ -118,6 +118,28 @@ const BlogAdminPage = () => {
     onError: (err: Error) => toast.error("Eroare: " + err.message),
   });
 
+  const [sharingPostId, setSharingPostId] = useState<string | null>(null);
+
+  const shareToSocial = async (postId: string) => {
+    setSharingPostId(postId);
+    try {
+      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+        body: { blogPostId: postId, type: 'blog' },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        const platforms = Object.keys(data.results || {}).join(', ');
+        toast.success(`Articol distribuit pe: ${platforms}`);
+      } else {
+        toast.error(data?.error || 'Eroare la distribuire');
+      }
+    } catch (err: any) {
+      toast.error('Eroare: ' + (err.message || 'necunoscută'));
+    } finally {
+      setSharingPostId(null);
+    }
+  };
+
   const openCreate = () => {
     setEditingPost(null);
     setFormData(emptyPost);
