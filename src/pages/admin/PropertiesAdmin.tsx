@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,6 +79,7 @@ const PropertiesAdmin = () => {
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
+  const [publishing999, setPublishing999] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -464,6 +466,38 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const publishTo999 = async (property: any) => {
+    setPublishing999(property.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("publish-999md", {
+        body: {
+          title: property.title,
+          description: property.description || property.title,
+          price: property.price_min,
+          currency: (property.currency || "EUR").toLowerCase(),
+          phone: "+40726370707",
+          surface: property.surface_min,
+          rooms: property.rooms,
+          floor: property.floor,
+          total_floors: property.total_floors,
+          images: property.images || [],
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        sonnerToast.success("Anunț publicat pe 999.md!");
+      } else {
+        sonnerToast.error(data?.error || "Eroare la publicare pe 999.md");
+      }
+    } catch (e: any) {
+      sonnerToast.error(e.message || "Eroare la publicare pe 999.md");
+    } finally {
+      setPublishing999(null);
+    }
+  };
+
   const addProperty = async () => {
     if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
       toast({
@@ -769,6 +803,20 @@ const PropertiesAdmin = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-10 w-full"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => openEditModal(property)}
                           className="border-gold/30 hover:bg-gold/10 h-10 w-full"
                         >
@@ -871,6 +919,20 @@ const PropertiesAdmin = () => {
                             <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                           ) : (
                             <Share2 className="w-4 h-4 text-blue-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-8 w-8 p-0"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
                           )}
                         </Button>
                         <Button
