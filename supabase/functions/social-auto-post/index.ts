@@ -116,8 +116,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { propertyId, projectId, action, platform, type } = body;
-    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'ProjectId:', projectId, 'Platform:', platform, 'Type:', type);
+    const { propertyId, projectId, blogPostId, action, platform, type } = body;
+    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'ProjectId:', projectId, 'BlogPostId:', blogPostId, 'Platform:', platform, 'Type:', type);
 
     if (action === 'test') {
       // Test webhook connectivity by actually sending a test request
