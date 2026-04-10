@@ -667,7 +667,7 @@ ${richDetails}
         } as WebhookPayload;
       }
 
-      // For Facebook, send a simplified payload to avoid "Invalid parameter" errors
+      // Send platform-specific simplified payloads to avoid downstream mapping errors
       let finalPayload: any = payload;
       if (platformName === 'facebook') {
         finalPayload = {
@@ -686,12 +686,10 @@ ${richDetails}
           platform: 'facebook',
           type: payload.type,
         };
-        // Only include photo if it's a valid URL
         if (payload.photo && payload.photo.startsWith('http')) {
           finalPayload.photo = payload.photo;
           finalPayload.image_url = payload.photo;
         }
-        // Include individual image URLs (only valid ones)
         const validImages = (payload.all_images || []).filter((img: string) => img && img.startsWith('http'));
         if (validImages.length > 0) {
           finalPayload.images_count = validImages.length;
@@ -699,13 +697,32 @@ ${richDetails}
             finalPayload[`image_${i + 1}`] = img;
           });
         }
-        // Remove any undefined/empty values
-        Object.keys(finalPayload).forEach(key => {
-          if (finalPayload[key] === undefined || finalPayload[key] === '' || finalPayload[key] === null) {
-            delete finalPayload[key];
-          }
-        });
+      } else if (platformName === 'google') {
+        finalPayload = {
+          platform: 'google',
+          type: payload.type,
+          title: (payload.google_title || payload.title || '').slice(0, 55),
+          google_title: (payload.google_title || payload.title || '').slice(0, 55),
+          description: payload.google_caption || payload.description,
+          google_caption: payload.google_caption || payload.description,
+          message: payload.google_caption || payload.message,
+          url: payload.url,
+          media: payload.media,
+          media_url: payload.media_url,
+          image_url: payload.image_url,
+          photo_url: payload.photo_url,
+          photo: payload.photo,
+          website: payload.website,
+          phone: payload.phone,
+          timestamp: payload.timestamp,
+        };
       }
+
+      Object.keys(finalPayload).forEach(key => {
+        if (finalPayload[key] === undefined || finalPayload[key] === '' || finalPayload[key] === null) {
+          delete finalPayload[key];
+        }
+      });
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(finalPayload).substring(0, 500));
 
