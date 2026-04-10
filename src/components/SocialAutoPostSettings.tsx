@@ -266,6 +266,37 @@ export const SocialAutoPostSettings = () => {
     }
   };
 
+  const sendProjectToWebhook = async () => {
+    if (!selectedProjectId) {
+      toast.error('Selectează un ansamblu');
+      return;
+    }
+    setIsSendingProject(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+        body: { projectId: selectedProjectId, type: 'project' }
+      });
+      if (error) throw error;
+      if (data.success) {
+        const successPlatforms = Object.entries(data.results || {})
+          .filter(([_, success]) => success)
+          .map(([platform]) => platform);
+        if (successPlatforms.length > 0) {
+          toast.success(`Trimis cu succes către: ${successPlatforms.join(', ')}`);
+        } else {
+          toast.warning('Niciun webhook nu a răspuns cu succes');
+        }
+        queryClient.invalidateQueries({ queryKey: ['social-post-history'] });
+      } else {
+        toast.error(data.error || 'Eroare la trimitere');
+      }
+    } catch (error: any) {
+      toast.error(`Eroare: ${error.message || 'Eroare la trimitere'}`);
+    } finally {
+      setIsSendingProject(false);
+    }
+  };
+
   const refreshHistory = () => {
     queryClient.invalidateQueries({ queryKey: ['social-post-history'] });
   };
