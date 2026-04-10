@@ -425,7 +425,68 @@ ${blogHashtags}`;
       
       let payload: WebhookPayload;
       
-      if (isProject && project) {
+      if (isBlogPost && blogPost) {
+        // Generate blog post payload
+        const content = generateBlogContent(platformName, blogPost);
+        const blogUrl = `${siteUrl}/blog/${blogPost.slug}`;
+        const category = blogPost.category || 'Imobiliare';
+        const blogHashtags = `#imobiliare #blog #MVAImobiliare #${category.toLowerCase().replace(/\s+/g, '')} #sfaturiimobiliare #bucuresti #ghidimobiliar`;
+        
+        let coverImage = blogPost.cover_image || '';
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`;
+        }
+
+        payload = {
+          type: 'blog',
+          blogPost: {
+            id: blogPost.id,
+            title: blogPost.title,
+            slug: blogPost.slug,
+            excerpt: blogPost.excerpt,
+            cover_image: coverImage,
+            category: blogPost.category,
+            author: blogPost.author,
+            read_time: blogPost.read_time,
+          },
+          platform: platformName,
+          content,
+          propertyUrl: blogUrl,
+          imageUrl: coverImage,
+          timestamp: new Date().toISOString(),
+          title: blogPost.title,
+          description: blogPost.excerpt || '',
+          location: 'București',
+          price: '',
+          rooms: '',
+          surface: '',
+          hashtags: blogHashtags,
+          website: 'mvaimobiliare.ro',
+          phone: '0767.941.512',
+          message: content,
+          instagram_caption: content,
+          tiktok_caption: content,
+          google_caption: content.replace(blogHashtags, '').trim(),
+          google_title: (blogPost.title || '').substring(0, 58),
+          media: coverImage,
+          media_url: coverImage,
+          image_url: coverImage,
+          photo_url: coverImage,
+          photo: coverImage,
+          url: blogUrl,
+          all_images: coverImage ? [coverImage] : [],
+          images_count: coverImage ? 1 : 0,
+          image_1: coverImage || undefined,
+          instagram_carousel: {
+            enabled: false,
+            images: coverImage ? [coverImage] : [],
+            images_count: coverImage ? 1 : 0,
+            caption: content,
+          },
+          carousel_images_csv: coverImage || '',
+          carousel_images_json: JSON.stringify(coverImage ? [coverImage] : []),
+        } as WebhookPayload;
+      } else if (isProject && project) {
         // Generate project payload
         const content = generateProjectContent(platformName, project);
         const projectUrl = `${siteUrl}/complexe/${project.id}`;
