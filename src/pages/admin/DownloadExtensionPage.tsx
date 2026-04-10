@@ -36,7 +36,7 @@ export default function DownloadExtensionPage() {
     <div className="container mx-auto p-6 max-w-2xl">
       <Card className="border-primary/20">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-content-center flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4">
             <Chrome className="w-8 h-8 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl">Extensie Chrome MVA Admin</CardTitle>
