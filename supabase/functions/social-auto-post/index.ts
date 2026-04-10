@@ -33,6 +33,18 @@ interface ProjectData {
   status?: string;
 }
 
+interface BlogPostData {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  cover_image?: string;
+  category?: string;
+  author?: string;
+  read_time?: string;
+  content?: string;
+}
+
 interface WebhookPayload {
   property?: PropertyData;
   project?: ProjectData;
