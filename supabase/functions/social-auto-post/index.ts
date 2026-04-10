@@ -60,6 +60,8 @@ interface WebhookPayload {
   tiktok_caption: string;
   // Google Business-specific field - Professional caption for GMB
   google_caption: string;
+  // Google Business title - max 58 characters
+  google_title: string;
   // Media field for Instagram/TikTok/Google Business (required by Zapier)
   media: string;
   // Alternative media fields for different Zapier actions
@@ -423,6 +425,7 @@ ${projectHashtags}`;
           instagram_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           tiktok_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           google_caption: content.replace(projectHashtags, '').replace(project.location || 'București', facebookLocation).trim(),
+          google_title: (project.name || '').substring(0, 58),
           // SINGLE IMAGE ONLY for Facebook
           media: projectImage,
           media_url: projectImage,
@@ -527,6 +530,7 @@ ${richDetails}
           instagram_caption: instagramCaption,
           tiktok_caption: tiktokCaption,
           google_caption: googleCaption,
+          google_title: (property.title || '').substring(0, 58),
           // First image as primary
           media: firstImageUrl,
           media_url: firstImageUrl,
