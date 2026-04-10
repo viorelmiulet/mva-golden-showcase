@@ -259,6 +259,20 @@ const BlogAdminPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => shareToSocial(post.id)}
+                    disabled={sharingPostId === post.id}
+                    aria-label="Distribuie pe social media"
+                    title="Distribuie pe Facebook & Google"
+                  >
+                    {sharingPostId === post.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Share2 className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button variant="outline" size="icon" onClick={() => openEdit(post)} aria-label="Editează articolul">
                     <Pencil className="h-4 w-4" />
                   </Button>
