@@ -197,13 +197,31 @@ serve(async (req) => {
       );
     }
 
-    // Determine if we're posting a property or a project
-    const isProject = type === 'project' || projectId;
+    // Determine if we're posting a property, project, or blog post
+    const isBlogPost = type === 'blog' || blogPostId;
+    const isProject = !isBlogPost && (type === 'project' || projectId);
     
     let property: any = null;
     let project: any = null;
+    let blogPost: any = null;
 
-    if (isProject) {
+    if (isBlogPost) {
+      // Get blog post data
+      const { data: blogData, error: blogError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', blogPostId)
+        .single();
+
+      if (blogError || !blogData) {
+        console.error('Blog post not found:', blogError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Blog post not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      blogPost = blogData;
+    } else if (isProject) {
       // Get project data
       const { data: projectData, error: projectError } = await supabase
         .from('real_estate_projects')
