@@ -212,16 +212,16 @@ const ComplexesOverview = () => {
     setShareDialogOpen(true);
   };
 
-  const handleShareToSocial = async (platform: 'facebook' | 'instagram' | 'all') => {
+  const handleShareToSocial = async (platform: 'facebook' | 'instagram' | 'google' | 'all') => {
     if (!projectToShare) return;
     
     setShareDialogOpen(false);
     setPostingToSocial(projectToShare.id);
     
     try {
-      const success = await triggerProjectSocialAutoPost(projectToShare.id, platform);
+      const success = await triggerProjectSocialAutoPost(projectToShare.id, platform as any);
       
-      const platformName = platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : 'toate platformele';
+      const platformName = platform === 'facebook' ? 'Facebook' : platform === 'instagram' ? 'Instagram' : platform === 'google' ? 'Google Business Profile' : 'toate platformele';
       
       if (success) {
         toast({
@@ -608,6 +608,14 @@ const ComplexesOverview = () => {
                 >
                   <Instagram className="h-5 w-5 text-pink-600" />
                   <span>Instagram</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start gap-3 h-12"
+                  onClick={() => handleShareToSocial('google')}
+                >
+                  <Globe className="h-5 w-5 text-green-600" />
+                  <span>Google Business Profile</span>
                 </Button>
                 <Button
                   variant="outline"
