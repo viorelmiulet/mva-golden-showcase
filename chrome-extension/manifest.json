@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "MVA Admin Panel",
-  "version": "2.1.0",
-  "description": "Notificări push pentru emailuri noi și vizionări programate — MVA Imobiliare",
+  "version": "2.2.0",
+  "description": "Notificări push cu autentificare persistentă — MVA Imobiliare",
   "permissions": [
     "notifications",
     "alarms",
