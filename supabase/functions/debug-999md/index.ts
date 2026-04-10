@@ -13,7 +13,7 @@ serve(async (req) => {
 
   const auth = "Basic " + btoa(`${API_KEY}:`);
 
-  const res = await fetch(`${API_BASE}/categories/270/subcategories?lang=ro`, {
+  const res = await fetch(`${API_BASE}/categories/270/subcategories/6959/offer-types?lang=ro`, {
     headers: { Authorization: auth }
   });
   const data = await res.json();
