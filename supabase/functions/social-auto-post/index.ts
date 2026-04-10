@@ -386,7 +386,29 @@ ${proj.description ? proj.description.substring(0, 200) + (proj.description.leng
 ${projectHashtags}`;
     };
 
-    // Send to each configured webhook
+    // Generate content for blog posts
+    const generateBlogContent = (platform: string, post: any): string => {
+      const blogUrl = `${siteUrl}/blog/${post.slug}`;
+      const category = post.category || 'Imobiliare';
+      const excerpt = post.excerpt?.substring(0, 300) || '';
+      const blogHashtags = `#imobiliare #blog #MVAImobiliare #${category.toLowerCase().replace(/\s+/g, '')} #sfaturiimobiliare #bucuresti #ghidimobiliar`;
+
+      return `📝 ${post.title}
+
+📂 Categorie: ${category}
+${post.read_time ? `⏱ Timp de citire: ${post.read_time}` : ''}
+
+${excerpt}${excerpt.length >= 300 ? '...' : ''}
+
+📞 0767.941.512
+🌐 mvaimobiliare.ro
+
+👉 Citește articolul: ${blogUrl}
+
+${blogHashtags}`;
+    };
+
+
     console.log('social-auto-post: Sending to webhooks...');
     
     // Filter by platform if specified
