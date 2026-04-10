@@ -60,7 +60,9 @@ export const SocialAutoPostSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
+  const [isSendingProject, setIsSendingProject] = useState(false);
 
   const { data: properties } = useQuery({
     queryKey: ['properties-for-webhook'],
