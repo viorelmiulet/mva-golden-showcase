@@ -58,6 +58,8 @@
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212,175,55,0.3); }
     .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
     .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+    .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
     .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-top: 12px; }
     .settings-label { font-size: 12px; display: flex; align-items: center; gap: 8px; }
     .toggle { width: 40px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 11px; position: relative; cursor: pointer; transition: background 0.2s; }
@@ -71,109 +73,176 @@
     .content::-webkit-scrollbar-track { background: transparent; }
     .content::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
     .menu-item .badge { background: #d4af37; color: #1a1a2e; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 8px; margin-left: 4px; }
+
+    /* Login screen */
+    .login-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 24px; min-height: 300px;
+    }
+    .login-screen .logo-big {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #d4af37, #b8962e);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 24px; color: #1a1a2e; margin-bottom: 16px;
+    }
+    .login-screen h2 { font-size: 18px; color: #d4af37; margin-bottom: 4px; }
+    .login-screen p { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+    .login-form { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .login-form input {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06); color: #fff; font-size: 13px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-form input:focus { border-color: #d4af37; }
+    .login-form input::placeholder { color: rgba(255,255,255,0.3); }
+    .login-error {
+      display: none; font-size: 11px; color: #ef4444; text-align: center;
+      padding: 6px; background: rgba(239,68,68,0.1); border-radius: 6px;
+    }
+    .login-error.show { display: block; }
+    .user-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 12px; background: rgba(212,175,55,0.08);
+      border-bottom: 1px solid rgba(212,175,55,0.1); font-size: 11px;
+    }
+    .user-bar .user-email { color: rgba(255,255,255,0.6); }
+    .user-bar .logout-btn {
+      color: #ef4444; cursor: pointer; font-size: 11px;
+      background: none; border: none; padding: 2px 6px;
+    }
+    .user-bar .logout-btn:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="header-left">
-      <div class="logo">MVA</div>
-      <div class="header-text">
-        <h1>MVA Admin Panel</h1>
-        <p>Acces rapid administrare</p>
+  <!-- Login Screen -->
+  <div id="loginScreen" style="display:none;">
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">MVA</div>
+        <div class="header-text">
+          <h1>MVA Admin Panel</h1>
+          <p>Autentificare necesară</p>
+        </div>
       </div>
     </div>
-    <div class="connection-status">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">Online</span>
+    <div class="login-screen">
+      <div class="logo-big">MVA</div>
+      <h2>Bine ai venit!</h2>
+      <p>Conectează-te pentru a primi notificări</p>
+      <form class="login-form" id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="email">
+        <input type="password" id="loginPassword" placeholder="Parolă" required autocomplete="current-password">
+        <div class="login-error" id="loginError"></div>
+        <button type="submit" class="btn btn-primary" id="loginBtn" style="flex:none;">🔐 Autentificare</button>
+      </form>
     </div>
   </div>
 
-  <div class="content">
-    <!-- Quick Stats -->
-    <div class="stats">
-      <div class="stat-card" data-url="/admin/inbox">
-        <div class="icon">📧</div>
-        <div class="value" id="emailsCount">-</div>
-        <div class="label">Emailuri necitite</div>
+  <!-- Main App -->
+  <div id="mainApp" style="display:none;">
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">MVA</div>
+        <div class="header-text">
+          <h1>MVA Admin Panel</h1>
+          <p>Acces rapid administrare</p>
+        </div>
       </div>
-      <div class="stat-card" data-url="/admin/vizionari">
-        <div class="icon">📅</div>
-        <div class="value" id="viewingsCount">-</div>
-        <div class="label">Vizionări azi</div>
-      </div>
-      <div class="stat-card" data-url="/admin/contracte">
-        <div class="icon">✍️</div>
-        <div class="value" id="signaturesCount">-</div>
-        <div class="label">Semnături în așteptare</div>
-      </div>
-      <div class="stat-card" data-url="/admin/proprietati">
-        <div class="icon">🏠</div>
-        <div class="value" id="propertiesCount">-</div>
-        <div class="label">Proprietăți</div>
+      <div class="connection-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Online</span>
       </div>
     </div>
 
-    <!-- Main Menu -->
-    <div class="section-title">📂 Meniu Principal</div>
-    <div class="menu-grid">
-      <div class="menu-item" data-url="/admin">
-        <span class="icon">📊</span>
-        <span class="label">Dashboard</span>
-      </div>
-      <div class="menu-item" data-url="/admin/inbox">
-        <span class="icon">📧</span>
-        <span class="label">Inbox <span class="badge" id="unreadEmailsBadge" style="display:none;">0</span></span>
-      </div>
-      <div class="menu-item" data-url="/admin/vizionari">
-        <span class="icon">📅</span>
-        <span class="label">Vizionări</span>
-      </div>
-      <div class="menu-item" data-url="/admin/proprietati">
-        <span class="icon">🏠</span>
-        <span class="label">Proprietăți</span>
-      </div>
-      <div class="menu-item" data-url="/admin/complexe">
-        <span class="icon">🏢</span>
-        <span class="label">Complexe</span>
-      </div>
-      <div class="menu-item" data-url="/admin/contracte">
-        <span class="icon">📜</span>
-        <span class="label">Contracte</span>
-      </div>
-      <div class="menu-item" data-url="/admin/comisioane">
-        <span class="icon">💰</span>
-        <span class="label">Comisioane</span>
-      </div>
-      <div class="menu-item" data-url="/admin/setari">
-        <span class="icon">⚙️</span>
-        <span class="label">Setări</span>
-      </div>
-      <div class="menu-item" data-url="/admin/rapoarte">
-        <span class="icon">📑</span>
-        <span class="label">Rapoarte</span>
-      </div>
+    <div class="user-bar">
+      <span class="user-email" id="userEmail">-</span>
+      <button class="logout-btn" id="logoutBtn">Deconectare</button>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <button class="btn btn-primary" id="openAdmin">🏠 Deschide Admin</button>
-      <button class="btn btn-secondary" id="checkNow">🔄 Actualizează</button>
+    <div class="content">
+      <div class="stats">
+        <div class="stat-card" data-url="/admin/inbox">
+          <div class="icon">📧</div>
+          <div class="value" id="emailsCount">-</div>
+          <div class="label">Emailuri necitite</div>
+        </div>
+        <div class="stat-card" data-url="/admin/vizionari">
+          <div class="icon">📅</div>
+          <div class="value" id="viewingsCount">-</div>
+          <div class="label">Vizionări azi</div>
+        </div>
+        <div class="stat-card" data-url="/admin/contracte">
+          <div class="icon">✍️</div>
+          <div class="value" id="signaturesCount">-</div>
+          <div class="label">Semnături în așteptare</div>
+        </div>
+        <div class="stat-card" data-url="/admin/proprietati">
+          <div class="icon">🏠</div>
+          <div class="value" id="propertiesCount">-</div>
+          <div class="label">Proprietăți</div>
+        </div>
+      </div>
+
+      <div class="section-title">📂 Meniu Principal</div>
+      <div class="menu-grid">
+        <div class="menu-item" data-url="/admin">
+          <span class="icon">📊</span>
+          <span class="label">Dashboard</span>
+        </div>
+        <div class="menu-item" data-url="/admin/inbox">
+          <span class="icon">📧</span>
+          <span class="label">Inbox <span class="badge" id="unreadEmailsBadge" style="display:none;">0</span></span>
+        </div>
+        <div class="menu-item" data-url="/admin/vizionari">
+          <span class="icon">📅</span>
+          <span class="label">Vizionări</span>
+        </div>
+        <div class="menu-item" data-url="/admin/proprietati">
+          <span class="icon">🏠</span>
+          <span class="label">Proprietăți</span>
+        </div>
+        <div class="menu-item" data-url="/admin/complexe">
+          <span class="icon">🏢</span>
+          <span class="label">Complexe</span>
+        </div>
+        <div class="menu-item" data-url="/admin/contracte">
+          <span class="icon">📜</span>
+          <span class="label">Contracte</span>
+        </div>
+        <div class="menu-item" data-url="/admin/comisioane">
+          <span class="icon">💰</span>
+          <span class="label">Comisioane</span>
+        </div>
+        <div class="menu-item" data-url="/admin/setari">
+          <span class="icon">⚙️</span>
+          <span class="label">Setări</span>
+        </div>
+        <div class="menu-item" data-url="/admin/rapoarte">
+          <span class="icon">📑</span>
+          <span class="label">Rapoarte</span>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button class="btn btn-primary" id="openAdmin">🏠 Deschide Admin</button>
+        <button class="btn btn-secondary" id="checkNow">🔄 Actualizează</button>
+      </div>
+
+      <div class="settings-row">
+        <span class="settings-label">🔔 Notificări push</span>
+        <div class="toggle active" id="notificationsToggle"></div>
+      </div>
+
+      <div class="loading" id="loading">Se încarcă...</div>
     </div>
 
-    <!-- Notifications Toggle -->
-    <div class="settings-row">
-      <span class="settings-label">🔔 Notificări push</span>
-      <div class="toggle active" id="notificationsToggle"></div>
+    <div class="footer">
+      <span>Ultima verificare: <span id="lastCheck">-</span></span>
+      <span>v2.2.0</span>
     </div>
-
-    <div class="loading" id="loading">Se încarcă...</div>
   </div>
 
-  <div class="footer">
-    <span>Ultima verificare: <span id="lastCheck">-</span></span>
-    <span>v2.1.0</span>
-  </div>
-
+  <script src="auth.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
