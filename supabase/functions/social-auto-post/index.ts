@@ -484,7 +484,8 @@ ${blogHashtags}`;
       } else if (isProject && project) {
         // Generate project payload
         const content = generateProjectContent(platformName, project);
-        const projectUrl = `${siteUrl}/complexe/${project.id}`;
+        const projectSlug = project.slug || project.id;
+        const projectUrl = `${siteUrl}/complexe/${projectSlug}`;
         
         // Convert relative image paths to absolute URLs
         let projectImage = project.main_image || '';

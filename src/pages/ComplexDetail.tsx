@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
@@ -78,6 +78,22 @@ const ComplexDetail = () => {
     }
   }, [slug, trackComplex]);
 
+  // If UUID, fetch the project to get its slug for redirect
+  const { data: legacyProject } = useQuery({
+    queryKey: ['legacy-project-redirect', slug],
+    queryFn: async () => {
+      if (!slug) return null;
+      const { data, error } = await supabase
+        .from('real_estate_projects')
+        .select('id, name, slug')
+        .eq('id', slug)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!slug && isLegacyUuid,
+  });
+
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['public-project', slug],
     queryFn: async () => {
@@ -117,7 +133,20 @@ const ComplexDetail = () => {
   });
 
   if (isLegacyUuid) {
-    return <NotFound />;
+    if (legacyProject?.slug) {
+      return <Navigate to={`/complexe/${legacyProject.slug}`} replace />;
+    }
+    if (legacyProject === null) {
+      return <NotFound />;
+    }
+    // Still loading, show skeleton
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <ComplexDetailSkeleton />
+        <Footer />
+      </div>
+    );
   }
 
   if (projectLoading || propertiesLoading) {
