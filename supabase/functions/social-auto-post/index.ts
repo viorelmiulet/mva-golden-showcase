@@ -467,7 +467,7 @@ ${blogHashtags}`;
           instagram_caption: content,
           tiktok_caption: content,
           google_caption: content.replace(blogHashtags, '').trim(),
-          google_title: (blogPost.title || '').substring(0, 58),
+          google_title: (blogPost.title || '').slice(0, 55),
           media: coverImage,
           media_url: coverImage,
           image_url: coverImage,
@@ -539,7 +539,7 @@ ${blogHashtags}`;
           instagram_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           tiktok_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           google_caption: content.replace(projectHashtags, '').replace(project.location || 'București', facebookLocation).trim(),
-          google_title: (project.name || '').substring(0, 55),
+          google_title: (project.name || '').slice(0, 55),
           // SINGLE IMAGE ONLY for Facebook
           media: projectImage,
           media_url: projectImage,
@@ -644,7 +644,7 @@ ${richDetails}
           instagram_caption: instagramCaption,
           tiktok_caption: tiktokCaption,
           google_caption: googleCaption,
-          google_title: (property.title || '').substring(0, 58),
+          google_title: (property.title || '').slice(0, 55),
           // First image as primary
           media: firstImageUrl,
           media_url: firstImageUrl,
@@ -667,7 +667,7 @@ ${richDetails}
         } as WebhookPayload;
       }
 
-      // For Facebook, send a simplified payload to avoid "Invalid parameter" errors
+      // Send platform-specific simplified payloads to avoid downstream mapping errors
       let finalPayload: any = payload;
       if (platformName === 'facebook') {
         finalPayload = {
@@ -686,12 +686,10 @@ ${richDetails}
           platform: 'facebook',
           type: payload.type,
         };
-        // Only include photo if it's a valid URL
         if (payload.photo && payload.photo.startsWith('http')) {
           finalPayload.photo = payload.photo;
           finalPayload.image_url = payload.photo;
         }
-        // Include individual image URLs (only valid ones)
         const validImages = (payload.all_images || []).filter((img: string) => img && img.startsWith('http'));
         if (validImages.length > 0) {
           finalPayload.images_count = validImages.length;
@@ -699,13 +697,32 @@ ${richDetails}
             finalPayload[`image_${i + 1}`] = img;
           });
         }
-        // Remove any undefined/empty values
-        Object.keys(finalPayload).forEach(key => {
-          if (finalPayload[key] === undefined || finalPayload[key] === '' || finalPayload[key] === null) {
-            delete finalPayload[key];
-          }
-        });
+      } else if (platformName === 'google') {
+        finalPayload = {
+          platform: 'google',
+          type: payload.type,
+          title: (payload.google_title || payload.title || '').slice(0, 55),
+          google_title: (payload.google_title || payload.title || '').slice(0, 55),
+          description: payload.google_caption || payload.description,
+          google_caption: payload.google_caption || payload.description,
+          message: payload.google_caption || payload.message,
+          url: payload.url,
+          media: payload.media,
+          media_url: payload.media_url,
+          image_url: payload.image_url,
+          photo_url: payload.photo_url,
+          photo: payload.photo,
+          website: payload.website,
+          phone: payload.phone,
+          timestamp: payload.timestamp,
+        };
       }
+
+      Object.keys(finalPayload).forEach(key => {
+        if (finalPayload[key] === undefined || finalPayload[key] === '' || finalPayload[key] === null) {
+          delete finalPayload[key];
+        }
+      });
 
       console.log(`social-auto-post: Payload for ${platformName}:`, JSON.stringify(finalPayload).substring(0, 500));
 
