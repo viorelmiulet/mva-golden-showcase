@@ -539,7 +539,7 @@ ${blogHashtags}`;
           instagram_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           tiktok_caption: projectCaption.replace(project.location || 'București', facebookLocation),
           google_caption: content.replace(projectHashtags, '').replace(project.location || 'București', facebookLocation).trim(),
-          google_title: (project.name || '').substring(0, 58),
+          google_title: (project.name || '').substring(0, 55),
           // SINGLE IMAGE ONLY for Facebook
           media: projectImage,
           media_url: projectImage,
