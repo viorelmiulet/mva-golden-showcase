@@ -33,10 +33,23 @@ interface ProjectData {
   status?: string;
 }
 
+interface BlogPostData {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  cover_image?: string;
+  category?: string;
+  author?: string;
+  read_time?: string;
+  content?: string;
+}
+
 interface WebhookPayload {
   property?: PropertyData;
   project?: ProjectData;
-  type: 'property' | 'project';
+  blogPost?: BlogPostData;
+  type: 'property' | 'project' | 'blog';
   platform: string;
   content: string;
   propertyUrl: string;
@@ -103,8 +116,8 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const body = await req.json();
-    const { propertyId, projectId, action, platform, type } = body;
-    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'ProjectId:', projectId, 'Platform:', platform, 'Type:', type);
+    const { propertyId, projectId, blogPostId, action, platform, type } = body;
+    console.log('social-auto-post: Action:', action, 'PropertyId:', propertyId, 'ProjectId:', projectId, 'BlogPostId:', blogPostId, 'Platform:', platform, 'Type:', type);
 
     if (action === 'test') {
       // Test webhook connectivity by actually sending a test request
@@ -184,13 +197,31 @@ serve(async (req) => {
       );
     }
 
-    // Determine if we're posting a property or a project
-    const isProject = type === 'project' || projectId;
+    // Determine if we're posting a property, project, or blog post
+    const isBlogPost = type === 'blog' || blogPostId;
+    const isProject = !isBlogPost && (type === 'project' || projectId);
     
     let property: any = null;
     let project: any = null;
+    let blogPost: any = null;
 
-    if (isProject) {
+    if (isBlogPost) {
+      // Get blog post data
+      const { data: blogData, error: blogError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', blogPostId)
+        .single();
+
+      if (blogError || !blogData) {
+        console.error('Blog post not found:', blogError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Blog post not found' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      blogPost = blogData;
+    } else if (isProject) {
       // Get project data
       const { data: projectData, error: projectError } = await supabase
         .from('real_estate_projects')
@@ -355,7 +386,29 @@ ${proj.description ? proj.description.substring(0, 200) + (proj.description.leng
 ${projectHashtags}`;
     };
 
-    // Send to each configured webhook
+    // Generate content for blog posts
+    const generateBlogContent = (platform: string, post: any): string => {
+      const blogUrl = `${siteUrl}/blog/${post.slug}`;
+      const category = post.category || 'Imobiliare';
+      const excerpt = post.excerpt?.substring(0, 300) || '';
+      const blogHashtags = `#imobiliare #blog #MVAImobiliare #${category.toLowerCase().replace(/\s+/g, '')} #sfaturiimobiliare #bucuresti #ghidimobiliar`;
+
+      return `📝 ${post.title}
+
+📂 Categorie: ${category}
+${post.read_time ? `⏱ Timp de citire: ${post.read_time}` : ''}
+
+${excerpt}${excerpt.length >= 300 ? '...' : ''}
+
+📞 0767.941.512
+🌐 mvaimobiliare.ro
+
+👉 Citește articolul: ${blogUrl}
+
+${blogHashtags}`;
+    };
+
+
     console.log('social-auto-post: Sending to webhooks...');
     
     // Filter by platform if specified
@@ -372,7 +425,68 @@ ${projectHashtags}`;
       
       let payload: WebhookPayload;
       
-      if (isProject && project) {
+      if (isBlogPost && blogPost) {
+        // Generate blog post payload
+        const content = generateBlogContent(platformName, blogPost);
+        const blogUrl = `${siteUrl}/blog/${blogPost.slug}`;
+        const category = blogPost.category || 'Imobiliare';
+        const blogHashtags = `#imobiliare #blog #MVAImobiliare #${category.toLowerCase().replace(/\s+/g, '')} #sfaturiimobiliare #bucuresti #ghidimobiliar`;
+        
+        let coverImage = blogPost.cover_image || '';
+        if (coverImage && !coverImage.startsWith('http')) {
+          coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`;
+        }
+
+        payload = {
+          type: 'blog',
+          blogPost: {
+            id: blogPost.id,
+            title: blogPost.title,
+            slug: blogPost.slug,
+            excerpt: blogPost.excerpt,
+            cover_image: coverImage,
+            category: blogPost.category,
+            author: blogPost.author,
+            read_time: blogPost.read_time,
+          },
+          platform: platformName,
+          content,
+          propertyUrl: blogUrl,
+          imageUrl: coverImage,
+          timestamp: new Date().toISOString(),
+          title: blogPost.title,
+          description: blogPost.excerpt || '',
+          location: 'București',
+          price: '',
+          rooms: '',
+          surface: '',
+          hashtags: blogHashtags,
+          website: 'mvaimobiliare.ro',
+          phone: '0767.941.512',
+          message: content,
+          instagram_caption: content,
+          tiktok_caption: content,
+          google_caption: content.replace(blogHashtags, '').trim(),
+          google_title: (blogPost.title || '').substring(0, 58),
+          media: coverImage,
+          media_url: coverImage,
+          image_url: coverImage,
+          photo_url: coverImage,
+          photo: coverImage,
+          url: blogUrl,
+          all_images: coverImage ? [coverImage] : [],
+          images_count: coverImage ? 1 : 0,
+          image_1: coverImage || undefined,
+          instagram_carousel: {
+            enabled: false,
+            images: coverImage ? [coverImage] : [],
+            images_count: coverImage ? 1 : 0,
+            caption: content,
+          },
+          carousel_images_csv: coverImage || '',
+          carousel_images_json: JSON.stringify(coverImage ? [coverImage] : []),
+        } as WebhookPayload;
+      } else if (isProject && project) {
         // Generate project payload
         const content = generateProjectContent(platformName, project);
         const projectUrl = `${siteUrl}/complexe/${project.id}`;
@@ -612,11 +726,14 @@ ${richDetails}
     }
 
     // Log the auto-post attempt
+    const recordId = isBlogPost ? blogPostId : (isProject ? projectId : propertyId);
+    const recordTitle = isBlogPost ? blogPost?.title : (isProject ? project?.name : property?.title);
+    const recordType = isBlogPost ? 'blog' : (isProject ? 'project' : 'property');
     await supabase.from('audit_logs').insert({
       action_type: 'social_auto_post',
-      record_id: isProject ? projectId : propertyId,
-      record_title: isProject ? project?.name : property?.title,
-      metadata: { type: isProject ? 'project' : 'property', results, webhooks: Object.keys(webhooks) },
+      record_id: recordId,
+      record_title: recordTitle,
+      metadata: { type: recordType, results, webhooks: Object.keys(webhooks) },
     });
 
     return new Response(

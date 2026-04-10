@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import RichTextEditor from "@/components/RichTextEditor";
 import { adminApi } from "@/lib/adminApi";
@@ -117,6 +117,28 @@ const BlogAdminPage = () => {
     },
     onError: (err: Error) => toast.error("Eroare: " + err.message),
   });
+
+  const [sharingPostId, setSharingPostId] = useState<string | null>(null);
+
+  const shareToSocial = async (postId: string) => {
+    setSharingPostId(postId);
+    try {
+      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+        body: { blogPostId: postId, type: 'blog' },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        const platforms = Object.keys(data.results || {}).join(', ');
+        toast.success(`Articol distribuit pe: ${platforms}`);
+      } else {
+        toast.error(data?.error || 'Eroare la distribuire');
+      }
+    } catch (err: any) {
+      toast.error('Eroare: ' + (err.message || 'necunoscută'));
+    } finally {
+      setSharingPostId(null);
+    }
+  };
 
   const openCreate = () => {
     setEditingPost(null);
@@ -237,6 +259,20 @@ const BlogAdminPage = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => shareToSocial(post.id)}
+                    disabled={sharingPostId === post.id}
+                    aria-label="Distribuie pe social media"
+                    title="Distribuie pe Facebook & Google"
+                  >
+                    {sharingPostId === post.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Share2 className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button variant="outline" size="icon" onClick={() => openEdit(post)} aria-label="Editează articolul">
                     <Pencil className="h-4 w-4" />
                   </Button>
