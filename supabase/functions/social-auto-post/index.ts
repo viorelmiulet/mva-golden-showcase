@@ -60,6 +60,8 @@ interface WebhookPayload {
   tiktok_caption: string;
   // Google Business-specific field - Professional caption for GMB
   google_caption: string;
+  // Google Business title - max 58 characters
+  google_title: string;
   // Media field for Instagram/TikTok/Google Business (required by Zapier)
   media: string;
   // Alternative media fields for different Zapier actions
