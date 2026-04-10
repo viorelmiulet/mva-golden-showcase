@@ -72,8 +72,8 @@ serve(async (req) => {
 
     const body = {
       category_id: "270",
-      subcategory_id: "271",
-      offer_type: "3448",
+      subcategory_id: "6959",
+      offer_type: "776",
       features,
     };
 
