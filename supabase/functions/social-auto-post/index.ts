@@ -48,7 +48,8 @@ interface BlogPostData {
 interface WebhookPayload {
   property?: PropertyData;
   project?: ProjectData;
-  type: 'property' | 'project';
+  blogPost?: BlogPostData;
+  type: 'property' | 'project' | 'blog';
   platform: string;
   content: string;
   propertyUrl: string;
