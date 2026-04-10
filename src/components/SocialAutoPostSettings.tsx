@@ -77,6 +77,19 @@ export const SocialAutoPostSettings = () => {
     }
   });
 
+  const { data: projects } = useQuery({
+    queryKey: ['projects-for-webhook'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('real_estate_projects')
+        .select('id, name, location')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const { data: postingHistory, isLoading: isLoadingHistory } = useQuery({
     queryKey: ['social-post-history'],
     queryFn: async () => {
