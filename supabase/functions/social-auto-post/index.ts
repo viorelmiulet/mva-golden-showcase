@@ -350,7 +350,7 @@ ${customHashtags}`;
     // Generate content for projects/complexes
     const generateProjectContent = (platform: string, proj: any): string => {
       const location = proj.location || 'București';
-      const projectUrl = `${siteUrl}/complexe/${proj.id}`;
+      const projectUrl = `${siteUrl}/complexe/${proj.slug || proj.id}`;
       const priceRange = proj.price_range || 'Preț la cerere';
       const surfaceRange = proj.surface_range || '';
       const roomsRange = proj.rooms_range || '';
