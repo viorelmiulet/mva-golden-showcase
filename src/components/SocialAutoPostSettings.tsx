@@ -504,6 +504,39 @@ export const SocialAutoPostSettings = () => {
           </div>
         </div>
 
+        {/* Manual Send Project/Complex Section */}
+        <div className="p-4 border rounded-lg space-y-3">
+          <h4 className="font-medium text-sm flex items-center gap-2">
+            <Building2 className="h-4 w-4" />
+            Trimite Manual un Ansamblu Rezidențial
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            Selectează un ansamblu rezidențial pentru a-l trimite către webhook-uri (Facebook, Google, etc.)
+          </p>
+          <div className="flex gap-3">
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Selectează un ansamblu..." />
+              </SelectTrigger>
+              <SelectContent>
+                {projects?.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name} {project.location ? `- ${project.location}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={sendProjectToWebhook} 
+              disabled={isSendingProject || !selectedProjectId}
+              className="gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSendingProject ? 'Se trimite...' : 'Trimite'}
+            </Button>
+          </div>
+        </div>
+
         {/* Posting History */}
         <div className="p-4 border rounded-lg space-y-3">
           <div className="flex items-center justify-between">
