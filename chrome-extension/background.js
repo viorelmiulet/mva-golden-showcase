@@ -1,8 +1,7 @@
 // MVA Admin Chrome Extension - Background Service Worker
 importScripts('auth.js');
 
-const SUPABASE_URL = 'https://fdpandnzblzvamhsoukt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGFuZG56Ymx6dmFtaHNvdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM2ODUsImV4cCI6MjA3NzQ0OTY4NX0.RB-3XaeYVlmt4VpGTzh72hpAl1J4HUkbe-_u-NZjAsU';
+// SUPABASE_URL and SUPABASE_ANON_KEY are provided by auth.js via importScripts
 const SITE_URL = 'https://mvaimobiliare.ro';
 const CHECK_INTERVAL_MINUTES = 1;
 
