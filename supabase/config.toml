@@ -71,3 +71,5 @@ project_id = "fdpandnzblzvamhsoukt"
     verify_jwt = false
   [functions.immoflux-proxy]
     verify_jwt = false
+  [functions.immoflux-webhook]
+    verify_jwt = false
