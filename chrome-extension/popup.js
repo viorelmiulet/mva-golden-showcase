@@ -1,15 +1,6 @@
 // MVA Admin Chrome Extension - Popup Script
 const SUPABASE_URL = 'https://fdpandnzblzvamhsoukt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGFuZG56Ymx6dmFtaHNvdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM2ODUsImV4cCI6MjA3NzQ0OTY4NX0.RB-3XaeYVlmt4VpGTzh72hpAl1J4HUkbe-_u-NZjAsU';
 const SITE_URL = 'https://mvaimobiliare.ro';
-
-function getHeaders() {
-  return {
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-    'Content-Type': 'application/json'
-  };
-}
 
 function formatDate(date) {
   const now = new Date();
@@ -21,13 +12,65 @@ function formatDate(date) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const settings = await chrome.storage.local.get(['notificationsEnabled', 'lastCheckTime']);
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
 
-  // Notifications toggle
+  const isAuth = await Auth.isAuthenticated();
+
+  if (isAuth) {
+    await showMainApp();
+  } else {
+    loginScreen.style.display = 'block';
+    mainApp.style.display = 'none';
+  }
+
+  // Login form
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Se conectează...';
+    errorEl.classList.remove('show');
+
+    try {
+      await Auth.signIn(email, password);
+      await showMainApp();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🔐 Autentificare';
+    }
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await Auth.signOut();
+    loginScreen.style.display = 'block';
+    mainApp.style.display = 'none';
+  });
+});
+
+async function showMainApp() {
+  const loginScreen = document.getElementById('loginScreen');
+  const mainApp = document.getElementById('mainApp');
+
+  loginScreen.style.display = 'none';
+  mainApp.style.display = 'block';
+
+  // Show user email
+  const { auth_user_email } = await chrome.storage.local.get('auth_user_email');
+  document.getElementById('userEmail').textContent = auth_user_email || '-';
+
+  // Load settings
+  const settings = await chrome.storage.local.get(['notificationsEnabled', 'lastCheckTime']);
   const toggle = document.getElementById('notificationsToggle');
   if (settings.notificationsEnabled === false) toggle.classList.remove('active');
-
-  // Last check time
   if (settings.lastCheckTime) {
     document.getElementById('lastCheck').textContent = formatDate(new Date(settings.lastCheckTime));
   }
@@ -41,12 +84,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.local.set({ notificationsEnabled: toggle.classList.contains('active') });
   });
 
-  // Open admin panel
+  // Open admin
   document.getElementById('openAdmin').addEventListener('click', () => {
     chrome.tabs.create({ url: `${SITE_URL}/admin` });
   });
 
-  // Menu items click handlers
+  // Menu items
   document.querySelectorAll('.menu-item, .stat-card').forEach(item => {
     item.addEventListener('click', () => {
       const url = item.dataset.url;
@@ -54,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Check now button
+  // Check now
   document.getElementById('checkNow').addEventListener('click', async () => {
     const loading = document.getElementById('loading');
     loading.classList.add('show');
@@ -65,19 +108,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     await chrome.storage.local.set({ lastCheckTime: now.toISOString() });
     loading.classList.remove('show');
   });
-});
+}
 
 async function checkConnectionStatus() {
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/`, { method: 'HEAD', headers: { 'apikey': SUPABASE_ANON_KEY } });
+    const headers = await Auth.getHeaders();
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/`, { method: 'HEAD', headers });
     if (response.ok) {
       statusDot.classList.remove('offline');
       statusText.textContent = 'Online';
-    } else {
-      throw new Error();
-    }
+    } else throw new Error();
   } catch {
     statusDot.classList.add('offline');
     statusText.textContent = 'Offline';
@@ -86,16 +128,17 @@ async function checkConnectionStatus() {
 
 async function loadStats() {
   try {
+    const headers = await Auth.getHeaders();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayISO = today.toISOString().split('T')[0];
     const tomorrowISO = new Date(today.getTime() + 86400000).toISOString().split('T')[0];
-    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
     const [viewingsRes, propertiesRes, contractsRes] = await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/viewing_appointments?preferred_date=gte.${todayISO}&preferred_date=lt.${tomorrowISO}&select=id`, { headers: getHeaders() }),
-      fetch(`${SUPABASE_URL}/rest/v1/catalog_offers?availability_status=eq.disponibil&select=id`, { headers: getHeaders() }),
-      fetch(`${SUPABASE_URL}/rest/v1/contracts?created_at=gte.${weekAgo}&select=id`, { headers: getHeaders() })
+      fetch(`${SUPABASE_URL}/rest/v1/viewing_appointments?preferred_date=gte.${todayISO}&preferred_date=lt.${tomorrowISO}&select=id`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/catalog_offers?availability_status=eq.disponibil&select=id`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/contracts?created_at=gte.${weekAgo}&select=id`, { headers })
     ]);
 
     if (viewingsRes.ok) document.getElementById('viewingsCount').textContent = (await viewingsRes.json()).length;
@@ -108,9 +151,10 @@ async function loadStats() {
 
 async function loadUnreadEmailsCount() {
   try {
+    const headers = await Auth.getHeaders();
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/received_emails?is_read=eq.false&is_deleted=eq.false&is_archived=eq.false&select=id`,
-      { headers: getHeaders() }
+      { headers }
     );
     if (response.ok) {
       const emails = await response.json();
@@ -131,9 +175,10 @@ async function loadUnreadEmailsCount() {
 
 async function loadPendingSignatures() {
   try {
+    const headers = await Auth.getHeaders();
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/contract_signatures?signed_at=is.null&select=id&limit=100`,
-      { headers: getHeaders() }
+      { headers }
     );
     if (response.ok) {
       const pending = await response.json();
