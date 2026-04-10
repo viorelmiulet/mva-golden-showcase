@@ -7,11 +7,11 @@ const CHECK_INTERVAL_MINUTES = 1;
 function getHeaders() {
   return {
     'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
   };
 }
 
-// Extract readable sender name
 function extractSenderName(sender) {
   const match = sender.match(/^([^<]+)</);
   if (match) return match[1].trim();
@@ -19,8 +19,24 @@ function extractSenderName(sender) {
   return emailMatch ? emailMatch[1] : sender;
 }
 
-// Initialize alarm for periodic checks
+// Initialize on install
 chrome.runtime.onInstalled.addListener(() => {
+  // Set initial timestamps to NOW so we don't flood with old notifications
+  const now = new Date().toISOString();
+  chrome.storage.local.set({
+    notificationsEnabled: true,
+    lastEmailNotifiedAt: now,
+    lastViewingNotifiedAt: now,
+    lastSignatureNotifiedAt: now,
+    lastCheckTime: now
+  });
+  chrome.alarms.create('checkAll', { periodInMinutes: CHECK_INTERVAL_MINUTES });
+  // First check after 10 seconds (not immediately, to avoid stale data)
+  setTimeout(() => checkAll(), 10000);
+});
+
+// Also re-create alarm on browser startup
+chrome.runtime.onStartup.addListener(() => {
   chrome.alarms.create('checkAll', { periodInMinutes: CHECK_INTERVAL_MINUTES });
   checkAll();
 });
@@ -32,40 +48,49 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 async function checkAll() {
-  const settings = await chrome.storage.local.get([
-    'notificationsEnabled',
-    'lastEmailNotifiedAt',
-    'lastViewingNotifiedAt'
-  ]);
+  try {
+    const settings = await chrome.storage.local.get([
+      'notificationsEnabled',
+      'lastEmailNotifiedAt',
+      'lastViewingNotifiedAt',
+      'lastSignatureNotifiedAt'
+    ]);
 
-  if (settings.notificationsEnabled === false) {
-    return;
+    if (settings.notificationsEnabled === false) {
+      return;
+    }
+
+    await Promise.all([
+      checkNewEmails(settings.lastEmailNotifiedAt),
+      checkNewViewings(settings.lastViewingNotifiedAt),
+      checkNewSignatures(settings.lastSignatureNotifiedAt)
+    ]);
+
+    await updateBadge();
+    await chrome.storage.local.set({ lastCheckTime: new Date().toISOString() });
+  } catch (error) {
+    console.error('checkAll error:', error);
   }
-
-  await Promise.all([
-    checkNewEmails(settings.lastEmailNotifiedAt),
-    checkNewViewings(settings.lastViewingNotifiedAt)
-  ]);
-
-  await updateBadge();
 }
 
 // Check for new unread emails
 async function checkNewEmails(lastNotifiedAt) {
   try {
-    const since = lastNotifiedAt || new Date(Date.now() - 60000).toISOString();
+    const since = lastNotifiedAt || new Date(Date.now() - 120000).toISOString();
 
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/received_emails?received_at=gt.${since}&is_read=eq.false&is_deleted=eq.false&is_archived=eq.false&select=id,sender,subject,stripped_text,received_at&order=received_at.desc&limit=10`,
       { headers: getHeaders() }
     );
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      console.error('Email check failed:', response.status, await response.text());
+      return;
+    }
 
     const emails = await response.json();
     if (emails.length === 0) return;
 
-    // Update last notified timestamp to the newest email
     const newestAt = emails[0].received_at;
     await chrome.storage.local.set({ lastEmailNotifiedAt: newestAt });
 
@@ -97,21 +122,22 @@ async function checkNewEmails(lastNotifiedAt) {
 // Check for new viewing appointments
 async function checkNewViewings(lastNotifiedAt) {
   try {
-    const since = lastNotifiedAt || new Date(Date.now() - 60000).toISOString();
+    const since = lastNotifiedAt || new Date(Date.now() - 120000).toISOString();
 
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/viewing_appointments?created_at=gt.${since}&select=id,customer_name,property_title,preferred_date,preferred_time&order=created_at.desc&limit=10`,
+      `${SUPABASE_URL}/rest/v1/viewing_appointments?created_at=gt.${since}&select=id,customer_name,property_title,preferred_date,preferred_time,created_at&order=created_at.desc&limit=10`,
       { headers: getHeaders() }
     );
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      console.error('Viewings check failed:', response.status, await response.text());
+      return;
+    }
 
     const viewings = await response.json();
     if (viewings.length === 0) return;
 
-    // Update last notified timestamp
-    // Use the first item's created_at as reference (newest first)
-    const newestCreatedAt = new Date().toISOString(); // use current time as baseline
+    const newestCreatedAt = viewings[0].created_at;
     await chrome.storage.local.set({ lastViewingNotifiedAt: newestCreatedAt });
 
     for (const v of viewings) {
@@ -122,12 +148,48 @@ async function checkNewViewings(lastNotifiedAt) {
         type: 'basic',
         iconUrl: 'icons/icon128.png',
         title: '📅 Vizionare Nouă',
-        message: `${v.customer_name} — ${v.property_title}\nData: ${dateStr} ${v.preferred_time || ''}`.trim(),
+        message: `${v.customer_name} — ${v.property_title || 'Proprietate'}\nData: ${dateStr} ${v.preferred_time || ''}`.trim(),
         priority: 2
       });
     }
   } catch (error) {
     console.error('Error checking viewings:', error);
+  }
+}
+
+// Check for new contract signatures
+async function checkNewSignatures(lastNotifiedAt) {
+  try {
+    const since = lastNotifiedAt || new Date(Date.now() - 120000).toISOString();
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/contract_signatures?signed_at=gt.${since}&signed_at=not.is.null&select=id,signer_name,signer_email,party_type,signed_at,contract_id&order=signed_at.desc&limit=10`,
+      { headers: getHeaders() }
+    );
+
+    if (!response.ok) {
+      console.error('Signatures check failed:', response.status, await response.text());
+      return;
+    }
+
+    const signatures = await response.json();
+    if (signatures.length === 0) return;
+
+    const newestAt = signatures[0].signed_at;
+    await chrome.storage.local.set({ lastSignatureNotifiedAt: newestAt });
+
+    for (const s of signatures) {
+      const partyLabel = s.party_type === 'proprietar' ? 'Proprietar' : 'Chiriaș';
+      chrome.notifications.create(`signature-${s.id}`, {
+        type: 'basic',
+        iconUrl: 'icons/icon128.png',
+        title: '✍️ Contract Semnat',
+        message: `${s.signer_name || s.signer_email || 'Necunoscut'} (${partyLabel}) a semnat contractul`,
+        priority: 2
+      });
+    }
+  } catch (error) {
+    console.error('Error checking signatures:', error);
   }
 }
 
@@ -161,6 +223,8 @@ chrome.notifications.onClicked.addListener((notificationId) => {
     chrome.tabs.create({ url: `${SITE_URL}/admin/inbox` });
   } else if (notificationId.startsWith('viewing-')) {
     chrome.tabs.create({ url: `${SITE_URL}/admin/vizionari` });
+  } else if (notificationId.startsWith('signature-')) {
+    chrome.tabs.create({ url: `${SITE_URL}/admin/contracte` });
   }
 });
 
