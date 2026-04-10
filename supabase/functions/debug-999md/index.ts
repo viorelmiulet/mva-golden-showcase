@@ -13,32 +13,26 @@ serve(async (req) => {
 
   const auth = "Basic " + btoa(`${API_KEY}:`);
 
-  // Incearca diferite combinatii de category_id pentru subcategoria 1345
-  const results: Record<string, unknown> = {};
-
-  // Offer types cu category_id = 1345 (subcategoria ca parinte)
-  const r1 = await fetch(`${API_BASE}/categories/1345/subcategories?lang=ro`, {
+  // Pas 1: toate subcategoriile imobiliare
+  const subRes = await fetch(`${API_BASE}/categories/270/subcategories?lang=ro`, {
     headers: { Authorization: auth }
   });
-  results["subcategorii_1345"] = await r1.json();
+  const subData = await subRes.json();
+  const subcategories = subData.subcategories ?? [];
 
-  // Offer types direct pe subcategoria 1345 cu parinte 270
-  const r2 = await fetch(`${API_BASE}/features?category_id=270&subcategory_id=1345&offer_type=1&lang=ro`, {
-    headers: { Authorization: auth }
-  });
-  results["features_270_1345"] = await r2.json();
-
-  // Incearca subcategoria 1346 (urmatoarea)
-  const r3 = await fetch(`${API_BASE}/categories/270/subcategories/1346/offer-types?lang=ro`, {
-    headers: { Authorization: auth }
-  });
-  results["offer_types_1346"] = await r3.json();
-
-  // Incearca cu category_id = 1345 direct
-  const r4 = await fetch(`${API_BASE}/categories/1345/subcategories/1346/offer-types?lang=ro`, {
-    headers: { Authorization: auth }
-  });
-  results["offer_types_1345_1346"] = await r4.json();
+  // Pas 2: pentru fiecare subcategorie, fetch offer-types
+  const results = [];
+  for (const sub of subcategories) {
+    const otRes = await fetch(`${API_BASE}/categories/270/subcategories/${sub.id}/offer-types?lang=ro`, {
+      headers: { Authorization: auth }
+    });
+    const otData = await otRes.json();
+    results.push({
+      subcategory_id: sub.id,
+      subcategory_title: sub.title,
+      offer_types: otData.offer_types ?? otData
+    });
+  }
 
   return new Response(JSON.stringify(results, null, 2), {
     headers: { ...corsHeaders, "Content-Type": "application/json" }
