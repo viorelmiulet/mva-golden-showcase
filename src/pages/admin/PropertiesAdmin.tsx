@@ -803,6 +803,20 @@ const PropertiesAdmin = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-10 w-full"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => openEditModal(property)}
                           className="border-gold/30 hover:bg-gold/10 h-10 w-full"
                         >
@@ -905,6 +919,20 @@ const PropertiesAdmin = () => {
                             <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                           ) : (
                             <Share2 className="w-4 h-4 text-blue-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-8 w-8 p-0"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
                           )}
                         </Button>
                         <Button
