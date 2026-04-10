@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const triggerSocialAutoPost = async (propertyId: string, platform?: 'facebook' | 'instagram' | 'all'): Promise<boolean> => {
+export const triggerSocialAutoPost = async (propertyId: string, platform?: 'facebook' | 'instagram' | 'google' | 'all'): Promise<boolean> => {
   try {
     // Check if auto-posting is enabled
     const { data: settings } = await supabase
@@ -39,7 +39,7 @@ export const triggerSocialAutoPost = async (propertyId: string, platform?: 'face
   }
 };
 
-export const triggerProjectSocialAutoPost = async (projectId: string, platform?: 'facebook' | 'instagram' | 'all'): Promise<boolean> => {
+export const triggerProjectSocialAutoPost = async (projectId: string, platform?: 'facebook' | 'instagram' | 'google' | 'all'): Promise<boolean> => {
   try {
     // Check if auto-posting is enabled
     const { data: settings } = await supabase
