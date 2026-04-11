@@ -28,14 +28,11 @@ serve(async (req) => {
     let ogUrl = `${SITE_URL}${path}`;
     let ogType = 'website';
 
-    // Property detail page: /proprietate/{slug} or /proprietati/{id}
+    // Property detail page: /proprietate/{slug} or /proprietati/{slug}
     const propertyMatch = path.match(/^\/proprieta(?:te|ti)\/(.+?)(?:\?.*)?$/);
     if (propertyMatch) {
       const slugOrId = propertyMatch[1];
-      // Try to find by slug suffix (short ID) or full ID
       let property = null;
-
-      // Check if it's a UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
       
       if (isUUID) {
@@ -46,18 +43,19 @@ serve(async (req) => {
           .single();
         property = data;
       } else {
-        // Extract short ID from slug (last part after last dash)
-        const shortId = slugOrId.split('-').pop() || '';
-        if (shortId.length === 6) {
+        // Extract short ID: last 4 chars of slug (first 4 chars of UUID without dashes)
+        const shortId = slugOrId.slice(-4);
+        if (shortId.length === 4) {
+          // Search by ID starting with those 4 chars
           const { data: properties } = await supabase
             .from('catalog_offers')
             .select('title, description, location, price_min, currency, surface_min, rooms, images, floor')
-            .ilike('id', `%${shortId}%`);
+            .like('id', `${shortId}%`);
           if (properties && properties.length > 0) {
             property = properties[0];
           }
         }
-        // Fallback: try full slug match
+        // Fallback: try slug match
         if (!property) {
           const { data } = await supabase
             .from('catalog_offers')
