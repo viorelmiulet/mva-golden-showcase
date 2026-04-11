@@ -28,10 +28,44 @@ serve(async (req) => {
     let ogUrl = `${SITE_URL}${path}`;
     let ogType = 'website';
 
-    // Property detail page: /proprietate/{slug} or /proprietati/{slug}
-    const propertyMatch = path.match(/^\/proprieta(?:te|ti)\/(.+?)(?:\?.*)?$/);
-    if (propertyMatch) {
-      const slugOrId = propertyMatch[1];
+    // Immoflux property: /proprietate/{slug} (numeric ID at end)
+    const immofluxMatch = path.match(/^\/proprietate\/(.+?)(?:\?.*)?$/);
+    if (immofluxMatch) {
+      const slug = immofluxMatch[1];
+      // Extract numeric ID from end of slug
+      const idMatch = slug.match(/(\d+)$/);
+      if (idMatch) {
+        try {
+          const proxyUrl = `${supabaseUrl}/functions/v1/immoflux-proxy/properties/${idMatch[1]}`;
+          const resp = await fetch(proxyUrl, {
+            headers: { 'apikey': Deno.env.get('SUPABASE_ANON_KEY') || '' },
+          });
+          if (resp.ok) {
+            const prop = await resp.json();
+            const propTitle = typeof prop.titlu === 'object' ? prop.titlu.ro : prop.titlu;
+            const price = prop.pretvanzare
+              ? `${Number(prop.pretvanzare).toLocaleString('ro-RO')} ${prop.monedavanzare || 'EUR'}`
+              : 'Preț la cerere';
+            const zona = prop.zona || prop.localitate || '';
+            
+            title = `${propTitle || `Apartament ${prop.nrcamere || ''} camere ${zona}`} – ${price}`;
+            description = `${prop.suprafatautila || ''}mp, etaj ${prop.etaj || '-'}, ${zona}. Detalii și vizionare la MVA Imobiliare.`;
+            ogType = 'article';
+            
+            if (prop.images && Array.isArray(prop.images) && prop.images.length > 0) {
+              image = prop.images[0].src || prop.images[0];
+            }
+          }
+        } catch (e) {
+          console.error('og-meta: immoflux fetch error:', e);
+        }
+      }
+    }
+
+    // Catalog property: /proprietati/{slug} (4-char hex ID at end)
+    const catalogMatch = path.match(/^\/proprietati\/(.+?)(?:\?.*)?$/);
+    if (catalogMatch) {
+      const slugOrId = catalogMatch[1];
       let property = null;
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
       
@@ -43,10 +77,8 @@ serve(async (req) => {
           .single();
         property = data;
       } else {
-        // Extract short ID: last 4 chars of slug (first 4 chars of UUID without dashes)
         const shortId = slugOrId.slice(-4);
         if (shortId.length === 4) {
-          // Search by ID starting with those 4 chars
           const { data: properties } = await supabase
             .from('catalog_offers')
             .select('title, description, location, price_min, currency, surface_min, rooms, images, floor')
@@ -55,7 +87,6 @@ serve(async (req) => {
             property = properties[0];
           }
         }
-        // Fallback: try slug match
         if (!property) {
           const { data } = await supabase
             .from('catalog_offers')
