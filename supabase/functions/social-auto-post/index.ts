@@ -748,6 +748,51 @@ ${richDetails}
       }
     }
 
+    // Send blog posts to dedicated Google Blog webhook
+    if (isBlogPost && blogPost) {
+      const googleBlogWebhookUrl = 'https://hook.eu1.make.com/ahz56ke5274z2lwjrygr723455erceff';
+      const blogUrl = `${siteUrl}/blog/${blogPost.slug}`;
+      let coverImage = blogPost.cover_image || '';
+      if (coverImage && !coverImage.startsWith('http')) {
+        coverImage = `${siteUrl}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`;
+      }
+      const category = blogPost.category || 'Imobiliare';
+
+      const googleBlogPayload = {
+        platform: 'google',
+        type: 'blog',
+        title: (blogPost.title || '').slice(0, 55),
+        google_title: (blogPost.title || '').slice(0, 55),
+        description: blogPost.excerpt || '',
+        message: `📝 ${blogPost.title}\n\n📂 ${category}\n\n${(blogPost.excerpt || '').substring(0, 300)}\n\n👉 ${blogUrl}`,
+        url: blogUrl,
+        sourceUrl: blogUrl,
+        category: category,
+        slug: blogPost.slug,
+        media: coverImage,
+        photo: coverImage,
+        image_url: coverImage,
+        website: 'mvaimobiliare.ro',
+        phone: '0767.941.512',
+        timestamp: new Date().toISOString(),
+      };
+
+      console.log(`social-auto-post: Sending blog to Google Blog webhook: ${googleBlogWebhookUrl}`);
+      try {
+        const response = await fetch(googleBlogWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(googleBlogPayload),
+        });
+        const responseText = await response.text();
+        results['google_blog'] = response.ok;
+        console.log(`social-auto-post: google_blog response: ${response.status} - ${responseText.substring(0, 200)}`);
+      } catch (error) {
+        console.error('social-auto-post: google_blog error:', error);
+        results['google_blog'] = false;
+      }
+    }
+
     // Log the auto-post attempt
     const recordId = isBlogPost ? blogPostId : (isProject ? projectId : propertyId);
     const recordTitle = isBlogPost ? blogPost?.title : (isProject ? project?.name : property?.title);
