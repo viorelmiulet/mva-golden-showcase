@@ -2,6 +2,21 @@
   publish = "dist"
   command = "npm run build"
 
+[[edge_functions]]
+  function = "og-crawler"
+  path = "/proprietate/*"
+
+[[edge_functions]]
+  function = "og-crawler"
+  path = "/proprietati/*"
+
+[[edge_functions]]
+  function = "og-crawler"
+  path = "/complexe/*"
+
+[[edge_functions]]
+  function = "og-crawler"
+  path = "/blog/*"
 
 [[redirects]]
   from = "/sitemap.xml"
