@@ -2,6 +2,12 @@
   publish = "dist"
   command = "npm run build"
 
+# Prerender.io – intercept bot requests before everything else
+[[edge_functions]]
+  function = "prerender"
+  path = "/*"
+
+
 [[edge_functions]]
   function = "og-crawler"
   path = "/proprietate/*"
