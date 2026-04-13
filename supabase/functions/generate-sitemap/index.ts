@@ -12,19 +12,6 @@ interface Project {
   updated_at: string;
 }
 
-interface Property {
-  id: string;
-  rooms?: number | null;
-  project_name?: string | null;
-  zone?: string | null;
-  location?: string | null;
-  updated_at: string;
-}
-
-interface PropertyWithSlug extends Property {
-  slug: string;
-}
-
 interface BlogPost {
   slug: string;
   updated_at: string;
@@ -54,43 +41,6 @@ const xmlEscape = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 
-const mapPropertySlugs = async (
-  supabase: ReturnType<typeof createClient>,
-  properties: Property[],
-): Promise<PropertyWithSlug[]> => {
-  const chunkSize = 100;
-  const propertiesWithSlugs: PropertyWithSlug[] = [];
-
-  for (let index = 0; index < properties.length; index += chunkSize) {
-    const chunk = properties.slice(index, index + chunkSize);
-    const slugChunk = await Promise.all(
-      chunk.map(async (property) => {
-        const { data: slug, error } = await supabase.rpc('generate_property_slug_db', {
-          property_id: property.id,
-          property_rooms: property.rooms ?? null,
-          property_project_name: property.project_name ?? null,
-          property_zone: property.zone ?? null,
-          property_location: property.location ?? null,
-        });
-
-        if (error || !slug) {
-          console.error('Error generating property slug:', property.id, error);
-          return null;
-        }
-
-        return {
-          ...property,
-          slug,
-        } satisfies PropertyWithSlug;
-      }),
-    );
-
-    propertiesWithSlugs.push(...slugChunk.filter((property): property is PropertyWithSlug => Boolean(property)));
-  }
-
-  return propertiesWithSlugs;
-};
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -111,9 +61,10 @@ Deno.serve(async (req) => {
         .order('updated_at', { ascending: false }),
       supabase
         .from('catalog_offers')
-        .select('id, updated_at, rooms, project_name, zone, location')
+        .select('id, slug, updated_at')
         .eq('is_published', true)
         .eq('availability_status', 'available')
+        .not('slug', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5000),
       supabase
@@ -123,27 +74,15 @@ Deno.serve(async (req) => {
         .order('updated_at', { ascending: false }),
     ]);
 
-    if (projectsResult.error) {
-      console.error('Error fetching projects:', projectsResult.error);
-      throw projectsResult.error;
-    }
-
-    if (propertiesResult.error) {
-      console.error('Error fetching properties:', propertiesResult.error);
-      throw propertiesResult.error;
-    }
-
-    if (blogPostsResult.error) {
-      console.error('Error fetching blog posts:', blogPostsResult.error);
-      throw blogPostsResult.error;
-    }
+    if (projectsResult.error) throw projectsResult.error;
+    if (propertiesResult.error) throw propertiesResult.error;
+    if (blogPostsResult.error) throw blogPostsResult.error;
 
     const projects = (projectsResult.data || []) as Project[];
-    const properties = (propertiesResult.data || []) as Property[];
+    const properties = propertiesResult.data || [];
     const blogPosts = (blogPostsResult.data || []) as BlogPost[];
-    const propertiesWithSlugs = await mapPropertySlugs(supabase, properties);
 
-    console.log(`Found ${projects.length} complexes, ${propertiesWithSlugs.length} properties, ${blogPosts.length} blog posts`);
+    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts`);
 
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -182,11 +121,9 @@ Deno.serve(async (req) => {
 
     for (const blogPost of blogPosts) {
       if (!blogPost.slug) continue;
-
       const lastmod = blogPost.updated_at
         ? new Date(blogPost.updated_at).toISOString().split('T')[0]
         : currentDate;
-
       sitemap += `  <url>
     <loc>${SITE_URL}/blog/${xmlEscape(blogPost.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
@@ -200,7 +137,6 @@ Deno.serve(async (req) => {
       const lastmod = project.updated_at
         ? new Date(project.updated_at).toISOString().split('T')[0]
         : currentDate;
-
       sitemap += `  <url>
     <loc>${SITE_URL}/complexe/${xmlEscape(getComplexSlug(project))}</loc>
     <lastmod>${lastmod}</lastmod>
@@ -210,11 +146,11 @@ Deno.serve(async (req) => {
 `;
     }
 
-    for (const property of propertiesWithSlugs) {
+    for (const property of properties) {
+      if (!property.slug) continue;
       const lastmod = property.updated_at
         ? new Date(property.updated_at).toISOString().split('T')[0]
         : currentDate;
-
       sitemap += `  <url>
     <loc>${SITE_URL}/proprietati/${xmlEscape(property.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
@@ -225,8 +161,6 @@ Deno.serve(async (req) => {
     }
 
     sitemap += `</urlset>`;
-
-    console.log('Sitemap generated successfully');
 
     return new Response(sitemap, {
       headers: {
