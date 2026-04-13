@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import viteCompression from "vite-plugin-compression";
-import vitePrerender from "vite-plugin-prerender";
+
 
 async function fetchSlugs(): Promise<string[]> {
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -171,13 +171,6 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
         threshold: 1024,
         deleteOriginFile: false,
       }),
-      mode === 'production' && vitePrerender({
-        staticDir: path.join(__dirname, 'dist'),
-        routes: allRoutes,
-        renderer: {
-          renderAfterTime: 2000,
-        },
-      } as any),
     ].filter(Boolean),
     resolve: {
       alias: {
