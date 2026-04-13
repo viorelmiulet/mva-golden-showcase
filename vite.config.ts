@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -30,7 +30,7 @@ async function fetchSlugs(): Promise<string[]> {
       return [];
     }
 
-    const rows: { slug: string }[] = await res.json();
+    const rows = (await res.json()) as { slug: string }[];
     return rows.map((r) => r.slug).filter(Boolean);
   } catch (e) {
     console.warn('[prerender] Error fetching slugs:', e);
@@ -39,7 +39,7 @@ async function fetchSlugs(): Promise<string[]> {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   const slugs = mode === 'production' ? await fetchSlugs() : [];
 
   const staticRoutes = ['/', '/anunturi', '/despre-noi', '/contact'];
@@ -58,7 +58,7 @@ export default defineConfig(async ({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
+          manualChunks: (id: string) => {
             if (!id.includes("node_modules")) return undefined;
 
             if (id.includes("react-dom") || id.includes("scheduler") || id.includes("react/jsx-runtime") || /node_modules\/react\//.test(id)) {
@@ -147,7 +147,7 @@ export default defineConfig(async ({ mode }) => {
       },
       chunkSizeWarningLimit: 400,
       target: 'esnext',
-      minify: 'terser',
+      minify: 'terser' as const,
       terserOptions: {
         compress: {
           drop_console: true,
