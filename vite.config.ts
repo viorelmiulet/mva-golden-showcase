@@ -172,9 +172,12 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
         deleteOriginFile: false,
       }),
       mode === 'production' && vitePrerender({
+        staticDir: path.join(__dirname, 'dist'),
         routes: allRoutes,
-        renderAfterTime: 2000,
-      }),
+        renderer: {
+          renderAfterTime: 2000,
+        },
+      } as any),
     ].filter(Boolean),
     resolve: {
       alias: {
