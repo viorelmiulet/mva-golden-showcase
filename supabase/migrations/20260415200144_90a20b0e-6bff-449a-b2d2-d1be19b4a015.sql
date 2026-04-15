@@ -1,0 +1,1 @@
+CREATE POLICY "Anon can view contract inventory" ON public.contract_inventory FOR SELECT TO anon USING (true);
