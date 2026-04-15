@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, X } from "lucide-react";
@@ -20,7 +20,17 @@ const ContractPreviewDialog = ({
   onDownload,
   isLoading = false
 }: ContractPreviewDialogProps) => {
-  const pdfUrl = pdfBlob ? URL.createObjectURL(pdfBlob) : null;
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pdfBlob) {
+      const url = URL.createObjectURL(pdfBlob);
+      setPdfUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPdfUrl(null);
+    }
+  }, [pdfBlob]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
