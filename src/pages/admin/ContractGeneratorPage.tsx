@@ -484,7 +484,13 @@ const ContractGeneratorPage = () => {
             images: item.images || []
           }));
           
-          await adminApi.insert('contract_inventory', inventoryToSave as any);
+          const invResult = await adminApi.insert('contract_inventory', inventoryToSave as any);
+          if (!invResult.success) {
+            console.error('Error saving inventory:', invResult.error);
+            toast.error('Eroare la salvarea procesului verbal / inventarului');
+          } else {
+            console.log(`Saved ${inventoryItems.length} inventory items for contract ${insertedContract.id}`);
+          }
         }
       }
 
@@ -1359,8 +1365,9 @@ const ContractGeneratorPage = () => {
           },
         });
 
-        const pdfDataUrl = pdf.output('datauristring');
-        setPreviewPdfUrl(pdfDataUrl);
+        const blob = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(blob);
+        setPreviewPdfUrl(blobUrl);
       } catch (error) {
         console.error('Error generating preview:', error);
         toast.error('Eroare la generarea previzualizării');
@@ -1697,9 +1704,10 @@ const ContractGeneratorPage = () => {
       doc.text("_______________", margin, y);
       doc.text("_______________", pageWidth - margin - 40, y);
 
-      // Convert to data URL for preview
-      const pdfDataUrl = doc.output('datauristring');
-      setPreviewPdfUrl(pdfDataUrl);
+      // Convert to blob URL for reliable multi-page preview
+      const blob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+      setPreviewPdfUrl(blobUrl);
     } catch (error) {
       console.error('Error generating draft preview:', error);
       toast.error('Eroare la generarea previzualizării');
