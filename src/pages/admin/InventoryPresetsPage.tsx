@@ -47,17 +47,29 @@ const InventoryPresetsPage = () => {
 
   const fetchItems = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('preset_inventory_items')
-      .select('*')
-      .order('sort_order', { ascending: true });
 
-    if (error) {
+    const result = await adminApi.select<PresetItem>('preset_inventory_items', {
+      orderBy: 'sort_order',
+      ascending: true,
+    });
+
+    if (!result.success) {
       toast.error('Eroare la incarcarea articolelor');
-      console.error(error);
+      console.error(result.error);
+      setItems([]);
     } else {
-      setItems(data || []);
+      setItems(
+        (result.data || []).map((item) => ({
+          ...item,
+          condition: item.condition || 'buna',
+          location: item.location || '',
+          notes: item.notes || '',
+          quantity: item.quantity || 1,
+          sort_order: item.sort_order || 0,
+        }))
+      );
     }
+
     setLoading(false);
   };
 
