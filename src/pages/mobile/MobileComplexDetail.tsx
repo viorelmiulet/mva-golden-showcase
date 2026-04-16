@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageLightbox } from "@/components/ImageLightbox";
 
 const MobileComplexDetail = () => {
