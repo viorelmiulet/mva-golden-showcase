@@ -134,34 +134,34 @@ const DashboardPage = () => {
   const { data: viewingsData, isLoading: loadingViewings } = useQuery({
     queryKey: ['dashboard', 'viewings'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('viewing_appointments').select('status, created_at, preferred_date').order('created_at', { ascending: true });
-      if (error) throw error;
-      const pending = data?.filter(v => v.status === 'pending').length || 0;
-      const confirmed = data?.filter(v => v.status === 'confirmed').length || 0;
-      const completed = data?.filter(v => v.status === 'completed').length || 0;
-      const total = data?.length || 0;
+      const result = await adminApi.select<{ status: string; created_at: string; preferred_date: string }>('viewing_appointments', { orderBy: 'created_at', ascending: true });
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
+      const pending = data.filter(v => v.status === 'pending').length;
+      const confirmed = data.filter(v => v.status === 'confirmed').length;
+      const completed = data.filter(v => v.status === 'completed').length;
+      const total = data.length;
       const now = new Date();
       const thisMonthStart = startOfMonth(now);
-      const thisMonthCount = data?.filter(v => v.created_at && parseISO(v.created_at) >= thisMonthStart).length || 0;
+      const thisMonthCount = data.filter(v => v.created_at && parseISO(v.created_at) >= thisMonthStart).length;
       const lastMonthStart = startOfMonth(subMonths(now, 1));
       const lastMonthEnd = endOfMonth(subMonths(now, 1));
-      const lastMonthCount = data?.filter(v => {
+      const lastMonthCount = data.filter(v => {
         if (!v.created_at) return false;
         const date = parseISO(v.created_at);
         return date >= lastMonthStart && date <= lastMonthEnd;
-      }).length || 0;
+      }).length;
       const monthlyGrowth = lastMonthCount > 0 ? Math.round(((thisMonthCount - lastMonthCount) / lastMonthCount) * 100) : 0;
-      // Monthly trend (last 6 months)
       const monthlyTrend = [];
       for (let i = 5; i >= 0; i--) {
         const monthDate = subMonths(now, i);
         const mStart = startOfMonth(monthDate);
         const mEnd = endOfMonth(monthDate);
-        const monthData = data?.filter(v => {
+        const monthData = data.filter(v => {
           if (!v.created_at) return false;
           const date = parseISO(v.created_at);
           return date >= mStart && date <= mEnd;
-        }) || [];
+        });
         monthlyTrend.push({
           month: format(monthDate, 'MMM', { locale: ro }),
           total: monthData.length,
