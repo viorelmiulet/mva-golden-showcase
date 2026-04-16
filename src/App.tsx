@@ -16,7 +16,7 @@ const MobileAppLayout = lazy(() => import("./layouts/MobileAppLayout"));
 const MobileHome = lazy(() => import("./pages/mobile/MobileHome"));
 const MobileSearch = lazy(() => import("./pages/mobile/MobileSearch"));
 const MobileComplexes = lazy(() => import("./pages/mobile/MobileComplexes"));
-const MobileFavorites = lazy(() => import("./pages/mobile/MobileFavorites"));
+
 const MobileAccount = lazy(() => import("./pages/mobile/MobileAccount"));
 const MobilePropertyDetail = lazy(() => import("./pages/mobile/MobilePropertyDetail"));
 const MobileComplexDetail = lazy(() => import("./pages/mobile/MobileComplexDetail"));
@@ -55,8 +55,6 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const DespreNoi = lazy(() => import("./pages/DespreNoi"));
 const Servicii = lazy(() => import("./pages/Servicii"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Favorites = lazy(() => import("./pages/Favorites"));
 const CalculatorCredit = lazy(() => import("./pages/CalculatorCredit"));
 const ClientsAdminPage = lazy(() => import("./pages/admin/ClientsAdminPage"));
 const VirtualStagingPage = lazy(() => import("./pages/admin/VirtualStagingPage"));
@@ -232,8 +230,6 @@ const AppRoutes = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/faq" element={<FAQ />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/favorite" element={<Favorites />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               
               <Route path="/militari-residence" element={<MilitariResidence />} />
@@ -253,7 +249,7 @@ const AppRoutes = () => {
                 <Route index element={<MobileHome />} />
                 <Route path="cauta" element={<MobileSearch />} />
                 <Route path="complexe" element={<MobileComplexes />} />
-                <Route path="favorite" element={<MobileFavorites />} />
+                
                 <Route path="cont" element={<MobileAccount />} />
                 <Route path="proprietate/:slug" element={<MobilePropertyDetail />} />
                 <Route path="complex/:id" element={<MobileComplexDetail />} />
