@@ -51,41 +51,11 @@ export const useUserRoles = () => {
     },
   });
 
-  // Check if current user is admin
-  const { data: isAdmin = false } = useQuery({
-    queryKey: ["is-current-user-admin"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return false;
+  // Admin is determined by sessionStorage (simple password auth)
+  const isAdmin = sessionStorage.getItem("admin_auth") === "true";
 
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data?.role === "admin";
-    },
-  });
-
-  // Get current user's role
-  const { data: currentUserRole } = useQuery({
-    queryKey: ["current-user-role"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return (data?.role as AppRole) || null;
-    },
-  });
+  // Current user role - admin panel uses simple password, so role is always admin when authenticated
+  const currentUserRole: AppRole | null = isAdmin ? "admin" : null;
 
   // Update user role
   const updateUserRole = useMutation({

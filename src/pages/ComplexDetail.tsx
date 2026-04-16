@@ -56,19 +56,9 @@ const ComplexDetail = () => {
   const [filterSurfaceMin, setFilterSurfaceMin] = useState<string>("");
   const [filterSurfaceMax, setFilterSurfaceMax] = useState<string>("");
 
-  // Check authentication status
+  // Check admin auth from sessionStorage
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-    };
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    return () => subscription.unsubscribe();
+    setIsAuthenticated(sessionStorage.getItem("admin_auth") === "true");
   }, []);
 
   // Track complex view

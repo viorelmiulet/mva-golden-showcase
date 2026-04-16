@@ -11,7 +11,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { useFavorites } from "@/hooks/useFavorites";
+
 import { ComplexGridSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,7 +19,7 @@ import { getComplexUrl } from "@/lib/complexSlug";
 
 const Complexe = () => {
   const { trackComplex } = usePlausible();
-  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  
   const { t, language } = useLanguage();
   
   
@@ -238,27 +238,8 @@ const Complexe = () => {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                         
-                        {/* Favorite Button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-2 right-2 sm:top-3 sm:right-3 glass hover:bg-background/90 backdrop-blur-sm z-10 glow-gold h-8 w-8 sm:h-10 sm:w-10"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            toggleFavorite(project.id, 'complex');
-                            trackComplex('favorite', project.id, project.name);
-                          }}
-                          aria-label="Adaugă la favorite"
-                        >
-                          <Heart 
-                            className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
-                              isFavorite(project.id, 'complex') 
-                                ? 'fill-red-500 text-red-500' 
-                                : 'text-muted-foreground'
-                            }`} 
-                          />
-                        </Button>
+
+
 
                         {/* Recommended Badge */}
                         {project.is_recommended && (

@@ -1,19 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Heart, User, Building2 } from "lucide-react";
+import { Home, Search, User, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useFavorites } from "@/hooks/useFavorites";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const MobileBottomNav = () => {
   const location = useLocation();
-  const { favorites } = useFavorites();
   const { t } = useLanguage();
 
   const navItems = [
     { path: "/app", icon: Home, label: t.mobile?.home || "Acasă" },
     { path: "/app/cauta", icon: Search, label: t.mobile?.search || "Caută" },
     { path: "/app/complexe", icon: Building2, label: t.mobile?.complexes || "Complexe" },
-    { path: "/app/favorite", icon: Heart, label: t.mobile?.favorites || "Favorite", badge: favorites.length },
     { path: "/app/cont", icon: User, label: t.mobile?.account || "Cont" },
   ];
 
@@ -45,11 +42,6 @@ const MobileBottomNav = () => {
                   "w-5 h-5 transition-transform",
                   active && "scale-110"
                 )} />
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-gold text-background text-[10px] font-bold rounded-full flex items-center justify-center px-1">
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </span>
-                )}
               </div>
               <span className={cn(
                 "text-[10px] mt-1",

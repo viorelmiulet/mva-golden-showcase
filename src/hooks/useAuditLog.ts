@@ -34,16 +34,12 @@ export const logAuditAction = async ({
   metadata,
 }: LogActionParams): Promise<void> => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      console.warn('Audit log: No authenticated user');
-      return;
-    }
+    // Use admin email from sessionStorage since we no longer use Supabase Auth
+    const adminEmail = 'admin@mvaimobiliare.ro';
 
     const { error } = await supabase.from('audit_logs').insert([{
-      user_id: user.id,
-      user_email: user.email,
+      user_id: null,
+      user_email: adminEmail,
       action_type: actionType,
       table_name: tableName || null,
       record_id: recordId || null,

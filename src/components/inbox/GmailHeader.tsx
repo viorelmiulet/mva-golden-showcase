@@ -58,17 +58,8 @@ export const GmailHeader = ({
   }, []);
 
   const loadUserProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      setUserInitial(user.email?.charAt(0).toUpperCase() || "M");
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("avatar_url, full_name")
-        .eq("user_id", user.id)
-        .single();
-      if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
-      if (profile?.full_name) setUserInitial(profile.full_name.charAt(0).toUpperCase());
-    }
+    // Use admin defaults since we no longer use Supabase Auth
+    setUserInitial("M");
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,15 +69,10 @@ export const GmailHeader = ({
     if (file.size > 2 * 1024 * 1024) { toast.error("Imaginea trebuie să fie mai mică de 2MB"); return; }
     setIsUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { toast.error("Trebuie să fii autentificat"); return; }
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}/avatar.${fileExt}`;
+      const fileName = `admin/avatar.${file.name.split(".").pop()}`;
       const { error: uploadError } = await supabase.storage.from("avatars").upload(fileName, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(fileName);
-      const { error: updateError } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
-      if (updateError) throw updateError;
       setAvatarUrl(publicUrl + "?t=" + Date.now());
       toast.success("Poza de profil a fost actualizată!");
     } catch (error: any) {

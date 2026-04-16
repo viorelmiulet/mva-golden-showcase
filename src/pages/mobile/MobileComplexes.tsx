@@ -6,13 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
-import { MapPin, Heart, Building2 } from "lucide-react";
-import { useFavorites } from "@/hooks/useFavorites";
+import { MapPin, Building2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { generateComplexSlug } from "@/lib/complexSlug";
 
 const MobileComplexes = () => {
-  const { isFavorite, toggleFavorite } = useFavorites();
+  
   const { language } = useLanguage();
 
   // Fetch all complexes with apartment count
@@ -99,17 +98,6 @@ const MobileComplexes = () => {
                       aspectRatio="auto"
                       quality={75}
                     />
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleFavorite(complex.id, 'complex');
-                      }}
-                      className="absolute top-3 right-3 w-9 h-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                    >
-                      <Heart 
-                        className={`w-5 h-5 ${isFavorite(complex.id, 'complex') ? 'fill-gold text-gold' : 'text-foreground'}`} 
-                      />
-                    </button>
                     {complex.is_recommended && (
                       <Badge className="absolute top-3 left-3 bg-gold text-background">
                         {language === 'ro' ? 'Recomandat' : 'Recommended'}
