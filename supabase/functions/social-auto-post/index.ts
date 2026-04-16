@@ -138,8 +138,9 @@ serve(async (req) => {
       const testResults: Record<string, { success: boolean; status?: number; error?: string }> = {};
       
       // Actually test each configured webhook
+      const nonUrlKeys = ['enabled', 'scheduled', 'scheduleInterval', 'lastScheduledRun', 'hashtags'];
       for (const [platform, webhookUrl] of Object.entries(webhooks)) {
-        if (platform === 'enabled' || !webhookUrl || typeof webhookUrl !== 'string') continue;
+        if (nonUrlKeys.includes(platform) || !webhookUrl || typeof webhookUrl !== 'string' || !webhookUrl.startsWith('http')) continue;
         
         console.log(`social-auto-post: Testing ${platform} webhook: ${webhookUrl}`);
         
