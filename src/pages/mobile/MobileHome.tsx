@@ -8,13 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import MobileHeader from "@/components/mobile/MobileHeader";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
-import { MapPin, Home, Ruler, ArrowRight, Sparkles, Building2, Heart } from "lucide-react";
-import { useFavorites } from "@/hooks/useFavorites";
+import { MapPin, Home, Ruler, ArrowRight, Sparkles, Building2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCriticalImagePreload } from "@/hooks/useImagePreload";
 
 const MobileHome = () => {
-  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  
   const { language } = useLanguage();
 
   // Fetch featured properties
@@ -216,17 +215,6 @@ const MobileHome = () => {
                           aspectRatio="auto"
                           quality={70}
                         />
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            toggleFavorite(property.id, 'property');
-                          }}
-                          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                        >
-                          <Heart 
-                            className={`w-4 h-4 ${isFavorite(property.id, 'property') ? 'fill-gold text-gold' : 'text-foreground'}`} 
-                          />
-                        </button>
                       </div>
                       <div className="py-3 pr-3 flex-1 flex flex-col justify-between">
                         <div>

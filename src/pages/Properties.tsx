@@ -39,7 +39,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
-import { useFavorites } from "@/hooks/useFavorites"
+
 import { PropertyGridSkeleton } from "@/components/skeletons"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug"
@@ -96,7 +96,7 @@ const Properties = () => {
   const [visibleCount, setVisibleCount] = useState(12)
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
+  
   const { t, language } = useLanguage()
 
   const pageText = useMemo(() => ({
@@ -706,25 +706,8 @@ const Properties = () => {
                 {visibleProperties.map((property, index) => (
                   <Card key={property.id} className="group glass hover:glass-hover border-[0.5px] relative">
                     <CardContent className="p-6">
-                      {/* Favorite Button */}
-                      {isAuthenticated && (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            toggleFavorite(property.id, 'property')
-                          }}
-                          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
-                        >
-                          <Heart 
-                            className={`w-5 h-5 transition-colors ${
-                              isFavorite(property.id, 'property') 
-                                ? 'fill-red-500 text-red-500' 
-                                : 'text-muted-foreground hover:text-red-500'
-                            }`} 
-                          />
-                        </button>
-                      )}
+                      
+
                       
                       {/* Promotion badges */}
                       {(property._immoflux_pole || property._immoflux_top) && (
