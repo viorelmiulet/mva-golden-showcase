@@ -2,6 +2,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton, AnimatedSkeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
