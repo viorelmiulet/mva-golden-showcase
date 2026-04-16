@@ -176,17 +176,18 @@ const DashboardPage = () => {
   const { data: commissionsData, isLoading: loadingCommissions } = useQuery({
     queryKey: ['dashboard', 'commissions'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('commissions').select('amount, currency, date, transaction_type, invoice_number').order('date', { ascending: true });
-      if (error) throw error;
+      const result = await adminApi.select<{ amount: number; currency: string; date: string; transaction_type: string; invoice_number: string | null }>('commissions', { orderBy: 'date', ascending: true });
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
       const now = new Date();
-      const totalEUR = data?.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-      const totalRON = data?.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+      const totalEUR = data.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
+      const totalRON = data.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
       const monthStart = startOfMonth(now);
       const monthEnd = endOfMonth(now);
       const lastMonthStart = startOfMonth(subMonths(now, 1));
       const lastMonthEnd = endOfMonth(subMonths(now, 1));
-      const currentMonthData = data?.filter(c => { const d = parseISO(c.date); return d >= monthStart && d <= monthEnd; }) || [];
-      const lastMonthData = data?.filter(c => { const d = parseISO(c.date); return d >= lastMonthStart && d <= lastMonthEnd; }) || [];
+      const currentMonthData = data.filter(c => { const d = parseISO(c.date); return d >= monthStart && d <= monthEnd; });
+      const lastMonthData = data.filter(c => { const d = parseISO(c.date); return d >= lastMonthStart && d <= lastMonthEnd; });
       const currentMonthEUR = currentMonthData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
       const currentMonthRON = currentMonthData.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
       const lastMonthEUR = lastMonthData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
@@ -197,7 +198,7 @@ const DashboardPage = () => {
       for (let i = 0; i < daysInMonth; i++) {
         const day = subDays(now, daysInMonth - 1 - i);
         const dayStr = format(day, 'yyyy-MM-dd');
-        const dayData = data?.filter(c => c.date === dayStr) || [];
+        const dayData = data.filter(c => c.date === dayStr);
         currentMonthDailyTrend.push({
           day: format(day, 'dd'),
           fullDate: dayStr,
@@ -208,7 +209,7 @@ const DashboardPage = () => {
       }
       // YTD
       const yearStart = startOfYear(now);
-      const ytdData = data?.filter(c => parseISO(c.date) >= yearStart) || [];
+      const ytdData = data.filter(c => parseISO(c.date) >= yearStart);
       const ytdEUR = ytdData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
       const ytdRON = ytdData.filter(c => c.currency === 'RON').reduce((sum, c) => sum + Number(c.amount), 0);
       // Daily average
@@ -216,7 +217,7 @@ const DashboardPage = () => {
       const dailyAvgEUR = daysSinceYearStart > 0 ? Math.round(ytdEUR / daysSinceYearStart) : 0;
       const lastYearStart = startOfYear(subYears(now, 1));
       const lastYearSameDay = subYears(now, 1);
-      const lastYearYtdData = data?.filter(c => { const d = parseISO(c.date); return d >= lastYearStart && d <= lastYearSameDay; }) || [];
+      const lastYearYtdData = data.filter(c => { const d = parseISO(c.date); return d >= lastYearStart && d <= lastYearSameDay; });
       const lastYearYtdEUR = lastYearYtdData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0);
       const lastYearDays = differenceInDays(lastYearSameDay, lastYearStart) + 1;
       const lastYearDailyAvgEUR = lastYearDays > 0 ? Math.round(lastYearYtdEUR / lastYearDays) : 0;
@@ -226,7 +227,7 @@ const DashboardPage = () => {
       for (let i = 29; i >= 0; i--) {
         const day = subDays(now, i);
         const dayStr = format(day, 'yyyy-MM-dd');
-        const dayData = data?.filter(c => c.date === dayStr) || [];
+        const dayData = data.filter(c => c.date === dayStr);
         dailyTrend30.push({
           day: format(day, 'dd/MM'),
           fullDate: dayStr,
@@ -241,7 +242,7 @@ const DashboardPage = () => {
         const monthDate = subMonths(now, i);
         const mStart = startOfMonth(monthDate);
         const mEnd = endOfMonth(monthDate);
-        const monthData = data?.filter(c => { const d = parseISO(c.date); return d >= mStart && d <= mEnd; }) || [];
+        const monthData = data.filter(c => { const d = parseISO(c.date); return d >= mStart && d <= mEnd; });
         monthlyTrend.push({
           month: format(monthDate, 'MMM yy', { locale: ro }),
           EUR: monthData.filter(c => c.currency === 'EUR').reduce((sum, c) => sum + Number(c.amount), 0),
@@ -251,25 +252,28 @@ const DashboardPage = () => {
       }
       // Type distribution
       const typeDistribution = [
-        { name: 'Vânzare', count: data?.filter(c => c.transaction_type === 'vânzare').length || 0, value: (data?.filter(c => c.transaction_type === 'vânzare') || []).reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
-        { name: 'Chirie', count: data?.filter(c => c.transaction_type === 'chirie').length || 0, value: (data?.filter(c => c.transaction_type === 'chirie') || []).reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
-        { name: 'Colaborare', count: data?.filter(c => c.transaction_type === 'colaborare vânzare').length || 0, value: (data?.filter(c => c.transaction_type === 'colaborare vânzare') || []).reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
+        { name: 'Vânzare', count: data.filter(c => c.transaction_type === 'vânzare').length, value: data.filter(c => c.transaction_type === 'vânzare').reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
+        { name: 'Chirie', count: data.filter(c => c.transaction_type === 'chirie').length, value: data.filter(c => c.transaction_type === 'chirie').reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
+        { name: 'Colaborare', count: data.filter(c => c.transaction_type === 'colaborare vânzare').length, value: data.filter(c => c.transaction_type === 'colaborare vânzare').reduce((sum, c) => sum + (c.currency === 'EUR' ? Number(c.amount) : Number(c.amount) / 5), 0) },
       ].filter(t => t.count > 0);
-      const avgCommissionEUR = data?.filter(c => c.currency === 'EUR').length || 0;
+      const avgCommissionEUR = data.filter(c => c.currency === 'EUR').length;
       const avgEUR = avgCommissionEUR > 0 ? Math.round(totalEUR / avgCommissionEUR) : 0;
-      const withInvoice = data?.filter(c => (c.invoice_number || '').trim().toLowerCase() === 'da').length || 0;
-      const withoutInvoice = (data?.length || 0) - withInvoice;
-      return { totalEUR, totalRON, currentMonthEUR, currentMonthRON, lastMonthEUR, monthlyGrowth, ytdEUR, ytdRON, avgEUR, dailyAvgEUR, dailyAvgGrowth, lastYearDailyAvgEUR, dailyTrend30, currentMonthDailyTrend, monthlyTrend, typeDistribution, count: data?.length || 0, withInvoice, withoutInvoice };
+      const withInvoice = data.filter(c => (c.invoice_number || '').trim().toLowerCase() === 'da').length;
+      const withoutInvoice = data.length - withInvoice;
+      return { totalEUR, totalRON, currentMonthEUR, currentMonthRON, lastMonthEUR, monthlyGrowth, ytdEUR, ytdRON, avgEUR, dailyAvgEUR, dailyAvgGrowth, lastYearDailyAvgEUR, dailyTrend30, currentMonthDailyTrend, monthlyTrend, typeDistribution, count: data.length, withInvoice, withoutInvoice };
     }
   });
 
-  // NEW: Fetch unread emails
+  // Fetch unread emails
   const { data: emailsData, isLoading: loadingEmails } = useQuery({
     queryKey: ['dashboard', 'emails'],
     queryFn: async () => {
-      const { count: unread } = await supabase.from('received_emails').select('*', { count: 'exact', head: true }).eq('is_read', false).eq('is_deleted', false);
-      const { count: total } = await supabase.from('received_emails').select('*', { count: 'exact', head: true }).eq('is_deleted', false);
-      return { unread: unread || 0, total: total || 0 };
+      const result = await adminApi.select<{ is_read: boolean; is_deleted: boolean }>('received_emails');
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
+      const nonDeleted = data.filter(e => !e.is_deleted);
+      const unread = nonDeleted.filter(e => !e.is_read).length;
+      return { unread, total: nonDeleted.length };
     }
   });
 
@@ -277,11 +281,12 @@ const DashboardPage = () => {
   const { data: clientsData, isLoading: loadingClients } = useQuery({
     queryKey: ['dashboard', 'clients'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('clients').select('id, created_at');
-      if (error) throw error;
-      const total = data?.length || 0;
+      const result = await adminApi.select<{ id: string; created_at: string }>('clients');
+      if (!result.success) throw new Error(result.error);
+      const data = result.data || [];
+      const total = data.length;
       const thisMonth = startOfMonth(new Date());
-      const newThisMonth = data?.filter(c => c.created_at && parseISO(c.created_at) >= thisMonth).length || 0;
+      const newThisMonth = data.filter(c => c.created_at && parseISO(c.created_at) >= thisMonth).length;
       return { total, newThisMonth };
     }
   });
