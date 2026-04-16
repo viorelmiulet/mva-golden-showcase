@@ -132,13 +132,10 @@ const InboxPage = () => {
   const { data: drafts, refetch: refetchDrafts } = useQuery({
     queryKey: ['email-drafts'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
-      
+      // Drafts are admin-only, fetch all drafts
       const { data, error } = await supabase
         .from('email_drafts')
         .select('*')
-        .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
@@ -158,9 +155,6 @@ const InboxPage = () => {
       attachments: any[];
       silent?: boolean;
     }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Nu ești autentificat');
-
       if (draft.id) {
         const { error } = await supabase
           .from('email_drafts')
@@ -180,7 +174,7 @@ const InboxPage = () => {
         const { data, error } = await supabase
           .from('email_drafts')
           .insert({
-            user_id: user.id,
+            user_id: null,
             recipient: draft.recipient,
             cc: draft.cc,
             bcc: draft.bcc,
