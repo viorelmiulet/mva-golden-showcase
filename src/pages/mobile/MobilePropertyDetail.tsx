@@ -23,7 +23,7 @@ import {
   Eye
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { useFavorites } from "@/hooks/useFavorites";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 import { usePropertyViews } from "@/hooks/usePropertyViews";
@@ -90,7 +90,7 @@ const MobilePropertyDetail = () => {
   const [showGallery, setShowGallery] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const { isFavorite, toggleFavorite } = useFavorites();
+  
   const { language } = useLanguage();
 
   const { data: property, isLoading } = useQuery({
@@ -233,16 +233,6 @@ const MobilePropertyDetail = () => {
               onClick={handleShare}
             >
               <Share2 className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => toggleFavorite(property.id, 'property')}
-            >
-              <Heart 
-                className={`w-5 h-5 ${isFavorite(property.id, 'property') ? 'fill-gold text-gold' : ''}`}
-              />
             </Button>
           </div>
         }

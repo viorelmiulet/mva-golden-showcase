@@ -10,8 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import MobileHeader from "@/components/mobile/MobileHeader";
-import { Search, Filter, MapPin, Home, Ruler, Heart, X, SlidersHorizontal } from "lucide-react";
-import { useFavorites } from "@/hooks/useFavorites";
+import { Search, Filter, MapPin, Home, Ruler, X, SlidersHorizontal } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const MobileSearch = () => {
@@ -25,7 +24,7 @@ const MobileSearch = () => {
   const [priceMax, setPriceMax] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   
-  const { isFavorite, toggleFavorite } = useFavorites();
+  
   const { language } = useLanguage();
 
   // Fetch properties
@@ -311,17 +310,6 @@ const MobileSearch = () => {
                         alt={property.title}
                         className="w-full h-48 object-cover"
                       />
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleFavorite(property.id, 'property');
-                        }}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center"
-                      >
-                        <Heart 
-                          className={`w-5 h-5 ${isFavorite(property.id, 'property') ? 'fill-gold text-gold' : 'text-foreground'}`} 
-                        />
-                      </button>
                       {property.images && property.images.length > 1 && (
                         <span className="absolute bottom-3 right-3 bg-background/80 backdrop-blur px-2 py-1 rounded text-xs">
                           1/{property.images.length}

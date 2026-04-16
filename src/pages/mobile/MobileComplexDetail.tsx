@@ -20,13 +20,13 @@ import {
   Building2
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageLightbox } from "@/components/ImageLightbox";
 
 const MobileComplexDetail = () => {
   const { id } = useParams();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  
   const { language } = useLanguage();
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -145,17 +145,6 @@ const MobileComplexDetail = () => {
               aria-label="Distribuie"
             >
               <Share2 className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => toggleFavorite(complex.id, 'complex')}
-              aria-label="Adaugă la favorite"
-            >
-              <Heart 
-                className={`w-5 h-5 ${isFavorite(complex.id, 'complex') ? 'fill-gold text-gold' : ''}`}
-              />
             </Button>
           </div>
         }
