@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Building, Heart, User, LogOut, Settings } from "lucide-react"
+import { Menu } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import {
@@ -11,18 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast } from "sonner"
 import { usePrefetch } from "@/hooks/usePrefetch"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { LanguageToggle } from "@/components/LanguageToggle"
 
-// Lazy import supabase to keep it out of the critical rendering path
-const getSupabase = () => import("@/integrations/supabase/client").then(m => m.supabase);
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
   const { prefetchOnHover } = usePrefetch()
@@ -48,75 +42,6 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    let isMounted = true
-
-    const syncAuthState = async () => {
-      const supabase = await getSupabase()
-
-      const sessionUser = (await supabase.auth.getSession()).data.session?.user ?? null
-
-      if (!isMounted) return
-
-      setUser(sessionUser)
-
-      if (!sessionUser) {
-        setIsAdmin(false)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", sessionUser.id)
-        .maybeSingle()
-
-      if (!isMounted) return
-
-      if (error) {
-        setIsAdmin(false)
-        return
-      }
-
-      setIsAdmin(data?.role === "admin")
-
-      // Set up auth listener after initial check
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (!isMounted) return
-        const nextUser = session?.user ?? null
-        setUser(nextUser)
-        if (!nextUser) {
-          setIsAdmin(false)
-          return
-        }
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", nextUser.id)
-          .maybeSingle()
-        if (isMounted) {
-          setIsAdmin(roleData?.role === "admin")
-        }
-      })
-
-      return subscription
-    }
-
-    let subscription: any
-    syncAuthState().then(sub => { subscription = sub })
-
-    return () => {
-      isMounted = false
-      subscription?.unsubscribe()
-    }
-  }, [])
-
-  const handleLogout = useCallback(async () => {
-    const supabase = await getSupabase()
-    await supabase.auth.signOut()
-    toast.success(t.auth.logout)
-    navigate("/")
-  }, [t.auth.logout, navigate])
 
 
   const scrollToSection = (sectionId: string) => {
@@ -314,48 +239,6 @@ const Header = () => {
           {/* CTA Buttons - Desktop only */}
           <div className="hidden lg:flex items-center space-x-3">
             
-            {user ? (
-              <>
-                <Link to="/favorite">
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    <Heart className="w-4 h-4 mr-1" />
-                    {t.nav.favorites}
-                  </Button>
-                </Link>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="luxuryOutline" size="sm" className="text-xs">
-                      <User className="w-3 h-3 mr-2" />
-                      {user.email?.split('@')[0]}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to="/favorite" className="flex items-center">
-                        <Heart className="w-4 h-4 mr-2" />
-                        {t.nav.favorites}
-                      </Link>
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin" className="flex items-center text-gold">
-                            <Settings className="w-4 h-4 mr-2" />
-                            {t.nav.admin}
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      {t.auth.logout}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : null}
             <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
               <Button variant="luxury" size="sm" className="glow-gold text-xs">
                 <WhatsAppIcon className="w-3 h-3 mr-2" />
@@ -409,28 +292,6 @@ const Header = () => {
                 
                 {/* Mobile CTA Buttons */}
                 <div className="space-y-4 pt-4">
-                  {user ? (
-                    <>
-                      <Link to="/favorite">
-                        <Button variant="luxuryOutline" className="w-full h-12 text-base">
-                          <Heart className="w-4 h-4 mr-2" />
-                          {t.nav.favorites}
-                        </Button>
-                      </Link>
-                      {isAdmin && (
-                        <Link to="/admin">
-                          <Button variant="luxury" className="w-full h-12 text-base">
-                            <Settings className="w-4 h-4 mr-2" />
-                            {t.nav.admin}
-                          </Button>
-                        </Link>
-                      )}
-                      <Button variant="ghost" onClick={handleLogout} className="w-full h-12 text-base text-destructive">
-                        <LogOut className="w-4 h-4 mr-2" />
-                        {t.auth.logout}
-                      </Button>
-                    </>
-                  ) : null}
                   <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
                     <Button variant="luxury" className="w-full h-12 text-base">
                       <WhatsAppIcon className="w-4 h-4 mr-2" />

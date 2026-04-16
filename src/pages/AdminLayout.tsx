@@ -224,23 +224,6 @@ const AdminLayout = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
 
-  // Auto-authenticate if user has a valid Supabase Auth session (e.g. from Chrome extension)
-  useEffect(() => {
-    if (isAuthenticated) return;
-    const checkSupabaseSession = async () => {
-      try {
-        const { supabase } = await import("@/integrations/supabase/client");
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          sessionStorage.setItem("admin_auth", "true");
-          setIsAuthenticated(true);
-        }
-      } catch (e) {
-        // Supabase not available, continue with local auth
-      }
-    };
-    checkSupabaseSession();
-  }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
