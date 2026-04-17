@@ -340,7 +340,14 @@ const PropertyDetail = () => {
       // its slug has changed → redirect to canonical slug (fixes GSC duplicates)
       if (candidates && candidates.length === 1) {
         const canonical = candidates[0] as Property;
-        const canonicalSlug = canonical.slug || generatePropertySlug(canonical);
+        const canonicalSlug = (canonical as any).slug || generatePropertySlug(canonical);
+        if (canonicalSlug && canonicalSlug !== slug) {
+          window.location.replace(`/proprietati/${canonicalSlug}`);
+          return;
+        }
+        setProperty(canonical);
+        return;
+      }
         if (canonicalSlug && canonicalSlug !== slug) {
           window.location.replace(`/proprietati/${canonicalSlug}`);
           return;
