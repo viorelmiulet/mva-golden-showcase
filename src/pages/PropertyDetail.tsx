@@ -348,13 +348,6 @@ const PropertyDetail = () => {
         setProperty(canonical);
         return;
       }
-        if (canonicalSlug && canonicalSlug !== slug) {
-          window.location.replace(`/proprietati/${canonicalSlug}`);
-          return;
-        }
-        setProperty(canonical);
-        return;
-      }
 
       setNotFound(true);
       setIsLoading(false);
