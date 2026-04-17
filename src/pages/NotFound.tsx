@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Helmet>
+        {/* Tell search engines NOT to index this page (soft 404) */}
+        <meta name="robots" content="noindex, follow" />
+        <meta name="googlebot" content="noindex, follow" />
+        <title>404 - Pagina nu a fost găsită | MVA Imobiliare</title>
+      </Helmet>
       <Header />
 
       <main className="flex-1 flex items-center justify-center px-4 pt-24 pb-12 sm:pt-28 sm:pb-16">

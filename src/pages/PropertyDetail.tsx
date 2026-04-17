@@ -326,17 +326,32 @@ const PropertyDetail = () => {
 
       if (error) throw error;
 
-      const match = candidates?.find(
+      // Try exact slug match first
+      const exactMatch = candidates?.find(
         (p) => generatePropertySlug(p as Property) === slug
       );
 
-      if (!match) {
-        setNotFound(true);
-        setIsLoading(false);
+      if (exactMatch) {
+        setProperty(exactMatch as Property);
         return;
       }
 
-      setProperty(match as Property);
+      // If no exact match but ONE candidate with same short-id exists,
+      // its slug has changed → redirect to canonical slug (fixes GSC duplicates)
+      if (candidates && candidates.length === 1) {
+        const canonical = candidates[0] as Property;
+        const canonicalSlug = (canonical as any).slug || generatePropertySlug(canonical);
+        if (canonicalSlug && canonicalSlug !== slug) {
+          window.location.replace(`/proprietati/${canonicalSlug}`);
+          return;
+        }
+        setProperty(canonical);
+        return;
+      }
+
+      setNotFound(true);
+      setIsLoading(false);
+      return;
     } catch (error) {
       console.error("Error fetching property:", error);
       setNotFound(true);
