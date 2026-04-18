@@ -62,7 +62,7 @@ const About = () => {
           {/* Mission & Values */}
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             <ScrollReveal direction="left">
-              <div>
+              <article>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                   {language === 'ro' ? 'Misiunea Noastră' : 'Our Mission'}
                 </h3>
