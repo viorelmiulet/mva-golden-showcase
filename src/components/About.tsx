@@ -62,7 +62,7 @@ const About = () => {
           {/* Mission & Values */}
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             <ScrollReveal direction="left">
-              <div>
+              <article>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                   {language === 'ro' ? 'Misiunea Noastră' : 'Our Mission'}
                 </h3>
@@ -76,11 +76,11 @@ const About = () => {
                     ? <>Echipa noastră vă ghidează prin fiecare etapă, asigurându-se că fiecare investiție este o <span className="text-gold font-semibold">experiență de neuitat</span>.</>
                     : <>Our team guides you through every step, ensuring that every investment is an <span className="text-gold font-semibold">unforgettable experience</span>.</>}
                 </p>
-              </div>
+              </article>
             </ScrollReveal>
 
             <ScrollReveal direction="right">
-              <div>
+              <article>
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">
                   {language === 'ro' ? 'De Ce Să Ne Alegi' : 'Why Choose Us'}
                 </h3>
@@ -92,7 +92,7 @@ const About = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </article>
             </ScrollReveal>
           </div>
         </div>
