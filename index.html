@@ -191,6 +191,84 @@
       }
     }
     </script>
+
+    <!-- Structured Data - WebSite with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "MVA Imobiliare",
+      "url": "https://mvaimobiliare.ro/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://mvaimobiliare.ro/proprietati?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Structured Data - SiteNavigationElement -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Navigare principală MVA Imobiliare",
+      "itemListElement": [
+        { "@type": "SiteNavigationElement", "position": 1, "name": "Acasă", "url": "https://mvaimobiliare.ro/" },
+        { "@type": "SiteNavigationElement", "position": 2, "name": "Proprietăți", "url": "https://mvaimobiliare.ro/proprietati" },
+        { "@type": "SiteNavigationElement", "position": 3, "name": "Ansambluri Rezidențiale", "url": "https://mvaimobiliare.ro/complexe" },
+        { "@type": "SiteNavigationElement", "position": 4, "name": "Servicii", "url": "https://mvaimobiliare.ro/servicii" },
+        { "@type": "SiteNavigationElement", "position": 5, "name": "Despre Noi", "url": "https://mvaimobiliare.ro/despre-noi" },
+        { "@type": "SiteNavigationElement", "position": 6, "name": "Blog", "url": "https://mvaimobiliare.ro/blog" },
+        { "@type": "SiteNavigationElement", "position": 7, "name": "Contact", "url": "https://mvaimobiliare.ro/contact" }
+      ]
+    }
+    </script>
+
+    <!-- Structured Data - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Ce servicii oferă MVA Imobiliare?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MVA Imobiliare oferă servicii complete de vânzare, cumpărare și închiriere apartamente, consultanță imobiliară, evaluare proprietăți și asistență în tranzacții, cu specializare pe zona Militari și vestul Bucureștiului."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "În ce zone activează MVA Imobiliare?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Activăm preponderent în Sectorul 6 al Bucureștiului (Militari, Gorjului, Lujerului, Iuliu Maniu, Păcii) și în Chiajna, Ilfov, dar gestionăm și proprietăți din alte zone ale capitalei."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Evaluarea proprietății este gratuită?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Da, oferim evaluare gratuită a proprietăților pentru clienții care doresc să vândă sau să închirieze prin agenția noastră."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Cum pot programa o vizionare?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Poți programa o vizionare direct de pe pagina proprietății folosind butonul 'Solicită vizionare' sau ne poți contacta la 0767 941 512 ori prin email la contact@mvaimobiliare.ro."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 
   <body>
