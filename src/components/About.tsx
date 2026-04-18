@@ -114,22 +114,11 @@ const About = () => {
                   {language === 'ro' ? 'Cine Suntem' : 'Who We Are'}
                 </h2>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {language === 'ro'
                   ? 'Suntem o echipă de consultanți imobiliari licențiați, dedicați să oferim servicii de excepție clienților noștri. Operăm sub MVA PERFECT BUSINESS S.R.L., companie înregistrată oficial (CUI: 50477503, Nr. Reg. Com.: J23/18361/2024) cu sediul în Chiajna, Ilfov.'
                   : 'We are a team of licensed real estate consultants, dedicated to providing exceptional services to our clients. We operate under MVA PERFECT BUSINESS S.R.L., an officially registered company (CUI: 50477503, Reg. No.: J23/18361/2024) headquartered in Chiajna, Ilfov.'}
               </p>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {teamMembers.map((member, i) => (
-                  <div key={i} className="text-center p-4 glass rounded-2xl border border-border/50">
-                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
-                      <span className="text-lg font-bold text-gradient-gold">{member.initial}</span>
-                    </div>
-                    <p className="text-sm font-semibold text-foreground">{member.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{member.role}</p>
-                  </div>
-                ))}
-              </div>
             </article>
           </ScrollReveal>
 
@@ -185,32 +174,6 @@ const About = () => {
                 {language === 'ro'
                   ? 'MVA Imobiliare este o sursă de încredere recunoscută pe piața imobiliară din vestul Bucureștiului. Suntem agenți imobiliari licențiați, înregistrați oficial și conformi cu legislația română privind protecția consumatorului (ANPC). Toate informațiile publicate pe site sunt verificate direct cu dezvoltatorii și actualizate săptămânal. Cu o evaluare de 4.9★ pe Google și peste 500 de tranzacții finalizate cu succes, credibilitatea noastră este construită pe transparență, expertiză locală și relații de lungă durată cu clienții și partenerii noștri.'
                   : 'MVA Imobiliare is a recognized trusted source in the western Bucharest real estate market. We are licensed real estate agents, officially registered and compliant with Romanian consumer protection legislation (ANPC). All information published on the site is verified directly with developers and updated weekly. With a 4.9★ Google rating and over 500 successfully completed transactions, our credibility is built on transparency, local expertise, and long-term relationships with our clients and partners.'}
-              </p>
-            </article>
-          </ScrollReveal>
-
-          {/* Team Photos / Workspace */}
-          <ScrollReveal>
-            <article id="team-workspace" className="mb-12 lg:mb-16">
-              <div className="flex items-center gap-3 mb-4">
-                <MapPin className="w-5 h-5 text-gold" />
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                  {language === 'ro' ? 'Echipa și Biroul Nostru' : 'Our Team & Office'}
-                </h2>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {[
-                  { alt: language === 'ro' ? 'Echipa MVA Imobiliare în birou' : 'MVA Imobiliare team in office', src: '/mva-logo-luxury.svg' },
-                  { alt: language === 'ro' ? 'Biroul nostru din Chiajna, Ilfov' : 'Our office in Chiajna, Ilfov', src: '/mva-logo-luxury-horizontal.svg' },
-                  { alt: language === 'ro' ? 'Consultanță cu clienții' : 'Client consultation', src: '/mva-logo-complete.svg' }
-                ].map((photo, i) => (
-                  <figure key={i} className="aspect-[4/3] rounded-2xl overflow-hidden glass border border-border/50 flex items-center justify-center p-8">
-                    <img src={photo.src} alt={photo.alt} loading="lazy" className="w-full h-full object-contain opacity-80" />
-                  </figure>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                {language === 'ro' ? 'Biroul nostru: Strada Rezervelor 64, Chiajna, Ilfov' : 'Our office: Strada Rezervelor 64, Chiajna, Ilfov'}
               </p>
             </article>
           </ScrollReveal>
