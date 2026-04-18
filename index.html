@@ -290,8 +290,11 @@
           </div>
         </section>
         <!-- EEAT footer skeleton with critical trust links visible to crawlers -->
-        <footer style="padding:24px 16px;border-top:1px solid hsla(240,3.7%,15.9%,0.4);font-size:12px;color:hsl(240 5% 64.9%);text-align:center">
-          <nav aria-label="Pagini importante" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-bottom:8px">
+        <footer style="padding:32px 16px;border-top:1px solid hsla(240,3.7%,15.9%,0.4);font-size:12px;color:hsl(240 5% 64.9%);text-align:center">
+          <p style="max-width:640px;margin:0 auto 16px;line-height:1.5">
+            MVA Imobiliare este o agenție imobiliară premium din București, specializată în vânzarea, cumpărarea și închirierea apartamentelor în zona Militari, Sector 6 și Chiajna, Ilfov.
+          </p>
+          <nav aria-label="Pagini importante" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-bottom:16px">
             <a href="/despre-noi" style="color:inherit;text-decoration:none">Despre Noi</a>
             <a href="/contact" style="color:inherit;text-decoration:none">Contact</a>
             <a href="/cariera" style="color:inherit;text-decoration:none">Echipa</a>
@@ -300,7 +303,26 @@
             <a href="/politici-editoriale" style="color:inherit;text-decoration:none">Politici Editoriale</a>
             <a href="/sitemap" style="color:inherit;text-decoration:none">Hartă Site</a>
           </nav>
-          <p style="margin:0">© MVA Imobiliare</p>
+          <address style="font-style:normal;margin-bottom:12px;line-height:1.6">
+            <strong style="color:hsl(0 0% 98%)">MVA Imobiliare SRL</strong><br/>
+            Strada Principală, Chiajna, Ilfov 077040, România<br/>
+            Tel: <a href="tel:+40767941512" style="color:inherit;text-decoration:none">+40 767 941 512</a> ·
+            Email: <a href="mailto:contact@mvaimobiliare.ro" style="color:inherit;text-decoration:none">contact@mvaimobiliare.ro</a>
+          </address>
+          <nav aria-label="Rețele sociale" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-bottom:12px">
+            <a href="https://www.facebook.com/mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">Facebook</a>
+            <a href="https://www.instagram.com/mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">Instagram</a>
+            <a href="https://www.youtube.com/@mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">YouTube</a>
+            <a href="https://www.linkedin.com/company/mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">LinkedIn</a>
+            <a href="https://www.tiktok.com/@mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">TikTok</a>
+          </nav>
+          <p style="margin:0 0 4px">
+            <a href="https://www.dmca.com/Protection/Status.aspx?ID=mvaimobiliare" rel="noopener" target="_blank" style="color:inherit;text-decoration:none">🛡️ DMCA Protected</a>
+          </p>
+          <p style="margin:0">
+            © <span id="footer-year">2026</span> MVA Imobiliare SRL. Parte din MVA Group. Toate drepturile rezervate.
+          </p>
+          <script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
         </footer>
       </div>
     </div>
