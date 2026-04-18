@@ -92,7 +92,7 @@ const About = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </article>
             </ScrollReveal>
           </div>
         </div>
