@@ -25,7 +25,7 @@ const badges: TrustBadge[] = [
   },
   {
     icon: Star,
-    title: "4.9 ★ pe Google",
+    title: "5 ★ pe Google",
     subtitle: "Recenzii verificate",
     filled: true,
   },
