@@ -93,8 +93,8 @@ const About = () => {
               <div className="space-y-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
                 <p>
                   {language === 'ro'
-                    ? 'MVA Imobiliare a fost fondată în 2016 de Viorel Miulețu, cu o misiune clară: să transforme experiența de cumpărare a unei locuințe în vestul Bucureștiului. Ce a început ca o pasiune pentru arhitectură și o dorință de a ajuta oamenii să-și găsească casa perfectă, s-a transformat astăzi într-una dintre cele mai respectate agenții imobiliare din zonă.'
-                    : 'MVA Imobiliare was founded in 2016 by Viorel Miulețu with a clear mission: to transform the home-buying experience in western Bucharest. What started as a passion for architecture and a desire to help people find their perfect home has grown into one of the most respected real estate agencies in the area.'}
+                    ? 'MVA Imobiliare a fost fondată în 2016 de Viorel Miuleț, cu o misiune clară: să transforme experiența de cumpărare a unei locuințe în vestul Bucureștiului. Ce a început ca o pasiune pentru arhitectură și o dorință de a ajuta oamenii să-și găsească casa perfectă, s-a transformat astăzi într-una dintre cele mai respectate agenții imobiliare din zonă.'
+                    : 'MVA Imobiliare was founded in 2016 by Viorel Miuleț with a clear mission: to transform the home-buying experience in western Bucharest. What started as a passion for architecture and a desire to help people find their perfect home has grown into one of the most respected real estate agencies in the area.'}
                 </p>
                 <p>
                   {language === 'ro'
