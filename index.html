@@ -276,8 +276,13 @@
       <!-- Critical HTML skeleton - painted before JS loads for faster FCP -->
       <div id="ssr-skeleton" style="min-height:100vh;background:hsl(240 10% 3.9%)">
         <!-- Header skeleton -->
-        <header style="height:64px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid hsla(240,3.7%,15.9%,0.4);background:hsla(240,10%,3.9%,0.95)">
+        <header style="height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid hsla(240,3.7%,15.9%,0.4);background:hsla(240,10%,3.9%,0.95);gap:16px">
           <img src="/mva-logo-luxury-horizontal.svg" alt="MVA Imobiliare" width="140" height="32" style="height:32px;width:auto" />
+          <form role="search" action="/proprietati" method="get" style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px">
+            <label for="site-search" style="position:absolute;left:-9999px">Caută proprietăți</label>
+            <input id="site-search" type="search" name="search" placeholder="Caută proprietăți..." style="flex:1;background:hsla(240,3.7%,15.9%,0.6);border:1px solid hsla(240,3.7%,25%,0.6);color:hsl(0 0% 98%);padding:8px 12px;border-radius:8px;font-size:14px;outline:none" />
+            <button type="submit" aria-label="Caută" style="background:hsl(43 74% 49%);color:hsl(240 10% 3.9%);border:none;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Caută</button>
+          </form>
         </header>
         <!-- Hero skeleton -->
         <section style="min-height:85vh;display:flex;align-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,hsl(240 10% 3.9%) 0%,hsl(222 47% 11%) 100%)">
@@ -324,6 +329,18 @@
           </p>
           <script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
         </footer>
+      </div>
+      <!-- Back to Top button (visible to crawlers, hydrated by app) -->
+      <a href="#top" id="back-to-top" aria-label="Înapoi sus" title="Înapoi sus" style="position:fixed;bottom:24px;right:24px;z-index:50;display:none;align-items:center;justify-content:center;width:44px;height:44px;border-radius:9999px;background:hsl(43 74% 49%);color:hsl(240 10% 3.9%);text-decoration:none;font-size:20px;font-weight:700;box-shadow:0 8px 24px hsla(0,0%,0%,0.4)">↑</a>
+      <script>
+        (function(){
+          var btn=document.getElementById('back-to-top');
+          if(!btn)return;
+          var onScroll=function(){btn.style.display=window.scrollY>400?'flex':'none';};
+          window.addEventListener('scroll',onScroll,{passive:true});
+          btn.addEventListener('click',function(e){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});});
+        })();
+      </script>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
