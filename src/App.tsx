@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 const NotFound = lazy(() => import("./pages/NotFound"));
 const NavigateToComplex = lazy(() => import("@/components/NavigateToComplex"));
+import TrailingSlashRedirect from "@/components/TrailingSlashRedirect";
 
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
@@ -155,6 +156,7 @@ const AppRoutes = () => {
 
   return (
     <>
+      <TrailingSlashRedirect />
       <Suspense fallback={
         <div className="min-h-screen bg-background">
           <div className="h-16 border-b border-border/40 bg-background/95 backdrop-blur" />
