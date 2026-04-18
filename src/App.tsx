@@ -84,6 +84,8 @@ const RentalPlaceholder = lazy(() => import("./pages/admin/rental/RentalPlacehol
 const PoliticaConfidentialitate = lazy(() => import("./pages/PoliticaConfidentialitate"));
 const ExtensionPrivacyPolicy = lazy(() => import("./pages/ExtensionPrivacyPolicy"));
 const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const PoliticiEditoriale = lazy(() => import("./pages/PoliticiEditoriale"));
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const PhoneButton = lazy(() => import("@/components/PhoneButton"));
@@ -242,6 +244,8 @@ const AppRoutes = () => {
               <Route path="/politica-confidentialitate" element={<PoliticaConfidentialitate />} />
               <Route path="/extensie-chrome-privacy" element={<ExtensionPrivacyPolicy />} />
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
+              <Route path="/sitemap" element={<Sitemap />} />
+              <Route path="/politici-editoriale" element={<PoliticiEditoriale />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
               <Route path="/sign/:token" element={<SignContract />} />
               <Route path="/404" element={<NotFound />} />
