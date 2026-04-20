@@ -263,6 +263,7 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (property) {
       fetchSimilarProperties();
+      fetchComplexSlug();
       trackProperty('view', property.id, property.title);
       trackPropertyView(property.id, property.title, property.project_name || 'Unknown');
       trackEvent('property_view', {
@@ -281,6 +282,29 @@ const PropertyDetail = () => {
       });
     }
   }, [property]);
+
+  const fetchComplexSlug = async () => {
+    if (!property?.project_id && !property?.project_name) return;
+    try {
+      let query = supabase.from("real_estate_projects").select("slug, name, id").limit(1);
+      if (property.project_id) {
+        query = query.eq("id", property.project_id);
+      } else if (property.project_name) {
+        query = query.ilike("name", property.project_name);
+      }
+      const { data } = await query.maybeSingle();
+      if (data?.slug) {
+        setComplexSlug(data.slug);
+      } else if (data?.name && data?.id) {
+        // fallback: build slug like complexSlug.ts
+        const kebab = data.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const shortId = String(data.id).replace(/-/g, '').slice(0, 4);
+        setComplexSlug(`${kebab}-${shortId}`);
+      }
+    } catch (e) {
+      console.error('[fetchComplexSlug]', e);
+    }
+  };
 
   const fetchProperty = async () => {
     try {
