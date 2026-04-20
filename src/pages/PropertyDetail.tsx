@@ -98,6 +98,7 @@ interface Property {
   agency?: string | null;
   surface_land?: number | null;
   comfort?: string | null;
+  project_id?: string | null;
   video?: string | null;
   virtual_tour?: string | null;
   contact_info?: any;
@@ -238,6 +239,7 @@ const PropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
+  const [complexSlug, setComplexSlug] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGone, setIsGone] = useState(false);
   const [notFound, setNotFound] = useState(false);
