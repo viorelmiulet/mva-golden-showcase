@@ -106,6 +106,7 @@ export const getPropertyUrl = (property: PropertySlugSource): string =>
 
 /**
  * Generate SEO-friendly slug for an Immoflux property.
+ * Format: apartament-2-camere-65mp-etaj-3-militari-bucuresti-196065
  */
 export const generateImmofluxSlug = (property: {
   idnum: number;
@@ -113,9 +114,14 @@ export const generateImmofluxSlug = (property: {
   zona?: string;
   localitate?: string;
   titlu?: { ro?: string } | string;
+  suprutila?: number;
+  supratotal?: number;
+  suprafata?: number;
+  etaj?: number | string;
 }): string => {
   const parts: string[] = [];
 
+  // 1. Property type
   const rooms = property.nrcamere || 1;
   if (rooms <= 1) {
     parts.push('garsoniera');
@@ -123,6 +129,21 @@ export const generateImmofluxSlug = (property: {
     parts.push(`apartament-${rooms}-camere`);
   }
 
+  // 2. Surface
+  const surface = property.suprutila || property.supratotal || property.suprafata;
+  if (surface && surface > 0) {
+    parts.push(`${Math.round(surface)}mp`);
+  }
+
+  // 3. Floor
+  if (property.etaj !== undefined && property.etaj !== null && property.etaj !== '') {
+    const floorNum = typeof property.etaj === 'string' ? parseInt(property.etaj, 10) : property.etaj;
+    if (!isNaN(floorNum) && floorNum >= 0) {
+      parts.push(`etaj-${floorNum}`);
+    }
+  }
+
+  // 4. Zone
   if (property.zona) {
     const kebabZone = toKebab(property.zona.split(',')[0].trim());
     if (kebabZone && kebabZone.length > 2 && !parts.some(p => p.includes(kebabZone))) {
@@ -130,6 +151,7 @@ export const generateImmofluxSlug = (property: {
     }
   }
 
+  // 5. City
   if (property.localitate) {
     const kebabCity = toKebab(property.localitate.split(',')[0].trim());
     if (kebabCity && kebabCity.length > 2 && !parts.some(p => p.includes(kebabCity))) {
@@ -137,6 +159,7 @@ export const generateImmofluxSlug = (property: {
     }
   }
 
+  // 6. Numeric ID for uniqueness
   parts.push(String(property.idnum));
 
   return parts.join('-');
@@ -153,4 +176,8 @@ export const getImmofluxPropertyUrl = (property: {
   zona?: string;
   localitate?: string;
   titlu?: { ro?: string } | string;
+  suprutila?: number;
+  supratotal?: number;
+  suprafata?: number;
+  etaj?: number | string;
 }): string => `/proprietate/${generateImmofluxSlug(property)}`;
