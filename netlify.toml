@@ -2,7 +2,16 @@
   publish = "dist"
   command = "npm run build"
 
-# Prerender.io – intercept bot requests before everything else
+# Slug 301 redirects – run BEFORE prerender so bots get the canonical URL
+[[edge_functions]]
+  function = "slug-redirect"
+  path = "/proprietati/*"
+
+[[edge_functions]]
+  function = "slug-redirect"
+  path = "/proprietate/*"
+
+# Prerender.io – intercept bot requests
 [[edge_functions]]
   function = "prerender"
   path = "/*"
