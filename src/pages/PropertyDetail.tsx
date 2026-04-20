@@ -98,6 +98,7 @@ interface Property {
   agency?: string | null;
   surface_land?: number | null;
   comfort?: string | null;
+  project_id?: string | null;
   video?: string | null;
   virtual_tour?: string | null;
   contact_info?: any;
@@ -238,6 +239,7 @@ const PropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
+  const [complexSlug, setComplexSlug] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGone, setIsGone] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -261,6 +263,7 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (property) {
       fetchSimilarProperties();
+      fetchComplexSlug();
       trackProperty('view', property.id, property.title);
       trackPropertyView(property.id, property.title, property.project_name || 'Unknown');
       trackEvent('property_view', {
@@ -279,6 +282,29 @@ const PropertyDetail = () => {
       });
     }
   }, [property]);
+
+  const fetchComplexSlug = async () => {
+    if (!property?.project_id && !property?.project_name) return;
+    try {
+      let query = supabase.from("real_estate_projects").select("slug, name, id").limit(1);
+      if (property.project_id) {
+        query = query.eq("id", property.project_id);
+      } else if (property.project_name) {
+        query = query.ilike("name", property.project_name);
+      }
+      const { data } = await query.maybeSingle();
+      if (data?.slug) {
+        setComplexSlug(data.slug);
+      } else if (data?.name && data?.id) {
+        // fallback: build slug like complexSlug.ts
+        const kebab = data.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const shortId = String(data.id).replace(/-/g, '').slice(0, 4);
+        setComplexSlug(`${kebab}-${shortId}`);
+      }
+    } catch (e) {
+      console.error('[fetchComplexSlug]', e);
+    }
+  };
 
   const fetchProperty = async () => {
     try {
@@ -469,14 +495,20 @@ const PropertyDetail = () => {
     "name": `Apartament ${camere} camere ${zona}`,
     "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
     "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
-    "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "image": Array.isArray(property.images) && property.images.length > 0
+      ? property.images.slice(0, 6)
+      : "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
     "datePosted": property.created_at || new Date().toISOString(),
     "numberOfRooms": property.rooms,
+    ...(property.bathrooms ? { "numberOfBathroomsTotal": property.bathrooms } : {}),
+    ...(property.floor !== null && property.floor !== undefined ? { "floorLevel": property.floor } : {}),
+    ...(property.year_built ? { "yearBuilt": property.year_built } : {}),
     "offers": {
       "@type": "Offer",
       "price": property.price_min,
       "priceCurrency": property.currency || "EUR",
       "availability": property.availability_status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
       "seller": {
         "@type": "RealEstateAgent",
         "name": "MVA Imobiliare",
@@ -486,16 +518,28 @@ const PropertyDetail = () => {
     },
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "București",
+      "addressLocality": property.city || "București",
       "addressRegion": "Sector 6",
       "streetAddress": zona,
       "addressCountry": "RO"
     },
+    ...(property.latitude && property.longitude ? {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": property.latitude,
+        "longitude": property.longitude
+      }
+    } : {}),
     "floorSize": {
       "@type": "QuantitativeValue",
       "value": property.surface_min,
       "unitCode": "MTK"
-    }
+    },
+    ...(property.parking ? {
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Parcare", "value": true }
+      ]
+    } : {})
   };
 
   const breadcrumbSchema = {
@@ -634,9 +678,19 @@ const PropertyDetail = () => {
                 </h1>
                 
                 {property.project_name && (
-                  <p className="text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2">
-                    {property.project_name}
-                  </p>
+                  complexSlug ? (
+                    <Link
+                      to={`/complexe/${complexSlug}`}
+                      className="inline-block text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2 hover:underline"
+                      title={`Vezi toate apartamentele din ${property.project_name}`}
+                    >
+                      {property.project_name}
+                    </Link>
+                  ) : (
+                    <p className="text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2">
+                      {property.project_name}
+                    </p>
+                  )
                 )}
                 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-muted-foreground">
