@@ -2078,16 +2078,30 @@ export type Database = {
           isSetofReturn: true
         }
       }
-      generate_property_slug_db: {
-        Args: {
-          property_id: string
-          property_location: string
-          property_project_name: string
-          property_rooms: number
-          property_zone: string
-        }
-        Returns: string
-      }
+      generate_property_slug_db:
+        | {
+            Args: {
+              property_id: string
+              property_location: string
+              property_project_name: string
+              property_rooms: number
+              property_zone: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              property_city?: string
+              property_floor?: number
+              property_id: string
+              property_location: string
+              property_project_name: string
+              property_rooms: number
+              property_surface?: number
+              property_zone: string
+            }
+            Returns: string
+          }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

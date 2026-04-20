@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+// VisuallyHidden replaced with sr-only utility class
 
 interface ImageLightboxProps {
   images: string[];
@@ -71,9 +71,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="fixed inset-0 !translate-x-0 !translate-y-0 !top-0 !left-0 max-w-none w-screen h-[100dvh] p-0 m-0 bg-black border-none rounded-none z-[200] overflow-hidden [&>button]:hidden" aria-describedby={undefined}>
-        <VisuallyHidden>
-          <DialogTitle>Galerie imagini</DialogTitle>
-        </VisuallyHidden>
+        <DialogTitle className="sr-only">Galerie imagini</DialogTitle>
         
         <div className="relative flex flex-col h-[100dvh] w-full overflow-hidden">
           {/* Close Button - Fixed top right */}
