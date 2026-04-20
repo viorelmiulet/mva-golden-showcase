@@ -495,14 +495,20 @@ const PropertyDetail = () => {
     "name": `Apartament ${camere} camere ${zona}`,
     "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
     "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
-    "image": property.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "image": Array.isArray(property.images) && property.images.length > 0
+      ? property.images.slice(0, 6)
+      : "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
     "datePosted": property.created_at || new Date().toISOString(),
     "numberOfRooms": property.rooms,
+    ...(property.bathrooms ? { "numberOfBathroomsTotal": property.bathrooms } : {}),
+    ...(property.floor !== null && property.floor !== undefined ? { "floorLevel": property.floor } : {}),
+    ...(property.year_built ? { "yearBuilt": property.year_built } : {}),
     "offers": {
       "@type": "Offer",
       "price": property.price_min,
       "priceCurrency": property.currency || "EUR",
       "availability": property.availability_status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "url": `https://mvaimobiliare.ro${getPropertyUrl(property)}`,
       "seller": {
         "@type": "RealEstateAgent",
         "name": "MVA Imobiliare",
@@ -512,16 +518,28 @@ const PropertyDetail = () => {
     },
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "București",
+      "addressLocality": property.city || "București",
       "addressRegion": "Sector 6",
       "streetAddress": zona,
       "addressCountry": "RO"
     },
+    ...(property.latitude && property.longitude ? {
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": property.latitude,
+        "longitude": property.longitude
+      }
+    } : {}),
     "floorSize": {
       "@type": "QuantitativeValue",
       "value": property.surface_min,
       "unitCode": "MTK"
-    }
+    },
+    ...(property.parking ? {
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Parcare", "value": true }
+      ]
+    } : {})
   };
 
   const breadcrumbSchema = {
