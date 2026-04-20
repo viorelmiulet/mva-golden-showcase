@@ -138,6 +138,8 @@ const Properties = () => {
             nrcamere: p.rooms,
             zona: p.zone,
             localitate: p.location || p.city,
+            suprutila: p.surface_min,
+            etaj: p.floor,
           } as any) : null,
           _immoflux_top: isImmoflux && p.promotion_type === 'top',
           _immoflux_pole: isImmoflux && p.promotion_type === 'pole_position',
