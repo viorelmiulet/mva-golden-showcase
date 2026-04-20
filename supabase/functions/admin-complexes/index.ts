@@ -315,6 +315,34 @@ Deno.serve(async (req) => {
         );
       }
 
+      case "upsert": {
+        if (!table || !data) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Missing table or data" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const onConflict = (body as any)?.onConflict || "id";
+        const { data: upsertedData, error } = await supabase
+          .from(table)
+          .upsert(data, { onConflict })
+          .select();
+
+        if (error) {
+          console.error("Upsert error:", error);
+          return new Response(
+            JSON.stringify({ success: false, error: error.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, data: upsertedData }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       case "update": {
         if (!table || !id || !data) {
           return new Response(
