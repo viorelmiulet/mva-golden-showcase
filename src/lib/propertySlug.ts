@@ -1,11 +1,14 @@
 /**
  * Generate SEO-friendly slug for a property.
- * Format: apartament-2-camere-militari-residence-gorjului-a1b2
+ * Format: apartament-2-camere-65mp-etaj-3-militari-residence-bucuresti-militari-a1b2
  * Rules:
  * 1. Property type (garsoniera / apartament-N-camere)
- * 2. Complex name in kebab-case
- * 3. Zone if exists
- * 4. First 4 characters of UUID for uniqueness
+ * 2. Surface (65mp)
+ * 3. Floor (etaj-3)
+ * 4. Project name in kebab-case
+ * 5. City
+ * 6. Zone (if not coordinates and different from project/city)
+ * 7. First 4 characters of UUID for uniqueness
  */
 
 const toKebab = (str: string): string =>
@@ -16,13 +19,18 @@ const toKebab = (str: string): string =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-export const generatePropertySlug = (property: {
+interface PropertySlugSource {
   id: string;
   rooms?: number | null;
   project_name?: string | null;
   zone?: string | null;
   location?: string | null;
-}): string => {
+  surface_min?: number | null;
+  floor?: number | null;
+  city?: string | null;
+}
+
+export const generatePropertySlug = (property: PropertySlugSource): string => {
   const parts: string[] = [];
 
   // 1. Property type
@@ -33,12 +41,31 @@ export const generatePropertySlug = (property: {
     parts.push(`apartament-${rooms}-camere`);
   }
 
-  // 2. Complex name
-  if (property.project_name) {
-    parts.push(toKebab(property.project_name));
+  // 2. Surface
+  if (property.surface_min && property.surface_min > 0) {
+    parts.push(`${property.surface_min}mp`);
   }
 
-  // 3. Zone — only if NOT GPS coordinates
+  // 3. Floor
+  if (property.floor !== null && property.floor !== undefined && property.floor >= 0) {
+    parts.push(`etaj-${property.floor}`);
+  }
+
+  // 4. Project name
+  if (property.project_name) {
+    const kebabProject = toKebab(property.project_name);
+    if (kebabProject) parts.push(kebabProject);
+  }
+
+  // 5. City
+  if (property.city) {
+    const kebabCity = toKebab(property.city);
+    if (kebabCity && kebabCity.length > 1 && !parts.some(p => p.includes(kebabCity))) {
+      parts.push(kebabCity);
+    }
+  }
+
+  // 6. Zone — only if NOT GPS coordinates
   const zone = property.zone || property.location;
   if (zone) {
     const isCoordinates = /^\d|.*\d{2,}\.\d{3,}/.test(zone);
@@ -50,7 +77,7 @@ export const generatePropertySlug = (property: {
     }
   }
 
-  // 4. First 4 chars of UUID
+  // 7. First 4 chars of UUID
   const shortId = property.id.replace(/-/g, '').substring(0, 4);
   parts.push(shortId);
 
@@ -74,18 +101,11 @@ export const isUUID = (str: string): boolean =>
 /**
  * Generate property URL path from property data.
  */
-export const getPropertyUrl = (property: {
-  id: string;
-  rooms?: number | null;
-  project_name?: string | null;
-  zone?: string | null;
-  location?: string | null;
-}): string => `/proprietati/${generatePropertySlug(property)}`;
+export const getPropertyUrl = (property: PropertySlugSource): string =>
+  `/proprietati/${generatePropertySlug(property)}`;
 
 /**
  * Generate SEO-friendly slug for an Immoflux property.
- * Format: apartament-2-camere-militari-zona-253931
- * Uses the numeric idnum as unique suffix.
  */
 export const generateImmofluxSlug = (property: {
   idnum: number;
@@ -96,7 +116,6 @@ export const generateImmofluxSlug = (property: {
 }): string => {
   const parts: string[] = [];
 
-  // 1. Property type
   const rooms = property.nrcamere || 1;
   if (rooms <= 1) {
     parts.push('garsoniera');
@@ -104,7 +123,6 @@ export const generateImmofluxSlug = (property: {
     parts.push(`apartament-${rooms}-camere`);
   }
 
-  // 2. Zone
   if (property.zona) {
     const kebabZone = toKebab(property.zona.split(',')[0].trim());
     if (kebabZone && kebabZone.length > 2 && !parts.some(p => p.includes(kebabZone))) {
@@ -112,7 +130,6 @@ export const generateImmofluxSlug = (property: {
     }
   }
 
-  // 3. Localitate if different from zona
   if (property.localitate) {
     const kebabCity = toKebab(property.localitate.split(',')[0].trim());
     if (kebabCity && kebabCity.length > 2 && !parts.some(p => p.includes(kebabCity))) {
@@ -120,24 +137,16 @@ export const generateImmofluxSlug = (property: {
     }
   }
 
-  // 4. Numeric ID for uniqueness
   parts.push(String(property.idnum));
 
   return parts.join('-');
 };
 
-/**
- * Extract the Immoflux numeric ID from a slug.
- * The ID is always the last numeric segment.
- */
 export const extractImmofluxIdFromSlug = (slug: string): string | null => {
   const match = slug.match(/(\d+)$/);
   return match ? match[1] : null;
 };
 
-/**
- * Generate URL for an Immoflux property.
- */
 export const getImmofluxPropertyUrl = (property: {
   idnum: number;
   nrcamere?: number;
