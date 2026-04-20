@@ -1,0 +1,1 @@
+DELETE FROM public.site_settings WHERE key IN ('integration_immoflux_user', 'integration_immoflux_pass');
