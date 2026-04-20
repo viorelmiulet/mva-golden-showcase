@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+// VisuallyHidden replaced with sr-only utility class
 
 interface ImageLightboxProps {
   images: string[];
