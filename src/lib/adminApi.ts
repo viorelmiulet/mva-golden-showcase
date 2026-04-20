@@ -39,6 +39,24 @@ export const adminApi = {
     return result;
   },
 
+  async upsert<T>(
+    table: string,
+    data: Partial<T> | Partial<T>[],
+    onConflict: string = "id"
+  ): Promise<{ success: boolean; data?: T[]; error?: string }> {
+    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+      body: { action: 'upsert', table, data, onConflict }
+    });
+
+    if (error) {
+      console.error('Admin upsert error:', error);
+      const errorMsg = typeof error === 'object' && error.message ? error.message : String(error);
+      return { success: false, error: errorMsg };
+    }
+
+    return result;
+  },
+
   async update<T>(table: string, id: string, data: Partial<T>): Promise<{ success: boolean; data?: T[]; error?: string }> {
     const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
       body: { action: 'update', table, id, data }

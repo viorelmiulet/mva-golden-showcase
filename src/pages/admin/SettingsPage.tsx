@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -254,16 +255,19 @@ const SettingsPage = () => {
 
   const saveSecretsMutation = useMutation({
     mutationFn: async (secrets: Record<string, string>) => {
-      for (const [key, value] of Object.entries(secrets)) {
-        if (value !== undefined) {
-          const { error } = await supabase
-            .from('site_settings')
-            .upsert(
-              { key, value, updated_at: new Date().toISOString() },
-              { onConflict: 'key' }
-            );
-          if (error) throw error;
-        }
+      const rows = Object.entries(secrets)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => ({
+          key,
+          value,
+          updated_at: new Date().toISOString(),
+        }));
+
+      if (rows.length === 0) return;
+
+      const result = await adminApi.upsert('site_settings', rows, 'key');
+      if (!result.success) {
+        throw new Error(result.error || 'Upsert failed');
       }
     },
     onSuccess: () => {
@@ -271,8 +275,9 @@ const SettingsPage = () => {
       setHasSecretChanges(false);
       toast.success("Chei API salvate cu succes!");
     },
-    onError: () => {
-      toast.error("Nu s-au putut salva cheile API");
+    onError: (error: any) => {
+      console.error('Save secrets error:', error);
+      toast.error(`Nu s-au putut salva cheile API: ${error?.message || 'eroare necunoscută'}`);
     }
   });
 
