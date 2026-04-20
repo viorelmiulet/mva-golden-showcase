@@ -74,7 +74,8 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { action, id, data, table, orderBy, ascending } = await req.json();
+    const body = await req.json();
+    const { action, id, data, table, orderBy, ascending } = body;
 
     console.log("Admin action:", action, "table:", table, "id:", id);
 
@@ -323,7 +324,7 @@ Deno.serve(async (req) => {
           );
         }
 
-        const onConflict = (body as any)?.onConflict || "id";
+        const onConflict = body?.onConflict || "id";
         const { data: upsertedData, error } = await supabase
           .from(table)
           .upsert(data, { onConflict })
