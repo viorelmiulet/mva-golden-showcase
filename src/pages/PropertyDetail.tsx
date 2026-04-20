@@ -660,9 +660,19 @@ const PropertyDetail = () => {
                 </h1>
                 
                 {property.project_name && (
-                  <p className="text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2">
-                    {property.project_name}
-                  </p>
+                  complexSlug ? (
+                    <Link
+                      to={`/complexe/${complexSlug}`}
+                      className="inline-block text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2 hover:underline"
+                      title={`Vezi toate apartamentele din ${property.project_name}`}
+                    >
+                      {property.project_name}
+                    </Link>
+                  ) : (
+                    <p className="text-base sm:text-lg md:text-xl text-gold font-semibold mb-1.5 sm:mb-2">
+                      {property.project_name}
+                    </p>
+                  )
                 )}
                 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-muted-foreground">
