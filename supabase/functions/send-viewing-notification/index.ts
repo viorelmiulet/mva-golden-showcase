@@ -16,6 +16,10 @@ interface ViewingNotificationData {
   preferredTime: string;
   message?: string;
   referenceNumber?: string;
+  preferences?: {
+    timeSlots?: string[];
+    propertyTypes?: string[];
+  };
 }
 
 const sendMailgunEmail = async (
