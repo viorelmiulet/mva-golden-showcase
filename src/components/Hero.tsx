@@ -18,7 +18,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-[85vh] flex items-center overflow-hidden" itemScope itemType="https://schema.org/WebPageElement">
+    <section id="home" className="relative min-h-[88vh] sm:min-h-[85vh] flex items-center overflow-hidden" itemScope itemType="https://schema.org/WebPageElement">
       {/* Background */}
       <div className="absolute inset-0">
         <img 
@@ -40,12 +40,12 @@ const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-20 container mx-auto px-4 lg:px-6 pt-10 md:pt-20">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+      <div className="relative z-20 container mx-auto px-5 sm:px-6 lg:px-6 pt-16 sm:pt-20 md:pt-24 pb-10 md:pb-12">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center w-full">
           
           {/* Left - Main Content */}
-          <header className="space-y-6 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight" itemProp="headline">
+          <header className="space-y-5 sm:space-y-6 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
+            <h1 className="text-[2.25rem] leading-[1.1] sm:text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight" itemProp="headline">
               <span className="block text-foreground">
                 {language === 'ro' ? 'Soluții Imobiliare' : 'Real Estate Solutions'}
               </span>
@@ -54,19 +54,19 @@ const Hero = () => {
               </span>
             </h1>
             
-            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0" itemProp="description">
+            <p className="text-base sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0" itemProp="description">
               {language === 'ro' 
                 ? 'Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. Investiții sigure cu finisaje premium și locații strategice.'
                 : 'Discover the most selective real estate projects in western Bucharest. Safe investments with premium finishes and strategic locations.'}
             </p>
             
-            <div className="flex flex-col md:flex-row gap-3" aria-label="Call to action buttons">
-              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><Calendar className="mr-2 h-4 w-4" />{language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}</Button>}>
+            <div className="flex flex-col sm:flex-row gap-3 pt-1 w-full max-w-md mx-auto lg:mx-0" aria-label="Call to action buttons">
+              <Suspense fallback={<Button variant="luxury" size="lg" className="group w-full sm:flex-1 px-6 h-12 font-semibold"><Calendar className="mr-2 h-4 w-4" />{language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}</Button>}>
                 <ScheduleViewingDialog
                   propertyTitle={language === 'ro' ? 'Consultanță generală' : 'General consultation'}
                   propertyId="hero-cta"
                   trigger={
-                    <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
+                    <Button variant="luxury" size="lg" className="group w-full sm:flex-1 px-6 h-12 font-semibold">
                       <Calendar className="mr-2 h-4 w-4" />
                       {language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}
                     </Button>
@@ -74,8 +74,8 @@ const Hero = () => {
                 />
               </Suspense>
 
-              <Link to="/contact" onClick={handleContactClick} className="w-full md:w-auto">
-                <Button variant="luxuryOutline" size="lg" className="w-full md:w-auto px-6 h-12 font-semibold">
+              <Link to="/contact" onClick={handleContactClick} className="w-full sm:flex-1">
+                <Button variant="luxuryOutline" size="lg" className="w-full px-6 h-12 font-semibold">
                   <Mail className="mr-2 h-4 w-4" />
                   {language === 'ro' ? 'Contact' : 'Contact'}
                 </Button>
