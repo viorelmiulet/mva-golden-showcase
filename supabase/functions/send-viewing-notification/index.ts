@@ -179,7 +179,9 @@ const handler = async (req: Request): Promise<Response> => {
                 ` : ''}
               </table>
             </div>
-            
+
+            ${preferencesHtml}
+
             ${data.message ? `
             <!-- Message -->
             <div style="background-color: #fff; padding: 20px; border-radius: 8px; border-left: 4px solid #17a2b8;">
