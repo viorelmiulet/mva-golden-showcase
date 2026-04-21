@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,12 +126,103 @@ const ScheduleViewingSection = () => {
     ? ["Consultanță gratuită cu un agent dedicat", "Vizionare la oră flexibilă, inclusiv weekend", "Răspuns în maxim 2 ore în program de lucru"]
     : ["Free consultation with a dedicated agent", "Flexible viewing hours, including weekends", "Reply within 2 hours during business hours"];
 
+  const sectionUrl = "https://www.mvaimobiliare.ro/#schedule-viewing";
+  const howToTitle = language === 'ro'
+    ? 'Cum programezi o vizionare la MVA Imobiliare'
+    : 'How to schedule a viewing with MVA Imobiliare';
+  const howToDescription = language === 'ro'
+    ? 'Programează o vizionare gratuită la apartamentele și ansamblurile rezidențiale MVA Imobiliare în 4 pași simpli: alege ziua, completează datele, primești numărul de referință și ești contactat de un consultant.'
+    : 'Schedule a free viewing for MVA Imobiliare apartments and residential complexes in 4 simple steps: pick a date, fill in your details, get your reference number, and a consultant will contact you.';
+
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: howToTitle,
+    description: howToDescription,
+    inLanguage: language === 'ro' ? 'ro-RO' : 'en-US',
+    totalTime: 'PT2M',
+    estimatedCost: { "@type": "MonetaryAmount", currency: "EUR", value: "0" },
+    supply: [],
+    tool: [],
+    step: [
+      {
+        "@type": "HowToStep",
+        position: 1,
+        name: language === 'ro' ? 'Alege data și ora' : 'Pick date and time',
+        text: language === 'ro'
+          ? 'Selectează ziua și ora preferată pentru vizionare, inclusiv weekend.'
+          : 'Choose your preferred day and time for the viewing, weekends included.',
+        url: `${sectionUrl}-step1`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 2,
+        name: language === 'ro' ? 'Completează datele de contact' : 'Fill in your contact details',
+        text: language === 'ro'
+          ? 'Introdu numele, telefonul și opțional emailul pentru a putea fi contactat.'
+          : 'Enter your name, phone and optionally email so we can reach you.',
+        url: `${sectionUrl}-step2`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 3,
+        name: language === 'ro' ? 'Trimite cererea' : 'Send the request',
+        text: language === 'ro'
+          ? 'Trimite formularul și primești instant un număr unic de referință (ex: MVA-XXXXXX).'
+          : 'Submit the form and instantly get a unique reference number (e.g. MVA-XXXXXX).',
+        url: `${sectionUrl}-step3`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 4,
+        name: language === 'ro' ? 'Primești confirmarea' : 'Receive confirmation',
+        text: language === 'ro'
+          ? 'Un consultant MVA Imobiliare te contactează în maxim 2 ore (program de lucru) pentru confirmare.'
+          : 'An MVA Imobiliare consultant will contact you within 2 business hours to confirm.',
+        url: `${sectionUrl}-step4`,
+      },
+    ],
+  };
+
+  const contactPointSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    name: "MVA Imobiliare",
+    url: "https://www.mvaimobiliare.ro",
+    contactPoint: [
+      {
+        "@type": "ContactPoint",
+        contactType: "Reservations",
+        name: language === 'ro' ? 'Programări vizionări' : 'Viewing reservations',
+        telephone: "+40-742-007-700",
+        email: "contact@mvaimobiliare.ro",
+        availableLanguage: ["Romanian", "English"],
+        areaServed: ["RO"],
+        hoursAvailable: {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          opens: "09:00",
+          closes: "20:00",
+        },
+        contactOption: "TollFree",
+      },
+    ],
+  };
+
   return (
     <section
       id="schedule-viewing"
       aria-labelledby="schedule-viewing-title"
       className="relative py-16 md:py-24 bg-background"
     >
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(howToSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(contactPointSchema)}
+        </script>
+      </Helmet>
       <div className="container mx-auto px-5 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Left: Intro + benefits */}
