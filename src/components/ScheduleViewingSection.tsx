@@ -352,6 +352,7 @@ const ScheduleViewingSection = () => {
                   : 'You will be contacted shortly for confirmation.'}
               </p>
             </form>
+            )}
           </div>
         </div>
       </div>
