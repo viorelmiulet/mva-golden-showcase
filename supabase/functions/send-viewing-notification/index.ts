@@ -96,6 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
             <h1 style="color: #DAA520; margin: 0; font-size: 24px; letter-spacing: 2px;">MVA IMOBILIARE</h1>
             <p style="color: #888; margin: 10px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;">Cerere de Vizionare</p>
+            <p style="color: #DAA520; margin: 12px 0 0 0; font-size: 13px; font-weight: bold; letter-spacing: 1px;">Ref: ${refNumber}</p>
           </div>
           
           <!-- Main Content -->
