@@ -112,6 +112,28 @@ const ScheduleViewingSection = () => {
       const propertyTitle = language === 'ro' ? 'Programare vizionare – Homepage' : 'Viewing request – Homepage';
       const referenceNumber = `MVA-${Date.now().toString(36).toUpperCase()}`;
 
+      const timeSlotLabels = labelsFor(TIME_SLOT_OPTIONS, timeSlots);
+      const propertyTypeLabels = labelsFor(PROPERTY_TYPE_OPTIONS, propertyTypes);
+
+      const preferencesBlock: string[] = [];
+      if (timeSlotLabels.length) {
+        preferencesBlock.push(
+          `${language === 'ro' ? 'Interval orar' : 'Time slots'}: ${timeSlotLabels.join(', ')}`
+        );
+      }
+      if (propertyTypeLabels.length) {
+        preferencesBlock.push(
+          `${language === 'ro' ? 'Tip proprietate' : 'Property type'}: ${propertyTypeLabels.join(', ')}`
+        );
+      }
+
+      const userMessage = formData.message?.trim() || '';
+      const composedMessage = [
+        `[Ref: ${referenceNumber}]`,
+        ...preferencesBlock,
+        userMessage,
+      ].filter(Boolean).join('\n');
+
       const { error: dbError } = await supabase
         .from("viewing_appointments")
         .insert({
@@ -122,9 +144,7 @@ const ScheduleViewingSection = () => {
           customer_email: formData.email?.trim() || null,
           preferred_date: formData.preferredDate,
           preferred_time: formData.preferredTime,
-          message: formData.message?.trim()
-            ? `[Ref: ${referenceNumber}] ${formData.message.trim()}`
-            : `[Ref: ${referenceNumber}]`,
+          message: composedMessage,
           status: "pending",
         });
 
@@ -143,8 +163,12 @@ const ScheduleViewingSection = () => {
           customerEmail: formData.email?.trim() || undefined,
           preferredDate: formData.preferredDate,
           preferredTime: formData.preferredTime,
-          message: formData.message?.trim() || undefined,
+          message: userMessage || undefined,
           referenceNumber,
+          preferences: {
+            timeSlots: timeSlotLabels,
+            propertyTypes: propertyTypeLabels,
+          },
         },
       });
 
@@ -160,6 +184,8 @@ const ScheduleViewingSection = () => {
         time: formData.preferredTime,
       });
       setFormData({ ...initial });
+      setTimeSlots([]);
+      setPropertyTypes([]);
     } catch (err) {
       console.error(err);
       toast.error(language === 'ro' ? "A apărut o eroare." : "An error occurred.");
