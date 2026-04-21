@@ -529,6 +529,8 @@ const ScheduleViewingSection = () => {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="sv-message">
                   {language === 'ro' ? 'Mesaj (opțional)' : 'Message (optional)'}
                 </Label>
                 <Textarea
