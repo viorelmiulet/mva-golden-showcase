@@ -1,20 +1,20 @@
 import { Button } from "@/components/ui/button"
-import { UserPlus } from "lucide-react"
+import { Calendar, Mail } from "lucide-react"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { lazy, Suspense } from "react"
-import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
+import { Link } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 
-const CollaborationForm = lazy(() => import("@/components/CollaborationForm").then((module) => ({ default: module.CollaborationForm })))
+const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then((m) => ({ default: m.ScheduleViewingDialog })))
 
 const Hero = () => {
   const { trackContact } = useGoogleAnalytics();
   const { language } = useLanguage();
   const { data: stats, isLoading: isStatsLoading } = useRealEstateStats();
 
-  const handleWhatsAppClick = () => {
-    trackContact('whatsapp', 'hero_cta');
+  const handleContactClick = () => {
+    trackContact('form', 'hero_cta');
   };
 
   return (
@@ -61,27 +61,25 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col md:flex-row gap-3" aria-label="Call to action buttons">
-              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><UserPlus className="mr-2 h-4 w-4" />{language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}</Button>}>
-                <CollaborationForm>
-                  <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    {language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}
-                  </Button>
-                </CollaborationForm>
+              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><Calendar className="mr-2 h-4 w-4" />{language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}</Button>}>
+                <ScheduleViewingDialog
+                  propertyTitle={language === 'ro' ? 'Consultanță generală' : 'General consultation'}
+                  propertyId="hero-cta"
+                  trigger={
+                    <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}
+                    </Button>
+                  }
+                />
               </Suspense>
-              
-              <a 
-                href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                onClick={handleWhatsAppClick}
-                className="w-full md:w-auto"
-              >
+
+              <Link to="/contact" onClick={handleContactClick} className="w-full md:w-auto">
                 <Button variant="luxuryOutline" size="lg" className="w-full md:w-auto px-6 h-12 font-semibold">
-                  <WhatsAppIcon className="mr-2 h-4 w-4" />
-                  <span className="hidden md:inline">{language === 'ro' ? 'Contactează-ne pe ' : 'Contact us on '}</span>WhatsApp
+                  <Mail className="mr-2 h-4 w-4" />
+                  {language === 'ro' ? 'Contact' : 'Contact'}
                 </Button>
-              </a>
+              </Link>
             </div>
           </header>
 
