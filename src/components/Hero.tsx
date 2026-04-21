@@ -64,18 +64,12 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 pt-1 w-full max-w-md mx-auto lg:mx-0" aria-label="Call to action buttons">
-              <Suspense fallback={<Button variant="luxury" size="lg" className="group w-full sm:flex-1 px-6 h-12 font-semibold"><Calendar className="mr-2 h-4 w-4" />{language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}</Button>}>
-                <ScheduleViewingDialog
-                  propertyTitle={language === 'ro' ? 'Consultanță generală' : 'General consultation'}
-                  propertyId="hero-cta"
-                  trigger={
-                    <Button variant="luxury" size="lg" className="group w-full sm:flex-1 px-6 h-12 font-semibold">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}
-                    </Button>
-                  }
-                />
-              </Suspense>
+              <a href="#schedule-viewing" onClick={handleScheduleClick} className="w-full sm:flex-1">
+                <Button variant="luxury" size="lg" className="group w-full px-6 h-12 font-semibold">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}
+                </Button>
+              </a>
 
               <Link to="/contact" onClick={handleContactClick} className="w-full sm:flex-1">
                 <Button variant="luxuryOutline" size="lg" className="w-full px-6 h-12 font-semibold">
