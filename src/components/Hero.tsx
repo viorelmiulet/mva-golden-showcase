@@ -1,12 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Calendar, Mail } from "lucide-react"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
-import { lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
-
-const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then((m) => ({ default: m.ScheduleViewingDialog })))
 
 const Hero = () => {
   const { trackContact } = useGoogleAnalytics();
@@ -15,6 +12,12 @@ const Hero = () => {
 
   const handleContactClick = () => {
     trackContact('form', 'hero_cta');
+  };
+
+  const handleScheduleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const el = document.getElementById('schedule-viewing');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
