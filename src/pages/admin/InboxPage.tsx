@@ -528,6 +528,22 @@ const InboxPage = () => {
     }
   });
 
+  const bulkUnarchiveMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('received_emails')
+        .update({ is_archived: false })
+        .in('id', ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['received-emails'] });
+      queryClient.invalidateQueries({ queryKey: ['received-emails-archived-count'] });
+      setSelectedEmailIds(new Set());
+      toast.success('Emailurile au fost dezarhivate');
+    }
+  });
+
   const bulkDeleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
       const { error } = await supabase
@@ -1276,6 +1292,7 @@ ${originalBody}`;
                     formatEmailDate={formatEmailDate}
                     isLoading={isLoading}
                     isTrashView={filter === 'trash'}
+                    isArchivedView={filter === 'archived'}
                     selectedIds={selectedEmailIds}
                     onToggleSelect={toggleEmailSelection}
                     onSelectAll={selectAllEmails}
@@ -1290,6 +1307,7 @@ ${originalBody}`;
                       }
                     }}
                     onBulkArchive={() => bulkArchiveMutation.mutate(Array.from(selectedEmailIds))}
+                    onBulkUnarchive={filter === 'archived' ? () => bulkUnarchiveMutation.mutate(Array.from(selectedEmailIds)) : undefined}
                     onBulkMarkRead={() => bulkMarkAsReadMutation.mutate(Array.from(selectedEmailIds))}
                     onBulkRestore={filter === 'trash' ? () => bulkRestoreMutation.mutate(Array.from(selectedEmailIds)) : undefined}
                   />
