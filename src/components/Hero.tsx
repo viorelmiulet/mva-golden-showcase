@@ -61,27 +61,25 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col md:flex-row gap-3" aria-label="Call to action buttons">
-              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><UserPlus className="mr-2 h-4 w-4" />{language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}</Button>}>
-                <CollaborationForm>
-                  <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    {language === 'ro' ? 'Colaborează cu noi' : 'Partner with us'}
-                  </Button>
-                </CollaborationForm>
+              <Suspense fallback={<Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto"><Calendar className="mr-2 h-4 w-4" />{language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}</Button>}>
+                <ScheduleViewingDialog
+                  propertyTitle={language === 'ro' ? 'Consultanță generală' : 'General consultation'}
+                  propertyId="hero-cta"
+                  trigger={
+                    <Button variant="luxury" size="lg" className="group px-6 h-12 font-semibold w-full md:w-auto">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {language === 'ro' ? 'Programează o vizionare' : 'Schedule a viewing'}
+                    </Button>
+                  }
+                />
               </Suspense>
-              
-              <a 
-                href="https://wa.me/40767941512?text=Salut!%20Sunt%20interesat%20de%20apartamente%20in%20complexele%20voastre%20din%20Chiajna.%20Imi%20puteti%20oferi%20mai%20multe%20detalii%3F" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                onClick={handleWhatsAppClick}
-                className="w-full md:w-auto"
-              >
+
+              <Link to="/contact" onClick={handleContactClick} className="w-full md:w-auto">
                 <Button variant="luxuryOutline" size="lg" className="w-full md:w-auto px-6 h-12 font-semibold">
-                  <WhatsAppIcon className="mr-2 h-4 w-4" />
-                  <span className="hidden md:inline">{language === 'ro' ? 'Contactează-ne pe ' : 'Contact us on '}</span>WhatsApp
+                  <Mail className="mr-2 h-4 w-4" />
+                  {language === 'ro' ? 'Contact' : 'Contact'}
                 </Button>
-              </a>
+              </Link>
             </div>
           </header>
 
