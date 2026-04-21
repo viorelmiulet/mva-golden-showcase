@@ -199,6 +199,11 @@ const Index = () => {
           </div>
           <div style={{ contentVisibility: "auto" }}>
             <Suspense fallback={<div className="py-24" />}>
+              <ScheduleViewingSection />
+            </Suspense>
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <Suspense fallback={<div className="py-24" />}>
               <About />
             </Suspense>
           </div>
