@@ -38,6 +38,52 @@ const ScheduleViewingSection = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<{ ref: string; date: string; time: string } | null>(null);
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
+
+  const TIME_SLOT_OPTIONS = language === 'ro'
+    ? [
+        { value: 'morning', label: 'Dimineață (09:00 – 12:00)' },
+        { value: 'noon', label: 'Prânz (12:00 – 14:00)' },
+        { value: 'afternoon', label: 'După-amiază (14:00 – 18:00)' },
+        { value: 'evening', label: 'Seară (18:00 – 20:00)' },
+      ]
+    : [
+        { value: 'morning', label: 'Morning (09:00 – 12:00)' },
+        { value: 'noon', label: 'Noon (12:00 – 14:00)' },
+        { value: 'afternoon', label: 'Afternoon (14:00 – 18:00)' },
+        { value: 'evening', label: 'Evening (18:00 – 20:00)' },
+      ];
+
+  const PROPERTY_TYPE_OPTIONS = language === 'ro'
+    ? [
+        { value: 'studio', label: 'Garsonieră' },
+        { value: '2-rooms', label: '2 camere' },
+        { value: '3-rooms', label: '3 camere' },
+        { value: '4-plus-rooms', label: '4+ camere' },
+        { value: 'house', label: 'Casă' },
+        { value: 'land', label: 'Teren' },
+      ]
+    : [
+        { value: 'studio', label: 'Studio' },
+        { value: '2-rooms', label: '2 rooms' },
+        { value: '3-rooms', label: '3 rooms' },
+        { value: '4-plus-rooms', label: '4+ rooms' },
+        { value: 'house', label: 'House' },
+        { value: 'land', label: 'Land' },
+      ];
+
+  const toggleArrayValue = (
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    value: string
+  ) => {
+    setter(prev => (prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]));
+  };
+
+  const labelsFor = (
+    options: { value: string; label: string }[],
+    selected: string[]
+  ) => options.filter(o => selected.includes(o.value)).map(o => o.label);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
