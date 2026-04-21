@@ -63,6 +63,7 @@ const ScheduleViewingSection = () => {
 
     try {
       const propertyTitle = language === 'ro' ? 'Programare vizionare – Homepage' : 'Viewing request – Homepage';
+      const referenceNumber = `MVA-${Date.now().toString(36).toUpperCase()}`;
 
       const { error: dbError } = await supabase
         .from("viewing_appointments")
@@ -74,7 +75,9 @@ const ScheduleViewingSection = () => {
           customer_email: formData.email?.trim() || null,
           preferred_date: formData.preferredDate,
           preferred_time: formData.preferredTime,
-          message: formData.message?.trim() || null,
+          message: formData.message?.trim()
+            ? `[Ref: ${referenceNumber}] ${formData.message.trim()}`
+            : `[Ref: ${referenceNumber}]`,
           status: "pending",
         });
 
@@ -94,6 +97,7 @@ const ScheduleViewingSection = () => {
           preferredDate: formData.preferredDate,
           preferredTime: formData.preferredTime,
           message: formData.message?.trim() || undefined,
+          referenceNumber,
         },
       });
 
@@ -101,8 +105,13 @@ const ScheduleViewingSection = () => {
 
       trackViewingScheduled('homepage-section', propertyTitle);
       toast.success(language === 'ro'
-        ? "Cererea a fost trimisă! Te vom contacta în curând."
-        : "Request sent! We'll contact you soon.");
+        ? `Cerere trimisă! Număr de referință: ${referenceNumber}`
+        : `Request sent! Reference: ${referenceNumber}`);
+      setConfirmation({
+        ref: referenceNumber,
+        date: formData.preferredDate,
+        time: formData.preferredTime,
+      });
       setFormData({ ...initial });
     } catch (err) {
       console.error(err);
