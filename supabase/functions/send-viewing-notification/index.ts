@@ -184,7 +184,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     return new Response(JSON.stringify({ 
       success: true, 
-      message: "Notificare trimisă cu succes!" 
+      message: "Notificare trimisă cu succes!",
+      referenceNumber: refNumber
     }), {
       status: 200,
       headers: {
