@@ -91,6 +91,32 @@ const handler = async (req: Request): Promise<Response> => {
 
     const refNumber = data.referenceNumber || `MVA-${Date.now().toString(36).toUpperCase()}`;
 
+    const timeSlotLabels = data.preferences?.timeSlots ?? [];
+    const propertyTypeLabels = data.preferences?.propertyTypes ?? [];
+    const hasPreferences = timeSlotLabels.length > 0 || propertyTypeLabels.length > 0;
+
+    const renderChips = (items: string[]) => items
+      .map(item => `<span style="display: inline-block; padding: 4px 10px; margin: 3px 4px 3px 0; background-color: #DAA520; color: #fff; border-radius: 12px; font-size: 12px; font-weight: 600;">${item}</span>`)
+      .join('');
+
+    const preferencesHtml = hasPreferences ? `
+      <div style="background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #6f42c1;">
+        <h3 style="color: #333; margin: 0 0 15px 0; font-size: 16px;">⭐ Preferințe Client</h3>
+        ${timeSlotLabels.length ? `
+          <div style="margin-bottom: 10px;">
+            <p style="color: #666; margin: 0 0 6px 0; font-size: 13px;">Interval orar preferat:</p>
+            <div>${renderChips(timeSlotLabels)}</div>
+          </div>
+        ` : ''}
+        ${propertyTypeLabels.length ? `
+          <div>
+            <p style="color: #666; margin: 0 0 6px 0; font-size: 13px;">Tip proprietate:</p>
+            <div>${renderChips(propertyTypeLabels)}</div>
+          </div>
+        ` : ''}
+      </div>
+    ` : '';
+
     const emailResponse = await sendMailgunEmail(
       ["mvaperfectbusiness@gmail.com"],
       `🏠 [${refNumber}] Cerere vizionare: ${data.propertyTitle}`,
