@@ -1,20 +1,20 @@
 import { Button } from "@/components/ui/button"
-import { UserPlus } from "lucide-react"
+import { Calendar, Mail } from "lucide-react"
 import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics"
 import { lazy, Suspense } from "react"
-import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
+import { Link } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useRealEstateStats } from "@/hooks/useRealEstateStats"
 
-const CollaborationForm = lazy(() => import("@/components/CollaborationForm").then((module) => ({ default: module.CollaborationForm })))
+const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then((m) => ({ default: m.ScheduleViewingDialog })))
 
 const Hero = () => {
   const { trackContact } = useGoogleAnalytics();
   const { language } = useLanguage();
   const { data: stats, isLoading: isStatsLoading } = useRealEstateStats();
 
-  const handleWhatsAppClick = () => {
-    trackContact('whatsapp', 'hero_cta');
+  const handleContactClick = () => {
+    trackContact('contact_page', 'hero_cta');
   };
 
   return (
