@@ -36,6 +36,7 @@ const ScheduleViewingSection = () => {
   const [formData, setFormData] = useState(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmation, setConfirmation] = useState<{ ref: string; date: string; time: string } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,6 +63,7 @@ const ScheduleViewingSection = () => {
 
     try {
       const propertyTitle = language === 'ro' ? 'Programare vizionare – Homepage' : 'Viewing request – Homepage';
+      const referenceNumber = `MVA-${Date.now().toString(36).toUpperCase()}`;
 
       const { error: dbError } = await supabase
         .from("viewing_appointments")
@@ -73,7 +75,9 @@ const ScheduleViewingSection = () => {
           customer_email: formData.email?.trim() || null,
           preferred_date: formData.preferredDate,
           preferred_time: formData.preferredTime,
-          message: formData.message?.trim() || null,
+          message: formData.message?.trim()
+            ? `[Ref: ${referenceNumber}] ${formData.message.trim()}`
+            : `[Ref: ${referenceNumber}]`,
           status: "pending",
         });
 
@@ -93,6 +97,7 @@ const ScheduleViewingSection = () => {
           preferredDate: formData.preferredDate,
           preferredTime: formData.preferredTime,
           message: formData.message?.trim() || undefined,
+          referenceNumber,
         },
       });
 
@@ -100,8 +105,13 @@ const ScheduleViewingSection = () => {
 
       trackViewingScheduled('homepage-section', propertyTitle);
       toast.success(language === 'ro'
-        ? "Cererea a fost trimisă! Te vom contacta în curând."
-        : "Request sent! We'll contact you soon.");
+        ? `Cerere trimisă! Număr de referință: ${referenceNumber}`
+        : `Request sent! Reference: ${referenceNumber}`);
+      setConfirmation({
+        ref: referenceNumber,
+        date: formData.preferredDate,
+        time: formData.preferredTime,
+      });
       setFormData({ ...initial });
     } catch (err) {
       console.error(err);
@@ -152,8 +162,58 @@ const ScheduleViewingSection = () => {
             </ul>
           </div>
 
-          {/* Right: Form */}
+          {/* Right: Form or confirmation */}
           <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-lg">
+            {confirmation ? (
+              <div className="text-center space-y-5 py-4">
+                <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-9 h-9 text-primary" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-foreground">
+                    {language === 'ro' ? 'Cerere înregistrată!' : 'Request received!'}
+                  </h3>
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    {language === 'ro'
+                      ? 'Un consultant MVA Imobiliare te va contacta în cel mai scurt timp pentru confirmare.'
+                      : 'An MVA Imobiliare consultant will contact you shortly to confirm.'}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 text-left space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {language === 'ro' ? 'Număr de referință' : 'Reference number'}
+                    </span>
+                    <code className="text-base font-bold text-primary tracking-wide">{confirmation.ref}</code>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="text-sm text-foreground/90">
+                    <span className="text-muted-foreground">
+                      {language === 'ro' ? 'Programare:' : 'Scheduled:'}
+                    </span>{' '}
+                    <strong>
+                      {new Date(confirmation.date).toLocaleDateString(language === 'ro' ? 'ro-RO' : 'en-US', {
+                        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                      })}
+                    </strong>{' '}
+                    {language === 'ro' ? 'la' : 'at'} <strong>{confirmation.time}</strong>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'ro'
+                    ? 'Salvează numărul de referință pentru orice comunicare ulterioară.'
+                    : 'Save the reference number for any future communication.'}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setConfirmation(null)}
+                >
+                  {language === 'ro' ? 'Trimite o nouă cerere' : 'Send another request'}
+                </Button>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="sv-name" className="flex items-center gap-2">
@@ -292,6 +352,7 @@ const ScheduleViewingSection = () => {
                   : 'You will be contacted shortly for confirmation.'}
               </p>
             </form>
+            )}
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ interface ViewingNotificationData {
   preferredDate: string;
   preferredTime: string;
   message?: string;
+  referenceNumber?: string;
 }
 
 const sendMailgunEmail = async (
@@ -84,15 +85,18 @@ const handler = async (req: Request): Promise<Response> => {
       day: 'numeric'
     });
 
+    const refNumber = data.referenceNumber || `MVA-${Date.now().toString(36).toUpperCase()}`;
+
     const emailResponse = await sendMailgunEmail(
       ["mvaperfectbusiness@gmail.com"],
-      `🏠 Cerere vizionare: ${data.propertyTitle}`,
+      `🏠 [${refNumber}] Cerere vizionare: ${data.propertyTitle}`,
       `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center;">
             <h1 style="color: #DAA520; margin: 0; font-size: 24px; letter-spacing: 2px;">MVA IMOBILIARE</h1>
             <p style="color: #888; margin: 10px 0 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 3px;">Cerere de Vizionare</p>
+            <p style="color: #DAA520; margin: 12px 0 0 0; font-size: 13px; font-weight: bold; letter-spacing: 1px;">Ref: ${refNumber}</p>
           </div>
           
           <!-- Main Content -->
@@ -180,7 +184,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     return new Response(JSON.stringify({ 
       success: true, 
-      message: "Notificare trimisă cu succes!" 
+      message: "Notificare trimisă cu succes!",
+      referenceNumber: refNumber
     }), {
       status: 200,
       headers: {
