@@ -14,7 +14,7 @@ const Hero = () => {
   const { data: stats, isLoading: isStatsLoading } = useRealEstateStats();
 
   const handleContactClick = () => {
-    trackContact('contact_page', 'hero_cta');
+    trackContact('form', 'hero_cta');
   };
 
   return (
