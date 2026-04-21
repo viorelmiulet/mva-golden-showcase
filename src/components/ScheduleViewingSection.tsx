@@ -474,7 +474,61 @@ const ScheduleViewingSection = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sv-message">
+                <Label className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  {language === 'ro' ? 'Interval orar preferat (opțional)' : 'Preferred time slots (optional)'}
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {TIME_SLOT_OPTIONS.map(opt => {
+                    const active = timeSlots.includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={() => toggleArrayValue(setTimeSlots, opt.value)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                          active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-foreground/80 border-border hover:bg-muted'
+                        }`}
+                        aria-pressed={active}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  {language === 'ro' ? 'Tip proprietate (opțional)' : 'Property type (optional)'}
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {PROPERTY_TYPE_OPTIONS.map(opt => {
+                    const active = propertyTypes.includes(opt.value);
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={() => toggleArrayValue(setPropertyTypes, opt.value)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                          active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-foreground/80 border-border hover:bg-muted'
+                        }`}
+                        aria-pressed={active}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
                   {language === 'ro' ? 'Mesaj (opțional)' : 'Message (optional)'}
                 </Label>
                 <Textarea
