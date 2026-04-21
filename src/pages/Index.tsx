@@ -13,6 +13,7 @@ const Properties = lazy(() => import("@/components/Properties"))
 const Contact = lazy(() => import("@/components/Contact"))
 const Footer = lazy(() => import("@/components/Footer"))
 const PWAInstallBanner = lazy(() => import("@/components/PWAInstallBanner"))
+const ScheduleViewingSection = lazy(() => import("@/components/ScheduleViewingSection"))
 
 
 const Index = () => {
