@@ -85,9 +85,11 @@ const handler = async (req: Request): Promise<Response> => {
       day: 'numeric'
     });
 
+    const refNumber = data.referenceNumber || `MVA-${Date.now().toString(36).toUpperCase()}`;
+
     const emailResponse = await sendMailgunEmail(
       ["mvaperfectbusiness@gmail.com"],
-      `🏠 Cerere vizionare: ${data.propertyTitle}`,
+      `🏠 [${refNumber}] Cerere vizionare: ${data.propertyTitle}`,
       `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
           <!-- Header -->
