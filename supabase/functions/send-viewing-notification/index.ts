@@ -15,6 +15,7 @@ interface ViewingNotificationData {
   preferredDate: string;
   preferredTime: string;
   message?: string;
+  referenceNumber?: string;
 }
 
 const sendMailgunEmail = async (
