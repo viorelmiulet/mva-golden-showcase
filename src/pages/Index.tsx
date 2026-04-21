@@ -13,6 +13,7 @@ const Properties = lazy(() => import("@/components/Properties"))
 const Contact = lazy(() => import("@/components/Contact"))
 const Footer = lazy(() => import("@/components/Footer"))
 const PWAInstallBanner = lazy(() => import("@/components/PWAInstallBanner"))
+const ScheduleViewingSection = lazy(() => import("@/components/ScheduleViewingSection"))
 
 
 const Index = () => {
@@ -194,6 +195,11 @@ const Index = () => {
           <div style={{ contentVisibility: "auto" }}>
             <Suspense fallback={<div className="py-24" />}>
               <Properties />
+            </Suspense>
+          </div>
+          <div style={{ contentVisibility: "auto" }}>
+            <Suspense fallback={<div className="py-24" />}>
+              <ScheduleViewingSection />
             </Suspense>
           </div>
           <div style={{ contentVisibility: "auto" }}>
