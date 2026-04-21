@@ -5,6 +5,7 @@ import {
   CheckSquare,
   Trash2,
   Archive,
+  ArchiveRestore,
   MailOpen,
   RefreshCw,
   RotateCcw,
@@ -42,6 +43,7 @@ interface GmailEmailListProps {
   formatEmailDate: (date: string) => string;
   isLoading?: boolean;
   isTrashView?: boolean;
+  isArchivedView?: boolean;
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
   onSelectAll: () => void;
@@ -50,6 +52,7 @@ interface GmailEmailListProps {
   onRefresh: () => void;
   onBulkDelete: () => void;
   onBulkArchive: () => void;
+  onBulkUnarchive?: () => void;
   onBulkMarkRead: () => void;
   onBulkRestore?: () => void;
 }
@@ -66,6 +69,7 @@ export const GmailEmailList = ({
   formatEmailDate,
   isLoading = false,
   isTrashView = false,
+  isArchivedView = false,
   selectedIds,
   onToggleSelect,
   onSelectAll,
@@ -74,6 +78,7 @@ export const GmailEmailList = ({
   onRefresh,
   onBulkDelete,
   onBulkArchive,
+  onBulkUnarchive,
   onBulkMarkRead,
   onBulkRestore,
 }: GmailEmailListProps) => {
@@ -104,11 +109,17 @@ export const GmailEmailList = ({
 
           {someSelected ? (
             <div className="flex items-center gap-1 animate-in fade-in duration-150">
-              {!isTrashView && (
+              {!isTrashView && !isArchivedView && (
                 <>
                   <ActionBtn icon={Archive} tooltip="Arhivează" onClick={onBulkArchive} />
                   <ActionBtn icon={Trash2} tooltip="Șterge" onClick={onBulkDelete} destructive />
                   <ActionBtn icon={MailOpen} tooltip="Marchează citit" onClick={onBulkMarkRead} />
+                </>
+              )}
+              {isArchivedView && onBulkUnarchive && (
+                <>
+                  <ActionBtn icon={ArchiveRestore} tooltip="Dezarhivează" onClick={onBulkUnarchive} />
+                  <ActionBtn icon={Trash2} tooltip="Șterge" onClick={onBulkDelete} destructive />
                 </>
               )}
               {isTrashView && onBulkRestore && (
