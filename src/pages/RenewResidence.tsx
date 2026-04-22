@@ -271,6 +271,8 @@ const RenewResidence = () => {
             </ScrollReveal>
           </div>
         </section>
+
+        <ResidenceFAQ title="Întrebări Frecvente — Renew Residence" faqs={renewFaqs} />
       </main>
 
       <Footer />

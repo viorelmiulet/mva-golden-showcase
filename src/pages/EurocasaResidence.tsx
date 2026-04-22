@@ -257,6 +257,8 @@ const EurocasaResidence = () => {
             </ScrollReveal>
           </div>
         </section>
+
+        <ResidenceFAQ title="Întrebări Frecvente — Eurocasa Residence" faqs={eurocasaFaqs} />
       </main>
 
       <Footer />
