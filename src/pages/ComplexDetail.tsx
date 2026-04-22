@@ -301,15 +301,17 @@ const ComplexDetail = () => {
         <meta property="og:url" content={`https://mvaimobiliare.ro${getComplexUrl(project)}`} />
         <meta property="og:title" content={`${project.name} - Apartamente Disponibile`} />
         <meta property="og:description" content={`${properties?.length || 0} apartamente în ${project.location}. ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile acum!`} />
-        <meta property="og:image" content={project.main_image || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
+        <meta property="og:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${project.name} – ansamblu rezidențial`} />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@MVAImobiliare" />
         <meta property="twitter:title" content={project.name} />
         <meta property="twitter:description" content={project.description} />
-        {project.main_image && (
-          <meta property="twitter:image" content={project.main_image} />
-        )}
+        <meta property="twitter:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
         
         {/* Structured Data - Residence */}
         <script type="application/ld+json">
