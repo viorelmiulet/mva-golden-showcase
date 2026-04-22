@@ -228,11 +228,33 @@ Deno.serve(async (req) => {
 
     const svg = buildSvg({ imageUrl, title, price, meta, badge });
 
+    // Generate ETag from content hash for cache validation
+    const encoder = new TextEncoder();
+    const hashBuffer = await crypto.subtle.digest("SHA-1", encoder.encode(svg));
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const etag = `"${hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16)}"`;
+
+    // Return 304 Not Modified if client has matching ETag
+    const ifNoneMatch = req.headers.get("if-none-match");
+    if (ifNoneMatch === etag) {
+      return new Response(null, {
+        status: 304,
+        headers: {
+          ...corsHeaders,
+          ETag: etag,
+          "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+        },
+      });
+    }
+
     return new Response(svg, {
       headers: {
         ...corsHeaders,
         "Content-Type": "image/svg+xml; charset=utf-8",
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800, immutable",
+        ETag: etag,
+        "CDN-Cache-Control": "public, max-age=86400",
+        Vary: "Accept-Encoding",
       },
     });
   } catch (e) {
