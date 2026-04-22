@@ -11,6 +11,30 @@ import Footer from "@/components/Footer";
 import { getPropertyUrl } from "@/lib/propertySlug";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import ScrollReveal from "@/components/ScrollReveal";
+import ResidenceFAQ from "@/components/ResidenceFAQ";
+
+const renewFaqs = [
+  {
+    question: "Unde este situat ansamblul Renew Residence?",
+    answer: "Renew Residence este situat în zona Militari, în vestul Bucureștiului, cu acces facil la metrou Păcii, transport public, școli, grădinițe și centre comerciale precum AFI Cotroceni și Plaza România.",
+  },
+  {
+    question: "Ce tipuri de apartamente sunt disponibile în Renew Residence?",
+    answer: "Renew Residence oferă garsoniere, apartamente cu 2 și 3 camere, cu suprafețe variate și finisaje moderne. Stocul se actualizează în timp real — contactează-ne la 0767 941 512 pentru disponibilitatea curentă.",
+  },
+  {
+    question: "Care sunt prețurile apartamentelor în Renew Residence?",
+    answer: "Prețurile pornesc de la sume competitive pentru zona Militari și depind de configurație, etaj, orientare și finisaje. Pentru o ofertă personalizată actualizată, contactează echipa MVA Imobiliare.",
+  },
+  {
+    question: "Pot cumpăra un apartament în Renew Residence prin credit ipotecar?",
+    answer: "Da, apartamentele pot fi achiziționate prin credit ipotecar. MVA Imobiliare colaborează cu consultanți financiari care te ajută să obții cel mai avantajos credit. Folosește și simulatorul nostru de credit pe site.",
+  },
+  {
+    question: "Cum programez o vizionare la Renew Residence?",
+    answer: "Programează gratuit o vizionare sunând la 0767 941 512, prin WhatsApp sau pagina de Contact. Te însoțim la fața locului, prezentăm apartamentele disponibile și oferim consultanță completă pe parcursul tranzacției.",
+  },
+];
 
 const RenewResidence = () => {
   const { data: properties = [], isLoading } = useQuery({
@@ -247,6 +271,8 @@ const RenewResidence = () => {
             </ScrollReveal>
           </div>
         </section>
+
+        <ResidenceFAQ title="Întrebări Frecvente — Renew Residence" faqs={renewFaqs} />
       </main>
 
       <Footer />
