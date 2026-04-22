@@ -11,6 +11,30 @@ import Footer from "@/components/Footer";
 import { getPropertyUrl } from "@/lib/propertySlug";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import ScrollReveal from "@/components/ScrollReveal";
+import ResidenceFAQ from "@/components/ResidenceFAQ";
+
+const eurocasaFaqs = [
+  {
+    question: "Unde este situat ansamblul Eurocasa Residence?",
+    answer: "Eurocasa Residence se află în Chiajna, Ilfov, la limita cu sectorul 6 al Bucureștiului, cu acces rapid la Autostrada A1, metrou Păcii și centre comerciale din zona Militari.",
+  },
+  {
+    question: "Ce tipuri de apartamente oferă Eurocasa Residence?",
+    answer: "Eurocasa Residence oferă garsoniere, apartamente cu 2 și 3 camere, cu finisaje moderne și compartimentări eficiente. Contactează-ne la 0767 941 512 pentru lista actualizată a unităților disponibile.",
+  },
+  {
+    question: "Care sunt avantajele cumpărării unui apartament în Chiajna?",
+    answer: "Chiajna oferă prețuri competitive față de centrul Bucureștiului, infrastructură în dezvoltare, acces facil la autostradă și proximitate față de zona Militari. Este o alegere excelentă pentru tinerii cumpărători și investitori.",
+  },
+  {
+    question: "Pot achiziționa un apartament în Eurocasa Residence prin credit?",
+    answer: "Da, apartamentele se pot cumpăra prin credit ipotecar standard sau Prima Casă (dacă te încadrezi). Echipa MVA Imobiliare te ghidează prin tot procesul, inclusiv către consultanți financiari de încredere.",
+  },
+  {
+    question: "Cum pot vizualiza apartamentele din Eurocasa Residence?",
+    answer: "Programează o vizionare gratuită sunând la 0767 941 512 sau prin WhatsApp. Te însoțim la fața locului, îți prezentăm toate opțiunile disponibile și oferim consultanță juridică inclusă pentru întreaga tranzacție.",
+  },
+];
 
 const EurocasaResidence = () => {
   const { data: properties = [], isLoading } = useQuery({
