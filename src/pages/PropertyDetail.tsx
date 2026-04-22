@@ -586,19 +586,21 @@ const PropertyDetail = () => {
         <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
         <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`} />
         <meta property="og:locale" content="ro_RO" />
+        <meta property="og:locale:alternate" content="en_US" />
         <meta property="og:site_name" content="MVA Imobiliare" />
-        {property.images?.[0] && (
-          <meta property="og:image" content={property.images[0]} />
-        )}
+        <meta property="og:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=property&id=${property.id}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`Apartament ${property.rooms || ''} camere ${zona}`} />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@MVAImobiliare" />
+        <meta name="twitter:creator" content="@MVAImobiliare" />
         <meta name="twitter:url" content={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
         <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona}. Vizionare gratuită.`} />
-        {property.images?.[0] && (
-          <meta name="twitter:image" content={property.images[0]} />
-        )}
+        <meta name="twitter:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=property&id=${property.id}`} />
         
         {/* Structured Data */}
         <script type="application/ld+json">
