@@ -131,6 +131,17 @@ const ProjectDetail = () => {
         <title>{project.name} - MVA Imobiliare</title>
         <meta name="description" content={project.description} />
         <link rel="canonical" href={`https://mvaimobiliare.ro/proiecte/${id}`} />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://mvaimobiliare.ro/proiecte/${id}`} />
+        <meta property="og:title" content={`${project.name} - MVA Imobiliare`} />
+        <meta property="og:description" content={project.description || `Descoperă ${project.name} cu MVA Imobiliare.`} />
+        <meta property="og:image" content={project.main_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${project.name} - MVA Imobiliare`} />
+        <meta name="twitter:description" content={project.description || `Descoperă ${project.name} cu MVA Imobiliare.`} />
+        <meta name="twitter:image" content={project.main_image || "https://mvaimobiliare.ro/og-default.jpg"} />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
