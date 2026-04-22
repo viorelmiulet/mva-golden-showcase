@@ -107,23 +107,45 @@ const ImmofluxPropertyDetail = () => {
   const vecinatati = typeof p.vecinatati === 'object' ? p.vecinatati?.ro?.trim() : p.vecinatati?.trim?.();
   const opinieagent = typeof p.opinieagent === 'object' ? p.opinieagent?.ro?.trim() : p.opinieagent?.trim?.();
 
+  const propertyUrl = `https://mvaimobiliare.ro/proprietate/${slug}`;
+  const ogImage = images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg";
+  const metaDesc = (description || title).substring(0, 160);
+  const ogType = isSale ? "product" : "website";
+  const priceAmount = property.pret ? String(property.pret) : null;
+
   return (
     <>
       <Helmet>
         <title>{title} | MVA Imobiliare</title>
-        <meta name="description" content={description?.substring(0, 160) || title} />
-        <link rel="canonical" href={`https://mvaimobiliare.ro/proprietate/${slug}`} />
+        <meta name="description" content={metaDesc} />
+        <meta name="author" content="MVA Imobiliare" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <link rel="canonical" href={propertyUrl} />
 
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro/proprietate/${slug}`} />
+        {/* Open Graph */}
+        <meta property="og:type" content={ogType} />
+        <meta property="og:site_name" content="MVA Imobiliare" />
+        <meta property="og:locale" content="ro_RO" />
+        <meta property="og:locale:alternate" content="en_US" />
+        <meta property="og:url" content={propertyUrl} />
         <meta property="og:title" content={`${title} | MVA Imobiliare`} />
-        <meta property="og:description" content={description?.substring(0, 160) || title} />
-        <meta property="og:image" content={images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:description" content={metaDesc} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:secure_url" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={title} />
+        {priceAmount && <meta property="product:price:amount" content={priceAmount} />}
+        {priceAmount && <meta property="product:price:currency" content="EUR" />}
 
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@MVAImobiliare" />
+        <meta name="twitter:creator" content="@MVAImobiliare" />
         <meta name="twitter:title" content={`${title} | MVA Imobiliare`} />
-        <meta name="twitter:description" content={description?.substring(0, 160) || title} />
-        <meta name="twitter:image" content={images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta name="twitter:description" content={metaDesc} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content={title} />
       </Helmet>
       <Header />
       <main className="pt-24 pb-16">
