@@ -125,23 +125,41 @@ const ProjectDetail = () => {
     trackContact("phone", "project_detail");
   };
 
+  const projectUrl = `https://mvaimobiliare.ro/proiecte/${id}`;
+  const ogImage = project.main_image || "https://mvaimobiliare.ro/og-default.jpg";
+  const metaDesc = (project.description || `Descoperă ${project.name} cu MVA Imobiliare.`).slice(0, 160);
+
   return (
     <>
       <Helmet>
         <title>{project.name} - MVA Imobiliare</title>
-        <meta name="description" content={project.description} />
-        <link rel="canonical" href={`https://mvaimobiliare.ro/proiecte/${id}`} />
+        <meta name="description" content={metaDesc} />
+        <meta name="author" content="MVA Imobiliare" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <link rel="canonical" href={projectUrl} />
 
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro/proiecte/${id}`} />
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="MVA Imobiliare" />
+        <meta property="og:locale" content="ro_RO" />
+        <meta property="og:locale:alternate" content="en_US" />
+        <meta property="og:url" content={projectUrl} />
         <meta property="og:title" content={`${project.name} - MVA Imobiliare`} />
-        <meta property="og:description" content={project.description || `Descoperă ${project.name} cu MVA Imobiliare.`} />
-        <meta property="og:image" content={project.main_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:description" content={metaDesc} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:secure_url" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${project.name} – ansamblu rezidențial`} />
 
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@MVAImobiliare" />
+        <meta name="twitter:creator" content="@MVAImobiliare" />
         <meta name="twitter:title" content={`${project.name} - MVA Imobiliare`} />
-        <meta name="twitter:description" content={project.description || `Descoperă ${project.name} cu MVA Imobiliare.`} />
-        <meta name="twitter:image" content={project.main_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta name="twitter:description" content={metaDesc} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content={`${project.name} – ansamblu rezidențial`} />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
