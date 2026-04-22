@@ -154,10 +154,15 @@ const Cariera = () => {
         <meta property="og:url" content="https://mvaimobiliare.ro/cariera" />
         <meta property="og:title" content={language === 'ro' ? 'Carieră Agent Imobiliar - MVA Imobiliare' : 'Real Estate Agent Career - MVA Imobiliare'} />
         <meta property="og:description" content={t.career.heroSubtitle} />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
         
         {/* Twitter */}
-        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content={language === 'ro' ? 'Carieră MVA Imobiliare' : 'Career MVA Imobiliare'} />
+        <meta property="twitter:description" content={t.career.heroSubtitle} />
+        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
         
         {/* Structured Data - Job Posting */}
         <script type="application/ld+json">

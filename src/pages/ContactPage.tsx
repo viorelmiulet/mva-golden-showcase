@@ -25,7 +25,7 @@ const ContactPage = () => {
         <meta property="og:description" content={t.contact.subtitle} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/contact" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.contact.title} | MVA Imobiliare`} />

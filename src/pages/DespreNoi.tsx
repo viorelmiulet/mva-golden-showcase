@@ -25,7 +25,7 @@ const DespreNoi = () => {
         <meta property="og:description" content={t.about.description} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/despre-noi" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.about.title} | MVA Imobiliare`} />
