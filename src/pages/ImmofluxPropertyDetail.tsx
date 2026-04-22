@@ -111,7 +111,7 @@ const ImmofluxPropertyDetail = () => {
   const ogImage = images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg";
   const metaDesc = (description || title).substring(0, 160);
   const ogType = isSale ? "product" : "website";
-  const priceAmount = property.pret ? String(property.pret) : null;
+  const priceAmount = p.pret ? String(p.pret) : null;
 
   return (
     <>
