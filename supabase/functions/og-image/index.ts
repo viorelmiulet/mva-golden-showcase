@@ -163,40 +163,50 @@ Deno.serve(async (req) => {
     let badge = "Imobiliare";
 
     if (type === "property" && id) {
-      const { data } = await supabase
-        .from("catalog_offers")
-        .select("title,price_min,price_max,currency,zone,location,city,rooms,surface_min,images,transaction_type")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) {
-        title = data.title || `Apartament ${data.rooms || ""} camere`;
-        const cur = data.currency || "EUR";
-        if (data.price_min) {
-          price = `${Number(data.price_min).toLocaleString("ro-RO")} ${cur}`;
+      try {
+        const { data, error } = await supabase
+          .from("catalog_offers")
+          .select("title,price_min,price_max,currency,zone,location,city,rooms,surface_min,images,transaction_type")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) console.error("og-image: catalog_offers query error", error);
+        if (data) {
+          title = data.title || `Apartament ${data.rooms || ""} camere`;
+          const cur = data.currency || "EUR";
+          if (data.price_min) {
+            price = `${Number(data.price_min).toLocaleString("ro-RO")} ${cur}`;
+          }
+          const parts = [
+            data.rooms ? `${data.rooms} camere` : null,
+            data.surface_min ? `${data.surface_min} mp` : null,
+            data.zone || data.location || data.city,
+          ].filter(Boolean);
+          meta = parts.join(" · ");
+          if (Array.isArray(data.images) && data.images.length > 0) {
+            imageUrl = String(data.images[0]);
+          }
+          badge = data.transaction_type === "rent" ? "De închiriat" : "De vânzare";
         }
-        const parts = [
-          data.rooms ? `${data.rooms} camere` : null,
-          data.surface_min ? `${data.surface_min} mp` : null,
-          data.zone || data.location || data.city,
-        ].filter(Boolean);
-        meta = parts.join(" · ");
-        if (Array.isArray(data.images) && data.images.length > 0) {
-          imageUrl = String(data.images[0]);
-        }
-        badge = data.transaction_type === "rent" ? "De închiriat" : "De vânzare";
+      } catch (e) {
+        console.error("og-image: property fetch failed", e);
       }
     } else if (type === "project" && id) {
-      const { data } = await supabase
-        .from("real_estate_projects")
-        .select("name,description,location,price_range,rooms_range,main_image,status")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) {
-        title = data.name;
-        price = data.price_range || null;
-        meta = [data.rooms_range ? `${data.rooms_range} camere` : null, data.location].filter(Boolean).join(" · ");
-        imageUrl = data.main_image;
-        badge = "Ansamblu rezidențial";
+      try {
+        const { data, error } = await supabase
+          .from("real_estate_projects")
+          .select("name,description,location,price_range,rooms_range,main_image,status")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) console.error("og-image: real_estate_projects query error", error);
+        if (data) {
+          title = data.name;
+          price = data.price_range || null;
+          meta = [data.rooms_range ? `${data.rooms_range} camere` : null, data.location].filter(Boolean).join(" · ");
+          imageUrl = data.main_image;
+          badge = "Ansamblu rezidențial";
+        }
+      } catch (e) {
+        console.error("og-image: project fetch failed", e);
       }
     } else if (type === "immoflux" && id) {
       try {
@@ -227,7 +237,21 @@ Deno.serve(async (req) => {
       }
     }
 
-    const svg = buildSvg({ imageUrl, title, price, meta, badge });
+    let svg: string;
+    try {
+      svg = buildSvg({ imageUrl, title, price, meta, badge });
+    } catch (genError) {
+      console.error("og-image: SVG generation failed", { type, id, locale, error: genError });
+      // Fallback minimal branded SVG so social crawlers still get a valid image
+      svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="${BG}"/>
+  <rect x="0" y="0" width="8" height="${H}" fill="${GOLD}"/>
+  <text x="80" y="100" font-family="Inter, sans-serif" font-size="22" font-weight="600" fill="${GOLD_LIGHT}" letter-spacing="4">MVA IMOBILIARE</text>
+  <text x="80" y="${H / 2}" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#FFFFFF">${esc(title || "MVA Imobiliare")}</text>
+  <text x="${W - 80}" y="${H - 70}" text-anchor="end" font-family="Inter, sans-serif" font-size="24" fill="${GOLD}">mvaimobiliare.ro</text>
+</svg>`;
+    }
 
     // ETag includes type+id+locale to ensure unique cache key per combination
     const cacheKey = `${type}:${id}:${locale}:${svg}`;
@@ -260,12 +284,27 @@ Deno.serve(async (req) => {
       },
     });
   } catch (e) {
-    console.error("og-image error", e);
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("og-image error", { message, stack: e instanceof Error ? e.stack : undefined });
+    // Always return a valid SVG (status 200) so social crawlers don't break.
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${BG}"/><text x="50%" y="50%" text-anchor="middle" fill="${GOLD}" font-family="serif" font-size="48">MVA Imobiliare</text></svg>`,
+      `<?xml version="1.0" encoding="UTF-8"?>
+<!-- og-image fallback: ${esc(message).slice(0, 200)} -->
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="${BG}"/>
+  <rect x="0" y="0" width="8" height="${H}" fill="${GOLD}"/>
+  <text x="50%" y="50%" text-anchor="middle" fill="${GOLD}" font-family="Georgia, serif" font-size="56" font-weight="700">MVA Imobiliare</text>
+  <text x="50%" y="60%" text-anchor="middle" fill="#E5E5E5" font-family="Inter, sans-serif" font-size="24">mvaimobiliare.ro</text>
+</svg>`,
       {
         status: 200,
-        headers: { ...corsHeaders, "Content-Type": "image/svg+xml; charset=utf-8" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "image/svg+xml; charset=utf-8",
+          "Cache-Control": "public, max-age=300",
+          "X-OG-Fallback": "true",
+          "X-OG-Error": message.slice(0, 120).replace(/[^\x20-\x7E]/g, ""),
+        },
       },
     );
   }
