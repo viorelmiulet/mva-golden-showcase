@@ -163,40 +163,50 @@ Deno.serve(async (req) => {
     let badge = "Imobiliare";
 
     if (type === "property" && id) {
-      const { data } = await supabase
-        .from("catalog_offers")
-        .select("title,price_min,price_max,currency,zone,location,city,rooms,surface_min,images,transaction_type")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) {
-        title = data.title || `Apartament ${data.rooms || ""} camere`;
-        const cur = data.currency || "EUR";
-        if (data.price_min) {
-          price = `${Number(data.price_min).toLocaleString("ro-RO")} ${cur}`;
+      try {
+        const { data, error } = await supabase
+          .from("catalog_offers")
+          .select("title,price_min,price_max,currency,zone,location,city,rooms,surface_min,images,transaction_type")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) console.error("og-image: catalog_offers query error", error);
+        if (data) {
+          title = data.title || `Apartament ${data.rooms || ""} camere`;
+          const cur = data.currency || "EUR";
+          if (data.price_min) {
+            price = `${Number(data.price_min).toLocaleString("ro-RO")} ${cur}`;
+          }
+          const parts = [
+            data.rooms ? `${data.rooms} camere` : null,
+            data.surface_min ? `${data.surface_min} mp` : null,
+            data.zone || data.location || data.city,
+          ].filter(Boolean);
+          meta = parts.join(" · ");
+          if (Array.isArray(data.images) && data.images.length > 0) {
+            imageUrl = String(data.images[0]);
+          }
+          badge = data.transaction_type === "rent" ? "De închiriat" : "De vânzare";
         }
-        const parts = [
-          data.rooms ? `${data.rooms} camere` : null,
-          data.surface_min ? `${data.surface_min} mp` : null,
-          data.zone || data.location || data.city,
-        ].filter(Boolean);
-        meta = parts.join(" · ");
-        if (Array.isArray(data.images) && data.images.length > 0) {
-          imageUrl = String(data.images[0]);
-        }
-        badge = data.transaction_type === "rent" ? "De închiriat" : "De vânzare";
+      } catch (e) {
+        console.error("og-image: property fetch failed", e);
       }
     } else if (type === "project" && id) {
-      const { data } = await supabase
-        .from("real_estate_projects")
-        .select("name,description,location,price_range,rooms_range,main_image,status")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) {
-        title = data.name;
-        price = data.price_range || null;
-        meta = [data.rooms_range ? `${data.rooms_range} camere` : null, data.location].filter(Boolean).join(" · ");
-        imageUrl = data.main_image;
-        badge = "Ansamblu rezidențial";
+      try {
+        const { data, error } = await supabase
+          .from("real_estate_projects")
+          .select("name,description,location,price_range,rooms_range,main_image,status")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) console.error("og-image: real_estate_projects query error", error);
+        if (data) {
+          title = data.name;
+          price = data.price_range || null;
+          meta = [data.rooms_range ? `${data.rooms_range} camere` : null, data.location].filter(Boolean).join(" · ");
+          imageUrl = data.main_image;
+          badge = "Ansamblu rezidențial";
+        }
+      } catch (e) {
+        console.error("og-image: project fetch failed", e);
       }
     } else if (type === "immoflux" && id) {
       try {
