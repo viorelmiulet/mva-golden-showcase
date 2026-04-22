@@ -148,8 +148,9 @@ Deno.serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const type = (url.searchParams.get("type") || "").toLowerCase();
-    const id = url.searchParams.get("id") || "";
+    const type = (url.searchParams.get("type") || "").toLowerCase().trim();
+    const id = (url.searchParams.get("id") || "").trim();
+    const locale = (url.searchParams.get("locale") || "ro").toLowerCase().trim();
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
