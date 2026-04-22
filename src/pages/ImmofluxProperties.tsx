@@ -68,6 +68,19 @@ const ImmofluxProperties = () => {
       <Helmet>
         <title>Proprietăți Imobiliare | MVA Imobiliare</title>
         <meta name="description" content="Explorează proprietățile disponibile prin MVA Imobiliare – apartamente, case și terenuri de vânzare și închiriere." />
+        <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/proprietati" />
+        <meta property="og:title" content="Proprietăți Imobiliare | MVA Imobiliare" />
+        <meta property="og:description" content="Apartamente, case și terenuri de vânzare și închiriere — MVA Imobiliare." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Proprietăți Imobiliare | MVA Imobiliare" />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       <Header />
       <main className="min-h-screen pt-24 pb-16">

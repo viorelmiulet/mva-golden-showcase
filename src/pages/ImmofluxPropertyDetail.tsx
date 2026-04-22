@@ -112,6 +112,18 @@ const ImmofluxPropertyDetail = () => {
       <Helmet>
         <title>{title} | MVA Imobiliare</title>
         <meta name="description" content={description?.substring(0, 160) || title} />
+        <link rel="canonical" href={`https://mvaimobiliare.ro/proprietate/${slug}`} />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://mvaimobiliare.ro/proprietate/${slug}`} />
+        <meta property="og:title" content={`${title} | MVA Imobiliare`} />
+        <meta property="og:description" content={description?.substring(0, 160) || title} />
+        <meta property="og:image" content={images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg"} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${title} | MVA Imobiliare`} />
+        <meta name="twitter:description" content={description?.substring(0, 160) || title} />
+        <meta name="twitter:image" content={images[0]?.src || "https://mvaimobiliare.ro/og-default.jpg"} />
       </Helmet>
       <Header />
       <main className="pt-24 pb-16">

@@ -55,6 +55,18 @@ const Sitemap = () => {
         <title>Hartă Site (Sitemap) | MVA Imobiliare</title>
         <meta name="description" content="Harta completă a site-ului MVA Imobiliare — toate paginile și secțiunile importante într-un singur loc." />
         <link rel="canonical" href="https://mvaimobiliare.ro/sitemap" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/sitemap" />
+        <meta property="og:title" content="Hartă Site | MVA Imobiliare" />
+        <meta property="og:description" content="Harta completă a site-ului MVA Imobiliare — toate paginile importante într-un singur loc." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Hartă Site | MVA Imobiliare" />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       <Header />
       <main className="flex-1 container mx-auto px-4 py-24 sm:py-28">

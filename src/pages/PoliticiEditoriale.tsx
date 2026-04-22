@@ -9,6 +9,19 @@ const PoliticiEditoriale = () => {
         <title>Politici Editoriale | MVA Imobiliare</title>
         <meta name="description" content="Standardele editoriale și principiile redacționale ale MVA Imobiliare pentru conținutul publicat pe blog și site." />
         <link rel="canonical" href="https://mvaimobiliare.ro/politici-editoriale" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/politici-editoriale" />
+        <meta property="og:title" content="Politici Editoriale | MVA Imobiliare" />
+        <meta property="og:description" content="Standardele editoriale și principiile redacționale ale MVA Imobiliare pentru conținutul publicat pe blog și site." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Politici Editoriale | MVA Imobiliare" />
+        <meta name="twitter:description" content="Standardele editoriale MVA Imobiliare." />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       <Header />
       <main className="flex-1 container mx-auto px-4 py-24 sm:py-28">

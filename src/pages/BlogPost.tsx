@@ -103,7 +103,7 @@ const BlogPost = () => {
     "@type": "Article",
     "headline": post.title,
     "description": post.meta_description || post.excerpt || post.title,
-    "image": post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg",
+    "image": post.cover_image || "https://mvaimobiliare.ro/og-default.jpg",
     "datePublished": post.created_at,
     "dateModified": post.updated_at,
     "author": {
@@ -115,7 +115,7 @@ const BlogPost = () => {
       "name": "MVA Imobiliare",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://mvaimobiliare.ro/mva-logo-luxury.svg"
+        "url": "https://mvaimobiliare.ro/og-default.jpg"
       }
     },
     "mainEntityOfPage": {
@@ -151,14 +151,14 @@ const BlogPost = () => {
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`https://mvaimobiliare.ro/blog/${slug}`} />
-        <meta property="og:image" content={post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg"} />
+        <meta property="og:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
         <meta property="article:published_time" content={post.created_at} />
         <meta property="article:author" content={post.author} />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${post.title} | MVA Imobiliare`} />
         <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
-        <meta name="twitter:image" content={post.cover_image || "https://mvaimobiliare.ro/mva-logo-luxury.svg"} />
+        <meta name="twitter:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
 
         <script type="application/ld+json">
           {JSON.stringify(articleStructuredData)}

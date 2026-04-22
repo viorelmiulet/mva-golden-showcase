@@ -25,7 +25,7 @@ const Servicii = () => {
         <meta property="og:description" content={t.services.subtitle} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/servicii" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.services.title} | MVA Imobiliare`} />

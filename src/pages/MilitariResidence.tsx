@@ -80,6 +80,20 @@ const MilitariResidence = () => {
           content="Apartamente noi de vânzare în Militari Residence, Chiajna. Garsoniere, 2 și 3 camere disponibile. Prețuri actualizate, vizionare gratuită. Contactează MVA Imobiliare."
         />
         <link rel="canonical" href="https://mvaimobiliare.ro/militari-residence" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/militari-residence" />
+        <meta property="og:title" content="Apartamente Militari Residence – MVA Imobiliare" />
+        <meta property="og:description" content="Apartamente noi de vânzare în Militari Residence, Chiajna. Vizionare gratuită cu MVA Imobiliare." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Apartamente Militari Residence – MVA Imobiliare" />
+        <meta name="twitter:description" content="Apartamente noi în Militari Residence, Chiajna." />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
       </Helmet>

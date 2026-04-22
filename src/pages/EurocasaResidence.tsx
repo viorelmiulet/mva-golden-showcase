@@ -48,6 +48,20 @@ const EurocasaResidence = () => {
           content="Apartamente noi disponibile în Eurocasa Residence. MVA Imobiliare – agenție specializată în ansambluri rezidențiale zona Militari, Chiajna."
         />
         <link rel="canonical" href="https://mvaimobiliare.ro/eurocasa-residence" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mvaimobiliare.ro/eurocasa-residence" />
+        <meta property="og:title" content="Apartamente Eurocasa Residence – MVA Imobiliare" />
+        <meta property="og:description" content="Apartamente noi în Eurocasa Residence, Chiajna. Garsoniere, 2 și 3 camere. Vizionare gratuită." />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1216" />
+        <meta property="og:image:height" content="640" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Apartamente Eurocasa Residence – MVA Imobiliare" />
+        <meta name="twitter:description" content="Apartamente noi în Eurocasa Residence, Chiajna." />
+        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 

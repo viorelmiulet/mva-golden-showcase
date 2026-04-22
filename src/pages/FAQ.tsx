@@ -48,7 +48,7 @@ const FAQ = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/intrebari-frecvente" />
         <meta property="og:locale" content="ro_RO" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare" />
