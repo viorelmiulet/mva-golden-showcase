@@ -227,7 +227,21 @@ Deno.serve(async (req) => {
       }
     }
 
-    const svg = buildSvg({ imageUrl, title, price, meta, badge });
+    let svg: string;
+    try {
+      svg = buildSvg({ imageUrl, title, price, meta, badge });
+    } catch (genError) {
+      console.error("og-image: SVG generation failed", { type, id, locale, error: genError });
+      // Fallback minimal branded SVG so social crawlers still get a valid image
+      svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="${BG}"/>
+  <rect x="0" y="0" width="8" height="${H}" fill="${GOLD}"/>
+  <text x="80" y="100" font-family="Inter, sans-serif" font-size="22" font-weight="600" fill="${GOLD_LIGHT}" letter-spacing="4">MVA IMOBILIARE</text>
+  <text x="80" y="${H / 2}" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#FFFFFF">${esc(title || "MVA Imobiliare")}</text>
+  <text x="${W - 80}" y="${H - 70}" text-anchor="end" font-family="Inter, sans-serif" font-size="24" fill="${GOLD}">mvaimobiliare.ro</text>
+</svg>`;
+    }
 
     // ETag includes type+id+locale to ensure unique cache key per combination
     const cacheKey = `${type}:${id}:${locale}:${svg}`;
