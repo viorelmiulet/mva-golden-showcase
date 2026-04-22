@@ -274,12 +274,27 @@ Deno.serve(async (req) => {
       },
     });
   } catch (e) {
-    console.error("og-image error", e);
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("og-image error", { message, stack: e instanceof Error ? e.stack : undefined });
+    // Always return a valid SVG (status 200) so social crawlers don't break.
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${BG}"/><text x="50%" y="50%" text-anchor="middle" fill="${GOLD}" font-family="serif" font-size="48">MVA Imobiliare</text></svg>`,
+      `<?xml version="1.0" encoding="UTF-8"?>
+<!-- og-image fallback: ${esc(message).slice(0, 200)} -->
+<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="${BG}"/>
+  <rect x="0" y="0" width="8" height="${H}" fill="${GOLD}"/>
+  <text x="50%" y="50%" text-anchor="middle" fill="${GOLD}" font-family="Georgia, serif" font-size="56" font-weight="700">MVA Imobiliare</text>
+  <text x="50%" y="60%" text-anchor="middle" fill="#E5E5E5" font-family="Inter, sans-serif" font-size="24">mvaimobiliare.ro</text>
+</svg>`,
       {
         status: 200,
-        headers: { ...corsHeaders, "Content-Type": "image/svg+xml; charset=utf-8" },
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "image/svg+xml; charset=utf-8",
+          "Cache-Control": "public, max-age=300",
+          "X-OG-Fallback": "true",
+          "X-OG-Error": message.slice(0, 120).replace(/[^\x20-\x7E]/g, ""),
+        },
       },
     );
   }
