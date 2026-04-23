@@ -136,6 +136,9 @@ Deno.serve(async (req: Request) => {
         amenities: listing.amenities || [],
       };
 
+      console.log("[publish-homedirect] PUBLISH payload", JSON.stringify(payload));
+      console.log("[publish-homedirect] PUBLISH url", `${baseUrl}/listings`);
+
       hdResponse = await fetch(`${baseUrl}/listings`, {
         method: "POST",
         headers: {
@@ -145,16 +148,20 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify(payload),
       });
 
-      hdData = await hdResponse.json().catch(() => ({}));
+      const rawText = await hdResponse.text();
+      console.log("[publish-homedirect] PUBLISH response", hdResponse.status, rawText);
+      try { hdData = JSON.parse(rawText); } catch { hdData = { raw: rawText }; }
 
       if (!hdResponse.ok) {
         return json(
           {
             success: false,
-            error: hdData?.message || `HomeDirect publish failed (${hdResponse.status})`,
+            error: hdData?.message || hdData?.error || `HomeDirect publish failed (${hdResponse.status})`,
+            status: hdResponse.status,
             details: hdData,
+            sent_payload: payload,
           },
-          500
+          200
         );
       }
 
