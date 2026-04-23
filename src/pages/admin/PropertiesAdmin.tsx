@@ -83,6 +83,7 @@ const PropertiesAdmin = () => {
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
   const [publishing999, setPublishing999] = useState<string | null>(null);
   const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
+  const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -468,6 +469,75 @@ const PropertiesAdmin = () => {
     if (failCount > 0) {
       toast({
         title: `${failCount} eșuate pe HomeDirect`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resyncSelectedHomedirectImages = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+
+    // Doar proprietățile deja publicate pe HD pot fi „update"-ate
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const eligible = (metaRows || []).filter(
+      (r: any) => r.homedirect_id && r.homedirect_status !== "deleted"
+    );
+
+    if (eligible.length === 0) {
+      toast({
+        title: "Niciuna eligibilă",
+        description: "Selectează proprietăți deja publicate pe HomeDirect.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const total = eligible.length;
+    setIsBulkResyncingImages(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "update");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkResyncingImages(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Imagini re-sincronizate",
+        description: `${successCount} actualizate${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
         description: errors.slice(0, 3).join(" | "),
         variant: "destructive",
       });
