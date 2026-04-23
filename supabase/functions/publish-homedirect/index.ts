@@ -102,10 +102,11 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // 3. Determine HomeDirect base URL
-  const baseUrl = use_dev
-    ? "https://dev.homedirect.ro"
-    : "https://homedirect.ro";
+  // 3. Determine HomeDirect API base URL
+  const apiBaseUrl = use_dev
+    ? "https://dev.homedirect.ro/api"
+    : "https://homedirect.ro/api";
+  const listingsBaseUrl = `${apiBaseUrl}/admin/listings`;
 
   try {
     let hdResponse: Response;
@@ -137,9 +138,9 @@ Deno.serve(async (req: Request) => {
       };
 
       console.log("[publish-homedirect] PUBLISH payload", JSON.stringify(payload));
-      console.log("[publish-homedirect] PUBLISH url", `${baseUrl}/listings`);
+      console.log("[publish-homedirect] PUBLISH url", listingsBaseUrl);
 
-      hdResponse = await fetch(`${baseUrl}/listings`, {
+      hdResponse = await fetch(listingsBaseUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +215,7 @@ Deno.serve(async (req: Request) => {
         amenities: listing.amenities || [],
       };
 
-      hdResponse = await fetch(`${baseUrl}/listings/${listing.homedirect_id}`, {
+      hdResponse = await fetch(`${listingsBaseUrl}/${listing.homedirect_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -260,7 +261,7 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      hdResponse = await fetch(`${baseUrl}/listings/${listing.homedirect_id}`, {
+      hdResponse = await fetch(`${listingsBaseUrl}/${listing.homedirect_id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${apiKey}`,
