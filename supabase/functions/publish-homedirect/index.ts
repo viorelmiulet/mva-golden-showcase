@@ -1,6 +1,8 @@
 // Edge function: publish-homedirect
-// Sincronizează un anunț (catalog_offers) cu HomeDirect API.
-// Cheia API este citită din site_settings (key: integration_homedirect_api_key).
+// Sincronizează un anunț (catalog_offers) cu HomeDirect CRM API.
+// API: https://www.homedirect.ro/api/docs/
+// Autentificare: header X-API-Key
+// Endpoint: /api/crm/v1/properties
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.56.0";
 
@@ -24,6 +26,87 @@ const json = (body: unknown, status = 200) =>
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+
+// ---------- Mapping helpers (catalog_offers -> HomeDirect) ----------
+
+function mapFloor(floor: number | null | undefined): string | undefined {
+  if (floor === null || floor === undefined) return undefined;
+  if (floor < 0) return "basement";
+  if (floor === 0) return "ground";
+  if (floor >= 1 && floor <= 10) return `floor${floor}`;
+  if (floor > 10) return "floorAbove10";
+  return undefined;
+}
+
+function mapPropertyType(t: string | null | undefined): string {
+  const v = (t || "").toLowerCase();
+  if (v.includes("garson") || v.includes("studio")) return "studio";
+  if (v.includes("casa") || v.includes("house") || v.includes("vila")) return "house";
+  if (v.includes("teren") || v.includes("land")) return "land";
+  if (v.includes("birou") || v.includes("office") || v.includes("comerc")) return "office";
+  if (v.includes("hotel")) return "hotel";
+  return "apartment";
+}
+
+function mapTransactionType(t: string | null | undefined): string {
+  const v = (t || "").toLowerCase();
+  if (v.includes("inchir") || v.includes("rent")) return "rent";
+  return "buy";
+}
+
+function mapConstructionYear(year: number | null | undefined): string | undefined {
+  if (!year) return undefined;
+  if (year >= 2010) return "after-2010";
+  if (year >= 2000) return "2000-2010";
+  if (year >= 1990) return "1990-2000";
+  if (year >= 1977) return "1977-1990";
+  if (year >= 1941) return "1941-1977";
+  return "before-1941";
+}
+
+function buildPostData(listing: any) {
+  const postData: Record<string, unknown> = {
+    title: listing.title,
+    price: Math.round(Number(listing.price_min) || 0),
+    city: listing.city || "București",
+    type: mapTransactionType(listing.transaction_type),
+    property: mapPropertyType(listing.property_type),
+    latitude: listing.latitude != null ? String(listing.latitude) : undefined,
+    longitude: listing.longitude != null ? String(listing.longitude) : undefined,
+  };
+
+  if (listing.zone) postData.district = listing.zone;
+  if (listing.rooms) postData.bedroom = listing.rooms;
+  if (listing.bathrooms) postData.bathroom = listing.bathrooms;
+
+  const floor = mapFloor(listing.floor);
+  if (floor) postData.floor = floor;
+  if (listing.total_floors) postData.totalFloors = String(listing.total_floors);
+
+  const year = mapConstructionYear(listing.year_built);
+  if (year) postData.constructionYear = year;
+
+  if (Array.isArray(listing.images) && listing.images.length > 0) {
+    postData.images = listing.images;
+  }
+
+  return postData;
+}
+
+function buildPayload(listing: any) {
+  return {
+    postData: buildPostData(listing),
+    postDetail: {
+      desc:
+        listing.description ||
+        listing.descriere_lunga ||
+        listing.title,
+      size: listing.surface_min ? Math.round(Number(listing.surface_min)) : undefined,
+    },
+  };
+}
+
+// ---------- Main handler ----------
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -82,7 +165,8 @@ Deno.serve(async (req: Request) => {
     return json(
       {
         success: false,
-        error: "HomeDirect API Key lipsă. Setează cheia în Admin → Setări → Chei API & Integrări → HomeDirect.",
+        error:
+          "HomeDirect API Key lipsă. Setează cheia în Admin → Setări → Chei API & Integrări → HomeDirect.",
       },
       400
     );
@@ -102,62 +186,43 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // 3. Determine HomeDirect API base URL
+  // 3. Determine HomeDirect API base URL (CRM v1)
   const apiBaseUrl = use_dev
-    ? "https://dev.homedirect.ro/api"
-    : "https://homedirect.ro/api";
-  const listingsBaseUrl = `${apiBaseUrl}/admin/listings`;
+    ? "https://dev.homedirect.ro/api/crm/v1"
+    : "https://homedirect.ro/api/crm/v1";
+  const propertiesUrl = `${apiBaseUrl}/properties`;
+
+  const hdHeaders = {
+    "Content-Type": "application/json",
+    "X-API-Key": apiKey,
+  };
 
   try {
-    let hdResponse: Response;
-    let hdData: any = null;
-
     if (action === "publish") {
-      // Build payload from catalog_offers
-      const payload = {
-        title: listing.title,
-        description: listing.description || listing.descriere_lunga || listing.title,
-        price: listing.price_min,
-        currency: listing.currency || "EUR",
-        rooms: listing.rooms,
-        surface: listing.surface_min,
-        floor: listing.floor,
-        total_floors: listing.total_floors,
-        bathrooms: listing.bathrooms,
-        year_built: listing.year_built,
-        property_type: listing.property_type,
-        transaction_type: listing.transaction_type || "sale",
-        location: listing.location,
-        zone: listing.zone,
-        city: listing.city,
-        latitude: listing.latitude,
-        longitude: listing.longitude,
-        images: listing.images || [],
-        features: listing.features || [],
-        amenities: listing.amenities || [],
-      };
+      const payload = buildPayload(listing);
 
+      console.log("[publish-homedirect] PUBLISH url", propertiesUrl);
       console.log("[publish-homedirect] PUBLISH payload", JSON.stringify(payload));
-      console.log("[publish-homedirect] PUBLISH url", listingsBaseUrl);
 
-      hdResponse = await fetch(listingsBaseUrl, {
+      const hdResponse = await fetch(propertiesUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers: hdHeaders,
         body: JSON.stringify(payload),
       });
 
       const rawText = await hdResponse.text();
       console.log("[publish-homedirect] PUBLISH response", hdResponse.status, rawText);
+      let hdData: any;
       try { hdData = JSON.parse(rawText); } catch { hdData = { raw: rawText }; }
 
       if (!hdResponse.ok) {
         return json(
           {
             success: false,
-            error: hdData?.message || hdData?.error || `HomeDirect publish failed (${hdResponse.status})`,
+            error:
+              hdData?.message ||
+              hdData?.error ||
+              `HomeDirect publish failed (${hdResponse.status})`,
             status: hdResponse.status,
             details: hdData,
             sent_payload: payload,
@@ -166,8 +231,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const homedirectId = hdData?.id || hdData?.listing_id;
-      const shortId = hdData?.short_id || hdData?.slug;
+      const homedirectId = hdData?.id || hdData?._id || hdData?.property?.id || hdData?.property?._id;
+      const shortId = hdData?.shortId || hdData?.short_id || hdData?.property?.shortId;
 
       await supabase
         .from("catalog_offers")
@@ -195,45 +260,28 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const payload = {
-        title: listing.title,
-        description: listing.description || listing.descriere_lunga || listing.title,
-        price: listing.price_min,
-        currency: listing.currency || "EUR",
-        rooms: listing.rooms,
-        surface: listing.surface_min,
-        floor: listing.floor,
-        total_floors: listing.total_floors,
-        bathrooms: listing.bathrooms,
-        property_type: listing.property_type,
-        transaction_type: listing.transaction_type || "sale",
-        location: listing.location,
-        zone: listing.zone,
-        city: listing.city,
-        images: listing.images || [],
-        features: listing.features || [],
-        amenities: listing.amenities || [],
-      };
+      const payload = buildPayload(listing);
 
-      hdResponse = await fetch(`${listingsBaseUrl}/${listing.homedirect_id}`, {
+      const hdResponse = await fetch(`${propertiesUrl}/${listing.homedirect_id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers: hdHeaders,
         body: JSON.stringify(payload),
       });
 
-      hdData = await hdResponse.json().catch(() => ({}));
+      const rawText = await hdResponse.text();
+      let hdData: any;
+      try { hdData = JSON.parse(rawText); } catch { hdData = { raw: rawText }; }
 
       if (!hdResponse.ok) {
         return json(
           {
             success: false,
             error: hdData?.message || `HomeDirect update failed (${hdResponse.status})`,
+            status: hdResponse.status,
             details: hdData,
+            sent_payload: payload,
           },
-          500
+          200
         );
       }
 
@@ -261,22 +309,23 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      hdResponse = await fetch(`${listingsBaseUrl}/${listing.homedirect_id}`, {
+      const hdResponse = await fetch(`${propertiesUrl}/${listing.homedirect_id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers: { "X-API-Key": apiKey },
       });
 
       if (!hdResponse.ok && hdResponse.status !== 404) {
-        hdData = await hdResponse.json().catch(() => ({}));
+        const rawText = await hdResponse.text();
+        let hdData: any;
+        try { hdData = JSON.parse(rawText); } catch { hdData = { raw: rawText }; }
         return json(
           {
             success: false,
             error: hdData?.message || `HomeDirect delete failed (${hdResponse.status})`,
+            status: hdResponse.status,
             details: hdData,
           },
-          500
+          200
         );
       }
 
