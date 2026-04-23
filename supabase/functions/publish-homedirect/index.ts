@@ -267,7 +267,9 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (action === "publish") {
-      const payload = buildPayload(listing);
+      const rehosted = await rehostImages(supabase, listing.images, listing_id);
+      console.log("[publish-homedirect] rehosted", rehosted.length, "of", (listing.images || []).length);
+      const payload = buildPayload(listing, rehosted);
 
       console.log("[publish-homedirect] PUBLISH url", propertiesUrl);
       console.log("[publish-homedirect] PUBLISH payload", JSON.stringify(payload));
