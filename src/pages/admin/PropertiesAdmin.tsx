@@ -30,6 +30,7 @@ import {
   BedDouble,
   Maximize,
   MapPin,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
@@ -83,6 +84,7 @@ const PropertiesAdmin = () => {
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
   const [publishing999, setPublishing999] = useState<string | null>(null);
   const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
+  const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -474,6 +476,75 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const resyncSelectedHomedirectImages = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+
+    // Doar proprietățile deja publicate pe HD pot fi „update"-ate
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const eligible = (metaRows || []).filter(
+      (r: any) => r.homedirect_id && r.homedirect_status !== "deleted"
+    );
+
+    if (eligible.length === 0) {
+      toast({
+        title: "Niciuna eligibilă",
+        description: "Selectează proprietăți deja publicate pe HomeDirect.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const total = eligible.length;
+    setIsBulkResyncingImages(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "update");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkResyncingImages(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Imagini re-sincronizate",
+        description: `${successCount} actualizate${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
   const bulkToggleVisibility = async (visible: boolean) => {
     if (selectedProperties.size === 0) {
       toast({
@@ -698,7 +769,7 @@ const PropertiesAdmin = () => {
               </Label>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD) && bulkProgress.total > 0 && (
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
@@ -761,7 +832,7 @@ const PropertiesAdmin = () => {
                   <Button
                     size="sm"
                     onClick={sendSelectedToHomedirect}
-                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility || isBulkResyncingImages}
                     className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
                   >
                     {isBulkSendingHD ? (
@@ -771,6 +842,23 @@ const PropertiesAdmin = () => {
                     )}
                     <span className="hidden sm:inline">{isBulkSendingHD ? `Public...` : `Publică ${selectedProperties.size} pe HomeDirect`}</span>
                     <span className="sm:hidden">HomeDirect</span>
+                  </Button>
+                  {/* Re-sync HomeDirect images bulk action */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={resyncSelectedHomedirectImages}
+                    disabled={isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    title="Re-uploadează imaginile în storage și trimite update către HomeDirect (fără a modifica restul datelor)"
+                    className="border-orange-500/40 text-orange-600 hover:bg-orange-500/10 h-8 text-xs"
+                  >
+                    {isBulkResyncingImages ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkResyncingImages ? `Re-sync...` : `Re-sync imagini HD`}</span>
+                    <span className="sm:hidden">Imagini HD</span>
                   </Button>
                 </div>
               )}
