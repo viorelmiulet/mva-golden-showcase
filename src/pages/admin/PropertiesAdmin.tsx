@@ -769,7 +769,7 @@ const PropertiesAdmin = () => {
               </Label>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD) && bulkProgress.total > 0 && (
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
@@ -832,7 +832,7 @@ const PropertiesAdmin = () => {
                   <Button
                     size="sm"
                     onClick={sendSelectedToHomedirect}
-                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility || isBulkResyncingImages}
                     className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
                   >
                     {isBulkSendingHD ? (
@@ -842,6 +842,23 @@ const PropertiesAdmin = () => {
                     )}
                     <span className="hidden sm:inline">{isBulkSendingHD ? `Public...` : `Publică ${selectedProperties.size} pe HomeDirect`}</span>
                     <span className="sm:hidden">HomeDirect</span>
+                  </Button>
+                  {/* Re-sync HomeDirect images bulk action */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={resyncSelectedHomedirectImages}
+                    disabled={isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    title="Re-uploadează imaginile în storage și trimite update către HomeDirect (fără a modifica restul datelor)"
+                    className="border-orange-500/40 text-orange-600 hover:bg-orange-500/10 h-8 text-xs"
+                  >
+                    {isBulkResyncingImages ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkResyncingImages ? `Re-sync...` : `Re-sync imagini HD`}</span>
+                    <span className="sm:hidden">Imagini HD</span>
                   </Button>
                 </div>
               )}
