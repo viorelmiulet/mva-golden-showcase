@@ -30,6 +30,7 @@ import {
   BedDouble,
   Maximize,
   MapPin,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
