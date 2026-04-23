@@ -657,6 +657,12 @@ const SettingsPage = () => {
                   ]
                 },
                 {
+                  title: "HomeDirect",
+                  fields: [
+                    { key: "integration_homedirect_api_key", label: "API Key", placeholder: "hd_..." },
+                  ]
+                },
+                {
                   title: "AI & Altele",
                   fields: [
                     { key: "integration_openai_api_key", label: "OpenAI API Key", placeholder: "sk-..." },
