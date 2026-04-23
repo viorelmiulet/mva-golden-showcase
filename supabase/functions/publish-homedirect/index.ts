@@ -86,16 +86,15 @@ function buildPostData(listing: any) {
   const year = mapConstructionYear(listing.year_built);
   if (year) postData.constructionYear = year;
 
-  if (Array.isArray(listing.images) && listing.images.length > 0) {
-    postData.images = listing.images;
-  }
-
+  // images injected separately after rehosting
   return postData;
 }
 
-function buildPayload(listing: any) {
+function buildPayload(listing: any, images: string[]) {
+  const postData = buildPostData(listing);
+  if (images.length > 0) postData.images = images;
   return {
-    postData: buildPostData(listing),
+    postData,
     postDetail: {
       desc:
         listing.description ||
@@ -104,6 +103,75 @@ function buildPayload(listing: any) {
       size: listing.surface_min ? Math.round(Number(listing.surface_min)) : undefined,
     },
   };
+}
+
+// ---------- Image rehosting ----------
+// Descarcă imaginile externe (ex: immoflux) și le re-uploadează pe Supabase Storage,
+// astfel încât HomeDirect să le poată descărca fără să fie blocat de hotlink protection.
+
+const SUPABASE_STORAGE_HOST = "supabase.co";
+
+async function rehostImage(
+  supabase: any,
+  url: string,
+  listingId: string,
+  index: number
+): Promise<string | null> {
+  try {
+    // Dacă imaginea e deja pe Supabase, păstreaz-o
+    if (url.includes(SUPABASE_STORAGE_HOST)) return url;
+
+    const res = await fetch(url, {
+      headers: {
+        // unele servere imagini blochează lipsa user-agent-ului
+        "User-Agent":
+          "Mozilla/5.0 (compatible; MVAImobiliareBot/1.0; +https://mvaimobiliare.ro)",
+        "Accept": "image/*,*/*;q=0.8",
+      },
+    });
+    if (!res.ok) {
+      console.warn("[rehost] fetch failed", res.status, url);
+      return null;
+    }
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+    const ext =
+      contentType.includes("png") ? "png" :
+      contentType.includes("webp") ? "webp" :
+      contentType.includes("gif") ? "gif" : "jpg";
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    const path = `homedirect/${listingId}/${index}-${Date.now()}.${ext}`;
+
+    const { error: upErr } = await supabase.storage
+      .from("property-images")
+      .upload(path, bytes, { contentType, upsert: true });
+    if (upErr) {
+      console.warn("[rehost] upload failed", upErr.message, url);
+      return null;
+    }
+    const { data: pub } = supabase.storage
+      .from("property-images")
+      .getPublicUrl(path);
+    return pub?.publicUrl || null;
+  } catch (e) {
+    console.warn("[rehost] error", (e as Error).message, url);
+    return null;
+  }
+}
+
+async function rehostImages(
+  supabase: any,
+  images: unknown,
+  listingId: string
+): Promise<string[]> {
+  if (!Array.isArray(images)) return [];
+  const results = await Promise.all(
+    images.map((u, i) =>
+      typeof u === "string" && u.startsWith("http")
+        ? rehostImage(supabase, u, listingId, i)
+        : Promise.resolve(null)
+    )
+  );
+  return results.filter((u): u is string => !!u);
 }
 
 // ---------- Main handler ----------
