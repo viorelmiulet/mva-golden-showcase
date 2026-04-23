@@ -197,6 +197,10 @@ export type Database = {
           has_water: boolean | null
           has_wood_floors: boolean | null
           heating: string | null
+          homedirect_id: string | null
+          homedirect_short_id: string | null
+          homedirect_status: string | null
+          homedirect_synced_at: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null
@@ -273,6 +277,10 @@ export type Database = {
           has_water?: boolean | null
           has_wood_floors?: boolean | null
           heating?: string | null
+          homedirect_id?: string | null
+          homedirect_short_id?: string | null
+          homedirect_status?: string | null
+          homedirect_synced_at?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
@@ -349,6 +357,10 @@ export type Database = {
           has_water?: boolean | null
           has_wood_floors?: boolean | null
           heating?: string | null
+          homedirect_id?: string | null
+          homedirect_short_id?: string | null
+          homedirect_status?: string | null
+          homedirect_synced_at?: string | null
           id?: string
           images?: string[] | null
           is_featured?: boolean | null
@@ -2036,6 +2048,10 @@ export type Database = {
           has_water: boolean | null
           has_wood_floors: boolean | null
           heating: string | null
+          homedirect_id: string | null
+          homedirect_short_id: string | null
+          homedirect_status: string | null
+          homedirect_synced_at: string | null
           id: string
           images: string[] | null
           is_featured: boolean | null

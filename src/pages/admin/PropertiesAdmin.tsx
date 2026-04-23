@@ -42,6 +42,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
+import HomedirectSyncButton from "@/components/HomedirectSyncButton";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
@@ -814,6 +815,7 @@ const PropertiesAdmin = () => {
                             <Send className="w-4 h-4 text-emerald-500" />
                           )}
                         </Button>
+                        <HomedirectSyncButton listingId={property.id} />
                         <Button
                           size="sm"
                           variant="outline"
@@ -935,6 +937,7 @@ const PropertiesAdmin = () => {
                             <Send className="w-4 h-4 text-emerald-500" />
                           )}
                         </Button>
+                        <HomedirectSyncButton listingId={property.id} />
                         <Button
                           size="sm"
                           variant="outline"
