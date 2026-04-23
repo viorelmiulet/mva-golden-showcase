@@ -473,6 +473,8 @@ const PropertiesAdmin = () => {
       });
     }
   };
+
+  const bulkToggleVisibility = async (visible: boolean) => {
     if (selectedProperties.size === 0) {
       toast({
         title: "Atenție",
