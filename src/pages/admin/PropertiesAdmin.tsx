@@ -414,7 +414,65 @@ const PropertiesAdmin = () => {
     }
   };
 
-  const bulkToggleVisibility = async (visible: boolean) => {
+  const sendSelectedToHomedirect = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+    const total = ids.length;
+    setIsBulkSendingHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    // Fetch current homedirect status for all selected
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const metaMap = new Map((metaRows || []).map((r: any) => [r.id, r]));
+
+    for (let i = 0; i < ids.length; i++) {
+      const propertyId = ids[i];
+      const meta: any = metaMap.get(propertyId);
+      const action: "publish" | "update" =
+        meta?.homedirect_id && meta?.homedirect_status !== "deleted" ? "update" : "publish";
+      try {
+        const result = await syncToHomedirect(propertyId, action);
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkSendingHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "HomeDirect",
+        description: `${successCount} trimise cu succes${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate pe HomeDirect`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
     if (selectedProperties.size === 0) {
       toast({
         title: "Atenție",
