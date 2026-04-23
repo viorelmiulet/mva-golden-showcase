@@ -757,6 +757,21 @@ const PropertiesAdmin = () => {
                     <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
                     <span className="sm:hidden">Zapier</span>
                   </Button>
+                  {/* HomeDirect bulk action */}
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToHomedirect}
+                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
+                  >
+                    {isBulkSendingHD ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Home className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkSendingHD ? `Public...` : `Publică ${selectedProperties.size} pe HomeDirect`}</span>
+                    <span className="sm:hidden">HomeDirect</span>
+                  </Button>
                 </div>
               )}
             </div>
