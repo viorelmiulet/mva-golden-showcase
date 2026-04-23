@@ -40,11 +40,12 @@ function mapFloor(floor: number | null | undefined): string | undefined {
 
 function mapPropertyType(t: string | null | undefined): string {
   const v = (t || "").toLowerCase();
-  if (v.includes("garson") || v.includes("studio")) return "studio";
+  if (v.includes("garson") || v.includes("studio")) return "apartment";
   if (v.includes("casa") || v.includes("house") || v.includes("vila")) return "house";
   if (v.includes("teren") || v.includes("land")) return "land";
-  if (v.includes("birou") || v.includes("office") || v.includes("comerc")) return "office";
-  if (v.includes("hotel")) return "hotel";
+  if (v.includes("comerc")) return "commercial";
+  if (v.includes("birou") || v.includes("office")) return "office";
+  if (v.includes("hotel")) return "commercial";
   return "apartment";
 }
 
