@@ -43,6 +43,7 @@ import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicato
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
 import HomedirectSyncButton from "@/components/HomedirectSyncButton";
+import { syncToHomedirect } from "@/lib/homedirect";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
@@ -81,6 +82,7 @@ const PropertiesAdmin = () => {
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
   const [publishing999, setPublishing999] = useState<string | null>(null);
+  const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -412,6 +414,66 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const sendSelectedToHomedirect = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+    const total = ids.length;
+    setIsBulkSendingHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    // Fetch current homedirect status for all selected
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const metaMap = new Map((metaRows || []).map((r: any) => [r.id, r]));
+
+    for (let i = 0; i < ids.length; i++) {
+      const propertyId = ids[i];
+      const meta: any = metaMap.get(propertyId);
+      const action: "publish" | "update" =
+        meta?.homedirect_id && meta?.homedirect_status !== "deleted" ? "update" : "publish";
+      try {
+        const result = await syncToHomedirect(propertyId, action);
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkSendingHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "HomeDirect",
+        description: `${successCount} trimise cu succes${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate pe HomeDirect`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
   const bulkToggleVisibility = async (visible: boolean) => {
     if (selectedProperties.size === 0) {
       toast({
@@ -636,7 +698,7 @@ const PropertiesAdmin = () => {
               </Label>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility) && bulkProgress.total > 0 && (
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
@@ -694,6 +756,21 @@ const PropertiesAdmin = () => {
                     )}
                     <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
                     <span className="sm:hidden">Zapier</span>
+                  </Button>
+                  {/* HomeDirect bulk action */}
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToHomedirect}
+                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
+                  >
+                    {isBulkSendingHD ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Home className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkSendingHD ? `Public...` : `Publică ${selectedProperties.size} pe HomeDirect`}</span>
+                    <span className="sm:hidden">HomeDirect</span>
                   </Button>
                 </div>
               )}
