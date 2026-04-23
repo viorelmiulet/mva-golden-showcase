@@ -104,8 +104,8 @@ Deno.serve(async (req: Request) => {
 
   // 3. Determine HomeDirect base URL
   const baseUrl = use_dev
-    ? "https://dev-api.homedirect.ro"
-    : "https://api.homedirect.ro";
+    ? "https://dev.homedirect.ro"
+    : "https://homedirect.ro";
 
   try {
     let hdResponse: Response;
