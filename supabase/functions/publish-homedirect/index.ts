@@ -331,7 +331,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const payload = buildPayload(listing);
+      const rehosted = await rehostImages(supabase, listing.images, listing_id);
+      const payload = buildPayload(listing, rehosted);
 
       const hdResponse = await fetch(`${propertiesUrl}/${listing.homedirect_id}`, {
         method: "PUT",
