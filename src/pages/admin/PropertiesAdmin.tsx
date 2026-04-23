@@ -43,6 +43,7 @@ import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicato
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
 import HomedirectSyncButton from "@/components/HomedirectSyncButton";
+import { syncToHomedirect } from "@/lib/homedirect";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
@@ -81,6 +82,7 @@ const PropertiesAdmin = () => {
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
   const [publishing999, setPublishing999] = useState<string | null>(null);
+  const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
