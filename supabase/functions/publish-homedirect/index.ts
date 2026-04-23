@@ -231,8 +231,9 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const homedirectId = hdData?.id || hdData?._id || hdData?.property?.id || hdData?.property?._id;
-      const shortId = hdData?.shortId || hdData?.short_id || hdData?.property?.shortId;
+      const hdProp = hdData?.data || hdData?.property || hdData;
+      const homedirectId = hdProp?.id || hdProp?._id;
+      const shortId = hdProp?.shortId || hdProp?.short_id;
 
       await supabase
         .from("catalog_offers")
