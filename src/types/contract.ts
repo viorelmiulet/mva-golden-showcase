@@ -89,6 +89,18 @@ export interface SavedContract {
   docx_url: string | null;
   proprietar_signed: boolean;
   chirias_signed: boolean;
+  client_is_company?: boolean | null;
+  client_company_name?: string | null;
+  client_company_cui?: string | null;
+  client_company_reg_com?: string | null;
+  client_company_sediu?: string | null;
+  client_function_title?: string | null;
+  proprietar_is_company?: boolean | null;
+  proprietar_company_name?: string | null;
+  proprietar_company_cui?: string | null;
+  proprietar_company_reg_com?: string | null;
+  proprietar_company_sediu?: string | null;
+  proprietar_function_title?: string | null;
 }
 
 export interface ContractSignature {
