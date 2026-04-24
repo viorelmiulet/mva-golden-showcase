@@ -182,7 +182,7 @@ Format:
   } catch (error) {
     console.error('Error extracting ID data:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Eroare la extragerea datelor' }),
+      JSON.stringify({ error: (error as Error).message || 'Eroare la extragerea datelor' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

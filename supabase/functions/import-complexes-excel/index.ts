@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       const authClient = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: authHeader } } });
       const token = authHeader.replace('Bearer ', '');
       try {
-        const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+        const { data: claimsData, error: claimsError } = await (authClient.auth as any).getClaims(token);
         if (!claimsError && claimsData?.claims?.sub) isAuthorized = true;
       } catch (_) {}
     }
