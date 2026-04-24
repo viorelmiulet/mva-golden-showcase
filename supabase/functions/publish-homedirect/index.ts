@@ -78,6 +78,9 @@ function buildPostData(listing: any) {
     latitude: listing.latitude != null ? String(listing.latitude) : undefined,
     longitude: listing.longitude != null ? String(listing.longitude) : undefined,
     hasLift: true,
+    hasElevator: true,
+    elevator: true,
+    lift: true,
     hasCentralHeating: true,
   };
 
