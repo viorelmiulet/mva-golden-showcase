@@ -105,13 +105,22 @@ function buildPayload(listing: any, images: string[]) {
     // HomeDirect cere images în postData (validare: "At least one image URL is required in postData.images")
     postData.images = images;
   }
+  const rawDesc =
+    listing.description || listing.descriere_lunga || listing.title || "";
+  // HomeDirect acceptă HTML în descriere. Dacă textul nu conține deja tag-uri,
+  // îl convertim la HTML simplu (paragrafe + line breaks) păstrând formatarea.
+  const hasHtml = /<[a-z][\s\S]*>/i.test(rawDesc);
+  const htmlDesc = hasHtml
+    ? rawDesc
+    : rawDesc
+        .split(/\n{2,}/)
+        .map((p: string) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
+        .join("");
+
   const payload: Record<string, unknown> = {
     postData,
     postDetail: {
-      desc:
-        listing.description ||
-        listing.descriere_lunga ||
-        listing.title,
+      desc: htmlDesc,
       size: listing.surface_min ? Math.round(Number(listing.surface_min)) : undefined,
       hasLift: true,
       hasElevator: true,
