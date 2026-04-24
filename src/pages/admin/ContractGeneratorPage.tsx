@@ -989,7 +989,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.proprietar_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
         domiciliu: contract.proprietar_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.proprietar_is_company,
+        companyName: contract.proprietar_company_name || undefined,
+        companyCui: contract.proprietar_company_cui || undefined,
+        companyRegCom: contract.proprietar_company_reg_com || undefined,
+        companySediu: contract.proprietar_company_sediu || undefined,
+        functionTitle: contract.proprietar_function_title || undefined,
       });
 
       // 2. CHIRIAS BOX
@@ -1001,7 +1007,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.client_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
         domiciliu: contract.client_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.client_is_company,
+        companyName: contract.client_company_name || undefined,
+        companyCui: contract.client_company_cui || undefined,
+        companyRegCom: contract.client_company_reg_com || undefined,
+        companySediu: contract.client_company_sediu || undefined,
+        functionTitle: contract.client_function_title || undefined,
       });
 
       // I. OBIECTUL CONTRACTULUI
@@ -1460,7 +1472,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.proprietar_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
         domiciliu: contract.proprietar_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.proprietar_is_company,
+        companyName: contract.proprietar_company_name || undefined,
+        companyCui: contract.proprietar_company_cui || undefined,
+        companyRegCom: contract.proprietar_company_reg_com || undefined,
+        companySediu: contract.proprietar_company_sediu || undefined,
+        functionTitle: contract.proprietar_function_title || undefined,
       });
 
       // 2. CHIRIAS BOX
@@ -1472,7 +1490,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.client_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
         domiciliu: contract.client_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.client_is_company,
+        companyName: contract.client_company_name || undefined,
+        companyCui: contract.client_company_cui || undefined,
+        companyRegCom: contract.client_company_reg_com || undefined,
+        companySediu: contract.client_company_sediu || undefined,
+        functionTitle: contract.client_function_title || undefined,
       });
 
       // I. OBIECTUL CONTRACTULUI
@@ -1929,7 +1953,13 @@ const ContractGeneratorPage = () => {
         emitent: contractData.proprietar.ci_emitent || '-',
         dataEmiterii: formatDateRomanianLocal(contractData.proprietar.ci_data_emiterii) || '-',
         domiciliu: contractData.proprietar.adresa,
-        cetatenie: contractData.proprietar.cetatenie || 'Romana'
+        cetatenie: contractData.proprietar.cetatenie || 'Romana',
+        isCompany: contractData.proprietar.is_company,
+        companyName: contractData.proprietar.company_name,
+        companyCui: contractData.proprietar.company_cui,
+        companyRegCom: contractData.proprietar.company_reg_com,
+        companySediu: contractData.proprietar.company_sediu,
+        functionTitle: contractData.proprietar.function_title,
       });
 
       // 2. CHIRIAS BOX
@@ -1941,7 +1971,13 @@ const ContractGeneratorPage = () => {
         emitent: contractData.chirias.ci_emitent || '-',
         dataEmiterii: formatDateRomanianLocal(contractData.chirias.ci_data_emiterii) || '-',
         domiciliu: contractData.chirias.adresa,
-        cetatenie: contractData.chirias.cetatenie || 'romana'
+        cetatenie: contractData.chirias.cetatenie || 'romana',
+        isCompany: contractData.chirias.is_company,
+        companyName: contractData.chirias.company_name,
+        companyCui: contractData.chirias.company_cui,
+        companyRegCom: contractData.chirias.company_reg_com,
+        companySediu: contractData.chirias.company_sediu,
+        functionTitle: contractData.chirias.function_title,
       });
 
       // I. OBIECTUL CONTRACTULUI
