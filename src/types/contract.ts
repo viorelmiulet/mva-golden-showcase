@@ -131,6 +131,12 @@ export const emptyPerson: PersonData = {
   ci_data_emiterii: "",
   adresa: "",
   cetatenie: "romana",
+  is_company: false,
+  company_name: "",
+  company_cui: "",
+  company_reg_com: "",
+  company_sediu: "",
+  function_title: "",
 };
 
 export const conditionLabels: Record<string, string> = {
