@@ -2436,7 +2436,7 @@ const ContractGeneratorPage = () => {
               <span className={`text-xs ${!data.is_company ? 'font-semibold' : 'text-muted-foreground'}`}>Persoană fizică</span>
               <Switch
                 checked={!!data.is_company}
-                onCheckedChange={(checked) => updateData('is_company' as keyof PersonData, checked as unknown as string)}
+                onCheckedChange={(checked) => updateData('is_company', checked)}
               />
               <span className={`text-xs ${data.is_company ? 'font-semibold' : 'text-muted-foreground'}`}>Firmă</span>
             </div>
@@ -2450,7 +2450,7 @@ const ContractGeneratorPage = () => {
                 <Label className="text-xs">Denumire firmă</Label>
                 <Input
                   value={data.company_name || ''}
-                  onChange={(e) => updateData('company_name' as keyof PersonData, e.target.value)}
+                  onChange={(e) => updateData('company_name', e.target.value)}
                   placeholder="Ex: SC Exemplu SRL"
                   className="h-9"
                 />
@@ -2460,7 +2460,7 @@ const ContractGeneratorPage = () => {
                   <Label className="text-xs">CUI</Label>
                   <Input
                     value={data.company_cui || ''}
-                    onChange={(e) => updateData('company_cui' as keyof PersonData, e.target.value)}
+                    onChange={(e) => updateData('company_cui', e.target.value)}
                     placeholder="RO12345678"
                     className="h-9"
                   />
@@ -2469,7 +2469,7 @@ const ContractGeneratorPage = () => {
                   <Label className="text-xs">Nr. Reg. Comerțului</Label>
                   <Input
                     value={data.company_reg_com || ''}
-                    onChange={(e) => updateData('company_reg_com' as keyof PersonData, e.target.value)}
+                    onChange={(e) => updateData('company_reg_com', e.target.value)}
                     placeholder="J40/1234/2020"
                     className="h-9"
                   />
@@ -2479,7 +2479,7 @@ const ContractGeneratorPage = () => {
                 <Label className="text-xs">Sediu social</Label>
                 <Textarea
                   value={data.company_sediu || ''}
-                  onChange={(e) => updateData('company_sediu' as keyof PersonData, e.target.value)}
+                  onChange={(e) => updateData('company_sediu', e.target.value)}
                   placeholder="Adresa sediului social"
                   rows={2}
                   className="text-sm"
@@ -2519,7 +2519,7 @@ const ContractGeneratorPage = () => {
               <Label className="text-xs">Funcție reprezentant</Label>
               <Input
                 value={data.function_title || ''}
-                onChange={(e) => updateData('function_title' as keyof PersonData, e.target.value)}
+                onChange={(e) => updateData('function_title', e.target.value)}
                 placeholder="Ex: Administrator"
                 className="h-9"
               />
