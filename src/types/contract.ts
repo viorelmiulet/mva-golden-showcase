@@ -84,6 +84,7 @@ export interface SavedContract {
   garantie_status: string | null;
   contract_type: string;
   contract_date: string;
+  start_date?: string | null;
   duration_months: number | null;
   pdf_url: string | null;
   docx_url: string | null;
