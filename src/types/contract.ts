@@ -131,6 +131,13 @@ export interface PartyBoxData {
   dataEmiterii: string;
   domiciliu: string;
   cetatenie: string;
+  // Company info — when provided, the box will render firma details + reprezentant legal
+  isCompany?: boolean;
+  companyName?: string;
+  companyCui?: string;
+  companyRegCom?: string;
+  companySediu?: string;
+  functionTitle?: string;
 }
 
 export const emptyPerson: PersonData = {
