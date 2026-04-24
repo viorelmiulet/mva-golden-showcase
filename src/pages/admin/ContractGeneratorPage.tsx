@@ -1892,75 +1892,16 @@ const ContractGeneratorPage = () => {
         dataEmiterii: string;
         domiciliu: string;
         cetatenie: string;
+        isCompany?: boolean;
+        companyName?: string;
+        companyCui?: string;
+        companyRegCom?: string;
+        companySediu?: string;
+        functionTitle?: string;
       }) => {
-        if (y > 200) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const boxStartY = y;
-        const lineHeight = 6;
-        const boxPadding = 5;
-        const contentWidth = textWidth - 2 * boxPadding;
-        
-        // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-        
-        // Calculate total box height
-        const boxHeight = boxPadding + (lineHeight + 2) + // title
-          lineHeight * 3 + // Nume, CNP, C.I.
-          eliberatLines.length * 5 + // Eliberat de (multi-line)
-          domiciliuLines.length * 5 + // Domiciliu (multi-line)
-          lineHeight + // Cetatenie
-          boxPadding;
-        
-        // Draw box border
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(margin, boxStartY, textWidth, boxHeight);
-        
-        y = boxStartY + boxPadding + 4;
-        
-        // Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text(replaceDiacritics(title), margin + boxPadding, y);
-        y += lineHeight + 2;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        
-        // Nume
-        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // CNP
-        doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // CI
-        doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // Eliberat de (multi-line)
-        for (let i = 0; i < eliberatLines.length; i++) {
-          doc.text(eliberatLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        // Domiciliu (may wrap)
-        for (let i = 0; i < domiciliuLines.length; i++) {
-          doc.text(domiciliuLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        // Cetatenie
-        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-        
-        y = boxStartY + boxHeight + 8;
+        const ctx = { doc, y, margin, textWidth, pageWidth };
+        sharedDrawPartyBox(ctx as any, title, data as any);
+        y = ctx.y;
       };
 
       const numCamere = parseInt(contractData.numar_camere) || 1;
