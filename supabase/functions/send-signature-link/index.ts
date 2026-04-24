@@ -194,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      alreadySigned = !!contract[signatureField];
+      alreadySigned = !!(contract as any)[signatureField];
       signatureToken = `${contractType}_${contractId}_${partyType}`;
     } else if (contractType === "exclusiv") {
       // For exclusive contracts
@@ -214,7 +214,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      alreadySigned = !!contract[signatureField];
+      alreadySigned = !!(contract as any)[signatureField];
       signatureToken = `${contractType}_${contractId}_${partyType}`;
     } else if (contractType === "intermediere") {
       // For intermediation contracts (stored in contracts table)
@@ -235,7 +235,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      alreadySigned = !!contract[signatureField];
+      alreadySigned = !!(contract as any)[signatureField];
       signatureToken = `${contractType}_${contractId}_${partyType}`;
     }
 

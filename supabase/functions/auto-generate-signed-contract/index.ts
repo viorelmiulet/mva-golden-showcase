@@ -201,7 +201,7 @@ serve(async (req) => {
     if (chiriasEmail) recipientEmails.push(chiriasEmail);
 
     // Build the signing page URL (for PDF download)
-    const proprietarToken = signatures?.find((s: any) => s.party_type === 'proprietar')?.signature_token;
+    const proprietarToken = (signatures as any[])?.find((s: any) => s.party_type === 'proprietar')?.signature_token;
     const signPageUrl = proprietarToken 
       ? `https://mvaimobiliare.ro/sign/${proprietarToken}`
       : `https://mvaimobiliare.ro/admin/contracte`;

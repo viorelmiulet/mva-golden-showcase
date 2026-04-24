@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
         bingResult = { success: bingResponse.ok, message: `Status: ${bingResponse.status}` };
       } catch (bingError) {
         console.error('Bing error:', bingError);
-        bingResult = { success: false, message: bingError.message };
+        bingResult = { success: false, message: (bingError as Error).message };
       }
     }
 
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       };
     } catch (inError) {
       console.error('IndexNow error:', inError);
-      indexNowResult = { success: false, message: inError.message };
+      indexNowResult = { success: false, message: (inError as Error).message };
     }
 
     return new Response(
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error notifying search engines:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: (error as Error).message }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

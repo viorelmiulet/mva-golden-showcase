@@ -168,7 +168,7 @@ serve(async (req) => {
           console.error(`social-auto-post: ${platform} test error:`, error);
           testResults[platform] = { 
             success: false, 
-            error: error.message 
+      error: (error as Error).message
           };
         }
       }
@@ -813,7 +813,7 @@ ${richDetails}
   } catch (error) {
     console.error('Error in social-auto-post:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: (error as Error).message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
