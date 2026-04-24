@@ -548,7 +548,7 @@ const SignContract = () => {
         
         await supabase
           .from('contracts')
-          .update({ [signedField]: true })
+          .update({ [signedField]: true } as any)
           .eq('id', contractId);
 
         // Also create/update signature entry
