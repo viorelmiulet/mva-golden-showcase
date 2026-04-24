@@ -107,10 +107,9 @@ function buildPayload(listing: any, images: string[]) {
   }
   const rawDesc =
     listing.description || listing.descriere_lunga || listing.title || "";
-  // HomeDirect acceptă HTML în descriere. Dacă textul nu conține deja tag-uri,
-  // îl convertim la HTML simplu (paragrafe + line breaks) păstrând formatarea.
-  // Normalize: convert <br> to newlines, strip all HTML tags, then wrap each
-  // non-empty line as a <p> paragraph. No <br> tags in the output.
+  // Normalizare descriere: convertește <br> și </p> în newline, elimină
+  // restul tag-urilor HTML, apoi împachetează fiecare linie în <p>. Nu emitem
+  // niciodată <br> în payload-ul către HomeDirect.
   const normalized = rawDesc
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n")
