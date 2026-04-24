@@ -53,7 +53,7 @@ import {
   createPdfContext,
   addSectionTitle,
   addParagraph,
-  drawPartyBox,
+  drawPartyBox as sharedDrawPartyBox,
   addSignatureSection,
   addInventoryTable,
   addPageFooter
