@@ -1932,9 +1932,7 @@ const ContractGeneratorPage = () => {
 
       const formatDateRomanianLocal = (dateStr: string | null | undefined) => {
         if (!dateStr) return "-";
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr || "-";
-        return format(date, "dd.MM.yyyy", { locale: ro });
+        return formatDateRomanian(dateStr) || "-";
       };
 
       // Helper function to add section title (bold, blue)
