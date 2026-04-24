@@ -797,6 +797,7 @@ export type Database = {
           proprietar_prenume: string | null
           proprietar_seria_ci: string | null
           proprietar_signed: boolean | null
+          start_date: string | null
         }
         Insert: {
           advance_percent?: string | null
@@ -845,6 +846,7 @@ export type Database = {
           proprietar_prenume?: string | null
           proprietar_seria_ci?: string | null
           proprietar_signed?: boolean | null
+          start_date?: string | null
         }
         Update: {
           advance_percent?: string | null
@@ -893,6 +895,7 @@ export type Database = {
           proprietar_prenume?: string | null
           proprietar_seria_ci?: string | null
           proprietar_signed?: boolean | null
+          start_date?: string | null
         }
         Relationships: []
       }
