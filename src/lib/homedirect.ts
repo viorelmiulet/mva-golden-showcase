@@ -15,7 +15,7 @@ export interface HDResult {
 export async function syncToHomedirect(
   listingId: string,
   action: HDAction,
-  useDev = true
+  useDev = false
 ): Promise<HDResult> {
   const res = await fetch(
     `${SUPABASE_URL}/functions/v1/publish-homedirect`,
