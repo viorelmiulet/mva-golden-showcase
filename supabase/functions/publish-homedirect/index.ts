@@ -111,7 +111,7 @@ function buildPayload(listing: any, images: string[]) {
   // îl convertim la HTML simplu (paragrafe + line breaks) păstrând formatarea.
   const hasHtml = /<[a-z][\s\S]*>/i.test(rawDesc);
   const htmlDesc = hasHtml
-    ? rawDesc
+    ? rawDesc.replace(/<br\s*\/?>/gi, "\n")
     : rawDesc
         .split(/\n+/)
         .map((p: string) => p.trim())
