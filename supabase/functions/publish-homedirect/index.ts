@@ -77,6 +77,8 @@ function buildPostData(listing: any) {
     property: mapPropertyType(listing.property_type),
     latitude: listing.latitude != null ? String(listing.latitude) : undefined,
     longitude: listing.longitude != null ? String(listing.longitude) : undefined,
+    hasLift: true,
+    hasCentralHeating: true,
   };
 
   if (listing.zone) postData.district = listing.zone;
