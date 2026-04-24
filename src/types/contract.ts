@@ -33,6 +33,13 @@ export interface PersonData {
   ci_data_emiterii: string;
   adresa: string;
   cetatenie: string;
+  // Company entity (optional). When is_company=true, the fields above represent the legal representative.
+  is_company?: boolean;
+  company_name?: string;
+  company_cui?: string;
+  company_reg_com?: string;
+  company_sediu?: string;
+  function_title?: string; // funcția reprezentantului legal
 }
 
 export interface ContractData {
