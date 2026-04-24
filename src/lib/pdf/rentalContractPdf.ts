@@ -189,8 +189,18 @@ export const generateRentalContractPdf = async (options: GeneratePdfOptions): Pr
   // Signature section
   addSignatureSection(
     ctx,
-    `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
-    `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
+    {
+      name: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
+      isCompany: !!contractData.proprietar.is_company,
+      companyName: contractData.proprietar.company_name,
+      functionTitle: contractData.proprietar.function_title,
+    },
+    {
+      name: `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
+      isCompany: !!contractData.chirias.is_company,
+      companyName: contractData.chirias.company_name,
+      functionTitle: contractData.chirias.function_title,
+    },
     contractData.semnatura_proprietar,
     contractData.semnatura_chirias
   );
