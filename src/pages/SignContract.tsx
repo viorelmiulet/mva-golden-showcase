@@ -523,7 +523,7 @@ const SignContract = () => {
             [signatureField]: signatureDataUrl,
             [signedAtField]: now,
             status: 'signed'
-          })
+          } as any)
           .eq('id', contractId);
 
         // Send notification
@@ -538,7 +538,7 @@ const SignContract = () => {
             [signatureField]: signatureDataUrl,
             [signedAtField]: now,
             status: 'signed'
-          })
+          } as any)
           .eq('id', contractId);
 
         // Send notification
@@ -548,7 +548,7 @@ const SignContract = () => {
         
         await supabase
           .from('contracts')
-          .update({ [signedField]: true })
+          .update({ [signedField]: true } as any)
           .eq('id', contractId);
 
         // Also create/update signature entry
