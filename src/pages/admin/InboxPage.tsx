@@ -1526,9 +1526,53 @@ ${originalBody}`;
                 </p>
               </div>
             )}
+
+            {replyAttachments.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {replyAttachments.map((file, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="secondary"
+                    className="flex items-center gap-1 py-0.5 px-2 bg-muted/30 text-xs"
+                  >
+                    <Paperclip className="h-3 w-3" />
+                    <span className="max-w-[140px] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyAttachments(prev => prev.filter((_, i) => i !== idx))}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 w-full sm:w-auto sm:mr-auto">
+              <input
+                ref={replyFileInputRef}
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setReplyAttachments(prev => [...prev, ...Array.from(e.target.files!)]);
+                  }
+                  e.target.value = '';
+                }}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => replyFileInputRef.current?.click()}
+              >
+                <Paperclip className="h-4 w-4 mr-2" />
+                Atașează
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => setReplyDialogOpen(false)}>
               Anulează
             </Button>
