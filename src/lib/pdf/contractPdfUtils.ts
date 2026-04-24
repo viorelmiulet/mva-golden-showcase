@@ -2,16 +2,35 @@ import jsPDF from 'jspdf';
 import { replaceDiacritics } from '@/lib/utils';
 import type { PartyBoxData, InventoryItem } from '@/types/contract';
 
-// Helper function to format dates as DD.MM.YYYY
+// Helper function to format dates as DD.MM.YYYY (timezone-safe)
 export const formatDateRomanian = (dateString: string | null | undefined): string => {
   if (!dateString) return '';
   try {
+    // Already in DD.MM.YYYY format
     if (dateString.includes('.')) return dateString;
+
+    // ISO format YYYY-MM-DD — parse manually to avoid timezone shifts
+    const iso = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) {
+      return `${iso[3]}.${iso[2]}.${iso[1]}`;
+    }
+
+    // DD/MM/YYYY or DD-MM-YYYY
+    const dmy = dateString.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (dmy) {
+      const day = dmy[1].padStart(2, '0');
+      const month = dmy[2].padStart(2, '0');
+      let year = dmy[3];
+      if (year.length === 2) year = `20${year}`;
+      return `${day}.${month}.${year}`;
+    }
+
+    // Fallback — use UTC getters to avoid TZ shift
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
     return `${day}.${month}.${year}`;
   } catch {
     return dateString;
