@@ -85,6 +85,8 @@ const PropertiesAdmin = () => {
   const [publishing999, setPublishing999] = useState<string | null>(null);
   const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
   const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
+  const [isBulkDeletingHD, setIsBulkDeletingHD] = useState(false);
+  const [confirmBulkDeleteHD, setConfirmBulkDeleteHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
