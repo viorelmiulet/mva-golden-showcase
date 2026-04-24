@@ -933,6 +933,46 @@ const PropertiesAdmin = () => {
                     <span className="hidden sm:inline">{isBulkResyncingImages ? `Re-sync...` : `Re-sync imagini HD`}</span>
                     <span className="sm:hidden">Imagini HD</span>
                   </Button>
+                  {/* Retragere bulk de pe HomeDirect */}
+                  {!confirmBulkDeleteHD ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConfirmBulkDeleteHD(true)}
+                      disabled={isBulkDeletingHD || isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                      title="Retrage anunțurile selectate de pe HomeDirect"
+                      className="border-red-500/40 text-red-600 hover:bg-red-500/10 h-8 text-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                      <span className="hidden sm:inline">Retrage de pe HD</span>
+                      <span className="sm:hidden">Retrage HD</span>
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmBulkDeleteHD(false)}
+                        disabled={isBulkDeletingHD}
+                        className="h-8 text-xs"
+                      >
+                        Anulează
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={deleteSelectedFromHomedirect}
+                        disabled={isBulkDeletingHD}
+                        className="bg-red-600 hover:bg-red-500 text-white h-8 text-xs"
+                      >
+                        {isBulkDeletingHD ? (
+                          <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                        )}
+                        {isBulkDeletingHD ? `Retrag...` : `Confirmă retragerea ${selectedProperties.size}`}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
