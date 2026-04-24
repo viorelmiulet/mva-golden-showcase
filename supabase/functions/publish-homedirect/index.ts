@@ -288,7 +288,7 @@ Deno.serve(async (req: Request) => {
   // 3. Determine HomeDirect API base URL (CRM v1)
   const apiBaseUrl = use_dev
     ? "https://dev.homedirect.ro/api/crm/v1"
-    : "https://homedirect.ro/api/crm/v1";
+    : "https://www.homedirect.ro/api/crm/v1";
   const propertiesUrl = `${apiBaseUrl}/properties`;
 
   const hdHeaders = {
