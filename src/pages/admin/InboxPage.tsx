@@ -87,6 +87,8 @@ const InboxPage = () => {
   const [replyTo, setReplyTo] = useState("");
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
+  const [replyAttachments, setReplyAttachments] = useState<File[]>([]);
+  const replyFileInputRef = useRef<HTMLInputElement>(null);
   
   // Forward state
   const [forwardDialogOpen, setForwardDialogOpen] = useState(false);
@@ -631,15 +633,16 @@ const InboxPage = () => {
   };
 
   const sendReplyMutation = useMutation({
-    mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress }: { 
+    mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress, attachments }: { 
       to: string; 
       subject: string; 
       body: string; 
       inReplyTo?: string;
       replyFromAddress?: string;
+      attachments?: Array<{ filename: string; content: string; contentType: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress }
+        body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress, attachments: attachments || [] }
       });
       if (error) throw error;
       return data;
@@ -648,6 +651,7 @@ const InboxPage = () => {
       toast.success('Răspunsul a fost trimis!');
       setReplyDialogOpen(false);
       setReplyBody("");
+      setReplyAttachments([]);
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
@@ -785,6 +789,7 @@ const InboxPage = () => {
     setReplyTo(senderEmail);
     setReplySubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject || ''}`);
     setReplyBody("");
+    setReplyAttachments([]);
     setReplyDialogOpen(true);
   };
 
@@ -817,18 +822,27 @@ ${originalBody}`;
     setForwardDialogOpen(true);
   };
 
-  const handleSendReply = () => {
+  const handleSendReply = async () => {
     if (!replyTo || !replyBody.trim()) {
       toast.error('Completează destinatarul și mesajul');
       return;
     }
+    
+    const attachmentsData = await Promise.all(
+      replyAttachments.map(async (file) => ({
+        filename: file.name,
+        content: await fileToBase64(file),
+        contentType: file.type || 'application/octet-stream',
+      }))
+    );
     
     sendReplyMutation.mutate({
       to: replyTo,
       subject: replySubject,
       body: replyBody,
       inReplyTo: selectedEmail?.message_id || undefined,
-      replyFromAddress: selectedEmail?.recipient || undefined
+      replyFromAddress: selectedEmail?.recipient || undefined,
+      attachments: attachmentsData,
     });
   };
 
@@ -1512,9 +1526,53 @@ ${originalBody}`;
                 </p>
               </div>
             )}
+
+            {replyAttachments.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {replyAttachments.map((file, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="secondary"
+                    className="flex items-center gap-1 py-0.5 px-2 bg-muted/30 text-xs"
+                  >
+                    <Paperclip className="h-3 w-3" />
+                    <span className="max-w-[140px] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyAttachments(prev => prev.filter((_, i) => i !== idx))}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 w-full sm:w-auto sm:mr-auto">
+              <input
+                ref={replyFileInputRef}
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setReplyAttachments(prev => [...prev, ...Array.from(e.target.files!)]);
+                  }
+                  e.target.value = '';
+                }}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => replyFileInputRef.current?.click()}
+              >
+                <Paperclip className="h-4 w-4 mr-2" />
+                Atașează
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => setReplyDialogOpen(false)}>
               Anulează
             </Button>
