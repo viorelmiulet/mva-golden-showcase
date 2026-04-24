@@ -822,18 +822,27 @@ ${originalBody}`;
     setForwardDialogOpen(true);
   };
 
-  const handleSendReply = () => {
+  const handleSendReply = async () => {
     if (!replyTo || !replyBody.trim()) {
       toast.error('Completează destinatarul și mesajul');
       return;
     }
+    
+    const attachmentsData = await Promise.all(
+      replyAttachments.map(async (file) => ({
+        filename: file.name,
+        content: await fileToBase64(file),
+        contentType: file.type || 'application/octet-stream',
+      }))
+    );
     
     sendReplyMutation.mutate({
       to: replyTo,
       subject: replySubject,
       body: replyBody,
       inReplyTo: selectedEmail?.message_id || undefined,
-      replyFromAddress: selectedEmail?.recipient || undefined
+      replyFromAddress: selectedEmail?.recipient || undefined,
+      attachments: attachmentsData,
     });
   };
 
