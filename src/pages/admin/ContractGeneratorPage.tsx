@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -52,7 +53,7 @@ import {
   createPdfContext,
   addSectionTitle,
   addParagraph,
-  drawPartyBox,
+  drawPartyBox as sharedDrawPartyBox,
   addSignatureSection,
   addInventoryTable,
   addPageFooter
@@ -306,7 +307,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, client_ci_emitent, client_ci_data_emiterii, proprietar_name, proprietar_prenume, proprietar_cnp, proprietar_seria_ci, proprietar_numar_ci, proprietar_adresa, proprietar_ci_emitent, proprietar_ci_data_emiterii, property_address, property_price, property_currency, garantie_amount, garantie_status, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -453,6 +454,18 @@ const ContractGeneratorPage = () => {
         proprietar_adresa: contractData.proprietar.adresa || null,
         proprietar_ci_emitent: contractData.proprietar.ci_emitent || null,
         proprietar_ci_data_emiterii: contractData.proprietar.ci_data_emiterii || null,
+        client_is_company: !!contractData.chirias.is_company,
+        client_company_name: contractData.chirias.company_name || null,
+        client_company_cui: contractData.chirias.company_cui || null,
+        client_company_reg_com: contractData.chirias.company_reg_com || null,
+        client_company_sediu: contractData.chirias.company_sediu || null,
+        client_function_title: contractData.chirias.function_title || null,
+        proprietar_is_company: !!contractData.proprietar.is_company,
+        proprietar_company_name: contractData.proprietar.company_name || null,
+        proprietar_company_cui: contractData.proprietar.company_cui || null,
+        proprietar_company_reg_com: contractData.proprietar.company_reg_com || null,
+        proprietar_company_sediu: contractData.proprietar.company_sediu || null,
+        proprietar_function_title: contractData.proprietar.function_title || null,
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
         property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
@@ -936,68 +949,16 @@ const ContractGeneratorPage = () => {
         dataEmiterii: string;
         domiciliu: string;
         cetatenie: string;
+        isCompany?: boolean;
+        companyName?: string;
+        companyCui?: string;
+        companyRegCom?: string;
+        companySediu?: string;
+        functionTitle?: string;
       }) => {
-        if (y > 200) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const boxStartY = y;
-        const lineHeight = 6;
-        const boxPadding = 5;
-        const initialOffset = 4;
-        const contentWidth = textWidth - 2 * boxPadding;
-        
-        // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-        
-        // Calculate total box height correctly
-        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
-          lineHeight * 3 +
-          eliberatLines.length * 5 +
-          domiciliuLines.length * 5 +
-          lineHeight +
-          boxPadding;
-        
-        // Draw box border
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(margin, boxStartY, textWidth, boxHeight);
-        
-        y = boxStartY + boxPadding + initialOffset;
-        
-        // Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text(replaceDiacritics(title), margin + boxPadding, y);
-        y += lineHeight + 2;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        
-        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        for (let i = 0; i < eliberatLines.length; i++) {
-          doc.text(eliberatLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        for (let i = 0; i < domiciliuLines.length; i++) {
-          doc.text(domiciliuLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-        
-        y = boxStartY + boxHeight + 8;
+        const ctx = { doc, y, margin, textWidth, pageWidth };
+        sharedDrawPartyBox(ctx as any, title, data as any);
+        y = ctx.y;
       };
 
       const moneda = contract.property_currency || 'EUR';
@@ -1028,7 +989,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.proprietar_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
         domiciliu: contract.proprietar_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.proprietar_is_company,
+        companyName: contract.proprietar_company_name || undefined,
+        companyCui: contract.proprietar_company_cui || undefined,
+        companyRegCom: contract.proprietar_company_reg_com || undefined,
+        companySediu: contract.proprietar_company_sediu || undefined,
+        functionTitle: contract.proprietar_function_title || undefined,
       });
 
       // 2. CHIRIAS BOX
@@ -1040,7 +1007,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.client_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
         domiciliu: contract.client_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.client_is_company,
+        companyName: contract.client_company_name || undefined,
+        companyCui: contract.client_company_cui || undefined,
+        companyRegCom: contract.client_company_reg_com || undefined,
+        companySediu: contract.client_company_sediu || undefined,
+        functionTitle: contract.client_function_title || undefined,
       });
 
       // I. OBIECTUL CONTRACTULUI
@@ -1459,66 +1432,16 @@ const ContractGeneratorPage = () => {
         dataEmiterii: string;
         domiciliu: string;
         cetatenie: string;
+        isCompany?: boolean;
+        companyName?: string;
+        companyCui?: string;
+        companyRegCom?: string;
+        companySediu?: string;
+        functionTitle?: string;
       }) => {
-        if (y > 200) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const boxStartY = y;
-        const lineHeight = 6;
-        const boxPadding = 5;
-        const initialOffset = 4;
-        const contentWidth = textWidth - 2 * boxPadding;
-        
-        // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-        
-        // Calculate total box height correctly
-        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
-          lineHeight * 3 +
-          eliberatLines.length * 5 +
-          domiciliuLines.length * 5 +
-          lineHeight +
-          boxPadding;
-        
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(margin, boxStartY, textWidth, boxHeight);
-        
-        y = boxStartY + boxPadding + initialOffset;
-        
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text(replaceDiacritics(title), margin + boxPadding, y);
-        y += lineHeight + 2;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        
-        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        for (let i = 0; i < eliberatLines.length; i++) {
-          doc.text(eliberatLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        for (let i = 0; i < domiciliuLines.length; i++) {
-          doc.text(domiciliuLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-        
-        y = boxStartY + boxHeight + 8;
+        const ctx = { doc, y, margin, textWidth, pageWidth };
+        sharedDrawPartyBox(ctx as any, title, data as any);
+        y = ctx.y;
       };
 
       const moneda = contract.property_currency || 'EUR';
@@ -1549,7 +1472,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.proprietar_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
         domiciliu: contract.proprietar_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.proprietar_is_company,
+        companyName: contract.proprietar_company_name || undefined,
+        companyCui: contract.proprietar_company_cui || undefined,
+        companyRegCom: contract.proprietar_company_reg_com || undefined,
+        companySediu: contract.proprietar_company_sediu || undefined,
+        functionTitle: contract.proprietar_function_title || undefined,
       });
 
       // 2. CHIRIAS BOX
@@ -1561,7 +1490,13 @@ const ContractGeneratorPage = () => {
         emitent: contract.client_ci_emitent || '-',
         dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
         domiciliu: contract.client_adresa || '-',
-        cetatenie: 'Romana'
+        cetatenie: 'Romana',
+        isCompany: !!contract.client_is_company,
+        companyName: contract.client_company_name || undefined,
+        companyCui: contract.client_company_cui || undefined,
+        companyRegCom: contract.client_company_reg_com || undefined,
+        companySediu: contract.client_company_sediu || undefined,
+        functionTitle: contract.client_function_title || undefined,
       });
 
       // I. OBIECTUL CONTRACTULUI
@@ -1981,75 +1916,16 @@ const ContractGeneratorPage = () => {
         dataEmiterii: string;
         domiciliu: string;
         cetatenie: string;
+        isCompany?: boolean;
+        companyName?: string;
+        companyCui?: string;
+        companyRegCom?: string;
+        companySediu?: string;
+        functionTitle?: string;
       }) => {
-        if (y > 200) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const boxStartY = y;
-        const lineHeight = 6;
-        const boxPadding = 5;
-        const contentWidth = textWidth - 2 * boxPadding;
-        
-        // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-        
-        // Calculate total box height
-        const boxHeight = boxPadding + (lineHeight + 2) + // title
-          lineHeight * 3 + // Nume, CNP, C.I.
-          eliberatLines.length * 5 + // Eliberat de (multi-line)
-          domiciliuLines.length * 5 + // Domiciliu (multi-line)
-          lineHeight + // Cetatenie
-          boxPadding;
-        
-        // Draw box border
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(margin, boxStartY, textWidth, boxHeight);
-        
-        y = boxStartY + boxPadding + 4;
-        
-        // Title
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text(replaceDiacritics(title), margin + boxPadding, y);
-        y += lineHeight + 2;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        
-        // Nume
-        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // CNP
-        doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // CI
-        doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        // Eliberat de (multi-line)
-        for (let i = 0; i < eliberatLines.length; i++) {
-          doc.text(eliberatLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        // Domiciliu (may wrap)
-        for (let i = 0; i < domiciliuLines.length; i++) {
-          doc.text(domiciliuLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        // Cetatenie
-        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-        
-        y = boxStartY + boxHeight + 8;
+        const ctx = { doc, y, margin, textWidth, pageWidth };
+        sharedDrawPartyBox(ctx as any, title, data as any);
+        y = ctx.y;
       };
 
       const numCamere = parseInt(contractData.numar_camere) || 1;
@@ -2077,7 +1953,13 @@ const ContractGeneratorPage = () => {
         emitent: contractData.proprietar.ci_emitent || '-',
         dataEmiterii: formatDateRomanianLocal(contractData.proprietar.ci_data_emiterii) || '-',
         domiciliu: contractData.proprietar.adresa,
-        cetatenie: contractData.proprietar.cetatenie || 'Romana'
+        cetatenie: contractData.proprietar.cetatenie || 'Romana',
+        isCompany: contractData.proprietar.is_company,
+        companyName: contractData.proprietar.company_name,
+        companyCui: contractData.proprietar.company_cui,
+        companyRegCom: contractData.proprietar.company_reg_com,
+        companySediu: contractData.proprietar.company_sediu,
+        functionTitle: contractData.proprietar.function_title,
       });
 
       // 2. CHIRIAS BOX
@@ -2089,7 +1971,13 @@ const ContractGeneratorPage = () => {
         emitent: contractData.chirias.ci_emitent || '-',
         dataEmiterii: formatDateRomanianLocal(contractData.chirias.ci_data_emiterii) || '-',
         domiciliu: contractData.chirias.adresa,
-        cetatenie: contractData.chirias.cetatenie || 'romana'
+        cetatenie: contractData.chirias.cetatenie || 'romana',
+        isCompany: contractData.chirias.is_company,
+        companyName: contractData.chirias.company_name,
+        companyCui: contractData.chirias.company_cui,
+        companyRegCom: contractData.chirias.company_reg_com,
+        companySediu: contractData.chirias.company_sediu,
+        functionTitle: contractData.chirias.function_title,
       });
 
       // I. OBIECTUL CONTRACTULUI
@@ -2412,7 +2300,7 @@ const ContractGeneratorPage = () => {
     icon: React.ReactNode
   ) => {
     const data = contractData[type];
-    const updateData = (field: keyof PersonData, value: string) => {
+    const updateData = (field: keyof PersonData, value: string | boolean) => {
       setContractData(prev => ({
         ...prev,
         [type]: { ...prev[type], [field]: value }
@@ -2428,6 +2316,70 @@ const ContractGeneratorPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {/* Tip parte: persoană fizică sau firmă */}
+          <div className="flex items-center justify-between rounded-md border p-2 bg-muted/30">
+            <Label className="text-xs font-medium">Tip parte contractuală</Label>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs ${!data.is_company ? 'font-semibold' : 'text-muted-foreground'}`}>Persoană fizică</span>
+              <Switch
+                checked={!!data.is_company}
+                onCheckedChange={(checked) => updateData('is_company', checked)}
+              />
+              <span className={`text-xs ${data.is_company ? 'font-semibold' : 'text-muted-foreground'}`}>Firmă</span>
+            </div>
+          </div>
+
+          {/* Date firmă (când e firmă) */}
+          {data.is_company && (
+            <div className="space-y-3 rounded-md border border-dashed p-3 bg-muted/20">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date firmă</div>
+              <div className="space-y-1">
+                <Label className="text-xs">Denumire firmă</Label>
+                <Input
+                  value={data.company_name || ''}
+                  onChange={(e) => updateData('company_name', e.target.value)}
+                  placeholder="Ex: SC Exemplu SRL"
+                  className="h-9"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">CUI</Label>
+                  <Input
+                    value={data.company_cui || ''}
+                    onChange={(e) => updateData('company_cui', e.target.value)}
+                    placeholder="RO12345678"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Nr. Reg. Comerțului</Label>
+                  <Input
+                    value={data.company_reg_com || ''}
+                    onChange={(e) => updateData('company_reg_com', e.target.value)}
+                    placeholder="J40/1234/2020"
+                    className="h-9"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Sediu social</Label>
+                <Textarea
+                  value={data.company_sediu || ''}
+                  onChange={(e) => updateData('company_sediu', e.target.value)}
+                  placeholder="Adresa sediului social"
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Date persoană fizică / reprezentant legal */}
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            {data.is_company ? 'Reprezentant legal' : 'Date personale'}
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Prenume</Label>
@@ -2448,6 +2400,18 @@ const ContractGeneratorPage = () => {
               />
             </div>
           </div>
+
+          {data.is_company && (
+            <div className="space-y-1">
+              <Label className="text-xs">Funcție reprezentant</Label>
+              <Input
+                value={data.function_title || ''}
+                onChange={(e) => updateData('function_title', e.target.value)}
+                placeholder="Ex: Administrator"
+                className="h-9"
+              />
+            </div>
+          )}
 
           <div className="space-y-1">
             <Label className="text-xs">CNP</Label>
@@ -2503,7 +2467,7 @@ const ContractGeneratorPage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Adresa</Label>
+              <Label className="text-xs">{data.is_company ? 'Adresa reprezentant' : 'Adresa'}</Label>
               <Textarea
                 value={data.adresa}
                 onChange={(e) => updateData('adresa', e.target.value)}

@@ -140,26 +140,38 @@ export const generateRentalContractPdf = async (options: GeneratePdfOptions): Pr
 
   // 1. PROPRIETAR BOX
   drawPartyBox(ctx, "1. PROPRIETAR (LOCATOR):", {
-    nume: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
+    nume: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`.trim(),
     cnp: contractData.proprietar.cnp,
     seria: contractData.proprietar.seria_ci,
     numar: contractData.proprietar.numar_ci,
     emitent: contractData.proprietar.ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contractData.proprietar.ci_data_emiterii) || '-',
     domiciliu: contractData.proprietar.adresa,
-    cetatenie: contractData.proprietar.cetatenie || 'Romana'
+    cetatenie: contractData.proprietar.cetatenie || 'Romana',
+    isCompany: contractData.proprietar.is_company,
+    companyName: contractData.proprietar.company_name,
+    companyCui: contractData.proprietar.company_cui,
+    companyRegCom: contractData.proprietar.company_reg_com,
+    companySediu: contractData.proprietar.company_sediu,
+    functionTitle: contractData.proprietar.function_title,
   });
 
   // 2. CHIRIAS BOX
   drawPartyBox(ctx, "2. CHIRIAS (LOCATAR):", {
-    nume: `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
+    nume: `${contractData.chirias.prenume} ${contractData.chirias.nume}`.trim(),
     cnp: contractData.chirias.cnp,
     seria: contractData.chirias.seria_ci,
     numar: contractData.chirias.numar_ci,
     emitent: contractData.chirias.ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contractData.chirias.ci_data_emiterii) || '-',
     domiciliu: contractData.chirias.adresa,
-    cetatenie: contractData.chirias.cetatenie || 'romana'
+    cetatenie: contractData.chirias.cetatenie || 'romana',
+    isCompany: contractData.chirias.is_company,
+    companyName: contractData.chirias.company_name,
+    companyCui: contractData.chirias.company_cui,
+    companyRegCom: contractData.chirias.company_reg_com,
+    companySediu: contractData.chirias.company_sediu,
+    functionTitle: contractData.chirias.function_title,
   });
 
   // Add contract sections
@@ -237,26 +249,38 @@ export const generateSignedRentalContractPdf = async (options: GenerateSignedPdf
 
   // 1. PROPRIETAR BOX
   drawPartyBox(ctx, "1. PROPRIETAR (LOCATOR):", {
-    nume: `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}`,
+    nume: `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}`.trim(),
     cnp: contract.proprietar_cnp || '-',
     seria: contract.proprietar_seria_ci || '-',
     numar: contract.proprietar_numar_ci || '-',
     emitent: contract.proprietar_ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
     domiciliu: contract.proprietar_adresa || '-',
-    cetatenie: 'Romana'
+    cetatenie: 'Romana',
+    isCompany: !!contract.proprietar_is_company,
+    companyName: contract.proprietar_company_name || undefined,
+    companyCui: contract.proprietar_company_cui || undefined,
+    companyRegCom: contract.proprietar_company_reg_com || undefined,
+    companySediu: contract.proprietar_company_sediu || undefined,
+    functionTitle: contract.proprietar_function_title || undefined,
   });
 
   // 2. CHIRIAS BOX
   drawPartyBox(ctx, "2. CHIRIAS (LOCATAR):", {
-    nume: `${contract.client_prenume || ''} ${contract.client_name}`,
+    nume: `${contract.client_prenume || ''} ${contract.client_name}`.trim(),
     cnp: contract.client_cnp || '-',
     seria: contract.client_seria_ci || '-',
     numar: contract.client_numar_ci || '-',
     emitent: contract.client_ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
     domiciliu: contract.client_adresa || '-',
-    cetatenie: 'Romana'
+    cetatenie: 'Romana',
+    isCompany: !!contract.client_is_company,
+    companyName: contract.client_company_name || undefined,
+    companyCui: contract.client_company_cui || undefined,
+    companyRegCom: contract.client_company_reg_com || undefined,
+    companySediu: contract.client_company_sediu || undefined,
+    functionTitle: contract.client_function_title || undefined,
   });
 
   // Add contract sections

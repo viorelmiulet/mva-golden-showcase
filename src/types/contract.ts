@@ -33,6 +33,13 @@ export interface PersonData {
   ci_data_emiterii: string;
   adresa: string;
   cetatenie: string;
+  // Company entity (optional). When is_company=true, the fields above represent the legal representative.
+  is_company?: boolean;
+  company_name?: string;
+  company_cui?: string;
+  company_reg_com?: string;
+  company_sediu?: string;
+  function_title?: string; // funcția reprezentantului legal
 }
 
 export interface ContractData {
@@ -82,6 +89,18 @@ export interface SavedContract {
   docx_url: string | null;
   proprietar_signed: boolean;
   chirias_signed: boolean;
+  client_is_company?: boolean | null;
+  client_company_name?: string | null;
+  client_company_cui?: string | null;
+  client_company_reg_com?: string | null;
+  client_company_sediu?: string | null;
+  client_function_title?: string | null;
+  proprietar_is_company?: boolean | null;
+  proprietar_company_name?: string | null;
+  proprietar_company_cui?: string | null;
+  proprietar_company_reg_com?: string | null;
+  proprietar_company_sediu?: string | null;
+  proprietar_function_title?: string | null;
 }
 
 export interface ContractSignature {
@@ -112,6 +131,13 @@ export interface PartyBoxData {
   dataEmiterii: string;
   domiciliu: string;
   cetatenie: string;
+  // Company info — when provided, the box will render firma details + reprezentant legal
+  isCompany?: boolean;
+  companyName?: string;
+  companyCui?: string;
+  companyRegCom?: string;
+  companySediu?: string;
+  functionTitle?: string;
 }
 
 export const emptyPerson: PersonData = {
@@ -124,6 +150,12 @@ export const emptyPerson: PersonData = {
   ci_data_emiterii: "",
   adresa: "",
   cetatenie: "romana",
+  is_company: false,
+  company_name: "",
+  company_cui: "",
+  company_reg_com: "",
+  company_sediu: "",
+  function_title: "",
 };
 
 export const conditionLabels: Record<string, string> = {
