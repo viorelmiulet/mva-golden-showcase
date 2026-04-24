@@ -789,6 +789,7 @@ const InboxPage = () => {
     setReplyTo(senderEmail);
     setReplySubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject || ''}`);
     setReplyBody("");
+    setReplyAttachments([]);
     setReplyDialogOpen(true);
   };
 
