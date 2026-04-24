@@ -142,7 +142,7 @@ serve(async (req) => {
     console.error('Error fetching Plausible analytics:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: (error as Error).message,
         details: 'Failed to fetch analytics data from Plausible'
       }),
       {
