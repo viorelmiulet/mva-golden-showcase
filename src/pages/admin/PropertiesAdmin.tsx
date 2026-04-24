@@ -907,6 +907,47 @@ const PropertiesAdmin = () => {
               <Label htmlFor="select-all" className="text-sm cursor-pointer">
                 Selectează toate ({selectedProperties.size}/{properties.length})
               </Label>
+              {/* Resincronizare TOATE anunțurile publicate pe HomeDirect (independent de selecție) */}
+              {!confirmResyncAllHD ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setConfirmResyncAllHD(true)}
+                  disabled={isResyncingAllHD || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD}
+                  title="Trimite update către HomeDirect pentru toate anunțurile publicate"
+                  className="border-orange-500/40 text-orange-600 hover:bg-orange-500/10 h-8 text-xs"
+                >
+                  {isResyncingAllHD ? (
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isResyncingAllHD
+                      ? `Resync ${bulkProgress.current}/${bulkProgress.total}...`
+                      : "Resync TOATE pe HomeDirect"}
+                  </span>
+                  <span className="sm:hidden">Resync TOATE</span>
+                </Button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setConfirmResyncAllHD(false)}
+                    className="h-8 text-xs"
+                  >
+                    Anulează
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={resyncAllHomedirect}
+                    className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
+                  >
+                    Confirmă resync TOATE
+                  </Button>
+                </div>
+              )}
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
                   {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD) && bulkProgress.total > 0 && (
