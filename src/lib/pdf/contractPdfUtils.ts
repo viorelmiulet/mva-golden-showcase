@@ -105,8 +105,7 @@ export const drawPartyBox = (ctx: PdfContext, title: string, data: PartyBoxData)
 
   if (data.isCompany) {
     pushWrapped(`Denumire: ${data.companyName || '-'}`, true);
-    pushWrapped(`CUI: ${data.companyCui || '-'}`);
-    pushWrapped(`Nr. Reg. Com.: ${data.companyRegCom || '-'}`);
+    pushWrapped(`CUI: ${data.companyCui || '-'} | Nr. Reg. Com.: ${data.companyRegCom || '-'}`);
     pushWrapped(`Sediu social: ${data.companySediu || '-'}`);
     lines.push({ text: '', gap: 2 });
     pushWrapped('Reprezentata legal prin:', true);
@@ -116,6 +115,7 @@ export const drawPartyBox = (ctx: PdfContext, title: string, data: PartyBoxData)
     pushWrapped(`Eliberat de: ${data.emitent || '-'} la data de ${data.dataEmiterii || '-'}`);
     pushWrapped(`Domiciliu: ${data.domiciliu || '-'}`);
     pushWrapped(`Cetatenie: ${data.cetatenie || '-'}`);
+
   } else {
     pushWrapped(`Nume: ${data.nume}`);
     pushWrapped(`CNP: ${data.cnp}`);
