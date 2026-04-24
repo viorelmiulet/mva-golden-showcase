@@ -69,7 +69,10 @@ function buildPostData(listing: any) {
   const postData: Record<string, unknown> = {
     title: listing.title,
     price: Math.round(Number(listing.price_min) || 0),
+    priceIncludesTva: true,
     city: listing.city || "București",
+    county: "Bucuresti - Ilfov",
+    externalId: listing.id ? String(listing.id) : undefined,
     type: mapTransactionType(listing.transaction_type),
     property: mapPropertyType(listing.property_type),
     latitude: listing.latitude != null ? String(listing.latitude) : undefined,
