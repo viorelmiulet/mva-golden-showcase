@@ -298,7 +298,7 @@ export const generateSignedRentalContractPdf = async (options: GenerateSignedPdf
     camereText: '1 camera',
     propertyAddress: contract.property_address,
     durata: durataLuni,
-    dataIncepere: formatDateRomanian(contract.contract_date),
+    dataIncepere: formatDateRomanian(contract.start_date || contract.contract_date),
     pret: contract.property_price?.toString() || 'N/A',
     moneda,
     garantie: garantieVal,
