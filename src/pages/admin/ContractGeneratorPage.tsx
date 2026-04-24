@@ -95,6 +95,8 @@ const ContractGeneratorPage = () => {
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
   const [extractedDataProprietar, setExtractedDataProprietar] = useState<ExtractedData | null>(null);
   const [extractedDataChirias, setExtractedDataChirias] = useState<ExtractedData | null>(null);
+  const [isExtractingCompanyProprietar, setIsExtractingCompanyProprietar] = useState(false);
+  const [isExtractingCompanyChirias, setIsExtractingCompanyChirias] = useState(false);
   
   const [contracts, setContracts] = useState<SavedContract[]>([]);
   const [isLoadingContracts, setIsLoadingContracts] = useState(true);
