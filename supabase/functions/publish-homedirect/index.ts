@@ -113,8 +113,10 @@ function buildPayload(listing: any, images: string[]) {
   const htmlDesc = hasHtml
     ? rawDesc
     : rawDesc
-        .split(/\n{2,}/)
-        .map((p: string) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
+        .split(/\n+/)
+        .map((p: string) => p.trim())
+        .filter((p: string) => p.length > 0)
+        .map((p: string) => `<p>${p}</p>`)
         .join("");
 
   const payload: Record<string, unknown> = {
