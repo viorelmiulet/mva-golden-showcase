@@ -307,7 +307,7 @@ const ContractGeneratorPage = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .select('id, created_at, client_name, client_prenume, client_cnp, client_seria_ci, client_numar_ci, client_adresa, client_ci_emitent, client_ci_data_emiterii, proprietar_name, proprietar_prenume, proprietar_cnp, proprietar_seria_ci, proprietar_numar_ci, proprietar_adresa, proprietar_ci_emitent, proprietar_ci_data_emiterii, property_address, property_price, property_currency, garantie_amount, garantie_status, contract_type, contract_date, duration_months, pdf_url, docx_url, proprietar_signed, chirias_signed')
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
 
