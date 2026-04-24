@@ -328,11 +328,19 @@ export const addInventoryTable = async (
   }
 };
 
+// Signature party info
+export interface SignaturePartyInfo {
+  name: string;
+  isCompany?: boolean;
+  companyName?: string | null;
+  functionTitle?: string | null;
+}
+
 // Add signature section
 export const addSignatureSection = (
   ctx: PdfContext,
-  proprietarName: string,
-  chiriasName: string,
+  proprietar: string | SignaturePartyInfo,
+  chirias: string | SignaturePartyInfo,
   proprietarSignature?: string | null,
   chiriasSignature?: string | null
 ): void => {
@@ -341,20 +349,48 @@ export const addSignatureSection = (
     ctx.y = 30;
   }
   ctx.y += 15;
-  
+
   const signatureWidth = 50;
   const signatureHeight = 25;
-  
+
+  const proprietarInfo: SignaturePartyInfo = typeof proprietar === 'string' ? { name: proprietar } : proprietar;
+  const chiriasInfo: SignaturePartyInfo = typeof chirias === 'string' ? { name: chirias } : chirias;
+
+  // Headers
   ctx.doc.setFont("helvetica", "bold");
   ctx.doc.text("PROPRIETAR", ctx.margin, ctx.y);
   ctx.doc.text("CHIRIAS", ctx.pageWidth - ctx.margin - 30, ctx.y);
   ctx.y += 8;
-  
+
+  // Build display lines per party
+  const buildLines = (p: SignaturePartyInfo): string[] => {
+    if (p.isCompany && p.companyName) {
+      const repLine = p.functionTitle
+        ? `Reprezentata de ${p.name.trim()}, ${p.functionTitle}`
+        : `Reprezentata de ${p.name.trim()}`;
+      return [p.companyName.trim(), repLine];
+    }
+    return [p.name.trim()];
+  };
+
+  const propLines = buildLines(proprietarInfo);
+  const chirLines = buildLines(chiriasInfo);
+  const maxLines = Math.max(propLines.length, chirLines.length);
+
   ctx.doc.setFont("helvetica", "normal");
-  ctx.doc.text(replaceDiacritics(proprietarName), ctx.margin, ctx.y);
-  ctx.doc.text(replaceDiacritics(chiriasName), ctx.pageWidth - ctx.margin - 50, ctx.y);
-  ctx.y += 15;
-  
+  const startY = ctx.y;
+  for (let i = 0; i < maxLines; i++) {
+    if (propLines[i]) {
+      ctx.doc.text(replaceDiacritics(propLines[i]), ctx.margin, startY + i * 5);
+    }
+    if (chirLines[i]) {
+      const text = replaceDiacritics(chirLines[i]);
+      const textWidth = ctx.doc.getTextWidth(text);
+      ctx.doc.text(text, ctx.pageWidth - ctx.margin - textWidth, startY + i * 5);
+    }
+  }
+  ctx.y = startY + maxLines * 5 + 10;
+
   if (proprietarSignature) {
     try {
       ctx.doc.addImage(proprietarSignature, 'PNG', ctx.margin, ctx.y, signatureWidth, signatureHeight);
@@ -365,7 +401,7 @@ export const addSignatureSection = (
   } else {
     ctx.doc.text("_______________", ctx.margin, ctx.y + 10);
   }
-  
+
   if (chiriasSignature) {
     try {
       ctx.doc.addImage(chiriasSignature, 'PNG', ctx.pageWidth - ctx.margin - signatureWidth, ctx.y, signatureWidth, signatureHeight);
