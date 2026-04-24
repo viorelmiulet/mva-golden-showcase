@@ -85,6 +85,8 @@ const PropertiesAdmin = () => {
   const [publishing999, setPublishing999] = useState<string | null>(null);
   const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
   const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
+  const [isBulkDeletingHD, setIsBulkDeletingHD] = useState(false);
+  const [confirmBulkDeleteHD, setConfirmBulkDeleteHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -545,6 +547,77 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const deleteSelectedFromHomedirect = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+
+    // Doar proprietățile publicate pe HD pot fi retrase
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const eligible = (metaRows || []).filter(
+      (r: any) => r.homedirect_id && r.homedirect_status !== "deleted"
+    );
+
+    if (eligible.length === 0) {
+      toast({
+        title: "Niciuna eligibilă",
+        description: "Selectează proprietăți publicate pe HomeDirect.",
+        variant: "destructive",
+      });
+      setConfirmBulkDeleteHD(false);
+      return;
+    }
+
+    const total = eligible.length;
+    setIsBulkDeletingHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "delete");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkDeletingHD(false);
+    setConfirmBulkDeleteHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Anunțuri retrase",
+        description: `${successCount} retrase de pe HomeDirect${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
   const bulkToggleVisibility = async (visible: boolean) => {
     if (selectedProperties.size === 0) {
       toast({
@@ -769,7 +842,7 @@ const PropertiesAdmin = () => {
               </Label>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages) && bulkProgress.total > 0 && (
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
@@ -860,6 +933,46 @@ const PropertiesAdmin = () => {
                     <span className="hidden sm:inline">{isBulkResyncingImages ? `Re-sync...` : `Re-sync imagini HD`}</span>
                     <span className="sm:hidden">Imagini HD</span>
                   </Button>
+                  {/* Retragere bulk de pe HomeDirect */}
+                  {!confirmBulkDeleteHD ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConfirmBulkDeleteHD(true)}
+                      disabled={isBulkDeletingHD || isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                      title="Retrage anunțurile selectate de pe HomeDirect"
+                      className="border-red-500/40 text-red-600 hover:bg-red-500/10 h-8 text-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                      <span className="hidden sm:inline">Retrage de pe HD</span>
+                      <span className="sm:hidden">Retrage HD</span>
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmBulkDeleteHD(false)}
+                        disabled={isBulkDeletingHD}
+                        className="h-8 text-xs"
+                      >
+                        Anulează
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={deleteSelectedFromHomedirect}
+                        disabled={isBulkDeletingHD}
+                        className="bg-red-600 hover:bg-red-500 text-white h-8 text-xs"
+                      >
+                        {isBulkDeletingHD ? (
+                          <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                        )}
+                        {isBulkDeletingHD ? `Retrag...` : `Confirmă retragerea ${selectedProperties.size}`}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
