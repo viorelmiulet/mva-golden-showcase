@@ -113,6 +113,11 @@ function buildPayload(listing: any, images: string[]) {
         listing.descriere_lunga ||
         listing.title,
       size: listing.surface_min ? Math.round(Number(listing.surface_min)) : undefined,
+      hasLift: true,
+      hasElevator: true,
+      elevator: true,
+      lift: true,
+      hasCentralHeating: true,
     },
   };
   if (images.length > 0) {
