@@ -842,7 +842,7 @@ const PropertiesAdmin = () => {
               </Label>
               {selectedProperties.size > 0 && (
                 <div className="ml-auto flex flex-wrap items-center gap-2">
-                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages) && bulkProgress.total > 0 && (
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD) && bulkProgress.total > 0 && (
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
