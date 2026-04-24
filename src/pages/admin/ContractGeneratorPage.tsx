@@ -2413,7 +2413,7 @@ const ContractGeneratorPage = () => {
     icon: React.ReactNode
   ) => {
     const data = contractData[type];
-    const updateData = (field: keyof PersonData, value: string) => {
+    const updateData = (field: keyof PersonData, value: string | boolean) => {
       setContractData(prev => ({
         ...prev,
         [type]: { ...prev[type], [field]: value }
