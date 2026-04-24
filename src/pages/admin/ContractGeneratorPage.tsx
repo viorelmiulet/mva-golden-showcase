@@ -95,6 +95,8 @@ const ContractGeneratorPage = () => {
   const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
   const [extractedDataProprietar, setExtractedDataProprietar] = useState<ExtractedData | null>(null);
   const [extractedDataChirias, setExtractedDataChirias] = useState<ExtractedData | null>(null);
+  const [isExtractingCompanyProprietar, setIsExtractingCompanyProprietar] = useState(false);
+  const [isExtractingCompanyChirias, setIsExtractingCompanyChirias] = useState(false);
   
   const [contracts, setContracts] = useState<SavedContract[]>([]);
   const [isLoadingContracts, setIsLoadingContracts] = useState(true);
@@ -433,6 +435,66 @@ const ContractGeneratorPage = () => {
         setIsExtractingChirias(false);
       }
     }
+  };
+
+  const handleCompanyCertUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'proprietar' | 'chirias'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error("Vă rugăm selectați o imagine");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Imaginea este prea mare. Maxim 10MB.");
+      return;
+    }
+    // reset input so same file can be re-selected
+    e.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      if (type === 'proprietar') setIsExtractingCompanyProprietar(true);
+      else setIsExtractingCompanyChirias(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('extract-company-data', {
+          body: { imageBase64: base64 }
+        });
+        if (error) throw error;
+        if (data.error) {
+          toast.error(data.error);
+          return;
+        }
+        const extracted = data.data as {
+          company_name?: string | null;
+          company_cui?: string | null;
+          company_reg_com?: string | null;
+          company_sediu?: string | null;
+        };
+        setContractData(prev => ({
+          ...prev,
+          [type]: {
+            ...prev[type],
+            is_company: true,
+            company_name: extracted.company_name || prev[type].company_name || '',
+            company_cui: extracted.company_cui || prev[type].company_cui || '',
+            company_reg_com: extracted.company_reg_com || prev[type].company_reg_com || '',
+            company_sediu: extracted.company_sediu || prev[type].company_sediu || '',
+          }
+        }));
+        toast.success('Date firmă extrase cu succes!');
+      } catch (err: any) {
+        console.error('Error extracting company data:', err);
+        toast.error(err.message || 'Eroare la extragerea datelor firmei');
+      } finally {
+        if (type === 'proprietar') setIsExtractingCompanyProprietar(false);
+        else setIsExtractingCompanyChirias(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
@@ -2333,6 +2395,46 @@ const ContractGeneratorPage = () => {
           {data.is_company && (
             <div className="space-y-3 rounded-md border border-dashed p-3 bg-muted/20">
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date firmă</div>
+
+              {/* Upload Certificat Înmatriculare → autocompletare cu AI */}
+              {(() => {
+                const isExtractingCert = type === 'proprietar' ? isExtractingCompanyProprietar : isExtractingCompanyChirias;
+                const inputId = `company-cert-${type}`;
+                return (
+                  <div className="rounded-md border-2 border-dashed border-border p-3 hover:border-primary/50 transition-colors">
+                    <input
+                      id={inputId}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleCompanyCertUpload(e, type)}
+                    />
+                    <label
+                      htmlFor={inputId}
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      {isExtractingCert ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin text-primary shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium">Se extrag datele firmei cu AI...</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-5 w-5 text-muted-foreground shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium">Încarcă Certificat de Înmatriculare</p>
+                            <p className="text-[10px] text-muted-foreground">Completare automată: denumire, CUI, Reg. Com., sediu</p>
+                          </div>
+                          <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                        </>
+                      )}
+                    </label>
+                  </div>
+                );
+              })()}
+
               <div className="space-y-1">
                 <Label className="text-xs">Denumire firmă</Label>
                 <Input
