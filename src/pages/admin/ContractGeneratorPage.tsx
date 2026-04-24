@@ -437,6 +437,66 @@ const ContractGeneratorPage = () => {
     }
   };
 
+  const handleCompanyCertUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'proprietar' | 'chirias'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error("Vă rugăm selectați o imagine");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Imaginea este prea mare. Maxim 10MB.");
+      return;
+    }
+    // reset input so same file can be re-selected
+    e.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      if (type === 'proprietar') setIsExtractingCompanyProprietar(true);
+      else setIsExtractingCompanyChirias(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('extract-company-data', {
+          body: { imageBase64: base64 }
+        });
+        if (error) throw error;
+        if (data.error) {
+          toast.error(data.error);
+          return;
+        }
+        const extracted = data.data as {
+          company_name?: string | null;
+          company_cui?: string | null;
+          company_reg_com?: string | null;
+          company_sediu?: string | null;
+        };
+        setContractData(prev => ({
+          ...prev,
+          [type]: {
+            ...prev[type],
+            is_company: true,
+            company_name: extracted.company_name || prev[type].company_name || '',
+            company_cui: extracted.company_cui || prev[type].company_cui || '',
+            company_reg_com: extracted.company_reg_com || prev[type].company_reg_com || '',
+            company_sediu: extracted.company_sediu || prev[type].company_sediu || '',
+          }
+        }));
+        toast.success('Date firmă extrase cu succes!');
+      } catch (err: any) {
+        console.error('Error extracting company data:', err);
+        toast.error(err.message || 'Eroare la extragerea datelor firmei');
+      } finally {
+        if (type === 'proprietar') setIsExtractingCompanyProprietar(false);
+        else setIsExtractingCompanyChirias(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveContractToDatabase = async (pdfUrl?: string, docxUrl?: string) => {
     try {
       const result = await adminApi.insert('contracts', {
