@@ -757,6 +757,12 @@ export type Database = {
           client_ci_data_emiterii: string | null
           client_ci_emitent: string | null
           client_cnp: string | null
+          client_company_cui: string | null
+          client_company_name: string | null
+          client_company_reg_com: string | null
+          client_company_sediu: string | null
+          client_function_title: string | null
+          client_is_company: boolean
           client_name: string
           client_numar_ci: string | null
           client_prenume: string | null
@@ -780,6 +786,12 @@ export type Database = {
           proprietar_ci_data_emiterii: string | null
           proprietar_ci_emitent: string | null
           proprietar_cnp: string | null
+          proprietar_company_cui: string | null
+          proprietar_company_name: string | null
+          proprietar_company_reg_com: string | null
+          proprietar_company_sediu: string | null
+          proprietar_function_title: string | null
+          proprietar_is_company: boolean
           proprietar_name: string | null
           proprietar_numar_ci: string | null
           proprietar_prenume: string | null
@@ -793,6 +805,12 @@ export type Database = {
           client_ci_data_emiterii?: string | null
           client_ci_emitent?: string | null
           client_cnp?: string | null
+          client_company_cui?: string | null
+          client_company_name?: string | null
+          client_company_reg_com?: string | null
+          client_company_sediu?: string | null
+          client_function_title?: string | null
+          client_is_company?: boolean
           client_name: string
           client_numar_ci?: string | null
           client_prenume?: string | null
@@ -816,6 +834,12 @@ export type Database = {
           proprietar_ci_data_emiterii?: string | null
           proprietar_ci_emitent?: string | null
           proprietar_cnp?: string | null
+          proprietar_company_cui?: string | null
+          proprietar_company_name?: string | null
+          proprietar_company_reg_com?: string | null
+          proprietar_company_sediu?: string | null
+          proprietar_function_title?: string | null
+          proprietar_is_company?: boolean
           proprietar_name?: string | null
           proprietar_numar_ci?: string | null
           proprietar_prenume?: string | null
@@ -829,6 +853,12 @@ export type Database = {
           client_ci_data_emiterii?: string | null
           client_ci_emitent?: string | null
           client_cnp?: string | null
+          client_company_cui?: string | null
+          client_company_name?: string | null
+          client_company_reg_com?: string | null
+          client_company_sediu?: string | null
+          client_function_title?: string | null
+          client_is_company?: boolean
           client_name?: string
           client_numar_ci?: string | null
           client_prenume?: string | null
@@ -852,6 +882,12 @@ export type Database = {
           proprietar_ci_data_emiterii?: string | null
           proprietar_ci_emitent?: string | null
           proprietar_cnp?: string | null
+          proprietar_company_cui?: string | null
+          proprietar_company_name?: string | null
+          proprietar_company_reg_com?: string | null
+          proprietar_company_sediu?: string | null
+          proprietar_function_title?: string | null
+          proprietar_is_company?: boolean
           proprietar_name?: string | null
           proprietar_numar_ci?: string | null
           proprietar_prenume?: string | null
