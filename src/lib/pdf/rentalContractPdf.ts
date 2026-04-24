@@ -308,8 +308,18 @@ export const generateSignedRentalContractPdf = async (options: GenerateSignedPdf
   // Signature section with actual signatures
   addSignatureSection(
     ctx,
-    `${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`,
-    `${contract.client_prenume || ''} ${contract.client_name}`,
+    {
+      name: `${contract.proprietar_prenume || ''} ${contract.proprietar_name || ''}`,
+      isCompany: !!contract.proprietar_is_company,
+      companyName: contract.proprietar_company_name,
+      functionTitle: contract.proprietar_function_title,
+    },
+    {
+      name: `${contract.client_prenume || ''} ${contract.client_name}`,
+      isCompany: !!contract.client_is_company,
+      companyName: contract.client_company_name,
+      functionTitle: contract.client_function_title,
+    },
     proprietarSignature,
     chiriasSignature
   );
