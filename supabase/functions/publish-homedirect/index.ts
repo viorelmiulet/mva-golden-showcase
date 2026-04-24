@@ -94,9 +94,8 @@ function buildPostData(listing: any) {
 function buildPayload(listing: any, images: string[]) {
   const postData = buildPostData(listing);
   if (images.length > 0) {
-    // HomeDirect acceptă imagini la nivel de top-level payload, nu în postData.
-    // Trimitem în multiple formate compatibile (string array + obiecte cu url/order)
-    // ca să acopere variațiile de schemă.
+    // HomeDirect cere images în postData (validare: "At least one image URL is required in postData.images")
+    postData.images = images;
   }
   const payload: Record<string, unknown> = {
     postData,
@@ -109,9 +108,8 @@ function buildPayload(listing: any, images: string[]) {
     },
   };
   if (images.length > 0) {
-    payload.images = images.map((url, i) => ({ url, order: i, isMain: i === 0 }));
-    payload.photos = images;
-    payload.imageUrls = images;
+    // duplicăm la top-level pentru orice altă variantă de schemă
+    payload.images = images;
   }
   return payload;
 }
