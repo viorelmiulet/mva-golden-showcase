@@ -107,17 +107,19 @@ function buildPayload(listing: any, images: string[]) {
   }
   const rawDesc =
     listing.description || listing.descriere_lunga || listing.title || "";
-  // HomeDirect acceptă HTML în descriere. Dacă textul nu conține deja tag-uri,
-  // îl convertim la HTML simplu (paragrafe + line breaks) păstrând formatarea.
-  const hasHtml = /<[a-z][\s\S]*>/i.test(rawDesc);
-  const htmlDesc = hasHtml
-    ? rawDesc
-    : rawDesc
-        .split(/\n+/)
-        .map((p: string) => p.trim())
-        .filter((p: string) => p.length > 0)
-        .map((p: string) => `<p>${p}</p>`)
-        .join("");
+  // Normalizare descriere: convertește <br> și </p> în newline, elimină
+  // restul tag-urilor HTML, apoi împachetează fiecare linie în <p>. Nu emitem
+  // niciodată <br> în payload-ul către HomeDirect.
+  const normalized = rawDesc
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]+>/g, "");
+  const htmlDesc = normalized
+    .split(/\n+/)
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0)
+    .map((p: string) => `<p>${p}</p>`)
+    .join("");
 
   const payload: Record<string, unknown> = {
     postData,
