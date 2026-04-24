@@ -523,7 +523,7 @@ const SignContract = () => {
             [signatureField]: signatureDataUrl,
             [signedAtField]: now,
             status: 'signed'
-          })
+          } as any)
           .eq('id', contractId);
 
         // Send notification
