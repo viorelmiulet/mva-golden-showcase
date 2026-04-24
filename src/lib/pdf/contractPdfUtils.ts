@@ -83,64 +83,77 @@ export const addParagraph = (ctx: PdfContext, text: string, indent: number = 8):
   ctx.y += 2;
 };
 
-// Draw a party info box
+// Draw a party info box. Supports both individual persons and companies (with legal representative).
 export const drawPartyBox = (ctx: PdfContext, title: string, data: PartyBoxData): void => {
   if (ctx.y > 200) {
     ctx.doc.addPage();
     ctx.y = 20;
   }
-  
-  const boxStartY = ctx.y;
+
   const lineHeight = 6;
   const boxPadding = 5;
   const initialOffset = 4;
   const contentWidth = ctx.textWidth - 2 * boxPadding;
-  
-  const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-  const eliberatLines = ctx.doc.splitTextToSize(eliberatText, contentWidth);
-  const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-  const domiciliuLines = ctx.doc.splitTextToSize(domiciliuText, contentWidth);
-  
-  const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
-    lineHeight * 3 +
-    eliberatLines.length * 5 +
-    domiciliuLines.length * 5 +
-    lineHeight +
-    boxPadding;
-  
+
+  // Build the list of text lines we will render so we can pre-compute box height.
+  type Line = { text: string; bold?: boolean; gap?: number };
+  const lines: Line[] = [];
+  const pushWrapped = (text: string, bold = false) => {
+    const wrapped = ctx.doc.splitTextToSize(replaceDiacritics(text), contentWidth);
+    wrapped.forEach((w: string) => lines.push({ text: w, bold }));
+  };
+
+  if (data.isCompany) {
+    pushWrapped(`Denumire: ${data.companyName || '-'}`, true);
+    pushWrapped(`CUI: ${data.companyCui || '-'}`);
+    pushWrapped(`Nr. Reg. Com.: ${data.companyRegCom || '-'}`);
+    pushWrapped(`Sediu social: ${data.companySediu || '-'}`);
+    lines.push({ text: '', gap: 2 });
+    pushWrapped('Reprezentata legal prin:', true);
+    pushWrapped(`Nume: ${data.nume}${data.functionTitle ? `, in calitate de ${data.functionTitle}` : ''}`);
+    pushWrapped(`CNP: ${data.cnp || '-'}`);
+    pushWrapped(`C.I.: seria ${data.seria || '-'} nr. ${data.numar || '-'}`);
+    pushWrapped(`Eliberat de: ${data.emitent || '-'} la data de ${data.dataEmiterii || '-'}`);
+    pushWrapped(`Domiciliu: ${data.domiciliu || '-'}`);
+    pushWrapped(`Cetatenie: ${data.cetatenie || '-'}`);
+  } else {
+    pushWrapped(`Nume: ${data.nume}`);
+    pushWrapped(`CNP: ${data.cnp}`);
+    pushWrapped(`C.I.: seria ${data.seria} nr. ${data.numar}`);
+    pushWrapped(`Eliberat de: ${data.emitent} la data de ${data.dataEmiterii}`);
+    pushWrapped(`Domiciliu: ${data.domiciliu}`);
+    pushWrapped(`Cetatenie: ${data.cetatenie}`);
+  }
+
+  // Pre-compute height: title + (sum of line heights) + paddings
+  const titleHeight = lineHeight + 2;
+  const linesHeight = lines.reduce((s, l) => s + (l.text === '' ? (l.gap || 2) : 5), 0);
+  const boxHeight = boxPadding + initialOffset + titleHeight + linesHeight + boxPadding;
+
+  const boxStartY = ctx.y;
   ctx.doc.setLineWidth(0.5);
   ctx.doc.setDrawColor(0, 0, 0);
   ctx.doc.rect(ctx.margin, boxStartY, ctx.textWidth, boxHeight);
-  
+
   ctx.y = boxStartY + boxPadding + initialOffset;
-  
+
+  // Title
   ctx.doc.setFont("helvetica", "bold");
   ctx.doc.setFontSize(10);
   ctx.doc.text(replaceDiacritics(title), ctx.margin + boxPadding, ctx.y);
-  ctx.y += lineHeight + 2;
-  
-  ctx.doc.setFont("helvetica", "normal");
+  ctx.y += titleHeight;
+
   ctx.doc.setFontSize(10);
-  
-  ctx.doc.text(`Nume: ${replaceDiacritics(data.nume)}`, ctx.margin + boxPadding, ctx.y);
-  ctx.y += lineHeight;
-  ctx.doc.text(`CNP: ${data.cnp}`, ctx.margin + boxPadding, ctx.y);
-  ctx.y += lineHeight;
-  ctx.doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, ctx.margin + boxPadding, ctx.y);
-  ctx.y += lineHeight;
-  
-  for (let i = 0; i < eliberatLines.length; i++) {
-    ctx.doc.text(eliberatLines[i], ctx.margin + boxPadding, ctx.y);
+  for (const ln of lines) {
+    if (ln.text === '') {
+      ctx.y += ln.gap || 2;
+      continue;
+    }
+    ctx.doc.setFont("helvetica", ln.bold ? "bold" : "normal");
+    ctx.doc.text(ln.text, ctx.margin + boxPadding, ctx.y);
     ctx.y += 5;
   }
-  
-  for (let i = 0; i < domiciliuLines.length; i++) {
-    ctx.doc.text(domiciliuLines[i], ctx.margin + boxPadding, ctx.y);
-    ctx.y += 5;
-  }
-  
-  ctx.doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, ctx.margin + boxPadding, ctx.y);
-  
+
   ctx.y = boxStartY + boxHeight + 8;
 };
 
