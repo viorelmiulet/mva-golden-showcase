@@ -536,6 +536,7 @@ const ContractGeneratorPage = () => {
         property_currency: contractData.moneda || 'EUR',
         contract_type: 'inchiriere',
         contract_date: contractData.data_contract,
+        start_date: contractData.data_incepere || contractData.data_contract,
         duration_months: contractData.durata_inchiriere ? parseInt(contractData.durata_inchiriere) : null,
         pdf_generated: true,
         pdf_url: pdfUrl || null,
