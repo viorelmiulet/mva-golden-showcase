@@ -633,15 +633,16 @@ const InboxPage = () => {
   };
 
   const sendReplyMutation = useMutation({
-    mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress }: { 
+    mutationFn: async ({ to, subject, body, inReplyTo, replyFromAddress, attachments }: { 
       to: string; 
       subject: string; 
       body: string; 
       inReplyTo?: string;
       replyFromAddress?: string;
+      attachments?: Array<{ filename: string; content: string; contentType: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
-        body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress }
+        body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress, attachments: attachments || [] }
       });
       if (error) throw error;
       return data;
@@ -650,6 +651,7 @@ const InboxPage = () => {
       toast.success('Răspunsul a fost trimis!');
       setReplyDialogOpen(false);
       setReplyBody("");
+      setReplyAttachments([]);
     },
     onError: (error: any) => {
       toast.error(`Eroare la trimitere: ${error.message}`);
