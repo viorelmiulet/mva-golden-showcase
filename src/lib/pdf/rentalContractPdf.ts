@@ -249,26 +249,38 @@ export const generateSignedRentalContractPdf = async (options: GenerateSignedPdf
 
   // 1. PROPRIETAR BOX
   drawPartyBox(ctx, "1. PROPRIETAR (LOCATOR):", {
-    nume: `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}`,
+    nume: `${contract.proprietar_prenume || ''} ${contract.proprietar_name || 'N/A'}`.trim(),
     cnp: contract.proprietar_cnp || '-',
     seria: contract.proprietar_seria_ci || '-',
     numar: contract.proprietar_numar_ci || '-',
     emitent: contract.proprietar_ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contract.proprietar_ci_data_emiterii) || '-',
     domiciliu: contract.proprietar_adresa || '-',
-    cetatenie: 'Romana'
+    cetatenie: 'Romana',
+    isCompany: !!contract.proprietar_is_company,
+    companyName: contract.proprietar_company_name || undefined,
+    companyCui: contract.proprietar_company_cui || undefined,
+    companyRegCom: contract.proprietar_company_reg_com || undefined,
+    companySediu: contract.proprietar_company_sediu || undefined,
+    functionTitle: contract.proprietar_function_title || undefined,
   });
 
   // 2. CHIRIAS BOX
   drawPartyBox(ctx, "2. CHIRIAS (LOCATAR):", {
-    nume: `${contract.client_prenume || ''} ${contract.client_name}`,
+    nume: `${contract.client_prenume || ''} ${contract.client_name}`.trim(),
     cnp: contract.client_cnp || '-',
     seria: contract.client_seria_ci || '-',
     numar: contract.client_numar_ci || '-',
     emitent: contract.client_ci_emitent || '-',
     dataEmiterii: formatDateRomanian(contract.client_ci_data_emiterii) || '-',
     domiciliu: contract.client_adresa || '-',
-    cetatenie: 'Romana'
+    cetatenie: 'Romana',
+    isCompany: !!contract.client_is_company,
+    companyName: contract.client_company_name || undefined,
+    companyCui: contract.client_company_cui || undefined,
+    companyRegCom: contract.client_company_reg_com || undefined,
+    companySediu: contract.client_company_sediu || undefined,
+    functionTitle: contract.client_function_title || undefined,
   });
 
   // Add contract sections
