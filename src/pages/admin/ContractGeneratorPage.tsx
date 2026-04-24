@@ -1420,66 +1420,16 @@ const ContractGeneratorPage = () => {
         dataEmiterii: string;
         domiciliu: string;
         cetatenie: string;
+        isCompany?: boolean;
+        companyName?: string;
+        companyCui?: string;
+        companyRegCom?: string;
+        companySediu?: string;
+        functionTitle?: string;
       }) => {
-        if (y > 200) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        const boxStartY = y;
-        const lineHeight = 6;
-        const boxPadding = 5;
-        const initialOffset = 4;
-        const contentWidth = textWidth - 2 * boxPadding;
-        
-        // Pre-calculate all multi-line texts
-        const eliberatText = `Eliberat de: ${replaceDiacritics(data.emitent)} la data de ${data.dataEmiterii}`;
-        const eliberatLines = doc.splitTextToSize(eliberatText, contentWidth);
-        const domiciliuText = `Domiciliu: ${replaceDiacritics(data.domiciliu)}`;
-        const domiciliuLines = doc.splitTextToSize(domiciliuText, contentWidth);
-        
-        // Calculate total box height correctly
-        const boxHeight = boxPadding + initialOffset + (lineHeight + 2) +
-          lineHeight * 3 +
-          eliberatLines.length * 5 +
-          domiciliuLines.length * 5 +
-          lineHeight +
-          boxPadding;
-        
-        doc.setLineWidth(0.5);
-        doc.setDrawColor(0, 0, 0);
-        doc.rect(margin, boxStartY, textWidth, boxHeight);
-        
-        y = boxStartY + boxPadding + initialOffset;
-        
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.text(replaceDiacritics(title), margin + boxPadding, y);
-        y += lineHeight + 2;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        
-        doc.text(`Nume: ${replaceDiacritics(data.nume)}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`CNP: ${data.cnp}`, margin + boxPadding, y);
-        y += lineHeight;
-        doc.text(`C.I.: seria ${data.seria} nr. ${data.numar}`, margin + boxPadding, y);
-        y += lineHeight;
-        
-        for (let i = 0; i < eliberatLines.length; i++) {
-          doc.text(eliberatLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        for (let i = 0; i < domiciliuLines.length; i++) {
-          doc.text(domiciliuLines[i], margin + boxPadding, y);
-          y += 5;
-        }
-        
-        doc.text(`Cetatenie: ${replaceDiacritics(data.cetatenie)}`, margin + boxPadding, y);
-        
-        y = boxStartY + boxHeight + 8;
+        const ctx = { doc, y, margin, textWidth, pageWidth };
+        sharedDrawPartyBox(ctx as any, title, data as any);
+        y = ctx.y;
       };
 
       const moneda = contract.property_currency || 'EUR';
