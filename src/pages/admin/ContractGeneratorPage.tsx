@@ -2395,6 +2395,46 @@ const ContractGeneratorPage = () => {
           {data.is_company && (
             <div className="space-y-3 rounded-md border border-dashed p-3 bg-muted/20">
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date firmă</div>
+
+              {/* Upload Certificat Înmatriculare → autocompletare cu AI */}
+              {(() => {
+                const isExtractingCert = type === 'proprietar' ? isExtractingCompanyProprietar : isExtractingCompanyChirias;
+                const inputId = `company-cert-${type}`;
+                return (
+                  <div className="rounded-md border-2 border-dashed border-border p-3 hover:border-primary/50 transition-colors">
+                    <input
+                      id={inputId}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleCompanyCertUpload(e, type)}
+                    />
+                    <label
+                      htmlFor={inputId}
+                      className="flex items-center gap-3 cursor-pointer"
+                    >
+                      {isExtractingCert ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin text-primary shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium">Se extrag datele firmei cu AI...</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-5 w-5 text-muted-foreground shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium">Încarcă Certificat de Înmatriculare</p>
+                            <p className="text-[10px] text-muted-foreground">Completare automată: denumire, CUI, Reg. Com., sediu</p>
+                          </div>
+                          <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                        </>
+                      )}
+                    </label>
+                  </div>
+                );
+              })()}
+
               <div className="space-y-1">
                 <Label className="text-xs">Denumire firmă</Label>
                 <Input
