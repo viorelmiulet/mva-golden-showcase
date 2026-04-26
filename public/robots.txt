@@ -1,8 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /news/
 Disallow: /admin
 Disallow: /api
 Disallow: /proprietati?search=
 Disallow: /proprietati?*search=
 
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
+Sitemap: https://mvaimobiliare.ro/news-sitemap.xml
