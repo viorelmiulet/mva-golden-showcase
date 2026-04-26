@@ -376,7 +376,7 @@ export const EmailDetail = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="overflow-hidden rounded-2xl border border-white/5 bg-email-preview-background"
+                  className="email-message-content overflow-hidden rounded-2xl border border-white/5 bg-email-preview-background"
                 >
                   <div className="p-4 sm:p-6 text-email-preview-foreground">
                     {email.body_html ? (
@@ -387,7 +387,6 @@ export const EmailDetail = ({
                           prose-a:text-email-preview-link prose-a:no-underline hover:prose-a:underline
                           prose-strong:text-email-preview-foreground
                           prose-li:text-email-preview-foreground
-                          [&_*]:!text-email-preview-foreground [&_a]:!text-email-preview-link
                           [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:table-auto [&_table]:w-full [&_td]:break-words [&_th]:break-words [&_iframe]:max-w-full"
                         dangerouslySetInnerHTML={{ __html: email.body_html }}
                       />
