@@ -121,6 +121,11 @@ All colors MUST be HSL.
     --admin-card: 220 30% 10%;
     --admin-card-hover: 220 30% 14%;
     --admin-border: 220 30% 18%;
+
+    --email-preview-background: 0 0% 100%;
+    --email-preview-foreground: 220 30% 6%;
+    --email-preview-muted: 220 12% 38%;
+    --email-preview-link: 45 100% 34%;
   }
 
   .dark {
