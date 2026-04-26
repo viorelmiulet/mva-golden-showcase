@@ -376,24 +376,23 @@ export const EmailDetail = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="rounded-2xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 overflow-hidden"
+                  className="overflow-hidden rounded-2xl border border-white/5 bg-email-preview-background"
                 >
-                  <div className="p-4 sm:p-6">
+                  <div className="p-4 sm:p-6 text-email-preview-foreground">
                     {email.body_html ? (
                       <div 
-                        className="prose prose-sm sm:prose-base max-w-none 
-                          dark:prose-invert 
-                          prose-headings:text-foreground prose-headings:font-semibold
-                          prose-p:text-foreground/80 prose-p:leading-relaxed
-                          prose-a:text-gold prose-a:no-underline hover:prose-a:underline
-                          prose-strong:text-foreground
-                          prose-blockquote:border-l-gold prose-blockquote:text-muted-foreground
-                          prose-code:text-gold prose-code:bg-gold/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-                          prose-pre:bg-black/20 prose-pre:border prose-pre:border-white/10"
+                        className="prose prose-sm sm:prose-base max-w-none overflow-x-auto break-words
+                          prose-headings:text-email-preview-foreground prose-headings:font-semibold
+                          prose-p:text-email-preview-foreground prose-p:leading-relaxed
+                          prose-a:text-email-preview-link prose-a:no-underline hover:prose-a:underline
+                          prose-strong:text-email-preview-foreground
+                          prose-li:text-email-preview-foreground
+                          [&_*]:!text-email-preview-foreground [&_a]:!text-email-preview-link
+                          [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:table-auto [&_table]:w-full [&_td]:break-words [&_th]:break-words [&_iframe]:max-w-full"
                         dangerouslySetInnerHTML={{ __html: email.body_html }}
                       />
                     ) : (
-                      <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base text-foreground/80 leading-relaxed">
+                      <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base text-email-preview-foreground leading-relaxed">
                         {email.body_plain || email.stripped_text || 'Nu există conținut'}
                       </pre>
                     )}

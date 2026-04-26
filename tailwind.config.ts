@@ -94,6 +94,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				'email-preview': {
+					background: 'hsl(var(--email-preview-background))',
+					foreground: 'hsl(var(--email-preview-foreground))',
+					muted: 'hsl(var(--email-preview-muted))',
+					link: 'hsl(var(--email-preview-link))'
 				}
 			},
 			spacing: {
