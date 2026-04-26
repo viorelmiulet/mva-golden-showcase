@@ -25,7 +25,7 @@ interface EmailChangeEmailProps {
 
 export const EmailChangeEmail = ({ siteName, email, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
   <Html lang="ro" dir="ltr">
-    <Head />
+    <Head><meta name="color-scheme" content="light only" /><meta name="supported-color-schemes" content="light" /></Head>
     <Preview>Confirmă schimbarea adresei de email</Preview>
     <Body style={main}>
       <Container style={container}>

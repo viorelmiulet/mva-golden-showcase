@@ -20,7 +20,7 @@ interface ReauthenticationEmailProps {
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <Html lang="ro" dir="ltr">
-    <Head />
+    <Head><meta name="color-scheme" content="light only" /><meta name="supported-color-schemes" content="light" /></Head>
     <Preview>Codul tău de verificare MVA Imobiliare</Preview>
     <Body style={main}>
       <Container style={container}>

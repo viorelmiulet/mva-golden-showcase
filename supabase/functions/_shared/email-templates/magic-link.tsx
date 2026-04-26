@@ -22,7 +22,7 @@ interface MagicLinkEmailProps {
 
 export const MagicLinkEmail = ({ siteName, confirmationUrl }: MagicLinkEmailProps) => (
   <Html lang="ro" dir="ltr">
-    <Head />
+    <Head><meta name="color-scheme" content="light only" /><meta name="supported-color-schemes" content="light" /></Head>
     <Preview>Link-ul tău de autentificare MVA Imobiliare</Preview>
     <Body style={main}>
       <Container style={container}>
