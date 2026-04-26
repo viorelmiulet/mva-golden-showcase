@@ -441,6 +441,34 @@ All colors MUST be HSL.
     contain: layout style;
   }
 
+  .email-message-content {
+    background-color: hsl(var(--email-preview-background)) !important;
+    color: hsl(var(--email-preview-foreground)) !important;
+    color-scheme: light;
+  }
+
+  .email-message-content *,
+  .email-message-content p,
+  .email-message-content span,
+  .email-message-content div,
+  .email-message-content td,
+  .email-message-content th,
+  .email-message-content li,
+  .email-message-content h1,
+  .email-message-content h2,
+  .email-message-content h3,
+  .email-message-content h4,
+  .email-message-content h5,
+  .email-message-content h6 {
+    background-color: transparent !important;
+    color: hsl(var(--email-preview-foreground)) !important;
+  }
+
+  .email-message-content a,
+  .email-message-content a * {
+    color: hsl(var(--email-preview-link)) !important;
+  }
+
   /* Performance: GPU-accelerated transitions */
   .card-modern,
   .glass,
