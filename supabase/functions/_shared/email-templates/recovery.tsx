@@ -22,7 +22,7 @@ interface RecoveryEmailProps {
 
 export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps) => (
   <Html lang="ro" dir="ltr">
-    <Head />
+    <Head><meta name="color-scheme" content="light only" /><meta name="supported-color-schemes" content="light" /></Head>
     <Preview>Resetează parola pentru MVA Imobiliare</Preview>
     <Body style={main}>
       <Container style={container}>

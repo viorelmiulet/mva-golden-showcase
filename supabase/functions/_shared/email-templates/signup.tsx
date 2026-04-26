@@ -30,7 +30,7 @@ export const SignupEmail = ({
   confirmationUrl,
 }: SignupEmailProps) => (
   <Html lang="ro" dir="ltr">
-    <Head />
+    <Head><meta name="color-scheme" content="light only" /><meta name="supported-color-schemes" content="light" /></Head>
     <Preview>Confirmă adresa de email pentru MVA Imobiliare</Preview>
     <Body style={main}>
       <Container style={container}>
