@@ -1235,6 +1235,48 @@ export type Database = {
         }
         Relationships: []
       }
+      news_articles: {
+        Row: {
+          content: string | null
+          created_at: string
+          description: string | null
+          featured_image: string | null
+          id: string
+          keywords: string | null
+          published_date: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          id?: string
+          keywords?: string | null
+          published_date?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          id?: string
+          keywords?: string | null
+          published_date?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           browser: string | null
