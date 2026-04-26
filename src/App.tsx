@@ -73,6 +73,9 @@ const OfertaRedirect = lazy(() => import("./components/OfertaRedirect"));
 const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
+const NewsAdminPage = lazy(() => import("./pages/admin/NewsAdminPage"));
+const News = lazy(() => import("./pages/News"));
+const NewsDetail = lazy(() => import("./pages/NewsDetail"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const RentalLayout = lazy(() => import("./pages/admin/rental/RentalLayout"));
@@ -212,6 +215,7 @@ const AppRoutes = () => {
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
                 <Route path="blog" element={<BlogAdminPage />} />
+                <Route path="news" element={<NewsAdminPage />} />
                 <Route path="inbox" element={<InboxPage />} />
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
                 <Route path="gestiune-chirii" element={<RentalLayout />}>
@@ -233,6 +237,8 @@ const AppRoutes = () => {
               <Route path="/cariera" element={<Cariera />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/news/:slug" element={<NewsDetail />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               

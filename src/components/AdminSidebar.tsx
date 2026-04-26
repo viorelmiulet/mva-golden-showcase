@@ -61,6 +61,7 @@ const menuItems = [
   { title: "Rapoarte", url: "/admin/rapoarte", icon: FileText },
   { title: "Cărți Vizită", url: "/admin/carti-vizita", icon: CreditCard },
   { title: "Blog", url: "/admin/blog", icon: FileText },
+  { title: "News", url: "/admin/news", icon: FileText },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
