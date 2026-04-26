@@ -39,6 +39,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/news-sitemap.xml"
+  to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-news-sitemap"
+  status = 200
+  force = true
+
 [[headers]]
   for = "/assets/*"
   [headers.values]
