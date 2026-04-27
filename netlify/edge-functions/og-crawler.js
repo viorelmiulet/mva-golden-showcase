@@ -20,6 +20,7 @@ const DYNAMIC_ROUTES = [
   /^\/proprieta(?:te|ti)\/.+/,
   /^\/complexe\/.+/,
   /^\/blog\/.+/,
+  /^\/news\/.+/,
 ];
 
 export default async (request, context) => {
@@ -62,5 +63,5 @@ export default async (request, context) => {
 };
 
 export const config = {
-  path: ["/proprietate/*", "/proprietati/*", "/complexe/*", "/blog/*"],
+  path: ["/proprietate/*", "/proprietati/*", "/complexe/*", "/blog/*", "/news/*"],
 };
