@@ -146,6 +146,8 @@ const BlogPost = () => {
         <meta name="description" content={post.meta_description || post.excerpt || post.title} />
         <meta name="keywords" content="imobiliare, ghid, sfaturi, București, proprietăți" />
         <link rel="canonical" href={`https://mvaimobiliare.ro/blog/${slug}`} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         <meta property="og:title" content={`${post.title} | MVA Imobiliare`} />
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />

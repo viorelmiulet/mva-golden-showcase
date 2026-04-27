@@ -82,6 +82,8 @@ const Blog = () => {
         <meta name="description" content="Descoperiți articole despre piața imobiliară, ghiduri de cumpărare și vânzare, tendințe și sfaturi de investiții imobiliare în București." />
         <meta name="keywords" content="blog imobiliar, sfaturi imobiliare, ghid cumpărare casă, investiții imobiliare, piața imobiliară București" />
         <link rel="canonical" href="https://mvaimobiliare.ro/blog" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         <meta property="og:title" content="Blog Imobiliar - Sfaturi și Ghiduri | MVA Imobiliare" />
         <meta property="og:description" content="Descoperiți articole despre piața imobiliară, ghiduri de cumpărare și vânzare, tendințe și sfaturi de investiții imobiliare în București." />
