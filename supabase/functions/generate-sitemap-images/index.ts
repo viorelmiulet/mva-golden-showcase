@@ -141,6 +141,26 @@ Deno.serve(async (req) => {
       }
     }
 
+    // News article images
+    for (const article of news) {
+      if (article.featured_image && isValidUrl(article.featured_image)) {
+        const lastmod = article.updated_at
+          ? new Date(article.updated_at).toISOString().split('T')[0]
+          : currentDate;
+
+        sitemap += `  <url>
+    <loc>${escapeXml(`${baseUrl}/news/${article.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <image:image>
+      <image:loc>${escapeXml(article.featured_image)}</image:loc>
+      <image:caption>${escapeXml(article.description || article.title || 'Articol news')}</image:caption>
+      <image:title>${escapeXml(article.title || 'Articol news MVA Imobiliare')}</image:title>
+    </image:image>
+  </url>
+`;
+      }
+    }
+
     sitemap += `</urlset>`;
 
     return new Response(sitemap, {
