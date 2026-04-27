@@ -58,8 +58,8 @@ Deno.serve(async (req) => {
     const baseUrl = 'https://mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Fetch published properties and projects with images in parallel
-    const [propertiesResult, projectsResult] = await Promise.all([
+    // Fetch published properties, projects and news in parallel
+    const [propertiesResult, projectsResult, newsResult] = await Promise.all([
       supabase
         .from('catalog_offers')
         .select('id, title, images, updated_at, rooms, project_name, zone, location')
@@ -73,12 +73,19 @@ Deno.serve(async (req) => {
         .eq('is_published', true)
         .not('main_image', 'is', null)
         .order('updated_at', { ascending: false }),
+      supabase
+        .from('news_articles')
+        .select('slug, title, description, featured_image, updated_at, published_date')
+        .eq('status', 'published')
+        .not('featured_image', 'is', null)
+        .order('published_date', { ascending: false }),
     ]);
 
     const properties = propertiesResult.data || [];
     const projects = projectsResult.data || [];
+    const news = newsResult.data || [];
 
-    console.log(`Found ${properties.length} properties, ${projects.length} projects with images`);
+    console.log(`Found ${properties.length} properties, ${projects.length} projects, ${news.length} news with images`);
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -128,6 +135,26 @@ Deno.serve(async (req) => {
       <image:loc>${escapeXml(project.main_image)}</image:loc>
       <image:caption>${escapeXml(project.name)} - Complex rezidențial</image:caption>
       <image:title>${escapeXml(project.name)}</image:title>
+    </image:image>
+  </url>
+`;
+      }
+    }
+
+    // News article images
+    for (const article of news) {
+      if (article.featured_image && isValidUrl(article.featured_image)) {
+        const lastmod = article.updated_at
+          ? new Date(article.updated_at).toISOString().split('T')[0]
+          : currentDate;
+
+        sitemap += `  <url>
+    <loc>${escapeXml(`${baseUrl}/news/${article.slug}`)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <image:image>
+      <image:loc>${escapeXml(article.featured_image)}</image:loc>
+      <image:caption>${escapeXml(article.description || article.title || 'Articol news')}</image:caption>
+      <image:title>${escapeXml(article.title || 'Articol news MVA Imobiliare')}</image:title>
     </image:image>
   </url>
 `;
