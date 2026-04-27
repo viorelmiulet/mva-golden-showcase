@@ -105,7 +105,8 @@ Deno.serve(async (req) => {
 `;
         
         for (let i = 0; i < Math.min(property.images.length, 50); i++) {
-          const imageUrl = property.images[i];
+          const rawUrl = property.images[i];
+          const imageUrl = rawUrl ? toAbsoluteUrl(rawUrl, baseUrl) : '';
           if (imageUrl && isValidUrl(imageUrl)) {
             sitemap += `    <image:image>
       <image:loc>${escapeXml(imageUrl)}</image:loc>
