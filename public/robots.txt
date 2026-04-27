@@ -3,6 +3,7 @@ Allow: /
 Allow: /blog/
 Allow: /news/
 Allow: /news-sitemap.xml
+Allow: /sitemap-images.xml
 Disallow: /admin
 Disallow: /api
 Disallow: /proprietati?search=
@@ -10,3 +11,4 @@ Disallow: /proprietati?*search=
 
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
 Sitemap: https://mvaimobiliare.ro/news-sitemap.xml
+Sitemap: https://mvaimobiliare.ro/sitemap-images.xml
