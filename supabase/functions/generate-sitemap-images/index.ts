@@ -202,3 +202,11 @@ function isValidUrl(str: string): boolean {
     return false;
   }
 }
+
+function toAbsoluteUrl(url: string, baseUrl: string): string {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('//')) return `https:${url}`;
+  if (url.startsWith('/')) return `${baseUrl}${url}`;
+  return `${baseUrl}/${url}`;
+}
