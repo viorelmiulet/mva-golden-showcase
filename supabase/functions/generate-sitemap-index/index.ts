@@ -41,6 +41,10 @@ Deno.serve(async (req) => {
     <loc>${baseUrl}/generate-sitemap-images</loc>
     <lastmod>${currentDate}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://mvaimobiliare.ro/news-sitemap.xml</loc>
+    <lastmod>${currentDate}</lastmod>
+  </sitemap>
 </sitemapindex>`;
 
     console.log('Sitemap index generated successfully');
