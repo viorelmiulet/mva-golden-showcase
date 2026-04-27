@@ -27,6 +27,24 @@ interface NewsItem {
 
 const PAGE_SIZE = 12;
 
+/**
+ * Generate optimized thumbnail URL using Supabase Storage image transformations.
+ * Falls back to original URL for non-Supabase or non-public-bucket images.
+ */
+const getThumbnailUrl = (url: string, width: number): string => {
+  if (!url) return url;
+  // Convert /object/public/ to /render/image/public/ to enable transformations
+  if (url.includes("/storage/v1/object/public/")) {
+    const transformed = url.replace(
+      "/storage/v1/object/public/",
+      "/storage/v1/render/image/public/"
+    );
+    const sep = transformed.includes("?") ? "&" : "?";
+    return `${transformed}${sep}width=${width}&resize=contain&quality=75`;
+  }
+  return url;
+};
+
 const News = () => {
   const {
     data,
