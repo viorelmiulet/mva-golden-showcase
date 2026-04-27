@@ -105,7 +105,8 @@ Deno.serve(async (req) => {
 `;
         
         for (let i = 0; i < Math.min(property.images.length, 50); i++) {
-          const imageUrl = property.images[i];
+          const rawUrl = property.images[i];
+          const imageUrl = rawUrl ? toAbsoluteUrl(rawUrl, baseUrl) : '';
           if (imageUrl && isValidUrl(imageUrl)) {
             sitemap += `    <image:image>
       <image:loc>${escapeXml(imageUrl)}</image:loc>
@@ -124,6 +125,8 @@ Deno.serve(async (req) => {
     // Project images
     for (const project of projects) {
       if (project.main_image) {
+        const projectImage = toAbsoluteUrl(project.main_image, baseUrl);
+        if (!isValidUrl(projectImage)) continue;
         const lastmod = project.updated_at 
           ? new Date(project.updated_at).toISOString().split('T')[0]
           : currentDate;
@@ -132,7 +135,7 @@ Deno.serve(async (req) => {
     <loc>${escapeXml(`${baseUrl}/complexe/${getComplexSlug(project)}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <image:image>
-      <image:loc>${escapeXml(project.main_image)}</image:loc>
+      <image:loc>${escapeXml(projectImage)}</image:loc>
       <image:caption>${escapeXml(project.name)} - Complex rezidențial</image:caption>
       <image:title>${escapeXml(project.name)}</image:title>
     </image:image>
@@ -143,22 +146,23 @@ Deno.serve(async (req) => {
 
     // News article images
     for (const article of news) {
-      if (article.featured_image && isValidUrl(article.featured_image)) {
-        const lastmod = article.updated_at
-          ? new Date(article.updated_at).toISOString().split('T')[0]
-          : currentDate;
+      if (!article.featured_image) continue;
+      const newsImage = toAbsoluteUrl(article.featured_image, baseUrl);
+      if (!isValidUrl(newsImage)) continue;
+      const lastmod = article.updated_at
+        ? new Date(article.updated_at).toISOString().split('T')[0]
+        : currentDate;
 
-        sitemap += `  <url>
+      sitemap += `  <url>
     <loc>${escapeXml(`${baseUrl}/news/${article.slug}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <image:image>
-      <image:loc>${escapeXml(article.featured_image)}</image:loc>
+      <image:loc>${escapeXml(newsImage)}</image:loc>
       <image:caption>${escapeXml(article.description || article.title || 'Articol news')}</image:caption>
       <image:title>${escapeXml(article.title || 'Articol news MVA Imobiliare')}</image:title>
     </image:image>
   </url>
 `;
-      }
     }
 
     sitemap += `</urlset>`;
@@ -201,4 +205,12 @@ function isValidUrl(str: string): boolean {
   } catch {
     return false;
   }
+}
+
+function toAbsoluteUrl(url: string, baseUrl: string): string {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('//')) return `https:${url}`;
+  if (url.startsWith('/')) return `${baseUrl}${url}`;
+  return `${baseUrl}/${url}`;
 }
