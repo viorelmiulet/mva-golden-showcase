@@ -90,6 +90,7 @@ const Header = () => {
     { name: t.nav.calculator, id: '/calculator-credit', type: 'link' },
     { name: t.nav.whyUs, id: '/de-ce-sa-ne-alegi', type: 'link' },
     { name: t.nav.blog, id: '/blog', type: 'link' },
+    { name: 'Știri', id: '/news', type: 'link' },
     { name: t.nav.faq, id: '/faq', type: 'link' },
     { name: t.nav.contact, id: '/contact', type: 'link' }
   ]
