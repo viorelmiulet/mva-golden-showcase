@@ -27,6 +27,24 @@ interface NewsItem {
 
 const PAGE_SIZE = 12;
 
+/**
+ * Generate optimized thumbnail URL using Supabase Storage image transformations.
+ * Falls back to original URL for non-Supabase or non-public-bucket images.
+ */
+const getThumbnailUrl = (url: string, width: number): string => {
+  if (!url) return url;
+  // Convert /object/public/ to /render/image/public/ to enable transformations
+  if (url.includes("/storage/v1/object/public/")) {
+    const transformed = url.replace(
+      "/storage/v1/object/public/",
+      "/storage/v1/render/image/public/"
+    );
+    const sep = transformed.includes("?") ? "&" : "?";
+    return `${transformed}${sep}width=${width}&resize=contain&quality=75`;
+  }
+  return url;
+};
+
 const News = () => {
   const {
     data,
@@ -116,9 +134,14 @@ const News = () => {
                       {a.featured_image && (
                         <div className="aspect-video overflow-hidden bg-muted">
                           <img
-                            src={a.featured_image}
+                            src={getThumbnailUrl(a.featured_image, 600)}
+                            srcSet={`${getThumbnailUrl(a.featured_image, 400)} 400w, ${getThumbnailUrl(a.featured_image, 600)} 600w, ${getThumbnailUrl(a.featured_image, 900)} 900w`}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             alt={a.title}
                             loading="lazy"
+                            decoding="async"
+                            width={600}
+                            height={338}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         </div>
