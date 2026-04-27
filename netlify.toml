@@ -11,12 +11,7 @@
   function = "slug-redirect"
   path = "/proprietate/*"
 
-# Prerender.io – intercept bot requests
-[[edge_functions]]
-  function = "prerender"
-  path = "/*"
-
-
+# OG crawler – MUST run BEFORE prerender so social bots get dynamic OG tags
 [[edge_functions]]
   function = "og-crawler"
   path = "/proprietate/*"
@@ -36,6 +31,11 @@
 [[edge_functions]]
   function = "og-crawler"
   path = "/news/*"
+
+# Prerender.io – intercept remaining bot requests for SEO
+[[edge_functions]]
+  function = "prerender"
+  path = "/*"
 
 [[redirects]]
   from = "/sitemap.xml"
