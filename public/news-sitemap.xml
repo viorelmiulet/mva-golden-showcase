@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>https://mvaimobiliare.ro/news/cerere-locuinte-noi-bucuresti-2026</loc>
+    <news:news>
+      <news:publication>
+        <news:name>MVA Imobiliare</news:name>
+        <news:language>ro</news:language>
+      </news:publication>
+      <news:publication_date>2026-04-27T08:00:00.000Z</news:publication_date>
+      <news:title>Cererea pentru locuințe noi în București rămâne ridicată în 2026</news:title>
+      <news:keywords>locuințe noi București 2026, cerere imobiliară, Militari Residence, dezvoltatori imobiliari, piața imobiliară București</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://mvaimobiliare.ro/news/programul-noua-casa-2026-schimbari-piata-imobiliara</loc>
+    <news:news>
+      <news:publication>
+        <news:name>MVA Imobiliare</news:name>
+        <news:language>ro</news:language>
+      </news:publication>
+      <news:publication_date>2026-04-27T07:00:00.000Z</news:publication_date>
+      <news:title>Programul Noua Casă 2026: schimbările care influențează piața imobiliară</news:title>
+      <news:keywords>Noua Casă 2026, program Noua Casă, credit ipotecar, plafon garantare, piața imobiliară București, Militari Residence</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://mvaimobiliare.ro/news/preturi-apartamente-militari-residence-2026</loc>
+    <news:news>
+      <news:publication>
+        <news:name>MVA Imobiliare</news:name>
+        <news:language>ro</news:language>
+      </news:publication>
+      <news:publication_date>2026-04-27T06:00:00.000Z</news:publication_date>
+      <news:title>Prețurile apartamentelor din Militari Residence continuă să crească în 2026</news:title>
+      <news:keywords>Militari Residence, prețuri apartamente 2026, piața imobiliară București, apartamente 2 camere Militari, investiții imobiliare</news:keywords>
+    </news:news>
+  </url>
+</urlset>
