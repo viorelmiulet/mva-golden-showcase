@@ -90,11 +90,20 @@ const Blog = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mvaimobiliare.ro/blog" />
         <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:secure_url" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Blog Imobiliar MVA Imobiliare" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:site_name" content="MVA Imobiliare" />
+        <meta property="og:locale" content="ro_RO" />
         
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@mvaimobiliare" />
         <meta name="twitter:title" content="Blog Imobiliar - Sfaturi și Ghiduri | MVA Imobiliare" />
         <meta name="twitter:description" content="Descoperiți articole despre piața imobiliară, ghiduri de cumpărare și vânzare, tendințe și sfaturi de investiții imobiliare în București." />
         <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta name="twitter:image:alt" content="Blog Imobiliar MVA Imobiliare" />
       </Helmet>
 
       <Header />

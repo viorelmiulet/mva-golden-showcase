@@ -154,13 +154,24 @@ const BlogPost = () => {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`https://mvaimobiliare.ro/blog/${slug}`} />
         <meta property="og:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:image:secure_url" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={post.title} />
+        <meta property="og:site_name" content="MVA Imobiliare" />
+        <meta property="og:locale" content="ro_RO" />
         <meta property="article:published_time" content={post.created_at} />
+        <meta property="article:modified_time" content={post.updated_at} />
         <meta property="article:author" content={post.author} />
+        <meta property="article:section" content={post.category} />
+        <meta property="article:publisher" content="https://mvaimobiliare.ro" />
         
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@mvaimobiliare" />
         <meta name="twitter:title" content={`${post.title} | MVA Imobiliare`} />
         <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
         <meta name="twitter:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta name="twitter:image:alt" content={post.title} />
 
         <script type="application/ld+json">
           {JSON.stringify(articleStructuredData)}
