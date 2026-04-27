@@ -159,6 +159,27 @@ serve(async (req) => {
       }
     }
 
+    // News article page: /news/{slug}
+    const newsMatch = path.match(/^\/news\/(.+?)(?:\?.*)?$/);
+    if (newsMatch && newsMatch[1] !== '') {
+      const slug = newsMatch[1];
+      const { data: article } = await supabase
+        .from('news_articles')
+        .select('title, description, featured_image')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+
+      if (article) {
+        title = article.title;
+        description = article.description || '';
+        ogType = 'article';
+        if (article.featured_image) {
+          image = article.featured_image;
+        }
+      }
+    }
+
     // Return minimal HTML with OG tags + redirect for regular users
     const html = `<!DOCTYPE html>
 <html lang="ro">

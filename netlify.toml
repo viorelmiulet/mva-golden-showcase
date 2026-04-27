@@ -33,6 +33,10 @@
   function = "og-crawler"
   path = "/blog/*"
 
+[[edge_functions]]
+  function = "og-crawler"
+  path = "/news/*"
+
 [[redirects]]
   from = "/sitemap.xml"
   to = "https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap"
