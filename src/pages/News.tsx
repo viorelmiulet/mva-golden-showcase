@@ -1,17 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, ArrowRight, Loader2, Newspaper } from "lucide-react";
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -128,11 +123,16 @@ const News = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
               {articles.map((a) => {
                 const date = a.published_date || a.created_at;
+                const formattedDate = new Date(date).toLocaleDateString("ro-RO", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                });
                 return (
-                  <Link key={a.id} to={`/news/${a.slug}`} className="group">
-                    <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow">
-                      {a.featured_image && (
-                        <div className="aspect-video overflow-hidden bg-muted">
+                  <Link key={a.id} to={`/news/${a.slug}`} className="group block">
+                    <Card className="h-full overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                      <div className="relative aspect-video overflow-hidden bg-muted">
+                        {a.featured_image ? (
                           <img
                             src={getThumbnailUrl(a.featured_image, 600)}
                             srcSet={`${getThumbnailUrl(a.featured_image, 400)} 400w, ${getThumbnailUrl(a.featured_image, 600)} 600w, ${getThumbnailUrl(a.featured_image, 900)} 900w`}
@@ -142,35 +142,36 @@ const News = () => {
                             decoding="async"
                             width={600}
                             height={338}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
-                        </div>
-                      )}
-                      <CardHeader>
-                        <div className="flex items-center text-xs text-muted-foreground gap-1 mb-2">
-                          <Calendar className="h-3 w-3" />
-                          <time dateTime={date}>
-                            {new Date(date).toLocaleDateString("ro-RO", {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                            })}
-                          </time>
-                        </div>
-                        <CardTitle className="text-xl group-hover:text-primary transition-colors line-clamp-2">
-                          {a.title}
-                        </CardTitle>
-                        {a.description && (
-                          <CardDescription className="line-clamp-3">
-                            {a.description}
-                          </CardDescription>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <Newspaper className="h-12 w-12 text-muted-foreground/40" />
+                          </div>
                         )}
-                      </CardHeader>
-                      <CardContent>
-                        <span className="inline-flex items-center text-sm font-medium text-primary group-hover:gap-2 gap-1 transition-all">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <Badge className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground border-0 shadow-md">
+                          <Newspaper className="h-3 w-3 mr-1" />
+                          Știri
+                        </Badge>
+                      </div>
+                      <div className="flex flex-col flex-1 p-5 gap-3">
+                        <div className="flex items-center text-xs text-muted-foreground gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          <time dateTime={date}>{formattedDate}</time>
+                        </div>
+                        <h2 className="text-lg font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                          {a.title}
+                        </h2>
+                        {a.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
+                            {a.description}
+                          </p>
+                        )}
+                        <span className="inline-flex items-center text-sm font-medium text-primary mt-auto pt-2 border-t border-border/60 group-hover:gap-2 gap-1 transition-all">
                           Citește articolul <ArrowRight className="h-4 w-4" />
                         </span>
-                      </CardContent>
+                      </div>
                     </Card>
                   </Link>
                 );
