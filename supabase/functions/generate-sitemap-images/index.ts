@@ -125,6 +125,8 @@ Deno.serve(async (req) => {
     // Project images
     for (const project of projects) {
       if (project.main_image) {
+        const projectImage = toAbsoluteUrl(project.main_image, baseUrl);
+        if (!isValidUrl(projectImage)) continue;
         const lastmod = project.updated_at 
           ? new Date(project.updated_at).toISOString().split('T')[0]
           : currentDate;
@@ -133,7 +135,7 @@ Deno.serve(async (req) => {
     <loc>${escapeXml(`${baseUrl}/complexe/${getComplexSlug(project)}`)}</loc>
     <lastmod>${lastmod}</lastmod>
     <image:image>
-      <image:loc>${escapeXml(project.main_image)}</image:loc>
+      <image:loc>${escapeXml(projectImage)}</image:loc>
       <image:caption>${escapeXml(project.name)} - Complex rezidențial</image:caption>
       <image:title>${escapeXml(project.name)}</image:title>
     </image:image>
