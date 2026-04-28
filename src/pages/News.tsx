@@ -87,21 +87,52 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Noutăți Imobiliare – MVA Imobiliare</title>
-        <meta
-          name="description"
-          content="Cele mai noi articole și noutăți din piața imobiliară din București și împrejurimi."
-        />
-        <link rel="canonical" href="https://mvaimobiliare.ro/news" />
-        <meta property="og:title" content="Noutăți Imobiliare – MVA Imobiliare" />
-        <meta
-          property="og:description"
-          content="Cele mai noi articole și noutăți din piața imobiliară."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/news" />
-      </Helmet>
+      {(() => {
+        const count = articles.length;
+        const latest = articles[0];
+        const latestImage = latest?.featured_image || "https://mvaimobiliare.ro/og-image.jpg";
+        const dynamicTitle = count > 0
+          ? `Știri Imobiliare București (${count}+) – Noutăți Piața Rezidențială | MVA Imobiliare`
+          : "Știri Imobiliare București – Noutăți Piața Rezidențială | MVA Imobiliare";
+        const dynamicDescription = latest
+          ? `Cele mai recente ${count}+ noutăți imobiliare. Ultimul articol: "${latest.title}". Analize, tendințe și informații despre piața rezidențială din București.`
+          : "Cele mai noi articole și noutăți din piața imobiliară din București și împrejurimi. Analize, tendințe și informații actualizate.";
+
+        const itemListSchema = {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Noutăți Imobiliare MVA",
+          "url": "https://mvaimobiliare.ro/news",
+          "numberOfItems": count,
+          "itemListElement": articles.slice(0, 20).map((a, idx) => ({
+            "@type": "ListItem",
+            "position": idx + 1,
+            "url": `https://mvaimobiliare.ro/news/${a.slug}`,
+            "name": a.title,
+          })),
+        };
+
+        return (
+          <Helmet>
+            <title>{dynamicTitle}</title>
+            <meta name="description" content={dynamicDescription} />
+            <meta name="keywords" content="stiri imobiliare, noutati imobiliare bucuresti, piata rezidentiala, analize imobiliare, tendinte imobiliare 2026" />
+            <link rel="canonical" href="https://mvaimobiliare.ro/news" />
+            <meta property="og:title" content={dynamicTitle} />
+            <meta property="og:description" content={dynamicDescription} />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content="https://mvaimobiliare.ro/news" />
+            <meta property="og:image" content={latestImage} />
+            <meta property="og:locale" content="ro_RO" />
+            <meta property="og:site_name" content="MVA Imobiliare" />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={dynamicTitle} />
+            <meta name="twitter:description" content={dynamicDescription} />
+            <meta name="twitter:image" content={latestImage} />
+            <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
+          </Helmet>
+        );
+      })()}
 
       <Header />
       <main className="container mx-auto px-4 py-8">
