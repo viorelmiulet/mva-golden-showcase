@@ -8,6 +8,9 @@ type EmailAttachment = {
   path?: string | null;
   storage_path?: string | null;
   bucket?: string | null;
+  content?: string | null; // base64 fallback (for legacy sent emails)
+  contentType?: string | null;
+  type?: string | null;
 };
 
 export const getAttachmentName = (attachment: EmailAttachment) => {
@@ -29,14 +32,50 @@ export const getAttachmentUrl = (attachment: EmailAttachment) => {
     }
   }
 
+  // Legacy fallback: inline base64 content
+  if (attachment.content) {
+    return "inline-base64";
+  }
+
   return null;
 };
 
+const downloadFromBase64 = (attachment: EmailAttachment, fileName: string) => {
+  let base64 = attachment.content || "";
+  if (base64.includes(",")) base64 = base64.split(",")[1];
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const mime = attachment.contentType || attachment.type || "application/octet-stream";
+  const blob = new Blob([bytes], { type: mime });
+  const objectUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(objectUrl);
+};
+
 export const downloadEmailAttachment = async (attachment: EmailAttachment) => {
-  const url = getAttachmentUrl(attachment);
   const fileName = getAttachmentName(attachment);
 
-  if (!url) {
+  // Legacy: inline base64 content
+  if (!attachment.url && !attachment.path && !attachment.storage_path && attachment.content) {
+    try {
+      downloadFromBase64(attachment, fileName);
+      return;
+    } catch (e) {
+      console.error("Base64 attachment decode failed:", e);
+      toast.error("Nu am putut decoda atașamentul.");
+      return;
+    }
+  }
+
+  const url = getAttachmentUrl(attachment);
+
+  if (!url || url === "inline-base64") {
     toast.error("Atașamentul nu este disponibil pentru descărcare");
     return;
   }
