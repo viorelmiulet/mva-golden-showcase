@@ -1,8 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /blog
 Allow: /blog/
+Allow: /news
 Allow: /news/
 Allow: /news-sitemap.xml
+Allow: /sitemap.xml
 Allow: /sitemap-images.xml
 Disallow: /admin
 Disallow: /api
@@ -20,6 +23,12 @@ Disallow: /admin
 
 User-agent: Bingbot-Image
 Allow: /
+Disallow: /admin
+
+# Google News crawler
+User-agent: Googlebot-News
+Allow: /news
+Allow: /news/
 Disallow: /admin
 
 Sitemap: https://mvaimobiliare.ro/sitemap.xml
