@@ -143,6 +143,20 @@ Deno.serve(async (req) => {
 `;
     }
 
+    for (const article of newsArticles) {
+      if (!article.slug) continue;
+      const lastmod = (article.updated_at || article.published_date)
+        ? new Date(article.updated_at || article.published_date!).toISOString().split('T')[0]
+        : currentDate;
+      sitemap += `  <url>
+    <loc>${SITE_URL}/news/${xmlEscape(article.slug)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    }
+
     for (const project of projects) {
       const lastmod = project.updated_at
         ? new Date(project.updated_at).toISOString().split('T')[0]
