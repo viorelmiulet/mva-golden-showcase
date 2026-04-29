@@ -108,9 +108,59 @@ Deno.serve(async (req) => {
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
+      // Upload attachments to storage so they remain visible/downloadable from the inbox UI
+      const sentEmailId = crypto.randomUUID();
+      const storedAttachments: any[] = [];
+
+      if (attachments && attachments.length > 0) {
+        for (const att of attachments) {
+          try {
+            if (!att.content || !att.filename) continue;
+
+            // Strip data URL prefix if present and decode base64 -> bytes
+            let base64Content = att.content;
+            if (base64Content.includes(',')) base64Content = base64Content.split(',')[1];
+            const binaryString = atob(base64Content);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+            const sanitizedName = att.filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filePath = `${sentEmailId}/${sanitizedName}`;
+
+            const { error: upErr } = await supabase.storage
+              .from('email-attachments')
+              .upload(filePath, bytes, {
+                contentType: att.contentType || 'application/octet-stream',
+                upsert: true,
+              });
+
+            if (upErr) {
+              console.error(`Sent attachment upload failed (${att.filename}):`, upErr);
+              storedAttachments.push({ name: att.filename, type: att.contentType, size: bytes.length, url: null });
+              continue;
+            }
+
+            const { data: urlData } = supabase.storage
+              .from('email-attachments')
+              .getPublicUrl(filePath);
+
+            storedAttachments.push({
+              name: att.filename,
+              type: att.contentType || 'application/octet-stream',
+              size: bytes.length,
+              url: urlData.publicUrl,
+              path: filePath,
+            });
+          } catch (e) {
+            console.error('Error storing sent attachment:', e);
+          }
+        }
+      }
+
       const { error: insertError } = await supabase
         .from('sent_emails')
         .insert({
+          id: sentEmailId,
           recipient: to,
           cc: cc || null,
           bcc: bcc || null,
@@ -120,7 +170,7 @@ Deno.serve(async (req) => {
           from_address: fromAddress,
           message_id: result.messageId || null,
           in_reply_to: inReplyTo || null,
-          attachments: attachments || [],
+          attachments: storedAttachments,
           sent_at: new Date().toISOString()
         });
 
