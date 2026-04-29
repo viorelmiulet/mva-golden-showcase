@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const [projectsResult, propertiesResult, blogPostsResult] = await Promise.all([
+    const [projectsResult, propertiesResult, blogPostsResult, newsResult] = await Promise.all([
       supabase
         .from('real_estate_projects')
         .select('id, name, slug, updated_at')
@@ -72,17 +72,26 @@ Deno.serve(async (req) => {
         .select('slug, updated_at')
         .eq('is_published', true)
         .order('updated_at', { ascending: false }),
+      supabase
+        .from('news_articles')
+        .select('slug, updated_at, published_date')
+        .eq('status', 'published')
+        .not('slug', 'is', null)
+        .order('published_date', { ascending: false })
+        .limit(5000),
     ]);
 
     if (projectsResult.error) throw projectsResult.error;
     if (propertiesResult.error) throw propertiesResult.error;
     if (blogPostsResult.error) throw blogPostsResult.error;
+    if (newsResult.error) throw newsResult.error;
 
     const projects = (projectsResult.data || []) as Project[];
     const properties = propertiesResult.data || [];
     const blogPosts = (blogPostsResult.data || []) as BlogPost[];
+    const newsArticles = (newsResult.data || []) as Array<{ slug: string; updated_at: string; published_date: string | null }>;
 
-    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts`);
+    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts, ${newsArticles.length} news articles`);
 
     const currentDate = new Date().toISOString().split('T')[0];
 
