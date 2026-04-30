@@ -639,7 +639,7 @@ const InboxPage = () => {
       body: string; 
       inReplyTo?: string;
       replyFromAddress?: string;
-      attachments?: Array<{ filename: string; content: string; contentType: string }>;
+      attachments?: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
         body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress, attachments: attachments || [] }
@@ -647,8 +647,9 @@ const InboxPage = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('Răspunsul a fost trimis!');
+      reportAttachmentDiagnostics(data);
       setReplyDialogOpen(false);
       setReplyBody("");
       setReplyAttachments([]);
@@ -693,7 +694,7 @@ const InboxPage = () => {
       bcc?: string;
       subject: string; 
       body: string;
-      attachments: Array<{ filename: string; content: string; contentType: string }>;
+      attachments: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
         body: { to, cc, bcc, subject, body, attachments, isReply: false }
@@ -706,8 +707,9 @@ const InboxPage = () => {
       
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('Email-ul a fost trimis!');
+      reportAttachmentDiagnostics(data);
       setComposeDialogOpen(false);
       resetComposeForm();
       queryClient.invalidateQueries({ queryKey: ['email-contacts'] });
