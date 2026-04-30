@@ -278,6 +278,7 @@ Deno.serve(async (req) => {
       console.log(`[reply-email] Attachment summary:`, {
         requested: diagnostics.requestedAttachments,
         uploaded: diagnostics.uploaded.length,
+        reused: diagnostics.reused.length,
         failed: diagnostics.failed.length,
         skipped: diagnostics.skipped.length,
       });
