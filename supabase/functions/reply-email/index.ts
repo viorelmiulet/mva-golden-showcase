@@ -103,6 +103,21 @@ Deno.serve(async (req) => {
     console.log('Email sent successfully, saving to sent_emails...');
 
     // Save sent email to database
+    const diagnostics: {
+      requestedAttachments: number;
+      uploaded: Array<{ name: string; size: number; path: string }>;
+      failed: Array<{ name: string; reason: string }>;
+      skipped: Array<{ name?: string; reason: string }>;
+      dbInsert: 'ok' | 'error' | 'skipped';
+      dbError?: string;
+    } = {
+      requestedAttachments: attachments?.length || 0,
+      uploaded: [],
+      failed: [],
+      skipped: [],
+      dbInsert: 'skipped',
+    };
+
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -112,10 +127,16 @@ Deno.serve(async (req) => {
       const sentEmailId = crypto.randomUUID();
       const storedAttachments: any[] = [];
 
+      console.log(`[reply-email] Processing ${diagnostics.requestedAttachments} attachment(s) for sent_email ${sentEmailId}`);
+
       if (attachments && attachments.length > 0) {
         for (const att of attachments) {
           try {
-            if (!att.content || !att.filename) continue;
+            if (!att.content || !att.filename) {
+              console.warn(`[reply-email] Skipping attachment - missing content/filename:`, { filename: att?.filename, hasContent: !!att?.content });
+              diagnostics.skipped.push({ name: att?.filename, reason: 'missing content or filename' });
+              continue;
+            }
 
             // Strip data URL prefix if present and decode base64 -> bytes
             let base64Content = att.content;
@@ -127,6 +148,8 @@ Deno.serve(async (req) => {
             const sanitizedName = att.filename.replace(/[^a-zA-Z0-9.-]/g, '_');
             const filePath = `${sentEmailId}/${sanitizedName}`;
 
+            console.log(`[reply-email] Uploading "${att.filename}" (${bytes.length} bytes) -> ${filePath}`);
+
             const { error: upErr } = await supabase.storage
               .from('email-attachments')
               .upload(filePath, bytes, {
@@ -135,7 +158,8 @@ Deno.serve(async (req) => {
               });
 
             if (upErr) {
-              console.error(`Sent attachment upload failed (${att.filename}):`, upErr);
+              console.error(`[reply-email] Upload FAILED for "${att.filename}":`, upErr);
+              diagnostics.failed.push({ name: att.filename, reason: upErr.message || String(upErr) });
               storedAttachments.push({
                 name: att.filename,
                 size: bytes.length,
@@ -151,6 +175,9 @@ Deno.serve(async (req) => {
               .from('email-attachments')
               .getPublicUrl(filePath);
 
+            console.log(`[reply-email] Upload OK "${att.filename}" -> ${urlData.publicUrl}`);
+            diagnostics.uploaded.push({ name: att.filename, size: bytes.length, path: filePath });
+
             storedAttachments.push({
               name: att.filename,
               size: bytes.length,
@@ -160,10 +187,18 @@ Deno.serve(async (req) => {
               bucket: 'email-attachments',
             });
           } catch (e) {
-            console.error('Error storing sent attachment:', e);
+            console.error(`[reply-email] Exception while storing attachment "${att?.filename}":`, e);
+            diagnostics.failed.push({ name: att?.filename || 'unknown', reason: String(e) });
           }
         }
       }
+
+      console.log(`[reply-email] Attachment summary:`, {
+        requested: diagnostics.requestedAttachments,
+        uploaded: diagnostics.uploaded.length,
+        failed: diagnostics.failed.length,
+        skipped: diagnostics.skipped.length,
+      });
 
       const { error: insertError } = await supabase
         .from('sent_emails')
@@ -183,17 +218,21 @@ Deno.serve(async (req) => {
         });
 
       if (insertError) {
-        console.error('Error saving sent email:', insertError);
+        console.error('[reply-email] DB insert FAILED:', insertError);
+        diagnostics.dbInsert = 'error';
+        diagnostics.dbError = insertError.message;
       } else {
-        console.log('Sent email saved to database');
+        console.log(`[reply-email] sent_emails row ${sentEmailId} inserted with ${storedAttachments.length} attachment metadata entries`);
+        diagnostics.dbInsert = 'ok';
       }
     } catch (saveError) {
-      console.error('Error saving sent email:', saveError);
-      // Don't fail the request if saving fails
+      console.error('[reply-email] Unexpected error saving sent email:', saveError);
+      diagnostics.dbInsert = 'error';
+      diagnostics.dbError = String(saveError);
     }
 
     return new Response(
-      JSON.stringify({ success: true, messageId: result.messageId }),
+      JSON.stringify({ success: true, messageId: result.messageId, diagnostics }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
