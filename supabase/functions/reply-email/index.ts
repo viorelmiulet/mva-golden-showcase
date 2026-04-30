@@ -9,8 +9,14 @@ const corsHeaders = {
 
 interface EmailAttachment {
   filename: string;
-  content: string; // base64 encoded
   contentType: string;
+  // EITHER inline base64 content (small files)
+  content?: string;
+  // OR a pre-uploaded file in Supabase Storage (large files)
+  path?: string;        // path inside the bucket
+  bucket?: string;      // defaults to "email-attachments"
+  url?: string;         // optional public URL to reuse
+  size?: number;        // optional size hint
 }
 
 interface ReplyEmailRequest {
@@ -85,6 +91,65 @@ Deno.serve(async (req) => {
       </div>
     `;
 
+    // ---- Normalize attachments: download pre-uploaded ones from Storage so Mailgun gets bytes
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const bytesToBase64 = (bytes: Uint8Array): string => {
+      let bin = '';
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      }
+      return btoa(bin);
+    };
+
+    const normalizedForMailgun: Array<{ filename: string; content: string; contentType: string }> = [];
+    // Keep Storage metadata (path/url/size) for sent_emails persistence
+    const storageMeta: Record<string, { path?: string; url?: string; bucket?: string; size?: number }> = {};
+
+    if (attachments && attachments.length > 0) {
+      for (const att of attachments) {
+        if (!att.filename) continue;
+        const bucket = att.bucket || 'email-attachments';
+        try {
+          if (att.content) {
+            // Inline base64 — already good for Mailgun
+            normalizedForMailgun.push({
+              filename: att.filename,
+              content: att.content,
+              contentType: att.contentType || 'application/octet-stream',
+            });
+          } else if (att.path) {
+            console.log(`[reply-email] Fetching pre-uploaded attachment "${att.filename}" from ${bucket}/${att.path}`);
+            const { data: fileData, error: dlErr } = await supabase.storage
+              .from(bucket)
+              .download(att.path);
+            if (dlErr || !fileData) {
+              console.error(`[reply-email] Failed to download pre-uploaded attachment "${att.filename}":`, dlErr);
+              continue;
+            }
+            const buf = new Uint8Array(await fileData.arrayBuffer());
+            normalizedForMailgun.push({
+              filename: att.filename,
+              content: bytesToBase64(buf),
+              contentType: att.contentType || fileData.type || 'application/octet-stream',
+            });
+            const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(att.path);
+            storageMeta[att.filename] = {
+              path: att.path,
+              url: att.url || urlData.publicUrl,
+              bucket,
+              size: att.size ?? buf.length,
+            };
+          }
+        } catch (e) {
+          console.error(`[reply-email] Error normalizing attachment "${att.filename}":`, e);
+        }
+      }
+    }
+
     const result = await sendMailgunEmail({
       to,
       cc: cc || undefined,
@@ -93,7 +158,7 @@ Deno.serve(async (req) => {
       from: fromAddress,
       html: fullHtml,
       customHeaders,
-      attachments: attachments || [],
+      attachments: normalizedForMailgun,
     });
 
     if (!result.success) {
@@ -106,6 +171,7 @@ Deno.serve(async (req) => {
     const diagnostics: {
       requestedAttachments: number;
       uploaded: Array<{ name: string; size: number; path: string }>;
+      reused: Array<{ name: string; size: number; path: string }>;
       failed: Array<{ name: string; reason: string }>;
       skipped: Array<{ name?: string; reason: string }>;
       dbInsert: 'ok' | 'error' | 'skipped';
@@ -113,32 +179,48 @@ Deno.serve(async (req) => {
     } = {
       requestedAttachments: attachments?.length || 0,
       uploaded: [],
+      reused: [],
       failed: [],
       skipped: [],
       dbInsert: 'skipped',
     };
 
     try {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      // Upload attachments to storage so they remain visible/downloadable from the inbox UI
+      // Persist attachments metadata; only re-upload inline base64 ones
       const sentEmailId = crypto.randomUUID();
       const storedAttachments: any[] = [];
 
-      console.log(`[reply-email] Processing ${diagnostics.requestedAttachments} attachment(s) for sent_email ${sentEmailId}`);
+      console.log(`[reply-email] Persisting ${diagnostics.requestedAttachments} attachment(s) for sent_email ${sentEmailId}`);
 
       if (attachments && attachments.length > 0) {
         for (const att of attachments) {
           try {
-            if (!att.content || !att.filename) {
-              console.warn(`[reply-email] Skipping attachment - missing content/filename:`, { filename: att?.filename, hasContent: !!att?.content });
-              diagnostics.skipped.push({ name: att?.filename, reason: 'missing content or filename' });
+            if (!att.filename) {
+              diagnostics.skipped.push({ name: att?.filename, reason: 'missing filename' });
               continue;
             }
 
-            // Strip data URL prefix if present and decode base64 -> bytes
+            // Case A: pre-uploaded — reuse storage metadata, no re-upload
+            const meta = storageMeta[att.filename];
+            if (meta) {
+              storedAttachments.push({
+                name: att.filename,
+                size: meta.size ?? att.size ?? 0,
+                type: att.contentType || 'application/octet-stream',
+                url: meta.url || null,
+                path: meta.path || null,
+                bucket: meta.bucket || 'email-attachments',
+              });
+              diagnostics.reused.push({ name: att.filename, size: meta.size ?? 0, path: meta.path || '' });
+              continue;
+            }
+
+            // Case B: inline base64 — upload to storage now
+            if (!att.content) {
+              diagnostics.skipped.push({ name: att.filename, reason: 'missing content and storage path' });
+              continue;
+            }
+
             let base64Content = att.content;
             if (base64Content.includes(',')) base64Content = base64Content.split(',')[1];
             const binaryString = atob(base64Content);
@@ -196,6 +278,7 @@ Deno.serve(async (req) => {
       console.log(`[reply-email] Attachment summary:`, {
         requested: diagnostics.requestedAttachments,
         uploaded: diagnostics.uploaded.length,
+        reused: diagnostics.reused.length,
         failed: diagnostics.failed.length,
         skipped: diagnostics.skipped.length,
       });

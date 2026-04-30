@@ -639,7 +639,7 @@ const InboxPage = () => {
       body: string; 
       inReplyTo?: string;
       replyFromAddress?: string;
-      attachments?: Array<{ filename: string; content: string; contentType: string }>;
+      attachments?: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
         body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress, attachments: attachments || [] }
@@ -647,8 +647,9 @@ const InboxPage = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('Răspunsul a fost trimis!');
+      reportAttachmentDiagnostics(data);
       setReplyDialogOpen(false);
       setReplyBody("");
       setReplyAttachments([]);
@@ -693,7 +694,7 @@ const InboxPage = () => {
       bcc?: string;
       subject: string; 
       body: string;
-      attachments: Array<{ filename: string; content: string; contentType: string }>;
+      attachments: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
       const { data, error } = await supabase.functions.invoke('reply-email', {
         body: { to, cc, bcc, subject, body, attachments, isReply: false }
@@ -706,8 +707,9 @@ const InboxPage = () => {
       
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success('Email-ul a fost trimis!');
+      reportAttachmentDiagnostics(data);
       setComposeDialogOpen(false);
       resetComposeForm();
       queryClient.invalidateQueries({ queryKey: ['email-contacts'] });
@@ -828,13 +830,12 @@ ${originalBody}`;
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      replyAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream',
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(replyAttachments);
+    } catch {
+      return;
+    }
     
     sendReplyMutation.mutate({
       to: replyTo,
@@ -857,13 +858,12 @@ ${originalBody}`;
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      forwardAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(forwardAttachments);
+    } catch {
+      return;
+    }
 
     sendEmailMutation.mutate({
       to: forwardTo,
@@ -883,13 +883,12 @@ ${originalBody}`;
   };
 
   const handleSaveDraft = async () => {
-    const attachmentsData = await Promise.all(
-      composeAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(composeAttachments);
+    } catch {
+      return;
+    }
 
     saveDraftMutation.mutate({
       id: currentDraftId || undefined,
@@ -947,19 +946,96 @@ ${originalBody}`;
     });
   };
 
+  // Threshold: any file >= 4MB raw is pre-uploaded directly to Storage to avoid
+  // hitting the edge function payload limit (~10MB) once base64-encoded.
+  const INLINE_MAX_BYTES = 4 * 1024 * 1024;
+  const HARD_MAX_BYTES = 20 * 1024 * 1024;
+
+  type SerializedAttachment = {
+    filename: string;
+    contentType: string;
+    size: number;
+    content?: string;
+    path?: string;
+    bucket?: string;
+    url?: string;
+  };
+
+  const prepareAttachmentsForSend = async (files: File[]): Promise<SerializedAttachment[]> => {
+    if (!files.length) return [];
+
+    // Validate sizes up-front
+    const oversized = files.filter(f => f.size > HARD_MAX_BYTES);
+    if (oversized.length) {
+      toast.error(`Fișier prea mare: ${oversized.map(f => f.name).join(', ')} (max 20MB)`);
+      throw new Error('Attachment too large');
+    }
+
+    const sanitize = (n: string) => n.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const folder = `compose-${crypto.randomUUID()}`;
+
+    const out: SerializedAttachment[] = [];
+    for (const file of files) {
+      if (file.size >= INLINE_MAX_BYTES) {
+        // Pre-upload large file directly to Storage
+        const path = `${folder}/${sanitize(file.name)}`;
+        const { error: upErr } = await supabase.storage
+          .from('email-attachments')
+          .upload(path, file, {
+            contentType: file.type || 'application/octet-stream',
+            upsert: true,
+          });
+        if (upErr) {
+          console.error('Pre-upload failed for', file.name, upErr);
+          toast.error(`Nu am putut încărca "${file.name}": ${upErr.message}`);
+          throw upErr;
+        }
+        const { data: urlData } = supabase.storage.from('email-attachments').getPublicUrl(path);
+        out.push({
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+          size: file.size,
+          path,
+          bucket: 'email-attachments',
+          url: urlData?.publicUrl,
+        });
+      } else {
+        out.push({
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+          size: file.size,
+          content: await fileToBase64(file),
+        });
+      }
+    }
+    return out;
+  };
+
+  const reportAttachmentDiagnostics = (data: any) => {
+    const d = data?.diagnostics;
+    if (!d) return;
+    const failed = d.failed?.length || 0;
+    if (failed > 0) {
+      const names = (d.failed || []).map((f: any) => f.name).join(', ');
+      toast.error(`Atașamente neîncărcate în arhivă: ${names}. Email-ul a fost trimis, dar nu vor apărea în inbox.`);
+    } else if (d.dbInsert === 'error') {
+      toast.error(`Email trimis, dar arhivarea a eșuat: ${d.dbError || 'eroare necunoscută'}`);
+    }
+  };
+
+
   const handleSendEmail = async () => {
     if (!composeTo || !composeBody.trim()) {
       toast.error('Completează destinatarul și mesajul');
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      composeAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(composeAttachments);
+    } catch {
+      return;
+    }
 
     sendEmailMutation.mutate({
       to: composeTo,
