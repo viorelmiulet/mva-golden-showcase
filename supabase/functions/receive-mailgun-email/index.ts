@@ -70,6 +70,8 @@ Deno.serve(async (req) => {
               size: attachment.size,
               type: attachment.type,
               url: null,
+              path: null,
+              bucket: 'email-attachments',
               error: uploadError.message
             });
           } else {
@@ -85,7 +87,8 @@ Deno.serve(async (req) => {
               size: attachment.size,
               type: attachment.type,
               url: urlData.publicUrl,
-              path: filePath
+              path: filePath,
+              bucket: 'email-attachments'
             });
           }
         } catch (attachError) {
@@ -95,6 +98,8 @@ Deno.serve(async (req) => {
             size: attachment.size,
             type: attachment.type,
             url: null,
+            path: null,
+            bucket: 'email-attachments',
             error: String(attachError)
           });
         }

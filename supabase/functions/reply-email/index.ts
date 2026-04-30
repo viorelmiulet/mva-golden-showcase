@@ -136,7 +136,14 @@ Deno.serve(async (req) => {
 
             if (upErr) {
               console.error(`Sent attachment upload failed (${att.filename}):`, upErr);
-              storedAttachments.push({ name: att.filename, type: att.contentType, size: bytes.length, url: null });
+              storedAttachments.push({
+                name: att.filename,
+                size: bytes.length,
+                type: att.contentType || 'application/octet-stream',
+                url: null,
+                path: null,
+                bucket: 'email-attachments',
+              });
               continue;
             }
 
@@ -146,10 +153,11 @@ Deno.serve(async (req) => {
 
             storedAttachments.push({
               name: att.filename,
-              type: att.contentType || 'application/octet-stream',
               size: bytes.length,
+              type: att.contentType || 'application/octet-stream',
               url: urlData.publicUrl,
               path: filePath,
+              bucket: 'email-attachments',
             });
           } catch (e) {
             console.error('Error storing sent attachment:', e);
