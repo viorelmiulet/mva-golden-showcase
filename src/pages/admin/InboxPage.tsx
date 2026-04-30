@@ -828,13 +828,12 @@ ${originalBody}`;
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      replyAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream',
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(replyAttachments);
+    } catch {
+      return;
+    }
     
     sendReplyMutation.mutate({
       to: replyTo,
@@ -857,13 +856,12 @@ ${originalBody}`;
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      forwardAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(forwardAttachments);
+    } catch {
+      return;
+    }
 
     sendEmailMutation.mutate({
       to: forwardTo,
@@ -883,13 +881,12 @@ ${originalBody}`;
   };
 
   const handleSaveDraft = async () => {
-    const attachmentsData = await Promise.all(
-      composeAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(composeAttachments);
+    } catch {
+      return;
+    }
 
     saveDraftMutation.mutate({
       id: currentDraftId || undefined,
@@ -1031,13 +1028,12 @@ ${originalBody}`;
       return;
     }
     
-    const attachmentsData = await Promise.all(
-      composeAttachments.map(async (file) => ({
-        filename: file.name,
-        content: await fileToBase64(file),
-        contentType: file.type || 'application/octet-stream'
-      }))
-    );
+    let attachmentsData: SerializedAttachment[];
+    try {
+      attachmentsData = await prepareAttachmentsForSend(composeAttachments);
+    } catch {
+      return;
+    }
 
     sendEmailMutation.mutate({
       to: composeTo,
