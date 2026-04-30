@@ -9,8 +9,14 @@ const corsHeaders = {
 
 interface EmailAttachment {
   filename: string;
-  content: string; // base64 encoded
   contentType: string;
+  // EITHER inline base64 content (small files)
+  content?: string;
+  // OR a pre-uploaded file in Supabase Storage (large files)
+  path?: string;        // path inside the bucket
+  bucket?: string;      // defaults to "email-attachments"
+  url?: string;         // optional public URL to reuse
+  size?: number;        // optional size hint
 }
 
 interface ReplyEmailRequest {
