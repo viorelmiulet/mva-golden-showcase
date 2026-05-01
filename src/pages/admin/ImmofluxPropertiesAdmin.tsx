@@ -110,6 +110,10 @@ const ImmofluxPropertiesAdmin = () => {
             {data && filteredProperties.length !== data.data.length && ` • ${filteredProperties.length} afișate`}
           </p>
         </div>
+        <Button onClick={handleSync} disabled={syncing} className="gap-2">
+          <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Se sincronizează...' : 'Sincronizează acum'}
+        </Button>
       </div>
 
       {/* Filters */}
