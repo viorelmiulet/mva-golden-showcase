@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PropertyGridSkeleton } from "@/components/skeletons";
-import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink, Search, X } from "lucide-react";
+import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink, Search, X, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import {
