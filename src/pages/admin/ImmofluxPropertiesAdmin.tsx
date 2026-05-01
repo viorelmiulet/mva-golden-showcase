@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PropertyGridSkeleton } from "@/components/skeletons";
-import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink, Search, X } from "lucide-react";
+import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, ExternalLink, Search, X, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import {
@@ -19,6 +22,27 @@ import {
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const [syncing, setSyncing] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const { data: result, error: syncError } = await supabase.functions.invoke('sync-immoflux', { body: {} });
+      if (syncError) throw syncError;
+      if (!result?.success) throw new Error(result?.error || 'Sync eșuat');
+      toast({
+        title: 'Sincronizare completă',
+        description: `${result.synced} proprietăți sincronizate${result.failed ? `, ${result.failed} eșuate` : ''}.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['immoflux'] });
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+    } catch (e: any) {
+      toast({ title: 'Eroare sincronizare', description: e.message || String(e), variant: 'destructive' });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   // Filters
   const [search, setSearch] = useState("");
@@ -86,6 +110,10 @@ const ImmofluxPropertiesAdmin = () => {
             {data && filteredProperties.length !== data.data.length && ` • ${filteredProperties.length} afișate`}
           </p>
         </div>
+        <Button onClick={handleSync} disabled={syncing} className="gap-2">
+          <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Se sincronizează...' : 'Sincronizează acum'}
+        </Button>
       </div>
 
       {/* Filters */}
