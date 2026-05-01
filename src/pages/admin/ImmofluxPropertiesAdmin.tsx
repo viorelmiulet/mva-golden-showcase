@@ -22,6 +22,27 @@ import {
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const [syncing, setSyncing] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const { data: result, error: syncError } = await supabase.functions.invoke('sync-immoflux', { body: {} });
+      if (syncError) throw syncError;
+      if (!result?.success) throw new Error(result?.error || 'Sync eșuat');
+      toast({
+        title: 'Sincronizare completă',
+        description: `${result.synced} proprietăți sincronizate${result.failed ? `, ${result.failed} eșuate` : ''}.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['immoflux'] });
+      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+    } catch (e: any) {
+      toast({ title: 'Eroare sincronizare', description: e.message || String(e), variant: 'destructive' });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   // Filters
   const [search, setSearch] = useState("");
