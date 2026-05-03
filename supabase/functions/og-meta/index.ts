@@ -225,6 +225,7 @@ serve(async (req) => {
   <meta name="twitter:title" content="${escapeHtml(title)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${escapeHtml(image)}" />
+  ${newsJsonLd ? `<script type="application/ld+json">${newsJsonLd}</script>` : ''}
   
   <meta http-equiv="refresh" content="0;url=${escapeHtml(ogUrl)}" />
 </head>
