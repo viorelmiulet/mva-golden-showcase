@@ -160,12 +160,13 @@ serve(async (req) => {
     }
 
     // News article page: /news/{slug}
+    let newsJsonLd: string | null = null;
     const newsMatch = path.match(/^\/news\/(.+?)(?:\?.*)?$/);
     if (newsMatch && newsMatch[1] !== '') {
       const slug = newsMatch[1];
       const { data: article } = await supabase
         .from('news_articles')
-        .select('title, description, featured_image')
+        .select('title, description, featured_image, published_date, created_at, updated_at, keywords')
         .eq('slug', slug)
         .eq('status', 'published')
         .single();
@@ -177,6 +178,28 @@ serve(async (req) => {
         if (article.featured_image) {
           image = article.featured_image;
         }
+
+        const datePublished = article.published_date || article.created_at;
+        const articleImage = /^https?:\/\//i.test(image) ? image : `${SITE_URL}${image.startsWith('/') ? '' : '/'}${image}`;
+        const jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: String(article.title || '').slice(0, 110),
+          description,
+          image: [articleImage],
+          datePublished,
+          dateModified: article.updated_at || datePublished,
+          inLanguage: 'ro-RO',
+          mainEntityOfPage: { '@type': 'WebPage', '@id': ogUrl },
+          author: { '@type': 'Organization', name: 'MVA Imobiliare', url: SITE_URL },
+          publisher: {
+            '@type': 'Organization',
+            name: 'MVA Imobiliare',
+            logo: { '@type': 'ImageObject', url: `${SITE_URL}/mva-logo-luxury.svg` },
+          },
+          ...(article.keywords ? { keywords: article.keywords } : {}),
+        };
+        newsJsonLd = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
       }
     }
 
