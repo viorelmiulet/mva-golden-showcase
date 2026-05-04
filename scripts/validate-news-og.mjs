@@ -43,23 +43,61 @@ const extractJsonLd = (html) => {
   return blocks.find((b) => b && b['@type'] === 'Article') || null;
 };
 
+const MAX_REDIRECTS = 5;
+
+// Follow HTTP 3xx redirects manually; also surface meta-refresh targets.
+const fetchFollowing = async (startUrl) => {
+  const chain = [];
+  let current = startUrl;
+  for (let i = 0; i <= MAX_REDIRECTS; i++) {
+    const res = await fetch(current, { headers, redirect: 'manual' });
+    chain.push({ url: current, status: res.status });
+    if (res.status >= 300 && res.status < 400) {
+      const loc = res.headers.get('location');
+      await res.text().catch(() => '');
+      if (!loc) break;
+      current = new URL(loc, current).toString();
+      continue;
+    }
+    const html = await res.text();
+    const refresh = html.match(/<meta[^>]+http-equiv=["']refresh["'][^>]+content=["']\s*\d+\s*;\s*url=([^"']+)["']/i);
+    return { chain, finalStatus: res.status, html, metaRefreshTarget: refresh?.[1] ?? null };
+  }
+  throw new Error(`Too many redirects starting at ${startUrl}`);
+};
+
 const articles = await fetch(REST, { headers }).then((r) => r.json());
 console.log(`Validating ${articles.length} published news articles...\n`);
 
 let failed = 0;
 for (const { slug, featured_image } of articles) {
   const url = `${OG_FN}?path=/news/${encodeURIComponent(slug)}`;
-  const res = await fetch(url, { headers });
-  const html = await res.text();
+  let result;
+  try {
+    result = await fetchFollowing(url);
+  } catch (e) {
+    failed++;
+    console.log(`❌ ${slug}\n   ${e.message}`);
+    continue;
+  }
+  const { chain, finalStatus, html, metaRefreshTarget } = result;
   const ogType = meta(html, 'og:type');
   const ogImage = meta(html, 'og:image');
   const jsonLd = extractJsonLd(html);
 
   const expectedImage = toAbsoluteUrl(featured_image);
   const errors = [];
+
+  if (finalStatus !== 200) errors.push(`final HTTP ${finalStatus}`);
+  for (const hop of chain.slice(0, -1)) {
+    if (![301, 302, 303, 307, 308].includes(hop.status)) {
+      errors.push(`unexpected redirect status ${hop.status}`);
+    }
+  }
+
   if (ogType !== 'article') errors.push(`og:type=${ogType}`);
   if (!ogImage) {
-    errors.push('og:image missing');
+    errors.push('og:image missing in final HTML');
   } else if (ogImage.endsWith(DEFAULT_IMG) && featured_image) {
     errors.push('og:image fell back to default');
   } else if (expectedImage && ogImage !== expectedImage && ogImage !== featured_image) {
@@ -81,11 +119,13 @@ for (const { slug, featured_image } of articles) {
     }
   }
 
+  const hops = chain.map((h) => h.status).join(' → ');
+  const refreshNote = metaRefreshTarget ? ` (meta-refresh → ${metaRefreshTarget})` : '';
   if (errors.length) {
     failed++;
-    console.log(`❌ ${slug}\n   ${errors.join(', ')}`);
+    console.log(`❌ ${slug} [${hops}]${refreshNote}\n   ${errors.join(', ')}`);
   } else {
-    console.log(`✅ ${slug}`);
+    console.log(`✅ ${slug} [${hops}]${refreshNote}`);
   }
 }
 
