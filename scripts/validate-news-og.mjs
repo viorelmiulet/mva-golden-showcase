@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Validates that the og-meta edge function returns og:type="article"
- * and a non-default og:image for every published news article.
+ * Validates that the og-meta edge function returns og:type="article",
+ * a non-default og:image, and a complete JSON-LD Article block
+ * (headline, description, datePublished, image) for every published news article.
  *
  * Usage: node scripts/validate-news-og.mjs
  */
@@ -19,6 +20,21 @@ const meta = (html, prop) => {
   return html.match(re)?.[1] ?? null;
 };
 
+const extractJsonLd = (html) => {
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  const blocks = [];
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const raw = m[1].replace(/\\u003c/g, '<');
+    try {
+      blocks.push(JSON.parse(raw));
+    } catch {
+      // ignore malformed
+    }
+  }
+  return blocks.find((b) => b && b['@type'] === 'Article') || null;
+};
+
 const articles = await fetch(REST, { headers }).then((r) => r.json());
 console.log(`Validating ${articles.length} published news articles...\n`);
 
@@ -29,13 +45,25 @@ for (const { slug, featured_image } of articles) {
   const html = await res.text();
   const ogType = meta(html, 'og:type');
   const ogImage = meta(html, 'og:image');
-  const hasJsonLd = /"@type"\s*:\s*"Article"/.test(html);
+  const jsonLd = extractJsonLd(html);
 
   const errors = [];
   if (ogType !== 'article') errors.push(`og:type=${ogType}`);
   if (!ogImage) errors.push('og:image missing');
   else if (ogImage.endsWith(DEFAULT_IMG) && featured_image) errors.push('og:image fell back to default');
-  if (!hasJsonLd) errors.push('JSON-LD Article missing');
+
+  if (!jsonLd) {
+    errors.push('JSON-LD Article missing');
+  } else {
+    if (!jsonLd.headline || typeof jsonLd.headline !== 'string') errors.push('JSON-LD headline missing');
+    if (!jsonLd.description || typeof jsonLd.description !== 'string') errors.push('JSON-LD description missing');
+    if (!jsonLd.datePublished || isNaN(Date.parse(jsonLd.datePublished))) errors.push('JSON-LD datePublished invalid');
+    const img = jsonLd.image;
+    const hasImage = typeof img === 'string'
+      ? img.length > 0
+      : Array.isArray(img) ? img.length > 0 && img.every((i) => typeof i === 'string' && i.length > 0) : false;
+    if (!hasImage) errors.push('JSON-LD image missing');
+  }
 
   if (errors.length) {
     failed++;
