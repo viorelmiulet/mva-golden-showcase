@@ -29,49 +29,138 @@ async function getBaseUrlFromDb(supabase: any): Promise<string> {
   return url;
 }
 
-function getBasicAuth(): string {
-  const user = Deno.env.get('IMMOFLUX_USER') || '';
-  const pass = Deno.env.get('IMMOFLUX_PASS') || '';
-  return 'Basic ' + btoa(`${user}:${pass}`);
-}
-
-function getBaseUrl(): string {
-  let url = (Deno.env.get('IMMOFLUX_BASE_URL') || 'https://web.immoflux.ro').replace(/\/+$/, '');
-  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
-  return url;
-}
+// ─── IMMOFLUX code dictionaries (per documentatie-api) ──────────────────
+const UTILITATI_LABELS: Record<string, string> = {
+  '10001': 'Curent', '10002': 'Apă', '10003': 'Canalizare', '10004': 'Gaz',
+  '10005': 'Puț', '10006': 'Fosă septică', '10007': 'Curent trifazic',
+  '10009': 'CATV', '10010': 'Telefon', '10011': 'Telefon internațional',
+  '10012': 'Acces internet', '10013': 'Fibră optică', '10014': 'Telefon internațional',
+  '10015': 'Utilități în zonă', '10016': 'Sistem irigație',
+};
+const INCALZIRE_LABELS: Record<string, string> = {
+  '10101': 'Termoficare', '10102': 'Centrală proprie', '10103': 'Centrală imobil',
+  '10104': 'Convectoare', '10105': 'Sobă teracotă', '10106': 'Centrală pe lemne',
+  '10107': 'Încălzire pardoseală', '10108': 'Calorifere', '10109': 'Șemineu',
+};
+const CLIMATIZARE_LABELS: Record<string, string> = {
+  '10201': 'Aer condiționat', '10202': 'Ventiloconvectoare', '10203': 'Aeroterme',
+};
+const TEREN_LABELS: Record<string, string> = {
+  '10301': 'Oportunitate de investiție', '10302': 'Construcție demolabilă',
+  '10303': 'Parcelabil', '10304': 'La șosea', '10305': 'Acces auto', '10306': 'Teren împrejmuit',
+};
+const FINISAJE_LABELS: Record<string, string> = {
+  '20001': 'Izolație exterior', '20002': 'Izolație interior', '20003': 'Bloc izolat termic',
+  '20101': 'Pereți vopsea lavabilă', '20102': 'Pereți var', '20103': 'Pereți faianță',
+  '20104': 'Pereți lambriu', '20105': 'Pereți tapet', '20106': 'Pereți marmură',
+  '20107': 'Pereți humă', '20108': 'Pereți vinarom',
+  '20201': 'Parchet', '20202': 'Gresie', '20203': 'Marmură', '20204': 'Mochetă',
+  '20205': 'Dușumea', '20206': 'Linoleum',
+  '20301': 'Finisat', '20302': 'Gri', '20303': 'Roșu', '20304': 'Stare bună',
+  '20305': 'Necesită renovare', '20306': 'Renovat',
+  '20401': 'Ferestre PVC', '20402': 'Ferestre lemn', '20403': 'Ferestre aluminiu',
+  '20501': 'Jaluzele verticale', '20502': 'Jaluzele orizontale',
+  '20601': 'Rulouri aluminiu', '20602': 'Rulouri lemn', '20603': 'Rulouri PVC',
+  '20701': 'Ușă intrare metal', '20702': 'Ușă intrare lemn', '20703': 'Ușă intrare PVC', '20704': 'Ușă intrare PAL',
+  '20801': 'Lămpi', '20802': 'Spoturi', '20803': 'Aplice', '20804': 'Iluminat exterior', '20805': 'Lumină naturală',
+  '20901': 'Uși interior celulare', '20902': 'Uși interior lemn', '20903': 'Uși interior panel',
+  '20904': 'Uși interior PVC', '20905': 'Uși interior sticlă', '20906': 'Uși interior metal',
+  '21001': 'Acoperiș Lindab', '21002': 'Acoperiș țiglă', '21003': 'Terasă',
+  '21004': 'Acoperiș tablă', '21005': 'Acoperiș carton', '21006': 'Șindrilă bituminoasă',
+};
+const DOTARI_LABELS: Record<string, string> = {
+  '30001': 'Terasă', '30002': 'WC serviciu', '30003': 'Boxă la subsol', '30004': 'Debara',
+  '30011': 'Pivniță', '30012': 'Cramă', '30013': 'Spațiu depozitare', '30014': 'Dressing',
+  '30015': 'WC serviciu', '30016': 'Anexe', '30017': 'Dependințe',
+  '30021': 'Pivniță', '30022': 'Cramă', '30023': 'Spațiu depozitare', '30024': 'Anexe',
+  '30025': 'Dependințe', '30026': 'Parcare proprie', '30027': 'Parcare acoperită',
+  '30028': 'Spațiu verde amenajat',
+  '30101': 'Bucătărie mobilată', '30102': 'Bucătărie parțial mobilată', '30103': 'Bucătărie utilată',
+  '30104': 'Bucătărie parțial utilată', '30105': 'Bucătărie nemobilată', '30106': 'Bucătărie neutilată',
+  '30201': 'Apometre', '30202': 'Contor căldură', '30203': 'Contor gaz',
+  '30301': 'Nemobilat', '30302': 'Parțial mobilat', '30303': 'Complet mobilat', '30304': 'Mobilat lux',
+  '30401': 'Interfon', '30402': 'Videointerfon', '30403': 'Lift', '30404': 'Spații agrement',
+  '30405': 'Saună', '30406': 'SPA', '30407': 'Acoperiș', '30408': 'Curte', '30409': 'Curte comună',
+  '30410': 'Grădină', '30411': 'Piscină interioară', '30412': 'Piscină exterioară', '30413': 'Uscătorie',
+  '30501': 'Fier de călcat', '30502': 'Cafetieră', '30503': 'Uscător păr', '30504': 'Toaster',
+  '30505': 'DVD', '30506': 'Mașină de spălat rufe', '30507': 'Sandwich-maker', '30508': 'Frigider',
+  '30509': 'Cuptor microunde', '30510': 'Aragaz', '30511': 'Hotă', '30512': 'Mașină de spălat vase',
+  '30513': 'Robot bucătărie', '30514': 'Aspirator', '30515': 'TV', '30516': 'HI-FI',
+  '30601': 'Jacuzzi', '30602': 'Scară interioară', '30603': 'Șemineu', '30604': 'Senzor de fum',
+  '30605': 'Sistem de alarmă', '30606': 'Telecomandă poartă garaj', '30607': 'Telecomandă poartă acces auto',
+};
 
 interface ImmofluxProperty {
   idnum: number;
-  idstr: string;
-  titlu: { ro: string; en?: string } | string;
-  descriere: { ro: string; en?: string } | string;
-  pretvanzare: number | null;
-  pretinchiriere: number | null;
-  monedavanzare: string;
-  monedainchiriere?: string;
-  devanzare: number | null;
-  nrcamere: number;
-  suprafatautila: string | number;
-  suprafatateren?: string | number;
-  etaj: string;
-  localitate: string;
-  judet: string;
-  zona: string;
-  latitudine: number;
-  longitudine: number;
-  images: Array<{ src: string; pozitie: number }>;
+  idstr?: string;
+  alias?: string;
   agent: number;
-  top: number;
+  agent_info?: { nume?: string; email?: string; telefon?: string; phone?: string };
+  dataadaugare?: number | string;
+  datamodificare?: number | string;
+  adresa?: string;
+  titlu: { ro?: string; en?: string } | string;
+  descriere: { ro?: string; en?: string } | string;
+  vecinatati?: { ro?: string; en?: string } | string;
+  utilitati?: string;
+  finisaje?: string;
+  dotari?: string;
+  altedetaliizona?: string;
+  pretnegociabil?: number;
+  longitudine?: number;
+  latitudine?: number;
+  tiplocuinta?: string;
+  tipimobil?: string;
+  tipteren?: string;
+  clasificareteren?: string;
+  nrfronturistradale?: number;
+  frontstradal?: number | string;
+  suprafatateren?: string | number;
+  latimedrumacces?: number | string;
+  nrcamere?: number;
+  nrbucatarii?: number;
+  etaj?: string;
+  tipcompartimentare?: string;
+  suprafatautila?: string | number;
+  confort?: string;
+  suprafataconstruita?: string | number;
+  anconstructie?: number;
+  nrbai?: number;
+  nrnivele?: number;
+  nrbalcoane?: number;
+  nrgaraje?: number;
+  stadiuconstructie?: string;
+  stadiuconstructie_value?: string;
+  tipconstructie_value?: string;
+  starefinisaje_value?: string;
+  mobilat_value?: string;
+  bucatarie_values?: string[] | string;
+  utilitati_values?: string[] | string;
+  finisaje_values?: string[] | string;
+  dotari_values?: string[] | string;
+  structurarezistenta?: string;
+  status?: string;
+  localitate?: string;
+  judet?: string;
+  zona?: string;
+  caroiaj?: string;
+  devanzare?: number;
+  monedavanzare?: string;
+  monedainchiriere?: string;
+  pretvanzare?: number;
+  pretinchiriere?: number;
+  pretfaratva?: number;
+  comisioncumparator?: number | string;
+  images?: Array<{ src: string; tip?: string; pozitie: number; modificata?: string }>;
+  publicare?: number;
+  top?: number;
   pole?: number;
   poleposition?: number;
-  tiplocuinta: string;
-  nrbai: number;
-  anconstructie: number;
-  status: string;
-  nrbalcoane?: number;
-  tipcompartimentare?: string;
-  structurarezistenta?: string;
+  custom1?: string;
+  custom2?: string;
+  portals?: unknown[];
+  tip?: string;
+  eficienta_energetica?: string | Record<string, unknown>;
 }
 
 async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
@@ -79,7 +168,6 @@ async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
   const auth = await getBasicAuthFromDb(supabase);
   const headers = { 'Authorization': auth, 'Accept': 'application/json' };
 
-  // First page
   const firstRes = await fetch(`${baseUrl}/api/sites/v1/properties?page=1`, { headers });
   if (!firstRes.ok) throw new Error(`IMMOFLUX API error: ${firstRes.status}`);
   const firstData = await firstRes.json();
@@ -88,7 +176,6 @@ async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
 
   console.log(`[sync-immoflux] Total pages: ${lastPage}, total: ${firstData.total}`);
 
-  // Fetch remaining pages in parallel batches of 5
   for (let batchStart = 2; batchStart <= lastPage; batchStart += 5) {
     const batchEnd = Math.min(batchStart + 4, lastPage);
     const promises = [];
@@ -106,18 +193,113 @@ async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
   return allProps;
 }
 
+// Helpers ─────────────────────────────────────────────
+const toArr = (v: unknown): string[] => {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.map(String);
+  if (typeof v === 'string') return v.split(/[,;|\s]+/).filter(Boolean);
+  return [];
+};
+const num = (v: unknown): number | null => {
+  if (v === null || v === undefined || v === '') return null;
+  const n = typeof v === 'number' ? v : parseFloat(String(v));
+  return isNaN(n) ? null : n;
+};
+const intOrNull = (v: unknown): number | null => {
+  const n = num(v);
+  return n === null ? null : Math.round(n);
+};
+const localized = (v: unknown): string => {
+  if (!v) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') return (v as any).ro || (v as any).en || '';
+  return String(v);
+};
+const labelize = (codes: string[], dict: Record<string, string>): string[] =>
+  codes.map(c => dict[c]).filter(Boolean);
+
 function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
-  const title = typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`);
-  const description = typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || '');
+  const title = localized(p.titlu) || `Proprietate #${p.idnum}`;
+  let description = localized(p.descriere);
+
+  // Append context blocks to description
+  const vecin = localized(p.vecinatati);
+  if (vecin) description += `\n\nVecinătăți: ${vecin}`;
+  if (p.utilitati) description += `\n\nUtilități: ${p.utilitati}`;
+  if (p.finisaje) description += `\n\nFinisaje: ${p.finisaje}`;
+  if (p.dotari) description += `\n\nDotări: ${p.dotari}`;
+  if (p.altedetaliizona) description += `\n\nAlte detalii zonă: ${p.altedetaliizona}`;
+
   const isSale = p.devanzare === 1;
   const price = isSale ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare);
   const currency = isSale ? (p.monedavanzare || 'EUR') : (p.monedainchiriere || 'EUR');
-  const surface = typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) || null : p.suprafatautila;
-  const surfaceLand = typeof p.suprafatateren === 'string' ? parseFloat(p.suprafatateren as string) || null : (p.suprafatateren || null);
+
+  const surface = intOrNull(p.suprafatautila);
+  const surfaceLand = intOrNull(p.suprafatateren);
+
   const images = (p.images || []).sort((a, b) => a.pozitie - b.pozitie).map(img => img.src);
   const isPole = p.pole === 1 || p.poleposition === 1;
   const isTop = p.top === 1;
   const promotionType = isPole ? 'pole_position' : (isTop ? 'top' : null);
+
+  // Code-based feature decoding
+  const utilCodes = toArr(p.utilitati_values);
+  const finisCodes = toArr(p.finisaje_values);
+  const dotariCodes = toArr(p.dotari_values);
+  const bucCodes = toArr(p.bucatarie_values);
+
+  const features = [
+    ...labelize(finisCodes, FINISAJE_LABELS),
+    ...labelize(utilCodes, UTILITATI_LABELS),
+    ...labelize(utilCodes, INCALZIRE_LABELS),
+    ...labelize(utilCodes, TEREN_LABELS),
+  ].filter((v, i, a) => a.indexOf(v) === i);
+
+  const amenities = [
+    ...labelize(dotariCodes, DOTARI_LABELS),
+    ...labelize(bucCodes, DOTARI_LABELS),
+    ...labelize(utilCodes, CLIMATIZARE_LABELS),
+  ].filter((v, i, a) => a.indexOf(v) === i);
+
+  // Boolean utility flags (codes per IMMOFLUX docs)
+  const has = (code: string) => utilCodes.includes(code);
+  const hasDot = (code: string) => dotariCodes.includes(code);
+
+  const has_electricity = has('10001') || has('10007') || null;
+  const has_water = has('10002') || has('10005') || null;
+  const has_gas = has('10004') || hasDot('30203') || null;
+  const has_internet = has('10012') || has('10013') || null;
+  const has_tv = has('10009') || hasDot('30515') || null;
+  const has_phone = has('10010') || has('10011') || has('10014') || null;
+  const has_ac = utilCodes.includes('10201') || null;
+  const has_security = hasDot('30605') || hasDot('30604') || null;
+  const has_wood_floors = finisCodes.includes('20201') || finisCodes.includes('20205') || null;
+
+  // Heating
+  const heatingCode = utilCodes.find(c => INCALZIRE_LABELS[c]);
+  const heating = heatingCode ? INCALZIRE_LABELS[heatingCode] : null;
+
+  // Furnished
+  const mobilatCode = dotariCodes.find(c => ['30301', '30302', '30303', '30304'].includes(c));
+  const furnished = p.mobilat_value || (mobilatCode ? DOTARI_LABELS[mobilatCode] : null);
+
+  // Parking count
+  const parking = (hasDot('30026') ? 1 : 0) + (hasDot('30027') ? 1 : 0) + (p.nrgaraje || 0);
+
+  // Agent
+  const agent = p.agent_info?.nume || (p.agent ? `Agent #${p.agent}` : null);
+  const agencyContact = p.agent_info ? {
+    name: p.agent_info.nume,
+    email: p.agent_info.email,
+    phone: p.agent_info.phone || p.agent_info.telefon,
+  } : null;
+
+  // Date added
+  let date_added: string | null = null;
+  if (p.dataadaugare) {
+    const ts = typeof p.dataadaugare === 'number' ? p.dataadaugare : parseInt(String(p.dataadaugare));
+    if (!isNaN(ts)) date_added = new Date(ts * (ts > 1e12 ? 1 : 1000)).toISOString();
+  }
 
   return {
     external_id: `immoflux-${p.idnum}`,
@@ -125,32 +307,51 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     source: 'immoflux',
     title,
     description,
+    descriere_lunga: description,
     price_min: price || 0,
     price_max: price || 0,
     currency,
     rooms: p.nrcamere || 1,
+    kitchens: p.nrbucatarii || null,
     surface_min: surface,
     surface_max: surface,
-    surface_land: surfaceLand ? Math.round(surfaceLand as number) : null,
+    surface_land: surfaceLand,
     images,
-    location: p.zona || p.localitate,
-    zone: p.zona,
-    city: p.localitate,
-    floor: typeof p.etaj === 'string' ? parseInt(p.etaj) || null : null,
+    location: p.adresa || p.zona || p.localitate,
+    zone: p.zona || null,
+    city: p.localitate || null,
+    floor: intOrNull(p.etaj),
+    total_floors: p.nrnivele || null,
     bathrooms: p.nrbai || null,
     balconies: p.nrbalcoane || null,
     year_built: p.anconstructie || null,
     transaction_type: isSale ? 'sale' : 'rent',
     is_featured: isTop || isPole,
     promotion_type: promotionType,
-    is_published: true,
-    property_type: p.tiplocuinta || null,
+    is_published: p.publicare === 0 ? false : true,
+    property_type: p.tiplocuinta || p.tipimobil || null,
+    property_subtype: p.tipteren || null,
+    appartment_type: p.tip || null,
+    building_type: p.tipconstructie_value || null,
     compartment: p.tipcompartimentare || null,
     build_materials: p.structurarezistenta || null,
+    comfort: p.confort || null,
+    heating,
+    furnished,
+    parking: parking || null,
     latitude: p.latitudine || null,
     longitude: p.longitudine || null,
     availability_status: 'available',
-    // No project_id so it shows in public listing
+    features: features.length ? features : null,
+    amenities: amenities.length ? amenities : null,
+    agent,
+    contact_info: agencyContact,
+    broker_id: p.agent ? String(p.agent) : null,
+    has_water, has_gas, has_electricity, has_internet, has_tv,
+    has_phone, has_ac, has_security, has_wood_floors,
+    price_type: p.pretnegociabil === 1 ? 'negotiable' : null,
+    commission_value: num(p.comisioncumparator),
+    date_added,
     project_id: null,
   };
 }
@@ -183,7 +384,6 @@ serve(async (req) => {
         .select('id');
 
       if (error) {
-        // Trigger errors are non-fatal
         if (error.message.includes('extensions.net.http_post') || error.message.includes('cross-database references')) {
           console.warn(`[sync-immoflux] Trigger error (non-fatal): ${error.message}`);
           upserted += batch.length;
@@ -196,7 +396,6 @@ serve(async (req) => {
       }
     }
 
-    // Mark IMMOFLUX properties not in current feed as inactive
     const currentIds = mapped.map(m => m.external_id);
     if (currentIds.length > 0) {
       const { error: deactivateError } = await supabase
