@@ -72,7 +72,7 @@ const ImmofluxPropertyDetail = () => {
   const isSale = property.devanzare === 1;
   const surface = getSurface(property);
 
-  const pricePerSqm = p.pretm2 ? `${Number(p.pretm2).toLocaleString('ro-RO')} EUR/mp` : null;
+  
 
   const fmtMp = (v: any) => (v != null && v !== '' ? `${Number(v).toFixed(2)} mp` : null);
   const yesNo = (v: any) => (v === 1 || v === '1' || v === true ? 'Da' : v === 0 || v === '0' || v === false ? 'Nu' : null);
@@ -192,7 +192,7 @@ const ImmofluxPropertyDetail = () => {
               
               <div className="flex flex-wrap items-baseline gap-4">
                 <p className="text-2xl font-bold text-gold">{formatPrice(property)}</p>
-                {pricePerSqm && <p className="text-sm text-muted-foreground">({pricePerSqm})</p>}
+                
               </div>
 
               {/* Detalii proprietate */}
