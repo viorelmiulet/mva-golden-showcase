@@ -88,7 +88,7 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    { label: 'm² Construit', value: fmtMp(p.suprafataconstruita), icon: Building2, tone: 'text-orange-400' },
+    
     { label: 'Etaj', value: p.etaj, icon: ArrowUpDown, tone: 'text-indigo-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
   ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
