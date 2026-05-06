@@ -195,80 +195,41 @@ const ImmofluxPropertyDetail = () => {
                 
               </div>
 
-              {/* Detalii proprietate */}
-              {allDetails.length > 0 && (() => {
-                const mid = Math.ceil(allDetails.length / 2);
-                const leftCol = allDetails.slice(0, mid);
-                const rightCol = allDetails.slice(mid);
-                // Inserăm zero-width space după separatori frecvenți (/, \, -, ., ,)
-                // ca să permitem ruperea naturală fără să aplicăm hyphenation greșit.
-                const softBreak = (val: any) => {
-                  if (val === null || val === undefined) return val;
-                  const s = String(val);
-                  return s.replace(/([\/\\\-\.,])(?=\S)/g, "$1\u200B");
-                };
-                const softBreakLabel = (val: string) =>
-                  val.replace(/([\/\\\-])(?=\S)/g, "$1\u200B");
-                const renderRow = (d: { label: string; value: any }, i: number) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-start gap-x-3 sm:gap-x-4 py-2.5 md:py-3 text-[13px] md:text-sm leading-snug"
-                  >
-                    <dt className="text-muted-foreground font-normal min-w-0 break-words [overflow-wrap:anywhere]">
-                      {softBreakLabel(d.label)}
-                    </dt>
-                    <dd className="font-semibold text-foreground text-right min-w-0 break-words [overflow-wrap:anywhere] [hyphens:none]">
-                      {typeof d.value === "string" || typeof d.value === "number"
-                        ? softBreak(d.value)
-                        : d.value}
-                    </dd>
-                  </div>
-                );
-                const isLong = allDetails.length > 10;
-                return (
-                  <section className="rounded-xl border bg-card p-4 sm:p-5 md:p-6 shadow-sm overflow-hidden">
-                    <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-3 md:mb-4 tracking-tight">
-                      Detalii proprietate
-                    </h2>
-                    <div
-                      className={
-                        !isLong
-                          ? ""
-                          : detailsExpanded
-                          ? "max-h-[70vh] overflow-y-auto overscroll-contain pr-1 -mr-1"
-                          : "relative max-h-[420px] md:max-h-[460px] overflow-hidden"
-                      }
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8 lg:gap-x-12">
-                        <dl className="divide-y divide-border/50 min-w-0">{leftCol.map(renderRow)}</dl>
-                        <dl className="divide-y divide-border/50 md:border-t-0 border-t border-border/50 min-w-0">
-                          {rightCol.map(renderRow)}
-                        </dl>
-                      </div>
-                      {isLong && !detailsExpanded && (
+              {/* Detalii Anunț */}
+              {statCards.length > 0 && (
+                <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                  <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5 text-emerald-400" />
+                    Detalii Anunț
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {statCards.map((s, i) => {
+                      const Icon = s.icon;
+                      return (
                         <div
-                          aria-hidden
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent"
-                        />
-                      )}
-                    </div>
-                    {isLong && (
-                      <div className="mt-3 flex justify-center">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDetailsExpanded((v) => !v)}
-                          aria-expanded={detailsExpanded}
-                          className="text-gold hover:text-gold"
+                          key={i}
+                          className="rounded-xl bg-muted/40 border border-border/50 p-4 flex flex-col items-center justify-center text-center min-h-[120px]"
                         >
-                          {detailsExpanded ? "Vezi mai puțin" : "Vezi toate detaliile"}
-                        </Button>
+                          <Icon className={`h-6 w-6 mb-2 ${s.tone}`} />
+                          <div className="text-2xl font-bold text-foreground leading-tight">
+                            {s.value}
+                          </div>
+                          <div className={`text-xs mt-1 ${s.tone}`}>{s.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {formattedAddedDate && (
+                    <div className="mt-5 pt-4 border-t border-border/50 flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-xs text-muted-foreground">Adăugat</div>
+                        <div className="text-sm font-semibold text-foreground">{formattedAddedDate}</div>
                       </div>
-                    )}
-                  </section>
-                );
-              })()}
+                    </div>
+                  )}
+                </section>
+              )}
 
               {/* Utilități */}
               {utilitati && (
