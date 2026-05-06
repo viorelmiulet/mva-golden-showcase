@@ -197,14 +197,27 @@ const ImmofluxPropertyDetail = () => {
                 const mid = Math.ceil(allDetails.length / 2);
                 const leftCol = allDetails.slice(0, mid);
                 const rightCol = allDetails.slice(mid);
+                // Inserăm zero-width space după separatori frecvenți (/, \, -, ., ,)
+                // ca să permitem ruperea naturală fără să aplicăm hyphenation greșit.
+                const softBreak = (val: any) => {
+                  if (val === null || val === undefined) return val;
+                  const s = String(val);
+                  return s.replace(/([\/\\\-\.,])(?=\S)/g, "$1\u200B");
+                };
+                const softBreakLabel = (val: string) =>
+                  val.replace(/([\/\\\-])(?=\S)/g, "$1\u200B");
                 const renderRow = (d: { label: string; value: any }, i: number) => (
                   <div
                     key={i}
                     className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-start gap-x-3 sm:gap-x-4 py-2.5 md:py-3 text-[13px] md:text-sm leading-snug"
                   >
-                    <dt className="text-muted-foreground font-normal min-w-0 break-words">{d.label}</dt>
-                    <dd className="font-semibold text-foreground text-right min-w-0 break-words hyphens-auto">
-                      {d.value}
+                    <dt className="text-muted-foreground font-normal min-w-0 break-words [overflow-wrap:anywhere]">
+                      {softBreakLabel(d.label)}
+                    </dt>
+                    <dd className="font-semibold text-foreground text-right min-w-0 break-words [overflow-wrap:anywhere] [hyphens:none]">
+                      {typeof d.value === "string" || typeof d.value === "number"
+                        ? softBreak(d.value)
+                        : d.value}
                     </dd>
                   </div>
                 );
