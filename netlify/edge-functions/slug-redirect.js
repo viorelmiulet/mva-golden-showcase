@@ -31,6 +31,16 @@ export default async (request, context) => {
 
   try {
     if (isCatalog) {
+      // If suffix is purely numeric (3+ digits), it's an Immoflux idnum mistakenly
+      // routed under /proprietati/ — 301 to /proprietate/<slug>
+      const numericMatch = slug.match(/(\d{3,})$/);
+      const isHexShortId = /^[a-f0-9]{4}$/i.test(slug.slice(-4)) && !/^\d+$/.test(slug.slice(-4));
+
+      if (numericMatch && !isHexShortId) {
+        const target = `/proprietate/${slug}${url.search}`;
+        return Response.redirect(new URL(target, url.origin), 301);
+      }
+
       // Last 4 chars = short ID
       const shortId = slug.slice(-4);
       if (!/^[a-f0-9]{4}$/i.test(shortId)) return context.next();
