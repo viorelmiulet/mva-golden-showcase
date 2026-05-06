@@ -96,7 +96,7 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Nr. nivele', value: p.nrnivele },
     { label: 'Eficiență energetică', value: p.eficienta_energetica ? `${p.eficienta_energetica}` : null },
     { label: 'Exclusivitate', value: yesNo(p.exclusivitate) },
-    { label: 'Adresă', value: p.adresa },
+    
   ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
 
   const agentInfo = p.agent_info;
