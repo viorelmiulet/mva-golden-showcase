@@ -72,30 +72,36 @@ const ImmofluxPropertyDetail = () => {
   const isSale = property.devanzare === 1;
   const surface = getSurface(property);
 
-  const details = [
-    { icon: BedDouble, label: 'Camere', value: property.nrcamere },
-    { icon: Bath, label: 'Băi', value: property.nrbai },
-    { icon: Maximize, label: 'Suprafață utilă', value: surface ? `${surface} mp` : null },
-    { icon: Maximize, label: 'Suprafață construită', value: p.suprafataconstruita ? `${p.suprafataconstruita} mp` : null },
-    { icon: Maximize, label: 'Teren', value: property.suprafatateren ? `${property.suprafatateren} mp` : null },
-    { icon: Building, label: 'Etaj', value: property.etaj },
-    { icon: SquareStack, label: 'Nr. nivele', value: p.nrnivele },
-    { icon: Home, label: 'Balcoane', value: p.nrbalcoane },
-    { icon: Calendar, label: 'An construcție', value: property.anconstructie },
-    { icon: Sofa, label: 'Compartimentare', value: p.tipcompartimentare },
-    { icon: Building, label: 'Confort', value: p.confort ? `Confort ${p.confort}` : null },
-    { icon: Wrench, label: 'Structură', value: p.structurarezistenta },
-    { icon: Home, label: 'Tip locuință', value: p.tiplocuinta },
-    { icon: Home, label: 'Tip imobil', value: p.tipimobil },
-    { icon: Thermometer, label: 'Eficiență energetică', value: p.eficienta_energetica ? `Clasa ${p.eficienta_energetica}` : null },
-    { icon: Calendar, label: 'Stadiu construcție', value: p.stadiuconstructie },
-    { icon: Home, label: 'Destinație', value: p.destinatie },
-    { icon: Calendar, label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
-    { icon: MapPin, label: 'Localitate', value: property.localitate },
-    { icon: MapPin, label: 'Zonă', value: property.zona },
-  ].filter(d => d.value);
-
   const pricePerSqm = p.pretm2 ? `${Number(p.pretm2).toLocaleString('ro-RO')} EUR/mp` : null;
+
+  const fmtMp = (v: any) => (v != null && v !== '' ? `${Number(v).toFixed(2)} mp` : null);
+  const yesNo = (v: any) => (v === 1 || v === '1' || v === true ? 'Da' : v === 0 || v === '0' || v === false ? 'Nu' : null);
+
+  const detailsLeft: Array<{ label: string; value: any }> = [
+    { label: 'ID anunț', value: property.idstr || (property.idnum ? `P${property.idnum}` : null) },
+    { label: 'Tip imobil', value: p.tipimobil },
+    { label: 'Compartimentare', value: p.tipcompartimentare },
+    { label: 'Destinație', value: p.destinatie },
+    { label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
+    { label: 'Structură rezistență', value: p.structurarezistenta },
+    { label: 'Suprafață construită', value: fmtMp(p.suprafataconstruita) },
+    { label: 'Nr. balcoane', value: p.nrbalcoane },
+    { label: 'Eficiență energetică', value: p.eficienta_energetica ? `${p.eficienta_energetica}` : null },
+    { label: 'Exclusivitate', value: yesNo(p.exclusivitate) },
+  ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
+
+  const detailsRight: Array<{ label: string; value: any }> = [
+    { label: 'Tip locuință', value: p.tiplocuinta },
+    { label: 'Tip apartament', value: p.tipapartament },
+    { label: 'Confort', value: p.confort },
+    { label: 'Status', value: p.status },
+    { label: 'Stadiu construcție', value: p.stadiuconstructie },
+    { label: 'Suprafață utilă', value: fmtMp(surface) },
+    { label: 'Nr. bucătării', value: p.nrbucatarii },
+    { label: 'Nr. nivele', value: p.nrnivele },
+    { label: 'Preț / mp', value: p.pretm2 ? `${Number(p.pretm2).toFixed(2)} EUR` : null },
+    { label: 'Adresă', value: p.adresa },
+  ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
 
   const agentInfo = p.agent_info;
 
@@ -190,18 +196,30 @@ const ImmofluxPropertyDetail = () => {
                 {pricePerSqm && <p className="text-sm text-muted-foreground">({pricePerSqm})</p>}
               </div>
 
-              {/* Caracteristici */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {details.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-                    <d.icon className="h-4 w-4 text-gold shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] text-muted-foreground">{d.label}</p>
-                      <p className="font-semibold text-xs truncate">{d.value}</p>
-                    </div>
+              {/* Detalii proprietate */}
+              {(detailsLeft.length > 0 || detailsRight.length > 0) && (
+                <section className="rounded-xl border bg-card p-5 md:p-6 shadow-sm">
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground mb-4">Detalii proprietate</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
+                    <dl className="divide-y divide-border/60">
+                      {detailsLeft.map((d, i) => (
+                        <div key={i} className="flex items-center justify-between py-3 text-sm">
+                          <dt className="text-muted-foreground">{d.label}</dt>
+                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <dl className="divide-y divide-border/60">
+                      {detailsRight.map((d, i) => (
+                        <div key={i} className="flex items-center justify-between py-3 text-sm">
+                          <dt className="text-muted-foreground">{d.label}</dt>
+                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
-                ))}
-              </div>
+                </section>
+              )}
 
               {/* Utilități */}
               {utilitati && (
