@@ -198,17 +198,24 @@ const ImmofluxPropertyDetail = () => {
                 const leftCol = allDetails.slice(0, mid);
                 const rightCol = allDetails.slice(mid);
                 const renderRow = (d: { label: string; value: any }, i: number) => (
-                  <div key={i} className="flex items-center justify-between gap-4 py-3 text-sm">
-                    <dt className="text-muted-foreground shrink-0">{d.label}</dt>
+                  <div
+                    key={i}
+                    className="flex items-start justify-between gap-3 py-2.5 md:py-3 text-[13px] md:text-sm leading-snug"
+                  >
+                    <dt className="text-muted-foreground font-normal">{d.label}</dt>
                     <dd className="font-semibold text-foreground text-right break-words">{d.value}</dd>
                   </div>
                 );
                 return (
                   <section className="rounded-xl border bg-card p-4 md:p-6 shadow-sm">
-                    <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2 md:mb-4">Detalii proprietate</h2>
+                    <h2 className="text-base md:text-xl font-semibold text-foreground mb-3 md:mb-4 tracking-tight">
+                      Detalii proprietate
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
-                      <dl className="divide-y divide-border/60">{leftCol.map(renderRow)}</dl>
-                      <dl className="divide-y divide-border/60 md:border-t-0 border-t border-border/60 md:mt-0">{rightCol.map(renderRow)}</dl>
+                      <dl className="divide-y divide-border/50">{leftCol.map(renderRow)}</dl>
+                      <dl className="divide-y divide-border/50 md:border-t-0 border-t border-border/50">
+                        {rightCol.map(renderRow)}
+                      </dl>
                     </div>
                   </section>
                 );
