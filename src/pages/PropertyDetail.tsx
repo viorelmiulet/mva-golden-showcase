@@ -778,7 +778,7 @@ const PropertyDetail = () => {
                   const details: { icon: React.ReactNode; label: string; value: string }[] = [];
                   
                   if (property.floor !== null && property.floor !== undefined)
-                    details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Etaj', value: `${property.floor}${property.total_floors ? ` / ${property.total_floors}` : ''}` });
+                    details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Etaj', value: `${property.floor}` });
                   if (property.bathrooms !== null && property.bathrooms !== undefined)
                     details.push({ icon: <Bath className="w-4 h-4 text-gold" />, label: 'Băi', value: `${property.bathrooms}` });
                   if (property.year_built)
