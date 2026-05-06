@@ -375,6 +375,12 @@ const PropertyDetail = () => {
         return;
       }
 
+      // Fallback: numeric suffix → likely an Immoflux idnum, redirect to /proprietate/
+      if (/\d{3,}$/.test(slug)) {
+        window.location.replace(`/proprietate/${slug}`);
+        return;
+      }
+
       setNotFound(true);
       setIsLoading(false);
       return;
