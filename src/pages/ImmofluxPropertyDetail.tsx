@@ -99,7 +99,6 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Suprafață utilă', value: fmtMp(surface) },
     { label: 'Nr. bucătării', value: p.nrbucatarii },
     { label: 'Nr. nivele', value: p.nrnivele },
-    { label: 'Preț / mp', value: p.pretm2 ? `${Number(p.pretm2).toFixed(2)} EUR` : null },
     { label: 'Adresă', value: p.adresa },
   ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
 
