@@ -26,6 +26,7 @@ const ImmofluxPropertyDetail = () => {
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   const handleContact = (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,17 +222,48 @@ const ImmofluxPropertyDetail = () => {
                     </dd>
                   </div>
                 );
+                const isLong = allDetails.length > 10;
                 return (
                   <section className="rounded-xl border bg-card p-4 sm:p-5 md:p-6 shadow-sm overflow-hidden">
                     <h2 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-3 md:mb-4 tracking-tight">
                       Detalii proprietate
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8 lg:gap-x-12">
-                      <dl className="divide-y divide-border/50 min-w-0">{leftCol.map(renderRow)}</dl>
-                      <dl className="divide-y divide-border/50 md:border-t-0 border-t border-border/50 min-w-0">
-                        {rightCol.map(renderRow)}
-                      </dl>
+                    <div
+                      className={
+                        !isLong
+                          ? ""
+                          : detailsExpanded
+                          ? "max-h-[70vh] overflow-y-auto overscroll-contain pr-1 -mr-1"
+                          : "relative max-h-[420px] md:max-h-[460px] overflow-hidden"
+                      }
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8 lg:gap-x-12">
+                        <dl className="divide-y divide-border/50 min-w-0">{leftCol.map(renderRow)}</dl>
+                        <dl className="divide-y divide-border/50 md:border-t-0 border-t border-border/50 min-w-0">
+                          {rightCol.map(renderRow)}
+                        </dl>
+                      </div>
+                      {isLong && !detailsExpanded && (
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent"
+                        />
+                      )}
                     </div>
+                    {isLong && (
+                      <div className="mt-3 flex justify-center">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailsExpanded((v) => !v)}
+                          aria-expanded={detailsExpanded}
+                          className="text-gold hover:text-gold"
+                        >
+                          {detailsExpanded ? "Vezi mai puțin" : "Vezi toate detaliile"}
+                        </Button>
+                      </div>
+                    )}
                   </section>
                 );
               })()}
