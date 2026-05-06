@@ -192,7 +192,7 @@ const ImmofluxPropertyDetail = () => {
               
               <div className="flex flex-wrap items-baseline gap-4">
                 <p className="text-2xl font-bold text-gold">{formatPrice(property)}</p>
-                {pricePerSqm && <p className="text-sm text-muted-foreground">({pricePerSqm})</p>}
+                
               </div>
 
               {/* Detalii proprietate */}
