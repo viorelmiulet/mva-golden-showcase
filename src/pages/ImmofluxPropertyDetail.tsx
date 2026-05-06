@@ -75,30 +75,32 @@ const ImmofluxPropertyDetail = () => {
 
   
 
-  const fmtMp = (v: any) => (v != null && v !== '' ? `${Number(v).toFixed(2)} mp` : null);
-  const yesNo = (v: any) => (v === 1 || v === '1' || v === true ? 'Da' : v === 0 || v === '0' || v === false ? 'Nu' : null);
+  const fmtMp = (v: any) => {
+    if (v === null || v === undefined || v === '') return null;
+    const n = Number(v);
+    if (Number.isNaN(n)) return null;
+    return Number.isInteger(n) ? `${n}` : n.toFixed(2);
+  };
 
-  const allDetails: Array<{ label: string; value: any }> = [
-    { label: 'ID anunț', value: property.idstr || (property.idnum ? `P${property.idnum}` : null) },
-    { label: 'Tip locuință', value: p.tiplocuinta },
-    { label: 'Tip imobil', value: p.tipimobil },
-    { label: 'Tip apartament', value: p.tipapartament },
-    { label: 'Compartimentare', value: p.tipcompartimentare },
-    { label: 'Confort', value: p.confort },
-    { label: 'Destinație', value: p.destinatie },
-    { label: 'Status', value: p.status },
-    { label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
-    { label: 'Stadiu construcție', value: p.stadiuconstructie },
-    { label: 'Structură rezistență', value: p.structurarezistenta },
-    { label: 'Suprafață utilă', value: fmtMp(surface) },
-    { label: 'Suprafață construită', value: fmtMp(p.suprafataconstruita) },
-    { label: 'Nr. bucătării', value: p.nrbucatarii },
-    { label: 'Nr. balcoane', value: p.nrbalcoane },
-    { label: 'Nr. nivele', value: p.nrnivele },
-    { label: 'Eficiență energetică', value: p.eficienta_energetica ? `${p.eficienta_energetica}` : null },
-    { label: 'Exclusivitate', value: yesNo(p.exclusivitate) },
-    
-  ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
+  type StatItem = { label: string; value: string | number; icon: any; tone: string };
+  const statCards: StatItem[] = [
+    { label: 'Camere', value: p.nrcamere, icon: Home, tone: 'text-sky-400' },
+    { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
+    { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
+    { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
+    { label: 'm² Construit', value: fmtMp(p.suprafataconstruita), icon: Building2, tone: 'text-orange-400' },
+    { label: 'Etaj', value: p.etaj, icon: ArrowUpDown, tone: 'text-indigo-400' },
+    { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
+  ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
+
+  const addedDate = p.datapublicare || p.data_publicare || p.datacreare || p.created_at || null;
+  const formattedAddedDate = (() => {
+    if (!addedDate) return null;
+    const d = new Date(addedDate);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
+  })();
+
 
   const agentInfo = p.agent_info;
 
