@@ -196,18 +196,30 @@ const ImmofluxPropertyDetail = () => {
                 {pricePerSqm && <p className="text-sm text-muted-foreground">({pricePerSqm})</p>}
               </div>
 
-              {/* Caracteristici */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {details.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-                    <d.icon className="h-4 w-4 text-gold shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[10px] text-muted-foreground">{d.label}</p>
-                      <p className="font-semibold text-xs truncate">{d.value}</p>
-                    </div>
+              {/* Detalii proprietate */}
+              {(detailsLeft.length > 0 || detailsRight.length > 0) && (
+                <section className="rounded-xl border bg-card p-5 md:p-6 shadow-sm">
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground mb-4">Detalii proprietate</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
+                    <dl className="divide-y divide-border/60">
+                      {detailsLeft.map((d, i) => (
+                        <div key={i} className="flex items-center justify-between py-3 text-sm">
+                          <dt className="text-muted-foreground">{d.label}</dt>
+                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <dl className="divide-y divide-border/60">
+                      {detailsRight.map((d, i) => (
+                        <div key={i} className="flex items-center justify-between py-3 text-sm">
+                          <dt className="text-muted-foreground">{d.label}</dt>
+                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
                   </div>
-                ))}
-              </div>
+                </section>
+              )}
 
               {/* Utilități */}
               {utilitati && (
