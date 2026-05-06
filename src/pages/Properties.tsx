@@ -161,22 +161,27 @@ const Properties = () => {
     });
   }, [catalogProperties]);
 
-  // Helper: detect transaction type from text when missing or incorrect
+  // Helper: detect transaction type. Trust DB value first; fall back to text only when missing.
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
+    if (property.transaction_type === 'rent' || property.transaction_type === 'sale') {
+      return property.transaction_type
+    }
+
     const base = `${property.title || ''} ${property.description || ''}`.toLowerCase()
     const text = base
       .replace(/ă/g,'a').replace(/â/g,'a').replace(/î/g,'i')
       .replace(/ș/g,'s').replace(/ş/g,'s').replace(/ț/g,'t').replace(/ţ/g,'t')
 
-    const rentKeywords = [
-      'inchiriere', 'inchiriez', 'de inchiriat', 'chirie',
-      'for rent', 'rent', 'se inchiriaza', 'se inchiriază'
-    ]
+    const saleKeywords = ['de vanzare', 'vanzare', 'vand', 'se vinde', 'for sale']
+    if (saleKeywords.some(k => text.includes(k))) return 'sale'
 
+    const rentKeywords = [
+      'de inchiriat', 'se inchiriaza', 'se inchiriază',
+      'inchiriere', 'inchiriez', 'chirie', 'for rent'
+    ]
     if (rentKeywords.some(k => text.includes(k))) return 'rent'
-    return (property.transaction_type === 'rent' || property.transaction_type === 'sale')
-      ? property.transaction_type
-      : 'sale'
+
+    return 'sale'
   }
 
   // Memoized zone extraction cache
