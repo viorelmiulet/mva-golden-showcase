@@ -77,28 +77,25 @@ const ImmofluxPropertyDetail = () => {
   const fmtMp = (v: any) => (v != null && v !== '' ? `${Number(v).toFixed(2)} mp` : null);
   const yesNo = (v: any) => (v === 1 || v === '1' || v === true ? 'Da' : v === 0 || v === '0' || v === false ? 'Nu' : null);
 
-  const detailsLeft: Array<{ label: string; value: any }> = [
+  const allDetails: Array<{ label: string; value: any }> = [
     { label: 'ID anunț', value: property.idstr || (property.idnum ? `P${property.idnum}` : null) },
+    { label: 'Tip locuință', value: p.tiplocuinta },
     { label: 'Tip imobil', value: p.tipimobil },
+    { label: 'Tip apartament', value: p.tipapartament },
     { label: 'Compartimentare', value: p.tipcompartimentare },
+    { label: 'Confort', value: p.confort },
     { label: 'Destinație', value: p.destinatie },
+    { label: 'Status', value: p.status },
     { label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
+    { label: 'Stadiu construcție', value: p.stadiuconstructie },
     { label: 'Structură rezistență', value: p.structurarezistenta },
+    { label: 'Suprafață utilă', value: fmtMp(surface) },
     { label: 'Suprafață construită', value: fmtMp(p.suprafataconstruita) },
+    { label: 'Nr. bucătării', value: p.nrbucatarii },
     { label: 'Nr. balcoane', value: p.nrbalcoane },
+    { label: 'Nr. nivele', value: p.nrnivele },
     { label: 'Eficiență energetică', value: p.eficienta_energetica ? `${p.eficienta_energetica}` : null },
     { label: 'Exclusivitate', value: yesNo(p.exclusivitate) },
-  ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
-
-  const detailsRight: Array<{ label: string; value: any }> = [
-    { label: 'Tip locuință', value: p.tiplocuinta },
-    { label: 'Tip apartament', value: p.tipapartament },
-    { label: 'Confort', value: p.confort },
-    { label: 'Status', value: p.status },
-    { label: 'Stadiu construcție', value: p.stadiuconstructie },
-    { label: 'Suprafață utilă', value: fmtMp(surface) },
-    { label: 'Nr. bucătării', value: p.nrbucatarii },
-    { label: 'Nr. nivele', value: p.nrnivele },
     { label: 'Adresă', value: p.adresa },
   ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
 
@@ -196,29 +193,26 @@ const ImmofluxPropertyDetail = () => {
               </div>
 
               {/* Detalii proprietate */}
-              {(detailsLeft.length > 0 || detailsRight.length > 0) && (
-                <section className="rounded-xl border bg-card p-5 md:p-6 shadow-sm">
-                  <h2 className="text-lg md:text-xl font-semibold text-foreground mb-4">Detalii proprietate</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
-                    <dl className="divide-y divide-border/60">
-                      {detailsLeft.map((d, i) => (
-                        <div key={i} className="flex items-center justify-between py-3 text-sm">
-                          <dt className="text-muted-foreground">{d.label}</dt>
-                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    <dl className="divide-y divide-border/60">
-                      {detailsRight.map((d, i) => (
-                        <div key={i} className="flex items-center justify-between py-3 text-sm">
-                          <dt className="text-muted-foreground">{d.label}</dt>
-                          <dd className="font-semibold text-foreground text-right">{d.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
+              {allDetails.length > 0 && (() => {
+                const mid = Math.ceil(allDetails.length / 2);
+                const leftCol = allDetails.slice(0, mid);
+                const rightCol = allDetails.slice(mid);
+                const renderRow = (d: { label: string; value: any }, i: number) => (
+                  <div key={i} className="flex items-center justify-between gap-4 py-3 text-sm">
+                    <dt className="text-muted-foreground shrink-0">{d.label}</dt>
+                    <dd className="font-semibold text-foreground text-right break-words">{d.value}</dd>
                   </div>
-                </section>
-              )}
+                );
+                return (
+                  <section className="rounded-xl border bg-card p-4 md:p-6 shadow-sm">
+                    <h2 className="text-lg md:text-xl font-semibold text-foreground mb-2 md:mb-4">Detalii proprietate</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10">
+                      <dl className="divide-y divide-border/60">{leftCol.map(renderRow)}</dl>
+                      <dl className="divide-y divide-border/60 md:border-t-0 border-t border-border/60 md:mt-0">{rightCol.map(renderRow)}</dl>
+                    </div>
+                  </section>
+                );
+              })()}
 
               {/* Utilități */}
               {utilitati && (
