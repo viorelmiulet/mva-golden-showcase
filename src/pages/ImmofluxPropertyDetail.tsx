@@ -77,28 +77,25 @@ const ImmofluxPropertyDetail = () => {
   const fmtMp = (v: any) => (v != null && v !== '' ? `${Number(v).toFixed(2)} mp` : null);
   const yesNo = (v: any) => (v === 1 || v === '1' || v === true ? 'Da' : v === 0 || v === '0' || v === false ? 'Nu' : null);
 
-  const detailsLeft: Array<{ label: string; value: any }> = [
+  const allDetails: Array<{ label: string; value: any }> = [
     { label: 'ID anunț', value: property.idstr || (property.idnum ? `P${property.idnum}` : null) },
+    { label: 'Tip locuință', value: p.tiplocuinta },
     { label: 'Tip imobil', value: p.tipimobil },
+    { label: 'Tip apartament', value: p.tipapartament },
     { label: 'Compartimentare', value: p.tipcompartimentare },
+    { label: 'Confort', value: p.confort },
     { label: 'Destinație', value: p.destinatie },
+    { label: 'Status', value: p.status },
     { label: 'Disponibilitate', value: p.disponibilitateproprietare || p.disponibilitateproprietate },
+    { label: 'Stadiu construcție', value: p.stadiuconstructie },
     { label: 'Structură rezistență', value: p.structurarezistenta },
+    { label: 'Suprafață utilă', value: fmtMp(surface) },
     { label: 'Suprafață construită', value: fmtMp(p.suprafataconstruita) },
+    { label: 'Nr. bucătării', value: p.nrbucatarii },
     { label: 'Nr. balcoane', value: p.nrbalcoane },
+    { label: 'Nr. nivele', value: p.nrnivele },
     { label: 'Eficiență energetică', value: p.eficienta_energetica ? `${p.eficienta_energetica}` : null },
     { label: 'Exclusivitate', value: yesNo(p.exclusivitate) },
-  ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
-
-  const detailsRight: Array<{ label: string; value: any }> = [
-    { label: 'Tip locuință', value: p.tiplocuinta },
-    { label: 'Tip apartament', value: p.tipapartament },
-    { label: 'Confort', value: p.confort },
-    { label: 'Status', value: p.status },
-    { label: 'Stadiu construcție', value: p.stadiuconstructie },
-    { label: 'Suprafață utilă', value: fmtMp(surface) },
-    { label: 'Nr. bucătării', value: p.nrbucatarii },
-    { label: 'Nr. nivele', value: p.nrnivele },
     { label: 'Adresă', value: p.adresa },
   ].filter(d => d.value !== null && d.value !== undefined && d.value !== '');
 
