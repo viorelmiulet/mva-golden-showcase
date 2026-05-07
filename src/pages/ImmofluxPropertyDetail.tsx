@@ -118,7 +118,21 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    { label: 'Etaj', value: p.etaj, icon: ArrowUpDown, tone: 'text-indigo-400' },
+    { label: 'Etaj', value: (() => {
+        const candidates = [p.etaj, p.nretaj, p.floor];
+        for (const c of candidates) {
+          if (c === null || c === undefined) continue;
+          const s = String(c).trim();
+          if (!s) continue;
+          if (/parter|demisol/i.test(s)) return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+          const m = s.match(/\d+/);
+          if (!m) continue;
+          const n = parseInt(m[0], 10);
+          if (!Number.isFinite(n) || n < 0) continue;
+          return n === 0 ? 'Parter' : n;
+        }
+        return null;
+      })(), icon: ArrowUpDown, tone: 'text-indigo-400' },
     { label: 'Total Etaje', value: (() => {
         const candidates = [p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors];
         for (const c of candidates) {
