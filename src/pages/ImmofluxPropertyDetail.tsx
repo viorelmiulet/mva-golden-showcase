@@ -288,11 +288,11 @@ const ImmofluxPropertyDetail = () => {
                       <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
                         <Icon className="h-5 w-5 text-gold" /> {title}
                       </h2>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {items.map((item, i) => (
                           <div
                             key={i}
-                            className="rounded-lg bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground text-center"
+                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-[11px] sm:text-xs text-foreground"
                           >
                             {item}
                           </div>
