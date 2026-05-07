@@ -82,15 +82,23 @@ const ImmofluxPropertyDetail = () => {
     return Number.isInteger(n) ? `${n}` : n.toFixed(2);
   };
 
+  // Detect furnished status from dotari labels or explicit field
+  const furnishedLabel = (() => {
+    if (p.mobilat_value) return p.mobilat_value;
+    const src = (p.dotari || '').toString();
+    const candidates = ['Mobilat lux', 'Complet mobilat', 'Parțial mobilat', 'Nemobilat'];
+    return candidates.find(c => src.includes(c)) || null;
+  })();
+
   type StatItem = { label: string; value: string | number; icon: any; tone: string };
   const statCards: StatItem[] = [
     { label: 'Camere', value: p.nrcamere, icon: Home, tone: 'text-sky-400' },
     { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    
     { label: 'Etaj', value: p.etaj, icon: ArrowUpDown, tone: 'text-indigo-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
+    { label: 'Mobilare', value: furnishedLabel as any, icon: Sofa, tone: 'text-amber-400' },
   ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
 
   const addedDate = p.datapublicare || p.data_publicare || p.datacreare || p.created_at || null;
