@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
