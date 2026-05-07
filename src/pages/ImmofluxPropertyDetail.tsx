@@ -13,6 +13,7 @@ import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
+import { filterStatItems, type StatItem } from "@/lib/statItem";
 
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
@@ -113,21 +114,16 @@ const ImmofluxPropertyDetail = () => {
     return null;
   })();
 
-  type StatItem = { label: string; value: string | number; icon: any; tone: string };
-  const statCards: StatItem[] = [
+  const statCards = filterStatItems<any>([
     { label: 'Camere', value: p.nrcamere, icon: Home, tone: 'text-sky-400' },
     { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    { label: 'Etaj', value: parseFloor(p.etaj, p.nretaj, p.floor) as any, icon: ArrowUpDown, tone: 'text-indigo-400' },
-    { label: 'Total Etaje', value: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors) as any, icon: Building2, tone: 'text-fuchsia-400' },
+    { label: 'Etaj', value: parseFloor(p.etaj, p.nretaj, p.floor), icon: ArrowUpDown, tone: 'text-indigo-400' },
+    { label: 'Total Etaje', value: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors), icon: Building2, tone: 'text-fuchsia-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
-    { label: 'Mobilare', value: furnishedLabel as any, icon: Sofa, tone: 'text-amber-400' },
-  ].filter((s): s is StatItem => {
-    if (s.value === null || s.value === undefined || s.value === '' || s.value === 0) return false;
-    if (typeof s.value === 'string' && s.value.trim() === '0') return false;
-    return true;
-  });
+    { label: 'Mobilare', value: furnishedLabel, icon: Sofa, tone: 'text-amber-400' },
+  ]);
 
   const addedDate = p.datapublicare || p.data_publicare || p.datacreare || p.created_at || null;
   const formattedAddedDate = (() => {
