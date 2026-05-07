@@ -733,19 +733,24 @@ const Properties = () => {
                       )}
 
                       {/* Furnished badge */}
-                      {property.furnished && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <Badge className={
-                            /nemobilat/i.test(String(property.furnished))
-                              ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
-                              : /parțial|partial/i.test(String(property.furnished))
-                                ? 'bg-amber-200 text-black border-0 text-xs shadow-lg'
-                                : 'bg-amber-500 text-black border-0 text-xs shadow-lg'
-                          }>
-                            {property.furnished}
-                          </Badge>
-                        </div>
-                      )}
+                      {(() => {
+                        const raw = String(property.furnished || '').toLowerCase();
+                        let label: 'Mobilat' | 'Parțial mobilat' | 'Nemobilat' | null = null;
+                        if (/nemobilat/.test(raw)) label = 'Nemobilat';
+                        else if (/parțial|partial/.test(raw)) label = 'Parțial mobilat';
+                        else if (/mobilat/.test(raw)) label = 'Mobilat';
+                        if (!label) return null;
+                        const cls = label === 'Nemobilat'
+                          ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
+                          : label === 'Parțial mobilat'
+                            ? 'bg-amber-200 text-black border-0 text-xs shadow-lg'
+                            : 'bg-amber-500 text-black border-0 text-xs shadow-lg';
+                        return (
+                          <div className="absolute top-4 right-4 z-10">
+                            <Badge className={cls}>{label}</Badge>
+                          </div>
+                        );
+                      })()}
 
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (

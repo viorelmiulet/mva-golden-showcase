@@ -10,18 +10,33 @@ import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, So
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const detectFurnished = (p: any): { label: string; tone: 'furnished' | 'partial' | 'unfurnished' } | null => {
-  if (p?.mobilat_value) {
-    const v = String(p.mobilat_value);
-    if (/nemobilat/i.test(v)) return { label: 'Nemobilat', tone: 'unfurnished' };
-    if (/parțial|partial/i.test(v)) return { label: 'Parțial mobilat', tone: 'partial' };
-    if (/mobilat/i.test(v)) return { label: v, tone: 'furnished' };
+const detectFurnished = (p: any): { label: 'Mobilat' | 'Parțial mobilat' | 'Nemobilat'; tone: 'furnished' | 'partial' | 'unfurnished' } | null => {
+  const codeMap: Record<string, 'Mobilat' | 'Parțial mobilat' | 'Nemobilat'> = {
+    '30301': 'Nemobilat', '30302': 'Parțial mobilat', '30303': 'Mobilat', '30304': 'Mobilat',
+  };
+  const toResult = (label: 'Mobilat' | 'Parțial mobilat' | 'Nemobilat') => ({
+    label,
+    tone: (label === 'Nemobilat' ? 'unfurnished' : label === 'Parțial mobilat' ? 'partial' : 'furnished') as 'furnished' | 'partial' | 'unfurnished',
+  });
+  const normalize = (raw: string) => {
+    const v = raw.toLowerCase();
+    if (/nemobilat/.test(v)) return toResult('Nemobilat');
+    if (/parțial|partial/.test(v)) return toResult('Parțial mobilat');
+    if (/mobilat/.test(v)) return toResult('Mobilat');
+    return null;
+  };
+  const raw = p?.mobilat_value ? String(p.mobilat_value).trim() : '';
+  if (raw) {
+    if (codeMap[raw]) return toResult(codeMap[raw]);
+    const n = normalize(raw);
+    if (n) return n;
   }
   const src = String(p?.dotari || '');
-  if (/Mobilat lux/i.test(src)) return { label: 'Mobilat lux', tone: 'furnished' };
-  if (/Complet mobilat/i.test(src)) return { label: 'Mobilat', tone: 'furnished' };
-  if (/Parțial mobilat|Partial mobilat/i.test(src)) return { label: 'Parțial mobilat', tone: 'partial' };
-  if (/Nemobilat/i.test(src)) return { label: 'Nemobilat', tone: 'unfurnished' };
+  const n = normalize(src);
+  if (n) return n;
+  for (const [code, label] of Object.entries(codeMap)) {
+    if (src.includes(code)) return toResult(label);
+  }
   return null;
 };
 
