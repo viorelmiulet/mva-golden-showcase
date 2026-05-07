@@ -274,61 +274,42 @@ const ImmofluxPropertyDetail = () => {
                 </section>
               )}
 
-              {/* Utilități */}
-              {utilitati && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-gold" /> Utilități
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {utilitati.split(',').map((item: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{item.trim()}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Finisaje */}
-              {finisaje && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <PaintBucket className="h-5 w-5 text-gold" /> Finisaje
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {finisaje.split(',').map((item: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{item.trim()}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Dotări */}
-              {dotari && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <Sofa className="h-5 w-5 text-gold" /> Dotări
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {dotari.split(',').map((item: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{item.trim()}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Detalii zonă */}
-              {altedetaliizona && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-gold" /> Detalii zonă
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {altedetaliizona.split(',').map((item: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-xs">{item.trim()}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {(() => {
+                const renderCardSection = (
+                  raw: string | undefined,
+                  title: string,
+                  Icon: any,
+                ) => {
+                  if (!raw) return null;
+                  const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+                  if (items.length === 0) return null;
+                  return (
+                    <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                      <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
+                        <Icon className="h-5 w-5 text-gold" /> {title}
+                      </h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                        {items.map((item, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground text-center"
+                          >
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  );
+                };
+                return (
+                  <>
+                    {renderCardSection(utilitati, 'Utilități', Zap)}
+                    {renderCardSection(finisaje, 'Finisaje', PaintBucket)}
+                    {renderCardSection(dotari, 'Dotări', Sofa)}
+                    {renderCardSection(altedetaliizona, 'Detalii zonă', MapPin)}
+                  </>
+                );
+              })()}
 
               {/* Descriere */}
               {description && (
