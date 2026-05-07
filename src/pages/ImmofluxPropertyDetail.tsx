@@ -289,28 +289,28 @@ const ImmofluxPropertyDetail = () => {
                   const hasMore = items.length > PREVIEW_LIMIT;
                   const visible = hasMore ? items.slice(0, PREVIEW_LIMIT) : items;
                   return (
-                    <section className="rounded-2xl border bg-card p-3 sm:p-5 lg:p-6 shadow-sm">
-                      <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
-                        <h2 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
-                          <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-gold" /> {title}
+                    <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <h2 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
+                          <Icon className="h-5 w-5 text-gold" /> {title}
                         </h2>
                         {hasMore && (
                           <Button
                             variant="link"
                             size="sm"
-                            className="h-auto p-0 text-xs sm:text-sm text-gold hover:text-gold/80 shrink-0"
+                            className="h-auto p-0 text-sm text-gold hover:text-gold/80 shrink-0"
                             onClick={() => setOpenSection({ title, items })}
                           >
                             Vezi toate ({items.length})
                           </Button>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                         {visible.map((item, i) => (
                           <div
                             key={i}
                             title={item}
-                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-foreground break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.25rem]"
+                            className="rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.5rem]"
                           >
                             {item}
                           </div>
@@ -319,7 +319,7 @@ const ImmofluxPropertyDetail = () => {
                           <button
                             type="button"
                             onClick={() => setOpenSection({ title, items })}
-                            className="rounded-md border border-dashed border-border px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.25rem]"
+                            className="rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.5rem]"
                           >
                             +{items.length - PREVIEW_LIMIT} mai multe
                           </button>
