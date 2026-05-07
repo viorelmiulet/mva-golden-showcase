@@ -292,7 +292,8 @@ const ImmofluxPropertyDetail = () => {
                         {items.map((item, i) => (
                           <div
                             key={i}
-                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-[11px] sm:text-xs text-foreground"
+                            title={item}
+                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-[11px] sm:text-xs text-foreground max-w-full break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug"
                           >
                             {item}
                           </div>
