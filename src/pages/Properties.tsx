@@ -729,7 +729,9 @@ const Properties = () => {
                               ★ TOP
                             </Badge>
                           )}
-                      
+                        </div>
+                      )}
+
                       {/* Furnished badge */}
                       {property.furnished && (
                         <div className="absolute top-4 right-4 z-10">
