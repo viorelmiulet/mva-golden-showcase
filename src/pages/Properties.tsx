@@ -729,6 +729,19 @@ const Properties = () => {
                               ★ TOP
                             </Badge>
                           )}
+                      
+                      {/* Furnished badge */}
+                      {property.furnished && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <Badge className={
+                            /nemobilat/i.test(String(property.furnished))
+                              ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
+                              : /parțial|partial/i.test(String(property.furnished))
+                                ? 'bg-amber-200 text-black border-0 text-xs shadow-lg'
+                                : 'bg-amber-500 text-black border-0 text-xs shadow-lg'
+                          }>
+                            {property.furnished}
+                          </Badge>
                         </div>
                       )}
 
