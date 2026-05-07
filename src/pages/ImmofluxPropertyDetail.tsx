@@ -224,7 +224,7 @@ const ImmofluxPropertyDetail = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="min-w-0 lg:col-span-2 space-y-6">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
                   {isSale ? "De vânzare" : "De închiriat"}
@@ -305,12 +305,12 @@ const ImmofluxPropertyDetail = () => {
                           </Button>
                         )}
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                         {visible.map((item, i) => (
                           <div
                             key={i}
                             title={item}
-                            className="rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.5rem]"
+                            className="min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.5rem]"
                           >
                             {item}
                           </div>
@@ -319,7 +319,7 @@ const ImmofluxPropertyDetail = () => {
                           <button
                             type="button"
                             onClick={() => setOpenSection({ title, items })}
-                            className="rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.5rem]"
+                            className="min-w-0 max-w-full rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.5rem]"
                           >
                             +{items.length - PREVIEW_LIMIT} mai multe
                           </button>
