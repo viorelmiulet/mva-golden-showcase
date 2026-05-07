@@ -224,7 +224,7 @@ const ImmofluxPropertyDetail = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="min-w-0 lg:col-span-2 space-y-6">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
                   {isSale ? "De vânzare" : "De închiriat"}
