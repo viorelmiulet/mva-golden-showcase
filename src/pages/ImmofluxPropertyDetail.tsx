@@ -123,7 +123,11 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Total Etaje', value: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors) as any, icon: Building2, tone: 'text-fuchsia-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
     { label: 'Mobilare', value: furnishedLabel as any, icon: Sofa, tone: 'text-amber-400' },
-  ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
+  ].filter((s): s is StatItem => {
+    if (s.value === null || s.value === undefined || s.value === '' || s.value === 0) return false;
+    if (typeof s.value === 'string' && s.value.trim() === '0') return false;
+    return true;
+  });
 
   const addedDate = p.datapublicare || p.data_publicare || p.datacreare || p.created_at || null;
   const formattedAddedDate = (() => {
