@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
@@ -118,35 +119,8 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Dormitoare', value: p.nrdormitoare ?? p.dormitoare, icon: Home, tone: 'text-violet-400' },
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    { label: 'Etaj', value: (() => {
-        const candidates = [p.etaj, p.nretaj, p.floor];
-        for (const c of candidates) {
-          if (c === null || c === undefined) continue;
-          const s = String(c).trim();
-          if (!s) continue;
-          if (/parter|demisol/i.test(s)) return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-          const m = s.match(/\d+/);
-          if (!m) continue;
-          const n = parseInt(m[0], 10);
-          if (!Number.isFinite(n) || n < 0) continue;
-          return n === 0 ? 'Parter' : n;
-        }
-        return null;
-      })(), icon: ArrowUpDown, tone: 'text-indigo-400' },
-    { label: 'Total Etaje', value: (() => {
-        const candidates = [p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors];
-        for (const c of candidates) {
-          if (c === null || c === undefined) continue;
-          const s = String(c).trim();
-          if (!s) continue;
-          const m = s.match(/\d+/);
-          if (!m) continue;
-          const n = parseInt(m[0], 10);
-          if (!Number.isFinite(n) || n <= 0) continue;
-          return n;
-        }
-        return null;
-      })(), icon: Building2, tone: 'text-fuchsia-400' },
+    { label: 'Etaj', value: parseFloor(p.etaj, p.nretaj, p.floor) as any, icon: ArrowUpDown, tone: 'text-indigo-400' },
+    { label: 'Total Etaje', value: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors) as any, icon: Building2, tone: 'text-fuchsia-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
     { label: 'Mobilare', value: furnishedLabel as any, icon: Sofa, tone: 'text-amber-400' },
   ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
