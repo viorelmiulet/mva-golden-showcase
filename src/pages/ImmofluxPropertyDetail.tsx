@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, BedDouble, Bath, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Wrench, Phone, Mail, User, SquareStack, Home, Thermometer, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -28,6 +29,7 @@ const ImmofluxPropertyDetail = () => {
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [openSection, setOpenSection] = useState<null | { title: string; items: string[] }>(null);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
   const handleContact = (e: React.FormEvent) => {
@@ -275,6 +277,7 @@ const ImmofluxPropertyDetail = () => {
               )}
 
               {(() => {
+                const PREVIEW_LIMIT = 12;
                 const renderCardSection = (
                   raw: string | undefined,
                   title: string,
@@ -283,13 +286,27 @@ const ImmofluxPropertyDetail = () => {
                   if (!raw) return null;
                   const items = raw.split(',').map(s => s.trim()).filter(Boolean);
                   if (items.length === 0) return null;
+                  const hasMore = items.length > PREVIEW_LIMIT;
+                  const visible = hasMore ? items.slice(0, PREVIEW_LIMIT) : items;
                   return (
                     <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
-                      <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
-                        <Icon className="h-5 w-5 text-gold" /> {title}
-                      </h2>
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                          <Icon className="h-5 w-5 text-gold" /> {title}
+                        </h2>
+                        {hasMore && (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-gold hover:text-gold/80"
+                            onClick={() => setOpenSection({ title, items })}
+                          >
+                            Vezi toate ({items.length})
+                          </Button>
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {items.map((item, i) => (
+                        {visible.map((item, i) => (
                           <div
                             key={i}
                             title={item}
@@ -298,6 +315,15 @@ const ImmofluxPropertyDetail = () => {
                             {item}
                           </div>
                         ))}
+                        {hasMore && (
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection({ title, items })}
+                            className="rounded-md border border-dashed border-border px-2 py-1 text-[11px] sm:text-xs text-muted-foreground hover:text-gold hover:border-gold transition-colors"
+                          >
+                            +{items.length - PREVIEW_LIMIT} mai multe
+                          </button>
+                        )}
                       </div>
                     </section>
                   );
@@ -311,6 +337,25 @@ const ImmofluxPropertyDetail = () => {
                   </>
                 );
               })()}
+
+              <Dialog open={!!openSection} onOpenChange={(o) => !o && setOpenSection(null)}>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{openSection?.title}</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {openSection?.items.map((item, i) => (
+                      <div
+                        key={i}
+                        title={item}
+                        className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-xs text-foreground break-words [overflow-wrap:anywhere]"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               {/* Descriere */}
               {description && (
