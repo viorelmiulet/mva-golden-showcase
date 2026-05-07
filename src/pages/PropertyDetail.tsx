@@ -779,6 +779,8 @@ const PropertyDetail = () => {
                   
                   if (property.floor !== null && property.floor !== undefined)
                     details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Etaj', value: `${property.floor}${property.total_floors ? ` / ${property.total_floors}` : ''}` });
+                  else if (property.total_floors)
+                    details.push({ icon: <Layers className="w-4 h-4 text-gold" />, label: 'Etaje bloc', value: `${property.total_floors}` });
                   if (property.bathrooms !== null && property.bathrooms !== undefined)
                     details.push({ icon: <Bath className="w-4 h-4 text-gold" />, label: 'Băi', value: `${property.bathrooms}` });
                   if (property.year_built)
