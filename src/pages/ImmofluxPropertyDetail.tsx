@@ -82,25 +82,30 @@ const ImmofluxPropertyDetail = () => {
     return Number.isInteger(n) ? `${n}` : n.toFixed(2);
   };
 
-  // Detect furnished status from dotari labels, explicit field, or numeric codes
+  // Detect furnished status and normalize to: Mobilat / Parțial mobilat / Nemobilat
   const furnishedLabel = (() => {
     const codeMap: Record<string, string> = {
       '30301': 'Nemobilat',
       '30302': 'Parțial mobilat',
       '30303': 'Mobilat',
-      '30304': 'Mobilat lux',
+      '30304': 'Mobilat',
+    };
+    const normalize = (raw: string): string | null => {
+      const v = raw.toLowerCase();
+      if (/nemobilat/.test(v)) return 'Nemobilat';
+      if (/parțial|partial/.test(v)) return 'Parțial mobilat';
+      if (/mobilat/.test(v)) return 'Mobilat';
+      return null;
     };
     const raw = p.mobilat_value ? String(p.mobilat_value).trim() : '';
     if (raw) {
       if (codeMap[raw]) return codeMap[raw];
-      // Already a label
-      return raw;
+      const n = normalize(raw);
+      if (n) return n;
     }
     const src = (p.dotari || '').toString();
-    const candidates = ['Mobilat lux', 'Complet mobilat', 'Parțial mobilat', 'Nemobilat'];
-    const found = candidates.find(c => src.includes(c));
-    if (found) return found;
-    // Look for codes inside dotari
+    const n = normalize(src);
+    if (n) return n;
     for (const [code, label] of Object.entries(codeMap)) {
       if (src.includes(code)) return label;
     }
