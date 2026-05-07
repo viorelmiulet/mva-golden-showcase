@@ -732,6 +732,21 @@ const Properties = () => {
                         </div>
                       )}
 
+                      {/* Furnished badge */}
+                      {property.furnished && (
+                        <div className="absolute top-4 right-4 z-10">
+                          <Badge className={
+                            /nemobilat/i.test(String(property.furnished))
+                              ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
+                              : /parțial|partial/i.test(String(property.furnished))
+                                ? 'bg-amber-200 text-black border-0 text-xs shadow-lg'
+                                : 'bg-amber-500 text-black border-0 text-xs shadow-lg'
+                          }>
+                            {property.furnished}
+                          </Badge>
+                        </div>
+                      )}
+
                       {/* Images */}
                       {property.images && Array.isArray(property.images) && property.images.length > 0 && (
                         <div className={`mb-4 overflow-hidden rounded-lg ${property._immoflux_pole ? 'ring-2 ring-purple-500/50' : property._immoflux_top ? 'ring-2 ring-gold/50' : ''}`}>
