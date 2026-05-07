@@ -305,21 +305,21 @@ const ImmofluxPropertyDetail = () => {
                           </Button>
                         )}
                       </div>
-                      <div className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      <div className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr items-stretch">
                         {visible.map((item, i) => (
                           <div
                             key={i}
                             title={item}
-                            className="min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.5rem]"
+                            className="h-full min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto leading-snug text-center flex items-center justify-center"
                           >
-                            {item}
+                            <span className="line-clamp-2 w-full">{item}</span>
                           </div>
                         ))}
                         {hasMore && (
                           <button
                             type="button"
                             onClick={() => setOpenSection({ title, items })}
-                            className="min-w-0 max-w-full rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.5rem]"
+                            className="h-full min-w-0 max-w-full rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center"
                           >
                             +{items.length - PREVIEW_LIMIT} mai multe
                           </button>
