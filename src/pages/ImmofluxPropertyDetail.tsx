@@ -119,6 +119,7 @@ const ImmofluxPropertyDetail = () => {
     { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
     { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
     { label: 'Etaj', value: p.etaj, icon: ArrowUpDown, tone: 'text-indigo-400' },
+    { label: 'Total Etaje', value: p.nrnivele ?? p.nivele ?? p.regimsuprateran ?? p.total_floors, icon: Building2, tone: 'text-fuchsia-400' },
     { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
     { label: 'Mobilare', value: furnishedLabel as any, icon: Sofa, tone: 'text-amber-400' },
   ].filter((s): s is StatItem => s.value !== null && s.value !== undefined && s.value !== '' && s.value !== 0);
