@@ -10,9 +10,30 @@ import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, So
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+const detectFurnished = (p: any): { label: string; tone: 'furnished' | 'partial' | 'unfurnished' } | null => {
+  if (p?.mobilat_value) {
+    const v = String(p.mobilat_value);
+    if (/nemobilat/i.test(v)) return { label: 'Nemobilat', tone: 'unfurnished' };
+    if (/parțial|partial/i.test(v)) return { label: 'Parțial mobilat', tone: 'partial' };
+    if (/mobilat/i.test(v)) return { label: v, tone: 'furnished' };
+  }
+  const src = String(p?.dotari || '');
+  if (/Mobilat lux/i.test(src)) return { label: 'Mobilat lux', tone: 'furnished' };
+  if (/Complet mobilat/i.test(src)) return { label: 'Mobilat', tone: 'furnished' };
+  if (/Parțial mobilat|Partial mobilat/i.test(src)) return { label: 'Parțial mobilat', tone: 'partial' };
+  if (/Nemobilat/i.test(src)) return { label: 'Nemobilat', tone: 'unfurnished' };
+  return null;
+};
+
 const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
   const isSale = property.devanzare === 1;
   const surface = getSurface(property);
+  const furnished = detectFurnished(property as any);
+  const furnishedClass = furnished?.tone === 'furnished'
+    ? 'bg-amber-500 text-black'
+    : furnished?.tone === 'partial'
+      ? 'bg-amber-200 text-black'
+      : 'bg-slate-600 text-white';
   return (
     <Link to={`/proprietate/${property.idnum}`}>
       <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
@@ -25,12 +46,18 @@ const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
             width={400}
             height={224}
           />
-          <div className="absolute top-2 left-2 flex gap-1.5">
+          <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 max-w-[calc(100%-1rem)]">
             <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
               {isSale ? "De vânzare" : "De închiriat"}
             </Badge>
             {property.top === 1 && (
               <Badge className="bg-gold text-black font-bold">TOP</Badge>
+            )}
+            {furnished && (
+              <Badge className={`${furnishedClass} flex items-center gap-1`}>
+                <Sofa className="h-3 w-3" />
+                {furnished.label}
+              </Badge>
             )}
           </div>
         </div>
