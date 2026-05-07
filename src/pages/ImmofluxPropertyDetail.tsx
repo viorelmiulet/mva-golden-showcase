@@ -305,12 +305,12 @@ const ImmofluxPropertyDetail = () => {
                           </Button>
                         )}
                       </div>
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
                         {visible.map((item, i) => (
                           <div
                             key={i}
                             title={item}
-                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-foreground max-w-[160px] sm:max-w-[200px] lg:max-w-[240px] break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug"
+                            className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-foreground break-words [overflow-wrap:anywhere] line-clamp-2 leading-snug text-center flex items-center justify-center min-h-[2.25rem]"
                           >
                             {item}
                           </div>
@@ -319,7 +319,7 @@ const ImmofluxPropertyDetail = () => {
                           <button
                             type="button"
                             onClick={() => setOpenSection({ title, items })}
-                            className="rounded-md border border-dashed border-border px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors"
+                            className="rounded-md border border-dashed border-border px-2 py-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs lg:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center min-h-[2.25rem]"
                           >
                             +{items.length - PREVIEW_LIMIT} mai multe
                           </button>
