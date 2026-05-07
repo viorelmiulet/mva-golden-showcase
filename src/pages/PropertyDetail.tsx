@@ -794,10 +794,16 @@ const PropertyDetail = () => {
                   if (property.heating)
                     details.push({ icon: <Thermometer className="w-4 h-4 text-gold" />, label: 'Încălzire', value: property.heating });
                   if (property.furnished) {
-                    const raw = String(property.furnished).toLowerCase();
-                    const norm = /nemobilat/.test(raw) ? 'Nemobilat'
-                      : /parțial|partial/.test(raw) ? 'Parțial mobilat'
-                      : /mobilat/.test(raw) ? 'Mobilat' : property.furnished;
+                    const codeMap: Record<string, string> = {
+                      '30301': 'Nemobilat', '30302': 'Parțial mobilat', '30303': 'Mobilat', '30304': 'Mobilat',
+                    };
+                    const rawStr = String(property.furnished).trim();
+                    const raw = rawStr.toLowerCase();
+                    const norm = codeMap[rawStr]
+                      || (/nemobilat/.test(raw) ? 'Nemobilat'
+                        : /parțial|partial/.test(raw) ? 'Parțial mobilat'
+                        : /mobilat/.test(raw) ? 'Mobilat'
+                        : Object.entries(codeMap).find(([c]) => raw.includes(c))?.[1] || property.furnished);
                     details.push({ icon: <Sofa className="w-4 h-4 text-gold" />, label: 'Mobilat', value: norm });
                   }
                   if (property.building_type)

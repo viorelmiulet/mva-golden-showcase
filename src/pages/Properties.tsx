@@ -734,11 +734,21 @@ const Properties = () => {
 
                       {/* Furnished badge */}
                       {(() => {
-                        const raw = String(property.furnished || '').toLowerCase();
+                        const codeMap: Record<string, 'Mobilat' | 'Parțial mobilat' | 'Nemobilat'> = {
+                          '30301': 'Nemobilat', '30302': 'Parțial mobilat', '30303': 'Mobilat', '30304': 'Mobilat',
+                        };
+                        const rawStr = String(property.furnished || '').trim();
+                        const raw = rawStr.toLowerCase();
                         let label: 'Mobilat' | 'Parțial mobilat' | 'Nemobilat' | null = null;
-                        if (/nemobilat/.test(raw)) label = 'Nemobilat';
+                        if (codeMap[rawStr]) label = codeMap[rawStr];
+                        else if (/nemobilat/.test(raw)) label = 'Nemobilat';
                         else if (/parțial|partial/.test(raw)) label = 'Parțial mobilat';
                         else if (/mobilat/.test(raw)) label = 'Mobilat';
+                        else {
+                          for (const [code, l] of Object.entries(codeMap)) {
+                            if (raw.includes(code)) { label = l; break; }
+                          }
+                        }
                         if (!label) return null;
                         const cls = label === 'Nemobilat'
                           ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
