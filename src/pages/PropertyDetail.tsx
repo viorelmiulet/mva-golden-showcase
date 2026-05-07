@@ -793,8 +793,13 @@ const PropertyDetail = () => {
                     details.push({ icon: <Square className="w-4 h-4 text-gold" />, label: 'Teren', value: `${property.surface_land} mp` });
                   if (property.heating)
                     details.push({ icon: <Thermometer className="w-4 h-4 text-gold" />, label: 'Încălzire', value: property.heating });
-                  if (property.furnished)
-                    details.push({ icon: <Sofa className="w-4 h-4 text-gold" />, label: 'Mobilat', value: property.furnished });
+                  if (property.furnished) {
+                    const raw = String(property.furnished).toLowerCase();
+                    const norm = /nemobilat/.test(raw) ? 'Nemobilat'
+                      : /parțial|partial/.test(raw) ? 'Parțial mobilat'
+                      : /mobilat/.test(raw) ? 'Mobilat' : property.furnished;
+                    details.push({ icon: <Sofa className="w-4 h-4 text-gold" />, label: 'Mobilat', value: norm });
+                  }
                   if (property.building_type)
                     details.push({ icon: <Building className="w-4 h-4 text-gold" />, label: 'Tip Clădire', value: property.building_type });
                   if (property.compartment)
