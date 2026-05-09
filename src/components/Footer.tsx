@@ -133,21 +133,20 @@ const Footer = () => {
             MVA PERFECT BUSINESS S.R.L. · CUI: 50477503 · Nr. Reg. Com.: J23/18361/2024
           </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <a
-              href="https://anpc.ro"
+              href="https://anpc.ro/ce-este-sal/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md border border-border/50 bg-muted/10 px-2 py-1 hover:bg-muted/20 transition-colors"
-              aria-label="ANPC"
+              aria-label="Soluționarea Alternativă a Litigiilor"
             >
               <img
                 src={LEGAL_BADGE_FALLBACKS.anpc}
-                alt="ANPC"
+                alt="ANPC - Soluționarea Alternativă a Litigiilor"
                 loading="lazy"
-                 width={197}
-                 height={49}
-                className="h-7 w-auto"
+                width={197}
+                height={49}
+                className="h-10 w-auto"
               />
             </a>
 
@@ -155,18 +154,24 @@ const Footer = () => {
               href="https://ec.europa.eu/consumers/odr/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md border border-border/50 bg-muted/10 px-2 py-1 hover:bg-muted/20 transition-colors"
-              aria-label="SOL"
+              aria-label="Soluționarea Online a Litigiilor"
             >
               <img
                 src={LEGAL_BADGE_FALLBACKS.sol}
-                alt="SOL"
+                alt="SOL - Soluționarea Online a Litigiilor"
                 loading="lazy"
-                 width={197}
-                 height={49}
-                className="h-7 w-auto"
+                width={197}
+                height={49}
+                className="h-10 w-auto"
               />
             </a>
+
+            <img
+              src="/anpc-sal-sol-badges.png"
+              alt="ANPC SAL și SOL"
+              loading="lazy"
+              className="h-12 w-auto rounded-md"
+            />
           </div>
 
           <a
