@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
@@ -6,7 +6,10 @@ import { PropertyGridSkeleton } from "@/components/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, Sofa } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, Sofa, Filter, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
