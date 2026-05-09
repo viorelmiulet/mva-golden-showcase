@@ -141,6 +141,7 @@ const ImmofluxProperties = () => {
   const activeCount = [zone !== "", rooms !== "all", transaction !== "all", priceMin !== "", priceMax !== ""].filter(Boolean).length;
   const clearFilters = () => { setZone(""); setRooms("all"); setTransaction("all"); setPriceMin(""); setPriceMax(""); };
 
+  return (
     <>
       <Helmet>
         <title>Proprietăți Imobiliare | MVA Imobiliare</title>
