@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
@@ -6,7 +6,10 @@ import { PropertyGridSkeleton } from "@/components/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, Sofa } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, Sofa, Filter, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -105,6 +108,39 @@ const ImmofluxProperties = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
 
+  // Quick filters
+  const [zone, setZone] = useState("");
+  const [rooms, setRooms] = useState("all");
+  const [transaction, setTransaction] = useState("all");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!data?.data) return [];
+    const z = zone.trim().toLowerCase();
+    const min = priceMin ? parseInt(priceMin) : null;
+    const max = priceMax ? parseInt(priceMax) : null;
+    return data.data.filter((p) => {
+      if (transaction === "sale" && p.devanzare !== 1) return false;
+      if (transaction === "rent" && p.devanzare === 1) return false;
+      if (z) {
+        const hay = `${p.zona || ""} ${p.localitate || ""} ${p.judet || ""} ${getTitle(p)}`.toLowerCase();
+        if (!hay.includes(z)) return false;
+      }
+      if (rooms !== "all") {
+        if (rooms === "4") { if ((p.nrcamere || 0) < 4) return false; }
+        else if ((p.nrcamere || 0) !== parseInt(rooms)) return false;
+      }
+      const price = p.devanzare === 1 ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare);
+      if (min !== null && (!price || price < min)) return false;
+      if (max !== null && (!price || price > max)) return false;
+      return true;
+    });
+  }, [data, zone, rooms, transaction, priceMin, priceMax]);
+
+  const activeCount = [zone !== "", rooms !== "all", transaction !== "all", priceMin !== "", priceMax !== ""].filter(Boolean).length;
+  const clearFilters = () => { setZone(""); setRooms("all"); setTransaction("all"); setPriceMin(""); setPriceMax(""); };
+
   return (
     <>
       <Helmet>
@@ -127,9 +163,87 @@ const ImmofluxProperties = () => {
       <Header />
       <main className="min-h-screen pt-24 pb-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
             Proprietăți Disponibile
           </h1>
+
+          {/* Quick filters */}
+          <div className="bg-card border rounded-lg p-4 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-3 text-sm font-medium text-foreground">
+              <Filter className="h-4 w-4 text-gold" />
+              Filtre rapide
+              {activeCount > 0 && (
+                <Badge variant="secondary" className="ml-1">{activeCount}</Badge>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div>
+                <Label className="text-xs mb-1 block">Zonă / oraș</Label>
+                <Input
+                  placeholder="ex: Militari, Pipera..."
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Tranzacție</Label>
+                <Select value={transaction} onValueChange={setTransaction}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate</SelectItem>
+                    <SelectItem value="sale">Vânzare</SelectItem>
+                    <SelectItem value="rent">Închiriere</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Camere</Label>
+                <Select value={rooms} onValueChange={setRooms}>
+                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toate</SelectItem>
+                    <SelectItem value="1">1 cameră</SelectItem>
+                    <SelectItem value="2">2 camere</SelectItem>
+                    <SelectItem value="3">3 camere</SelectItem>
+                    <SelectItem value="4">4+ camere</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Preț min (€)</Label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={priceMin}
+                  onChange={(e) => setPriceMin(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">Preț max (€)</Label>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="∞"
+                  value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                  className="h-10"
+                />
+              </div>
+            </div>
+            {activeCount > 0 && (
+              <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                <span className="text-xs text-muted-foreground">
+                  {filtered.length} {filtered.length === 1 ? 'proprietate găsită' : 'proprietăți găsite'} pe această pagină
+                </span>
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
+                  <X className="h-3 w-3 mr-1" /> Resetează
+                </Button>
+              </div>
+            )}
+          </div>
 
           {isLoading && <PropertyGridSkeleton count={6} />}
 
@@ -143,13 +257,20 @@ const ImmofluxProperties = () => {
 
           {data && (
             <>
-              {data.data.length === 0 ? (
+              {filtered.length === 0 ? (
                 <div className="text-center py-16">
-                  <p className="text-lg text-muted-foreground">Nu sunt proprietăți disponibile momentan.</p>
+                  <p className="text-lg text-muted-foreground">
+                    {activeCount > 0 ? 'Nicio proprietate nu corespunde filtrelor selectate.' : 'Nu sunt proprietăți disponibile momentan.'}
+                  </p>
+                  {activeCount > 0 && (
+                    <Button variant="outline" size="sm" className="mt-4" onClick={clearFilters}>
+                      Resetează filtrele
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {data.data.map((p) => (
+                  {filtered.map((p) => (
                     <ImmofluxPropertyCard key={p.idnum} property={p} />
                   ))}
                 </div>
