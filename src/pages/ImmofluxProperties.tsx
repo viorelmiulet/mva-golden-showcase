@@ -108,7 +108,39 @@ const ImmofluxProperties = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
 
-  return (
+  // Quick filters
+  const [zone, setZone] = useState("");
+  const [rooms, setRooms] = useState("all");
+  const [transaction, setTransaction] = useState("all");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!data?.data) return [];
+    const z = zone.trim().toLowerCase();
+    const min = priceMin ? parseInt(priceMin) : null;
+    const max = priceMax ? parseInt(priceMax) : null;
+    return data.data.filter((p) => {
+      if (transaction === "sale" && p.devanzare !== 1) return false;
+      if (transaction === "rent" && p.devanzare === 1) return false;
+      if (z) {
+        const hay = `${p.zona || ""} ${p.localitate || ""} ${p.judet || ""} ${getTitle(p)}`.toLowerCase();
+        if (!hay.includes(z)) return false;
+      }
+      if (rooms !== "all") {
+        if (rooms === "4") { if ((p.nrcamere || 0) < 4) return false; }
+        else if ((p.nrcamere || 0) !== parseInt(rooms)) return false;
+      }
+      const price = p.devanzare === 1 ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare);
+      if (min !== null && (!price || price < min)) return false;
+      if (max !== null && (!price || price > max)) return false;
+      return true;
+    });
+  }, [data, zone, rooms, transaction, priceMin, priceMax]);
+
+  const activeCount = [zone !== "", rooms !== "all", transaction !== "all", priceMin !== "", priceMax !== ""].filter(Boolean).length;
+  const clearFilters = () => { setZone(""); setRooms("all"); setTransaction("all"); setPriceMin(""); setPriceMax(""); };
+
     <>
       <Helmet>
         <title>Proprietăți Imobiliare | MVA Imobiliare</title>
