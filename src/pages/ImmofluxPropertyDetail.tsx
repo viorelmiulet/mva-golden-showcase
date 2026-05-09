@@ -310,7 +310,7 @@ const ImmofluxPropertyDetail = () => {
                           <div
                             key={i}
                             title={item}
-                            className="h-full min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto leading-snug text-center flex items-center justify-center"
+                            className="h-full min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto leading-snug text-left flex items-center justify-start"
                           >
                             <span className="line-clamp-2 w-full">{item}</span>
                           </div>
