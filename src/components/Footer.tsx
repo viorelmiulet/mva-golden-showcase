@@ -165,13 +165,6 @@ const Footer = () => {
                 className="h-10 w-auto"
               />
             </a>
-
-            <img
-              src="/anpc-sal-sol-badges.png"
-              alt="ANPC SAL și SOL"
-              loading="lazy"
-              className="h-12 w-auto rounded-md"
-            />
           </div>
 
           <a
