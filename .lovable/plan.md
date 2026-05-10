@@ -1,37 +1,94 @@
-## Problema
+# Monitor Redirecturi 301 — SEO Health
 
-În GSC apar 147 URL-uri de tip `/proprietati/{slug-vechi}` raportate ca **„Duplicat fără pagina canonică selectată de utilizator"**. Asta înseamnă că Google găsește mai multe URL-uri cu același conținut și nu reușește să identifice un canonical clar.
+## Obiectiv
 
-## Cauze identificate în cod
+Verificare automată că URL-urile vechi/non-canonice returnează `301 Moved Permanently` spre slug-ul canonic. Dacă status code-ul devine altceva (200, 302, 404, 5xx), se trimite alertă email către admin.
 
-1. **Scriptul inline din `index.html` (liniile 55-75) suprascrie canonical-ul cu URL-ul curent din address bar** pentru orice pagină ne-admin. Asta rulează ÎNAINTE ca React Helmet să injecteze canonical-ul corect din `PropertyDetail.tsx`. Rezultat: orice variantă de slug (vechi sau corect) se „auto-canonicalizează" pe sine însăși → Google vede dubluri fără semnal de consolidare.
+> Context: în verificarea anterioară am descoperit că redirecturile *nu* funcționează în prezent (returnează 200, pentru că domeniul nu trece prin Netlify). Acest monitor face vizibilă problema în timp real și va confirma când e rezolvată.
 
-2. **Redirectul vechilor slug-uri se face client-side** prin `window.location.replace` în `PropertyDetail.tsx` (liniile 366-374). Googlebot vede inițial 200 OK cu conținut, nu un 301. Edge function-ul `slug-redirect.js` există dar acoperă doar cazurile cu shortId hex de 4 caractere; URL-uri cu format diferit scapă.
+## Componente
 
-3. **Pentru Immoflux (`/proprietate/`)**, edge function-ul nu face redirect deloc (linia 77: „No-op"). Toate variantele de slug se servesc direct.
+### 1. Tabel DB nou: `redirect_monitor_checks`
+Stochează rezultatul fiecărei verificări per URL.
+- `id`, `url_tested`, `expected_status` (default 301), `actual_status`, `actual_location`, `is_healthy` (bool), `response_time_ms`, `error_message`, `checked_at`
+- RLS: doar admin poate citi (verificare prin `adminApi`).
 
-4. Pentru pagini Immoflux, canonical-ul în Helmet folosește URL-ul direct din `slug` parametru (linia 149), nu slug-ul canonic generat din date.
+### 2. Tabel DB nou: `redirect_monitor_targets`
+Lista URL-urilor de monitorizat (editabilă din UI).
+- `id`, `url`, `expected_status` (default 301), `expected_location_pattern` (opțional, regex), `is_active`, `note`, `created_at`
+- Pre-populare cu ~6 URL-uri reprezentative:
+  - `/proprietati/old-name-7c0f` (short ID existent → 301 spre canonic)
+  - `/proprietati/garsoniera-12345` (numeric pe rută greșită → 301 spre `/proprietate/`)
+  - + 2 variante pentru complexe și 2 pentru bloguri
 
-## Plan de rezolvare
+### 3. Edge Function: `monitor-redirects`
+- Parcurge toate URL-urile active din `redirect_monitor_targets`.
+- Face `fetch(url, { redirect: 'manual' })` și citește `status` + header `Location`.
+- Inserează rezultat în `redirect_monitor_checks`.
+- Dacă `actual_status !== expected_status` → trimite email prin Mailgun (folosește `MAILGUN_API_KEY` deja configurat) către admin, cu sumar al URL-urilor "broken".
+- Anti-spam: o singură alertă per URL la 6 ore (verifică ultima alertă în `checked_at`).
+- Returnează JSON cu sumar.
 
-### 1. Elimină overwrite-ul canonical din `index.html`
-Scoate liniile care setează `link[rel="canonical"]` și `og:url` din scriptul inline. Le păstrăm doar pe `og:url` setată inițial; canonical-ul rămâne `https://mvaimobiliare.ro/` ca fallback pentru homepage, iar fiecare pagină îl suprascrie corect prin React Helmet.
+### 4. Cron job (pg_cron)
+- Rulează `monitor-redirects` o dată la **6 ore**.
+- Configurat printr-un `INSERT` direct (nu migrație) pentru că include URL + service key.
 
-### 2. Întărește 301-urile server-side în `netlify/edge-functions/slug-redirect.js`
-- Pentru `/proprietati/`: dacă lookup-ul după `shortId` găsește un slug canonic diferit, deja face 301 ✓. Adaugă și un fallback: dacă slug-ul conține caractere stranii sau nu se potrivește cu niciun slug din DB → 410 Gone (sau 404).
-- Pentru `/proprietate/` (Immoflux): implementează lookup real: extrage `idnum` din finalul slug-ului, apelează API-ul Immoflux (sau o cache locală) pentru a calcula slug-ul canonic, fă 301 dacă diferă.
+### 5. Pagină admin: `/admin/seo/redirect-monitor`
+Componente UI:
+- **Card sumar sus**: `X/Y healthy`, ultima rulare, buton "Run check now" (apel manual la edge function).
+- **Tabel "Targets"** (CRUD inline): URL, status așteptat, ultimul status real (badge verde/roșu), ultimul check, acțiuni (edit / activate / delete).
+- **Tabel "Recent checks"** (ultimele 100): URL, status, location returnat, timp răspuns, timestamp, error.
+- **Mini-grafic**: % healthy în ultimele 7 zile (recharts line/area).
+- Email destinatar pentru alerte: configurabil din UI, salvat în `site_settings` cu cheia `redirect_monitor_alert_email` (default: `mvaimobiliare@gmail.com` din metadata).
 
-### 3. Canonical pentru `ImmofluxPropertyDetail.tsx`
-Calculează canonical-ul din datele proprietății folosind `getImmofluxPropertyUrl(property)` în loc să refolosească `slug` din URL.
+### 6. Buton în AdminLayout
+Adaugă în meniul SEO al admin sidebar: "Monitor Redirecturi" cu badge roșu dacă există broken redirects în ultima rulare.
 
-### 4. Verificare
-După deploy:
-- Inspectează 2-3 URL-uri afectate în GSC cu „URL Inspection" → verifică „User-declared canonical" vs „Google-selected canonical".
-- Cere reindexare pentru slug-urile canonice.
-- Așteaptă 2-4 săptămâni pentru ca Google să reproceseze cele 147 URL-uri.
+## Fluxul utilizatorului
+1. Admin deschide `/admin/seo/redirect-monitor`.
+2. Vede status: dacă toate sunt 301 → verde; dacă nu → roșu cu listă.
+3. Poate adăuga URL-uri noi de testat (ex. când lansează o regulă nouă de redirect).
+4. Cronul de 6h rulează în background; primește email dacă ceva se strică.
 
-## Fișiere modificate
+## Detalii tehnice
 
-- `index.html` — scoate suprascrierea canonical din scriptul inline
-- `netlify/edge-functions/slug-redirect.js` — adaugă 301 pentru Immoflux + 410 pentru slug-uri inexistente
-- `src/pages/ImmofluxPropertyDetail.tsx` — folosește `getImmofluxPropertyUrl(property)` pentru canonical
+**Migrații DB** (2 tabele + RLS):
+- `redirect_monitor_targets` — RLS: select/insert/update/delete doar pentru `has_role(auth.uid(), 'admin')`. Acces din UI prin `adminApi` (bypass RLS cu service key, conform pattern-ului existent).
+- `redirect_monitor_checks` — same RLS pattern; index pe `(url_tested, checked_at DESC)` pentru query rapid.
+
+**Edge function** `monitor-redirects/index.ts`:
+- Folosește `Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")` pentru insert.
+- `fetch(url, { redirect: 'manual', headers: { 'User-Agent': 'MVAImobiliare-RedirectMonitor/1.0' } })`.
+- Suport pentru testarea atât pe `mvaimobiliare.ro` cât și pe `www.mvaimobiliare.ro`.
+- Logging detaliat în `console.log` pentru debugging.
+
+**Email alert** (Mailgun):
+- Subject: `[ALERT] X redirecturi SEO non-301 detectate`
+- Body HTML cu tabel: URL testat, status așteptat, status primit, ultima dată OK.
+- Link către pagina admin pentru detalii.
+
+**Pagina admin** (`src/pages/admin/RedirectMonitor.tsx`):
+- React Query cu `staleTime: 0` (real-time).
+- Folosește `adminApi.invoke('monitor-redirects-data', ...)` — un edge function dedicat read-only care întoarce targets + ultimele checks.
+- Buton "Run now" → `adminApi.invoke('monitor-redirects')` direct.
+- Form modal pentru add/edit target (`Dialog` + `Input` shadcn).
+- Tabel cu `Table` shadcn, badge verde/roșu via `Badge variant`.
+- Grafic 7 zile cu recharts.
+
+**Cron setup** (insert direct, nu migrație):
+```sql
+select cron.schedule(
+  'monitor-redirects-6h',
+  '0 */6 * * *',
+  $$ select net.http_post(...) $$
+);
+```
+
+## Out of scope (pot adăuga ulterior)
+- SMS alerts.
+- Verificare per URL real din `catalog_offers` (acum testează doar pattern-uri reprezentative — suficient pentru a detecta breakage la nivel de regulă).
+- Dashboard public (rămâne admin-only).
+
+## Estimare
+
+~6 fișiere noi (2 migrații, 2 edge functions, 1 pagină, 1 update sidebar). Implementare într-un singur pas după aprobarea planului.
