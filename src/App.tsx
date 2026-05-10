@@ -63,6 +63,7 @@ const ContractsPage = lazy(() => import("./pages/admin/ContractsPage"));
 const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPage"));
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
+const RedirectMonitor = lazy(() => import("./pages/admin/RedirectMonitor"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
@@ -210,6 +211,7 @@ const AppRoutes = () => {
                 <Route path="contracte" element={<ContractsPage />} />
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
+                <Route path="redirect-monitor" element={<RedirectMonitor />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
                 
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
