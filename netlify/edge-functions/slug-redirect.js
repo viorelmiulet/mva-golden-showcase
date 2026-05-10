@@ -67,7 +67,13 @@ export default async (request, context) => {
 
       if (canonicalSlug && canonicalSlug !== slug) {
         const target = `/proprietati/${canonicalSlug}${url.search}`;
-        return Response.redirect(new URL(target, url.origin), 301);
+        return new Response(null, {
+          status: 301,
+          headers: {
+            Location: new URL(target, url.origin).toString(),
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
       }
     } else if (isImmoflux) {
       // Last numeric segment = idnum
