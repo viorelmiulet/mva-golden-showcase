@@ -52,6 +52,23 @@ const FacebookCatalogFeedPage = () => {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  const downloadExcludedCsv = () => {
+    if (!preview) return;
+    const header = ['id', 'external_id', 'title', 'reason'];
+    const escape = (v: any) => {
+      const s = (v ?? '').toString().replace(/\r?\n/g, ' ');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [header.join(','), ...preview.excluded.map(r => header.map(h => escape((r as any)[h])).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `facebook-feed-excluse-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex items-center gap-3">
