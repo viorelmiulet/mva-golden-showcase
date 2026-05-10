@@ -319,11 +319,15 @@ async function generateFeed(): Promise<FeedResult> {
     valid.push(p)
   }
 
+  // Meta Home Listings (Real Estate) catalog format
   const headers = [
-    'id', 'title', 'description', 'availability', 'condition', 'price',
-    'link', 'image_link', 'additional_image_link', 'brand',
-    'google_product_category', 'product_type',
-    'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
+    'home_listing_id', 'name', 'availability', 'description', 'url',
+    'price', 'listing_type', 'property_type',
+    'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
+    'num_beds', 'num_baths', 'area_size', 'area_unit',
+    'image[0].url', 'image[0].tag',
+    'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
+    'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
   ]
 
   // Pre-batch validate ALL candidate image URLs in one go (uses persistent cache + concurrent probing)
@@ -345,38 +349,66 @@ async function generateFeed(): Promise<FeedResult> {
   const brokenLinks: Excluded[] = []
   const buildValues = (p: any): string[] | null => {
     const id = p.external_id || p.id
-    const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
+    const name = truncate(stripHtml(p.title || 'Proprietate'), 100)
     const descSrc = p.descriere_lunga || p.description || p.title || ''
-    const description = truncate(stripHtml(descSrc), 4900) || title
-    const availability = p.availability_status === 'available' ? 'in stock' : 'out of stock'
+    const description = truncate(stripHtml(descSrc), 4900) || name
+    const isRent = p.transaction_type === 'rent'
+    // Meta accepted values: for_sale, for_rent, sale_pending, recently_sold, off_market, available_soon
+    let availability = 'off_market'
+    if (p.availability_status === 'available') availability = isRent ? 'for_rent' : 'for_sale'
+    else if (p.availability_status === 'reserved') availability = 'sale_pending'
+    else if (p.availability_status === 'sold') availability = 'recently_sold'
     const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
     const link = linkByProp.get(p.id) || `${SITE_URL}/proprietati/${buildSlug(p)}`
     if (!linkValidations.get(link)) {
-      brokenLinks.push({ id: p.id, external_id: p.external_id, title, reason: `Link inaccesibil/404: ${link}` })
+      brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
       return null
     }
     const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
     const validImgs: string[] = []
     for (const u of imgs) {
-      if (validImgs.length >= 11) break
+      if (validImgs.length >= 10) break
       if (validations.get(u)) validImgs.push(u)
     }
     if (validImgs.length === 0) {
-      noReachableImage.push({ id: p.id, external_id: p.external_id, title, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
+      noReachableImage.push({ id: p.id, external_id: p.external_id, title: name, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
       return null
     }
-    const image_link = validImgs[0]
-    const additional = validImgs.slice(1, 11).join(',')
-    const propType = p.property_type || 'Imobil'
-    const roomsLabel = p.rooms ? (p.rooms <= 1 ? 'Garsoniera' : `${p.rooms} camere`) : ''
-    const cityLabel = p.city || ''
-    const zoneLabel = p.zone && !/^\d|.*\d{2,}\.\d{3,}/.test(p.zone) ? p.zone.split(',')[0].trim() : ''
-    const txnLabel = p.transaction_type === 'rent' ? 'Inchiriere' : 'Vanzare'
-    const product_type = [propType, roomsLabel, cityLabel, zoneLabel].filter(Boolean).join(' > ')
+    // listing_type: for_sale_by_agent / for_rent_by_agent
+    const listing_type = isRent ? 'for_rent_by_agent' : 'for_sale_by_agent'
+    // property_type — Meta accepts: apartment, condo, house, townhouse, land, other
+    const ptRaw = (p.property_type || '').toString().toLowerCase()
+    let property_type = 'apartment'
+    if (/casa|house|vila|villa/.test(ptRaw)) property_type = 'house'
+    else if (/teren|land|lot/.test(ptRaw)) property_type = 'land'
+    else if (/spatiu|comerc|birou|office|comm/.test(ptRaw)) property_type = 'other'
+    else if (/duplex|townhouse/.test(ptRaw)) property_type = 'townhouse'
+
+    // Address — Meta requires at least addr1+city+region+country
+    const addrCity = (p.city || 'Bucuresti').toString().trim()
+    const addrZone = p.zone && !/^\d|.*\d{2,}\.\d{3,}/.test(p.zone) ? p.zone.split(',')[0].trim() : ''
+    const addr1 = addrZone ? `${addrZone}, ${addrCity}` : addrCity
+    const region = addrCity.toLowerCase() === 'bucuresti' || addrCity.toLowerCase() === 'bucurești' ? 'Bucuresti' : addrCity
+    const postal = ''
+    const country = 'RO'
+
+    const beds = p.rooms ? String(p.rooms) : ''
+    const baths = ''
+    const area_size = p.surface_min ? String(p.surface_min) : ''
+    const area_unit = area_size ? 'sqm' : ''
+
+    // Build 10 image slots
+    const imgSlots: string[] = []
+    for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
+
     return [
-      id, title, description, availability, 'new', price, link,
-      image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type,
-      roomsLabel, zoneLabel, cityLabel, txnLabel, p.surface_min ? `${p.surface_min} mp` : ''
+      id, name, availability, description, link,
+      price, listing_type, property_type,
+      addr1, addrCity, region, postal, country,
+      beds, baths, area_size, area_unit,
+      imgSlots[0], 'exterior',
+      imgSlots[1], imgSlots[2], imgSlots[3], imgSlots[4],
+      imgSlots[5], imgSlots[6], imgSlots[7], imgSlots[8], imgSlots[9]
     ].map(String)
   }
 
