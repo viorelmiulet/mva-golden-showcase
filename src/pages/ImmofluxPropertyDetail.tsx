@@ -146,7 +146,8 @@ const ImmofluxPropertyDetail = () => {
   const vecinatati = typeof p.vecinatati === 'object' ? p.vecinatati?.ro?.trim() : p.vecinatati?.trim?.();
   const opinieagent = typeof p.opinieagent === 'object' ? p.opinieagent?.ro?.trim() : p.opinieagent?.trim?.();
 
-  const propertyUrl = `https://mvaimobiliare.ro/proprietate/${slug}`;
+  const canonicalPath = getImmofluxPropertyUrl(property as any);
+  const propertyUrl = `https://mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const metaDesc = (description || title).substring(0, 160);
   const ogType = isSale ? "product" : "website";
