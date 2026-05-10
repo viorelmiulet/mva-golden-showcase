@@ -81,7 +81,8 @@ Deno.serve(async (req) => {
     const headers = [
       'id', 'title', 'description', 'availability', 'condition', 'price',
       'link', 'image_link', 'additional_image_link', 'brand',
-      'google_product_category', 'product_type'
+      'google_product_category', 'product_type',
+      'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
     ]
 
     const buildValues = (p: any): string[] => {
@@ -96,9 +97,28 @@ Deno.serve(async (req) => {
       const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
       const image_link = imgs[0] || ''
       const additional = imgs.slice(1, 11).join(',')
-      const productTypeParts = [p.property_type, p.rooms ? `${p.rooms} camere` : null, p.city].filter(Boolean)
+
+      const propType = p.property_type || 'Imobil'
+      const roomsLabel = p.rooms ? (p.rooms <= 1 ? 'Garsoniera' : `${p.rooms} camere`) : ''
+      const cityLabel = p.city || ''
+      const zoneLabel = p.zone && !/^\d|.*\d{2,}\.\d{3,}/.test(p.zone) ? p.zone.split(',')[0].trim() : ''
+      const txnLabel = p.transaction_type === 'rent' ? 'Inchiriere' : 'Vanzare'
+
+      const productTypeParts = [propType, roomsLabel, cityLabel, zoneLabel].filter(Boolean)
       const product_type = productTypeParts.join(' > ')
-      return [id, title, description, availability, 'new', price, link, image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type].map(String)
+
+      // custom labels (Facebook ad targeting & sets)
+      const custom_label_0 = roomsLabel                           // ex: "2 camere"
+      const custom_label_1 = zoneLabel                            // ex: "Militari Residence"
+      const custom_label_2 = cityLabel                            // ex: "Bucuresti"
+      const custom_label_3 = txnLabel                             // ex: "Vanzare" / "Inchiriere"
+      const custom_label_4 = p.surface_min ? `${p.surface_min} mp` : ''
+
+      return [
+        id, title, description, availability, 'new', price, link,
+        image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type,
+        custom_label_0, custom_label_1, custom_label_2, custom_label_3, custom_label_4
+      ].map(String)
     }
 
     const allValues = valid.map(buildValues)
