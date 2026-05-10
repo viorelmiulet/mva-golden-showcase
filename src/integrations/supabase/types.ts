@@ -1235,6 +1235,36 @@ export type Database = {
         }
         Relationships: []
       }
+      image_validation_cache: {
+        Row: {
+          checked_at: string
+          content_type: string | null
+          expires_at: string
+          is_valid: boolean
+          status_code: number | null
+          url: string
+          url_hash: string
+        }
+        Insert: {
+          checked_at?: string
+          content_type?: string | null
+          expires_at: string
+          is_valid: boolean
+          status_code?: number | null
+          url: string
+          url_hash: string
+        }
+        Update: {
+          checked_at?: string
+          content_type?: string | null
+          expires_at?: string
+          is_valid?: boolean
+          status_code?: number | null
+          url?: string
+          url_hash?: string
+        }
+        Relationships: []
+      }
       news_articles: {
         Row: {
           content: string | null
