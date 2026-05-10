@@ -69,12 +69,19 @@ export default async (request, context) => {
       if (!match) return context.next();
       const idnum = match[1];
 
-      // We can't easily compute Immoflux canonical slug server-side without
-      // duplicating the slug logic. Instead, we trust the client-side redirect
-      // for Immoflux (already handled in ImmofluxPropertyDetail.tsx).
-      // Server redirect only ensures consistency for known stale formats:
-      // if the slug doesn't end exactly with -<idnum>, normalize.
-      // (No-op here — client handles it. Kept for symmetry / future expansion.)
+      // If slug is ONLY the numeric id (legacy bare-id URL), let client redirect
+      // to canonical slug (it has the property data). Otherwise, trust the slug.
+      // Server-side canonical lookup for Immoflux would require duplicating slug
+      // generation logic — handled by client-side redirect in ImmofluxPropertyDetail.tsx.
+      if (slug === idnum) {
+        // Bare numeric IDs are not canonical; the client will redirect.
+        // Mark with a hint for crawlers to deprioritize this variant.
+        const response = await context.next();
+        try {
+          response.headers.set("X-Robots-Tag", "noindex, follow");
+        } catch {}
+        return response;
+      }
     }
   } catch (err) {
     console.error("[slug-redirect] error:", err);
