@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2 } from "lucide-react";
+import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
 const PREVIEW_URL = `${FEED_URL}?preview=1&limit=5`;
 
+interface ExcludedRow { id: string; external_id: string | null; title: string; reason: string }
 interface Preview {
   total: number;
+  total_input: number;
+  excluded_count: number;
+  excluded: ExcludedRow[];
   preview: number;
   size_bytes: number;
   generated_at: string;
