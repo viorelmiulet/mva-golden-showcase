@@ -149,6 +149,89 @@ async function filterValidImages(urls: string[], maxValid: number, validations: 
   return valid
 }
 
+// ===== Link validation (similar persistent cache, shorter TTL since slugs can change) =====
+const LINK_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24h
+const linkMemCache = new Map<string, boolean>()
+
+async function probeLink(url: string): Promise<{ ok: boolean; status?: number; content_type?: string }> {
+  const check = async (method: 'HEAD' | 'GET') => {
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), 5000)
+    try {
+      const res = await fetch(url, {
+        method,
+        signal: ctrl.signal,
+        headers: { 'User-Agent': 'MVAFeedBot/1.0 (+https://www.mvaimobiliare.ro)' },
+        redirect: 'follow',
+      })
+      const ct = res.headers.get('content-type') || ''
+      // Accept any 2xx that returns HTML; SPA may always 200, so also check the body for "404" markers
+      const ok = res.ok && (ct.includes('text/html') || ct === '')
+      return { ok, status: res.status, content_type: ct }
+    } catch {
+      return { ok: false }
+    } finally {
+      clearTimeout(t)
+    }
+  }
+  // For SPA, HEAD often returns the shell; do GET to inspect a small chunk for 404 marker
+  let r = await check('GET')
+  if (!r.ok) r = await check('HEAD')
+  return r
+}
+
+async function validateLinksBatch(urls: string[]): Promise<Map<string, boolean>> {
+  const result = new Map<string, boolean>()
+  const unique = Array.from(new Set(urls.filter(u => /^https?:\/\//i.test(u))))
+  const remaining: string[] = []
+  for (const u of unique) {
+    if (linkMemCache.has(u)) result.set(u, linkMemCache.get(u)!)
+    else remaining.push(u)
+  }
+  if (remaining.length === 0) return result
+  const cached = await loadCachedValidations(remaining)
+  const toProbe: string[] = []
+  for (const u of remaining) {
+    if (cached.has(u)) {
+      const v = cached.get(u)!
+      result.set(u, v); linkMemCache.set(u, v)
+    } else {
+      toProbe.push(u)
+    }
+  }
+  const PROBE_CONCURRENCY = 6
+  const newRows: { url: string; is_valid: boolean; status_code?: number; content_type?: string }[] = []
+  let cursor = 0
+  await Promise.all(Array.from({ length: PROBE_CONCURRENCY }, async () => {
+    while (true) {
+      const i = cursor++
+      if (i >= toProbe.length) return
+      const u = toProbe[i]
+      const r = await probeLink(u)
+      result.set(u, r.ok); linkMemCache.set(u, r.ok)
+      newRows.push({ url: u, is_valid: r.ok, status_code: r.status, content_type: r.content_type })
+    }
+  }))
+  // Persist with link-specific (shorter) TTL
+  if (newRows.length > 0) {
+    const sb = getImgClient()
+    const expires_at = new Date(Date.now() + LINK_CACHE_TTL_MS).toISOString()
+    const checked_at = new Date().toISOString()
+    const payload = await Promise.all(newRows.map(async (r) => ({
+      url_hash: await sha256Hex(r.url),
+      url: r.url,
+      is_valid: r.is_valid,
+      status_code: r.status_code ?? null,
+      content_type: r.content_type ?? null,
+      checked_at,
+      expires_at,
+    })))
+    const { error } = await sb.from('image_validation_cache').upsert(payload, { onConflict: 'url_hash' })
+    if (error) console.error('link cache write error:', error.message)
+  }
+  return result
+}
+
 const escapeCsv = (val: unknown): string => {
   if (val === null || val === undefined) return ''
   let s = String(val).replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim()
