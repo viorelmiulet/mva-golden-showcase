@@ -134,7 +134,63 @@ const FacebookCatalogFeedPage = () => {
             </div>
           </CardContent>
       </Card>
-      </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className={`h-5 w-5 ${preview && preview.excluded_count > 0 ? "text-amber-500" : "text-emerald-500"}`} />
+            <CardTitle className="text-base">
+              Raport excluderi {preview ? `(${preview.excluded_count} din ${preview.total_input})` : ""}
+            </CardTitle>
+          </div>
+          {preview && preview.excluded_count > 0 && (
+            <Button variant="outline" size="sm" onClick={downloadExcludedCsv} className="gap-2">
+              <Download className="h-4 w-4" /> Descarcă raport CSV
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          {!preview ? (
+            <p className="text-sm text-muted-foreground">Se încarcă...</p>
+          ) : preview.excluded_count === 0 ? (
+            <p className="text-sm text-muted-foreground">Toate proprietățile publicate trec validările feed-ului.</p>
+          ) : (
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead className="sticky top-0 bg-background">
+                  <tr className="border-b border-border">
+                    <th className="text-left p-2 font-semibold text-muted-foreground">ID extern</th>
+                    <th className="text-left p-2 font-semibold text-muted-foreground">Titlu</th>
+                    <th className="text-left p-2 font-semibold text-muted-foreground">Motiv excludere</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.excluded.map((r, i) => (
+                    <tr key={i} className="border-b border-border/50">
+                      <td className="p-2 font-mono text-foreground">{r.external_id || r.id.slice(0, 8)}</td>
+                      <td className="p-2 max-w-[300px] truncate text-foreground" title={r.title}>{r.title}</td>
+                      <td className="p-2">
+                        <Badge variant="destructive" className="font-normal">{r.reason}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <div className="text-xs text-muted-foreground mt-3 pt-3 border-t space-y-0.5">
+            <p className="font-semibold text-foreground">Reguli de validare aplicate:</p>
+            <ul className="list-disc pl-5 space-y-0.5">
+              <li>Titlu prezent, minim 5 caractere</li>
+              <li>Preț între 1 și 100.000.000 EUR</li>
+              <li>Cel puțin un URL de imagine valid (https://)</li>
+              <li>Cel puțin o imagine accesibilă (HEAD/GET)</li>
+              <li>Doar proprietăți publicate, fără ansambluri rezidențiale</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
