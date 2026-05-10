@@ -334,7 +334,15 @@ async function generateFeed(): Promise<FeedResult> {
   }
   const validations = await validateImagesBatch(allCandidateUrls)
 
+  // Pre-batch validate ALL property links (/proprietati/<slug>) — same persistent cache pattern
+  const linkByProp = new Map<string, string>()
+  for (const p of valid) {
+    linkByProp.set(p.id, `${SITE_URL}/proprietati/${buildSlug(p)}`)
+  }
+  const linkValidations = await validateLinksBatch(Array.from(linkByProp.values()))
+
   const noReachableImage: Excluded[] = []
+  const brokenLinks: Excluded[] = []
   const buildValues = (p: any): string[] | null => {
     const id = p.external_id || p.id
     const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
@@ -342,8 +350,11 @@ async function generateFeed(): Promise<FeedResult> {
     const description = truncate(stripHtml(descSrc), 4900) || title
     const availability = p.availability_status === 'available' ? 'in stock' : 'out of stock'
     const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
-    const slug = buildSlug(p)
-    const link = `${SITE_URL}/proprietati/${slug}`
+    const link = linkByProp.get(p.id) || `${SITE_URL}/proprietati/${buildSlug(p)}`
+    if (!linkValidations.get(link)) {
+      brokenLinks.push({ id: p.id, external_id: p.external_id, title, reason: `Link inaccesibil/404: ${link}` })
+      return null
+    }
     const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
     const validImgs: string[] = []
     for (const u of imgs) {
@@ -371,14 +382,15 @@ async function generateFeed(): Promise<FeedResult> {
 
   const built = valid.map(buildValues)
   const allValues = built.filter((v): v is string[] => v !== null)
-  excluded.push(...noReachableImage)
+  excluded.push(...brokenLinks, ...noReachableImage)
 
   const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
   const generated_at = new Date().toISOString()
   const size_bytes = new TextEncoder().encode(csv).length
 
-  // Clear request-scope memo only; persistent cache (DB) survives with its own TTL
+  // Clear request-scope memos only; persistent cache (DB) survives with its own TTL
   imageMemCache.clear()
+  linkMemCache.clear()
 
   return { csv, headers, allValues, excluded, total_input: all.length, generated_at, size_bytes }
 }
