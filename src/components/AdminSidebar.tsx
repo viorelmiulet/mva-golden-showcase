@@ -25,6 +25,7 @@ import {
   CalendarCheck,
   Eye,
   ShieldAlert,
+  FileSpreadsheet,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,6 +65,7 @@ const menuItems = [
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "News", url: "/admin/news", icon: FileText },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
+  { title: "Feed Facebook Catalog", url: "/admin/facebook-catalog-feed", icon: FileSpreadsheet },
   { title: "Monitor Redirecturi", url: "/admin/redirect-monitor", icon: ShieldAlert },
   { title: "Setări", url: "/admin/setari", icon: Settings },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
