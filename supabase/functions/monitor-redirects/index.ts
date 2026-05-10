@@ -92,9 +92,10 @@ async function sendAlertEmail(
   recipient: string,
   brokenChecks: CheckResult[]
 ): Promise<boolean> {
-  const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendKey) {
-    console.error("[monitor-redirects] RESEND_API_KEY missing, cannot send alert");
+  const mgKey = Deno.env.get("MAILGUN_API_KEY");
+  const mgDomain = Deno.env.get("MAILGUN_DOMAIN");
+  if (!mgKey || !mgDomain) {
+    console.error("[monitor-redirects] MAILGUN credentials missing, cannot send alert");
     return false;
   }
 
@@ -138,22 +139,20 @@ async function sendAlertEmail(
   `;
 
   try {
-    const r = await fetch("https://api.resend.com/emails", {
+    const form = new FormData();
+    form.append("from", `MVA Monitor SEO <noreply@${mgDomain}>`);
+    form.append("to", recipient);
+    form.append("subject", `[ALERT] ${brokenChecks.length} redirecturi SEO non-301 detectate`);
+    form.append("html", html);
+
+    const r = await fetch(`https://api.eu.mailgun.net/v3/${mgDomain}/messages`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "MVA Monitor <onboarding@resend.dev>",
-        to: [recipient],
-        subject: `[ALERT] ${brokenChecks.length} redirecturi SEO non-301 detectate`,
-        html,
-      }),
+      headers: { Authorization: `Basic ${btoa(`api:${mgKey}`)}` },
+      body: form,
     });
     const body = await r.text();
     if (!r.ok) {
-      console.error("[monitor-redirects] Resend error:", r.status, body);
+      console.error("[monitor-redirects] Mailgun error:", r.status, body);
       return false;
     }
     console.log("[monitor-redirects] Alert email trimis către", recipient);
