@@ -333,7 +333,16 @@ export default function RedirectMonitor() {
                         onCheckedChange={(v) => saveMutation.mutate({ ...t, is_active: v })}
                       />
                     </TableCell>
-                    <TableCell className="text-right space-x-1">
+                    <TableCell className="text-right space-x-1 whitespace-nowrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => testOne(t)}
+                        disabled={testingId === t.id}
+                      >
+                        <RefreshCw className={`h-3 w-3 mr-1 ${testingId === t.id ? "animate-spin" : ""}`} />
+                        {testingId === t.id ? "Testez..." : "Testează acum"}
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => setEditing(t)}>Edit</Button>
                       <Button size="sm" variant="ghost" onClick={() => {
                         if (confirm("Ștergi acest URL?")) deleteMutation.mutate(t.id);
