@@ -406,7 +406,7 @@ async function generateFeed(): Promise<FeedResult> {
       price, listing_type, property_type,
       addr1, addrCity, region, postal, country,
       beds, baths, area_size, area_unit,
-      imgSlots[0], 'exterior',
+      imgSlots[0],
       imgSlots[1], imgSlots[2], imgSlots[3], imgSlots[4],
       imgSlots[5], imgSlots[6], imgSlots[7], imgSlots[8], imgSlots[9]
     ].map(String)
