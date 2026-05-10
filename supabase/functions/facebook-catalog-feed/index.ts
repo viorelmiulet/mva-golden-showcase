@@ -6,6 +6,48 @@ const corsHeaders = {
 }
 
 const SITE_URL = 'https://www.mvaimobiliare.ro'
+const FALLBACK_IMAGE = 'https://mvaimobiliare.ro/og-image.jpg'
+
+// Validate image URL with HEAD (fallback to GET Range) — returns true only if reachable & image
+const imageCache = new Map<string, boolean>()
+async function isImageReachable(url: string): Promise<boolean> {
+  if (!url || !/^https?:\/\//i.test(url)) return false
+  if (imageCache.has(url)) return imageCache.get(url)!
+  const check = async (method: 'HEAD' | 'GET'): Promise<boolean> => {
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), 4000)
+    try {
+      const res = await fetch(url, {
+        method,
+        signal: ctrl.signal,
+        headers: method === 'GET' ? { Range: 'bytes=0-0' } : {},
+        redirect: 'follow',
+      })
+      if (!res.ok && res.status !== 206) return false
+      const ct = res.headers.get('content-type') || ''
+      return ct.startsWith('image/') || ct === '' // some CDNs omit CT on HEAD
+    } catch {
+      return false
+    } finally {
+      clearTimeout(t)
+      try { /* drain */ } catch {}
+    }
+  }
+  let ok = await check('HEAD')
+  if (!ok) ok = await check('GET')
+  imageCache.set(url, ok)
+  return ok
+}
+
+async function filterValidImages(urls: string[], maxValid: number): Promise<string[]> {
+  const valid: string[] = []
+  // Sequential with early exit to limit load
+  for (const u of urls) {
+    if (valid.length >= maxValid) break
+    if (await isImageReachable(u)) valid.push(u)
+  }
+  return valid
+}
 
 const escapeCsv = (val: unknown): string => {
   if (val === null || val === undefined) return ''
