@@ -1,49 +1,37 @@
-## Diagnostic
+## Problema
 
-**Eroare 1 — „Excluse pe baza etichetei noindex" (8 URL-uri)**
-URL-uri tip `https://mvaimobiliare.ro/proprietati/apartament-2-camere-militari-9275` etc.
+În GSC apar 147 URL-uri de tip `/proprietati/{slug-vechi}` raportate ca **„Duplicat fără pagina canonică selectată de utilizator"**. Asta înseamnă că Google găsește mai multe URL-uri cu același conținut și nu reușește să identifice un canonical clar.
 
-Cauza: ruta `/proprietati/:slug` este servită de `PropertyDetail.tsx` (catalog), care:
-1. Ia ultimele 4 caractere ca short-id hex (`9275`, `9468` etc.)
-2. Caută în `catalog_offers` prin `find_properties_by_id_prefix`
-3. Dacă nu găsește → afișează `NotFound`, care are `<meta name="robots" content="noindex, follow" />`
+## Cauze identificate în cod
 
-Sufixurile `9275`, `9468`, `7917` sunt numerice — par să fie de fapt **idnum-uri Immoflux** (ruta corectă ar fi `/proprietate/:slug`). Crawlerul (Prerender.io) primește atunci pagina NotFound cu `noindex` și o raportează ca atare. În plus, slug-redirect.js (Netlify edge) nu rezolvă cazul Immoflux pe ruta catalog.
+1. **Scriptul inline din `index.html` (liniile 55-75) suprascrie canonical-ul cu URL-ul curent din address bar** pentru orice pagină ne-admin. Asta rulează ÎNAINTE ca React Helmet să injecteze canonical-ul corect din `PropertyDetail.tsx`. Rezultat: orice variantă de slug (vechi sau corect) se „auto-canonicalizează" pe sine însăși → Google vede dubluri fără semnal de consolidare.
 
-**Eroare 2 — „Pagină alternativă cu etichetă canonică corespunzătoare" (5 URL-uri)**
-Acestea sunt informative — Google a găsit duplicate care pointează corect la canonical (ex. URL-uri vechi cu sufix scurt). Nu e o eroare critică, dar putem reduce zgomotul forțând 301 server-side pentru sufixele numerice.
+2. **Redirectul vechilor slug-uri se face client-side** prin `window.location.replace` în `PropertyDetail.tsx` (liniile 366-374). Googlebot vede inițial 200 OK cu conținut, nu un 301. Edge function-ul `slug-redirect.js` există dar acoperă doar cazurile cu shortId hex de 4 caractere; URL-uri cu format diferit scapă.
 
-## Modificări
+3. **Pentru Immoflux (`/proprietate/`)**, edge function-ul nu face redirect deloc (linia 77: „No-op"). Toate variantele de slug se servesc direct.
 
-### 1. `src/pages/PropertyDetail.tsx` — fallback către Immoflux
+4. Pentru pagini Immoflux, canonical-ul în Helmet folosește URL-ul direct din `slug` parametru (linia 149), nu slug-ul canonic generat din date.
 
-În `fetchProperty()`, înainte de `setNotFound(true)`:
-- Dacă slug-ul are sufix pur numeric (`/(\d{3,})$/`), face un `301 redirect` către `/proprietate/<slug>` (păstrând slug-ul, ImmofluxPropertyDetail știe să extragă idnum-ul).
-- Folosește `window.location.replace` pentru a evita o intrare în istoric.
+## Plan de rezolvare
 
-Astfel, `/proprietati/apartament-2-camere-militari-9275` → `/proprietate/apartament-2-camere-militari-9275`, care servește pagina reală cu `index, follow`.
+### 1. Elimină overwrite-ul canonical din `index.html`
+Scoate liniile care setează `link[rel="canonical"]` și `og:url` din scriptul inline. Le păstrăm doar pe `og:url` setată inițial; canonical-ul rămâne `https://mvaimobiliare.ro/` ca fallback pentru homepage, iar fiecare pagină îl suprascrie corect prin React Helmet.
 
-### 2. `netlify/edge-functions/slug-redirect.js` — 301 server-side pentru bots
+### 2. Întărește 301-urile server-side în `netlify/edge-functions/slug-redirect.js`
+- Pentru `/proprietati/`: dacă lookup-ul după `shortId` găsește un slug canonic diferit, deja face 301 ✓. Adaugă și un fallback: dacă slug-ul conține caractere stranii sau nu se potrivește cu niciun slug din DB → 410 Gone (sau 404).
+- Pentru `/proprietate/` (Immoflux): implementează lookup real: extrage `idnum` din finalul slug-ului, apelează API-ul Immoflux (sau o cache locală) pentru a calcula slug-ul canonic, fă 301 dacă diferă.
 
-În blocul `isCatalog`: dacă short-id-ul este pur numeric și lookup-ul în `catalog_offers` nu găsește nimic, returnează `301` direct la `/proprietate/<slug>` (idnum extras = sufixul numeric). Acest pas e cheia: Prerender.io cache-uiește răspunsul 301 → bot-ul nu mai vede pagina cu `noindex`.
+### 3. Canonical pentru `ImmofluxPropertyDetail.tsx`
+Calculează canonical-ul din datele proprietății folosind `getImmofluxPropertyUrl(property)` în loc să refolosească `slug` din URL.
 
-### 3. `src/pages/NotFound.tsx` — întoarce 404 propriu (opțional)
+### 4. Verificare
+După deploy:
+- Inspectează 2-3 URL-uri afectate în GSC cu „URL Inspection" → verifică „User-declared canonical" vs „Google-selected canonical".
+- Cere reindexare pentru slug-urile canonice.
+- Așteaptă 2-4 săptămâni pentru ca Google să reproceseze cele 147 URL-uri.
 
-Lăsăm `noindex` pe NotFound (corect), dar adăugăm `<meta http-equiv="status" content="404">` pentru claritate. Nu schimbăm comportamentul — doar documentăm.
+## Fișiere modificate
 
-### 4. Invalidare cache Prerender.io
-
-După deploy, instrucțiuni pentru user: re-trimite cele 8 URL-uri în GSC („Solicitați indexarea") + cere recrawl Prerender.io (sau șterge cache pentru cele 8 URL-uri din dashboard-ul Prerender). Fără asta, Google va vedea în continuare versiunea cache-uită cu noindex pentru câteva zile.
-
-## Riscuri
-
-- Niciun risc pentru URL-urile actuale catalog (sufix hex valid în DB → match exact în pasul 2 al `fetchProperty`).
-- Redirectul Immoflux se aplică DOAR când short-id-ul nu există în catalog, deci nu poluează rutele existente.
-- Redirectul în Netlify rulează doar pentru sufixe pur numerice, deci slug-uri hex valide rămân neafectate.
-
-## Verificare
-
-După implementare:
-1. Vizităm direct unul dintre URL-urile raportate (ex. `/proprietati/apartament-2-camere-militari-9275`) → trebuie să se redirecționeze la `/proprietate/...-9275` și să afișeze pagina reală.
-2. `curl -I -A "Googlebot" https://mvaimobiliare.ro/proprietati/apartament-2-camere-militari-9275` → trebuie să returneze `301`.
-3. În GSC, validăm fix-ul pe ambele rapoarte.
+- `index.html` — scoate suprascrierea canonical din scriptul inline
+- `netlify/edge-functions/slug-redirect.js` — adaugă 301 pentru Immoflux + 410 pentru slug-uri inexistente
+- `src/pages/ImmofluxPropertyDetail.tsx` — folosește `getImmofluxPropertyUrl(property)` pentru canonical
