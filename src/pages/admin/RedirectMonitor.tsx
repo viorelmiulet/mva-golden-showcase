@@ -61,6 +61,28 @@ export default function RedirectMonitor() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Partial<Target> | null>(null);
   const [running, setRunning] = useState(false);
+  const [testingId, setTestingId] = useState<string | null>(null);
+
+  const testOne = async (target: Target) => {
+    setTestingId(target.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("monitor-redirects", {
+        body: { target_id: target.id },
+      });
+      if (error) throw error;
+      const r = data?.results?.[0];
+      if (r?.is_healthy) {
+        toast.success(`OK: ${r.actual_status} → ${r.actual_location ?? "—"}`);
+      } else {
+        toast.error(`Defect: ${r?.actual_status ?? "ERR"} ${r?.error_message ?? ""}`);
+      }
+      qc.invalidateQueries({ queryKey: ["redirect-checks"] });
+    } catch (e) {
+      toast.error(`Eroare: ${(e as Error).message}`);
+    } finally {
+      setTestingId(null);
+    }
+  };
 
   const { data: targets } = useQuery({
     queryKey: ["redirect-targets"],
