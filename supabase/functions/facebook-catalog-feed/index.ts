@@ -319,11 +319,15 @@ async function generateFeed(): Promise<FeedResult> {
     valid.push(p)
   }
 
+  // Meta Home Listings (Real Estate) catalog format
   const headers = [
-    'id', 'title', 'description', 'availability', 'condition', 'price',
-    'link', 'image_link', 'additional_image_link', 'brand',
-    'google_product_category', 'product_type',
-    'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
+    'home_listing_id', 'name', 'availability', 'description', 'url',
+    'price', 'listing_type', 'property_type',
+    'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
+    'num_beds', 'num_baths', 'area_size', 'area_unit',
+    'image[0].url', 'image[0].tag',
+    'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
+    'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
   ]
 
   // Pre-batch validate ALL candidate image URLs in one go (uses persistent cache + concurrent probing)
