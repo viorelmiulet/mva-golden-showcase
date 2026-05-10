@@ -139,7 +139,7 @@ const FacebookCatalogFeedPage = () => {
                     <tr key={i} className="border-b border-border/50">
                       {row.slice(0, 7).map((cell, j) => (
                         <td key={j} className="p-2 max-w-[200px] truncate text-foreground" title={cell}>
-                          {cell.replace(/^"|"$/g, "")}
+                          {cell}
                         </td>
                       ))}
                     </tr>
