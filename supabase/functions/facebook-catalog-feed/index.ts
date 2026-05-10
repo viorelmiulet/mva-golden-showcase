@@ -8,12 +8,74 @@ const corsHeaders = {
 const SITE_URL = 'https://www.mvaimobiliare.ro'
 const FALLBACK_IMAGE = 'https://mvaimobiliare.ro/og-image.jpg'
 
-// Validate image URL with HEAD (fallback to GET Range) — returns true only if reachable & image
-const imageCache = new Map<string, boolean>()
-async function isImageReachable(url: string): Promise<boolean> {
-  if (!url || !/^https?:\/\//i.test(url)) return false
-  if (imageCache.has(url)) return imageCache.get(url)!
-  const check = async (method: 'HEAD' | 'GET'): Promise<boolean> => {
+// ===== Persistent image-validation cache (DB-backed with TTL) =====
+const IMG_CACHE_TTL_DAYS = 7
+const IMG_CACHE_TTL_MS = IMG_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000
+const imageMemCache = new Map<string, boolean>() // request-scope memo only
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+let imgSupabase: ReturnType<typeof createClient> | null = null
+function getImgClient() {
+  if (!imgSupabase) {
+    imgSupabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+  }
+  return imgSupabase
+}
+
+async function loadCachedValidations(urls: string[]): Promise<Map<string, boolean>> {
+  const out = new Map<string, boolean>()
+  if (urls.length === 0) return out
+  const hashByUrl = new Map<string, string>()
+  await Promise.all(urls.map(async (u) => hashByUrl.set(u, await sha256Hex(u))))
+  const hashes = Array.from(hashByUrl.values())
+  const sb = getImgClient()
+  // Chunk to avoid URL/IN-list limits
+  const CHUNK = 200
+  const nowIso = new Date().toISOString()
+  for (let i = 0; i < hashes.length; i += CHUNK) {
+    const slice = hashes.slice(i, i + CHUNK)
+    const { data, error } = await sb
+      .from('image_validation_cache')
+      .select('url_hash, is_valid, expires_at')
+      .in('url_hash', slice)
+      .gt('expires_at', nowIso)
+    if (error) { console.error('cache read error:', error.message); continue }
+    const byHash = new Map<string, boolean>()
+    for (const row of data || []) byHash.set((row as any).url_hash, (row as any).is_valid)
+    for (const [u, h] of hashByUrl) {
+      if (byHash.has(h)) out.set(u, byHash.get(h)!)
+    }
+  }
+  return out
+}
+
+async function persistValidations(rows: { url: string; is_valid: boolean; status_code?: number; content_type?: string }[]) {
+  if (rows.length === 0) return
+  const sb = getImgClient()
+  const expires_at = new Date(Date.now() + IMG_CACHE_TTL_MS).toISOString()
+  const checked_at = new Date().toISOString()
+  const payload = await Promise.all(rows.map(async (r) => ({
+    url_hash: await sha256Hex(r.url),
+    url: r.url,
+    is_valid: r.is_valid,
+    status_code: r.status_code ?? null,
+    content_type: r.content_type ?? null,
+    checked_at,
+    expires_at,
+  })))
+  const { error } = await sb.from('image_validation_cache').upsert(payload, { onConflict: 'url_hash' })
+  if (error) console.error('cache write error:', error.message)
+}
+
+async function probeImage(url: string): Promise<{ ok: boolean; status?: number; content_type?: string }> {
+  const check = async (method: 'HEAD' | 'GET') => {
     const ctrl = new AbortController()
     const t = setTimeout(() => ctrl.abort(), 4000)
     try {
@@ -23,28 +85,66 @@ async function isImageReachable(url: string): Promise<boolean> {
         headers: method === 'GET' ? { Range: 'bytes=0-0' } : {},
         redirect: 'follow',
       })
-      if (!res.ok && res.status !== 206) return false
       const ct = res.headers.get('content-type') || ''
-      return ct.startsWith('image/') || ct === '' // some CDNs omit CT on HEAD
+      const ok = (res.ok || res.status === 206) && (ct.startsWith('image/') || ct === '')
+      return { ok, status: res.status, content_type: ct }
     } catch {
-      return false
+      return { ok: false }
     } finally {
       clearTimeout(t)
-      try { /* drain */ } catch {}
     }
   }
-  let ok = await check('HEAD')
-  if (!ok) ok = await check('GET')
-  imageCache.set(url, ok)
-  return ok
+  let r = await check('HEAD')
+  if (!r.ok) r = await check('GET')
+  return r
 }
 
-async function filterValidImages(urls: string[], maxValid: number): Promise<string[]> {
+// Validate a list of URLs using persistent cache; only probes the cache misses.
+async function validateImagesBatch(urls: string[]): Promise<Map<string, boolean>> {
+  const result = new Map<string, boolean>()
+  const unique = Array.from(new Set(urls.filter(u => /^https?:\/\//i.test(u))))
+  // 1) Request-scope memo
+  const remaining: string[] = []
+  for (const u of unique) {
+    if (imageMemCache.has(u)) result.set(u, imageMemCache.get(u)!)
+    else remaining.push(u)
+  }
+  if (remaining.length === 0) return result
+  // 2) Persistent cache
+  const cached = await loadCachedValidations(remaining)
+  const toProbe: string[] = []
+  for (const u of remaining) {
+    if (cached.has(u)) {
+      const v = cached.get(u)!
+      result.set(u, v); imageMemCache.set(u, v)
+    } else {
+      toProbe.push(u)
+    }
+  }
+  // 3) Probe misses with limited concurrency
+  const PROBE_CONCURRENCY = 8
+  const newRows: { url: string; is_valid: boolean; status_code?: number; content_type?: string }[] = []
+  let cursor = 0
+  await Promise.all(Array.from({ length: PROBE_CONCURRENCY }, async () => {
+    while (true) {
+      const i = cursor++
+      if (i >= toProbe.length) return
+      const u = toProbe[i]
+      const r = await probeImage(u)
+      result.set(u, r.ok); imageMemCache.set(u, r.ok)
+      newRows.push({ url: u, is_valid: r.ok, status_code: r.status, content_type: r.content_type })
+    }
+  }))
+  // 4) Persist (fire-and-forget but awaited so caller logs are accurate)
+  await persistValidations(newRows)
+  return result
+}
+
+async function filterValidImages(urls: string[], maxValid: number, validations: Map<string, boolean>): Promise<string[]> {
   const valid: string[] = []
-  // Sequential with early exit to limit load
   for (const u of urls) {
     if (valid.length >= maxValid) break
-    if (await isImageReachable(u)) valid.push(u)
+    if (validations.get(u)) valid.push(u)
   }
   return valid
 }
