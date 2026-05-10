@@ -147,6 +147,11 @@ const ImmofluxPropertyDetail = () => {
   const opinieagent = typeof p.opinieagent === 'object' ? p.opinieagent?.ro?.trim() : p.opinieagent?.trim?.();
 
   const canonicalPath = getImmofluxPropertyUrl(property as any);
+  const canonicalSlug = canonicalPath.replace('/proprietate/', '');
+  // Client-side redirect to canonical slug if URL slug is outdated (helps consolidate duplicates in GSC)
+  if (typeof window !== 'undefined' && slug && canonicalSlug && slug !== canonicalSlug) {
+    window.location.replace(canonicalPath);
+  }
   const propertyUrl = `https://mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const metaDesc = (description || title).substring(0, 160);
