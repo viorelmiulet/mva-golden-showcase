@@ -80,6 +80,143 @@ const buildSlug = (p: any): string => {
   return parts.filter(Boolean).join('-')
 }
 
+// ===== Module-level cache (persists across warm invocations of the same instance) =====
+type FeedResult = {
+  csv: string
+  headers: string[]
+  allValues: string[][]
+  excluded: { id: string; external_id: string | null; title: string; reason: string }[]
+  total_input: number
+  generated_at: string
+  size_bytes: number
+}
+let CACHE: { result: FeedResult; expires_at: number } | null = null
+let INFLIGHT: Promise<FeedResult> | null = null
+const TTL_MS = 30 * 60 * 1000 // 30 minutes
+
+async function generateFeed(): Promise<FeedResult> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  const all: any[] = []
+  let from = 0
+  const pageSize = 1000
+  while (true) {
+    const { data, error } = await supabase
+      .from('catalog_offers')
+      .select('id, external_id, title, description, descriere_lunga, slug, price_min, currency, images, availability_status, is_published, project_id, project_name, rooms, city, zone, surface_min, property_type, transaction_type')
+      .eq('is_published', true)
+      .is('project_id', null)
+      .range(from, from + pageSize - 1)
+    if (error) throw error
+    if (!data || data.length === 0) break
+    all.push(...data)
+    if (data.length < pageSize) break
+    from += pageSize
+  }
+
+  type Excluded = { id: string; external_id: string | null; title: string; reason: string }
+  const excluded: Excluded[] = []
+  const valid: any[] = []
+  const MIN_TITLE_LEN = 5
+  const MIN_PRICE = 1
+  const MAX_PRICE = 100_000_000
+
+  for (const p of all) {
+    const title = stripHtml(p.title || '').trim()
+    const price = Number(p.price_min)
+    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string' && /^https?:\/\//i.test(u)) : []
+    if (!title) { excluded.push({ id: p.id, external_id: p.external_id, title: p.title || '(fara titlu)', reason: 'Titlu lipsa' }); continue }
+    if (title.length < MIN_TITLE_LEN) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Titlu prea scurt (<${MIN_TITLE_LEN} caractere)` }); continue }
+    if (!Number.isFinite(price) || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa sau 0' }); continue }
+    if (price > MAX_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Pret nerealist (>${MAX_PRICE.toLocaleString()} EUR)` }); continue }
+    if (imgs.length === 0) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Fara imagini valide (URL)' }); continue }
+    valid.push(p)
+  }
+
+  const headers = [
+    'id', 'title', 'description', 'availability', 'condition', 'price',
+    'link', 'image_link', 'additional_image_link', 'brand',
+    'google_product_category', 'product_type',
+    'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
+  ]
+
+  const noReachableImage: Excluded[] = []
+  const buildValues = async (p: any): Promise<string[] | null> => {
+    const id = p.external_id || p.id
+    const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
+    const descSrc = p.descriere_lunga || p.description || p.title || ''
+    const description = truncate(stripHtml(descSrc), 4900) || title
+    const availability = p.availability_status === 'available' ? 'in stock' : 'out of stock'
+    const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
+    const slug = buildSlug(p)
+    const link = `${SITE_URL}/proprietati/${slug}`
+    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    const validImgs = await filterValidImages(imgs, 11)
+    if (validImgs.length === 0) {
+      noReachableImage.push({ id: p.id, external_id: p.external_id, title, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
+      return null
+    }
+    const image_link = validImgs[0]
+    const additional = validImgs.slice(1, 11).join(',')
+    const propType = p.property_type || 'Imobil'
+    const roomsLabel = p.rooms ? (p.rooms <= 1 ? 'Garsoniera' : `${p.rooms} camere`) : ''
+    const cityLabel = p.city || ''
+    const zoneLabel = p.zone && !/^\d|.*\d{2,}\.\d{3,}/.test(p.zone) ? p.zone.split(',')[0].trim() : ''
+    const txnLabel = p.transaction_type === 'rent' ? 'Inchiriere' : 'Vanzare'
+    const product_type = [propType, roomsLabel, cityLabel, zoneLabel].filter(Boolean).join(' > ')
+    return [
+      id, title, description, availability, 'new', price, link,
+      image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type,
+      roomsLabel, zoneLabel, cityLabel, txnLabel, p.surface_min ? `${p.surface_min} mp` : ''
+    ].map(String)
+  }
+
+  const CONCURRENCY = 8
+  const built: (string[] | null)[] = new Array(valid.length)
+  let cursor = 0
+  const workers = Array.from({ length: CONCURRENCY }, async () => {
+    while (true) {
+      const i = cursor++
+      if (i >= valid.length) return
+      built[i] = await buildValues(valid[i])
+    }
+  })
+  await Promise.all(workers)
+  const allValues = built.filter((v): v is string[] => v !== null)
+  excluded.push(...noReachableImage)
+
+  const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
+  const generated_at = new Date().toISOString()
+  const size_bytes = new TextEncoder().encode(csv).length
+
+  // Reset image cache between regenerations so dead images get re-detected
+  imageCache.clear()
+
+  return { csv, headers, allValues, excluded, total_input: all.length, generated_at, size_bytes }
+}
+
+async function getFeed(forceRefresh: boolean): Promise<{ result: FeedResult; from_cache: boolean; expires_at: number }> {
+  const now = Date.now()
+  if (!forceRefresh && CACHE && CACHE.expires_at > now) {
+    return { result: CACHE.result, from_cache: true, expires_at: CACHE.expires_at }
+  }
+  if (INFLIGHT) {
+    const result = await INFLIGHT
+    return { result, from_cache: false, expires_at: CACHE?.expires_at ?? Date.now() + TTL_MS }
+  }
+  INFLIGHT = generateFeed()
+  try {
+    const result = await INFLIGHT
+    CACHE = { result, expires_at: Date.now() + TTL_MS }
+    return { result, from_cache: false, expires_at: CACHE.expires_at }
+  } finally {
+    INFLIGHT = null
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -88,132 +225,27 @@ Deno.serve(async (req) => {
   const url = new URL(req.url)
   const previewMode = url.searchParams.get('preview') === '1'
   const previewLimit = parseInt(url.searchParams.get('limit') || '5', 10)
+  const forceRefresh = url.searchParams.get('refresh') === '1'
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
-
-    // Pull all eligible properties (paginate to bypass 1000 default)
-    const all: any[] = []
-    let from = 0
-    const pageSize = 1000
-    while (true) {
-      const { data, error } = await supabase
-        .from('catalog_offers')
-        .select('id, external_id, title, description, descriere_lunga, slug, price_min, currency, images, availability_status, is_published, project_id, project_name, rooms, city, zone, surface_min, property_type, transaction_type')
-        .eq('is_published', true)
-        .is('project_id', null)
-        .range(from, from + pageSize - 1)
-      if (error) throw error
-      if (!data || data.length === 0) break
-      all.push(...data)
-      if (data.length < pageSize) break
-      from += pageSize
-    }
-
-    // Validation rules + exclusion report
-    type Excluded = { id: string; external_id: string | null; title: string; reason: string };
-    const excluded: Excluded[] = []
-    const valid: any[] = []
-
-    const MIN_TITLE_LEN = 5
-    const MIN_PRICE = 1
-    const MAX_PRICE = 100_000_000
-
-    for (const p of all) {
-      const title = stripHtml(p.title || '').trim()
-      const price = Number(p.price_min)
-      const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string' && /^https?:\/\//i.test(u)) : []
-
-      if (!title) { excluded.push({ id: p.id, external_id: p.external_id, title: p.title || '(fara titlu)', reason: 'Titlu lipsa' }); continue }
-      if (title.length < MIN_TITLE_LEN) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Titlu prea scurt (<${MIN_TITLE_LEN} caractere)` }); continue }
-      if (!Number.isFinite(price) || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa sau 0' }); continue }
-      if (price > MAX_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Pret nerealist (>${MAX_PRICE.toLocaleString()} EUR)` }); continue }
-      if (imgs.length === 0) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Fara imagini valide (URL)' }); continue }
-
-      valid.push(p)
-    }
-
-    const headers = [
-      'id', 'title', 'description', 'availability', 'condition', 'price',
-      'link', 'image_link', 'additional_image_link', 'brand',
-      'google_product_category', 'product_type',
-      'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
-    ]
-
-    // Track per-property image validation results for the report
-    const noReachableImage: Excluded[] = []
-
-    const buildValues = async (p: any): Promise<string[] | null> => {
-      const id = p.external_id || p.id
-      const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
-      const descSrc = p.descriere_lunga || p.description || p.title || ''
-      const description = truncate(stripHtml(descSrc), 4900) || title
-      const availability = p.availability_status === 'available' ? 'in stock' : 'out of stock'
-      const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
-      const slug = buildSlug(p)
-      const link = `${SITE_URL}/proprietati/${slug}`
-      const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
-      const validImgs = await filterValidImages(imgs, 11)
-
-      if (validImgs.length === 0) {
-        // Hard-exclude rather than send fallback as primary image
-        noReachableImage.push({ id: p.id, external_id: p.external_id, title, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
-        return null
-      }
-
-      const image_link = validImgs[0]
-      const additional = validImgs.slice(1, 11).join(',')
-
-      const propType = p.property_type || 'Imobil'
-      const roomsLabel = p.rooms ? (p.rooms <= 1 ? 'Garsoniera' : `${p.rooms} camere`) : ''
-      const cityLabel = p.city || ''
-      const zoneLabel = p.zone && !/^\d|.*\d{2,}\.\d{3,}/.test(p.zone) ? p.zone.split(',')[0].trim() : ''
-      const txnLabel = p.transaction_type === 'rent' ? 'Inchiriere' : 'Vanzare'
-
-      const productTypeParts = [propType, roomsLabel, cityLabel, zoneLabel].filter(Boolean)
-      const product_type = productTypeParts.join(' > ')
-
-      const custom_label_0 = roomsLabel
-      const custom_label_1 = zoneLabel
-      const custom_label_2 = cityLabel
-      const custom_label_3 = txnLabel
-      const custom_label_4 = p.surface_min ? `${p.surface_min} mp` : ''
-
-      return [
-        id, title, description, availability, 'new', price, link,
-        image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type,
-        custom_label_0, custom_label_1, custom_label_2, custom_label_3, custom_label_4
-      ].map(String)
-    }
-
-    const CONCURRENCY = 8
-    const built: (string[] | null)[] = new Array(valid.length)
-    let cursor = 0
-    const workers = Array.from({ length: CONCURRENCY }, async () => {
-      while (true) {
-        const i = cursor++
-        if (i >= valid.length) return
-        built[i] = await buildValues(valid[i])
-      }
-    })
-    await Promise.all(workers)
-    const allValues = built.filter((v): v is string[] => v !== null)
-    excluded.push(...noReachableImage)
-
-    const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
+    const { result, from_cache, expires_at } = await getFeed(forceRefresh)
+    const { csv, headers, allValues, excluded, total_input, generated_at, size_bytes } = result
+    const cacheAgeSec = Math.max(0, Math.floor((Date.now() - new Date(generated_at).getTime()) / 1000))
+    const maxAgeSec = Math.max(0, Math.floor((expires_at - Date.now()) / 1000))
 
     if (previewMode) {
       return new Response(JSON.stringify({
         total: allValues.length,
-        total_input: all.length,
+        total_input,
         excluded_count: excluded.length,
         excluded,
         preview: Math.min(previewLimit, allValues.length),
-        size_bytes: new TextEncoder().encode(csv).length,
-        generated_at: new Date().toISOString(),
+        size_bytes,
+        generated_at,
+        from_cache,
+        cache_age_seconds: cacheAgeSec,
+        cache_expires_in_seconds: maxAgeSec,
+        cache_ttl_minutes: Math.round(TTL_MS / 60000),
         headers,
         rows: allValues.slice(0, previewLimit),
       }), {
@@ -226,10 +258,12 @@ Deno.serve(async (req) => {
         ...corsHeaders,
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': 'inline; filename="mva-facebook-catalog.csv"',
-        'Cache-Control': 'public, max-age=1800',
+        'Cache-Control': `public, max-age=${maxAgeSec}, s-maxage=${maxAgeSec}`,
         'X-Total-Products': String(allValues.length),
         'X-Excluded-Products': String(excluded.length),
-        'X-Generated-At': new Date().toISOString(),
+        'X-Generated-At': generated_at,
+        'X-Cache': from_cache ? 'HIT' : 'MISS',
+        'X-Cache-Age': String(cacheAgeSec),
       },
     })
   } catch (e: any) {
