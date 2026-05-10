@@ -120,7 +120,7 @@ const FacebookCatalogFeedPage = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-xs text-muted-foreground">Produse exportate</div>
@@ -139,6 +139,28 @@ const FacebookCatalogFeedPage = () => {
             <div className="text-sm font-medium text-foreground mt-2 flex items-center gap-1">
               <CheckCircle2 className="h-4 w-4 text-emerald-500" />
               {preview ? new Date(preview.generated_at).toLocaleString("ro-RO") : "—"}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              Cache
+              {preview && (
+                <Badge variant={preview.from_cache ? "secondary" : "outline"} className="ml-1 text-[10px] px-1.5 py-0">
+                  {preview.from_cache ? "HIT" : "MISS"}
+                </Badge>
+              )}
+            </div>
+            <div className="text-sm font-medium text-foreground mt-2">
+              {preview ? (
+                <>
+                  Expiră în {Math.max(0, Math.round(preview.cache_expires_in_seconds / 60))} min
+                  <div className="text-[11px] text-muted-foreground font-normal">
+                    TTL: {preview.cache_ttl_minutes} min · cron */30
+                  </div>
+                </>
+              ) : "—"}
             </div>
           </CardContent>
         </Card>
