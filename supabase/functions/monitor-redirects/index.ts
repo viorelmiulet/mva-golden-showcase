@@ -171,11 +171,20 @@ Deno.serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceKey);
 
   try {
-    // 1. Load active targets
-    const { data: targets, error: tErr } = await supabase
-      .from("redirect_monitor_targets")
-      .select("*")
-      .eq("is_active", true);
+    // Optional: test a single target
+    let targetId: string | null = null;
+    try {
+      if (req.method === "POST") {
+        const body = await req.json().catch(() => ({}));
+        if (body && typeof body.target_id === "string") targetId = body.target_id;
+      }
+    } catch (_) {}
+
+    // 1. Load targets (single by id, or all active)
+    let query = supabase.from("redirect_monitor_targets").select("*");
+    if (targetId) query = query.eq("id", targetId);
+    else query = query.eq("is_active", true);
+    const { data: targets, error: tErr } = await query;
 
     if (tErr) throw tErr;
     if (!targets || targets.length === 0) {
