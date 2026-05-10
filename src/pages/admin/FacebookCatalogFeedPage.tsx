@@ -17,6 +17,10 @@ interface Preview {
   preview: number;
   size_bytes: number;
   generated_at: string;
+  from_cache: boolean;
+  cache_age_seconds: number;
+  cache_expires_in_seconds: number;
+  cache_ttl_minutes: number;
   headers: string[];
   rows: string[][];
 }
@@ -25,13 +29,17 @@ const FacebookCatalogFeedPage = () => {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const loadPreview = async () => {
+  const loadPreview = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const res = await fetch(PREVIEW_URL);
+      const url = `${PREVIEW_URL}${forceRefresh ? "&refresh=1" : ""}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setPreview(data);
+      if (forceRefresh) {
+        toast({ title: "Cache reîmprospătat", description: "Feed-ul a fost regenerat din baza de date." });
+      }
     } catch (e: any) {
       toast({ title: "Eroare preview", description: e.message, variant: "destructive" });
     } finally {
@@ -112,7 +120,7 @@ const FacebookCatalogFeedPage = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-xs text-muted-foreground">Produse exportate</div>
@@ -134,16 +142,44 @@ const FacebookCatalogFeedPage = () => {
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              Cache
+              {preview && (
+                <Badge variant={preview.from_cache ? "secondary" : "outline"} className="ml-1 text-[10px] px-1.5 py-0">
+                  {preview.from_cache ? "HIT" : "MISS"}
+                </Badge>
+              )}
+            </div>
+            <div className="text-sm font-medium text-foreground mt-2">
+              {preview ? (
+                <>
+                  Expiră în {Math.max(0, Math.round(preview.cache_expires_in_seconds / 60))} min
+                  <div className="text-[11px] text-muted-foreground font-normal">
+                    TTL: {preview.cache_ttl_minutes} min · cron */30
+                  </div>
+                </>
+              ) : "—"}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Preview primele {preview?.preview ?? 5} produse</CardTitle>
-          <Button variant="outline" size="sm" onClick={loadPreview} disabled={loading} className="gap-2">
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            Reîmprospătează
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => loadPreview(false)} disabled={loading} className="gap-2">
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Reîmprospătează
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => loadPreview(true)} disabled={loading} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Forțează regenerare
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {preview && preview.rows.length > 0 ? (
