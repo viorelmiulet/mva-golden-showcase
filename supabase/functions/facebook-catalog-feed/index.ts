@@ -227,7 +227,8 @@ Deno.serve(async (req) => {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': 'inline; filename="mva-facebook-catalog.csv"',
         'Cache-Control': 'public, max-age=1800',
-        'X-Total-Products': String(valid.length),
+        'X-Total-Products': String(allValues.length),
+        'X-Excluded-Products': String(excluded.length),
         'X-Generated-At': new Date().toISOString(),
       },
     })
