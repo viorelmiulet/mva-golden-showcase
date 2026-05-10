@@ -176,8 +176,6 @@ Deno.serve(async (req) => {
       }
     })
     await Promise.all(workers)
-
-    const allValues = valid.map(buildValues)
     const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
 
     if (previewMode) {
