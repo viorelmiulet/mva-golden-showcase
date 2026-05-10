@@ -17,6 +17,10 @@ interface Preview {
   preview: number;
   size_bytes: number;
   generated_at: string;
+  from_cache: boolean;
+  cache_age_seconds: number;
+  cache_expires_in_seconds: number;
+  cache_ttl_minutes: number;
   headers: string[];
   rows: string[][];
 }
@@ -25,13 +29,17 @@ const FacebookCatalogFeedPage = () => {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const loadPreview = async () => {
+  const loadPreview = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const res = await fetch(PREVIEW_URL);
+      const url = `${PREVIEW_URL}${forceRefresh ? "&refresh=1" : ""}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setPreview(data);
+      if (forceRefresh) {
+        toast({ title: "Cache reîmprospătat", description: "Feed-ul a fost regenerat din baza de date." });
+      }
     } catch (e: any) {
       toast({ title: "Eroare preview", description: e.message, variant: "destructive" });
     } finally {
