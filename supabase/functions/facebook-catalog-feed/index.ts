@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       'google_product_category', 'product_type'
     ]
 
-    const rows = (previewMode ? valid.slice(0, previewLimit) : valid).map(p => {
+    const buildValues = (p: any): string[] => {
       const id = p.external_id || p.id
       const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
       const descSrc = p.descriere_lunga || p.description || p.title || ''
@@ -94,27 +94,24 @@ Deno.serve(async (req) => {
       const slug = buildSlug(p)
       const link = `${SITE_URL}/proprietati/${slug}`
       const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
-      const image_link = imgs[0]
+      const image_link = imgs[0] || ''
       const additional = imgs.slice(1, 11).join(',')
       const productTypeParts = [p.property_type, p.rooms ? `${p.rooms} camere` : null, p.city].filter(Boolean)
       const product_type = productTypeParts.join(' > ')
+      return [id, title, description, availability, 'new', price, link, image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type].map(String)
+    }
 
-      return [
-        id, title, description, availability, 'new', price, link,
-        image_link, additional, 'MVA Imobiliare', 'Real Estate', product_type
-      ].map(escapeCsv).join(',')
-    })
-
-    const csv = [headers.join(','), ...rows].join('\n')
+    const allValues = valid.map(buildValues)
+    const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
 
     if (previewMode) {
       return new Response(JSON.stringify({
         total: valid.length,
-        preview: rows.length,
+        preview: Math.min(previewLimit, allValues.length),
         size_bytes: new TextEncoder().encode(csv).length,
         generated_at: new Date().toISOString(),
         headers,
-        rows: rows.map(r => r.split(',')),
+        rows: allValues.slice(0, previewLimit),
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
