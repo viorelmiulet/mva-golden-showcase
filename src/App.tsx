@@ -213,6 +213,7 @@ const AppRoutes = () => {
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="redirect-monitor" element={<RedirectMonitor />} />
+                <Route path="facebook-catalog-feed" element={<FacebookCatalogFeedPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
                 
                 <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
