@@ -325,7 +325,7 @@ async function generateFeed(): Promise<FeedResult> {
     'price', 'listing_type', 'property_type',
     'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
     'num_beds', 'num_baths', 'area_size', 'area_unit',
-    'image[0].url', 'image[0].tag',
+    'image[0].url',
     'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
     'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
   ]
