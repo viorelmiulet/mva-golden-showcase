@@ -148,10 +148,16 @@ const FacebookCatalogFeedPage = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Preview primele {preview?.preview ?? 5} produse</CardTitle>
-          <Button variant="outline" size="sm" onClick={loadPreview} disabled={loading} className="gap-2">
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            Reîmprospătează
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => loadPreview(false)} disabled={loading} className="gap-2">
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Reîmprospătează
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => loadPreview(true)} disabled={loading} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Forțează regenerare
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {preview && preview.rows.length > 0 ? (
