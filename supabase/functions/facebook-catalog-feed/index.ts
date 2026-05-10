@@ -243,8 +243,16 @@ async function generateFeed(): Promise<FeedResult> {
     'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
   ]
 
+  // Pre-batch validate ALL candidate image URLs in one go (uses persistent cache + concurrent probing)
+  const allCandidateUrls: string[] = []
+  for (const p of valid) {
+    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    allCandidateUrls.push(...imgs)
+  }
+  const validations = await validateImagesBatch(allCandidateUrls)
+
   const noReachableImage: Excluded[] = []
-  const buildValues = async (p: any): Promise<string[] | null> => {
+  const buildValues = (p: any): string[] | null => {
     const id = p.external_id || p.id
     const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
     const descSrc = p.descriere_lunga || p.description || p.title || ''
@@ -254,7 +262,11 @@ async function generateFeed(): Promise<FeedResult> {
     const slug = buildSlug(p)
     const link = `${SITE_URL}/proprietati/${slug}`
     const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
-    const validImgs = await filterValidImages(imgs, 11)
+    const validImgs: string[] = []
+    for (const u of imgs) {
+      if (validImgs.length >= 11) break
+      if (validations.get(u)) validImgs.push(u)
+    }
     if (validImgs.length === 0) {
       noReachableImage.push({ id: p.id, external_id: p.external_id, title, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
       return null
@@ -274,17 +286,7 @@ async function generateFeed(): Promise<FeedResult> {
     ].map(String)
   }
 
-  const CONCURRENCY = 8
-  const built: (string[] | null)[] = new Array(valid.length)
-  let cursor = 0
-  const workers = Array.from({ length: CONCURRENCY }, async () => {
-    while (true) {
-      const i = cursor++
-      if (i >= valid.length) return
-      built[i] = await buildValues(valid[i])
-    }
-  })
-  await Promise.all(workers)
+  const built = valid.map(buildValues)
   const allValues = built.filter((v): v is string[] => v !== null)
   excluded.push(...noReachableImage)
 
@@ -292,8 +294,8 @@ async function generateFeed(): Promise<FeedResult> {
   const generated_at = new Date().toISOString()
   const size_bytes = new TextEncoder().encode(csv).length
 
-  // Reset image cache between regenerations so dead images get re-detected
-  imageCache.clear()
+  // Clear request-scope memo only; persistent cache (DB) survives with its own TTL
+  imageMemCache.clear()
 
   return { csv, headers, allValues, excluded, total_input: all.length, generated_at, size_bytes }
 }
