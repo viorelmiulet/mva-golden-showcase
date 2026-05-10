@@ -113,12 +113,28 @@ Deno.serve(async (req) => {
       from += pageSize
     }
 
-    // Filter rows without price/image
-    const valid = all.filter(p => {
+    // Validation rules + exclusion report
+    type Excluded = { id: string; external_id: string | null; title: string; reason: string };
+    const excluded: Excluded[] = []
+    const valid: any[] = []
+
+    const MIN_TITLE_LEN = 5
+    const MIN_PRICE = 1
+    const MAX_PRICE = 100_000_000
+
+    for (const p of all) {
+      const title = stripHtml(p.title || '').trim()
       const price = Number(p.price_min)
-      const hasImg = Array.isArray(p.images) && p.images.length > 0 && typeof p.images[0] === 'string'
-      return price > 0 && hasImg
-    })
+      const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string' && /^https?:\/\//i.test(u)) : []
+
+      if (!title) { excluded.push({ id: p.id, external_id: p.external_id, title: p.title || '(fara titlu)', reason: 'Titlu lipsa' }); continue }
+      if (title.length < MIN_TITLE_LEN) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Titlu prea scurt (<${MIN_TITLE_LEN} caractere)` }); continue }
+      if (!Number.isFinite(price) || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa sau 0' }); continue }
+      if (price > MAX_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Pret nerealist (>${MAX_PRICE.toLocaleString()} EUR)` }); continue }
+      if (imgs.length === 0) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Fara imagini valide (URL)' }); continue }
+
+      valid.push(p)
+    }
 
     const headers = [
       'id', 'title', 'description', 'availability', 'condition', 'price',
@@ -127,7 +143,10 @@ Deno.serve(async (req) => {
       'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
     ]
 
-    const buildValues = async (p: any): Promise<string[]> => {
+    // Track per-property image validation results for the report
+    const noReachableImage: Excluded[] = []
+
+    const buildValues = async (p: any): Promise<string[] | null> => {
       const id = p.external_id || p.id
       const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
       const descSrc = p.descriere_lunga || p.description || p.title || ''
@@ -137,9 +156,15 @@ Deno.serve(async (req) => {
       const slug = buildSlug(p)
       const link = `${SITE_URL}/proprietati/${slug}`
       const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
-      // Validate images, keep up to 11 (1 main + 10 additional)
       const validImgs = await filterValidImages(imgs, 11)
-      const image_link = validImgs[0] || FALLBACK_IMAGE
+
+      if (validImgs.length === 0) {
+        // Hard-exclude rather than send fallback as primary image
+        noReachableImage.push({ id: p.id, external_id: p.external_id, title, reason: 'Toate imaginile sunt inaccesibile (HEAD/GET fail)' })
+        return null
+      }
+
+      const image_link = validImgs[0]
       const additional = validImgs.slice(1, 11).join(',')
 
       const propType = p.property_type || 'Imobil'
@@ -164,23 +189,28 @@ Deno.serve(async (req) => {
       ].map(String)
     }
 
-    // Process properties with concurrency to limit load on image hosts
     const CONCURRENCY = 8
-    const allValues: string[][] = new Array(valid.length)
+    const built: (string[] | null)[] = new Array(valid.length)
     let cursor = 0
     const workers = Array.from({ length: CONCURRENCY }, async () => {
       while (true) {
         const i = cursor++
         if (i >= valid.length) return
-        allValues[i] = await buildValues(valid[i])
+        built[i] = await buildValues(valid[i])
       }
     })
     await Promise.all(workers)
+    const allValues = built.filter((v): v is string[] => v !== null)
+    excluded.push(...noReachableImage)
+
     const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
 
     if (previewMode) {
       return new Response(JSON.stringify({
-        total: valid.length,
+        total: allValues.length,
+        total_input: all.length,
+        excluded_count: excluded.length,
+        excluded,
         preview: Math.min(previewLimit, allValues.length),
         size_bytes: new TextEncoder().encode(csv).length,
         generated_at: new Date().toISOString(),
@@ -197,7 +227,8 @@ Deno.serve(async (req) => {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': 'inline; filename="mva-facebook-catalog.csv"',
         'Cache-Control': 'public, max-age=1800',
-        'X-Total-Products': String(valid.length),
+        'X-Total-Products': String(allValues.length),
+        'X-Excluded-Products': String(excluded.length),
         'X-Generated-At': new Date().toISOString(),
       },
     })
