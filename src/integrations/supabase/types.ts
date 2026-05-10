@@ -1526,6 +1526,89 @@ export type Database = {
         }
         Relationships: []
       }
+      redirect_monitor_checks: {
+        Row: {
+          actual_location: string | null
+          actual_status: number | null
+          alert_sent: boolean
+          checked_at: string
+          error_message: string | null
+          expected_status: number
+          id: string
+          is_healthy: boolean
+          response_time_ms: number | null
+          target_id: string | null
+          url_tested: string
+        }
+        Insert: {
+          actual_location?: string | null
+          actual_status?: number | null
+          alert_sent?: boolean
+          checked_at?: string
+          error_message?: string | null
+          expected_status: number
+          id?: string
+          is_healthy?: boolean
+          response_time_ms?: number | null
+          target_id?: string | null
+          url_tested: string
+        }
+        Update: {
+          actual_location?: string | null
+          actual_status?: number | null
+          alert_sent?: boolean
+          checked_at?: string
+          error_message?: string | null
+          expected_status?: number
+          id?: string
+          is_healthy?: boolean
+          response_time_ms?: number | null
+          target_id?: string | null
+          url_tested?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redirect_monitor_checks_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "redirect_monitor_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redirect_monitor_targets: {
+        Row: {
+          created_at: string
+          expected_location_pattern: string | null
+          expected_status: number
+          id: string
+          is_active: boolean
+          note: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          expected_location_pattern?: string | null
+          expected_status?: number
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          expected_location_pattern?: string | null
+          expected_status?: number
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       rental_payments: {
         Row: {
           amount: number
