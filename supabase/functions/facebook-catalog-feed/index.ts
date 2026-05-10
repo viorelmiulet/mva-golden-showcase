@@ -325,7 +325,7 @@ async function generateFeed(): Promise<FeedResult> {
     'price', 'listing_type', 'property_type',
     'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
     'num_beds', 'num_baths', 'area_size', 'area_unit',
-    'image[0].url', 'image[0].tag',
+    'image[0].url',
     'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
     'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
   ]
@@ -406,7 +406,7 @@ async function generateFeed(): Promise<FeedResult> {
       price, listing_type, property_type,
       addr1, addrCity, region, postal, country,
       beds, baths, area_size, area_unit,
-      imgSlots[0], 'exterior',
+      imgSlots[0],
       imgSlots[1], imgSlots[2], imgSlots[3], imgSlots[4],
       imgSlots[5], imgSlots[6], imgSlots[7], imgSlots[8], imgSlots[9]
     ].map(String)
