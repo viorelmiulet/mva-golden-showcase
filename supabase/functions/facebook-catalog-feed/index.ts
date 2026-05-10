@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
       'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4'
     ]
 
-    const buildValues = (p: any): string[] => {
+    const buildValues = async (p: any): Promise<string[]> => {
       const id = p.external_id || p.id
       const title = truncate(stripHtml(p.title || 'Proprietate'), 150)
       const descSrc = p.descriere_lunga || p.description || p.title || ''
@@ -137,8 +137,10 @@ Deno.serve(async (req) => {
       const slug = buildSlug(p)
       const link = `${SITE_URL}/proprietati/${slug}`
       const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
-      const image_link = imgs[0] || ''
-      const additional = imgs.slice(1, 11).join(',')
+      // Validate images, keep up to 11 (1 main + 10 additional)
+      const validImgs = await filterValidImages(imgs, 11)
+      const image_link = validImgs[0] || FALLBACK_IMAGE
+      const additional = validImgs.slice(1, 11).join(',')
 
       const propType = p.property_type || 'Imobil'
       const roomsLabel = p.rooms ? (p.rooms <= 1 ? 'Garsoniera' : `${p.rooms} camere`) : ''
@@ -149,11 +151,10 @@ Deno.serve(async (req) => {
       const productTypeParts = [propType, roomsLabel, cityLabel, zoneLabel].filter(Boolean)
       const product_type = productTypeParts.join(' > ')
 
-      // custom labels (Facebook ad targeting & sets)
-      const custom_label_0 = roomsLabel                           // ex: "2 camere"
-      const custom_label_1 = zoneLabel                            // ex: "Militari Residence"
-      const custom_label_2 = cityLabel                            // ex: "Bucuresti"
-      const custom_label_3 = txnLabel                             // ex: "Vanzare" / "Inchiriere"
+      const custom_label_0 = roomsLabel
+      const custom_label_1 = zoneLabel
+      const custom_label_2 = cityLabel
+      const custom_label_3 = txnLabel
       const custom_label_4 = p.surface_min ? `${p.surface_min} mp` : ''
 
       return [
@@ -162,6 +163,19 @@ Deno.serve(async (req) => {
         custom_label_0, custom_label_1, custom_label_2, custom_label_3, custom_label_4
       ].map(String)
     }
+
+    // Process properties with concurrency to limit load on image hosts
+    const CONCURRENCY = 8
+    const allValues: string[][] = new Array(valid.length)
+    let cursor = 0
+    const workers = Array.from({ length: CONCURRENCY }, async () => {
+      while (true) {
+        const i = cursor++
+        if (i >= valid.length) return
+        allValues[i] = await buildValues(valid[i])
+      }
+    })
+    await Promise.all(workers)
 
     const allValues = valid.map(buildValues)
     const csv = [headers.join(','), ...allValues.map(v => v.map(escapeCsv).join(','))].join('\n')
