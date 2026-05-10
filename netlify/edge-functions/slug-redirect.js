@@ -38,7 +38,13 @@ export default async (request, context) => {
 
       if (numericMatch && !isHexShortId) {
         const target = `/proprietate/${slug}${url.search}`;
-        return Response.redirect(new URL(target, url.origin), 301);
+        return new Response(null, {
+          status: 301,
+          headers: {
+            Location: new URL(target, url.origin).toString(),
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
       }
 
       // Last 4 chars = short ID
