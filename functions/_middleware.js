@@ -80,16 +80,21 @@ export async function onRequest(context) {
 
     const body = await response.text();
 
+    const responseHeaders = {
+      "Content-Type": "text/html; charset=UTF-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      "X-Prerendered": "true",
+    };
+    if (needsNoindex) {
+      responseHeaders["X-Robots-Tag"] = "noindex, follow";
+    }
+
     return new Response(body, {
       status: response.status,
-      headers: {
-        "Content-Type": "text/html; charset=UTF-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
-        "X-Prerendered": "true",
-      },
+      headers: responseHeaders,
     });
   } catch (err) {
     console.error("[prerender cf] error:", err);
-    return next();
+    return needsNoindex ? withNoindex(next()) : next();
   }
 }
