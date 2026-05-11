@@ -578,7 +578,7 @@ const PropertyDetail = () => {
       <Helmet>
         <title>{`${camere} camere ${zona} etaj ${etaj} ${suprafata}mp – ${tipTranzactie} ${pret}€ | MVA Imobiliare`}</title>
         <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content={property.project_id ? "noindex, follow" : "index, follow"} />
         <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
         <link rel="canonical" href={`https://mvaimobiliare.ro${getPropertyUrl(property)}`} />
         {/* Preload hero image for LCP */}
