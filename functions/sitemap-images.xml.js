@@ -21,7 +21,8 @@ export async function onRequest() {
       status: upstream.status,
       headers: {
         "Content-Type": "application/xml; charset=UTF-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        // Images change rar: browser 30 min · edge 6h · stale 24h
+        "Cache-Control": "public, max-age=1800, s-maxage=21600, stale-while-revalidate=86400",
         "X-Robots-Tag": "noindex",
       },
     });
