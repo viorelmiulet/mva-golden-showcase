@@ -61,6 +61,8 @@ Disallow: /admin
 Disallow: /admin/
 
 # Sitemaps (canonical absolute URLs)
+# Sitemap index — sursă principală pentru crawlere
+Sitemap: https://www.mvaimobiliare.ro/sitemap-index.xml
 Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
 Sitemap: https://www.mvaimobiliare.ro/news-sitemap.xml
 Sitemap: https://www.mvaimobiliare.ro/sitemap-images.xml
