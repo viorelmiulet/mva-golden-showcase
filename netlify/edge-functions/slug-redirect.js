@@ -26,8 +26,38 @@ export default async (request, context) => {
   const slug = decodeURIComponent(path.split("/")[2] || "");
   if (!slug) return context.next();
 
-  // Skip UUID lookups (handled client-side, will redirect)
-  if (isUUID(slug)) return context.next();
+  // UUID URLs: server-side 301 to canonical slug + noindex signal for crawlers
+  if (isUUID(slug)) {
+    if (isCatalog) {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/catalog_offers?select=slug&id=eq.${slug}&limit=1`,
+          { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const canonicalSlug = data?.[0]?.slug;
+          if (canonicalSlug) {
+            const target = `/proprietati/${canonicalSlug}${url.search}`;
+            return new Response(null, {
+              status: 301,
+              headers: {
+                Location: new URL(target, url.origin).toString(),
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "X-Robots-Tag": "noindex, follow",
+              },
+            });
+          }
+        }
+      } catch (err) {
+        console.error("[slug-redirect] uuid lookup error:", err);
+      }
+    }
+    // No canonical found (or Immoflux UUID) — still tag as noindex while client redirects
+    const response = await context.next();
+    try { response.headers.set("X-Robots-Tag", "noindex, follow"); } catch {}
+    return response;
+  }
 
   try {
     if (isCatalog) {
