@@ -1,68 +1,54 @@
-## Feed CSV pentru Facebook Catalog
+## De ce apar aceste URL-uri în „Pagină cu redirecționare"
 
-Generez un endpoint public care servește un CSV în formatul standard Facebook Catalog, gata de adăugat ca "Data feed" în Meta Commerce Manager (cu refresh programat).
+**Pe scurt: nu sunt erori reale.** Google Search Console raportează URL-uri pe care le-a descoperit anterior și care acum returnează un **301 către versiunea canonică**. Sunt excluse din index pentru că versiunea canonică (slug-ul nou) este indexată în locul lor — exact cum trebuie.
 
-### 1. Edge Function: `facebook-catalog-feed`
+### Cauzele concrete pentru fiecare tip de URL din captură
 
-**Path public**: `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`
+1. **Slug-uri vechi care au fost regenerate** (ex. `garsoniera-militari-b480`)
+   - În DB acum slug-ul este `garsoniera-35mp-bucuresti-militari-b480`.
+   - `netlify/edge-functions/slug-redirect.js` face 301 către slug-ul curent (lookup după ultimele 4 caractere = short ID).
+   - Google a crawlat varianta veche, a primit 301, marchează URL-ul vechi ca „cu redirecționare".
 
-- `verify_jwt = false` în `supabase/config.toml` (feed public, accesat de Facebook fără auth)
-- Folosește `SUPABASE_SERVICE_ROLE_KEY` pentru a citi `catalog_offers`
-- Filtrare:
-  - `is_published = true`
-  - `availability_status IN ('available','reserved','sold')` (toate publicate)
-  - `project_id IS NULL` → **exclude apartamentele din ansambluri rezidențiale**
-  - exclude rânduri fără preț valid sau fără imagine
-- Returnează `Content-Type: text/csv; charset=utf-8` cu `Cache-Control: public, max-age=1800`
+2. **URL-uri cu UUID** (ex. `/proprietati/91d52384-...`, `/proprietati/56f7286e-...`)
+   - Sunt linkuri vechi (înainte să existe slug-uri SEO).
+   - `SEORedirects` (client) + `slug-redirect` (edge) le 301-ează la slug.
+   - Acele 2 UUID-uri din captură nici nu mai există în DB — sunt linkuri foarte vechi pe care Google le mai ține în istoric.
 
-**Coloane CSV (standard Facebook):**
-```
-id,title,description,availability,condition,price,link,image_link,
-additional_image_link,brand,google_product_category,product_type
-```
+3. **`https://mvaimobiliare.ro/`** apare pentru că aliasul `www` → non-www face 301 (sau invers, în funcție de variantă).
 
-**Mapare:**
-- `id` → `external_id` sau `id` (UUID)
-- `title` → `title` (max 150 caractere, fără ghilimele duble interne)
-- `description` → `description` sau `descriere_lunga` (strip HTML, max 5000)
-- `availability` → `in stock` (available) / `out of stock` (sold/reserved)
-- `condition` → `new`
-- `price` → `"<price_min> EUR"` (format Facebook: `120000.00 EUR`)
-- `link` → `https://www.mvaimobiliare.ro/proprietati/<slug>`
-- `image_link` → prima imagine din `images[]`
-- `additional_image_link` → restul imaginilor concatenate cu `,` (max 10)
-- `brand` → `MVA Imobiliare`
-- `google_product_category` → `Real Estate`
-- `product_type` → `<property_type> > <rooms> camere > <city>`
+### Concluzie
 
-**Escape CSV**: orice valoare cu `,`, `"`, newline → înconjurată cu `"` și `"` interne dublate. Newlines din descriere înlocuite cu spațiu.
+- **Nu e un bug** și nu afectează SEO negativ. Dimpotrivă, 301 consolidează autoritatea pe slug-ul canonic.
+- Vor dispărea treptat din raport pe măsură ce Google reprocessează (de obicei 1–3 luni de la ultimul crawl al variantei vechi).
+- Raportul „Pagini indexate" rămâne corect — versiunea canonică e cea indexată.
 
-### 2. Pagina admin: `/admin/facebook-catalog-feed`
+---
 
-Componentă nouă `src/pages/admin/FacebookCatalogFeedPage.tsx` cu:
+## Ce putem face ca să accelerăm curățarea (opțional)
 
-- Card cu URL-ul feed-ului + buton **Copiază link**
-- Buton **Deschide CSV** (download)
-- Buton **Preview** care afișează primele 5 produse într-un tabel
-- Statistici live (apel HEAD/GET la endpoint):
-  - Număr total produse exportate
-  - Mărime fișier
-  - Ultima generare (timestamp din răspuns)
-- Instrucțiuni scurte: "Adaugă acest URL în Meta Commerce Manager → Catalog → Data Sources → Scheduled Feed → Daily"
-- Link în `AdminSidebar` sub secțiunea Marketing/Integrări: "Feed Facebook Catalog" (icon `FileSpreadsheet`)
-- Rută în `App.tsx` (lazy)
+Dacă vrei să dispară mai repede din raport:
 
-### 3. Fișiere
+### A. Curățare proactivă (recomandat)
+1. **Verifică sitemap-urile** — confirmăm că NU apar slug-uri vechi sau UUID-uri (deja așa stăm: `generate-sitemap-properties` filtrează doar slug-uri active).
+2. **Audit linkuri interne** — căutăm în cod / blog / news referințe hardcodate către vechile slug-uri sau UUID-uri și le înlocuim cu slug-ul curent.
+3. **Adaugă `Cache-Control: public, max-age=31536000, immutable`** pe răspunsurile 301 — deja făcut în `slug-redirect.js`. ✓
 
-**Noi:**
-- `supabase/functions/facebook-catalog-feed/index.ts`
-- `src/pages/admin/FacebookCatalogFeedPage.tsx`
+### B. Reducerea numărului de slug-uri schimbate în viitor
+- Trigger-ul `auto_generate_property_slug` regenerează slug-ul când se schimbă `title`/`location`. Putem adăuga o condiție: regenerăm doar dacă slug-ul curent e gol sau dacă schimbarea e majoră (păstrăm slug-ul stabil când doar prețul/descrierea se actualizează).
+- Asta ar tăia drastic noile redirecționări apărute în GSC.
 
-**Modificate:**
-- `supabase/config.toml` — adaugă `[functions.facebook-catalog-feed] verify_jwt = false`
-- `src/App.tsx` — rută nouă `/admin/facebook-catalog-feed`
-- `src/components/AdminSidebar.tsx` — link nou
+### C. URL-uri cu UUID din linkuri externe vechi
+- Nu putem face nimic dacă alte site-uri linkează cu UUID — 301-ul nostru e răspunsul corect.
+- Eventual: marcăm URL-urile UUID cu `X-Robots-Tag: noindex` în edge function (în plus față de 301), ca semnal mai clar.
 
-### Out of scope
-- Webhook/sincronizare push către Facebook API (feed-ul e pull-based, Facebook îl reia automat după programare)
-- Custom labels (camere/zonă/tranzacție) — rămân pentru o iterație ulterioară dacă e nevoie de targetare avansată
+---
+
+## Ce decizie aștept de la tine
+
+Spune-mi dacă vrei să implementez (în build mode):
+
+1. **Stabilizare slug-uri** — modificăm trigger-ul ca să nu regenereze slug-ul când proprietatea există deja cu un slug valid (cea mai mare sursă de redirecționări).
+2. **Audit + curățare linkuri interne vechi** — scanez `blog_posts.content`, `news_articles.content`, componente, ca să înlocuiesc vechile slug-uri.
+3. **Doar lăsăm așa** — Google va consolida natural, fără acțiune.
+
+Sau o combinație. Care variantă?
