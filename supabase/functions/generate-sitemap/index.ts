@@ -64,6 +64,7 @@ Deno.serve(async (req) => {
         .select('id, slug, updated_at')
         .eq('is_published', true)
         .eq('availability_status', 'available')
+        .is('project_id', null)
         .not('slug', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5000),
