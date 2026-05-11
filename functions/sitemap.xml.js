@@ -22,7 +22,8 @@ export async function onRequest() {
       status: upstream.status,
       headers: {
         "Content-Type": "application/xml; charset=UTF-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        // Browser: 10 min · Edge (Cloudflare): 30 min · serve stale up to 24h while revalidating
+        "Cache-Control": "public, max-age=600, s-maxage=1800, stale-while-revalidate=86400",
         "X-Robots-Tag": "noindex",
       },
     });

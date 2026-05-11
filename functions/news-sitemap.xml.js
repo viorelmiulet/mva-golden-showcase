@@ -21,7 +21,8 @@ export async function onRequest() {
       status: upstream.status,
       headers: {
         "Content-Type": "application/xml; charset=UTF-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        // Google News needs freshness: browser 5 min · edge 10 min · stale 1h
+        "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=3600",
         "X-Robots-Tag": "noindex",
       },
     });
