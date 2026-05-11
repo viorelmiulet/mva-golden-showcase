@@ -1,18 +1,44 @@
+# MVA Imobiliare — robots.txt
+# Canonical host: https://www.mvaimobiliare.ro
+
 User-agent: *
 Allow: /
 Allow: /blog
 Allow: /blog/
 Allow: /news
 Allow: /news/
-Allow: /news-sitemap.xml
+Allow: /proprietati
+Allow: /proprietati/
+Allow: /complexe
+Allow: /complexe/
+Allow: /complexuri-rezidentiale
 Allow: /sitemap.xml
+Allow: /news-sitemap.xml
 Allow: /sitemap-images.xml
-Disallow: /admin
-Disallow: /api
-Disallow: /proprietati?search=
-Disallow: /proprietati?*search=
 
-# Allow image crawlers full access to news/blog/property pages and assets
+# Private / non-indexable areas (mirror X-Robots-Tag: noindex)
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api
+Disallow: /api/
+Disallow: /functions/
+Disallow: /contract/
+Disallow: /semnare/
+Disallow: /contract-signature/
+Disallow: /404
+Disallow: /not-found
+
+# Filtered / search result URLs (avoid duplicate content)
+Disallow: /*?search=
+Disallow: /*&search=
+Disallow: /*?filter=
+Disallow: /*&filter=
+Disallow: /*?sort=
+Disallow: /*&sort=
+Disallow: /*?page=
+Disallow: /*&page=
+
+# Image crawlers — full access to public media
 User-agent: Googlebot-Image
 Allow: /
 Allow: /news/
@@ -20,17 +46,21 @@ Allow: /blog/
 Allow: /proprietati/
 Allow: /complexe/
 Disallow: /admin
+Disallow: /admin/
 
 User-agent: Bingbot-Image
 Allow: /
 Disallow: /admin
+Disallow: /admin/
 
 # Google News crawler
 User-agent: Googlebot-News
 Allow: /news
 Allow: /news/
 Disallow: /admin
+Disallow: /admin/
 
-Sitemap: https://mvaimobiliare.ro/sitemap.xml
-Sitemap: https://mvaimobiliare.ro/news-sitemap.xml
-Sitemap: https://mvaimobiliare.ro/sitemap-images.xml
+# Sitemaps (canonical absolute URLs)
+Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
+Sitemap: https://www.mvaimobiliare.ro/news-sitemap.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap-images.xml
