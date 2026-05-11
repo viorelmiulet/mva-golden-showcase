@@ -25,26 +25,43 @@ const STATIC_ASSET_RE =
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// Routes that must NEVER be indexed — emit X-Robots-Tag at edge level.
+const NOINDEX_RE =
+  /^\/(admin|contract|semnare|contract-signature|404|not-found)(\/|$)/i;
+
 const isUUIDPropertyPath = (pathname) => {
   const m = pathname.match(/^\/(proprietati|proprietate)\/([^/]+)\/?$/);
   if (!m) return false;
   return UUID_RE.test(decodeURIComponent(m[2]));
 };
 
+// Wrap a Response and add X-Robots-Tag: noindex, follow when needed.
+const withNoindex = async (responsePromise) => {
+  const res = await responsePromise;
+  const headers = new Headers(res.headers);
+  headers.set("X-Robots-Tag", "noindex, follow");
+  return new Response(res.body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers,
+  });
+};
+
 export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
   const userAgent = request.headers.get("user-agent") || "";
+  const needsNoindex = NOINDEX_RE.test(url.pathname);
 
-  // 1. Static assets — never prerender.
+  // 1. Static assets — never prerender. Still add noindex if path matches.
   if (STATIC_ASSET_RE.test(url.pathname)) {
-    return next();
+    return needsNoindex ? withNoindex(next()) : next();
   }
 
   // 2. Non-bot or UUID property routes → fall through (let route functions /
   //    SPA handle it). UUID routes get real 301 from their own Pages Function.
   if (!BOT_AGENTS.test(userAgent) || isUUIDPropertyPath(url.pathname)) {
-    return next();
+    return needsNoindex ? withNoindex(next()) : next();
   }
 
   const prerenderToken = env?.PRERENDER_TOKEN;
