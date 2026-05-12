@@ -518,7 +518,8 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       const quantity = (p.availability_status === 'available') ? '1' : '0'
       const inventory = quantity
       const status = (p.availability_status === 'available') ? 'active' : 'archived'
-      const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+      // additional_image_link: până la 10 URL-uri suplimentare separate prin virgulă (limită Meta)
+      const additional = additionalImages.join(',')
 
       // Custom labels (segmentare audiențe / reguli WhatsApp)
       const cl0 = property_type
