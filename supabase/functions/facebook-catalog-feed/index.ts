@@ -418,6 +418,24 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
+    if (format === 'products') {
+      // Standard Commerce/Products feed — accepted by WhatsApp Business Catalog
+      // Required: id, title, description, availability (in stock|out of stock),
+      // condition (new|used|refurbished), price ("<amount> <CUR>"), link, image_link, brand
+      const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
+      const condition = 'new'
+      const brand = 'MVA Imobiliare'
+      const googleCategory = 'Real Estate'
+      const productType = isRent ? 'Inchirieri' : 'Vanzari'
+      const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+      return [
+        id, name, description, prodAvailability, condition,
+        price, link, imgSlots[0], brand,
+        googleCategory, productType,
+        additional,
+      ].map(String)
+    }
+
     return [
       id, name, availability, description, link,
       price, listing_type, property_type,
