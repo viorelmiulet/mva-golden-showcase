@@ -493,9 +493,8 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       // ===== Standard Commerce / Products feed (DEFAULT) =====
       // Acceptat de WhatsApp Business Catalog + Meta Commerce Manager.
       // Conține toate câmpurile required + recommended.
-      const currency = (p.currency || 'EUR').toString().toUpperCase()
-      const priceAmount = Number(p.price_min).toFixed(2)
-      const priceWithCurrency = `${priceAmount} ${currency}`
+      const currency = p.__currency as string
+      const priceWithCurrency = p.__priceFormatted as string
       const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
       const condition = 'new'
       const brand = 'MVA Imobiliare'
