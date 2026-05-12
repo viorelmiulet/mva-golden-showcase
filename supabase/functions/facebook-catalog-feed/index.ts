@@ -531,7 +531,7 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       return [
         // Required
         id, name, description, prodAvailability, condition,
-        priceWithCurrency, link, imgSlots[0], brand,
+        priceWithCurrency, link, mainImage, brand,
         // Categorization
         googleCategory, fbCategory, productType,
         // Identifiers / inventory
