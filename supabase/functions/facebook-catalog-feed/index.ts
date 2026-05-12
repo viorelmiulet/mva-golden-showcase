@@ -247,6 +247,58 @@ const stripHtml = (html: string): string =>
 const truncate = (s: string, max: number) =>
   s.length > max ? s.slice(0, max - 1).trim() + '…' : s
 
+// ===== Price + currency normalization (WhatsApp/Meta Commerce strict format) =====
+// WhatsApp Business + Meta Commerce require: "<amount with 2 decimals> <ISO 4217 CCY>"
+//   e.g. "120000.00 EUR". Niciodată gol, fără separatori de mii, mereu punct decimal.
+const ISO_CURRENCY_RE = /^[A-Z]{3}$/
+const CURRENCY_ALIASES: Record<string, string> = {
+  '€': 'EUR', 'EURO': 'EUR', 'EUROS': 'EUR',
+  'LEI': 'RON', 'RON.': 'RON',
+  '$': 'USD', 'US$': 'USD', 'DOLLAR': 'USD', 'DOLLARS': 'USD',
+  '£': 'GBP', 'GBP.': 'GBP',
+  'MDL.': 'MDL',
+}
+
+const normalizeCurrency = (raw: unknown): string => {
+  if (raw === null || raw === undefined) return 'EUR'
+  const s = String(raw).trim().toUpperCase().replace(/\s+/g, '')
+  if (!s) return 'EUR'
+  if (CURRENCY_ALIASES[s]) return CURRENCY_ALIASES[s]
+  if (ISO_CURRENCY_RE.test(s)) return s
+  // Fallback sigur — Meta refuză coduri non-ISO
+  return 'EUR'
+}
+
+const normalizePriceAmount = (raw: unknown): number | null => {
+  if (raw === null || raw === undefined || raw === '') return null
+  let num: number
+  if (typeof raw === 'number') {
+    num = raw
+  } else {
+    // Strip non-numeric, suportă "1.234,56" / "1,234.56" / "120000 EUR"
+    let s = String(raw).trim()
+    // Elimină codul de monedă/simbolurile lipite
+    s = s.replace(/[A-Za-z€$£]/g, '').trim()
+    // Dacă există atât "," cât și ".", asumă "," = mii
+    if (s.includes(',') && s.includes('.')) {
+      s = s.replace(/,/g, '')
+    } else if (s.includes(',') && !s.includes('.')) {
+      // ",34" sau "1234,56" → punct decimal
+      s = s.replace(',', '.')
+    }
+    s = s.replace(/\s+/g, '')
+    num = Number(s)
+  }
+  if (!Number.isFinite(num) || num <= 0) return null
+  return num
+}
+
+// Format final acceptat de WhatsApp/Meta: "120000.00 EUR"
+const formatMetaPrice = (amount: number, currency: string): string => {
+  const ccy = ISO_CURRENCY_RE.test(currency) ? currency : 'EUR'
+  return `${amount.toFixed(2)} ${ccy}`
+}
+
 // Fallback slug builder if DB slug is missing
 const slugify = (str: string) =>
   str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
@@ -316,12 +368,18 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
 
   for (const p of all) {
     const title = stripHtml(p.title || '').trim()
-    const price = Number(p.price_min)
+    const price = normalizePriceAmount(p.price_min)
+    const currency = normalizeCurrency(p.currency)
     const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string' && /^https?:\/\//i.test(u)) : []
     if (!title) { excluded.push({ id: p.id, external_id: p.external_id, title: p.title || '(fara titlu)', reason: 'Titlu lipsa' }); continue }
     if (title.length < MIN_TITLE_LEN) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Titlu prea scurt (<${MIN_TITLE_LEN} caractere)` }); continue }
-    if (!Number.isFinite(price) || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa sau 0' }); continue }
+    if (price === null || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa, 0 sau invalid (nu poate fi normalizat la format Meta)' }); continue }
     if (price > MAX_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Pret nerealist (>${MAX_PRICE.toLocaleString()} EUR)` }); continue }
+    if (!ISO_CURRENCY_RE.test(currency)) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Cod monedă invalid: "${p.currency}"` }); continue }
+    // Atașăm valorile normalizate ca să le reutilizăm în buildValues fără re-parse
+    p.__priceNum = price
+    p.__currency = currency
+    p.__priceFormatted = formatMetaPrice(price, currency)
     if (imgs.length === 0) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Fara imagini valide (URL)' }); continue }
     valid.push(p)
   }
@@ -388,7 +446,7 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     if (p.availability_status === 'available') availability = isRent ? 'for_rent' : 'for_sale'
     else if (p.availability_status === 'reserved') availability = 'sale_pending'
     else if (p.availability_status === 'sold') availability = 'recently_sold'
-    const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
+    const price = p.__priceFormatted as string // pre-normalizat: "<amount.00> <ISO CCY>"
     const link = linkByProp.get(p.id) || `${SITE_URL}/proprietati/${buildSlug(p)}`
     if (!linkValidations.get(link)) {
       brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
@@ -435,9 +493,8 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       // ===== Standard Commerce / Products feed (DEFAULT) =====
       // Acceptat de WhatsApp Business Catalog + Meta Commerce Manager.
       // Conține toate câmpurile required + recommended.
-      const currency = (p.currency || 'EUR').toString().toUpperCase()
-      const priceAmount = Number(p.price_min).toFixed(2)
-      const priceWithCurrency = `${priceAmount} ${currency}`
+      const currency = p.__currency as string
+      const priceWithCurrency = p.__priceFormatted as string
       const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
       const condition = 'new'
       const brand = 'MVA Imobiliare'
