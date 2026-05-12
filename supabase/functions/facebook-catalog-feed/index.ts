@@ -273,11 +273,18 @@ type FeedResult = {
   generated_at: string
   size_bytes: number
 }
-let CACHE: { result: FeedResult; expires_at: number } | null = null
-let INFLIGHT: Promise<FeedResult> | null = null
+type FeedFormat = 'home_listings' | 'products'
+const CACHE: Record<FeedFormat, { result: FeedResult; expires_at: number } | null> = {
+  home_listings: null,
+  products: null,
+}
+const INFLIGHT: Record<FeedFormat, Promise<FeedResult> | null> = {
+  home_listings: null,
+  products: null,
+}
 const TTL_MS = 30 * 60 * 1000 // 30 minutes
 
-async function generateFeed(): Promise<FeedResult> {
+async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedResult> {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
