@@ -368,12 +368,17 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
 
   for (const p of all) {
     const title = stripHtml(p.title || '').trim()
-    const price = Number(p.price_min)
-    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string' && /^https?:\/\//i.test(u)) : []
+    const price = normalizePriceAmount(p.price_min)
+    const currency = normalizeCurrency(p.currency)
     if (!title) { excluded.push({ id: p.id, external_id: p.external_id, title: p.title || '(fara titlu)', reason: 'Titlu lipsa' }); continue }
     if (title.length < MIN_TITLE_LEN) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Titlu prea scurt (<${MIN_TITLE_LEN} caractere)` }); continue }
-    if (!Number.isFinite(price) || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa sau 0' }); continue }
+    if (price === null || price < MIN_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Pret lipsa, 0 sau invalid (nu poate fi normalizat la format Meta)' }); continue }
     if (price > MAX_PRICE) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Pret nerealist (>${MAX_PRICE.toLocaleString()} EUR)` }); continue }
+    if (!ISO_CURRENCY_RE.test(currency)) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: `Cod monedă invalid: "${p.currency}"` }); continue }
+    // Atașăm valorile normalizate ca să le reutilizăm în buildValues fără re-parse
+    p.__priceNum = price
+    p.__currency = currency
+    p.__priceFormatted = formatMetaPrice(price, currency)
     if (imgs.length === 0) { excluded.push({ id: p.id, external_id: p.external_id, title, reason: 'Fara imagini valide (URL)' }); continue }
     valid.push(p)
   }
