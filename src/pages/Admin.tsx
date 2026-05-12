@@ -1137,7 +1137,7 @@ const Admin = () => {
                               variant="outline" 
                               size="sm" 
                               onClick={() => {
-                                const url = `${window.location.origin}/proprietati/${property.id}`;
+                                const url = `${window.location.origin}${getPropertyUrl(property)}`;
                                 navigator.clipboard.writeText(url);
                                 toast({
                                   title: "Link copiat!",

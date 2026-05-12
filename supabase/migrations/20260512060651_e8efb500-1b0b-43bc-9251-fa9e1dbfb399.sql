@@ -1,0 +1,2 @@
+DELETE FROM public.redirect_monitor_checks WHERE target_id IN (SELECT id FROM public.redirect_monitor_targets WHERE url LIKE '%garsoniera-32mp-militari-drumul-osiei-264607%');
+DELETE FROM public.redirect_monitor_targets WHERE url LIKE '%garsoniera-32mp-militari-drumul-osiei-264607%';

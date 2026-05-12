@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
+import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { PropertyGridSkeleton } from "@/components/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
       ? 'bg-amber-200 text-black'
       : 'bg-slate-600 text-white';
   return (
-    <Link to={`/proprietate/${property.idnum}`}>
+    <Link to={getImmofluxPropertyUrl(property as any)}>
       <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
         <div className="relative h-48 md:h-56 overflow-hidden">
           <img
