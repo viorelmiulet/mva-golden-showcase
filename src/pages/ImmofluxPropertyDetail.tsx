@@ -241,6 +241,9 @@ const ImmofluxPropertyDetail = () => {
         <meta name="twitter:description" content={metaDesc} />
         <meta name="twitter:image" content={ogImage} />
         <meta name="twitter:image:alt" content={title} />
+
+        <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
       <Header />
       <main className="pt-24 pb-16">
