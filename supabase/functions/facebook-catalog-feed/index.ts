@@ -537,7 +537,9 @@ Deno.serve(async (req) => {
   const previewLimit = parseInt(url.searchParams.get('limit') || '5', 10)
   const forceRefresh = url.searchParams.get('refresh') === '1'
   const formatParam = (url.searchParams.get('format') || '').toLowerCase()
-  const format: FeedFormat = formatParam === 'products' ? 'products' : 'home_listings'
+  // Default = 'products' (Commerce standard) → singurul format acceptat de WhatsApp Business Catalog.
+  // 'home_listings' rămâne disponibil cu ?format=home_listings (legacy Real Estate, NU funcționează în WhatsApp).
+  const format: FeedFormat = formatParam === 'home_listings' ? 'home_listings' : 'products'
 
   try {
     const { result, from_cache, expires_at } = await getFeed(forceRefresh, format)
