@@ -452,10 +452,17 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
       return null
     }
-    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    // Meta accepts max 1 main image_link + 10 additional_image_link (=> 11 total).
+    // Pentru home_listings, schema CSV are doar 10 sloturi (image[0..9]).
+    const MAX_IMAGES = format === 'home_listings' ? 10 : 11
+    const imgsRaw: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    // Dedupe păstrând ordinea
+    const seen = new Set<string>()
+    const imgs: string[] = []
+    for (const u of imgsRaw) { if (!seen.has(u)) { seen.add(u); imgs.push(u) } }
     const validImgs: string[] = []
     for (const u of imgs) {
-      if (validImgs.length >= 10) break
+      if (validImgs.length >= MAX_IMAGES) break
       if (validations.get(u)) validImgs.push(u)
     }
     if (validImgs.length === 0) {
@@ -485,7 +492,9 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     const area_size = p.surface_min ? String(p.surface_min) : ''
     const area_unit = area_size ? 'sqm' : ''
 
-    // Build 10 image slots
+    // Build image slots (main + up to 10 additional pentru products; 10 total pentru home_listings)
+    const mainImage = validImgs[0] || ''
+    const additionalImages = validImgs.slice(1, 11) // până la 10 imagini suplimentare
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
@@ -509,7 +518,8 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       const quantity = (p.availability_status === 'available') ? '1' : '0'
       const inventory = quantity
       const status = (p.availability_status === 'available') ? 'active' : 'archived'
-      const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+      // additional_image_link: până la 10 URL-uri suplimentare separate prin virgulă (limită Meta)
+      const additional = additionalImages.join(',')
 
       // Custom labels (segmentare audiențe / reguli WhatsApp)
       const cl0 = property_type
@@ -521,7 +531,7 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       return [
         // Required
         id, name, description, prodAvailability, condition,
-        priceWithCurrency, link, imgSlots[0], brand,
+        priceWithCurrency, link, mainImage, brand,
         // Categorization
         googleCategory, fbCategory, productType,
         // Identifiers / inventory
