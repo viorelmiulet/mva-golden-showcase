@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
+// Default feed = standard Commerce/Products (acceptat de WhatsApp Business + Meta Commerce)
 const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
-const PRODUCTS_FEED_URL = `${FEED_URL}?format=products`;
+const HOME_LISTINGS_URL = `${FEED_URL}?format=home_listings`;
 const PREVIEW_URL = `${FEED_URL}?preview=1&limit=5`;
 
 interface ExcludedRow { id: string; external_id: string | null; title: string; reason: string }
