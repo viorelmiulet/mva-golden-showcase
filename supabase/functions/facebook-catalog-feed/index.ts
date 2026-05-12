@@ -452,10 +452,17 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
       brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
       return null
     }
-    const imgs: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    // Meta accepts max 1 main image_link + 10 additional_image_link (=> 11 total).
+    // Pentru home_listings, schema CSV are doar 10 sloturi (image[0..9]).
+    const MAX_IMAGES = format === 'home_listings' ? 10 : 11
+    const imgsRaw: string[] = Array.isArray(p.images) ? p.images.filter((u: any) => typeof u === 'string') : []
+    // Dedupe păstrând ordinea
+    const seen = new Set<string>()
+    const imgs: string[] = []
+    for (const u of imgsRaw) { if (!seen.has(u)) { seen.add(u); imgs.push(u) } }
     const validImgs: string[] = []
     for (const u of imgs) {
-      if (validImgs.length >= 10) break
+      if (validImgs.length >= MAX_IMAGES) break
       if (validations.get(u)) validImgs.push(u)
     }
     if (validImgs.length === 0) {
