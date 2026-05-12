@@ -431,21 +431,53 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
-    if (format === 'products') {
-      // Standard Commerce/Products feed — accepted by WhatsApp Business Catalog
-      // Required: id, title, description, availability (in stock|out of stock),
-      // condition (new|used|refurbished), price ("<amount> <CUR>"), link, image_link, brand
+    if (format !== 'home_listings') {
+      // ===== Standard Commerce / Products feed (DEFAULT) =====
+      // Acceptat de WhatsApp Business Catalog + Meta Commerce Manager.
+      // Conține toate câmpurile required + recommended.
+      const currency = (p.currency || 'EUR').toString().toUpperCase()
+      const priceAmount = Number(p.price_min).toFixed(2)
+      const priceWithCurrency = `${priceAmount} ${currency}`
       const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
       const condition = 'new'
       const brand = 'MVA Imobiliare'
       const googleCategory = 'Real Estate'
-      const productType = isRent ? 'Inchirieri' : 'Vanzari'
+      const fbCategory = 'real_estate' // Meta fb_product_category
+      const productType = isRent
+        ? `Imobiliare > Inchirieri > ${property_type}`
+        : `Imobiliare > Vanzari > ${property_type}`
+      const identifierExists = 'no' // nu avem GTIN/MPN — obligatoriu să fie 'no'
+      const itemGroupId = p.project_id || (p.project_name ? slugify(p.project_name) : id)
+      const retailerId = id
+      const quantity = (p.availability_status === 'available') ? '1' : '0'
+      const inventory = quantity
+      const status = (p.availability_status === 'available') ? 'active' : 'archived'
       const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+
+      // Custom labels (segmentare audiențe / reguli WhatsApp)
+      const cl0 = property_type
+      const cl1 = isRent ? 'inchiriere' : 'vanzare'
+      const cl2 = beds ? `${beds}-camere` : ''
+      const cl3 = addrCity
+      const cl4 = area_size ? `${area_size}-mp` : ''
+
       return [
+        // Required
         id, name, description, prodAvailability, condition,
-        price, link, imgSlots[0], brand,
-        googleCategory, productType,
+        priceWithCurrency, link, imgSlots[0], brand,
+        // Categorization
+        googleCategory, fbCategory, productType,
+        // Identifiers / inventory
+        identifierExists, itemGroupId, retailerId,
+        quantity, inventory, status,
+        // Currency separat
+        currency,
+        // Country
+        'RO',
+        // Additional images
         additional,
+        // Custom labels
+        cl0, cl1, cl2, cl3, cl4,
       ].map(String)
     }
 
