@@ -132,11 +132,29 @@ const scheduleGA4Load = () => {
 };
 
 
+// Detect Do-Not-Track signal across browsers (navigator.doNotTrack, window.doNotTrack, navigator.msDoNotTrack, Global Privacy Control)
+const isDoNotTrackEnabled = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+  const nav = navigator as Navigator & { msDoNotTrack?: string; globalPrivacyControl?: boolean };
+  const win = window as Window & { doNotTrack?: string };
+  const dnt = nav.doNotTrack ?? win.doNotTrack ?? nav.msDoNotTrack;
+  if (dnt === "1" || dnt === "yes") return true;
+  if (nav.globalPrivacyControl === true) return true;
+  return false;
+};
+
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
+    // Respect Do-Not-Track: never load analytics, never show consent banner
+    if (isDoNotTrackEnabled()) {
+      // Ensure any previously granted consent is cleared so analytics stays off
+      clearStoredConsent();
+      return;
+    }
+
     const consent = getStoredConsent();
 
     if (consent === "accepted") {
@@ -151,6 +169,10 @@ const CookieConsent = () => {
   }, []);
 
   const acceptCookies = () => {
+    if (isDoNotTrackEnabled()) {
+      setIsVisible(false);
+      return;
+    }
     setStoredConsent("accepted");
     scheduleGA4Load();
     setIsVisible(false);
