@@ -100,7 +100,7 @@ const FacebookCatalogFeedPage = () => {
               className="flex-1 px-3 py-2 text-sm bg-muted rounded-md border border-border font-mono text-foreground"
               onFocus={(e) => e.target.select()}
             />
-            <Button onClick={copyLink} className="gap-2">
+            <Button onClick={() => copyLink(FEED_URL, "URL-ul feed-ului")} className="gap-2">
               <Copy className="h-4 w-4" /> Copiază link
             </Button>
             <Button variant="outline" asChild className="gap-2">
