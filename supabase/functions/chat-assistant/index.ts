@@ -187,7 +187,7 @@ INFORMAȚII DE CONTACT:
       systemPrompt += `OFERTE RELEVANTE GĂSITE (${catalogOffers.length} proprietăți selectate pentru cererea ta):\n\n`;
       
       catalogOffers.forEach((offer, index) => {
-        const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.id}`;
+        const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.slug || offer.id}`;
         systemPrompt += `${index + 1}. ${offer.title}\n`;
         systemPrompt += `   📍 ${offer.location}\n`;
         systemPrompt += `   💰 ${offer.price_min.toLocaleString()} ${offer.currency || 'EUR'}\n`;
