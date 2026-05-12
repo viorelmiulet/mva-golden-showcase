@@ -5,7 +5,12 @@ import { X, Cookie } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const COOKIE_CONSENT_KEY = "cookieConsent";
+const COOKIE_CONSENT_TIMESTAMP_KEY = "cookieConsentTimestamp";
 const GA_ID = "G-HLZFTKHC80";
+
+// Expiry period for cookie consent preferences (180 days, in ms)
+const CONSENT_EXPIRY_MS = 180 * 24 * 60 * 60 * 1000;
+const CONSENT_EXPIRY_SECONDS = Math.floor(CONSENT_EXPIRY_MS / 1000);
 
 type ConsentValue = "accepted" | "rejected";
 
@@ -20,23 +25,66 @@ const getConsentFromCookie = () => {
   return cookie ? cookie.split("=")[1] : null;
 };
 
-const getStoredConsent = () => {
+const clearStoredConsent = () => {
   try {
-    return localStorage.getItem(COOKIE_CONSENT_KEY) || getConsentFromCookie();
+    localStorage.removeItem(COOKIE_CONSENT_KEY);
+    localStorage.removeItem(COOKIE_CONSENT_TIMESTAMP_KEY);
   } catch {
-    return getConsentFromCookie();
+    // ignore
+  }
+
+  if (typeof document !== "undefined") {
+    document.cookie = `${COOKIE_CONSENT_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    document.cookie = `${COOKIE_CONSENT_TIMESTAMP_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
   }
 };
 
+const getStoredConsent = (): ConsentValue | null => {
+  let value: string | null = null;
+  let timestamp: string | null = null;
+
+  try {
+    value = localStorage.getItem(COOKIE_CONSENT_KEY);
+    timestamp = localStorage.getItem(COOKIE_CONSENT_TIMESTAMP_KEY);
+  } catch {
+    // ignore
+  }
+
+  if (!value) {
+    value = getConsentFromCookie();
+  }
+
+  if (!value) return null;
+
+  // If we have a timestamp, validate freshness
+  if (timestamp) {
+    const ts = parseInt(timestamp, 10);
+    if (!Number.isNaN(ts) && Date.now() - ts > CONSENT_EXPIRY_MS) {
+      clearStoredConsent();
+      return null;
+    }
+  } else {
+    // No timestamp recorded → treat as legacy entry and reset so the user re-consents
+    clearStoredConsent();
+    return null;
+  }
+
+  return value as ConsentValue;
+};
+
 const setStoredConsent = (value: ConsentValue) => {
+  const now = Date.now().toString();
+
   try {
     localStorage.setItem(COOKIE_CONSENT_KEY, value);
+    localStorage.setItem(COOKIE_CONSENT_TIMESTAMP_KEY, now);
   } catch {
     // Ignore storage errors (e.g. strict/incognito environments)
   }
 
   if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_CONSENT_KEY}=${value}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `${COOKIE_CONSENT_KEY}=${value}; path=/; max-age=${CONSENT_EXPIRY_SECONDS}; SameSite=Lax`;
+    document.cookie = `${COOKIE_CONSENT_TIMESTAMP_KEY}=${now}; path=/; max-age=${CONSENT_EXPIRY_SECONDS}; SameSite=Lax`;
   }
 };
 
