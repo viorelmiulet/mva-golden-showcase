@@ -247,6 +247,58 @@ const stripHtml = (html: string): string =>
 const truncate = (s: string, max: number) =>
   s.length > max ? s.slice(0, max - 1).trim() + '…' : s
 
+// ===== Price + currency normalization (WhatsApp/Meta Commerce strict format) =====
+// WhatsApp Business + Meta Commerce require: "<amount with 2 decimals> <ISO 4217 CCY>"
+//   e.g. "120000.00 EUR". Niciodată gol, fără separatori de mii, mereu punct decimal.
+const ISO_CURRENCY_RE = /^[A-Z]{3}$/
+const CURRENCY_ALIASES: Record<string, string> = {
+  '€': 'EUR', 'EURO': 'EUR', 'EUROS': 'EUR',
+  'LEI': 'RON', 'RON.': 'RON',
+  '$': 'USD', 'US$': 'USD', 'DOLLAR': 'USD', 'DOLLARS': 'USD',
+  '£': 'GBP', 'GBP.': 'GBP',
+  'MDL.': 'MDL',
+}
+
+const normalizeCurrency = (raw: unknown): string => {
+  if (raw === null || raw === undefined) return 'EUR'
+  const s = String(raw).trim().toUpperCase().replace(/\s+/g, '')
+  if (!s) return 'EUR'
+  if (CURRENCY_ALIASES[s]) return CURRENCY_ALIASES[s]
+  if (ISO_CURRENCY_RE.test(s)) return s
+  // Fallback sigur — Meta refuză coduri non-ISO
+  return 'EUR'
+}
+
+const normalizePriceAmount = (raw: unknown): number | null => {
+  if (raw === null || raw === undefined || raw === '') return null
+  let num: number
+  if (typeof raw === 'number') {
+    num = raw
+  } else {
+    // Strip non-numeric, suportă "1.234,56" / "1,234.56" / "120000 EUR"
+    let s = String(raw).trim()
+    // Elimină codul de monedă/simbolurile lipite
+    s = s.replace(/[A-Za-z€$£]/g, '').trim()
+    // Dacă există atât "," cât și ".", asumă "," = mii
+    if (s.includes(',') && s.includes('.')) {
+      s = s.replace(/,/g, '')
+    } else if (s.includes(',') && !s.includes('.')) {
+      // ",34" sau "1234,56" → punct decimal
+      s = s.replace(',', '.')
+    }
+    s = s.replace(/\s+/g, '')
+    num = Number(s)
+  }
+  if (!Number.isFinite(num) || num <= 0) return null
+  return num
+}
+
+// Format final acceptat de WhatsApp/Meta: "120000.00 EUR"
+const formatMetaPrice = (amount: number, currency: string): string => {
+  const ccy = ISO_CURRENCY_RE.test(currency) ? currency : 'EUR'
+  return `${amount.toFixed(2)} ${ccy}`
+}
+
 // Fallback slug builder if DB slug is missing
 const slugify = (str: string) =>
   str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
