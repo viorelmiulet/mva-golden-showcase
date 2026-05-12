@@ -328,16 +328,11 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
 
   // Meta Home Listings (Real Estate) catalog format
   // Headers per format
-  // - home_listings: Meta Real Estate catalog (current default)
-  // - products: standard Commerce/Products catalog → REQUIRED for WhatsApp Business Catalog
-  const headers = format === 'products'
+  // - products (DEFAULT): standard Commerce/Products catalog → REQUIRED for WhatsApp Business Catalog
+  //   Conține toate câmpurile required + recommended de Meta Commerce + WhatsApp.
+  // - home_listings: Meta Real Estate catalog (NU este acceptat de WhatsApp Business Catalog)
+  const headers = format === 'home_listings'
     ? [
-        'id', 'title', 'description', 'availability', 'condition',
-        'price', 'link', 'image_link', 'brand',
-        'google_product_category', 'product_type',
-        'additional_image_link',
-      ]
-    : [
         'home_listing_id', 'name', 'availability', 'description', 'url',
         'price', 'listing_type', 'property_type',
         'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
@@ -345,6 +340,24 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
         'image[0].url',
         'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
         'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
+      ]
+    : [
+        // Required
+        'id', 'title', 'description', 'availability', 'condition',
+        'price', 'link', 'image_link', 'brand',
+        // Recommended / categorization
+        'google_product_category', 'fb_product_category', 'product_type',
+        // Identifiers / inventory (WhatsApp + Commerce)
+        'identifier_exists', 'item_group_id', 'retailer_id',
+        'quantity_to_sell_on_facebook', 'inventory', 'status',
+        // Currency (separat — cerut explicit de WhatsApp Business)
+        'currency',
+        // Locație
+        'origin_country',
+        // Imagini suplimentare (până la 10 URL-uri separate prin virgulă)
+        'additional_image_link',
+        // Custom labels — folosite pentru segmentare audiențe / reguli WhatsApp
+        'custom_label_0', 'custom_label_1', 'custom_label_2', 'custom_label_3', 'custom_label_4',
       ]
 
   // Pre-batch validate ALL candidate image URLs in one go (uses persistent cache + concurrent probing)
@@ -418,21 +431,53 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
-    if (format === 'products') {
-      // Standard Commerce/Products feed — accepted by WhatsApp Business Catalog
-      // Required: id, title, description, availability (in stock|out of stock),
-      // condition (new|used|refurbished), price ("<amount> <CUR>"), link, image_link, brand
+    if (format !== 'home_listings') {
+      // ===== Standard Commerce / Products feed (DEFAULT) =====
+      // Acceptat de WhatsApp Business Catalog + Meta Commerce Manager.
+      // Conține toate câmpurile required + recommended.
+      const currency = (p.currency || 'EUR').toString().toUpperCase()
+      const priceAmount = Number(p.price_min).toFixed(2)
+      const priceWithCurrency = `${priceAmount} ${currency}`
       const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
       const condition = 'new'
       const brand = 'MVA Imobiliare'
       const googleCategory = 'Real Estate'
-      const productType = isRent ? 'Inchirieri' : 'Vanzari'
+      const fbCategory = 'real_estate' // Meta fb_product_category
+      const productType = isRent
+        ? `Imobiliare > Inchirieri > ${property_type}`
+        : `Imobiliare > Vanzari > ${property_type}`
+      const identifierExists = 'no' // nu avem GTIN/MPN — obligatoriu să fie 'no'
+      const itemGroupId = p.project_id || (p.project_name ? slugify(p.project_name) : id)
+      const retailerId = id
+      const quantity = (p.availability_status === 'available') ? '1' : '0'
+      const inventory = quantity
+      const status = (p.availability_status === 'available') ? 'active' : 'archived'
       const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+
+      // Custom labels (segmentare audiențe / reguli WhatsApp)
+      const cl0 = property_type
+      const cl1 = isRent ? 'inchiriere' : 'vanzare'
+      const cl2 = beds ? `${beds}-camere` : ''
+      const cl3 = addrCity
+      const cl4 = area_size ? `${area_size}-mp` : ''
+
       return [
+        // Required
         id, name, description, prodAvailability, condition,
-        price, link, imgSlots[0], brand,
-        googleCategory, productType,
+        priceWithCurrency, link, imgSlots[0], brand,
+        // Categorization
+        googleCategory, fbCategory, productType,
+        // Identifiers / inventory
+        identifierExists, itemGroupId, retailerId,
+        quantity, inventory, status,
+        // Currency separat
+        currency,
+        // Country
+        'RO',
+        // Additional images
         additional,
+        // Custom labels
+        cl0, cl1, cl2, cl3, cl4,
       ].map(String)
     }
 
@@ -492,7 +537,9 @@ Deno.serve(async (req) => {
   const previewLimit = parseInt(url.searchParams.get('limit') || '5', 10)
   const forceRefresh = url.searchParams.get('refresh') === '1'
   const formatParam = (url.searchParams.get('format') || '').toLowerCase()
-  const format: FeedFormat = formatParam === 'products' ? 'products' : 'home_listings'
+  // Default = 'products' (Commerce standard) → singurul format acceptat de WhatsApp Business Catalog.
+  // 'home_listings' rămâne disponibil cu ?format=home_listings (legacy Real Estate, NU funcționează în WhatsApp).
+  const format: FeedFormat = formatParam === 'home_listings' ? 'home_listings' : 'products'
 
   try {
     const { result, from_cache, expires_at } = await getFeed(forceRefresh, format)

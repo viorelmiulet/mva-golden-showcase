@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
+// Default feed = standard Commerce/Products (acceptat de WhatsApp Business + Meta Commerce)
 const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
-const PRODUCTS_FEED_URL = `${FEED_URL}?format=products`;
+const HOME_LISTINGS_URL = `${FEED_URL}?format=home_listings`;
 const PREVIEW_URL = `${FEED_URL}?preview=1&limit=5`;
 
 interface ExcludedRow { id: string; external_id: string | null; title: string; reason: string }
@@ -83,14 +84,17 @@ const FacebookCatalogFeedPage = () => {
       <div className="flex items-center gap-3">
         <FileSpreadsheet className="h-7 w-7 text-gold" />
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Feed Facebook Catalog</h1>
-          <p className="text-sm text-muted-foreground">CSV automat pentru import în Meta Commerce Manager</p>
+          <h1 className="text-2xl font-bold text-foreground">Feed Catalog (Facebook + WhatsApp)</h1>
+          <p className="text-sm text-muted-foreground">CSV format Products (Commerce standard) — acceptat atât de Meta Commerce Manager cât și de WhatsApp Business Catalog.</p>
         </div>
       </div>
 
-      <Card>
+      <Card className="border-emerald-500/40">
         <CardHeader>
-          <CardTitle className="text-base">URL feed CSV</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            URL feed produse (recomandat)
+            <Badge variant="secondary" className="text-[10px]">format: products · default</Badge>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-col md:flex-row gap-2">
@@ -110,51 +114,45 @@ const FacebookCatalogFeedPage = () => {
             </Button>
           </div>
           <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
-            <p className="font-semibold text-foreground">Cum îl folosești în Facebook:</p>
+            <p className="font-semibold text-foreground">Câmpuri incluse (toate cele cerute de WhatsApp Business + Meta Commerce):</p>
+            <p className="font-mono text-[11px] leading-relaxed">id · title · description · availability · condition · price · link · image_link · brand · google_product_category · fb_product_category · product_type · identifier_exists · item_group_id · retailer_id · quantity_to_sell_on_facebook · inventory · status · currency · origin_country · additional_image_link · custom_label_0..4</p>
+            <p className="font-semibold text-foreground pt-2">Cum îl folosești în Facebook Commerce Manager:</p>
             <ol className="list-decimal pl-5 space-y-0.5">
-              <li>Deschide <a className="text-gold hover:underline" href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">Meta Commerce Manager <ExternalLink className="inline h-3 w-3" /></a></li>
-              <li>Catalog → <strong>Data Sources</strong> → <strong>Add Items</strong> → <strong>Use Bulk Upload</strong> → <strong>Scheduled Feed</strong></li>
-              <li>Lipește URL-ul de mai sus și setează frecvența la <strong>Daily</strong></li>
-              <li>Facebook va prelua automat fiecare proprietate publicată (excludem ansamblurile rezidențiale)</li>
+              <li>Deschide <a className="text-gold hover:underline" href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">Meta Commerce Manager <ExternalLink className="inline h-3 w-3" /></a> → creează catalog tip <strong>Ecommerce / Products</strong>.</li>
+              <li>Data Sources → Add Items → Use Bulk Upload → <strong>Scheduled Feed</strong>, lipește URL-ul de mai sus, frecvență <strong>Daily</strong>.</li>
+            </ol>
+            <p className="font-semibold text-foreground pt-2">Cum îl conectezi la WhatsApp Business:</p>
+            <ol className="list-decimal pl-5 space-y-0.5">
+              <li>În aplicația <strong>WhatsApp Business</strong> → Settings → <strong>Business tools</strong> → <strong>Catalog</strong>.</li>
+              <li>Sau în Meta Business Suite → WhatsApp → Catalog → conectează catalogul de produse de mai sus.</li>
+              <li>După prima sincronizare reușită, produsele apar direct în WhatsApp.</li>
             </ol>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-emerald-500/40">
+      <Card className="border-muted">
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            URL feed produse (WhatsApp Business Catalog)
-            <Badge variant="secondary" className="text-[10px]">format: products</Badge>
+          <CardTitle className="text-base flex items-center gap-2 text-muted-foreground">
+            URL feed Home Listings (Real Estate — legacy)
+            <Badge variant="outline" className="text-[10px]">format: home_listings</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-2">
           <div className="flex flex-col md:flex-row gap-2">
             <input
               readOnly
-              value={PRODUCTS_FEED_URL}
+              value={HOME_LISTINGS_URL}
               className="flex-1 px-3 py-2 text-sm bg-muted rounded-md border border-border font-mono text-foreground"
               onFocus={(e) => e.target.select()}
             />
-            <Button onClick={() => copyLink(PRODUCTS_FEED_URL, "URL-ul feed-ului produse")} className="gap-2">
+            <Button variant="outline" onClick={() => copyLink(HOME_LISTINGS_URL, "URL-ul feed-ului home listings")} className="gap-2">
               <Copy className="h-4 w-4" /> Copiază link
             </Button>
-            <Button variant="outline" asChild className="gap-2">
-              <a href={PRODUCTS_FEED_URL} target="_blank" rel="noreferrer">
-                <Download className="h-4 w-4" /> Descarcă CSV
-              </a>
-            </Button>
           </div>
-          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
-            <p className="font-semibold text-foreground">De ce e nevoie de acest feed:</p>
-            <p>WhatsApp Business Catalog acceptă doar cataloage de tip <strong>Products</strong> (Commerce standard), nu <strong>Real Estate / Home Listings</strong>. Acest URL livrează exact aceleași proprietăți, mapate în formatul produs: id, title, description, availability, condition, price, link, image_link, brand, additional_image_link.</p>
-            <p className="font-semibold text-foreground pt-2">Cum îl folosești:</p>
-            <ol className="list-decimal pl-5 space-y-0.5">
-              <li>În <a className="text-gold hover:underline" href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">Meta Commerce Manager <ExternalLink className="inline h-3 w-3" /></a> creează un <strong>catalog nou</strong> de tip <strong>Ecommerce / Products</strong> (separat de cel imobiliar).</li>
-              <li>Data Sources → Add Items → Use Bulk Upload → <strong>Scheduled Feed</strong>, lipește URL-ul de mai sus, frecvență <strong>Daily</strong>.</li>
-              <li>În WhatsApp Business → Settings → Catalog → conectează catalogul de produse nou creat.</li>
-            </ol>
-          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Format <strong>Meta Real Estate (Home Listings)</strong>. <strong>NU</strong> este acceptat de WhatsApp Business Catalog — folosește-l doar dacă ai un catalog separat de tip Real Estate în Commerce Manager.
+          </p>
         </CardContent>
       </Card>
 
