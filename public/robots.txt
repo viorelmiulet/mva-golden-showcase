@@ -9,9 +9,13 @@ Allow: /news
 Allow: /news/
 Allow: /proprietati
 Allow: /proprietati/
+Allow: /proprietate/
 Allow: /complexe
 Allow: /complexe/
 Allow: /complexuri-rezidentiale
+Allow: /militari-residence
+Allow: /renew-residence
+Allow: /eurocasa-residence
 Allow: /sitemap.xml
 Allow: /news-sitemap.xml
 Allow: /sitemap-images.xml
@@ -21,10 +25,15 @@ Disallow: /admin
 Disallow: /admin/
 Disallow: /api
 Disallow: /api/
+Disallow: /api-keys
 Disallow: /functions/
 Disallow: /contract/
 Disallow: /semnare/
 Disallow: /contract-signature/
+Disallow: /sign/
+Disallow: /adauga
+Disallow: /app/
+Disallow: /oferta-
 Disallow: /404
 Disallow: /not-found
 
