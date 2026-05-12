@@ -21,6 +21,7 @@ const toKebab = (str: string): string =>
 
 interface PropertySlugSource {
   id: string;
+  slug?: string | null;
   rooms?: number | null;
   project_name?: string | null;
   zone?: string | null;
@@ -102,7 +103,7 @@ export const isUUID = (str: string): boolean =>
  * Generate property URL path from property data.
  */
 export const getPropertyUrl = (property: PropertySlugSource): string =>
-  `/proprietati/${generatePropertySlug(property)}`;
+  `/proprietati/${property.slug && property.slug.trim() ? property.slug : generatePropertySlug(property)}`;
 
 /**
  * Generate SEO-friendly slug for an Immoflux property.
