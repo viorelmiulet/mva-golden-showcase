@@ -7,8 +7,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import GoogleReviews from "@/components/GoogleReviews"
 
 const LEGAL_BADGE_FALLBACKS = {
-  anpc: "/anpc-badge.svg",
-  sol: "/sol-badge.svg",
+  anpc: "https://anpc.ro/wp-content/uploads/2022/07/SAL-PICTOGRAMA.png",
+  sol: "https://anpc.ro/wp-content/uploads/2022/08/pictogramaSOL.png",
 }
 
 interface BeforeInstallPromptEvent extends Event {
@@ -144,9 +144,8 @@ const Footer = () => {
                 src={LEGAL_BADGE_FALLBACKS.anpc}
                 alt="ANPC - Soluționarea Alternativă a Litigiilor"
                 loading="lazy"
-                width={197}
-                height={49}
-                className="h-10 w-auto"
+                referrerPolicy="no-referrer"
+                className="h-12 w-auto bg-white rounded-md p-1"
               />
             </a>
 
@@ -160,9 +159,8 @@ const Footer = () => {
                 src={LEGAL_BADGE_FALLBACKS.sol}
                 alt="SOL - Soluționarea Online a Litigiilor"
                 loading="lazy"
-                width={197}
-                height={49}
-                className="h-10 w-auto"
+                referrerPolicy="no-referrer"
+                className="h-12 w-auto bg-white rounded-md p-1"
               />
             </a>
           </div>
