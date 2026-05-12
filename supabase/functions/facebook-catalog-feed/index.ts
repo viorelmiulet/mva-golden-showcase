@@ -446,7 +446,7 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     if (p.availability_status === 'available') availability = isRent ? 'for_rent' : 'for_sale'
     else if (p.availability_status === 'reserved') availability = 'sale_pending'
     else if (p.availability_status === 'sold') availability = 'recently_sold'
-    const price = `${Number(p.price_min).toFixed(2)} ${p.currency || 'EUR'}`
+    const price = p.__priceFormatted as string // pre-normalizat: "<amount.00> <ISO CCY>"
     const link = linkByProp.get(p.id) || `${SITE_URL}/proprietati/${buildSlug(p)}`
     if (!linkValidations.get(link)) {
       brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
