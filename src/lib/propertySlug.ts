@@ -21,6 +21,7 @@ const toKebab = (str: string): string =>
 
 interface PropertySlugSource {
   id: string;
+  slug?: string | null;
   rooms?: number | null;
   project_name?: string | null;
   zone?: string | null;
