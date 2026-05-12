@@ -50,9 +50,9 @@ const FacebookCatalogFeedPage = () => {
 
   useEffect(() => { loadPreview(); }, []);
 
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(FEED_URL);
-    toast({ title: "Link copiat", description: "URL-ul feed-ului a fost copiat în clipboard." });
+  const copyLink = async (link: string = FEED_URL, label = "URL-ul feed-ului") => {
+    await navigator.clipboard.writeText(link);
+    toast({ title: "Link copiat", description: `${label} a fost copiat în clipboard.` });
   };
 
   const formatSize = (bytes: number) => {
