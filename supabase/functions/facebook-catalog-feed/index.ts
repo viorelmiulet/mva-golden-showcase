@@ -492,7 +492,9 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     const area_size = p.surface_min ? String(p.surface_min) : ''
     const area_unit = area_size ? 'sqm' : ''
 
-    // Build 10 image slots
+    // Build image slots (main + up to 10 additional pentru products; 10 total pentru home_listings)
+    const mainImage = validImgs[0] || ''
+    const additionalImages = validImgs.slice(1, 11) // până la 10 imagini suplimentare
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
