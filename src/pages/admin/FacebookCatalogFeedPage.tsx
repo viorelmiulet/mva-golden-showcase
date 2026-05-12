@@ -6,6 +6,7 @@ import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2,
 import { toast } from "@/hooks/use-toast";
 
 const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
+const PRODUCTS_FEED_URL = `${FEED_URL}?format=products`;
 const PREVIEW_URL = `${FEED_URL}?preview=1&limit=5`;
 
 interface ExcludedRow { id: string; external_id: string | null; title: string; reason: string }
