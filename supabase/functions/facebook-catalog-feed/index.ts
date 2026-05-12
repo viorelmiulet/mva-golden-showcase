@@ -273,11 +273,18 @@ type FeedResult = {
   generated_at: string
   size_bytes: number
 }
-let CACHE: { result: FeedResult; expires_at: number } | null = null
-let INFLIGHT: Promise<FeedResult> | null = null
+type FeedFormat = 'home_listings' | 'products'
+const CACHE: Record<FeedFormat, { result: FeedResult; expires_at: number } | null> = {
+  home_listings: null,
+  products: null,
+}
+const INFLIGHT: Record<FeedFormat, Promise<FeedResult> | null> = {
+  home_listings: null,
+  products: null,
+}
 const TTL_MS = 30 * 60 * 1000 // 30 minutes
 
-async function generateFeed(): Promise<FeedResult> {
+async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedResult> {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -320,15 +327,25 @@ async function generateFeed(): Promise<FeedResult> {
   }
 
   // Meta Home Listings (Real Estate) catalog format
-  const headers = [
-    'home_listing_id', 'name', 'availability', 'description', 'url',
-    'price', 'listing_type', 'property_type',
-    'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
-    'num_beds', 'num_baths', 'area_size', 'area_unit',
-    'image[0].url',
-    'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
-    'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
-  ]
+  // Headers per format
+  // - home_listings: Meta Real Estate catalog (current default)
+  // - products: standard Commerce/Products catalog → REQUIRED for WhatsApp Business Catalog
+  const headers = format === 'products'
+    ? [
+        'id', 'title', 'description', 'availability', 'condition',
+        'price', 'link', 'image_link', 'brand',
+        'google_product_category', 'product_type',
+        'additional_image_link',
+      ]
+    : [
+        'home_listing_id', 'name', 'availability', 'description', 'url',
+        'price', 'listing_type', 'property_type',
+        'address.addr1', 'address.city', 'address.region', 'address.postal_code', 'address.country',
+        'num_beds', 'num_baths', 'area_size', 'area_unit',
+        'image[0].url',
+        'image[1].url', 'image[2].url', 'image[3].url', 'image[4].url',
+        'image[5].url', 'image[6].url', 'image[7].url', 'image[8].url', 'image[9].url'
+      ]
 
   // Pre-batch validate ALL candidate image URLs in one go (uses persistent cache + concurrent probing)
   const allCandidateUrls: string[] = []
@@ -401,6 +418,24 @@ async function generateFeed(): Promise<FeedResult> {
     const imgSlots: string[] = []
     for (let i = 0; i < 10; i++) imgSlots.push(validImgs[i] || '')
 
+    if (format === 'products') {
+      // Standard Commerce/Products feed — accepted by WhatsApp Business Catalog
+      // Required: id, title, description, availability (in stock|out of stock),
+      // condition (new|used|refurbished), price ("<amount> <CUR>"), link, image_link, brand
+      const prodAvailability = (p.availability_status === 'available') ? 'in stock' : 'out of stock'
+      const condition = 'new'
+      const brand = 'MVA Imobiliare'
+      const googleCategory = 'Real Estate'
+      const productType = isRent ? 'Inchirieri' : 'Vanzari'
+      const additional = imgSlots.slice(1, 10).filter(Boolean).join(',')
+      return [
+        id, name, description, prodAvailability, condition,
+        price, link, imgSlots[0], brand,
+        googleCategory, productType,
+        additional,
+      ].map(String)
+    }
+
     return [
       id, name, availability, description, link,
       price, listing_type, property_type,
@@ -427,22 +462,23 @@ async function generateFeed(): Promise<FeedResult> {
   return { csv, headers, allValues, excluded, total_input: all.length, generated_at, size_bytes }
 }
 
-async function getFeed(forceRefresh: boolean): Promise<{ result: FeedResult; from_cache: boolean; expires_at: number }> {
+async function getFeed(forceRefresh: boolean, format: FeedFormat): Promise<{ result: FeedResult; from_cache: boolean; expires_at: number }> {
   const now = Date.now()
-  if (!forceRefresh && CACHE && CACHE.expires_at > now) {
-    return { result: CACHE.result, from_cache: true, expires_at: CACHE.expires_at }
+  const cached = CACHE[format]
+  if (!forceRefresh && cached && cached.expires_at > now) {
+    return { result: cached.result, from_cache: true, expires_at: cached.expires_at }
   }
-  if (INFLIGHT) {
-    const result = await INFLIGHT
-    return { result, from_cache: false, expires_at: CACHE?.expires_at ?? Date.now() + TTL_MS }
+  if (INFLIGHT[format]) {
+    const result = await INFLIGHT[format]!
+    return { result, from_cache: false, expires_at: CACHE[format]?.expires_at ?? Date.now() + TTL_MS }
   }
-  INFLIGHT = generateFeed()
+  INFLIGHT[format] = generateFeed(format)
   try {
-    const result = await INFLIGHT
-    CACHE = { result, expires_at: Date.now() + TTL_MS }
-    return { result, from_cache: false, expires_at: CACHE.expires_at }
+    const result = await INFLIGHT[format]!
+    CACHE[format] = { result, expires_at: Date.now() + TTL_MS }
+    return { result, from_cache: false, expires_at: CACHE[format]!.expires_at }
   } finally {
-    INFLIGHT = null
+    INFLIGHT[format] = null
   }
 }
 
@@ -455,15 +491,18 @@ Deno.serve(async (req) => {
   const previewMode = url.searchParams.get('preview') === '1'
   const previewLimit = parseInt(url.searchParams.get('limit') || '5', 10)
   const forceRefresh = url.searchParams.get('refresh') === '1'
+  const formatParam = (url.searchParams.get('format') || '').toLowerCase()
+  const format: FeedFormat = formatParam === 'products' ? 'products' : 'home_listings'
 
   try {
-    const { result, from_cache, expires_at } = await getFeed(forceRefresh)
+    const { result, from_cache, expires_at } = await getFeed(forceRefresh, format)
     const { csv, headers, allValues, excluded, total_input, generated_at, size_bytes } = result
     const cacheAgeSec = Math.max(0, Math.floor((Date.now() - new Date(generated_at).getTime()) / 1000))
     const maxAgeSec = Math.max(0, Math.floor((expires_at - Date.now()) / 1000))
 
     if (previewMode) {
       return new Response(JSON.stringify({
+        format,
         total: allValues.length,
         total_input,
         excluded_count: excluded.length,
@@ -482,12 +521,17 @@ Deno.serve(async (req) => {
       })
     }
 
+    const filename = format === 'products'
+      ? 'mva-products-catalog.csv'
+      : 'mva-facebook-catalog.csv'
+
     return new Response(csv, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'inline; filename="mva-facebook-catalog.csv"',
+        'Content-Disposition': `inline; filename="${filename}"`,
         'Cache-Control': `public, max-age=${maxAgeSec}, s-maxage=${maxAgeSec}`,
+        'X-Feed-Format': format,
         'X-Total-Products': String(allValues.length),
         'X-Excluded-Products': String(excluded.length),
         'X-Generated-At': generated_at,
