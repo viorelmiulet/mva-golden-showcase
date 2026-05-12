@@ -157,6 +157,56 @@ const ImmofluxPropertyDetail = () => {
   const metaDesc = (description || title).substring(0, 160);
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
+  const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
+  const lat = p.latitudine ?? p.latitude ?? null;
+  const lng = p.longitudine ?? p.longitude ?? null;
+
+  const propertySchema: any = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": title,
+    "description": metaDesc,
+    "url": propertyUrl,
+    "image": images.slice(0, 10).map((i: any) => i.src),
+    "datePosted": addedDate || new Date().toISOString(),
+    ...(p.nrcamere ? { "numberOfRooms": Number(p.nrcamere) } : {}),
+    ...(p.nrbai ? { "numberOfBathroomsTotal": Number(p.nrbai) } : {}),
+    ...(p.anconstructie ? { "yearBuilt": Number(p.anconstructie) } : {}),
+    ...(surface ? { "floorSize": { "@type": "QuantitativeValue", "value": Number(surface), "unitCode": "MTK" } } : {}),
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": p.localitate || p.oras || "București",
+      ...(p.zona ? { "addressRegion": p.zona } : {}),
+      ...(p.adresa ? { "streetAddress": p.adresa } : {}),
+      "addressCountry": "RO",
+    },
+    ...(lat && lng ? { "geo": { "@type": "GeoCoordinates", "latitude": Number(lat), "longitude": Number(lng) } } : {}),
+    ...(priceAmount ? {
+      "offers": {
+        "@type": "Offer",
+        "price": Number(priceAmount),
+        "priceCurrency": currency,
+        "availability": "https://schema.org/InStock",
+        "url": propertyUrl,
+        "seller": {
+          "@type": "RealEstateAgent",
+          "name": "MVA Imobiliare",
+          "url": "https://mvaimobiliare.ro",
+          "telephone": "+40767941512",
+        },
+      },
+    } : {}),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://mvaimobiliare.ro/" },
+      { "@type": "ListItem", "position": 2, "name": "Proprietăți", "item": "https://mvaimobiliare.ro/proprietati" },
+      { "@type": "ListItem", "position": 3, "name": title, "item": propertyUrl },
+    ],
+  };
 
   return (
     <>
@@ -191,6 +241,9 @@ const ImmofluxPropertyDetail = () => {
         <meta name="twitter:description" content={metaDesc} />
         <meta name="twitter:image" content={ogImage} />
         <meta name="twitter:image:alt" content={title} />
+
+        <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
       <Header />
       <main className="pt-24 pb-16">
