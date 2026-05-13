@@ -19,7 +19,7 @@ export const ApproximateLocationMap = ({
   latitude,
   longitude,
   locationLabel,
-  radiusMeters = 500,
+  radiusMeters = 2000,
 }: ApproximateLocationMapProps) => {
   if (!latitude || !longitude) return null;
 
@@ -27,8 +27,13 @@ export const ApproximateLocationMap = ({
   const lat = Math.round(latitude * 1000) / 1000;
   const lng = Math.round(longitude * 1000) / 1000;
 
-  // Google Maps embed without API key. `output=embed` + ll/z, no marker.
-  const src = `https://maps.google.com/maps?ll=${lat},${lng}&z=15&t=m&output=embed`;
+  // Bounding box for ~2km radius around the point (1° lat ≈ 111km)
+  const latDelta = radiusMeters / 111000;
+  const lngDelta = radiusMeters / (111000 * Math.cos((lat * Math.PI) / 180));
+  const bbox = `${lng - lngDelta},${lat - latDelta},${lng + lngDelta},${lat + latDelta}`;
+
+  // OpenStreetMap embed: full map, no marker, framed to the 2km bbox
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik`;
 
   return (
     <section aria-label="Locație aproximativă" className="space-y-2">
