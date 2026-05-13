@@ -922,6 +922,16 @@ const PropertyDetail = () => {
                   </Card>
                 </section>
 
+                {/* Approximate Location Map */}
+                {property.latitude && property.longitude && (
+                  <Suspense fallback={<div className="h-[280px] sm:h-[360px] bg-muted animate-pulse rounded-lg" />}>
+                    <ApproximateLocationMap
+                      latitude={property.latitude}
+                      longitude={property.longitude}
+                      locationLabel={getDisplayLocation(property)}
+                    />
+                  </Suspense>
+                )}
 
                 {/* External Reference */}
                 {(property.external_id || property.source_url) && (
