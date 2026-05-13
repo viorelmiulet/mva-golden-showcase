@@ -58,6 +58,7 @@ const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDia
 const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
 const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
 const MortgageCalculator = lazy(() => import("@/components/MortgageCalculator"));
+const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 interface Property {
   id: string;
@@ -921,6 +922,16 @@ const PropertyDetail = () => {
                   </Card>
                 </section>
 
+                {/* Approximate Location Map */}
+                {property.latitude && property.longitude && (
+                  <Suspense fallback={<div className="h-[280px] sm:h-[360px] bg-muted animate-pulse rounded-lg" />}>
+                    <ApproximateLocationMap
+                      latitude={property.latitude}
+                      longitude={property.longitude}
+                      locationLabel={getDisplayLocation(property)}
+                    />
+                  </Suspense>
+                )}
 
                 {/* External Reference */}
                 {(property.external_id || property.source_url) && (

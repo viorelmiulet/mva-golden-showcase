@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems, type StatItem } from "@/lib/statItem";
+const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 
@@ -438,6 +439,17 @@ const ImmofluxPropertyDetail = () => {
                   <h2 className="text-lg font-semibold text-foreground">Opinia agentului</h2>
                   <p className="text-sm text-muted-foreground whitespace-pre-line italic">{opinieagent}</p>
                 </div>
+              )}
+
+              {/* Locație aproximativă */}
+              {lat && lng && (
+                <Suspense fallback={<div className="h-[280px] sm:h-[360px] bg-muted animate-pulse rounded-lg" />}>
+                  <ApproximateLocationMap
+                    latitude={Number(lat)}
+                    longitude={Number(lng)}
+                    locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
+                  />
+                </Suspense>
               )}
             </div>
 
