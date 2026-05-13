@@ -58,6 +58,7 @@ const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDia
 const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
 const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
 const MortgageCalculator = lazy(() => import("@/components/MortgageCalculator"));
+const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 interface Property {
   id: string;
