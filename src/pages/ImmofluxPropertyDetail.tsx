@@ -440,6 +440,17 @@ const ImmofluxPropertyDetail = () => {
                   <p className="text-sm text-muted-foreground whitespace-pre-line italic">{opinieagent}</p>
                 </div>
               )}
+
+              {/* Locație aproximativă */}
+              {lat && lng && (
+                <Suspense fallback={<div className="h-[280px] sm:h-[360px] bg-muted animate-pulse rounded-lg" />}>
+                  <ApproximateLocationMap
+                    latitude={Number(lat)}
+                    longitude={Number(lng)}
+                    locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
+                  />
+                </Suspense>
+              )}
             </div>
 
             {/* Sidebar */}
