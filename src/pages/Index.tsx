@@ -178,7 +178,7 @@ const Index = () => {
         <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
         <meta property="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
         <meta property="twitter:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
-        <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-image.jpg" />
 
         {/* Structured Data for AI */}
         <script type="application/ld+json">
