@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Static fallback sitemap servit direct de Lovable hosting.
+  Sitemap-ul dinamic complet (cu toate proprietățile, complexele, articolele)
+  este generat de Edge Function și disponibil pe domeniul canonic:
+    https://www.mvaimobiliare.ro/sitemap.xml
+  Acest fișier asigură că /sitemap.xml răspunde 200 pe orice host
+  (preview, *.lovable.app, custom domain) și listează rutele publice principale.
+-->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-news-sitemap</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-images</loc>
+  </sitemap>
+</sitemapindex>
