@@ -148,8 +148,8 @@ const Index = () => {
     <>
       <BreadcrumbSchema items={[{ name: "Acasă", url: "/" }]} />
       <Helmet>
-        <title>Apartamente de Vânzare și Închiriere Militari – MVA Imobiliare</title>
-        <meta name="description" content="Agenție imobiliară specializată în cartierul Militari, Sector 6 București. Apartamente de vânzare și închiriere în Gorjului, Lujerului, Iuliu Maniu, Pacii. Evaluare gratuită. Sună acum!" />
+        <title>Apartamente Militari București – MVA Imobiliare</title>
+        <meta name="description" content="Agenție imobiliară în Militari, Sector 6 București. Apartamente de vânzare și închiriere în Gorjului, Lujerului, Pacii. Evaluare gratuită." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="agenție imobiliară București, apartamente Militari, apartamente Gorjului, apartamente Lujerului, apartamente Iuliu Maniu, apartamente Pacii, vânzare apartamente Sector 6, agent imobiliar București" />
         <link rel="canonical" href="https://mvaimobiliare.ro/" />
