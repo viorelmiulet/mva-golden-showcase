@@ -168,14 +168,17 @@ const Index = () => {
         <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
         <meta property="og:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
         <meta property="og:locale" content="ro_RO" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+        <meta property="og:image" content="https://mvaimobiliare.ro/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/jpeg" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
         <meta property="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
         <meta property="twitter:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
-        <meta property="twitter:image" content="https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg" />
+        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-image.jpg" />
 
         {/* Structured Data for AI */}
         <script type="application/ld+json">
