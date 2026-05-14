@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Static fallback sitemap servit direct de Lovable hosting.
-  Sitemap-ul dinamic complet (cu toate proprietățile, complexele, articolele)
-  este generat de Edge Function și disponibil pe domeniul canonic:
+  Sitemap static servit de Lovable hosting pentru toate domeniile (preview,
+  *.lovable.app, custom domain). Listează rutele publice principale.
+  Sitemap-ul dinamic complet (proprietăți, complexe, blog, news) este generat
+  de Edge Function și expus pe domeniul canonic:
     https://www.mvaimobiliare.ro/sitemap.xml
-  Acest fișier asigură că /sitemap.xml răspunde 200 pe orice host
-  (preview, *.lovable.app, custom domain) și listează rutele publice principale.
+  vezi și robots.txt pentru lista completă de sitemap-uri.
 -->
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-news-sitemap</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-images</loc>
-  </sitemap>
-</sitemapindex>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.mvaimobiliare.ro/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/proprietati</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/complexe</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/militari-residence</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/renew-residence</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/eurocasa-residence</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/news</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/despre-noi</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/servicii</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/de-ce-sa-ne-alegi</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/calculator-credit</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/intrebari-frecvente</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/cariera</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/politica-confidentialitate</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.mvaimobiliare.ro/termeni-conditii</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>
