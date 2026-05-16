@@ -59,19 +59,23 @@
         const normalizedPath = rawPath === '/' ? '/' : rawPath.replace(/\/+$/, '');
         const currentUrl = `${siteUrl}${normalizedPath}`;
 
-        const setContent = (selector, attribute, value) => {
-          const element = document.querySelector(selector);
-          if (element) {
-            element.setAttribute(attribute, value);
+        const setOrCreateMeta = (attr, attrValue, content) => {
+          let element = document.querySelector(`meta[${attr}="${attrValue}"]`);
+          if (!element) {
+            element = document.createElement('meta');
+            element.setAttribute(attr, attrValue);
+            document.head.appendChild(element);
           }
+          element.setAttribute('content', content);
         };
 
         // NOTE: Do NOT auto-set canonical here. Pages set their own canonical via React Helmet.
         // Auto-setting canonical to currentUrl makes every URL variant self-canonicalize,
         // which causes "Duplicate without user-selected canonical" errors in GSC.
         if (!normalizedPath.startsWith('/admin') && !normalizedPath.startsWith('/api')) {
-          setContent('meta[property="og:url"]', 'content', currentUrl);
-          setContent('meta[name="twitter:url"]', 'content', currentUrl);
+          // Dynamic og:url / twitter:url based on current path so deep links show correct URL
+          setOrCreateMeta('property', 'og:url', currentUrl);
+          setOrCreateMeta('name', 'twitter:url', currentUrl);
         }
       })();
     </script>
