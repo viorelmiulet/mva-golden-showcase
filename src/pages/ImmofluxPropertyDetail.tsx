@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useProperty, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData } from "@/hooks/useImmoflux";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
+import { MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,7 +56,7 @@ const ImmofluxPropertyDetail = () => {
     <>
       <Header />
       <main className="pt-24 pb-16 container mx-auto px-4"><PropertyDetailSkeleton /></main>
-      <Suspense fallback={null}><Footer /></Suspense>
+      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
     </>
   );
 
@@ -69,7 +70,7 @@ const ImmofluxPropertyDetail = () => {
           <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Înapoi la proprietăți</Button>
         </Link>
       </main>
-      <Suspense fallback={null}><Footer /></Suspense>
+      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
     </>
   );
 
@@ -401,7 +402,7 @@ const ImmofluxPropertyDetail = () => {
               })()}
 
               {openSection && (
-                <Suspense fallback={null}>
+                <Suspense fallback={<SectionDialogSkeleton />}>
                   <SectionDialog
                     open={!!openSection}
                     onOpenChange={(o) => !o && setOpenSection(null)}
@@ -437,7 +438,7 @@ const ImmofluxPropertyDetail = () => {
 
               {/* Locație aproximativă */}
               {lat && lng && (
-                <Suspense fallback={<div className="h-[280px] sm:h-[360px] bg-muted animate-pulse rounded-lg" />}>
+                <Suspense fallback={<MapSkeleton />}>
                   <ApproximateLocationMap
                     latitude={Number(lat)}
                     longitude={Number(lng)}
@@ -492,7 +493,7 @@ const ImmofluxPropertyDetail = () => {
           </div>
         </div>
       </main>
-      <Suspense fallback={null}>
+      <Suspense fallback={<LightboxSkeleton />}>
         <ImageLightbox
           images={images.map(img => img.src)}
           isOpen={lightboxOpen}
