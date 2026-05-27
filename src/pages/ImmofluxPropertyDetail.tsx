@@ -6,18 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { ArrowLeft, BedDouble, Bath, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Wrench, Phone, Mail, User, SquareStack, Home, Thermometer, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems, type StatItem } from "@/lib/statItem";
-const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
+// Heavy / below-the-fold components — split into separate chunks
+const Footer = lazy(() => import("@/components/Footer"));
+const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
+const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
 
 const ImmofluxPropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -53,7 +55,7 @@ const ImmofluxPropertyDetail = () => {
     <>
       <Header />
       <main className="pt-24 pb-16 container mx-auto px-4"><PropertyDetailSkeleton /></main>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 
@@ -67,7 +69,7 @@ const ImmofluxPropertyDetail = () => {
           <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Înapoi la proprietăți</Button>
         </Link>
       </main>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 
@@ -398,24 +400,16 @@ const ImmofluxPropertyDetail = () => {
                 );
               })()}
 
-              <Dialog open={!!openSection} onOpenChange={(o) => !o && setOpenSection(null)}>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{openSection?.title}</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {openSection?.items.map((item, i) => (
-                      <div
-                        key={i}
-                        title={item}
-                        className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-xs text-foreground break-words [overflow-wrap:anywhere]"
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </DialogContent>
-              </Dialog>
+              {openSection && (
+                <Suspense fallback={null}>
+                  <SectionDialog
+                    open={!!openSection}
+                    onOpenChange={(o) => !o && setOpenSection(null)}
+                    title={openSection?.title}
+                    items={openSection?.items}
+                  />
+                </Suspense>
+              )}
 
               {/* Descriere */}
               {description && (
@@ -506,7 +500,7 @@ const ImmofluxPropertyDetail = () => {
           initialIndex={lightboxIndex}
         />
       </Suspense>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 };
