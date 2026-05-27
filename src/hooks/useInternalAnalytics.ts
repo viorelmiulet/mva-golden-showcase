@@ -1,9 +1,11 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 
 const SESSION_KEY = 'mva_session_id';
+let trackedPath = '';
+let trackedPathStartTime = Date.now();
 
 const getSessionId = () => {
   let sid = sessionStorage.getItem(SESSION_KEY);
@@ -33,21 +35,19 @@ const getBrowser = () => {
 export const useInternalAnalytics = () => {
   const location = useLocation();
   const { trackPageView, trackEvent: trackGA4 } = useGoogleAnalytics();
-  const prevPath = useRef('');
-  const startTime = useRef(Date.now());
   const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
-    if (prevPath.current === location.pathname) return;
+    if (trackedPath === location.pathname) return;
 
     const sessionId = getSessionId();
 
     // Update duration for previous page
-    if (prevPath.current) {
-      const duration = Math.round((Date.now() - startTime.current) / 1000);
+    if (trackedPath) {
+      const duration = Math.round((Date.now() - trackedPathStartTime) / 1000);
       supabase.from('page_views').update({ duration_seconds: duration })
         .eq('session_id', sessionId)
-        .eq('page_path', prevPath.current)
+        .eq('page_path', trackedPath)
         .order('created_at', { ascending: false })
         .limit(1)
         .then(({ error }) => {
@@ -55,8 +55,8 @@ export const useInternalAnalytics = () => {
         });
     }
 
-    startTime.current = Date.now();
-    prevPath.current = location.pathname;
+    trackedPathStartTime = Date.now();
+    trackedPath = location.pathname;
 
     // Track pageview in GA4 (skip admin)
     if (!isAdmin) {
