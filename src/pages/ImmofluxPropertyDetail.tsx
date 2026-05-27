@@ -55,7 +55,7 @@ const ImmofluxPropertyDetail = () => {
     <>
       <Header />
       <main className="pt-24 pb-16 container mx-auto px-4"><PropertyDetailSkeleton /></main>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 
@@ -69,7 +69,7 @@ const ImmofluxPropertyDetail = () => {
           <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Înapoi la proprietăți</Button>
         </Link>
       </main>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 
@@ -500,7 +500,7 @@ const ImmofluxPropertyDetail = () => {
           initialIndex={lightboxIndex}
         />
       </Suspense>
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
 };
