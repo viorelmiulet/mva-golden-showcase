@@ -259,6 +259,13 @@ const AppRoutes = () => {
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/politici-editoriale" element={<PoliticiEditoriale />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
+              {seoLandingPresets.map((preset) => (
+                <Route
+                  key={preset.slug}
+                  path={`/${preset.slug}`}
+                  element={<SeoLanding preset={preset} />}
+                />
+              ))}
               <Route path="/sign/:token" element={<SignContract />} />
               <Route path="/404" element={<NotFound />} />
               
