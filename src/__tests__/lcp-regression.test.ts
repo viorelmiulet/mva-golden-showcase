@@ -387,3 +387,66 @@ describe('LCP: hero preloads are auto-generated from Hero.tsx', () => {
     ).toBe(true);
   });
 });
+
+describe('LCP: font preload + display-swap pipeline', () => {
+  const headers = readFileSync(resolve(root, 'public/_headers'), 'utf8');
+
+  it('preconnects to BOTH Google Fonts origins with crossorigin', () => {
+    expect(indexHtml).toMatch(
+      /<link[^>]*rel=["']preconnect["'][^>]*href=["']https:\/\/fonts\.googleapis\.com["'][^>]*crossorigin/i,
+    );
+    expect(indexHtml).toMatch(
+      /<link[^>]*rel=["']preconnect["'][^>]*href=["']https:\/\/fonts\.gstatic\.com["'][^>]*crossorigin/i,
+    );
+  });
+
+  it('preloads the Google Fonts stylesheet as=style with display=swap + crossorigin + onload swap', () => {
+    const re =
+      /<link[^>]*rel=["']preload["'][^>]*as=["']style["'][^>]*href=["']([^"']*fonts\.googleapis\.com[^"']*)["'][^>]*crossorigin[^>]*onload=["']this\.onload=null;this\.rel=['"]stylesheet/i;
+    const m = re.exec(indexHtml);
+    expect(m, 'Missing non-blocking font preload (<link rel=preload as=style …onload=swap>)').not.toBeNull();
+    expect(m![1]).toMatch(/display=swap/);
+    expect(m![1]).toMatch(/family=Inter/);
+    expect(m![1]).toMatch(/family=Playfair\+Display/);
+    expect(m![1]).toMatch(/family=Cinzel/);
+  });
+
+  it('provides a <noscript> stylesheet fallback so fonts still load without JS', () => {
+    expect(indexHtml).toMatch(
+      /<noscript>[\s\S]*<link[^>]*rel=["']stylesheet["'][^>]*fonts\.googleapis\.com[^>]*display=swap[\s\S]*<\/noscript>/i,
+    );
+  });
+
+  it('declares font-display: swap in inline @font-face for every hero font family', () => {
+    for (const fam of ['Inter', 'Playfair Display', 'Cinzel']) {
+      const re = new RegExp(
+        `@font-face\\s*{[^}]*font-family:\\s*['"]${fam}['"][^}]*font-display:\\s*swap[^}]*}`,
+        's',
+      );
+      expect(indexHtml, `@font-face for "${fam}" must declare font-display: swap`).toMatch(re);
+    }
+  });
+
+  it('public/_headers caches woff2 files immutable for 1 year', () => {
+    expect(headers).toMatch(
+      /\/\*\.woff2\s*\n\s*Cache-Control:\s*public,\s*max-age=31536000,\s*immutable/i,
+    );
+  });
+
+  it('every self-hosted font in public/fonts (if any) is preloaded AND covered by an immutable header', () => {
+    const fontsDir = resolve(root, 'public/fonts');
+    if (!existsSync(fontsDir)) return; // No self-hosted fonts yet — nothing to enforce.
+    const { readdirSync } = require('node:fs') as typeof import('node:fs');
+    const files = readdirSync(fontsDir).filter((f: string) => /\.(woff2?|ttf|otf)$/i.test(f));
+    for (const f of files) {
+      const url = `/fonts/${f}`;
+      expect(indexHtml, `Self-hosted font ${url} is not preloaded in index.html`).toMatch(
+        new RegExp(`rel=["']preload["'][^>]*href=["']${url}["'][^>]*as=["']font["']`),
+      );
+      const generic = /\.woff2$/i.test(f)
+        ? /\/\*\.woff2[\s\S]{0,120}immutable/i
+        : new RegExp(`${url.replace('.', '\\.')}[\\s\\S]{0,200}immutable`, 'i');
+      expect(headers, `Font ${url} is not covered by an immutable cache rule in public/_headers`).toMatch(generic);
+    }
+  });
+});
