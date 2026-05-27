@@ -364,13 +364,13 @@ const Properties = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Acasă",
-        "item": "https://mva-imobiliare.lovable.app/"
+        "item": "https://mvaimobiliare.ro/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Proprietăți",
-        "item": "https://mva-imobiliare.lovable.app/proprietati"
+        "item": "https://mvaimobiliare.ro/proprietati"
       }
     ]
   };
@@ -386,7 +386,7 @@ const Properties = () => {
       "position": index + 1,
       "item": {
         "@type": property.rooms > 2 ? "House" : "Apartment",
-        "@id": `https://mva-imobiliare.lovable.app/proprietati#${property.id}`,
+        "@id": `https://mvaimobiliare.ro/proprietati#${property.id}`,
         "name": property.title,
         "description": property.description,
         "image": property.images?.[0] || "",

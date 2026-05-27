@@ -25,55 +25,6 @@ const Index = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Organization Schema for AI understanding
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    "name": "MVA Imobiliare",
-    "url": "https://mvaimobiliare.ro",
-    "logo": "https://mvaimobiliare.ro/logo.png",
-    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "description": "Agenție imobiliară specializată în cartierul Militari, Sector 6, București. Vânzări, cumpărări și închirieri de apartamente.",
-    "telephone": "+40767941512",
-    "email": "contact@mvaimobiliare.ro",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "București",
-      "addressRegion": "Sector 6",
-      "addressCountry": "RO"
-    },
-    "areaServed": {
-      "@type": "Place",
-      "name": "Militari, Sector 6, București"
-    },
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "contactType": "customer service",
-      "availableLanguage": "Romanian"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": "44.4268",
-      "longitude": "25.9667"
-    },
-    "sameAs": [
-      "https://www.facebook.com/mvaimobiliare",
-      "https://www.instagram.com/mvaimobiliare"
-    ]
-  };
-
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "MVA Imobiliare",
-    "url": "https://mvaimobiliare.ro",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://mvaimobiliare.ro/proprietati?search={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -181,12 +132,6 @@ const Index = () => {
         <meta property="twitter:image" content="https://mvaimobiliare.ro/og-image.jpg" />
 
         {/* Structured Data for AI */}
-        <script type="application/ld+json">
-          {JSON.stringify(organizationSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(websiteSchema)}
-        </script>
         <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
         </script>
