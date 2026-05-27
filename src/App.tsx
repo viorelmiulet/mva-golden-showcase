@@ -66,6 +66,8 @@ const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPa
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
 const RedirectMonitor = lazy(() => import("./pages/admin/RedirectMonitor"));
+const LighthouseReportPage = lazy(() => import("./pages/admin/LighthouseReportPage"));
+
 const FacebookCatalogFeedPage = lazy(() => import("./pages/admin/FacebookCatalogFeedPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
@@ -215,6 +217,8 @@ const AppRoutes = () => {
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
                 <Route path="redirect-monitor" element={<RedirectMonitor />} />
+                <Route path="lighthouse" element={<LighthouseReportPage />} />
+
                 <Route path="facebook-catalog-feed" element={<FacebookCatalogFeedPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
                 
