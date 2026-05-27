@@ -78,6 +78,16 @@ function setCache(key: string, data: string): void {
   }
 }
 
+const cacheControlForPath = (path: string, isCached: boolean) => {
+  if (path.includes('/properties/')) {
+    return isCached
+      ? 'public, max-age=300, stale-while-revalidate=86400'
+      : 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400';
+  }
+
+  return 'public, max-age=60, s-maxage=300, stale-while-revalidate=3600';
+};
+
 async function proxyGet(path: string, useCache = true): Promise<Response> {
   const cacheKey = `GET:${path}`;
   
@@ -86,7 +96,7 @@ async function proxyGet(path: string, useCache = true): Promise<Response> {
     if (cached) {
       console.log(`[immoflux-proxy] Cache HIT: ${path}`);
       return new Response(cached, {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': cacheControlForPath(path, true), 'X-Cache': 'HIT' },
       });
     }
   }
@@ -108,7 +118,7 @@ async function proxyGet(path: string, useCache = true): Promise<Response> {
 
   return new Response(body, {
     status: resp.status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': cacheControlForPath(path, false), 'X-Cache': 'MISS' },
   });
 }
 
