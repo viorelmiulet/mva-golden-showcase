@@ -285,26 +285,70 @@ describe('LCP: <picture> ↔ <link rel=preload> stay in sync', () => {
 
   it('AVIF preload href + imagesrcset match the Hero AVIF <source>', () => {
     const avif = preloads.find((p) => p.type === 'image/avif');
-    expect(avif, 'missing <link rel=preload type=image/avif>').toBeDefined();
-    expect(avif!.fetchpriority).toBe('high');
-    const heroAvif = /type=["']image\/avif["'][\s\S]*?srcSet=["']([^"']+)["']/.exec(heroTsx)?.[1];
-    expect(heroAvif, 'Hero is missing an AVIF <source>').toBeDefined();
-    const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
-    expect(norm(avif!.imagesrcset || '')).toBe(norm(heroAvif!));
-    const firstUrl = avif!.imagesrcset!.split(',')[0].trim().split(/\s+/)[0];
-    expect(avif!.href).toBe(firstUrl);
+    const heroAvif = extractHeroSourceSrcset(heroTsx, 'image/avif');
+    const report = diffHeroVsPreload({
+      type: 'image/avif',
+      heroSrcset: heroAvif,
+      preloadHref: avif?.href,
+      preloadSrcset: avif?.imagesrcset ?? undefined,
+      preloadFetchpriority: avif?.fetchpriority,
+    });
+    expect(report, report ?? '').toBeNull();
   });
 
   it('WebP preload href + imagesrcset match the Hero WebP <source>', () => {
     const webp = preloads.find((p) => p.type === 'image/webp');
-    expect(webp, 'missing <link rel=preload type=image/webp>').toBeDefined();
-    const heroWebp = /type=["']image\/webp["'][\s\S]*?srcSet=["']([^"']+)["']/.exec(heroTsx)?.[1];
-    expect(heroWebp, 'Hero is missing a WebP <source>').toBeDefined();
-    const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
-    expect(norm(webp!.imagesrcset || '')).toBe(norm(heroWebp!));
-    const firstUrl = webp!.imagesrcset!.split(',')[0].trim().split(/\s+/)[0];
-    expect(webp!.href).toBe(firstUrl);
+    const heroWebp = extractHeroSourceSrcset(heroTsx, 'image/webp');
+    const report = diffHeroVsPreload({
+      type: 'image/webp',
+      heroSrcset: heroWebp,
+      preloadHref: webp?.href,
+      preloadSrcset: webp?.imagesrcset ?? undefined,
+      preloadFetchpriority: webp?.fetchpriority,
+    });
+    expect(report, report ?? '').toBeNull();
   });
+
+  it('emits a consolidated mismatch report when Hero ↔ preloads drift', () => {
+    const reports: string[] = [];
+    for (const type of ['image/avif', 'image/webp'] as const) {
+      const pre = preloads.find((p) => p.type === type);
+      const hero = extractHeroSourceSrcset(heroTsx, type);
+      const r = diffHeroVsPreload({
+        type,
+        heroSrcset: hero,
+        preloadHref: pre?.href,
+        preloadSrcset: pre?.imagesrcset ?? undefined,
+        preloadFetchpriority: pre?.fetchpriority,
+      });
+      if (r) reports.push(r);
+    }
+    // Also surface orphan preloads (preloaded but not used by Hero) and vice versa.
+    const heroUrlSet = new Set(heroUrls);
+    const preloadUrls = preloads.flatMap((p) =>
+      p.imagesrcset ? parseSrcset(p.imagesrcset).map((e) => e.url) : [p.href],
+    );
+    const orphanPreloads = preloadUrls.filter(
+      (u) => !u.endsWith('.svg') && !heroUrlSet.has(u),
+    );
+    const orphanHero = heroUrls.filter(
+      (u) => !u.endsWith('.svg') && !preloadUrls.includes(u),
+    );
+    if (orphanPreloads.length || orphanHero.length) {
+      reports.push(
+        [
+          '',
+          '  ⚠️  Orphan asset(s) between Hero <picture> and <link rel=preload>',
+          `     Preloaded but NOT in Hero: ${orphanPreloads.join(', ') || '<none>'}`,
+          `     In Hero but NOT preloaded: ${orphanHero.join(', ') || '<none>'}`,
+          '     → Either add the missing preload or drop the unused one.',
+          '',
+        ].join('\n'),
+      );
+    }
+    expect(reports.length === 0, reports.join('\n')).toBe(true);
+  });
+
 
   it('exactly one preload is marked fetchpriority=high (the LCP candidate)', () => {
     const high = preloads.filter((p) => p.fetchpriority === 'high');
