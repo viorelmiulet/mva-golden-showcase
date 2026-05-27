@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_page_views_page_path ON public.page_views (page_path);
