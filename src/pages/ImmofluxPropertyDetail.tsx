@@ -400,24 +400,16 @@ const ImmofluxPropertyDetail = () => {
                 );
               })()}
 
-              <Dialog open={!!openSection} onOpenChange={(o) => !o && setOpenSection(null)}>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{openSection?.title}</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {openSection?.items.map((item, i) => (
-                      <div
-                        key={i}
-                        title={item}
-                        className="rounded-md bg-muted/40 border border-border/50 px-2 py-1 text-xs text-foreground break-words [overflow-wrap:anywhere]"
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </DialogContent>
-              </Dialog>
+              {openSection && (
+                <Suspense fallback={null}>
+                  <SectionDialog
+                    open={!!openSection}
+                    onOpenChange={(o) => !o && setOpenSection(null)}
+                    title={openSection?.title}
+                    items={openSection?.items}
+                  />
+                </Suspense>
+              )}
 
               {/* Descriere */}
               {description && (
