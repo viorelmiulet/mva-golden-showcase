@@ -9,15 +9,17 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, BedDouble, Bath, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Wrench, Phone, Mail, User, SquareStack, Home, Thermometer, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems, type StatItem } from "@/lib/statItem";
-const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
+// Heavy / below-the-fold components — split into separate chunks
+const Footer = lazy(() => import("@/components/Footer"));
+const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
+const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
 
 const ImmofluxPropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
