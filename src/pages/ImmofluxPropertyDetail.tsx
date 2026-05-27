@@ -402,7 +402,7 @@ const ImmofluxPropertyDetail = () => {
               })()}
 
               {openSection && (
-                <Suspense fallback={<SectionDialogSkeleton>}>
+                <Suspense fallback={<SectionDialogSkeleton />}>
                   <SectionDialog
                     open={!!openSection}
                     onOpenChange={(o) => !o && setOpenSection(null)}
