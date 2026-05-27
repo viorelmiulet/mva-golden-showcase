@@ -95,3 +95,32 @@ describe('LCP: hero asset budget', () => {
     expect(sizeKb('public/og-image.jpg')).toBeLessThan(150);
   });
 });
+
+describe('LCP: cache headers for hero + og-image', () => {
+  const headers = readFileSync(resolve(root, 'public/_headers'), 'utf8');
+  const netlify = readFileSync(resolve(root, 'netlify.toml'), 'utf8');
+  const lcpAssets = [
+    '/hero-mobile.avif',
+    '/hero-desktop.avif',
+    '/hero-mobile.webp',
+    '/hero-desktop.webp',
+    '/og-image.jpg',
+  ];
+
+  it.each(lcpAssets)('public/_headers marks %s immutable for 1 year', (path) => {
+    const block = new RegExp(
+      `${path.replace('.', '\\.')}\\s*\\n\\s*Cache-Control:\\s*public,\\s*max-age=31536000,\\s*immutable`,
+      'i',
+    );
+    expect(headers).toMatch(block);
+  });
+
+  it.each(lcpAssets)('netlify.toml marks %s immutable for 1 year', (path) => {
+    const block = new RegExp(
+      `for\\s*=\\s*"${path.replace('.', '\\.')}"[\\s\\S]{0,200}max-age=31536000,\\s*immutable`,
+      'i',
+    );
+    expect(netlify).toMatch(block);
+  });
+});
+
