@@ -420,7 +420,7 @@ const Properties = () => {
     <>
       <Helmet>
         <title>Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare</title>
-        <meta name="description" content="Vezi toate apartamentele de vânzare din cartierul Militari: garsoniere, 2 camere, 3 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate, agenție locală." />
+        <meta name="description" content="Apartamente de vânzare în Militari: garsoniere, 2-4 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="apartamente vânzare Militari, garsoniere Gorjului, 2 camere Lujerului, 3 camere Iuliu Maniu, apartamente Sector 6, Pacii, agent imobiliar Militari" />
         <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
