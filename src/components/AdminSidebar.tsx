@@ -70,7 +70,9 @@ const menuItems = [
   { title: "Feed Facebook Catalog", url: "/admin/facebook-catalog-feed", icon: FileSpreadsheet },
   { title: "Monitor Redirecturi", url: "/admin/redirect-monitor", icon: ShieldAlert },
   { title: "Setări", url: "/admin/setari", icon: Settings },
+  { title: "Raport Lighthouse", url: "/admin/lighthouse", icon: Gauge },
   { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
+
 ];
 
 // Animation variants
