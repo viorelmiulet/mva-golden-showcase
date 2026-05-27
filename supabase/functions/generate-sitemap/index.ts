@@ -114,6 +114,16 @@ Deno.serve(async (req) => {
       { loc: '/cariera', priority: '0.6', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/politica-confidentialitate', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
+      // SEO landing pages (filtered search)
+      { loc: '/apartamente-de-vanzare', priority: '0.9', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/case-de-vanzare', priority: '0.85', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/garsoniere-de-vanzare', priority: '0.85', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/apartamente-2-camere', priority: '0.9', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/apartamente-3-camere', priority: '0.85', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/apartamente-4-camere', priority: '0.75', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-noi', priority: '0.85', changefreq: 'daily', lastmod: currentDate },
+      { loc: '/apartamente-2-camere-militari', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-3-camere-militari', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
     ];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

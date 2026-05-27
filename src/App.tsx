@@ -8,6 +8,8 @@ import AppErrorBoundary from "@/components/AppErrorBoundary";
 const NotFound = lazy(() => import("./pages/NotFound"));
 const NavigateToComplex = lazy(() => import("@/components/NavigateToComplex"));
 import TrailingSlashRedirect from "@/components/TrailingSlashRedirect";
+import { seoLandingPresets } from "@/lib/seoLandingPresets";
+const SeoLanding = lazy(() => import("./pages/SeoLanding"));
 
 // Lazy load all pages including Index for better initial load
 const Index = lazy(() => import("./pages/Index"));
@@ -257,6 +259,13 @@ const AppRoutes = () => {
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/politici-editoriale" element={<PoliticiEditoriale />} />
               <Route path="/intrebari-frecvente" element={<FAQ />} />
+              {seoLandingPresets.map((preset) => (
+                <Route
+                  key={preset.slug}
+                  path={`/${preset.slug}`}
+                  element={<SeoLanding preset={preset} />}
+                />
+              ))}
               <Route path="/sign/:token" element={<SignContract />} />
               <Route path="/404" element={<NotFound />} />
               
