@@ -41,8 +41,18 @@ export function buildPreloadBlock(tsx) {
 
   const lines = [
     `    ${START} — AUTO-GENERATED from src/components/Hero.tsx by scripts/sync-hero-preloads.mjs. DO NOT EDIT BY HAND. -->`,
-    `    <link rel="preload" as="image" type="image/avif" href="${firstUrl(avif.srcset)}" imagesrcset="${avif.srcset}" imagesizes="${avif.sizes}" fetchpriority="high" />`,
-    `    <link rel="preload" as="image" type="image/webp" href="${firstUrl(webp.srcset)}" imagesrcset="${webp.srcset}" imagesizes="${webp.sizes}" />`,
+    `    <template id="hero-preloads-template">`,
+    `      <link rel="preload" as="image" type="image/avif" href="${firstUrl(avif.srcset)}" imagesrcset="${avif.srcset}" imagesizes="${avif.sizes}" fetchpriority="high" />`,
+    `      <link rel="preload" as="image" type="image/webp" href="${firstUrl(webp.srcset)}" imagesrcset="${webp.srcset}" imagesizes="${webp.sizes}" />`,
+    `    </template>`,
+    `    <script>`,
+    `      (() => {`,
+    `        const path = window.location.pathname.replace(/\\/+$/, '') || '/';`,
+    `        if (path !== '/') return;`,
+    `        const template = document.getElementById('hero-preloads-template');`,
+    `        if (template?.content) document.head.appendChild(template.content.cloneNode(true));`,
+    `      })();`,
+    `    </script>`,
     `    ${END}`,
   ];
   return lines.join('\n');
