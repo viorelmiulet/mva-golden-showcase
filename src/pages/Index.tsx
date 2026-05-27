@@ -133,12 +133,6 @@ const Index = () => {
 
         {/* Structured Data for AI */}
         <script type="application/ld+json">
-          {JSON.stringify(organizationSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(websiteSchema)}
-        </script>
-        <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
         </script>
       </Helmet>
