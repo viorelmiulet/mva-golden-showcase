@@ -158,10 +158,46 @@ const ImmofluxPropertyDetail = () => {
   }
   const propertyUrl = `https://mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
-  const metaDesc = (description || title).substring(0, 160);
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
+
+  // ── Auto-generated SEO title & description from API data ──
+  const rooms = p.nrcamere ? Number(p.nrcamere) : null;
+  const zona = (p.zona || '').trim();
+  const localitate = (p.localitate || p.oras || 'București').trim();
+  const locationLabel = [zona, localitate].filter(Boolean).join(', ') || 'București';
+  const propertyType = (p.tiplocuinta || 'Apartament').trim();
+  const actionLabel = isSale ? 'de vânzare' : 'de închiriat';
+  const priceLabel = priceAmount
+    ? `${Number(priceAmount).toLocaleString('ro-RO')} ${currency}${!isSale ? '/lună' : ''}`
+    : 'Preț la cerere';
+  const surfaceLabel = surface ? `${fmtMp(surface)} mp` : null;
+  const floorLabel = parseFloor(p.etaj, p.nretaj, p.floor);
+  const yearLabel = p.anconstructie ? `construit ${p.anconstructie}` : null;
+  const bathsLabel = p.nrbai ? `${p.nrbai} băi` : null;
+
+  const autoTitle = [
+    propertyType,
+    rooms ? `${rooms} camere` : null,
+    actionLabel,
+    locationLabel,
+  ].filter(Boolean).join(' ');
+  const seoTitle = `${autoTitle} – ${priceLabel} | MVA Imobiliare`.slice(0, 70);
+
+  const autoDescParts = [
+    `${propertyType}${rooms ? ` cu ${rooms} camere` : ''} ${actionLabel} în ${locationLabel}`,
+    surfaceLabel,
+    floorLabel ? `etaj ${floorLabel}` : null,
+    bathsLabel,
+    yearLabel,
+    furnishedLabel,
+    `${priceLabel}.`,
+    'Detalii, poze și programare vizionare la MVA Imobiliare.',
+  ].filter(Boolean);
+  const autoDesc = autoDescParts.join(', ').replace(', .', '.').replace(/, ([A-ZĂÎȘȚÂa-z])/g, (m, c, i) => i === autoDescParts[0].length ? `. ${c}` : m);
+  const metaDesc = ((description && description.length > 60 ? description : autoDesc)).replace(/\s+/g, ' ').trim().substring(0, 160);
+  const seoTitleFinal = seoTitle;
   const lat = p.latitudine ?? p.latitude ?? null;
   const lng = p.longitudine ?? p.longitude ?? null;
 
