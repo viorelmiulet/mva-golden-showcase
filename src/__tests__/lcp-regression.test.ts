@@ -155,3 +155,95 @@ describe('LCP: cache headers for hero + og-image', () => {
   });
 });
 
+describe('LCP: logo (above-the-fold critical resource)', () => {
+  const logoPath = '/mva-logo-luxury-horizontal.svg';
+
+  it('logo file referenced by preload exists on disk', () => {
+    expect(existsSync(resolve(root, 'public', logoPath.slice(1)))).toBe(true);
+  });
+
+  it('logo is rendered inline in initial HTML shell (no JS needed for paint)', () => {
+    expect(indexHtml).toMatch(new RegExp(`<img[^>]*src=["']${logoPath}["']`));
+  });
+
+  it('logo SVG stays under 20 KB', () => {
+    const kb = statSync(resolve(root, 'public', logoPath.slice(1))).size / 1024;
+    expect(kb).toBeLessThan(20);
+  });
+
+  it('logo is preloaded as image (matches above-the-fold usage)', () => {
+    const preloads = extractImagePreloads(indexHtml);
+    expect(preloads.some((p) => p.href === logoPath)).toBe(true);
+  });
+});
+
+describe('LCP: og-image consistency', () => {
+  it('og:image and twitter:image both point at /og-image.jpg on prod domain', () => {
+    expect(indexHtml).toMatch(/property=["']og:image["']\s+content=["']https:\/\/mvaimobiliare\.ro\/og-image\.jpg["']/);
+    expect(indexHtml).toMatch(/name=["']twitter:image["']\s+content=["']https:\/\/mvaimobiliare\.ro\/og-image\.jpg["']/);
+  });
+
+  it('declared og:image dimensions (1200x630) match the file', () => {
+    expect(indexHtml).toMatch(/property=["']og:image:width["']\s+content=["']1200["']/);
+    expect(indexHtml).toMatch(/property=["']og:image:height["']\s+content=["']630["']/);
+    expect(existsSync(resolve(root, 'public/og-image.jpg'))).toBe(true);
+  });
+});
+
+describe('LCP: <picture> ↔ <link rel=preload> stay in sync', () => {
+  const preloads = extractImagePreloads(indexHtml);
+  const heroUrls = extractHeroPictureUrls(heroTsx);
+
+  it('every URL used in Hero <picture> exists in /public', () => {
+    for (const url of heroUrls) {
+      expect(
+        existsSync(resolve(root, 'public', url.replace(/^\//, ''))),
+        `Hero <picture> references ${url} but file is missing in /public`,
+      ).toBe(true);
+    }
+  });
+
+  it('AVIF preload href + imagesrcset match the Hero AVIF <source>', () => {
+    const avif = preloads.find((p) => p.type === 'image/avif');
+    expect(avif, 'missing <link rel=preload type=image/avif>').toBeDefined();
+    expect(avif!.fetchpriority).toBe('high');
+    const heroAvif = /type=["']image\/avif["'][\s\S]*?srcSet=["']([^"']+)["']/.exec(heroTsx)?.[1];
+    expect(heroAvif, 'Hero is missing an AVIF <source>').toBeDefined();
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+    expect(norm(avif!.imagesrcset || '')).toBe(norm(heroAvif!));
+    const firstUrl = avif!.imagesrcset!.split(',')[0].trim().split(/\s+/)[0];
+    expect(avif!.href).toBe(firstUrl);
+  });
+
+  it('WebP preload href + imagesrcset match the Hero WebP <source>', () => {
+    const webp = preloads.find((p) => p.type === 'image/webp');
+    expect(webp, 'missing <link rel=preload type=image/webp>').toBeDefined();
+    const heroWebp = /type=["']image\/webp["'][\s\S]*?srcSet=["']([^"']+)["']/.exec(heroTsx)?.[1];
+    expect(heroWebp, 'Hero is missing a WebP <source>').toBeDefined();
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+    expect(norm(webp!.imagesrcset || '')).toBe(norm(heroWebp!));
+    const firstUrl = webp!.imagesrcset!.split(',')[0].trim().split(/\s+/)[0];
+    expect(webp!.href).toBe(firstUrl);
+  });
+
+  it('exactly one preload is marked fetchpriority=high (the LCP candidate)', () => {
+    const high = preloads.filter((p) => p.fetchpriority === 'high');
+    expect(high).toHaveLength(1);
+    expect(high[0].type).toBe('image/avif');
+  });
+
+  it('every preloaded image asset is also cache-immutable', () => {
+    const cacheHeaders = readFileSync(resolve(root, 'public/_headers'), 'utf8');
+    for (const p of preloads) {
+      // Skip SVG logo — cached but not immutable on purpose (can be swapped)
+      if (p.href.endsWith('.svg')) continue;
+      const re = new RegExp(
+        `${p.href.replace('.', '\\.')}\\s*\\n\\s*Cache-Control:[^\\n]*immutable`,
+        'i',
+      );
+      expect(cacheHeaders, `Missing immutable cache rule for preloaded ${p.href}`).toMatch(re);
+    }
+  });
+});
+
+
