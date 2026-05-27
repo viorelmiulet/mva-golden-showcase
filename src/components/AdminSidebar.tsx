@@ -25,6 +25,8 @@ import {
   CalendarCheck,
   Eye,
   ShieldAlert,
+  Gauge,
+
   FileSpreadsheet,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
