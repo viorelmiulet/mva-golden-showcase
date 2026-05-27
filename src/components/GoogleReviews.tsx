@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useState } from "react";
 
 interface GoogleReview {
   author_name: string;
@@ -34,6 +35,18 @@ const StarRating = ({ rating }: { rating: number }) => (
 
 const GoogleReviews = () => {
   const { language } = useLanguage();
+  const [canLoadReviews, setCanLoadReviews] = useState(false);
+
+  useEffect(() => {
+    const enable = () => setCanLoadReviews(true);
+    if ('requestIdleCallback' in globalThis) {
+      const id = globalThis.requestIdleCallback(enable, { timeout: 4000 });
+      return () => globalThis.cancelIdleCallback?.(id);
+    }
+
+    const id = globalThis.setTimeout(enable, 3000);
+    return () => globalThis.clearTimeout(id);
+  }, []);
 
   const { data, isLoading } = useQuery<GoogleReviewsData>({
     queryKey: ["google-reviews"],
@@ -42,6 +55,7 @@ const GoogleReviews = () => {
       if (error) throw error;
       return data;
     },
+    enabled: canLoadReviews,
     staleTime: 1000 * 60 * 60, // 1 hour
     retry: 1,
   });
