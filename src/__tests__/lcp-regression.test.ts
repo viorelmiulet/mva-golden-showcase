@@ -371,3 +371,19 @@ describe('LCP: <picture> ↔ <link rel=preload> stay in sync', () => {
 });
 
 
+
+describe('LCP: hero preloads are auto-generated from Hero.tsx', () => {
+  it('index.html contains the HERO_PRELOADS markers', () => {
+    expect(indexHtml).toMatch(/<!-- HERO_PRELOADS:START/);
+    expect(indexHtml).toMatch(/<!-- HERO_PRELOADS:END -->/);
+  });
+
+  it('running the sync script in --check mode reports no drift', async () => {
+    const mod = await import('../../scripts/sync-hero-preloads.mjs');
+    const r = mod.syncHeroPreloads({ check: true });
+    expect(
+      r.drift === true ? false : true,
+      'index.html hero preloads drifted from Hero.tsx — run: node scripts/sync-hero-preloads.mjs',
+    ).toBe(true);
+  });
+});
