@@ -5,12 +5,43 @@
  * regress. Update the test ONLY together with a deliberate perf change.
  */
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(__dirname, '../..');
 const indexHtml = readFileSync(resolve(root, 'index.html'), 'utf8');
 const heroTsx = readFileSync(resolve(root, 'src/components/Hero.tsx'), 'utf8');
+
+/** Extract every `<link rel="preload" as="image">` from index.html. */
+function extractImagePreloads(html: string) {
+  const out: Array<{ href: string; imagesrcset: string | null; type: string | null; fetchpriority: string | null }> = [];
+  const re = /<link\b[^>]*\brel=["']preload["'][^>]*\bas=["']image["'][^>]*>/gi;
+  for (const m of html.matchAll(re)) {
+    const tag = m[0];
+    const attr = (name: string) => {
+      const r = new RegExp(`\\b${name}=["']([^"']+)["']`, 'i').exec(tag);
+      return r ? r[1] : null;
+    };
+    out.push({
+      href: attr('href') || '',
+      imagesrcset: attr('imagesrcset'),
+      type: attr('type'),
+      fetchpriority: attr('fetchpriority'),
+    });
+  }
+  return out;
+}
+
+/** All URLs referenced by a `<picture>` block in Hero.tsx (srcset hrefs + img src). */
+function extractHeroPictureUrls(tsx: string): string[] {
+  const urls = new Set<string>();
+  for (const m of tsx.matchAll(/srcSet=["']([^"']+)["']/g)) {
+    for (const part of m[1].split(',')) urls.add(part.trim().split(/\s+/)[0]);
+  }
+  for (const m of tsx.matchAll(/<img[^>]*\bsrc=["']([^"']+)["']/g)) urls.add(m[1]);
+  return [...urls];
+}
+
 
 describe('LCP: index.html critical preloads', () => {
   it('preloads hero AVIF with high fetchpriority and responsive srcset', () => {
