@@ -158,10 +158,46 @@ const ImmofluxPropertyDetail = () => {
   }
   const propertyUrl = `https://mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
-  const metaDesc = (description || title).substring(0, 160);
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
+
+  // ── Auto-generated SEO title & description from API data ──
+  const rooms = p.nrcamere ? Number(p.nrcamere) : null;
+  const zona = (p.zona || '').trim();
+  const localitate = (p.localitate || p.oras || 'București').trim();
+  const locationLabel = [zona, localitate].filter(Boolean).join(', ') || 'București';
+  const propertyType = (p.tiplocuinta || 'Apartament').trim();
+  const actionLabel = isSale ? 'de vânzare' : 'de închiriat';
+  const priceLabel = priceAmount
+    ? `${Number(priceAmount).toLocaleString('ro-RO')} ${currency}${!isSale ? '/lună' : ''}`
+    : 'Preț la cerere';
+  const surfaceLabel = surface ? `${fmtMp(surface)} mp` : null;
+  const floorLabel = parseFloor(p.etaj, p.nretaj, p.floor);
+  const yearLabel = p.anconstructie ? `construit ${p.anconstructie}` : null;
+  const bathsLabel = p.nrbai ? `${p.nrbai} băi` : null;
+
+  const autoTitle = [
+    propertyType,
+    rooms ? `${rooms} camere` : null,
+    actionLabel,
+    locationLabel,
+  ].filter(Boolean).join(' ');
+  const seoTitle = `${autoTitle} – ${priceLabel} | MVA Imobiliare`.slice(0, 70);
+
+  const autoDescParts = [
+    `${propertyType}${rooms ? ` cu ${rooms} camere` : ''} ${actionLabel} în ${locationLabel}`,
+    surfaceLabel,
+    floorLabel ? `etaj ${floorLabel}` : null,
+    bathsLabel,
+    yearLabel,
+    furnishedLabel,
+    `${priceLabel}.`,
+    'Detalii, poze și programare vizionare la MVA Imobiliare.',
+  ].filter(Boolean);
+  const autoDesc = autoDescParts.join(', ').replace(', .', '.').replace(/, ([A-ZĂÎȘȚÂa-z])/g, (m, c, i) => i === autoDescParts[0].length ? `. ${c}` : m);
+  const metaDesc = ((description && description.length > 60 ? description : autoDesc)).replace(/\s+/g, ' ').trim().substring(0, 160);
+  const seoTitleFinal = seoTitle;
   const lat = p.latitudine ?? p.latitude ?? null;
   const lng = p.longitudine ?? p.longitude ?? null;
 
@@ -215,10 +251,11 @@ const ImmofluxPropertyDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{title} | MVA Imobiliare</title>
+        <title>{seoTitleFinal}</title>
         <meta name="description" content={metaDesc} />
         <meta name="author" content="MVA Imobiliare" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content={[propertyType, rooms ? `${rooms} camere` : null, actionLabel, zona, localitate, 'apartament', 'imobiliare', 'MVA Imobiliare'].filter(Boolean).join(', ')} />
         <link rel="canonical" href={propertyUrl} />
 
         {/* Open Graph */}
@@ -227,24 +264,24 @@ const ImmofluxPropertyDetail = () => {
         <meta property="og:locale" content="ro_RO" />
         <meta property="og:locale:alternate" content="en_US" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={`${title} | MVA Imobiliare`} />
+        <meta property="og:title" content={seoTitleFinal} />
         <meta property="og:description" content={metaDesc} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={title} />
+        <meta property="og:image:alt" content={autoTitle} />
         {priceAmount && <meta property="product:price:amount" content={priceAmount} />}
-        {priceAmount && <meta property="product:price:currency" content="EUR" />}
+        {priceAmount && <meta property="product:price:currency" content={currency} />}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@MVAImobiliare" />
         <meta name="twitter:creator" content="@MVAImobiliare" />
-        <meta name="twitter:title" content={`${title} | MVA Imobiliare`} />
+        <meta name="twitter:title" content={seoTitleFinal} />
         <meta name="twitter:description" content={metaDesc} />
         <meta name="twitter:image" content={ogImage} />
-        <meta name="twitter:image:alt" content={title} />
+        <meta name="twitter:image:alt" content={autoTitle} />
 
         <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
