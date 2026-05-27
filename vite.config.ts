@@ -1,8 +1,38 @@
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import viteCompression from "vite-plugin-compression";
+import { syncHeroPreloads } from "./scripts/sync-hero-preloads.mjs";
+
+/**
+ * Keeps <link rel="preload"> tags in index.html in sync with the
+ * <picture><source> blocks in src/components/Hero.tsx. Runs on
+ * dev server start, on HMR changes to Hero.tsx, and at build start.
+ */
+function heroPreloadSync(): PluginOption {
+  const run = (reason: string) => {
+    try {
+      const r = syncHeroPreloads();
+      if (r.changed) console.log(`[hero-preloads] regenerated index.html (${reason})`);
+    } catch (e) {
+      console.warn(`[hero-preloads] ${(e as Error).message}`);
+    }
+  };
+  return {
+    name: "hero-preload-sync",
+    buildStart() {
+      run("buildStart");
+    },
+    configureServer(server) {
+      run("dev-start");
+      server.watcher.on("change", (file) => {
+        if (file.endsWith("Hero.tsx")) run("Hero.tsx change");
+      });
+    },
+  };
+}
+
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
