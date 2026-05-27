@@ -251,10 +251,11 @@ const ImmofluxPropertyDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{title} | MVA Imobiliare</title>
+        <title>{seoTitleFinal}</title>
         <meta name="description" content={metaDesc} />
         <meta name="author" content="MVA Imobiliare" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content={[propertyType, rooms ? `${rooms} camere` : null, actionLabel, zona, localitate, 'apartament', 'imobiliare', 'MVA Imobiliare'].filter(Boolean).join(', ')} />
         <link rel="canonical" href={propertyUrl} />
 
         {/* Open Graph */}
@@ -263,24 +264,24 @@ const ImmofluxPropertyDetail = () => {
         <meta property="og:locale" content="ro_RO" />
         <meta property="og:locale:alternate" content="en_US" />
         <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={`${title} | MVA Imobiliare`} />
+        <meta property="og:title" content={seoTitleFinal} />
         <meta property="og:description" content={metaDesc} />
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={title} />
+        <meta property="og:image:alt" content={autoTitle} />
         {priceAmount && <meta property="product:price:amount" content={priceAmount} />}
-        {priceAmount && <meta property="product:price:currency" content="EUR" />}
+        {priceAmount && <meta property="product:price:currency" content={currency} />}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@MVAImobiliare" />
         <meta name="twitter:creator" content="@MVAImobiliare" />
-        <meta name="twitter:title" content={`${title} | MVA Imobiliare`} />
+        <meta name="twitter:title" content={seoTitleFinal} />
         <meta name="twitter:description" content={metaDesc} />
         <meta name="twitter:image" content={ogImage} />
-        <meta name="twitter:image:alt" content={title} />
+        <meta name="twitter:image:alt" content={autoTitle} />
 
         <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
