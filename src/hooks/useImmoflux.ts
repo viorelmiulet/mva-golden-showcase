@@ -4,7 +4,12 @@ import { useEffect } from "react";
 const PROXY_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const headers = {
+const getHeaders = {
+  'Accept': 'application/json',
+};
+
+const postHeaders = {
+  'Accept': 'application/json',
   'Content-Type': 'application/json',
   'apikey': ANON_KEY,
 };
@@ -99,19 +104,19 @@ interface PropertiesResponse {
 
 // ── API calls ──────────────────────────────────────────
 async function fetchProperties(page: number): Promise<PropertiesResponse> {
-  const res = await fetch(`${PROXY_BASE}/properties?page=${page}`, { headers });
+  const res = await fetch(`${PROXY_BASE}/properties?page=${page}`, { headers: getHeaders });
   if (!res.ok) throw new Error(`Failed to fetch properties: ${res.status}`);
   return res.json();
 }
 
 async function fetchProperty(id: string | number): Promise<ImmofluxProperty> {
-  const res = await fetch(`${PROXY_BASE}/properties/${id}`, { headers });
+  const res = await fetch(`${PROXY_BASE}/properties/${id}`, { headers: getHeaders });
   if (!res.ok) throw new Error(`Failed to fetch property: ${res.status}`);
   return res.json();
 }
 
 async function fetchAgents(): Promise<ImmofluxAgent[]> {
-  const res = await fetch(`${PROXY_BASE}/agents`, { headers });
+  const res = await fetch(`${PROXY_BASE}/agents`, { headers: getHeaders });
   if (!res.ok) throw new Error(`Failed to fetch agents: ${res.status}`);
   return res.json();
 }
@@ -119,7 +124,7 @@ async function fetchAgents(): Promise<ImmofluxAgent[]> {
 async function sendContact(data: ImmofluxContactData): Promise<unknown> {
   const res = await fetch(`${PROXY_BASE}/contact`, {
     method: 'POST',
-    headers,
+    headers: postHeaders,
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error(`Failed to send contact: ${res.status}`);
@@ -129,7 +134,7 @@ async function sendContact(data: ImmofluxContactData): Promise<unknown> {
 async function sendVisit(propertyId: number): Promise<void> {
   await fetch(`${PROXY_BASE}/visit`, {
     method: 'POST',
-    headers,
+    headers: postHeaders,
     body: JSON.stringify({ id: propertyId }),
   }).catch(() => {});
 }
