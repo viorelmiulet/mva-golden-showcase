@@ -39,13 +39,13 @@ const GoogleReviews = () => {
 
   useEffect(() => {
     const enable = () => setCanLoadReviews(true);
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(enable, { timeout: 4000 });
-      return () => window.cancelIdleCallback?.(id);
+    if ('requestIdleCallback' in globalThis) {
+      const id = globalThis.requestIdleCallback(enable, { timeout: 4000 });
+      return () => globalThis.cancelIdleCallback?.(id);
     }
 
-    const id = window.setTimeout(enable, 3000);
-    return () => window.clearTimeout(id);
+    const id = globalThis.setTimeout(enable, 3000);
+    return () => globalThis.clearTimeout(id);
   }, []);
 
   const { data, isLoading } = useQuery<GoogleReviewsData>({
