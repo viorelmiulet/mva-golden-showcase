@@ -55,8 +55,8 @@ export const ApproximateLocationMap = ({
   const metersPerPixel = (156543.03392 * cosLat) / Math.pow(2, zoom);
   const circleDiameterPx = Math.round((2 * radiusMeters) / metersPerPixel);
 
-  // Google Maps embed (no API key, no marker)
-  const src = `https://maps.google.com/maps?ll=${lat},${lng}&z=${zoom}&t=m&output=embed`;
+  // Google Maps embed (no API key, no marker). Use q= to guarantee centering on the coords.
+  const src = `https://www.google.com/maps?q=${lat},${lng}&z=${zoom}&hl=ro&t=m&output=embed`;
 
   return (
     <section aria-label="Locație aproximativă" className="space-y-2">
