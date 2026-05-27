@@ -24,23 +24,34 @@ const Hero = () => {
     <section id="home" className="relative min-h-[88vh] sm:min-h-[85vh] flex items-center overflow-hidden" itemScope itemType="https://schema.org/WebPageElement">
       {/* Background */}
       <div className="absolute inset-0">
-        <img 
-          src="/hero-mobile.webp"
-          srcSet="/hero-mobile.webp 768w, /hero-desktop.webp 1440w"
-          sizes="(max-width: 768px) 100vw, 1440px"
-          alt="Apartamente de vânzare Militari București – MVA Imobiliare" 
-          className="w-full h-full object-cover"
-          loading="eager"
-          // @ts-ignore
-          fetchpriority="high"
-          decoding="async"
-          itemProp="image"
-          width={1440}
-          height={810}
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcSet="/hero-mobile.avif 768w, /hero-desktop.avif 1440w"
+            sizes="(max-width: 768px) 100vw, 1440px"
+          />
+          <source
+            type="image/webp"
+            srcSet="/hero-mobile.webp 768w, /hero-desktop.webp 1440w"
+            sizes="(max-width: 768px) 100vw, 1440px"
+          />
+          <img
+            src="/hero-mobile.webp"
+            alt="Apartamente de vânzare Militari București – MVA Imobiliare"
+            className="w-full h-full object-cover"
+            loading="eager"
+            // @ts-ignore
+            fetchpriority="high"
+            decoding="async"
+            itemProp="image"
+            width={1440}
+            height={810}
+          />
+        </picture>
         <div className="absolute inset-0 bg-background/80 md:backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
       </div>
+
 
       {/* Content */}
       <div className="relative z-20 container mx-auto px-5 sm:px-6 lg:px-6 pt-16 sm:pt-20 md:pt-24 pb-10 md:pb-12">
