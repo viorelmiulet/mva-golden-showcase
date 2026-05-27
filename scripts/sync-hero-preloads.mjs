@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+// Run with: node scripts/sync-hero-preloads.mjs  [--check]
 /**
  * Auto-generate the hero <link rel="preload"> block in index.html
  * from the <picture><source> elements in src/components/Hero.tsx.
