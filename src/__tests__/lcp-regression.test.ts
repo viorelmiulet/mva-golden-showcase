@@ -48,8 +48,9 @@ describe('LCP: index.html critical preloads', () => {
   });
 
   it('defers Google Analytics and Plausible scripts (no render-blocking)', () => {
-    expect(indexHtml).toMatch(/googletagmanager\.com\/gtag\/js[\s\S]*setTimeout/);
-    expect(indexHtml).toMatch(/plausible\.io\/js[\s\S]*setTimeout/);
+    expect(indexHtml).toMatch(/setTimeout[\s\S]*googletagmanager\.com\/gtag\/js/);
+    expect(indexHtml).toMatch(/setTimeout[\s\S]*plausible\.io\/js/);
+
     // Neither script should be loaded synchronously in head
     expect(indexHtml).not.toMatch(/<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtag\/js/);
     expect(indexHtml).not.toMatch(/<script[^>]+src=["']https:\/\/plausible\.io\/js/);
