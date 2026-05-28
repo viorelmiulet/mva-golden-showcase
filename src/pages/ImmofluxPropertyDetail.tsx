@@ -296,7 +296,19 @@ const ImmofluxPropertyDetail = () => {
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
               {images.slice(0, 1).map((img, i) => (
-                <img key={i} src={img.src} alt={title} className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="eager" onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }} />
+                <img
+                  key={i}
+                  src={img.src}
+                  alt={title}
+                  className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  loading="eager"
+                  // @ts-ignore
+                  fetchpriority="high"
+                  decoding="async"
+                  width={1200}
+                  height={800}
+                  onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
+                />
               ))}
               {(() => {
                 const hasMore = images.length > 5;
@@ -304,14 +316,36 @@ const ImmofluxPropertyDetail = () => {
                 return (
                   <>
                     {thumbs.map((img, i) => (
-                      <img key={i + 1} src={img.src} alt={`${title} ${i + 2}`} className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity" loading="lazy" onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }} />
+                      <img
+                        key={i + 1}
+                        src={img.src}
+                        alt={`${title} ${i + 2}`}
+                        className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        loading="lazy"
+                        decoding="async"
+                        // @ts-ignore
+                        fetchpriority="low"
+                        width={600}
+                        height={400}
+                        onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
+                      />
                     ))}
                     {hasMore && (
                       <button
                         onClick={() => { setLightboxIndex(4); setLightboxOpen(true); }}
                         className="relative w-full h-32 md:h-[calc(12rem-0.25rem)] overflow-hidden group"
                       >
-                        <img src={images[4].src} alt={`${title} 5`} className="w-full h-full object-cover" loading="lazy" />
+                        <img
+                          src={images[4].src}
+                          alt={`${title} 5`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          // @ts-ignore
+                          fetchpriority="low"
+                          width={600}
+                          height={400}
+                        />
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold group-hover:bg-black/70 transition-colors">
                           +{images.length - 4} imagini
                         </div>
