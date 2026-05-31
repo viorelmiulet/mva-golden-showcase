@@ -507,15 +507,17 @@ const ImmofluxPropertyDetail = () => {
                 </div>
               )}
 
-              {/* Locație aproximativă */}
+              {/* Locație aproximativă — montată doar când intră în viewport */}
               {lat && lng && (
-                <Suspense fallback={<MapSkeleton />}>
-                  <ApproximateLocationMap
-                    latitude={Number(lat)}
-                    longitude={Number(lng)}
-                    locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
-                  />
-                </Suspense>
+                <LazyMapMount>
+                  <Suspense fallback={<MapSkeleton />}>
+                    <ApproximateLocationMap
+                      latitude={Number(lat)}
+                      longitude={Number(lng)}
+                      locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
+                    />
+                  </Suspense>
+                </LazyMapMount>
               )}
             </div>
 
