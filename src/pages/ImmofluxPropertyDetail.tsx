@@ -566,14 +566,16 @@ const ImmofluxPropertyDetail = () => {
           </div>
         </div>
       </main>
-      <Suspense fallback={<LightboxSkeleton />}>
-        <ImageLightbox
-          images={images.map(img => img.src)}
-          isOpen={lightboxOpen}
-          onClose={() => setLightboxOpen(false)}
-          initialIndex={lightboxIndex}
-        />
-      </Suspense>
+      {lightboxOpen && (
+        <Suspense fallback={<LightboxSkeleton />}>
+          <ImageLightbox
+            images={images.map(img => img.src)}
+            isOpen={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+            initialIndex={lightboxIndex}
+          />
+        </Suspense>
+      )}
       <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
