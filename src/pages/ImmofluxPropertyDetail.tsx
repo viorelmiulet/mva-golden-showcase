@@ -22,6 +22,27 @@ const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocati
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
 
+/** Montează copiii doar când wrapper-ul intră (sau e aproape de) viewport. */
+const LazyMapMount = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!ref.current || visible) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [visible]);
+  return <div ref={ref}>{visible ? children : <MapSkeleton />}</div>;
+};
+
 const ImmofluxPropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   
