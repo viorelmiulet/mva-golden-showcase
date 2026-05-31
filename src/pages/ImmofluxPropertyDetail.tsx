@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { ArrowLeft, BedDouble, Bath, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Wrench, Phone, Mail, User, SquareStack, Home, Thermometer, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
 import Header from "@/components/Header";
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
@@ -21,6 +21,27 @@ const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
 const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
+
+/** Montează copiii doar când wrapper-ul intră (sau e aproape de) viewport. */
+const LazyMapMount = ({ children }: { children: React.ReactNode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!ref.current || visible) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [visible]);
+  return <div ref={ref}>{visible ? children : <MapSkeleton />}</div>;
+};
 
 const ImmofluxPropertyDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -507,15 +528,17 @@ const ImmofluxPropertyDetail = () => {
                 </div>
               )}
 
-              {/* Locație aproximativă */}
+              {/* Locație aproximativă — montată doar când intră în viewport */}
               {lat && lng && (
-                <Suspense fallback={<MapSkeleton />}>
-                  <ApproximateLocationMap
-                    latitude={Number(lat)}
-                    longitude={Number(lng)}
-                    locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
-                  />
-                </Suspense>
+                <LazyMapMount>
+                  <Suspense fallback={<MapSkeleton />}>
+                    <ApproximateLocationMap
+                      latitude={Number(lat)}
+                      longitude={Number(lng)}
+                      locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
+                    />
+                  </Suspense>
+                </LazyMapMount>
               )}
             </div>
 
@@ -564,14 +587,16 @@ const ImmofluxPropertyDetail = () => {
           </div>
         </div>
       </main>
-      <Suspense fallback={<LightboxSkeleton />}>
-        <ImageLightbox
-          images={images.map(img => img.src)}
-          isOpen={lightboxOpen}
-          onClose={() => setLightboxOpen(false)}
-          initialIndex={lightboxIndex}
-        />
-      </Suspense>
+      {lightboxOpen && (
+        <Suspense fallback={<LightboxSkeleton />}>
+          <ImageLightbox
+            images={images.map(img => img.src)}
+            isOpen={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+            initialIndex={lightboxIndex}
+          />
+        </Suspense>
+      )}
       <Suspense fallback={null}><Footer /></Suspense>
     </>
   );
