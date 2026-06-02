@@ -255,8 +255,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Build the signature URL
     const signatureUrl = contractType === "inchiriere" 
-      ? `https://mvaimobiliare.ro/sign/${signatureToken}`
-      : `https://mvaimobiliare.ro/sign/${signatureToken}`;
+      ? `https://www.mvaimobiliare.ro/sign/${signatureToken}`
+      : `https://www.mvaimobiliare.ro/sign/${signatureToken}`;
 
     const contractTypeLabel = getContractTypeLabel(contractType);
     const partyLabel = getPartyLabel(contractType, partyType);

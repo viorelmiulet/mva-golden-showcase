@@ -6,10 +6,10 @@ const corsHeaders = {
 };
 
 const DEFAULT_URLS = [
-  'https://mvaimobiliare.ro',
-  'https://mvaimobiliare.ro/proprietati',
-  'https://mvaimobiliare.ro/complexe',
-  'https://mvaimobiliare.ro/blog',
+  'https://www.mvaimobiliare.ro',
+  'https://www.mvaimobiliare.ro/proprietati',
+  'https://www.mvaimobiliare.ro/complexe',
+  'https://www.mvaimobiliare.ro/blog',
 ];
 
 const extractTargetUrls = (notifications: Array<{ metadata?: { target_urls?: unknown } }>) => {

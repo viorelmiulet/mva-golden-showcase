@@ -67,7 +67,7 @@ const NewsDetail = () => {
   }
 
   const publishedDate = article.published_date || article.created_at;
-  const url = `https://mvaimobiliare.ro/news/${article.slug}`;
+  const url = `https://www.mvaimobiliare.ro/news/${article.slug}`;
   const metaDescription = (
     article.description ||
     (article.content ? article.content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : article.title)
@@ -77,9 +77,9 @@ const NewsDetail = () => {
     if (!src) return undefined;
     if (/^https?:\/\//i.test(src)) return src;
     if (src.startsWith("//")) return `https:${src}`;
-    return `https://mvaimobiliare.ro${src.startsWith("/") ? "" : "/"}${src}`;
+    return `https://www.mvaimobiliare.ro${src.startsWith("/") ? "" : "/"}${src}`;
   };
-  const ogImage = toAbsoluteUrl(article.featured_image) || "https://mvaimobiliare.ro/og-default.jpg";
+  const ogImage = toAbsoluteUrl(article.featured_image) || "https://www.mvaimobiliare.ro/og-default.jpg";
 
   const seoTitle = `${article.title} | Știri Imobiliare MVA`;
 
@@ -95,14 +95,14 @@ const NewsDetail = () => {
     author: {
       "@type": "Organization",
       name: "MVA Imobiliare",
-      url: "https://mvaimobiliare.ro",
+      url: "https://www.mvaimobiliare.ro",
     },
     publisher: {
       "@type": "Organization",
       name: "MVA Imobiliare",
       logo: {
         "@type": "ImageObject",
-        url: "https://mvaimobiliare.ro/mva-logo-luxury.svg",
+        url: "https://www.mvaimobiliare.ro/mva-logo-luxury.svg",
       },
     },
     mainEntityOfPage: {
@@ -116,8 +116,8 @@ const NewsDetail = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Acasă", item: "https://mvaimobiliare.ro/" },
-      { "@type": "ListItem", position: 2, name: "Știri Imobiliare", item: "https://mvaimobiliare.ro/news" },
+      { "@type": "ListItem", position: 1, name: "Acasă", item: "https://www.mvaimobiliare.ro/" },
+      { "@type": "ListItem", position: 2, name: "Știri Imobiliare", item: "https://www.mvaimobiliare.ro/news" },
       { "@type": "ListItem", position: 3, name: article.title, item: url },
     ],
   };

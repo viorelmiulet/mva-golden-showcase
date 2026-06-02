@@ -413,7 +413,7 @@ export default function RedirectMonitor() {
               <Input
                 value={editing?.url ?? ""}
                 onChange={(e) => setEditing({ ...editing, url: e.target.value })}
-                placeholder="https://mvaimobiliare.ro/proprietati/..."
+                placeholder="https://www.mvaimobiliare.ro/proprietati/..."
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

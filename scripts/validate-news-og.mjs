@@ -12,7 +12,7 @@ const ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6I
 const REST = `${SUPABASE_URL}/rest/v1/news_articles?select=slug,featured_image&status=eq.published`;
 const OG_FN = `${SUPABASE_URL}/functions/v1/og-meta`;
 const DEFAULT_IMG = '/og-image.jpg';
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 
 const toAbsoluteUrl = (src) => {
   if (!src) return null;

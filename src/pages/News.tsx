@@ -90,7 +90,7 @@ const News = () => {
       {(() => {
         const count = articles.length;
         const latest = articles[0];
-        const latestImage = latest?.featured_image || "https://mvaimobiliare.ro/og-image.jpg";
+        const latestImage = latest?.featured_image || "https://www.mvaimobiliare.ro/og-image.jpg";
         const dynamicTitle = count > 0
           ? `Știri Imobiliare București (${count}+) – Noutăți Piața Rezidențială | MVA Imobiliare`
           : "Știri Imobiliare București – Noutăți Piața Rezidențială | MVA Imobiliare";
@@ -102,12 +102,12 @@ const News = () => {
           "@context": "https://schema.org",
           "@type": "ItemList",
           "name": "Noutăți Imobiliare MVA",
-          "url": "https://mvaimobiliare.ro/news",
+          "url": "https://www.mvaimobiliare.ro/news",
           "numberOfItems": count,
           "itemListElement": articles.slice(0, 20).map((a, idx) => ({
             "@type": "ListItem",
             "position": idx + 1,
-            "url": `https://mvaimobiliare.ro/news/${a.slug}`,
+            "url": `https://www.mvaimobiliare.ro/news/${a.slug}`,
             "name": a.title,
           })),
         };
@@ -117,11 +117,11 @@ const News = () => {
             <title>{dynamicTitle}</title>
             <meta name="description" content={dynamicDescription} />
             <meta name="keywords" content="stiri imobiliare, noutati imobiliare bucuresti, piata rezidentiala, analize imobiliare, tendinte imobiliare 2026" />
-            <link rel="canonical" href="https://mvaimobiliare.ro/news" />
+            <link rel="canonical" href="https://www.mvaimobiliare.ro/news" />
             <meta property="og:title" content={dynamicTitle} />
             <meta property="og:description" content={dynamicDescription} />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content="https://mvaimobiliare.ro/news" />
+            <meta property="og:url" content="https://www.mvaimobiliare.ro/news" />
             <meta property="og:image" content={latestImage} />
             <meta property="og:locale" content="ro_RO" />
             <meta property="og:site_name" content="MVA Imobiliare" />

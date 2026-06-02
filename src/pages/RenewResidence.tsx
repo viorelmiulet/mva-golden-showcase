@@ -61,7 +61,7 @@ const RenewResidence = () => {
       "@type": "Place",
       name: "Renew Residence, Militari, București",
     },
-    url: "https://mvaimobiliare.ro/renew-residence",
+    url: "https://www.mvaimobiliare.ro/renew-residence",
   };
 
   return (
@@ -72,20 +72,20 @@ const RenewResidence = () => {
           name="description"
           content="Apartamente noi de vânzare în Renew Residence. Oferte actualizate, prețuri corecte, vizionare gratuită. MVA Imobiliare – specialiști în zona Militari."
         />
-        <link rel="canonical" href="https://mvaimobiliare.ro/renew-residence" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/renew-residence" />
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/renew-residence" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/renew-residence" />
         <meta property="og:title" content="Apartamente Renew Residence – MVA Imobiliare" />
         <meta property="og:description" content="Apartamente noi de vânzare în Renew Residence, zona Militari. Vizionare gratuită cu MVA Imobiliare." />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Apartamente Renew Residence – MVA Imobiliare" />
         <meta name="twitter:description" content="Apartamente noi în Renew Residence." />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
 
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>

@@ -268,7 +268,7 @@ const handler = async (req: Request): Promise<Response> => {
                 </p>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://mvaimobiliare.ro/admin/contracte" 
+                  <a href="https://www.mvaimobiliare.ro/admin/contracte" 
                      style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
                     Vezi Contract în Admin
                   </a>
@@ -337,7 +337,7 @@ const handler = async (req: Request): Promise<Response> => {
               </p>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://mvaimobiliare.ro/admin/contracte" 
+                <a href="https://www.mvaimobiliare.ro/admin/contracte" 
                    style="display: inline-block; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
                   Vezi în Panoul Admin
                 </a>

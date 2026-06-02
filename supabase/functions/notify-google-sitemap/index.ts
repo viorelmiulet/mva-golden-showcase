@@ -4,7 +4,7 @@ const corsHeaders = {
 };
 
 const INDEXNOW_KEY = 'eigr05fz1t3k1y20luvs3bh4yqd7u73d';
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 const DEFAULT_URLS = [
   SITE_URL,
   `${SITE_URL}/proprietati`,

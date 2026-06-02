@@ -22,22 +22,22 @@ const PoliticaConfidentialitate = () => {
           : "MVA Imobiliare privacy policy. Learn how we protect and process your personal data in compliance with GDPR."
         } />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/politica-confidentialitate" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/politica-confidentialitate" />
         
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/politica-confidentialitate" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/politica-confidentialitate" />
         <meta property="og:title" content={isRomanian ? 'Politica de Confidențialitate | MVA Imobiliare' : 'Privacy Policy | MVA Imobiliare'} />
         <meta property="og:description" content={isRomanian 
           ? "Politica de confidențialitate MVA Imobiliare. Află cum protejăm și procesăm datele tale personale conform GDPR."
           : "MVA Imobiliare privacy policy. Learn how we protect and process your personal data in compliance with GDPR."
         } />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={isRomanian ? 'Politica de Confidențialitate | MVA Imobiliare' : 'Privacy Policy | MVA Imobiliare'} />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       
       <div className="min-h-screen bg-background">

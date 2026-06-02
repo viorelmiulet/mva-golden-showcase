@@ -52,7 +52,7 @@ async function checkUrl(target: Target): Promise<CheckResult> {
       redirect: "manual",
       signal: controller.signal,
       headers: {
-        "User-Agent": "MVAImobiliare-RedirectMonitor/1.0 (+https://mvaimobiliare.ro)",
+        "User-Agent": "MVAImobiliare-RedirectMonitor/1.0 (+https://www.mvaimobiliare.ro)",
         Accept: "text/html",
       },
     });
@@ -130,7 +130,7 @@ async function sendAlertEmail(
         <tbody>${rows}</tbody>
       </table>
       <p>
-        <a href="https://mvaimobiliare.ro/admin/redirect-monitor" style="display:inline-block;background:#DAA520;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px;font-weight:bold;">
+        <a href="https://www.mvaimobiliare.ro/admin/redirect-monitor" style="display:inline-block;background:#DAA520;color:#fff;padding:10px 18px;text-decoration:none;border-radius:6px;font-weight:bold;">
           Deschide pagina de monitorizare
         </a>
       </p>

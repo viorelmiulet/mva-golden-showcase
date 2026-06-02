@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
 
     console.log(`Found ${projects?.length || 0} published complexes`);
 
-    const baseUrl = 'https://mvaimobiliare.ro';
+    const baseUrl = 'https://www.mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

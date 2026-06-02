@@ -104,7 +104,7 @@ const Complexe = () => {
         <title>Ansambluri Rezidențiale Premium București | MVA Imobiliare</title>
         <meta name="description" content="Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi. Apartamente noi cu finisaje premium în complexe rezidențiale de top cu toate facilitățile." />
         <meta name="keywords" content="complexe rezidențiale București, ansambluri rezidențiale noi, apartamente noi complexe, locuințe moderne București, Renew Residence, Eurocasa Residence" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/complexe" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/complexe" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content="Catalog complet de complexe rezidențiale premium din București și împrejurimi. Fiecare complex include informații detaliate: locație, preț, suprafață, număr camere, dată finalizare, developer, facilități, disponibilitate apartamente. Peste {projects?.length || 0} complexe verificate." />
@@ -112,10 +112,10 @@ const Complexe = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/complexe" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/complexe" />
         <meta property="og:title" content="Complexe Rezidențiale Premium - MVA Imobiliare" />
         <meta property="og:description" content={`${projects?.length || 0} complexe rezidențiale moderne în București cu apartamente disponibile`} />
-        <meta property="og:image" content={projects?.[0]?.main_image || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
+        <meta property="og:image" content={projects?.[0]?.main_image || "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
         
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
@@ -135,7 +135,7 @@ const Complexe = () => {
               "position": index + 1,
               "item": {
                 "@type": "Residence",
-                "@id": `https://mvaimobiliare.ro${getComplexUrl(project)}`,
+                "@id": `https://www.mvaimobiliare.ro${getComplexUrl(project)}`,
                 "name": project.name,
                 "description": project.description,
                 "image": project.main_image,
@@ -160,13 +160,13 @@ const Complexe = () => {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Acasă",
-                "item": "https://mvaimobiliare.ro/"
+                "item": "https://www.mvaimobiliare.ro/"
               },
               {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Complexe Rezidențiale",
-                "item": "https://mvaimobiliare.ro/complexe"
+                "item": "https://www.mvaimobiliare.ro/complexe"
               }
             ]
           })}

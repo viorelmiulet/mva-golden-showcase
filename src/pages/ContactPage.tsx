@@ -19,13 +19,13 @@ const ContactPage = () => {
         <title>{t.contact.title} | MVA Imobiliare</title>
         <meta name="description" content={t.contact.subtitle} />
         <meta name="keywords" content="contact agenție imobiliară, telefon MVA Imobiliare, email, program, adresă" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/contact" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/contact" />
         
         <meta property="og:title" content={`${t.contact.title} | MVA Imobiliare`} />
         <meta property="og:description" content={t.contact.subtitle} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/contact" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-contact.jpg" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/contact" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-contact.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.contact.title} | MVA Imobiliare`} />

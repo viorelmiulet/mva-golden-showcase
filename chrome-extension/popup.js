@@ -1,5 +1,5 @@
 // MVA Admin Chrome Extension - Popup Script
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 
 function formatDate(date) {
   const now = new Date();

@@ -10,7 +10,7 @@ interface BreadcrumbSchemaProps {
 }
 
 const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
-  const baseUrl = "https://mvaimobiliare.ro";
+  const baseUrl = "https://www.mvaimobiliare.ro";
   
   const breadcrumbList = {
     "@context": "https://schema.org",

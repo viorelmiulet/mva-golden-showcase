@@ -160,7 +160,7 @@ async function rehostImage(
       headers: {
         // unele servere imagini blochează lipsa user-agent-ului
         "User-Agent":
-          "Mozilla/5.0 (compatible; MVAImobiliareBot/1.0; +https://mvaimobiliare.ro)",
+          "Mozilla/5.0 (compatible; MVAImobiliareBot/1.0; +https://www.mvaimobiliare.ro)",
         "Accept": "image/*,*/*;q=0.8",
       },
     });
