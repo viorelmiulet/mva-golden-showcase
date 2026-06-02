@@ -37,7 +37,7 @@ const ContactPage = () => {
       <main className="min-h-screen pt-16 sm:pt-20">
         <div className="container mx-auto px-3 sm:px-4">
           <Breadcrumbs items={[{ label: t.contact.title }]} />
-          <h1 className="sr-only">Contact MVA Imobiliare - Agenție Imobiliară Chiajna Ilfov</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-6">Contact MVA Imobiliare - Agenție Imobiliară Chiajna Ilfov</h1>
         </div>
         <Contact />
       </main>
