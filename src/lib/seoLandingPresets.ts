@@ -122,4 +122,26 @@ export const seoLandingPresets: SeoLandingPreset[] = [
     breadcrumb: "Apartamente de închiriat Militari",
     filter: { transactionType: "rent", zone: "MILITARI" },
   },
+  {
+    slug: "apartamente-de-vanzare-bucuresti",
+    h1: "Apartamente de vânzare în București",
+    title: "Apartamente de vânzare București - Oferte verificate | MVA Imobiliare",
+    description:
+      "Apartamente de vânzare în București: garsoniere, 2, 3 sau 4 camere, în ansambluri noi și zone consacrate. Prețuri actualizate zilnic, vizionări rapide.",
+    intro:
+      "Descoperă cea mai mare ofertă de apartamente de vânzare în București: blocuri noi, ansambluri rezidențiale moderne și locuințe în zone consacrate. Echipa MVA Imobiliare te ajută cu vizionarea, negocierea prețului și actele de vânzare-cumpărare.",
+    breadcrumb: "Apartamente de vânzare București",
+    filter: { propertyType: "apartment", transactionType: "sale", zone: "BUCURESTI" },
+  },
+  {
+    slug: "case-de-vanzare-bucuresti",
+    h1: "Case și vile de vânzare în București",
+    title: "Case de vânzare București - Vile și case cu curte | MVA Imobiliare",
+    description:
+      "Case și vile de vânzare în București și Ilfov: cu curte, garaj și utilități, în zone rezidențiale liniștite. Oferte verificate, vizionări la cerere.",
+    intro:
+      "Caută casă sau vilă de vânzare în București și împrejurimi. Oferim case cu curte, garaj și toate utilitățile, în cartiere rezidențiale precum Pipera, Băneasa, Domnești, Otopeni sau Bragadiru. Consultanții MVA te însoțesc la fiecare vizionare.",
+    breadcrumb: "Case de vânzare București",
+    filter: { propertyType: "house", transactionType: "sale", zone: "BUCURESTI" },
+  },
 ];
