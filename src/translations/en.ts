@@ -373,7 +373,7 @@ export const en: TranslationKeys = {
     message: "We use cookies to improve your experience on our site.",
     accept: "Accept",
     decline: "Decline",
-    learnMore: "Learn more",
+    learnMore: "Learn more about cookies",
   },
 
   // Mobile App
