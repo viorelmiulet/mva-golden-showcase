@@ -376,11 +376,8 @@ const PropertyDetail = () => {
         return;
       }
 
-      // Fallback: numeric suffix → likely an Immoflux idnum, redirect to /proprietate/
-      if (/\d{3,}$/.test(slug)) {
-        window.location.replace(`/proprietate/${slug}`);
-        return;
-      }
+      // No match found — return 404 (noindex) instead of cross-route redirect.
+      // Bouncing /proprietati/... → /proprietate/... caused GSC "Page with redirect" errors.
 
       setNotFound(true);
       setIsLoading(false);
