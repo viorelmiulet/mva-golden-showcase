@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 const DEFAULT_IMAGE = `${SITE_URL}/mva-logo-luxury-horizontal.svg`;
 
 serve(async (req) => {

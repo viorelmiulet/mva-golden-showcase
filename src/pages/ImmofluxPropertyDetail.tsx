@@ -177,7 +177,7 @@ const ImmofluxPropertyDetail = () => {
   if (typeof window !== 'undefined' && slug && canonicalSlug && slug !== canonicalSlug) {
     window.location.replace(canonicalPath);
   }
-  const propertyUrl = `https://mvaimobiliare.ro${canonicalPath}`;
+  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
@@ -252,7 +252,7 @@ const ImmofluxPropertyDetail = () => {
         "seller": {
           "@type": "RealEstateAgent",
           "name": "MVA Imobiliare",
-          "url": "https://mvaimobiliare.ro",
+          "url": "https://www.mvaimobiliare.ro",
           "telephone": "+40767941512",
         },
       },
@@ -263,8 +263,8 @@ const ImmofluxPropertyDetail = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://mvaimobiliare.ro/" },
-      { "@type": "ListItem", "position": 2, "name": "Proprietăți", "item": "https://mvaimobiliare.ro/proprietati" },
+      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://www.mvaimobiliare.ro/" },
+      { "@type": "ListItem", "position": 2, "name": "Proprietăți", "item": "https://www.mvaimobiliare.ro/proprietati" },
       { "@type": "ListItem", "position": 3, "name": title, "item": propertyUrl },
     ],
   };

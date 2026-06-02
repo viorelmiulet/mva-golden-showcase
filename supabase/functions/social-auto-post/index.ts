@@ -263,7 +263,7 @@ serve(async (req) => {
 
     const webhooks = JSON.parse(settings.value);
     const results: Record<string, boolean> = {};
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://mvaimobiliare.ro';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.mvaimobiliare.ro';
     
     // Get custom hashtags from settings or use default
     const customHashtags = webhooks.hashtags || '#imobiliare #apartament #bucuresti #MVAImobiliare #militariresidence #apartamentdevanzare #proprietate #investitieimobiliara #acasa #locuinta #imobiliarebucuresti #apartamentnoi';

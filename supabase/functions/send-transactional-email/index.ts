@@ -61,7 +61,7 @@ function welcomeEmail(data: { name: string; email: string }) {
       <li>Primi notificări pentru proprietăți noi</li>
     </ul>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://mvaimobiliare.ro/proprietati" 
+      <a href="https://www.mvaimobiliare.ro/proprietati" 
          style="display: inline-block; background: linear-gradient(135deg, ${BRAND.gold} 0%, ${BRAND.goldDark} 100%); color: ${BRAND.white}; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);">
         Explorează Proprietăți
       </a>
@@ -101,7 +101,7 @@ function contractSignedEmail(data: {
     </div>
     ${data.recipientType === 'admin' ? `
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://mvaimobiliare.ro/admin/contracte" 
+      <a href="https://www.mvaimobiliare.ro/admin/contracte" 
          style="display: inline-block; background: linear-gradient(135deg, ${BRAND.gold} 0%, ${BRAND.goldDark} 100%); color: ${BRAND.white}; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">
         Vezi Contract în Admin
       </a>

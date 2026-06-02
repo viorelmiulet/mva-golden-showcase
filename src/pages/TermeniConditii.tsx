@@ -22,22 +22,22 @@ const TermeniConditii = () => {
           : "Terms and conditions of use for the MVA Imobiliare website. Information about real estate services and user obligations."
         } />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/termeni-conditii" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/termeni-conditii" />
         
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/termeni-conditii" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/termeni-conditii" />
         <meta property="og:title" content={isRomanian ? 'Termeni și Condiții | MVA Imobiliare' : 'Terms and Conditions | MVA Imobiliare'} />
         <meta property="og:description" content={isRomanian 
           ? "Termenii și condițiile de utilizare ale site-ului MVA Imobiliare."
           : "Terms and conditions of use for the MVA Imobiliare website."
         } />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={isRomanian ? 'Termeni și Condiții | MVA Imobiliare' : 'Terms and Conditions | MVA Imobiliare'} />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       
       <div className="min-h-screen bg-background">

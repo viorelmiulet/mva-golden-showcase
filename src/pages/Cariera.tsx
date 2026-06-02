@@ -142,7 +142,7 @@ const Cariera = () => {
           content={t.career.heroSubtitle}
         />
         <meta name="keywords" content="job agent imobiliar, carieră imobiliare București, angajare consultant imobiliar, locuri de muncă imobiliare, agent vânzări proprietăți" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/cariera" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/cariera" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content="MVA Imobiliare recrutează agenți imobiliari în București. Poziție: Agent Imobiliar pentru proprietăți premium. Oferim: training profesional gratuit, comisioane competitive (50-70%), suport marketing complet, portofoliu exclusiv de proprietăți, oportunități de creștere rapidă. Locație: București, Chiajna. Aplicare: contact@mvaimobiliare.ro sau 0767941512." />
@@ -151,10 +151,10 @@ const Cariera = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/cariera" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/cariera" />
         <meta property="og:title" content={language === 'ro' ? 'Carieră Agent Imobiliar - MVA Imobiliare' : 'Real Estate Agent Career - MVA Imobiliare'} />
         <meta property="og:description" content={t.career.heroSubtitle} />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
         
@@ -162,7 +162,7 @@ const Cariera = () => {
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content={language === 'ro' ? 'Carieră MVA Imobiliare' : 'Career MVA Imobiliare'} />
         <meta property="twitter:description" content={t.career.heroSubtitle} />
-        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         
         {/* Structured Data - Job Posting */}
         <script type="application/ld+json">
@@ -174,7 +174,7 @@ const Cariera = () => {
             "hiringOrganization": {
               "@type": "Organization",
               "name": "MVA Imobiliare",
-              "sameAs": "https://mvaimobiliare.ro"
+              "sameAs": "https://www.mvaimobiliare.ro"
             },
             "jobLocation": {
               "@type": "Place",

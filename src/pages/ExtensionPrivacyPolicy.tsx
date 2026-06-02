@@ -14,19 +14,19 @@ const ExtensionPrivacyPolicy = () => {
         <title>Politica de Confidențialitate — Extensie Chrome MVA Admin Panel</title>
         <meta name="description" content="Politica de confidențialitate pentru extensia Chrome MVA Admin Panel. Află ce date colectăm și cum le protejăm." />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/extensie-chrome-privacy" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/extensie-chrome-privacy" />
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/extensie-chrome-privacy" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/extensie-chrome-privacy" />
         <meta property="og:title" content="Politica de Confidențialitate — Extensie Chrome MVA" />
         <meta property="og:description" content="Politica de confidențialitate pentru extensia Chrome MVA Admin Panel." />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Politica de Confidențialitate — Extensie MVA" />
-        <meta name="twitter:image" content="https://mvaimobiliare.ro/og-default.jpg" />
+        <meta name="twitter:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
       </Helmet>
       
       <div className="min-h-screen bg-background">
@@ -204,7 +204,7 @@ const ExtensionPrivacyPolicy = () => {
                 <p className="text-xs sm:text-sm text-muted-foreground">Email: contact@mvaimobiliare.ro</p>
                 <p className="text-xs sm:text-sm text-muted-foreground">Telefon: 0767 941 512</p>
                 <p className="text-xs sm:text-sm text-muted-foreground">Adresă: București, România</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Website: https://mvaimobiliare.ro</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Website: https://www.mvaimobiliare.ro</p>
               </div>
             </section>
           </div>

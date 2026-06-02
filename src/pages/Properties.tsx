@@ -364,13 +364,13 @@ const Properties = () => {
         "@type": "ListItem",
         "position": 1,
         "name": "Acasă",
-        "item": "https://mvaimobiliare.ro/"
+        "item": "https://www.mvaimobiliare.ro/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Proprietăți",
-        "item": "https://mvaimobiliare.ro/proprietati"
+        "item": "https://www.mvaimobiliare.ro/proprietati"
       }
     ]
   };
@@ -386,7 +386,7 @@ const Properties = () => {
       "position": index + 1,
       "item": {
         "@type": property.rooms > 2 ? "House" : "Apartment",
-        "@id": `https://mvaimobiliare.ro/proprietati#${property.id}`,
+        "@id": `https://www.mvaimobiliare.ro/proprietati#${property.id}`,
         "name": property.title,
         "description": property.description,
         "image": property.images?.[0] || "",
@@ -423,7 +423,7 @@ const Properties = () => {
         <meta name="description" content="Apartamente de vânzare în Militari: garsoniere, 2-4 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="apartamente vânzare Militari, garsoniere Gorjului, 2 camere Lujerului, 3 camere Iuliu Maniu, apartamente Sector 6, Pacii, agent imobiliar Militari" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/proprietati" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/proprietati" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content="Catalog complet de apartamente de vânzare în cartierul Militari, Sector 6 București. Include garsoniere, apartamente cu 2-4 camere în Gorjului, Lujerului, Iuliu Maniu, Pacii. Prețuri actualizate. Contact direct: 0767941512." />
@@ -432,11 +432,11 @@ const Properties = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/proprietati" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/proprietati" />
         <meta property="og:title" content="Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare" />
         <meta property="og:description" content="Apartamente de vânzare în Militari: garsoniere, 2-4 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate." />
         <meta property="og:locale" content="ro_RO" />
-        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
+        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />

@@ -290,7 +290,7 @@ const ComplexDetail = () => {
         <title>{project.name} - Apartamente Disponibile | MVA Imobiliare</title>
         <meta name="description" content={project.description || `Explorează toate apartamentele disponibile în ${project.name}. Prețuri, planuri, detalii complete și fotografii pentru fiecare unitate.`} />
         <meta name="keywords" content={`${project.name}, apartamente ${project.location}, ${project.rooms_range || 'apartamente'}, ${project.price_range || 'preț competitiv'}, complex rezidențial București`} />
-        <link rel="canonical" href={`https://mvaimobiliare.ro${getComplexUrl(project)}`} />
+        <link rel="canonical" href={`https://www.mvaimobiliare.ro${getComplexUrl(project)}`} />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content={`Complex rezidențial ${project.name} în ${project.location}. ${properties?.length || 0} apartamente totale, ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile. Preț: ${project.price_range || 'la cerere'}. Suprafață: ${project.surface_range || 'variată'}. Camere: ${project.rooms_range || 'diverse opțiuni'}. ${project.completion_date ? `Finalizare: ${project.completion_date}` : ''}. Developer: ${project.developer || 'verificat'}. Contact: 0767941512.`} />
@@ -298,7 +298,7 @@ const ComplexDetail = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro${getComplexUrl(project)}`} />
+        <meta property="og:url" content={`https://www.mvaimobiliare.ro${getComplexUrl(project)}`} />
         <meta property="og:title" content={`${project.name} - Apartamente Disponibile`} />
         <meta property="og:description" content={`${properties?.length || 0} apartamente în ${project.location}. ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile acum!`} />
         <meta property="og:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
@@ -373,19 +373,19 @@ const ComplexDetail = () => {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Acasă",
-                "item": "https://mvaimobiliare.ro/"
+                "item": "https://www.mvaimobiliare.ro/"
               },
               {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "Complexe Rezidențiale",
-                "item": "https://mvaimobiliare.ro/complexe"
+                "item": "https://www.mvaimobiliare.ro/complexe"
               },
               {
                 "@type": "ListItem",
                 "position": 3,
                 "name": project.name,
-                "item": `https://mvaimobiliare.ro${getComplexUrl(project)}`
+                "item": `https://www.mvaimobiliare.ro${getComplexUrl(project)}`
               }
             ]
           })}

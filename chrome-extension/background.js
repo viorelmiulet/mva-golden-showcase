@@ -2,7 +2,7 @@
 importScripts('auth.js');
 
 // SUPABASE_URL and SUPABASE_ANON_KEY are provided by auth.js via importScripts
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 const CHECK_INTERVAL_MINUTES = 1;
 
 async function getHeaders() {

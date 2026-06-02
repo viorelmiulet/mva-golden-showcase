@@ -169,12 +169,12 @@ INFORMAȚII DESPRE COMPANIE:
 - MVA Imobiliare - agenție specializată în proprietăți premium
 - Locație: Vestul Bucureștiului (Chiajna)
 - Specializare: Apartamente moderne cu finisaje premium
-- Website: https://mvaimobiliare.ro
+- Website: https://www.mvaimobiliare.ro
 
 PAGINI IMPORTANTE:
-- Pagina principală: https://mvaimobiliare.ro/
-- Toate proprietățile: https://mvaimobiliare.ro/proprietati
-- De ce să ne alegi: https://mvaimobiliare.ro/de-ce-sa-ne-alegi
+- Pagina principală: https://www.mvaimobiliare.ro/
+- Toate proprietățile: https://www.mvaimobiliare.ro/proprietati
+- De ce să ne alegi: https://www.mvaimobiliare.ro/de-ce-sa-ne-alegi
 
 INFORMAȚII DE CONTACT:
 - Telefon: 0767941512
@@ -187,7 +187,7 @@ INFORMAȚII DE CONTACT:
       systemPrompt += `OFERTE RELEVANTE GĂSITE (${catalogOffers.length} proprietăți selectate pentru cererea ta):\n\n`;
       
       catalogOffers.forEach((offer, index) => {
-        const propertyLink = `https://mvaimobiliare.ro/proprietati/${offer.slug || offer.id}`;
+        const propertyLink = `https://www.mvaimobiliare.ro/proprietati/${offer.slug || offer.id}`;
         systemPrompt += `${index + 1}. ${offer.title}\n`;
         systemPrompt += `   📍 ${offer.location}\n`;
         systemPrompt += `   💰 ${offer.price_min.toLocaleString()} ${offer.currency || 'EUR'}\n`;
@@ -204,10 +204,10 @@ INFORMAȚII DE CONTACT:
         systemPrompt += `   🔗 LINK: ${propertyLink}\n\n`;
       });
       
-      systemPrompt += "\nNOTĂ: Pentru mai multe opțiuni sau alte criterii, îndrumă utilizatorii la https://mvaimobiliare.ro/proprietati unde pot filtra toate cele 580+ oferte.\n";
+      systemPrompt += "\nNOTĂ: Pentru mai multe opțiuni sau alte criterii, îndrumă utilizatorii la https://www.mvaimobiliare.ro/proprietati unde pot filtra toate cele 580+ oferte.\n";
       systemPrompt += "IMPORTANT: Nu menționa numele proiectelor rezidențiale. Focusează-te pe caracteristici, locație, preț.\n\n";
     } else {
-      systemPrompt += "\nNu am găsit oferte care să corespundă exact criteriilor. Recomandă utilizatorului să viziteze https://mvaimobiliare.ro/proprietati pentru a vedea toate opțiunile sau să îți spună alte preferințe.\n\n";
+      systemPrompt += "\nNu am găsit oferte care să corespundă exact criteriilor. Recomandă utilizatorului să viziteze https://www.mvaimobiliare.ro/proprietati pentru a vedea toate opțiunile sau să îți spună alte preferințe.\n\n";
     }
 
     // Add web search results if available
@@ -219,7 +219,7 @@ INFORMAȚII DE CONTACT:
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
 - PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, prezintă ofertele din catalogul nostru cu LINKURI DIRECTE
-- Pentru fiecare ofertă, include linkul direct: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati/ID"
+- Pentru fiecare ofertă, include linkul direct: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietati/ID"
 - Completează cu rezultatele căutării web când sunt disponibile
 - Când prezinți oferte, ÎNTOTDEAUNA include linkul direct către pagina proprietății
 - Dacă nu găsești rezultate web, folosește catalogul local și oferă linkuri directe
@@ -233,7 +233,7 @@ STRUCTURA SITE-ULUI:
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele cu LINKURI DIRECTE
-- Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://mvaimobiliare.ro/proprietati/ID-UL_PROPRIETATII"
+- Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietati/ID-UL_PROPRIETATII"
 - NU MENȚIONA numele proiectelor rezidențiale (ex: Militari Residence, Renew Residence, etc.)
 - Focusează-te pe: caracteristici, locație, preț, beneficii, facilități
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
@@ -245,12 +245,12 @@ ROLUL TĂU:
 
 IMPORTANT: 
 - ÎNTOTDEAUNA include linkul DIRECT către fiecare proprietate când o prezinți
-- Format link: https://mvaimobiliare.ro/proprietati/[ID-ul proprietății]
+- Format link: https://www.mvaimobiliare.ro/proprietati/[ID-ul proprietății]
 - Nu trimite utilizatorii la pagina generală /proprietati, ci la pagina specifică proprietății
 - Folosește rezultatele căutării web pentru a completa informațiile
 - Pentru ofertele din catalog, OBLIGATORIU: linkul direct către pagina proprietății
 - Nu inventa linkuri sau informații care nu sunt furnizate
-- Dacă nu găsești oferte specifice, recomandă să viziteze https://mvaimobiliare.ro/proprietati sau să contacteze direct agenția`;
+- Dacă nu găsești oferte specifice, recomandă să viziteze https://www.mvaimobiliare.ro/proprietati sau să contacteze direct agenția`;
 
     // Prepare messages for OpenAI
     const messages = [

@@ -65,13 +65,13 @@ const WhyChooseUs = () => {
         "@type": "ListItem",
         "position": 1,
         "name": language === 'ro' ? "Acasă" : "Home",
-        "item": "https://mvaimobiliare.ro/"
+        "item": "https://www.mvaimobiliare.ro/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": language === 'ro' ? "De ce să ne alegi" : "Why Choose Us",
-        "item": "https://mvaimobiliare.ro/de-ce-sa-ne-alegi"
+        "item": "https://www.mvaimobiliare.ro/de-ce-sa-ne-alegi"
       }
     ]
   };
@@ -86,7 +86,7 @@ const WhyChooseUs = () => {
         <title>{language === 'ro' ? 'De ce să ne alegi pe noi? - Agenție Imobiliară Expertă | MVA Imobiliare' : 'Why Choose Us? - Expert Real Estate Agency | MVA Imobiliare'}</title>
         <meta name="description" content={t.whyChooseUs.heroSubtitle} />
         <meta name="keywords" content="agenție imobiliară de încredere, consultant imobiliar expert, servicii imobiliare premium, agenție imobiliară București vest, agent imobiliar profesionist" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/de-ce-sa-ne-alegi" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content={t.whyChooseUs.sellingSubtitle} />
@@ -94,10 +94,10 @@ const WhyChooseUs = () => {
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/de-ce-sa-ne-alegi" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/de-ce-sa-ne-alegi" />
         <meta property="og:title" content={language === 'ro' ? 'De ce MVA Imobiliare - Agenție Expertă în București' : 'Why MVA Imobiliare - Expert Agency in Bucharest'} />
         <meta property="og:description" content={t.whyChooseUs.heroSubtitle} />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-de-ce-sa-ne-alegi.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-de-ce-sa-ne-alegi.jpg" />
         <meta property="og:image:width" content="1216" />
         <meta property="og:image:height" content="640" />
         
@@ -105,7 +105,7 @@ const WhyChooseUs = () => {
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content={language === 'ro' ? 'De ce MVA Imobiliare' : 'Why MVA Imobiliare'} />
         <meta property="twitter:description" content={t.whyChooseUs.heroSubtitle} />
-        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-de-ce-sa-ne-alegi.jpg" />
+        <meta property="twitter:image" content="https://www.mvaimobiliare.ro/og-de-ce-sa-ne-alegi.jpg" />
         
         {/* Structured Data */}
         <script type="application/ld+json">

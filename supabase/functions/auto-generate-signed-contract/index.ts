@@ -203,8 +203,8 @@ serve(async (req) => {
     // Build the signing page URL (for PDF download)
     const proprietarToken = (signatures as any[])?.find((s: any) => s.party_type === 'proprietar')?.signature_token;
     const signPageUrl = proprietarToken 
-      ? `https://mvaimobiliare.ro/sign/${proprietarToken}`
-      : `https://mvaimobiliare.ro/admin/contracte`;
+      ? `https://www.mvaimobiliare.ro/sign/${proprietarToken}`
+      : `https://www.mvaimobiliare.ro/admin/contracte`;
 
     const completionHtml = `
       <!DOCTYPE html>

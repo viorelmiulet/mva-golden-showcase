@@ -103,7 +103,7 @@ const BlogPost = () => {
     "@type": "Article",
     "headline": post.title,
     "description": post.meta_description || post.excerpt || post.title,
-    "image": post.cover_image || "https://mvaimobiliare.ro/og-default.jpg",
+    "image": post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg",
     "datePublished": post.created_at,
     "dateModified": post.updated_at,
     "author": {
@@ -115,12 +115,12 @@ const BlogPost = () => {
       "name": "MVA Imobiliare",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://mvaimobiliare.ro/og-default.jpg"
+        "url": "https://www.mvaimobiliare.ro/og-default.jpg"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://mvaimobiliare.ro/blog/${slug}`
+      "@id": `https://www.mvaimobiliare.ro/blog/${slug}`
     }
   };
 
@@ -128,9 +128,9 @@ const BlogPost = () => {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://mvaimobiliare.ro/" },
-      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://mvaimobiliare.ro/blog" },
-      { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://mvaimobiliare.ro/blog/${slug}` }
+      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://www.mvaimobiliare.ro/" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.mvaimobiliare.ro/blog" },
+      { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://www.mvaimobiliare.ro/blog/${slug}` }
     ]
   };
 
@@ -145,16 +145,16 @@ const BlogPost = () => {
         <title>{post.meta_title || `${post.title} | MVA Imobiliare Blog`}</title>
         <meta name="description" content={post.meta_description || post.excerpt || post.title} />
         <meta name="keywords" content="imobiliare, ghid, sfaturi, București, proprietăți" />
-        <link rel="canonical" href={`https://mvaimobiliare.ro/blog/${slug}`} />
+        <link rel="canonical" href={`https://www.mvaimobiliare.ro/blog/${slug}`} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         <meta property="og:title" content={`${post.title} | MVA Imobiliare`} />
         <meta property="og:description" content={post.meta_description || post.excerpt || post.title} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://mvaimobiliare.ro/blog/${slug}`} />
-        <meta property="og:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
-        <meta property="og:image:secure_url" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:url" content={`https://www.mvaimobiliare.ro/blog/${slug}`} />
+        <meta property="og:image" content={post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg"} />
+        <meta property="og:image:secure_url" content={post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg"} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={post.title} />
@@ -164,13 +164,13 @@ const BlogPost = () => {
         <meta property="article:modified_time" content={post.updated_at} />
         <meta property="article:author" content={post.author} />
         <meta property="article:section" content={post.category} />
-        <meta property="article:publisher" content="https://mvaimobiliare.ro" />
+        <meta property="article:publisher" content="https://www.mvaimobiliare.ro" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@mvaimobiliare" />
         <meta name="twitter:title" content={`${post.title} | MVA Imobiliare`} />
         <meta name="twitter:description" content={post.meta_description || post.excerpt || post.title} />
-        <meta name="twitter:image" content={post.cover_image || "https://mvaimobiliare.ro/og-default.jpg"} />
+        <meta name="twitter:image" content={post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg"} />
         <meta name="twitter:image:alt" content={post.title} />
 
         <script type="application/ld+json">

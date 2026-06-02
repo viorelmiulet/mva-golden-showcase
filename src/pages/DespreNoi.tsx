@@ -19,13 +19,13 @@ const DespreNoi = () => {
         <title>{t.about.title} | MVA Imobiliare</title>
         <meta name="description" content={t.about.description} />
         <meta name="keywords" content="agenție imobiliară București, despre noi, experiență imobiliare, consultanță imobiliară" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/despre-noi" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/despre-noi" />
         
         <meta property="og:title" content={`${t.about.title} | MVA Imobiliare`} />
         <meta property="og:description" content={t.about.description} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/despre-noi" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-despre-noi.jpg" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/despre-noi" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-despre-noi.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.about.title} | MVA Imobiliare`} />

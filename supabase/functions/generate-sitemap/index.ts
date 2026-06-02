@@ -17,7 +17,7 @@ interface BlogPost {
   updated_at: string;
 }
 
-const SITE_URL = 'https://mvaimobiliare.ro';
+const SITE_URL = 'https://www.mvaimobiliare.ro';
 
 const toKebab = (value: string) =>
   value

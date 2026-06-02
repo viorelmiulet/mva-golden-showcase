@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
         <p style="color: #666; font-size: 12px;">
           —<br/>
           MVA Imobiliare<br/>
-          <a href="https://mvaimobiliare.ro" style="color: #C6A052;">mvaimobiliare.ro</a>
+          <a href="https://www.mvaimobiliare.ro" style="color: #C6A052;">mvaimobiliare.ro</a>
         </p>
       </div>
     `;

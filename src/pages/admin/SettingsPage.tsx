@@ -35,15 +35,15 @@ interface EmailFunctionSetting {
 }
 
 const MAIN_SITE_URLS = [
-  "https://mvaimobiliare.ro",
-  "https://mvaimobiliare.ro/proprietati",
-  "https://mvaimobiliare.ro/complexe",
-  "https://mvaimobiliare.ro/despre-noi",
-  "https://mvaimobiliare.ro/servicii",
-  "https://mvaimobiliare.ro/contact",
-  "https://mvaimobiliare.ro/blog",
-  "https://mvaimobiliare.ro/calculator-credit",
-  "https://mvaimobiliare.ro/intrebari-frecvente",
+  "https://www.mvaimobiliare.ro",
+  "https://www.mvaimobiliare.ro/proprietati",
+  "https://www.mvaimobiliare.ro/complexe",
+  "https://www.mvaimobiliare.ro/despre-noi",
+  "https://www.mvaimobiliare.ro/servicii",
+  "https://www.mvaimobiliare.ro/contact",
+  "https://www.mvaimobiliare.ro/blog",
+  "https://www.mvaimobiliare.ro/calculator-credit",
+  "https://www.mvaimobiliare.ro/intrebari-frecvente",
 ];
 
 const defaultSettings: SiteSettings = {
@@ -54,7 +54,7 @@ const defaultSettings: SiteSettings = {
   whatsappNumber: "+40767941512",
   facebookUrl: "https://facebook.com/mvaimobiliare",
   instagramUrl: "https://instagram.com/mvaimobiliare",
-  websiteUrl: "https://mvaimobiliare.ro",
+  websiteUrl: "https://www.mvaimobiliare.ro",
   aboutText: "MVA Imobiliare oferă servicii complete de intermediere imobiliară în zona de vest a Bucureștiului și Chiajna.",
   footerText: "© 2025 MVA Imobiliare. Toate drepturile rezervate."
 };

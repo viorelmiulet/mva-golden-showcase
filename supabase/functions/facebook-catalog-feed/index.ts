@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 const SITE_URL = 'https://www.mvaimobiliare.ro'
-const FALLBACK_IMAGE = 'https://mvaimobiliare.ro/og-image.jpg'
+const FALLBACK_IMAGE = 'https://www.mvaimobiliare.ro/og-image.jpg'
 
 // ===== Persistent image-validation cache (DB-backed with TTL) =====
 const IMG_CACHE_TTL_DAYS = 7

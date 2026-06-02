@@ -19,13 +19,13 @@ const Servicii = () => {
         <title>{t.services.title} | MVA Imobiliare</title>
         <meta name="description" content={t.services.subtitle} />
         <meta name="keywords" content="servicii imobiliare, cumpărare proprietăți, vânzare case, închiriere apartamente, consultanță imobiliară" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/servicii" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/servicii" />
         
         <meta property="og:title" content={`${t.services.title} | MVA Imobiliare`} />
         <meta property="og:description" content={t.services.subtitle} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/servicii" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-servicii.jpg" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/servicii" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-servicii.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${t.services.title} | MVA Imobiliare`} />

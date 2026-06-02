@@ -28,11 +28,11 @@ const Index = () => {
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": "https://mvaimobiliare.ro/#localbusiness",
+    "@id": "https://www.mvaimobiliare.ro/#localbusiness",
     "name": "MVA Imobiliare",
-    "image": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "logo": "https://mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "url": "https://mvaimobiliare.ro",
+    "image": "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "logo": "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
+    "url": "https://www.mvaimobiliare.ro",
     "telephone": "+40767941512",
     "email": "contact@mvaimobiliare.ro",
     "address": {
@@ -103,10 +103,10 @@ const Index = () => {
         <meta name="description" content="Agenție imobiliară în Militari, Sector 6 București. Apartamente de vânzare și închiriere în Gorjului, Lujerului, Pacii. Evaluare gratuită." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="agenție imobiliară București, apartamente Militari, apartamente Gorjului, apartamente Lujerului, apartamente Iuliu Maniu, apartamente Pacii, vânzare apartamente Sector 6, agent imobiliar București" />
-        <link rel="canonical" href="https://mvaimobiliare.ro/" />
+        <link rel="canonical" href="https://www.mvaimobiliare.ro/" />
         
         {/* Sitemaps */}
-        <link rel="sitemap" type="application/xml" href="https://mvaimobiliare.ro/sitemap.xml" />
+        <link rel="sitemap" type="application/xml" href="https://www.mvaimobiliare.ro/sitemap.xml" />
         
         {/* AI Crawler Optimization */}
         <meta name="summary" content="MVA Imobiliare este o agenție imobiliară specializată în zona Militari și vestul Bucureștiului, oferind servicii de vânzare și cumpărare proprietăți, consultanță expertă, evaluări gratuite și asistență completă în tranzacții imobiliare. Contact: 0767941512, email: contact@mvaimobiliare.ro" />
@@ -115,21 +115,21 @@ const Index = () => {
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mvaimobiliare.ro/" />
+        <meta property="og:url" content="https://www.mvaimobiliare.ro/" />
         <meta property="og:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
         <meta property="og:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
         <meta property="og:locale" content="ro_RO" />
-        <meta property="og:image" content="https://mvaimobiliare.ro/og-image.jpg" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-image.jpg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
 
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://mvaimobiliare.ro/" />
+        <meta property="twitter:url" content="https://www.mvaimobiliare.ro/" />
         <meta property="twitter:title" content="Apartamente de Vânzare Militari – MVA Imobiliare" />
         <meta property="twitter:description" content="Agenție imobiliară locală în cartierul Militari. Apartamente de vânzare și închiriere, evaluare gratuită." />
-        <meta property="twitter:image" content="https://mvaimobiliare.ro/og-image.jpg" />
+        <meta property="twitter:image" content="https://www.mvaimobiliare.ro/og-image.jpg" />
 
         {/* Structured Data for AI */}
         <script type="application/ld+json">

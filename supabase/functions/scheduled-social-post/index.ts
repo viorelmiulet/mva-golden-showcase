@@ -106,7 +106,7 @@ serve(async (req) => {
 
     console.log(`scheduled-social-post: Found ${properties.length} new properties`);
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://mvaimobiliare.ro';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://www.mvaimobiliare.ro';
     let totalPosted = 0;
     const allResults: Record<string, any>[] = [];
 

@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     <lastmod>${currentDate}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://mvaimobiliare.ro/news-sitemap.xml</loc>
+    <loc>https://www.mvaimobiliare.ro/news-sitemap.xml</loc>
     <lastmod>${currentDate}</lastmod>
   </sitemap>
 </sitemapindex>`;

@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const baseUrl = 'https://mvaimobiliare.ro';
+    const baseUrl = 'https://www.mvaimobiliare.ro';
     const currentDate = new Date().toISOString().split('T')[0];
 
     // Fetch published properties, projects and news in parallel
