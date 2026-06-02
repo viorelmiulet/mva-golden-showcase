@@ -100,4 +100,26 @@ export const seoLandingPresets: SeoLandingPreset[] = [
     breadcrumb: "Apartamente 3 camere Militari",
     filter: { rooms: 3, propertyType: "apartment", transactionType: "sale", zone: "MILITARI" },
   },
+  {
+    slug: "chirie-militari-residence",
+    h1: "Apartamente de închiriat în Militari Residence",
+    title: "Chirie Militari Residence - Apartamente de închiriat | MVA Imobiliare",
+    description:
+      "Apartamente de închiriat în Militari Residence: garsoniere, 2 și 3 camere, mobilate și utilate complet. Oferte verificate, prețuri actualizate, vizionări rapide.",
+    intro:
+      "Caută apartament de închiriat în Militari Residence, unul dintre cele mai mari ansambluri rezidențiale din vestul Bucureștiului. Oferim garsoniere și apartamente cu 2 sau 3 camere, mobilate modern, cu acces rapid la metroul Păcii, centre comerciale (AFI Cotroceni, Plaza România) și autostrada A1. Consultanții MVA Imobiliare te ajută cu vizionările și contractul de închiriere.",
+    breadcrumb: "Chirie Militari Residence",
+    filter: { transactionType: "rent", zone: "MILITARI RESIDENCE" },
+  },
+  {
+    slug: "apartamente-de-inchiriat-militari",
+    h1: "Apartamente de închiriat în Militari, București",
+    title: "Apartamente de închiriat Militari București | MVA Imobiliare",
+    description:
+      "Apartamente de închiriat în zona Militari, București. Garsoniere, 2 și 3 camere, în blocuri noi și ansambluri rezidențiale. Prețuri actualizate zilnic.",
+    intro:
+      "Apartamente de închiriat în zona Militari, vestul Bucureștiului. Acces rapid la metrou, centre comerciale și autostrada A1. Oferim opțiuni pentru toate bugetele, de la garsoniere la apartamente cu 3 camere.",
+    breadcrumb: "Apartamente de închiriat Militari",
+    filter: { transactionType: "rent", zone: "MILITARI" },
+  },
 ];
