@@ -40,8 +40,7 @@ const Hero = () => {
             alt="Apartamente de vânzare Militari București – MVA Imobiliare"
             className="w-full h-full object-cover"
             loading="eager"
-            // @ts-ignore
-            fetchpriority="high"
+            fetchPriority="high"
             decoding="async"
             itemProp="image"
             width={1440}
