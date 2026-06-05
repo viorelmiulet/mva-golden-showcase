@@ -161,25 +161,44 @@ const Properties = () => {
     });
   }, [catalogProperties]);
 
-  // Helper: detect transaction type. Trust DB value first; fall back to text only when missing.
+  // Helper: detect transaction type. Strong text/price signals override DB value
+  // (some imports mislabel rentals as 'sale' and vice-versa).
   const detectTransactionType = (property: any): 'sale' | 'rent' => {
-    if (property.transaction_type === 'rent' || property.transaction_type === 'sale') {
-      return property.transaction_type
-    }
-
     const base = `${property.title || ''} ${property.description || ''}`.toLowerCase()
     const text = base
       .replace(/ă/g,'a').replace(/â/g,'a').replace(/î/g,'i')
       .replace(/ș/g,'s').replace(/ş/g,'s').replace(/ț/g,'t').replace(/ţ/g,'t')
 
-    const saleKeywords = ['de vanzare', 'vanzare', 'vand', 'se vinde', 'for sale']
-    if (saleKeywords.some(k => text.includes(k))) return 'sale'
-
     const rentKeywords = [
-      'de inchiriat', 'se inchiriaza', 'se inchiriază',
-      'inchiriere', 'inchiriez', 'chirie', 'for rent'
+      'de inchiriat', 'se inchiriaza',
+      'inchiriere', 'inchiriez', 'chirie', 'for rent', '/luna', '/ luna', 'eur/luna'
     ]
-    if (rentKeywords.some(k => text.includes(k))) return 'rent'
+    const saleKeywords = ['de vanzare', 'se vinde', 'for sale', 'vand ']
+
+    const hasRentText = rentKeywords.some(k => text.includes(k))
+    const hasSaleText = saleKeywords.some(k => text.includes(k))
+
+    const price = Number(property.price_min) || 0
+    const looksLikeRentPrice = price > 0 && price < 3000
+    const looksLikeSalePrice = price >= 10000
+
+    // Strong rent signal overrides DB
+    if (hasRentText && !hasSaleText) return 'rent'
+    if (looksLikeRentPrice && hasRentText) return 'rent'
+
+    // Strong sale signal overrides DB
+    if (hasSaleText && !hasRentText) return 'sale'
+
+    // Trust DB when no conflicting evidence
+    if (property.transaction_type === 'rent' || property.transaction_type === 'sale') {
+      // But also flip obviously wrong DB labels (e.g. rent-priced item marked sale)
+      if (property.transaction_type === 'sale' && looksLikeRentPrice) return 'rent'
+      if (property.transaction_type === 'rent' && looksLikeSalePrice) return 'sale'
+      return property.transaction_type
+    }
+
+    if (looksLikeRentPrice) return 'rent'
+    if (looksLikeSalePrice) return 'sale'
 
     return 'sale'
   }
