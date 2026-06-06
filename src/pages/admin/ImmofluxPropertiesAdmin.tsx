@@ -52,12 +52,7 @@ const ImmofluxPropertiesAdmin = () => {
       while (attempts < maxAttempts) {
         await new Promise(r => setTimeout(r, 3000));
         attempts++;
-        const { data: poll } = await supabase.functions.invoke('sync-immoflux', {
-          method: 'GET' as any,
-          body: undefined,
-          // @ts-ignore — query passed via headers fallback not available, use URL via fetch
-        }).catch(() => ({ data: null }));
-        // The invoke SDK doesn't expose ?query=, fall back to direct fetch:
+        const { data: poll } = { data: null } as any;
         let status: any = null;
         try {
           const projectRef = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
