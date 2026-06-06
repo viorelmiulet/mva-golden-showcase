@@ -15,6 +15,7 @@ interface OptimizedPropertyImageProps {
   sizes?: string;
   showPlaceholder?: boolean;
   aspectRatio?: 'video' | 'square' | '4/3' | '3/2' | 'auto';
+  isSold?: boolean;
 }
 
 /**
@@ -37,6 +38,7 @@ const OptimizedPropertyImage = ({
   sizes = '100vw',
   showPlaceholder = true,
   aspectRatio = 'video',
+  isSold = false,
 }: OptimizedPropertyImageProps) => {
   const {
     optimizedSrc,
@@ -133,6 +135,15 @@ const OptimizedPropertyImage = ({
             backgroundSize: 'cover',
           }}
         />
+      )}
+
+      {/* Sold overlay */}
+      {isSold && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20 pointer-events-none">
+          <span className="bg-white/95 text-red-600 border-2 border-red-600 font-black text-lg sm:text-xl px-5 py-2 rounded-lg shadow-2xl uppercase tracking-wider transform -rotate-12">
+            VÂNDUT
+          </span>
+        </div>
       )}
     </div>
   );

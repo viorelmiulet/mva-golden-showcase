@@ -170,6 +170,7 @@ const Properties = () => {
                           width={640}
                           height={360}
                           quality={75}
+                          isSold={property.availability_status === 'sold'}
                         />
                         <div className="absolute bottom-2 right-2 glass rounded-lg px-2.5 py-1.5 border border-border/50">
                           <div className="flex items-center text-gold font-bold text-xs">
