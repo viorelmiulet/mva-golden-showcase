@@ -148,20 +148,21 @@ serve(async (req) => {
     const externalId = `immoflux-${payload.data.idnum}`;
 
     if (payload.event === 'property.deleted') {
+      // Mark as sold (keep visible + link valid for SEO) instead of deactivating
       const { error } = await supabase
         .from('catalog_offers')
-        .update({ availability_status: 'inactive', is_published: false })
+        .update({ availability_status: 'sold', is_published: true })
         .eq('external_id', externalId);
 
       if (error) {
-        console.error('[immoflux-webhook] Deactivate failed:', error.message);
+        console.error('[immoflux-webhook] Mark as sold failed:', error.message);
         return new Response(JSON.stringify({ success: false, error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      return new Response(JSON.stringify({ success: true, action: 'deactivated', external_id: externalId }), {
+      return new Response(JSON.stringify({ success: true, action: 'marked_sold', external_id: externalId }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
