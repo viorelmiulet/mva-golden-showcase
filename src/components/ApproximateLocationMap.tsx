@@ -79,11 +79,9 @@ export const ApproximateLocationMap = ({
         <iframe
           title="Locație aproximativă proprietate"
           src={src}
-          width="100%"
-          height="100%"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          style={{ border: 0, display: "block" }}
+          style={{ border: 0, display: "block", width: "100%", height: "100%" }}
           allowFullScreen
         />
         {/* Approximation circle overlay — centered, sized to ~2km, never overflowing */}
