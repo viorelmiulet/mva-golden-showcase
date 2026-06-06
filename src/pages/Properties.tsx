@@ -791,6 +791,7 @@ const Properties = () => {
                             className="group-hover:scale-105 transition-transform duration-300"
                             aspectRatio="video"
                             priority={index < 4}
+                            isSold={property.availability_status === 'sold'}
                           />
                         </div>
                       )}
