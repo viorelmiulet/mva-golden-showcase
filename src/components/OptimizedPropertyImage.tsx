@@ -38,6 +38,7 @@ const OptimizedPropertyImage = ({
   sizes = '100vw',
   showPlaceholder = true,
   aspectRatio = 'video',
+  isSold = false,
 }: OptimizedPropertyImageProps) => {
   const {
     optimizedSrc,
