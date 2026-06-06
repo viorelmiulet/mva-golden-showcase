@@ -76,6 +76,20 @@ const getDisplayLocation = (p: any): string => {
   return 'București';
 };
 
+const shouldUseImmofluxRoute = (property: any): boolean =>
+  property.availability_status !== 'sold'
+  && Boolean(property._immoflux_id)
+  && Boolean(property._immoflux_slug)
+  && !String(property._immoflux_slug).includes('undefined');
+
+const getListingPropertyUrl = (property: any): string => {
+  if (shouldUseImmofluxRoute(property)) {
+    return `/proprietate/${property._immoflux_slug}`;
+  }
+
+  return getPropertyUrl(property);
+};
+
 const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
@@ -946,9 +960,9 @@ const Properties = () => {
                         <ScheduleViewingDialog
                           propertyTitle={property.title}
                           propertyId={property.id}
-                          propertyUrl={property.source === 'immoflux' || property._immoflux_slug
+                          propertyUrl={shouldUseImmofluxRoute(property)
                             ? getImmofluxPropertyUrl({
-                                idnum: property._immoflux_id || Number(String(property.id).replace('immoflux-', '')),
+                                idnum: property._immoflux_id,
                                 nrcamere: property.rooms,
                                 zona: property.zone,
                                 localitate: property.city || property.location,
@@ -999,7 +1013,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={(property as any)._immoflux_id && (property as any)._immoflux_slug && !String((property as any)._immoflux_slug).includes('undefined') ? `/proprietate/${(property as any)._immoflux_slug}` : getPropertyUrl(property)}>
+                          <Link to={getListingPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>
