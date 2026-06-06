@@ -67,7 +67,7 @@ const Properties = () => {
         is_featured: true,
         source: 'immoflux',
         _immoflux_id: p.idnum,
-        _immoflux_slug: generateImmofluxSlug(p),
+        _immoflux_slug: p.idnum ? generateImmofluxSlug(p) : null,
          _immoflux_pole: isPoleProperty(p),
         _immoflux_top: p.top === 1,
       }));
