@@ -999,7 +999,7 @@ const Properties = () => {
                           className="w-full text-xs h-8"
                           size="sm"
                         >
-                          <Link to={(property as any)._immoflux_id ? `/proprietate/${(property as any)._immoflux_slug}` : getPropertyUrl(property)}>
+                          <Link to={(property as any)._immoflux_id && (property as any)._immoflux_slug && !String((property as any)._immoflux_slug).includes('undefined') ? `/proprietate/${(property as any)._immoflux_slug}` : getPropertyUrl(property)}>
                             <Info className="w-3 h-3 mr-1" />
                             Vezi Detalii
                           </Link>

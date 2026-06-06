@@ -160,8 +160,10 @@ export const generateImmofluxSlug = (property: {
     }
   }
 
-  // 6. Numeric ID for uniqueness
-  parts.push(String(property.idnum));
+  // 6. Numeric ID for uniqueness (skip when missing to avoid "undefined" in slug)
+  if (property.idnum !== undefined && property.idnum !== null && !Number.isNaN(Number(property.idnum))) {
+    parts.push(String(property.idnum));
+  }
 
   return parts.join('-');
 };
