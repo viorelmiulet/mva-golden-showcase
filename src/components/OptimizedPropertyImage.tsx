@@ -15,6 +15,7 @@ interface OptimizedPropertyImageProps {
   sizes?: string;
   showPlaceholder?: boolean;
   aspectRatio?: 'video' | 'square' | '4/3' | '3/2' | 'auto';
+  isSold?: boolean;
 }
 
 /**
