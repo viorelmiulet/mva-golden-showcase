@@ -77,7 +77,7 @@ const MilitariResidence = () => {
         <title>Apartamente de Vânzare Militari Residence – MVA Imobiliare</title>
         <meta
           name="description"
-          content="Apartamente noi de vânzare în Militari Residence, Chiajna. Garsoniere, 2 și 3 camere disponibile. Prețuri actualizate, vizionare gratuită. Contactează MVA Imobiliare."
+          content="Apartamente noi de vânzare în Militari Residence, Chiajna. Garsoniere, 2 și 3 camere, prețuri actualizate. Contactează MVA Imobiliare."
         />
         <link rel="canonical" href="https://www.mvaimobiliare.ro/militari-residence" />
 

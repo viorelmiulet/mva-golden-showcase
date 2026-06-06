@@ -37,13 +37,13 @@ const FAQ = () => {
         { name: "Întrebări Frecvente", url: "/intrebari-frecvente" }
       ]} />
       <Helmet>
-        <title>Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare</title>
+        <title>Întrebări Frecvente Apartamente Militari – MVA Imobiliare</title>
         <meta name="description" content="Răspunsuri la întrebările frecvente despre cumpărarea, vânzarea și închirierea apartamentelor în cartierul Militari, Sector 6 București." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="întrebări frecvente imobiliare Militari, FAQ agenție imobiliară, comision agenție, vânzare apartament Militari, cumpărare apartament Sector 6" />
         <link rel="canonical" href="https://www.mvaimobiliare.ro/intrebari-frecvente" />
         
-        <meta property="og:title" content="Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare" />
+        <meta property="og:title" content="Întrebări Frecvente Apartamente Militari – MVA Imobiliare" />
         <meta property="og:description" content="Răspunsuri la întrebările frecvente despre cumpărarea, vânzarea și închirierea apartamentelor în cartierul Militari, Sector 6 București." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.mvaimobiliare.ro/intrebari-frecvente" />
@@ -51,7 +51,7 @@ const FAQ = () => {
         <meta property="og:image" content="https://www.mvaimobiliare.ro/og-default.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Întrebări Frecvente despre Apartamente Militari – MVA Imobiliare" />
+        <meta name="twitter:title" content="Întrebări Frecvente Apartamente Militari – MVA Imobiliare" />
         <meta name="twitter:description" content="Răspunsuri la întrebările frecvente despre apartamentele din cartierul Militari." />
         
         <script type="application/ld+json">
