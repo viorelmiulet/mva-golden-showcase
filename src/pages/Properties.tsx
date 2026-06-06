@@ -484,7 +484,7 @@ const Properties = () => {
             <div className="text-center mb-6 sm:mb-8 md:mb-12 px-2">
               <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4">
                 <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  {t.properties?.title || 'Ofertele Noastre'}
+                  Apartamente de Vânzare și Închiriat în Militari
                 </span>
               </h1>
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
