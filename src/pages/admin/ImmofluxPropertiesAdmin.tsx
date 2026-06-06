@@ -28,15 +28,63 @@ const ImmofluxPropertiesAdmin = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      const { data: result, error: syncError } = await supabase.functions.invoke('sync-immoflux', { body: {} });
-      if (syncError) throw syncError;
-      if (!result?.success) throw new Error(result?.error || 'Sync eșuat');
-      toast({
-        title: 'Sincronizare completă',
-        description: `${result.synced} proprietăți sincronizate${result.failed ? `, ${result.failed} eșuate` : ''}.`,
-      });
-      queryClient.invalidateQueries({ queryKey: ['immoflux'] });
-      queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+      // 1. Start sync in background (returns immediately)
+      const { data: startRes, error: startErr } = await supabase.functions.invoke('sync-immoflux', { body: {} });
+      if (startErr) throw startErr;
+      if (startRes?.success === false) throw new Error(startRes?.error || 'Sync eșuat');
+
+      if (startRes?.alreadyRunning) {
+        toast({
+          title: 'Sincronizare în curs',
+          description: 'O sincronizare este deja activă. Aștept finalizarea...',
+        });
+      } else {
+        toast({
+          title: 'Sincronizare pornită',
+          description: 'Se rulează în fundal. Te anunț când e gata.',
+        });
+      }
+
+      // 2. Poll status every 3s, max ~3 min
+      const maxAttempts = 60;
+      let attempts = 0;
+      let finalStatus: any = null;
+      while (attempts < maxAttempts) {
+        await new Promise(r => setTimeout(r, 3000));
+        attempts++;
+        const { data: poll } = { data: null } as any;
+        let status: any = null;
+        try {
+          const projectRef = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
+          const anon = (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY;
+          const res = await fetch(
+            `https://${projectRef}.supabase.co/functions/v1/sync-immoflux?status=1`,
+            { headers: { apikey: anon, Authorization: `Bearer ${anon}` } }
+          );
+          const json = await res.json();
+          status = json?.status;
+        } catch {}
+        if (status?.status === 'done' || status?.status === 'error') {
+          finalStatus = status;
+          break;
+        }
+      }
+
+      if (!finalStatus) {
+        toast({
+          title: 'Sincronizare în curs',
+          description: 'Durează mai mult decât de obicei. Verifică din nou în câteva minute.',
+        });
+      } else if (finalStatus.status === 'error') {
+        toast({ title: 'Eroare sincronizare', description: finalStatus.error || 'Necunoscut', variant: 'destructive' });
+      } else {
+        toast({
+          title: 'Sincronizare completă',
+          description: `${finalStatus.synced} proprietăți sincronizate${finalStatus.failed ? `, ${finalStatus.failed} eșuate` : ''}.`,
+        });
+        queryClient.invalidateQueries({ queryKey: ['immoflux'] });
+        queryClient.invalidateQueries({ queryKey: ['catalog_offers'] });
+      }
     } catch (e: any) {
       toast({ title: 'Eroare sincronizare', description: e.message || String(e), variant: 'destructive' });
     } finally {

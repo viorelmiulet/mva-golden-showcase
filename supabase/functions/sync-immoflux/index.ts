@@ -356,21 +356,32 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   };
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+async function writeStatus(supabase: any, value: Record<string, unknown>) {
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    await supabase
+      .from('site_settings')
+      .upsert(
+        { key: 'immoflux_sync_status', value: JSON.stringify(value) },
+        { onConflict: 'key' }
+      );
+  } catch (e) {
+    console.warn('[sync-immoflux] writeStatus failed:', (e as Error).message);
+  }
+}
 
+async function runSync(supabase: any, startedAt: string) {
+  try {
     console.log('[sync-immoflux] Starting sync...');
-    const properties = await fetchAllProperties(supabase);
+    await writeStatus(supabase, { status: 'running', started_at: startedAt, stage: 'fetching' });
 
+    const properties = await fetchAllProperties(supabase);
     const mapped = properties.map(mapToCatalogOffer);
     console.log(`[sync-immoflux] Mapped ${mapped.length} properties for upsert`);
+
+    await writeStatus(supabase, {
+      status: 'running', started_at: startedAt, stage: 'upserting',
+      total: mapped.length, synced: 0,
+    });
 
     let upserted = 0;
     let failed = 0;
@@ -378,10 +389,9 @@ serve(async (req) => {
 
     for (let i = 0; i < mapped.length; i += batchSize) {
       const batch = mapped.slice(i, i + batchSize);
-      const { error, data } = await supabase
+      const { error } = await supabase
         .from('catalog_offers')
-        .upsert(batch, { onConflict: 'external_id', ignoreDuplicates: false })
-        .select('id');
+        .upsert(batch, { onConflict: 'external_id', ignoreDuplicates: false });
 
       if (error) {
         if (error.message.includes('extensions.net.http_post') || error.message.includes('cross-database references')) {
@@ -392,35 +402,125 @@ serve(async (req) => {
           failed += batch.length;
         }
       } else {
-        upserted += data?.length || 0;
+        upserted += batch.length;
       }
     }
 
-    const currentIds = mapped.map(m => m.external_id);
-    if (currentIds.length > 0) {
-      // Properties removed from CRM are marked as 'sold' (visible with Sold badge, link remains valid for SEO)
-      const { error: deactivateError } = await supabase
-        .from('catalog_offers')
-        .update({ availability_status: 'sold', is_published: true })
-        .eq('crm_source', 'immoflux')
-        .not('external_id', 'in', `(${currentIds.join(',')})`);
+    // Set-based diff for deactivation: fetch existing external_ids, diff in memory,
+    // then update only those missing in small batches (avoids huge NOT IN URL).
+    await writeStatus(supabase, {
+      status: 'running', started_at: startedAt, stage: 'deactivating',
+      total: mapped.length, synced: upserted, failed,
+    });
 
-      if (deactivateError) {
-        console.warn(`[sync-immoflux] Deactivate old properties failed: ${deactivateError.message}`);
+    const currentIds = new Set(mapped.map(m => m.external_id as string));
+    const { data: existing, error: listErr } = await supabase
+      .from('catalog_offers')
+      .select('external_id')
+      .eq('crm_source', 'immoflux')
+      .neq('availability_status', 'sold');
+
+    if (listErr) {
+      console.warn(`[sync-immoflux] List existing failed: ${listErr.message}`);
+    } else if (existing && existing.length > 0) {
+      const toDeactivate = existing
+        .map((r: any) => r.external_id as string)
+        .filter((id: string) => id && !currentIds.has(id));
+
+      console.log(`[sync-immoflux] Deactivating ${toDeactivate.length} properties no longer in CRM`);
+      const deactivateBatch = 100;
+      for (let i = 0; i < toDeactivate.length; i += deactivateBatch) {
+        const slice = toDeactivate.slice(i, i + deactivateBatch);
+        const { error: deactivateError } = await supabase
+          .from('catalog_offers')
+          .update({ availability_status: 'sold', is_published: true })
+          .in('external_id', slice);
+        if (deactivateError) {
+          console.warn(`[sync-immoflux] Deactivate batch failed: ${deactivateError.message}`);
+        }
       }
     }
 
+    const finishedAt = new Date().toISOString();
     const result = {
+      status: 'done',
       success: true,
+      started_at: startedAt,
+      finished_at: finishedAt,
       synced: upserted,
       failed,
       total: mapped.length,
-      timestamp: new Date().toISOString(),
     };
+    console.log('[sync-immoflux] Sync complete:', result);
+    await writeStatus(supabase, result);
+  } catch (error: any) {
+    console.error('[sync-immoflux] Background error:', error);
+    await writeStatus(supabase, {
+      status: 'error',
+      success: false,
+      started_at: startedAt,
+      finished_at: new Date().toISOString(),
+      error: error?.message || String(error),
+    });
+  }
+}
 
-    console.log(`[sync-immoflux] Sync complete:`, result);
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
 
-    return new Response(JSON.stringify(result), {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // ?status=1 → read-only status check (used by frontend polling)
+    const url = new URL(req.url);
+    if (url.searchParams.get('status') === '1') {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'immoflux_sync_status')
+        .maybeSingle();
+      let parsed: any = null;
+      try { parsed = data?.value ? JSON.parse(data.value) : null; } catch { parsed = null; }
+      return new Response(JSON.stringify({ ok: true, status: parsed }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Guard: don't start a new sync if one is already running (under 5 min old)
+    const { data: existing } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'immoflux_sync_status')
+      .maybeSingle();
+    let current: any = null;
+    try { current = existing?.value ? JSON.parse(existing.value) : null; } catch {}
+    if (current?.status === 'running') {
+      const startedMs = current.started_at ? Date.parse(current.started_at) : 0;
+      const ageMs = Date.now() - startedMs;
+      if (ageMs < 5 * 60 * 1000) {
+        return new Response(JSON.stringify({ started: false, alreadyRunning: true, status: current }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
+    const startedAt = new Date().toISOString();
+    await writeStatus(supabase, { status: 'running', started_at: startedAt, stage: 'starting' });
+
+    // Run in background — return immediately so the client isn't blocked
+    // @ts-ignore EdgeRuntime is provided by the Supabase Edge runtime
+    if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(runSync(supabase, startedAt));
+    } else {
+      runSync(supabase, startedAt);
+    }
+
+    return new Response(JSON.stringify({ started: true, started_at: startedAt }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
