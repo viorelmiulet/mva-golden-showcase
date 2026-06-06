@@ -72,6 +72,7 @@ const FacebookCatalogFeedPage = lazy(() => import("./pages/admin/FacebookCatalog
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const GhidMilitariResidence = lazy(() => import("./pages/GhidMilitariResidence"));
+const MilitariVsChiajna = lazy(() => import("./pages/MilitariVsChiajna"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
