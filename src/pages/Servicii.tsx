@@ -38,7 +38,7 @@ const Servicii = () => {
         <div className="container mx-auto px-3 sm:px-4">
           <Breadcrumbs items={[{ label: t.services.title }]} />
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mt-4 mb-2">
-            {t.services.title}
+            Servicii Imobiliare MVA
           </h1>
         </div>
         <Services />
