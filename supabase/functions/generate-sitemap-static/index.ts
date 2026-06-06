@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
       { loc: '/militari-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/renew-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/eurocasa-residence', priority: '0.9', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/militari-vs-chiajna-comparatie', priority: '0.8', changefreq: 'monthly', lastmod: currentDate },
       { loc: '/termeni-conditii', priority: '0.3', changefreq: 'yearly', lastmod: currentDate },
     ];
 

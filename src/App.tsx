@@ -72,6 +72,7 @@ const FacebookCatalogFeedPage = lazy(() => import("./pages/admin/FacebookCatalog
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const GhidMilitariResidence = lazy(() => import("./pages/GhidMilitariResidence"));
+const MilitariVsChiajna = lazy(() => import("./pages/MilitariVsChiajna"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
@@ -255,6 +256,7 @@ const AppRoutes = () => {
               
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/ghid-militari-residence" element={<GhidMilitariResidence />} />
+              <Route path="/militari-vs-chiajna-comparatie" element={<MilitariVsChiajna />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/proprietate/:slug" element={<ImmofluxPropertyDetail />} />
