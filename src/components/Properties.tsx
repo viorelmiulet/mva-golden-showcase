@@ -25,6 +25,19 @@ const getDisplayLocation = (p: any): string => {
   return 'București';
 };
 
+const shouldUseImmofluxRoute = (property: any): boolean =>
+  property.availability_status !== 'sold'
+  && Boolean(property._immoflux_slug)
+  && !String(property._immoflux_slug).includes('undefined');
+
+const getListingPropertyUrl = (property: any): string => {
+  if (shouldUseImmofluxRoute(property)) {
+    return `/proprietate/${property._immoflux_slug}`;
+  }
+
+  return getPropertyUrl(property);
+};
+
 const Properties = () => {
   const { data: catalogOffers = [], isLoading: isLoadingCatalog } = useQuery({
     queryKey: ['random_offers_home'],
@@ -146,7 +159,7 @@ const Properties = () => {
             ) : (
               <div className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {randomOffers.map((property: any) => (
-                  <Link to={property._immoflux_slug && !property._immoflux_slug.includes('undefined') ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property)} key={property.id}>
+                  <Link to={getListingPropertyUrl(property)} key={property.id}>
                     <Card className={`group overflow-hidden glass border transition-colors h-full relative ${property._immoflux_pole ? 'border-purple-500/40 hover:border-purple-500/60' : property._immoflux_top ? 'border-gold/40 hover:border-gold/60' : 'border-border/50 hover:border-gold/30'}`}>
                       {property._immoflux_pole ? (
                         <div className="absolute top-3 left-3 z-10">
@@ -202,7 +215,7 @@ const Properties = () => {
                           <ScheduleViewingDialog
                             propertyTitle={property.title}
                             propertyId={property.id}
-                            propertyUrl={property._immoflux_slug ? getImmofluxPropertyUrl({ idnum: property._immoflux_id, nrcamere: property.rooms, zona: property.zone, localitate: property.city, titlu: property.title }) : getPropertyUrl(property)}
+                            propertyUrl={shouldUseImmofluxRoute(property) ? getImmofluxPropertyUrl({ idnum: property._immoflux_id, nrcamere: property.rooms, zona: property.zone, localitate: property.city, titlu: property.title }) : getPropertyUrl(property)}
                             trigger={
                               <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-primary hover:bg-primary/90">
                                 <Calendar className="w-3 h-3 mr-1" />
