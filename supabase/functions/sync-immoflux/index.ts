@@ -398,9 +398,10 @@ serve(async (req) => {
 
     const currentIds = mapped.map(m => m.external_id);
     if (currentIds.length > 0) {
+      // Properties removed from CRM are marked as 'sold' (visible with Sold badge, link remains valid for SEO)
       const { error: deactivateError } = await supabase
         .from('catalog_offers')
-        .update({ availability_status: 'inactive', is_published: false })
+        .update({ availability_status: 'sold', is_published: true })
         .eq('crm_source', 'immoflux')
         .not('external_id', 'in', `(${currentIds.join(',')})`);
 
