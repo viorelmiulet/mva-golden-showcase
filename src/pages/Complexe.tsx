@@ -102,7 +102,7 @@ const Complexe = () => {
     <>
       <Helmet>
         <title>Ansambluri Rezidențiale Premium București | MVA Imobiliare</title>
-        <meta name="description" content="Explorează cele mai moderne ansambluri rezidențiale din București și împrejurimi. Apartamente noi cu finisaje premium în complexe rezidențiale de top cu toate facilitățile." />
+        <meta name="description" content="Descoperă ansambluri rezidențiale premium în București. Apartamente noi cu finisaje moderne și facilități complete." />
         <meta name="keywords" content="complexe rezidențiale București, ansambluri rezidențiale noi, apartamente noi complexe, locuințe moderne București, Renew Residence, Eurocasa Residence" />
         <link rel="canonical" href="https://www.mvaimobiliare.ro/complexe" />
         
