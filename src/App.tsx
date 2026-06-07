@@ -257,6 +257,7 @@ const AppRoutes = () => {
               
               <Route path="/militari-residence" element={<MilitariResidence />} />
               <Route path="/ghid-militari-residence" element={<GhidMilitariResidence />} />
+              <Route path="/facilitati-militari-residence" element={<FacilitatiMilitariResidence />} />
               <Route path="/militari-vs-chiajna-comparatie" element={<MilitariVsChiajna />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
