@@ -196,7 +196,7 @@ const About = () => {
                       ))}
                     </div>
                     <p className="text-sm text-foreground italic mb-3" itemProp="reviewBody">"{t.text}"</p>
-                    <footer className="text-xs text-muted-foreground" itemProp="author">— {t.author}</footer>
+                    <footer className="text-xs text-muted-foreground" itemProp="author" itemScope itemType="https://schema.org/Person">— <span itemProp="name">{t.author}</span></footer>
                   </blockquote>
                 ))}
               </div>
