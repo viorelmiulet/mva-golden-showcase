@@ -136,7 +136,7 @@ const Cariera = () => {
         { name: language === 'ro' ? 'Carieră' : 'Career', url: "/cariera" }
       ]} />
       <Helmet>
-        <title>{language === 'ro' ? 'Carieră Agent Imobiliar - Alătură-te Echipei MVA Imobiliare București' : 'Real Estate Agent Career - Join MVA Imobiliare Team Bucharest'}</title>
+        <title>{language === 'ro' ? 'Carieră Imobiliară - MVA Imobiliare București' : 'Real Estate Career - MVA Imobiliare Bucharest'}</title>
         <meta
           name="description"
           content={t.career.heroSubtitle}
