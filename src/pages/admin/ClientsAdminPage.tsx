@@ -709,7 +709,7 @@ export default function ClientsAdminPage() {
                             variant="outline"
                             size="sm"
                             className="w-full gap-2"
-                            onClick={() => window.open(`/proprietati/${rec.property_id}`, "_blank")}
+                            onClick={() => window.open(`/proprietate/${rec.property_id}`, "_blank")}
                           >
                             <Home className="h-4 w-4" />
                             Vezi Proprietatea
