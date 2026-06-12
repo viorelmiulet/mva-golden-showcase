@@ -1691,7 +1691,7 @@ const PropertiesAdmin = () => {
                         rooms: editingProperty.rooms || 0,
                         surface: editingProperty.surface_min || 0,
                         slug,
-                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                        url: `https://www.mvaimobiliare.ro/proprietate/${slug}`,
                         image: images[0] || "",
                         description: editingProperty.description || "",
                       }),
