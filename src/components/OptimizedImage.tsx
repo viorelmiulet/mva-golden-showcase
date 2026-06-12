@@ -109,7 +109,7 @@ const OptimizedImage = ({
       {isInView && (
         <picture>
           {/* WebP source for browsers that support it */}
-          {isSupabaseImage && srcSet && (
+          {(isSupabaseImage || isTransformable) && srcSet && (
             <source
               type="image/webp"
               srcSet={srcSet}
@@ -119,7 +119,7 @@ const OptimizedImage = ({
           <img
             ref={imgRef}
             src={optimizedSrc}
-            srcSet={!isSupabaseImage ? undefined : srcSet}
+            srcSet={(isSupabaseImage || isTransformable) ? srcSet : undefined}
             sizes={sizes}
             alt={alt}
             width={width}
