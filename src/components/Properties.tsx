@@ -46,6 +46,7 @@ const Properties = () => {
         .from('catalog_offers')
         .select('*')
         .is('project_id', null)
+        .neq('availability_status', 'sold')
         .limit(100);
       if (error) throw error;
       return (data || []).sort(() => Math.random() - 0.5);
@@ -92,19 +93,14 @@ const Properties = () => {
   const isLoading = isLoadingCatalog || isLoadingImmoflux;
 
   // Merge: pole position first, then top, then random catalog offers
-  // Within each tier, available properties are shown before sold ones
   const randomOffers = useMemo(() => {
-    const sortByAvailability = (a: any, b: any) => {
-      const aSold = a.availability_status === 'sold' ? 1 : 0;
-      const bSold = b.availability_status === 'sold' ? 1 : 0;
-      return aSold - bSold;
-    };
-    const poleProps = immofluxFeatured.filter((p: any) => p._immoflux_pole).sort(sortByAvailability);
-    const topProps = immofluxFeatured.filter((p: any) => p._immoflux_top && !p._immoflux_pole).sort(sortByAvailability);
+    const poleProps = immofluxFeatured.filter((p: any) => p._immoflux_pole);
+    const topProps = immofluxFeatured.filter((p: any) => p._immoflux_top && !p._immoflux_pole);
     const remainingSlots = 8 - poleProps.length - topProps.length;
-    const catalogSlice = catalogOffers.slice(0, Math.max(0, remainingSlots)).sort(sortByAvailability);
+    const catalogSlice = catalogOffers.slice(0, Math.max(0, remainingSlots));
     return [...poleProps, ...topProps, ...catalogSlice].slice(0, 8);
   }, [immofluxFeatured, catalogOffers]);
+
 
   const propertiesStructuredData = {
     "@context": "https://schema.org",
