@@ -45,7 +45,6 @@ const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
   { title: "Inbox", url: "/admin/inbox", icon: Inbox },
   { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
-  { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Ansambluri Rezidențiale", url: "/admin/complexe", icon: Layers },
