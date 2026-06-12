@@ -123,15 +123,23 @@ export const useOptimizedImage = ({
     setIsLoaded(true);
   }, []);
 
-  // Handle error with fallback to original src
+  // Handle error with one-time fallback to original src (guard against loops)
+  const fallbackTriedRef = useRef(false);
   const handleError = useCallback(() => {
     setHasError(true);
-    // Fallback to original src if WebP fails
-    if (imgRef.current && isSupabaseImage && src) {
-      imgRef.current.src = src;
+    if (fallbackTriedRef.current) return;
+    fallbackTriedRef.current = true;
+    if (imgRef.current && src) {
+      // Revert to original (non-transformed) URL once
       imgRef.current.srcset = '';
+      imgRef.current.src = src;
     }
-  }, [isSupabaseImage, src]);
+  }, [src]);
+
+  // Reset fallback flag when src changes
+  useEffect(() => {
+    fallbackTriedRef.current = false;
+  }, [src]);
 
   return {
     optimizedSrc,
