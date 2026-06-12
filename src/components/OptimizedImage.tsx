@@ -83,10 +83,12 @@ const OptimizedImage = ({
 
   const handleError = () => {
     setHasError(true);
-    // Fallback to original src if WebP fails
-    if (imgRef.current && isSupabaseImage) {
-      imgRef.current.src = src;
+    // One-time fallback to original URL (guard against retry loops)
+    if (fallbackTriedRef.current) return;
+    fallbackTriedRef.current = true;
+    if (imgRef.current && src) {
       imgRef.current.srcset = '';
+      imgRef.current.src = src;
     }
   };
 
