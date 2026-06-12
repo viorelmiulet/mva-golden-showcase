@@ -268,6 +268,7 @@ const AppRoutes = () => {
               <Route path="/comparatie-complexuri-militari-chiajna" element={<ComparatieComplexuriMilitariChiajna />} />
               <Route path="/costuri-tranzactie-imobiliara" element={<CosturiTranzactieImobiliara />} />
               <Route path="/ghid-noua-casa-2024" element={<GhidNouaCasa2024 />} />
+              <Route path="/top-ansambluri-rezidentiale-sector-6" element={<TopAnsambluriRezidentialeSector6 />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/proprietate/:slug" element={<ImmofluxPropertyDetail />} />
