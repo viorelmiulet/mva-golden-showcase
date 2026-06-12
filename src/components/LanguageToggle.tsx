@@ -14,7 +14,7 @@ export const LanguageToggle = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button variant="ghost" size="sm" className="gap-2" aria-label="Schimbă limba / Change language">
           <Globe className="h-4 w-4" />
           <span className="uppercase font-medium">{language}</span>
         </Button>
