@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useProperty, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData } from "@/hooks/useImmoflux";
+import { useProperty, useProperties, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,7 @@ const ImmofluxPropertyDetail = () => {
   const propertyId = slug ? (extractImmofluxIdFromSlug(slug) || slug) : '';
   const { data: property, isLoading, isError } = useProperty(propertyId);
   const contactMutation = useSubmitContact();
+  const { data: similarPool } = useProperties(1);
 
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -81,19 +82,7 @@ const ImmofluxPropertyDetail = () => {
     </>
   );
 
-  if (isError || !property) return (
-    <>
-      <Header />
-      <main className="pt-24 pb-16 container mx-auto px-4 flex flex-col items-center justify-center min-h-[60vh]">
-        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-        <p className="text-lg">Proprietatea nu a fost găsită.</p>
-        <Link to="/proprietati" className="mt-4">
-          <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Înapoi la proprietăți</Button>
-        </Link>
-      </main>
-      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
-    </>
-  );
+  if (isError || !property) return <ImmofluxNotFound />;
 
   const p = property as any;
   const images = [...(property.images || [])].sort((a, b) => a.pozitie - b.pozitie);
@@ -584,7 +573,45 @@ const ImmofluxPropertyDetail = () => {
                 </form>
               </div>
             </div>
-          </div>
+
+          {(() => {
+            const pool = (similarPool?.data || []).filter((s: ImmofluxProperty) => s.idnum !== property.idnum);
+            const sameSale = pool.filter(s => s.devanzare === property.devanzare);
+            const sameRooms = sameSale.filter(s => Number(s.nrcamere) === Number(p.nrcamere));
+            const ranked = [...sameRooms, ...sameSale.filter(s => !sameRooms.includes(s)), ...pool.filter(s => !sameSale.includes(s))];
+            const similar = ranked.slice(0, 6);
+            if (similar.length === 0) return null;
+            return (
+              <section aria-label="Proprietăți similare" className="mt-12">
+                <h2 className="text-xl md:text-2xl font-bold mb-5">Proprietăți similare</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {similar.map((s) => (
+                    <Link
+                      key={s.idnum}
+                      to={getImmofluxPropertyUrl(s as any)}
+                      className="rounded-xl border bg-card overflow-hidden hover:border-gold transition-colors group"
+                    >
+                      {s.images?.[0]?.src && (
+                        <img
+                          src={s.images[0].src}
+                          alt={getTitle(s)}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-44 object-cover group-hover:opacity-95"
+                        />
+                      )}
+                      <div className="p-4">
+                        <div className="font-semibold line-clamp-2 text-sm">{getTitle(s)}</div>
+                        <div className="text-gold font-bold mt-2">{formatPrice(s)}</div>
+                        {s.zona && <div className="text-xs text-muted-foreground mt-1 truncate">{s.zona}, {s.localitate}</div>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+        </div>
         </div>
       </main>
       {lightboxOpen && (
@@ -598,6 +625,54 @@ const ImmofluxPropertyDetail = () => {
         </Suspense>
       )}
       <Suspense fallback={null}><Footer /></Suspense>
+    </>
+  );
+};
+
+const ImmofluxNotFound = () => {
+  const { data } = useProperties(1);
+  const suggestions = (data?.data || []).slice(0, 3);
+  return (
+    <>
+      <Helmet>
+        <title>Proprietate negăsită — MVA Imobiliare</title>
+        <meta name="robots" content="noindex, follow" />
+        <meta name="description" content="Proprietatea căutată nu mai este disponibilă. Vezi alte oferte similare pe MVA Imobiliare." />
+      </Helmet>
+      <Header />
+      <main className="pt-24 pb-16 container mx-auto px-4 min-h-[60vh]">
+        <div className="flex flex-col items-center text-center mb-10">
+          <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Proprietatea nu a fost găsită</h1>
+          <p className="text-muted-foreground max-w-xl">
+            Anunțul căutat a fost retras sau adresa este greșită. Explorează lista completă de proprietăți active.
+          </p>
+          <Link to="/proprietati" className="mt-6">
+            <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Vezi toate proprietățile</Button>
+          </Link>
+        </div>
+        {suggestions.length > 0 && (
+          <section aria-label="Proprietăți active">
+            <h2 className="text-lg font-semibold mb-4">Proprietăți active recomandate</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {suggestions.map((s) => (
+                <Link
+                  key={s.idnum}
+                  to={getImmofluxPropertyUrl(s as any)}
+                  className="rounded-xl border bg-card p-4 hover:border-gold transition-colors"
+                >
+                  {s.images?.[0]?.src && (
+                    <img src={s.images[0].src} alt={getTitle(s)} loading="lazy" decoding="async" className="w-full h-40 object-cover rounded-lg mb-3" />
+                  )}
+                  <div className="font-semibold line-clamp-2">{getTitle(s)}</div>
+                  <div className="text-sm text-gold mt-1">{formatPrice(s)}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
+      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
     </>
   );
 };
