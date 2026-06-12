@@ -81,19 +81,7 @@ const ImmofluxPropertyDetail = () => {
     </>
   );
 
-  if (isError || !property) return (
-    <>
-      <Header />
-      <main className="pt-24 pb-16 container mx-auto px-4 flex flex-col items-center justify-center min-h-[60vh]">
-        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-        <p className="text-lg">Proprietatea nu a fost găsită.</p>
-        <Link to="/proprietati" className="mt-4">
-          <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Înapoi la proprietăți</Button>
-        </Link>
-      </main>
-      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
-    </>
-  );
+  if (isError || !property) return <ImmofluxNotFound />;
 
   const p = property as any;
   const images = [...(property.images || [])].sort((a, b) => a.pozitie - b.pozitie);
