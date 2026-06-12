@@ -209,7 +209,6 @@ const AppRoutes = () => {
                 
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="vizualizari-proprietati" element={<PropertyViewsPage />} />
                 <Route path="rapoarte" element={<ReportsPage />} />
                 <Route path="setari" element={<SettingsPage />} />
@@ -220,13 +219,7 @@ const AppRoutes = () => {
                 <Route path="contracte" element={<ContractsPage />} />
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
-                <Route path="redirect-monitor" element={<RedirectMonitor />} />
-                <Route path="lighthouse" element={<LighthouseReportPage />} />
-
-                <Route path="facebook-catalog-feed" element={<FacebookCatalogFeedPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
-                
-                <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
                 <Route path="blog" element={<BlogAdminPage />} />
                 <Route path="news" element={<NewsAdminPage />} />
