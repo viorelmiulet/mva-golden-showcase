@@ -63,7 +63,7 @@ const Hero = () => {
                 {language === 'ro' ? 'Soluții Imobiliare' : 'Real Estate Solutions'}
               </span>
               <span className="block text-gradient-gold">
-                {language === 'ro' ? 'Complete' : 'Complete'}
+                {language === 'ro' ? 'Complete în Militari' : 'Complete in Militari'}
               </span>
             </h1>
             
