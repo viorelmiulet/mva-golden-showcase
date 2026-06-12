@@ -1920,7 +1920,7 @@ const PropertiesAdmin = () => {
                         rooms: fullProperty.rooms,
                         surface: fullProperty.surface_min,
                         slug,
-                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                        url: `https://www.mvaimobiliare.ro/proprietate/${slug}`,
                         image: images[0] || "",
                         description: fullProperty.description,
                       }),
