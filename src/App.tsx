@@ -11,8 +11,8 @@ import TrailingSlashRedirect from "@/components/TrailingSlashRedirect";
 import { seoLandingPresets } from "@/lib/seoLandingPresets";
 const SeoLanding = lazy(() => import("./pages/SeoLanding"));
 
-// Lazy load all pages including Index for better initial load
-const Index = lazy(() => import("./pages/Index"));
+// Eager-load main entry points (homepage + property detail) — main ad/share landing pages
+import Index from "./pages/Index";
 
 // Mobile app pages - lazy loaded for reduced initial bundle
 const MobileAppLayout = lazy(() => import("./layouts/MobileAppLayout"));
