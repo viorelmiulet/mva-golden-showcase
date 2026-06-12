@@ -1,6 +1,6 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useProperty, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData } from "@/hooks/useImmoflux";
+import { useProperty, useProperties, useSubmitContact, formatPrice, getTitle, getDescription, getSurface, type ImmofluxContactData, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
