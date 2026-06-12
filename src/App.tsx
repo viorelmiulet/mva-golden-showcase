@@ -78,6 +78,7 @@ const ViataInMilitariResidence = lazy(() => import("./pages/ViataInMilitariResid
 const ComparatieComplexuriMilitariChiajna = lazy(() => import("./pages/ComparatieComplexuriMilitariChiajna"));
 const CosturiTranzactieImobiliara = lazy(() => import("./pages/CosturiTranzactieImobiliara"));
 const GhidNouaCasa2024 = lazy(() => import("./pages/GhidNouaCasa2024"));
+const TopAnsambluriRezidentialeSector6 = lazy(() => import("./pages/TopAnsambluriRezidentialeSector6"));
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
@@ -267,6 +268,7 @@ const AppRoutes = () => {
               <Route path="/comparatie-complexuri-militari-chiajna" element={<ComparatieComplexuriMilitariChiajna />} />
               <Route path="/costuri-tranzactie-imobiliara" element={<CosturiTranzactieImobiliara />} />
               <Route path="/ghid-noua-casa-2024" element={<GhidNouaCasa2024 />} />
+              <Route path="/top-ansambluri-rezidentiale-sector-6" element={<TopAnsambluriRezidentialeSector6 />} />
               <Route path="/renew-residence" element={<RenewResidence />} />
               <Route path="/eurocasa-residence" element={<EurocasaResidence />} />
               <Route path="/proprietate/:slug" element={<ImmofluxPropertyDetail />} />
