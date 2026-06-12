@@ -181,44 +181,43 @@ const ReportsPage = () => {
         endDate = endOfYear(new Date(Number(selectedYear), 0));
       }
 
-      // Fetch commissions
-      const { data: commissions } = await supabase
-        .from("commissions")
-        .select("*")
-        .gte("date", format(startDate, "yyyy-MM-dd"))
-        .lte("date", format(endDate, "yyyy-MM-dd"))
-        .order("date", { ascending: true });
+      // Fetch via adminApi (bypasses RLS with service role) — filter client-side
+      const [commissionsRes, viewingsRes, propertiesRes, complexesRes] = await Promise.all([
+        adminApi.select<any>("commissions"),
+        adminApi.select<any>("viewing_appointments"),
+        adminApi.select<any>("catalog_offers"),
+        adminApi.select<any>("real_estate_projects"),
+      ]);
 
-      // Fetch viewings
-      const { data: viewings } = await supabase
-        .from("viewing_appointments")
-        .select("*")
-        .gte("created_at", startDate.toISOString())
-        .lte("created_at", endDate.toISOString());
+      const startStr = format(startDate, "yyyy-MM-dd");
+      const endStr = format(endDate, "yyyy-MM-dd");
 
-      // Fetch properties count
-      const { count: propertiesCount } = await supabase
-        .from("catalog_offers")
-        .select("*", { count: "exact", head: true })
-        .is("project_id", null);
+      const commissions = (commissionsRes.data || [])
+        .filter((c: any) => c.date && c.date >= startStr && c.date <= endStr)
+        .sort((a: any, b: any) => (a.date < b.date ? -1 : 1));
 
-      // Fetch complexes count
-      const { count: complexesCount } = await supabase
-        .from("real_estate_projects")
-        .select("*", { count: "exact", head: true });
+      const viewings = (viewingsRes.data || []).filter((v: any) => {
+        const ts = v.created_at;
+        return ts && ts >= startDate.toISOString() && ts <= endDate.toISOString();
+      });
+
+      const propertiesCount = (propertiesRes.data || []).filter(
+        (p: any) => p.project_id == null
+      ).length;
+      const complexesCount = (complexesRes.data || []).length;
 
       // Calculate totals
-      const totalEUR = commissions?.filter(c => c.currency === "EUR").reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-      const totalRON = commissions?.filter(c => c.currency === "RON").reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-      const salesCount = commissions?.filter(c => c.transaction_type === "vânzare").length || 0;
-      const rentCount = commissions?.filter(c => c.transaction_type === "chirie").length || 0;
+      const totalEUR = commissions.filter((c: any) => c.currency === "EUR").reduce((sum: number, c: any) => sum + Number(c.amount), 0);
+      const totalRON = commissions.filter((c: any) => c.currency === "RON").reduce((sum: number, c: any) => sum + Number(c.amount), 0);
+      const salesCount = commissions.filter((c: any) => c.transaction_type === "vânzare").length;
+      const rentCount = commissions.filter((c: any) => c.transaction_type === "chirie").length;
 
-      const viewingsTotal = viewings?.length || 0;
-      const viewingsCompleted = viewings?.filter(v => v.status === "completed").length || 0;
-      const viewingsPending = viewings?.filter(v => v.status === "pending").length || 0;
+      const viewingsTotal = viewings.length;
+      const viewingsCompleted = viewings.filter((v: any) => v.status === "completed").length;
+      const viewingsPending = viewings.filter((v: any) => v.status === "pending").length;
 
       return {
-        commissions: commissions || [],
+        commissions,
         totalEUR,
         totalRON,
         salesCount,
@@ -226,8 +225,8 @@ const ReportsPage = () => {
         viewingsTotal,
         viewingsCompleted,
         viewingsPending,
-        propertiesCount: propertiesCount || 0,
-        complexesCount: complexesCount || 0,
+        propertiesCount,
+        complexesCount,
         startDate,
         endDate
       };
