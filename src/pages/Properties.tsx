@@ -173,13 +173,10 @@ const Properties = () => {
       const bPole = b._immoflux_pole ? 2 : 0;
       const aTop = a._immoflux_top ? 1 : 0;
       const bTop = b._immoflux_top ? 1 : 0;
-      const promoDiff = (bPole + bTop) - (aPole + aTop);
-      if (promoDiff !== 0) return promoDiff;
-      const aSold = a.availability_status === 'sold' ? 1 : 0;
-      const bSold = b.availability_status === 'sold' ? 1 : 0;
-      return aSold - bSold;
+      return (bPole + bTop) - (aPole + aTop);
     });
   }, [catalogProperties]);
+
 
   // Helper: detect transaction type. Strong text/price signals override DB value
   // (some imports mislabel rentals as 'sale' and vice-versa).
