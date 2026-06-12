@@ -50,6 +50,7 @@ const ImmofluxPropertyDetail = () => {
   const propertyId = slug ? (extractImmofluxIdFromSlug(slug) || slug) : '';
   const { data: property, isLoading, isError } = useProperty(propertyId);
   const contactMutation = useSubmitContact();
+  const { data: similarPool } = useProperties(1);
 
   const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
   const [lightboxOpen, setLightboxOpen] = useState(false);
