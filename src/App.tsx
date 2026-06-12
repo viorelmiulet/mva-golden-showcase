@@ -27,7 +27,7 @@ const MobileComplexDetail = lazy(() => import("./pages/mobile/MobileComplexDetai
 // Lazy load pages for code splitting
 const WhyChooseUs = lazy(() => import("./pages/WhyChooseUs"));
 const Properties = lazy(() => import("./pages/Properties"));
-const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+import PropertyDetail from "./pages/PropertyDetail";
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const AddProperty = lazy(() => import("./pages/AddProperty"));
 const AdminLayout = lazy(() => import("./pages/AdminLayout"));
