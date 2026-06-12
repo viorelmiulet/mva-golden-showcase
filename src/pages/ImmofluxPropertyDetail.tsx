@@ -573,7 +573,45 @@ const ImmofluxPropertyDetail = () => {
                 </form>
               </div>
             </div>
-          </div>
+
+          {(() => {
+            const pool = (similarPool?.data || []).filter((s: ImmofluxProperty) => s.idnum !== property.idnum);
+            const sameSale = pool.filter(s => s.devanzare === property.devanzare);
+            const sameRooms = sameSale.filter(s => Number(s.nrcamere) === Number(p.nrcamere));
+            const ranked = [...sameRooms, ...sameSale.filter(s => !sameRooms.includes(s)), ...pool.filter(s => !sameSale.includes(s))];
+            const similar = ranked.slice(0, 6);
+            if (similar.length === 0) return null;
+            return (
+              <section aria-label="Proprietăți similare" className="mt-12">
+                <h2 className="text-xl md:text-2xl font-bold mb-5">Proprietăți similare</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {similar.map((s) => (
+                    <Link
+                      key={s.idnum}
+                      to={getImmofluxPropertyUrl(s as any)}
+                      className="rounded-xl border bg-card overflow-hidden hover:border-gold transition-colors group"
+                    >
+                      {s.images?.[0]?.src && (
+                        <img
+                          src={s.images[0].src}
+                          alt={getTitle(s)}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-44 object-cover group-hover:opacity-95"
+                        />
+                      )}
+                      <div className="p-4">
+                        <div className="font-semibold line-clamp-2 text-sm">{getTitle(s)}</div>
+                        <div className="text-gold font-bold mt-2">{formatPrice(s)}</div>
+                        {s.zona && <div className="text-xs text-muted-foreground mt-1 truncate">{s.zona}, {s.localitate}</div>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+        </div>
         </div>
       </main>
       {lightboxOpen && (
