@@ -590,4 +590,52 @@ const ImmofluxPropertyDetail = () => {
   );
 };
 
+const ImmofluxNotFound = () => {
+  const { data } = useProperties(1);
+  const suggestions = (data?.data || []).slice(0, 3);
+  return (
+    <>
+      <Helmet>
+        <title>Proprietate negăsită — MVA Imobiliare</title>
+        <meta name="robots" content="noindex, follow" />
+        <meta name="description" content="Proprietatea căutată nu mai este disponibilă. Vezi alte oferte similare pe MVA Imobiliare." />
+      </Helmet>
+      <Header />
+      <main className="pt-24 pb-16 container mx-auto px-4 min-h-[60vh]">
+        <div className="flex flex-col items-center text-center mb-10">
+          <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Proprietatea nu a fost găsită</h1>
+          <p className="text-muted-foreground max-w-xl">
+            Anunțul căutat a fost retras sau adresa este greșită. Explorează lista completă de proprietăți active.
+          </p>
+          <Link to="/proprietati" className="mt-6">
+            <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Vezi toate proprietățile</Button>
+          </Link>
+        </div>
+        {suggestions.length > 0 && (
+          <section aria-label="Proprietăți active">
+            <h2 className="text-lg font-semibold mb-4">Proprietăți active recomandate</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {suggestions.map((s) => (
+                <Link
+                  key={s.idnum}
+                  to={getImmofluxPropertyUrl(s as any)}
+                  className="rounded-xl border bg-card p-4 hover:border-gold transition-colors"
+                >
+                  {s.images?.[0]?.src && (
+                    <img src={s.images[0].src} alt={getTitle(s)} loading="lazy" decoding="async" className="w-full h-40 object-cover rounded-lg mb-3" />
+                  )}
+                  <div className="font-semibold line-clamp-2">{getTitle(s)}</div>
+                  <div className="text-sm text-gold mt-1">{formatPrice(s)}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
+      <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
+    </>
+  );
+};
+
 export default ImmofluxPropertyDetail;
