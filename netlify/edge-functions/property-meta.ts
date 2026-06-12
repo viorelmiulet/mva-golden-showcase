@@ -24,10 +24,11 @@ const SITE_URL = "https://mvaimobiliare.ro";
 const SITE_NAME = "MVA Imobiliare";
 const FALLBACK_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 
-// Env vars — se setează în Netlify UI (vezi README).
-const SUPABASE_URL =
-  Netlify.env.get("SUPABASE_URL") ?? "https://fdpandnzblzvamhsoukt.supabase.co";
-const SUPABASE_ANON_KEY = Netlify.env.get("SUPABASE_ANON_KEY") ?? "";
+// Cheia anon e publică prin design (există deja în bundle-ul frontend),
+// deci poate fi hardcodată aici fără risc. Valorile se copiază din
+// clientul Supabase existent în proiect (src/integrations/supabase/client.ts).
+const SUPABASE_URL = "https://fdpandnzblzvamhsoukt.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcGFuZG56Ymx6dmFtaHNvdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NzM2ODUsImV4cCI6MjA3NzQ0OTY4NX0.RB-3XaeYVlmt4VpGTzh72hpAl1J4HUkbe-_u-NZjAsU";
 
 // (2) Numele tabelei și ale coloanelor — ajustează la schema ta reală.
 const TABLE = "catalog_offers";
