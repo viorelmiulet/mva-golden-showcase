@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { getOptimizedImageUrl, generateSrcSet, defaultSrcSetSizes } from '@/lib/imageOptimization';
+import { getOptimizedImageUrl, generateSrcSet, defaultSrcSetSizes, getSizedImageUrl } from '@/lib/imageOptimization';
 
 interface OptimizedImageProps {
   src: string;
@@ -46,13 +46,16 @@ const OptimizedImage = ({
   const isSupabaseImage = src?.includes('supabase.co/storage');
   const isTransformable = !!src && /^https?:\/\/(pub-[a-z0-9]+\.r2\.dev|images\.mvaimobiliare\.ro)\//i.test(src);
 
+  // Resize-segment CDN: request a smaller rendition based on the width prop.
+  const sizedSrc = width ? getSizedImageUrl(src, width) : src;
+
   // Generate optimized URLs
   const optimizedSrc = (isSupabaseImage || isTransformable)
-    ? getOptimizedImageUrl(src, width || 1920, quality)
-    : src;
+    ? getOptimizedImageUrl(sizedSrc, width || 1920, quality)
+    : sizedSrc;
 
   const srcSet = (isSupabaseImage || isTransformable)
-    ? generateSrcSet(src, defaultSrcSetSizes)
+    ? generateSrcSet(sizedSrc, defaultSrcSetSizes)
     : undefined;
 
   useEffect(() => {

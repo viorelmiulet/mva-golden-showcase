@@ -3,7 +3,8 @@ import {
   getOptimizedImageUrl, 
   generateSrcSet, 
   defaultSrcSetSizes,
-  supportsWebP 
+  supportsWebP,
+  getSizedImageUrl
 } from '@/lib/imageOptimization';
 
 interface UseOptimizedImageOptions {
