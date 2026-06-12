@@ -40,16 +40,18 @@ const OptimizedImage = ({
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const fallbackTriedRef = useRef(false);
 
-  // Check if image is from Supabase storage
+  // Check if image is from Supabase storage or a transformable R2 host
   const isSupabaseImage = src?.includes('supabase.co/storage');
+  const isTransformable = !!src && /^https?:\/\/(pub-[a-z0-9]+\.r2\.dev|images\.mvaimobiliare\.ro)\//i.test(src);
 
   // Generate optimized URLs
-  const optimizedSrc = isSupabaseImage 
+  const optimizedSrc = (isSupabaseImage || isTransformable)
     ? getOptimizedImageUrl(src, width || 1920, quality)
     : src;
 
-  const srcSet = isSupabaseImage 
+  const srcSet = (isSupabaseImage || isTransformable)
     ? generateSrcSet(src, defaultSrcSetSizes)
     : undefined;
 
@@ -81,10 +83,12 @@ const OptimizedImage = ({
 
   const handleError = () => {
     setHasError(true);
-    // Fallback to original src if WebP fails
-    if (imgRef.current && isSupabaseImage) {
-      imgRef.current.src = src;
+    // One-time fallback to original URL (guard against retry loops)
+    if (fallbackTriedRef.current) return;
+    fallbackTriedRef.current = true;
+    if (imgRef.current && src) {
       imgRef.current.srcset = '';
+      imgRef.current.src = src;
     }
   };
 
@@ -105,7 +109,7 @@ const OptimizedImage = ({
       {isInView && (
         <picture>
           {/* WebP source for browsers that support it */}
-          {isSupabaseImage && srcSet && (
+          {(isSupabaseImage || isTransformable) && srcSet && (
             <source
               type="image/webp"
               srcSet={srcSet}
@@ -115,7 +119,7 @@ const OptimizedImage = ({
           <img
             ref={imgRef}
             src={optimizedSrc}
-            srcSet={!isSupabaseImage ? undefined : srcSet}
+            srcSet={(isSupabaseImage || isTransformable) ? srcSet : undefined}
             sizes={sizes}
             alt={alt}
             width={width}
