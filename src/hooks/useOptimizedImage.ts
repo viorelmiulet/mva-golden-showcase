@@ -75,14 +75,17 @@ export const useOptimizedImage = ({
   // Check WebP support
   const webPSupported = supportsWebP();
 
-  // Generate optimized URLs
-  const optimizedSrc = isSupabaseImage 
+  // Check whether URL is one we route through Cloudflare Image Transformations
+  const isTransformable = !!src && /^https?:\/\/(pub-[a-z0-9]+\.r2\.dev|images\.mvaimobiliare\.ro)\//i.test(src);
+
+  // Generate optimized URLs (transformed for R2, pass-through otherwise)
+  const optimizedSrc = (isSupabaseImage || isTransformable)
     ? getOptimizedImageUrl(src, width || 1920, quality)
     : src || '';
 
-  const srcSet = isSupabaseImage 
+  const srcSet = isTransformable
     ? generateSrcSet(src, sizes)
-    : undefined;
+    : (isSupabaseImage ? generateSrcSet(src, sizes) : undefined);
 
   // Generate a simple blur placeholder (1x1 gray pixel as base64)
   const blurDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
