@@ -205,6 +205,20 @@ export const getOptimizedImageUrl = (
   quality: number = 80
 ): string => {
   if (!url || typeof url !== 'string') return '';
+
+  // 1. Resize-segment CDN (e.g. immoflux /resize/WxH/ URLs)
+  const resizeMatch = url.match(/\/resize\/(\d+)x(\d+)\//);
+  if (resizeMatch) {
+    const origW = parseInt(resizeMatch[1], 10);
+    const origH = parseInt(resizeMatch[2], 10);
+    if (origW && origH && width < origW) {
+      const targetHeight = Math.round((origH * width) / origW);
+      return url.replace(/\/resize\/\d+x\d+\//, `/resize/${width}x${targetHeight}/`);
+    }
+    return url; // no upscaling
+  }
+
+  // 2. R2 / Cloudflare Image Transformations
   if (!R2_HOST_PATTERN.test(url)) return url;
 
   const swapped = url.replace(R2_HOST_PATTERN, `https://${CF_IMAGES_HOST}/`);
