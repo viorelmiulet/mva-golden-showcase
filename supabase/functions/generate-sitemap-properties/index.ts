@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
           : currentDate;
         
         sitemap += `  <url>
-    <loc>${baseUrl}/proprietati/${property.slug}</loc>
+    <loc>${baseUrl}/proprietate/${property.slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

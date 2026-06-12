@@ -118,7 +118,7 @@ export const ScheduleViewingDialog = ({
       const normalizedPropertyUrl = propertyUrl?.trim();
       const fallbackPropertyPath = currentPath.startsWith('/')
         ? currentPath
-        : `/proprietati/${normalizedPropertyId}`;
+        : `/proprietate/${normalizedPropertyId}`;
       const propertyLink = `${window.location.origin}${normalizedPropertyUrl || fallbackPropertyPath}`;
 
       const { error: emailError } = await supabase.functions.invoke("send-viewing-notification", {

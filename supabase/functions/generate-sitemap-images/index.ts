@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
           : currentDate;
 
         sitemap += `  <url>
-    <loc>${escapeXml(`${baseUrl}/proprietati/${getPropertySlug(property)}`)}</loc>
+    <loc>${escapeXml(`${baseUrl}/proprietate/${getPropertySlug(property)}`)}</loc>
     <lastmod>${lastmod}</lastmod>
 `;
         
