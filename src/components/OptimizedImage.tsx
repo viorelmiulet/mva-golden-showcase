@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { getOptimizedImageUrl, generateSrcSet, defaultSrcSetSizes } from '@/lib/imageOptimization';
+import { getOptimizedImageUrl, generateSrcSet, defaultSrcSetSizes, getSizedImageUrl } from '@/lib/imageOptimization';
 
 interface OptimizedImageProps {
   src: string;
