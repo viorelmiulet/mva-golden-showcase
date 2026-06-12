@@ -46,6 +46,7 @@ const Properties = () => {
         .from('catalog_offers')
         .select('*')
         .is('project_id', null)
+        .neq('availability_status', 'sold')
         .limit(100);
       if (error) throw error;
       return (data || []).sort(() => Math.random() - 0.5);
