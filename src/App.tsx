@@ -41,7 +41,6 @@ const MarketingAIPage = lazy(() => import("./pages/admin/MarketingAIPage"));
 
 const ViewingAppointmentsPage = lazy(() => import("./pages/admin/ViewingAppointmentsPage"));
 const CommissionsPage = lazy(() => import("./pages/admin/CommissionsPage"));
-const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
 const PropertyViewsPage = lazy(() => import("./pages/admin/PropertyViewsPage"));
 const ComplexesOverview = lazy(() => import("./pages/admin/ComplexesOverview"));
 const ComplexDetailAdmin = lazy(() => import("./pages/admin/ComplexDetail"));
@@ -65,10 +64,6 @@ const ContractsPage = lazy(() => import("./pages/admin/ContractsPage"));
 const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPage"));
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
-const RedirectMonitor = lazy(() => import("./pages/admin/RedirectMonitor"));
-const LighthouseReportPage = lazy(() => import("./pages/admin/LighthouseReportPage"));
-
-const FacebookCatalogFeedPage = lazy(() => import("./pages/admin/FacebookCatalogFeedPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const GhidMilitariResidence = lazy(() => import("./pages/GhidMilitariResidence"));
@@ -85,7 +80,7 @@ const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
 const ImmofluxPropertyDetail = lazy(() => import("./pages/ImmofluxPropertyDetail"));
 const OfertaRedirect = lazy(() => import("./components/OfertaRedirect"));
-const DownloadExtensionPage = lazy(() => import("./pages/admin/DownloadExtensionPage"));
+
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));
 const BlogAdminPage = lazy(() => import("./pages/admin/BlogAdminPage"));
 const NewsAdminPage = lazy(() => import("./pages/admin/NewsAdminPage"));
@@ -214,7 +209,6 @@ const AppRoutes = () => {
                 
                 <Route path="vizionari" element={<ViewingAppointmentsPage />} />
                 <Route path="comisioane" element={<CommissionsPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="vizualizari-proprietati" element={<PropertyViewsPage />} />
                 <Route path="rapoarte" element={<ReportsPage />} />
                 <Route path="setari" element={<SettingsPage />} />
@@ -225,13 +219,7 @@ const AppRoutes = () => {
                 <Route path="contracte" element={<ContractsPage />} />
                 <Route path="inventar-presetat" element={<InventoryPresetsPage />} />
                 <Route path="istoric" element={<AuditLogsPage />} />
-                <Route path="redirect-monitor" element={<RedirectMonitor />} />
-                <Route path="lighthouse" element={<LighthouseReportPage />} />
-
-                <Route path="facebook-catalog-feed" element={<FacebookCatalogFeedPage />} />
                 <Route path="instaleaza" element={<InstallAppPage />} />
-                
-                <Route path="extensie-chrome" element={<DownloadExtensionPage />} />
                 <Route path="watermark" element={<WatermarkPage />} />
                 <Route path="blog" element={<BlogAdminPage />} />
                 <Route path="news" element={<NewsAdminPage />} />

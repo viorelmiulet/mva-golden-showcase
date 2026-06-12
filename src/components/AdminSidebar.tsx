@@ -13,21 +13,14 @@ import {
   LayoutDashboard,
   FileText,
   Settings,
-  BarChart3,
   Sparkles,
   ScrollText,
   Package,
-  
-  Chrome,
   Stamp,
   Inbox,
   Mic,
   CalendarCheck,
   Eye,
-  ShieldAlert,
-  Gauge,
-
-  FileSpreadsheet,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +45,6 @@ const menuItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
   { title: "Inbox", url: "/admin/inbox", icon: Inbox },
   { title: "Gestiune Chirii", url: "/admin/gestiune-chirii", icon: Package },
-  { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
   { title: "Vizualizări Proprietăți", url: "/admin/vizualizari-proprietati", icon: Eye },
   { title: "Proprietăți", url: "/admin/proprietati", icon: Home },
   { title: "Ansambluri Rezidențiale", url: "/admin/complexe", icon: Layers },
@@ -67,11 +59,7 @@ const menuItems = [
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "News", url: "/admin/news", icon: FileText },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
-  { title: "Feed Facebook Catalog", url: "/admin/facebook-catalog-feed", icon: FileSpreadsheet },
-  { title: "Monitor Redirecturi", url: "/admin/redirect-monitor", icon: ShieldAlert },
   { title: "Setări", url: "/admin/setari", icon: Settings },
-  { title: "Raport Lighthouse", url: "/admin/lighthouse", icon: Gauge },
-  { title: "Extensie Chrome", url: "/admin/extensie-chrome", icon: Chrome },
 
 ];
 
