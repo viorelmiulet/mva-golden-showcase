@@ -220,6 +220,35 @@ export const isTransformableImageUrl = (url: string | undefined | null): boolean
 };
 
 /**
+ * For CDN URLs that embed the rendered size as a path segment
+ * (e.g. `/resize/1270x720/`), rewrite the segment to a smaller width while
+ * preserving the original aspect ratio. Never upscales. Returns the URL
+ * unchanged for any pattern without the resize segment, for R2 / local /
+ * relative paths, or when input is empty.
+ */
+export const getSizedImageUrl = (
+  url: string | undefined | null,
+  targetWidth: number
+): string => {
+  if (!url || typeof url !== 'string') return url || '';
+  if (!Number.isFinite(targetWidth) || targetWidth <= 0) return url;
+
+  const match = url.match(/\/resize\/(\d+)x(\d+)\//);
+  if (!match) return url;
+
+  const origW = parseInt(match[1], 10);
+  const origH = parseInt(match[2], 10);
+  if (!origW || !origH) return url;
+  if (targetWidth >= origW) return url;
+
+  const targetHeight = Math.round((origH * targetWidth) / origW);
+  return url.replace(
+    /\/resize\/\d+x\d+\//,
+    `/resize/${targetWidth}x${targetHeight}/`
+  );
+};
+
+/**
  * Generate srcset for responsive images with WebP format
  */
 export const generateSrcSet = (url: string, sizes: number[]): string => {
