@@ -186,20 +186,37 @@ export const getSupabaseTransformUrl = (
 };
 
 /**
- * Get optimized image URL with automatic WebP conversion
- * Supports both Supabase URLs and external URLs
+ * R2 public bucket host(s) routed through Cloudflare Image Transformations.
+ * Add more entries if additional R2 public hosts appear in the data.
+ */
+const R2_HOST_PATTERN = /^https?:\/\/(pub-[a-z0-9]+\.r2\.dev|images\.mvaimobiliare\.ro)\//i;
+const CF_IMAGES_HOST = 'images.mvaimobiliare.ro';
+const CF_TRANSFORM_BASE = 'https://mvaimobiliare.ro/cdn-cgi/image';
+
+/**
+ * Wrap an R2-hosted image URL through Cloudflare Image Transformations.
+ * - Empty, relative, or non-R2 URLs are returned unchanged (pass-through).
+ * - R2 URLs are rewritten to the custom images.mvaimobiliare.ro host and
+ *   wrapped through /cdn-cgi/image/ for resize + auto format conversion.
  */
 export const getOptimizedImageUrl = (
   url: string,
   width: number,
   quality: number = 80
 ): string => {
-  if (!url) return '';
+  if (!url || typeof url !== 'string') return '';
+  if (!R2_HOST_PATTERN.test(url)) return url;
 
-  // Return original URL as-is — the /render/image/ endpoint is not available
-  // on all Supabase plans and can return corrupted (green) images.
-  // Images are already compressed on upload via compressImageToFile.
-  return url;
+  const swapped = url.replace(R2_HOST_PATTERN, `https://${CF_IMAGES_HOST}/`);
+  const opts = `width=${width},quality=${quality},format=auto,fit=cover`;
+  return `${CF_TRANSFORM_BASE}/${opts}/${swapped}`;
+};
+
+/**
+ * True when the URL is one we route through Cloudflare Image Transformations.
+ */
+export const isTransformableImageUrl = (url: string | undefined | null): boolean => {
+  return !!url && typeof url === 'string' && R2_HOST_PATTERN.test(url);
 };
 
 /**
