@@ -173,19 +173,11 @@ const AppRoutes = () => {
     <>
       <TrailingSlashRedirect />
       <Suspense fallback={
-        <div className="min-h-screen bg-background">
-          <div className="h-16 border-b border-border/40 bg-background/95 backdrop-blur" />
-          <div className="container mx-auto max-w-6xl px-4 py-8 space-y-6">
-            <div className="h-8 w-48 bg-muted animate-pulse rounded-lg" />
-            <div className="h-[50vh] bg-muted animate-pulse rounded-xl" />
-            <div className="grid grid-cols-3 gap-4">
-              <div className="h-24 bg-muted animate-pulse rounded-lg" />
-              <div className="h-24 bg-muted animate-pulse rounded-lg" />
-              <div className="h-24 bg-muted animate-pulse rounded-lg" />
-            </div>
-          </div>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="h-10 w-10 rounded-full border-2 border-gold/30 border-t-gold animate-spin" aria-label="Se încarcă" />
         </div>
       }>
+
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/de-ce-sa-ne-alegi" element={<WhyChooseUs />} />
