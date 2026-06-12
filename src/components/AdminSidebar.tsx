@@ -13,21 +13,14 @@ import {
   LayoutDashboard,
   FileText,
   Settings,
-  BarChart3,
   Sparkles,
   ScrollText,
   Package,
-  
-  Chrome,
   Stamp,
   Inbox,
   Mic,
   CalendarCheck,
   Eye,
-  ShieldAlert,
-  Gauge,
-
-  FileSpreadsheet,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

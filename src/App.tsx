@@ -41,7 +41,6 @@ const MarketingAIPage = lazy(() => import("./pages/admin/MarketingAIPage"));
 
 const ViewingAppointmentsPage = lazy(() => import("./pages/admin/ViewingAppointmentsPage"));
 const CommissionsPage = lazy(() => import("./pages/admin/CommissionsPage"));
-const AnalyticsPage = lazy(() => import("./pages/admin/AnalyticsPage"));
 const PropertyViewsPage = lazy(() => import("./pages/admin/PropertyViewsPage"));
 const ComplexesOverview = lazy(() => import("./pages/admin/ComplexesOverview"));
 const ComplexDetailAdmin = lazy(() => import("./pages/admin/ComplexDetail"));
@@ -65,10 +64,6 @@ const ContractsPage = lazy(() => import("./pages/admin/ContractsPage"));
 const InventoryPresetsPage = lazy(() => import("./pages/admin/InventoryPresetsPage"));
 const InstallAppPage = lazy(() => import("./pages/admin/InstallAppPage"));
 const AuditLogsPage = lazy(() => import("./pages/admin/AuditLogsPage"));
-const RedirectMonitor = lazy(() => import("./pages/admin/RedirectMonitor"));
-const LighthouseReportPage = lazy(() => import("./pages/admin/LighthouseReportPage"));
-
-const FacebookCatalogFeedPage = lazy(() => import("./pages/admin/FacebookCatalogFeedPage"));
 const SignContract = lazy(() => import("./pages/SignContract"));
 const MilitariResidence = lazy(() => import("./pages/MilitariResidence"));
 const GhidMilitariResidence = lazy(() => import("./pages/GhidMilitariResidence"));
