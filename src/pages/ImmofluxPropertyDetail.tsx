@@ -425,12 +425,12 @@ const ImmofluxPropertyDetail = () => {
               )}
 
               {/* Descriere */}
-              {description && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground">Descriere</h2>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">{description}</p>
-                </div>
-              )}
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold text-foreground">Descriere</h2>
+                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
+                  {description && description.length > 150 ? description : composedDescription}
+                </p>
+              </div>
 
               {/* Vecinătăți */}
               {vecinatati && (
