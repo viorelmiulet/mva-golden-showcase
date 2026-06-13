@@ -187,7 +187,7 @@ INFORMAȚII DE CONTACT:
       systemPrompt += `OFERTE RELEVANTE GĂSITE (${catalogOffers.length} proprietăți selectate pentru cererea ta):\n\n`;
       
       catalogOffers.forEach((offer, index) => {
-        const propertyLink = `https://www.mvaimobiliare.ro/proprietate/${offer.slug || offer.id}`;
+        const propertyLink = `https://www.mvaimobiliare.ro/proprietati/${offer.slug || offer.id}`;
         systemPrompt += `${index + 1}. ${offer.title}\n`;
         systemPrompt += `   📍 ${offer.location}\n`;
         systemPrompt += `   💰 ${offer.price_min.toLocaleString()} ${offer.currency || 'EUR'}\n`;
@@ -219,7 +219,7 @@ INFORMAȚII DE CONTACT:
     systemPrompt += `
 FUNCȚIONALITĂȚI SPECIALE:
 - PRIORITATE MAXIMĂ: Pentru orice cerere de oferte, prezintă ofertele din catalogul nostru cu LINKURI DIRECTE
-- Pentru fiecare ofertă, include linkul direct: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietate/ID"
+- Pentru fiecare ofertă, include linkul direct: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietati/ID"
 - Completează cu rezultatele căutării web când sunt disponibile
 - Când prezinți oferte, ÎNTOTDEAUNA include linkul direct către pagina proprietății
 - Dacă nu găsești rezultate web, folosește catalogul local și oferă linkuri directe
@@ -233,7 +233,7 @@ STRUCTURA SITE-ULUI:
 ROLUL TĂU:
 - Răspunde în română, într-un ton profesional dar prietenos
 - PRIORITATE MAXIMĂ: Pentru cereri de oferte, prezintă ofertele cu LINKURI DIRECTE
-- Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietate/ID-UL_PROPRIETATII"
+- Pentru fiecare proprietate, include linkul: "🔗 Vezi detalii complete: https://www.mvaimobiliare.ro/proprietati/ID-UL_PROPRIETATII"
 - NU MENȚIONA numele proiectelor rezidențiale (ex: Militari Residence, Renew Residence, etc.)
 - Focusează-te pe: caracteristici, locație, preț, beneficii, facilități
 - Ajută clienții să găsească proprietatea potrivită pe baza bugetului și cerințelor lor
@@ -245,7 +245,7 @@ ROLUL TĂU:
 
 IMPORTANT: 
 - ÎNTOTDEAUNA include linkul DIRECT către fiecare proprietate când o prezinți
-- Format link: https://www.mvaimobiliare.ro/proprietate/[ID-ul proprietății]
+- Format link: https://www.mvaimobiliare.ro/proprietati/[ID-ul proprietății]
 - Nu trimite utilizatorii la pagina generală /proprietati, ci la pagina specifică proprietății
 - Folosește rezultatele căutării web pentru a completa informațiile
 - Pentru ofertele din catalog, OBLIGATORIU: linkul direct către pagina proprietății

@@ -426,10 +426,10 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
   }
   const validations = await validateImagesBatch(allCandidateUrls)
 
-  // Pre-batch validate ALL property links (/proprietate/<slug>) — same persistent cache pattern
+  // Pre-batch validate ALL property links (/proprietati/<slug>) — same persistent cache pattern
   const linkByProp = new Map<string, string>()
   for (const p of valid) {
-    linkByProp.set(p.id, `${SITE_URL}/proprietate/${buildSlug(p)}`)
+    linkByProp.set(p.id, `${SITE_URL}/proprietati/${buildSlug(p)}`)
   }
   const linkValidations = await validateLinksBatch(Array.from(linkByProp.values()))
 
@@ -447,7 +447,7 @@ async function generateFeed(format: FeedFormat = 'home_listings'): Promise<FeedR
     else if (p.availability_status === 'reserved') availability = 'sale_pending'
     else if (p.availability_status === 'sold') availability = 'recently_sold'
     const price = p.__priceFormatted as string // pre-normalizat: "<amount.00> <ISO CCY>"
-    const link = linkByProp.get(p.id) || `${SITE_URL}/proprietate/${buildSlug(p)}`
+    const link = linkByProp.get(p.id) || `${SITE_URL}/proprietati/${buildSlug(p)}`
     if (!linkValidations.get(link)) {
       brokenLinks.push({ id: p.id, external_id: p.external_id, title: name, reason: `Link inaccesibil/404: ${link}` })
       return null

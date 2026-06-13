@@ -333,7 +333,7 @@ serve(async (req) => {
 
     // Generate content for properties
     const generatePropertyContent = (platform: string, prop: any): string => {
-      const propertyUrl = `${siteUrl}/proprietate/${prop.slug || prop.id}`;
+      const propertyUrl = `${siteUrl}/proprietati/${prop.slug || prop.id}`;
       const details = buildPropertyDetails(prop);
 
       return `🏠 ${prop.title}
@@ -569,7 +569,7 @@ ${blogHashtags}`;
         const roomsFormatted = property.rooms ? `${property.rooms} ${property.rooms === 1 ? 'cameră' : 'camere'}` : '';
         const surfaceFormatted = property.surface_min ? `${property.surface_min} mp` : '';
         const locationFormatted = property.location || 'Militari Residence';
-        const propertyUrl = `${siteUrl}/proprietate/${property.slug || property.id}`;
+        const propertyUrl = `${siteUrl}/proprietati/${property.slug || property.id}`;
         
         const hashtags = customHashtags;
 

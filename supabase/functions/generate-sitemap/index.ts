@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
         ? new Date(property.updated_at).toISOString().split('T')[0]
         : currentDate;
       sitemap += `  <url>
-    <loc>${SITE_URL}/proprietate/${xmlEscape(property.slug)}</loc>
+    <loc>${SITE_URL}/proprietati/${xmlEscape(property.slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
