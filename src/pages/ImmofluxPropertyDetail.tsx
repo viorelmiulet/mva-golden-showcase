@@ -203,6 +203,30 @@ const ImmofluxPropertyDetail = () => {
   // Keep an SEO-friendly H1/title source from the API title.
   const seoTitleSource = title;
 
+  return (
+    <>
+      <PropertySeo
+        title={seoTitleSource}
+        description={composedDescription}
+        metaDescription={metaDesc}
+        canonicalPath={canonicalPath}
+        images={images.map((i: any) => i.src)}
+        price={priceAmount ? Number(priceAmount) : null}
+        currency={currency}
+        isAvailable={true}
+        rooms={rooms}
+        bathrooms={p.nrbai ? Number(p.nrbai) : null}
+        surface={surface || null}
+        floor={parseFloor(p.etaj, p.nretaj, p.floor)}
+        yearBuilt={p.anconstructie ? Number(p.anconstructie) : null}
+        zone={zona}
+        city={localitate}
+        street={p.adresa || null}
+        latitude={lat ? Number(lat) : null}
+        longitude={lng ? Number(lng) : null}
+        datePosted={addedDate || null}
+        isSale={isSale}
+      />
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
