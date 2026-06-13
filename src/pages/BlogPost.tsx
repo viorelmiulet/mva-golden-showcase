@@ -143,7 +143,7 @@ const BlogPost = () => {
         { name: post.title, url: `/blog/${slug}` }
       ]} />
       <Helmet>
-        <title>{post.meta_title || `${post.title} | MVA Imobiliare Blog`}</title>
+        <title>{post.meta_title ? buildPageTitle(post.meta_title) : buildPageTitle(post.title)}</title>
         <meta name="description" content={post.meta_description || post.excerpt || post.title} />
         <meta name="keywords" content="imobiliare, ghid, sfaturi, București, proprietăți" />
         <link rel="canonical" href={`https://www.mvaimobiliare.ro/blog/${slug}`} />
