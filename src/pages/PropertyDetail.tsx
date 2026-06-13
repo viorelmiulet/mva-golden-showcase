@@ -49,6 +49,8 @@ import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
+import PropertySeo from "@/components/PropertySeo";
+import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
@@ -484,136 +486,67 @@ const PropertyDetail = () => {
 
   if (!property) return null;
 
-  // Helper variables for SEO
+  // Helper variables
   const zona = property ? getDisplayLocation(property) : 'București';
-  const camere = property.rooms || '';
-  const suprafata = property.surface_min || '';
-  const etaj = property.floor ?? '-';
-  const pret = property.price_min ? property.price_min.toLocaleString('ro-RO') : '-';
-  const tipTranzactie = property.transaction_type === 'rent' ? 'Închiriere' : 'Vânzare';
+  const isSale = property.transaction_type !== 'rent';
+  const titleForSeo = property.title || `Apartament ${property.rooms || ''} camere ${zona}`;
 
-  // Structured Data - RealEstateListing
-  const propertySchema = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    "name": `Apartament ${camere} camere ${zona}`,
-    "description": property.description || `Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6.`,
-    "url": `https://www.mvaimobiliare.ro${getPropertyUrl(property)}`,
-    "image": Array.isArray(property.images) && property.images.length > 0
-      ? property.images.slice(0, 6)
-      : "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg",
-    "datePosted": property.created_at || new Date().toISOString(),
-    "numberOfRooms": property.rooms,
-    ...(property.bathrooms ? { "numberOfBathroomsTotal": property.bathrooms } : {}),
-    ...(property.floor !== null && property.floor !== undefined ? { "floorLevel": property.floor } : {}),
-    ...(property.year_built ? { "yearBuilt": property.year_built } : {}),
-    "offers": {
-      "@type": "Offer",
-      "price": property.price_min,
-      "priceCurrency": property.currency || "EUR",
-      "availability": property.availability_status === "available" ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "url": `https://www.mvaimobiliare.ro${getPropertyUrl(property)}`,
-      "seller": {
-        "@type": "RealEstateAgent",
-        "name": "MVA Imobiliare",
-        "url": "https://www.mvaimobiliare.ro",
-        "telephone": "+40767941512"
-      }
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": property.city || "București",
-      "addressRegion": "Sector 6",
-      "streetAddress": zona,
-      "addressCountry": "RO"
-    },
-    ...(property.latitude && property.longitude ? {
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": property.latitude,
-        "longitude": property.longitude
-      }
-    } : {}),
-    "floorSize": {
-      "@type": "QuantitativeValue",
-      "value": property.surface_min,
-      "unitCode": "MTK"
-    },
-    ...(property.parking ? {
-      "amenityFeature": [
-        { "@type": "LocationFeatureSpecification", "name": "Parcare", "value": true }
-      ]
-    } : {})
-  };
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Acasă",
-        "item": "https://www.mvaimobiliare.ro/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Proprietăți",
-        "item": "https://www.mvaimobiliare.ro/proprietati"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": property.title,
-        "item": `https://www.mvaimobiliare.ro${getPropertyUrl(property)}`
-      }
-    ]
-  };
+  // Compose unique, factual description from real fields (or use stored if rich)
+  const composedDescription = composePropertyDescription({
+    rooms: property.rooms,
+    surface: property.surface_min,
+    floor: property.floor,
+    totalFloors: property.total_floors,
+    price: property.price_min,
+    currency: property.currency,
+    isSale,
+    projectName: property.project_name,
+    zone: property.zone || zona,
+    city: property.city,
+    balconies: property.balconies,
+    bathrooms: property.bathrooms,
+    parking: property.parking,
+    yearBuilt: property.year_built,
+    heating: property.heating,
+    furnished: property.furnished,
+    buildingType: property.building_type,
+    compartment: property.compartment,
+    comfort: property.comfort,
+    propertyType: property.property_type,
+    storedDescription: property.description,
+  });
+  const metaDesc = composeMetaDescription(composedDescription);
 
   return (
     <>
-      <Helmet>
-        <title>{`${camere ? camere + ' camere ' : ''}${zona} – ${pret}€ | MVA Imobiliare`}</title>
-        <meta name="description" content={`Apartament ${camere} camere de ${tipTranzactie.toLowerCase()} în ${zona}, Militari Sector 6. Suprafață ${suprafata}mp, etaj ${etaj}. Preț ${pret} euro. Vizionare gratuită – MVA Imobiliare.`} />
-        <meta name="robots" content="index, follow" />
-        <meta name="keywords" content={`${zona}, ${property.rooms || ''} camere, ${property.surface_min || ''}mp, apartamente de vânzare Militari, imobiliare Sector 6, ${property.project_name || ''}`} />
-        <link rel="canonical" href={`https://www.mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        {/* Preload hero image for LCP */}
-        {property.images?.[0] && (
+      <PropertySeo
+        title={titleForSeo}
+        description={composedDescription}
+        metaDescription={metaDesc}
+        canonicalPath={getPropertyUrl(property)}
+        images={Array.isArray(property.images) ? property.images : []}
+        price={property.price_min}
+        currency={property.currency}
+        isAvailable={property.availability_status === 'available'}
+        rooms={property.rooms}
+        bathrooms={property.bathrooms}
+        surface={property.surface_min}
+        floor={property.floor}
+        yearBuilt={property.year_built}
+        zone={property.zone || zona}
+        city={property.city}
+        street={zona}
+        latitude={property.latitude}
+        longitude={property.longitude}
+        datePosted={property.created_at}
+        isSale={isSale}
+      />
+      {property.images?.[0] && (
+        <Helmet>
           <link rel="preload" as="image" href={property.images[0]} fetchPriority="high" />
-        )}
-        
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`https://www.mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        <meta property="og:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
-        <meta property="og:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`} />
-        <meta property="og:locale" content="ro_RO" />
-        <meta property="og:locale:alternate" content="en_US" />
-        <meta property="og:site_name" content="MVA Imobiliare" />
-        <meta property="og:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=property&id=${property.id}`} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={`Apartament ${property.rooms || ''} camere ${zona}`} />
-        
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@MVAImobiliare" />
-        <meta name="twitter:creator" content="@MVAImobiliare" />
-        <meta name="twitter:url" content={`https://www.mvaimobiliare.ro${getPropertyUrl(property)}`} />
-        <meta name="twitter:title" content={`Apartament ${property.rooms || ''} camere ${zona} – ${property.price_min ? property.price_min.toLocaleString('ro-RO') : '-'} euro`} />
-        <meta name="twitter:description" content={`${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona}. Vizionare gratuită.`} />
-        <meta name="twitter:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=property&id=${property.id}`} />
-        
-        {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify(propertySchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-      </Helmet>
+        </Helmet>
+      )}
+
 
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
         <Header />
