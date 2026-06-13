@@ -80,13 +80,6 @@ const PropertiesAdmin = () => {
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
-  const [publishing999, setPublishing999] = useState<string | null>(null);
-  const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
-  const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
-  const [isBulkDeletingHD, setIsBulkDeletingHD] = useState(false);
-  const [confirmBulkDeleteHD, setConfirmBulkDeleteHD] = useState(false);
-  const [isResyncingAllHD, setIsResyncingAllHD] = useState(false);
-  const [confirmResyncAllHD, setConfirmResyncAllHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
