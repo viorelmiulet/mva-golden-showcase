@@ -540,6 +540,7 @@ const PropertyDetail = () => {
         longitude={property.longitude}
         datePosted={property.created_at}
         isSale={isSale}
+        projectName={property.project_name}
       />
       {property.images?.[0] && (
         <Helmet>
