@@ -146,7 +146,7 @@ export const composePropertyDescription = (i: PropertyDescriptionInput): string 
     (b) => `${b[0] ? capitalize(b[0]) : ''}${b.length > 1 ? ', ' + b.slice(1).join(', ') : ''}.`,
     (b) => `Detalii: ${b.join(' · ')}.`,
   ];
-  const specsSentence = specBits.length > 0 ? pick(specsTemplates, seed + 7)(specBits) : '';
+  const specsSentence = specBits.length > 0 ? pick(specsTemplates, variant(seed, 0x9e37, specsTemplates.length))(specBits) : '';
 
   // ROLE C — price
   const priceTemplates: string[] = [];
@@ -164,7 +164,7 @@ export const composePropertyDescription = (i: PropertyDescriptionInput): string 
       priceTemplates.push(`Disponibil la ${priceTxt}${suffix}.`);
     }
   }
-  const priceSentence = priceTemplates.length > 0 ? pick(priceTemplates, seed + 13) : '';
+  const priceSentence = priceTemplates.length > 0 ? pick(priceTemplates, variant(seed, 0x85eb, priceTemplates.length)) : '';
 
   // ROLE D — amenities / building / context (only if data exists; no boilerplate)
   const amBits: string[] = [];
@@ -180,7 +180,7 @@ export const composePropertyDescription = (i: PropertyDescriptionInput): string 
     (b) => `În plus, ${b.join(', ')}.`,
     (b) => `Beneficiază de ${b.join(', ')}.`,
   ];
-  const amSentence = amBits.length > 0 ? pick(amTemplates, seed + 23)(amBits) : '';
+  const amSentence = amBits.length > 0 ? pick(amTemplates, variant(seed, 0xc2b2, amTemplates.length))(amBits) : '';
 
   // ROLE E — building / year (separate, factual only — skip if nothing real)
   const buildBits: string[] = [];
@@ -192,12 +192,12 @@ export const composePropertyDescription = (i: PropertyDescriptionInput): string 
     buildTemplates.push(`Bloc: ${buildBits.join(', ')}.`);
     buildTemplates.push(`${capitalize(buildBits.join(', '))}.`);
   }
-  const buildSentence = buildTemplates.length > 0 ? pick(buildTemplates, seed + 31) : '';
+  const buildSentence = buildTemplates.length > 0 ? pick(buildTemplates, variant(seed, 0x27d4, buildTemplates.length)) : '';
 
   // ── Choose order ──────────────────────────────────────────────────────
   // Two stable orderings; pick by seed parity.
-  const opening = pick(openings, seed);
-  const ordered = (seed & 1) === 0
+  const opening = pick(openings, variant(seed, 0x165667, openings.length));
+  const ordered = variant(seed, 0xdeadbeef, 2) === 0
     ? [opening, specsSentence, priceSentence, amSentence, buildSentence]
     : [opening, priceSentence, specsSentence, amSentence, buildSentence];
 
