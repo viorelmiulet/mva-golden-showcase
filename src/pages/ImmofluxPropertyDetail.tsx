@@ -176,128 +176,33 @@ const ImmofluxPropertyDetail = () => {
 
   // ── Auto-generated SEO title & description from API data ──
   const rooms = p.nrcamere ? Number(p.nrcamere) : null;
-  const zona = (p.zona || '').trim();
+  const zona = (p.zona || '').trim() || null;
   const localitate = (p.localitate || p.oras || 'București').trim();
-  const locationLabel = [zona, localitate].filter(Boolean).join(', ') || 'București';
-  const propertyType = (p.tiplocuinta || 'Apartament').trim();
-  const actionLabel = isSale ? 'de vânzare' : 'de închiriat';
-  const priceLabel = priceAmount
-    ? `${Number(priceAmount).toLocaleString('ro-RO')} ${currency}${!isSale ? '/lună' : ''}`
-    : 'Preț la cerere';
-  const surfaceLabel = surface ? `${fmtMp(surface)} mp` : null;
-  const floorLabel = parseFloor(p.etaj, p.nretaj, p.floor);
-  const yearLabel = p.anconstructie ? `construit ${p.anconstructie}` : null;
-  const bathsLabel = p.nrbai ? `${p.nrbai} băi` : null;
-
-  const autoTitle = [
-    propertyType,
-    rooms ? `${rooms} camere` : null,
-    actionLabel,
-    locationLabel,
-  ].filter(Boolean).join(' ');
-  const seoTitle = `${autoTitle} – ${priceLabel} | MVA Imobiliare`.slice(0, 70);
-
-  const autoDescParts = [
-    `${propertyType}${rooms ? ` cu ${rooms} camere` : ''} ${actionLabel} în ${locationLabel}`,
-    surfaceLabel,
-    floorLabel ? `etaj ${floorLabel}` : null,
-    bathsLabel,
-    yearLabel,
-    furnishedLabel,
-    `${priceLabel}.`,
-    'Detalii, poze și programare vizionare la MVA Imobiliare.',
-  ].filter(Boolean);
-  const autoDesc = autoDescParts.join(', ').replace(', .', '.').replace(/, ([A-ZĂÎȘȚÂa-z])/g, (m, c, i) => i === autoDescParts[0].length ? `. ${c}` : m);
-  const metaDesc = ((description && description.length > 60 ? description : autoDesc)).replace(/\s+/g, ' ').trim().substring(0, 160);
-  const seoTitleFinal = seoTitle;
   const lat = p.latitudine ?? p.latitude ?? null;
   const lng = p.longitudine ?? p.longitude ?? null;
 
-  const propertySchema: any = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    "name": title,
-    "description": metaDesc,
-    "url": propertyUrl,
-    "image": images.slice(0, 10).map((i: any) => i.src),
-    "datePosted": addedDate || new Date().toISOString(),
-    ...(p.nrcamere ? { "numberOfRooms": Number(p.nrcamere) } : {}),
-    ...(p.nrbai ? { "numberOfBathroomsTotal": Number(p.nrbai) } : {}),
-    ...(p.anconstructie ? { "yearBuilt": Number(p.anconstructie) } : {}),
-    ...(surface ? { "floorSize": { "@type": "QuantitativeValue", "value": Number(surface), "unitCode": "MTK" } } : {}),
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": p.localitate || p.oras || "București",
-      ...(p.zona ? { "addressRegion": p.zona } : {}),
-      ...(p.adresa ? { "streetAddress": p.adresa } : {}),
-      "addressCountry": "RO",
-    },
-    ...(lat && lng ? { "geo": { "@type": "GeoCoordinates", "latitude": Number(lat), "longitude": Number(lng) } } : {}),
-    ...(priceAmount ? {
-      "offers": {
-        "@type": "Offer",
-        "price": Number(priceAmount),
-        "priceCurrency": currency,
-        "availability": "https://schema.org/InStock",
-        "url": propertyUrl,
-        "seller": {
-          "@type": "RealEstateAgent",
-          "name": "MVA Imobiliare",
-          "url": "https://www.mvaimobiliare.ro",
-          "telephone": "+40767941512",
-        },
-      },
-    } : {}),
-  };
+  const composedDescription = composePropertyDescription({
+    rooms,
+    surface: surface || null,
+    floor: parseFloor(p.etaj, p.nretaj, p.floor),
+    totalFloors: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors),
+    price: priceAmount ? Number(priceAmount) : null,
+    currency,
+    isSale,
+    projectName: p.proiect || p.complex || null,
+    zone: zona,
+    city: localitate,
+    bathrooms: p.nrbai ? Number(p.nrbai) : null,
+    yearBuilt: p.anconstructie ? Number(p.anconstructie) : null,
+    furnished: furnishedLabel,
+    propertyType: (p.tiplocuinta || 'apartament').trim(),
+    storedDescription: description || null,
+  });
+  const metaDesc = composeMetaDescription(composedDescription);
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Acasă", "item": "https://www.mvaimobiliare.ro/" },
-      { "@type": "ListItem", "position": 2, "name": "Proprietăți", "item": "https://www.mvaimobiliare.ro/proprietati" },
-      { "@type": "ListItem", "position": 3, "name": title, "item": propertyUrl },
-    ],
-  };
+  // Keep an SEO-friendly H1/title source from the API title.
+  const seoTitleSource = title;
 
-  return (
-    <>
-      <Helmet>
-        <title>{seoTitleFinal}</title>
-        <meta name="description" content={metaDesc} />
-        <meta name="author" content="MVA Imobiliare" />
-        <meta name="robots" content="index, follow, max-image-preview:large" />
-        <meta name="keywords" content={[propertyType, rooms ? `${rooms} camere` : null, actionLabel, zona, localitate, 'apartament', 'imobiliare', 'MVA Imobiliare'].filter(Boolean).join(', ')} />
-        <link rel="canonical" href={propertyUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content={ogType} />
-        <meta property="og:site_name" content="MVA Imobiliare" />
-        <meta property="og:locale" content="ro_RO" />
-        <meta property="og:locale:alternate" content="en_US" />
-        <meta property="og:url" content={propertyUrl} />
-        <meta property="og:title" content={seoTitleFinal} />
-        <meta property="og:description" content={metaDesc} />
-        <meta property="og:image" content={ogImage} />
-        <meta property="og:image:secure_url" content={ogImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={autoTitle} />
-        {priceAmount && <meta property="product:price:amount" content={priceAmount} />}
-        {priceAmount && <meta property="product:price:currency" content={currency} />}
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@MVAImobiliare" />
-        <meta name="twitter:creator" content="@MVAImobiliare" />
-        <meta name="twitter:title" content={seoTitleFinal} />
-        <meta name="twitter:description" content={metaDesc} />
-        <meta name="twitter:image" content={ogImage} />
-        <meta name="twitter:image:alt" content={autoTitle} />
-
-        <script type="application/ld+json">{JSON.stringify(propertySchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-      </Helmet>
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
