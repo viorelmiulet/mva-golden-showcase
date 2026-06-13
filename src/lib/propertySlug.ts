@@ -103,7 +103,7 @@ export const isUUID = (str: string): boolean =>
  * Generate property URL path from property data.
  */
 export const getPropertyUrl = (property: PropertySlugSource): string =>
-  `/proprietate/${property.slug && property.slug.trim() ? property.slug : generatePropertySlug(property)}`;
+  `/proprietati/${property.slug && property.slug.trim() ? property.slug : generatePropertySlug(property)}`;
 
 /**
  * Generate SEO-friendly slug for an Immoflux property.
