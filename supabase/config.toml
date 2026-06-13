@@ -73,11 +73,5 @@ project_id = "fdpandnzblzvamhsoukt"
     verify_jwt = false
   [functions.immoflux-webhook]
     verify_jwt = false
-  [functions.publish-999md]
-    verify_jwt = false
-  [functions.debug-999md]
-    verify_jwt = false
-  [functions.publish-homedirect]
-    verify_jwt = false
   [functions.facebook-catalog-feed]
     verify_jwt = false
