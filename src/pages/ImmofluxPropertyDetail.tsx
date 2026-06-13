@@ -226,6 +226,7 @@ const ImmofluxPropertyDetail = () => {
         longitude={lng ? Number(lng) : null}
         datePosted={addedDate || null}
         isSale={isSale}
+        projectName={p.proiect || p.complex || null}
       />
       <Header />
       <main className="pt-24 pb-16">
