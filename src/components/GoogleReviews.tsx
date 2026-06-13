@@ -101,6 +101,12 @@ const GoogleReviews = () => {
       return item;
     }),
   };
+
+  return (
+    <>
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(reviewsJsonLd)}</script>
+      </Helmet>
     <div className="py-4 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
