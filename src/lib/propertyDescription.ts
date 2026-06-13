@@ -1,8 +1,11 @@
 /**
  * Shared property description composer.
  * Produces a rich, factual, varied Romanian description from listing fields.
- * Used by both catalog (PropertyDetail) and Immoflux (ImmofluxPropertyDetail) pages
- * so the two never drift apart.
+ *
+ * Variation is deterministic per-listing: identical input → identical output,
+ * but two listings (even neighbours in the same complex) land on different
+ * sentence templates AND different sentence orders, driven by a hash of the
+ * listing's own stable values.
  */
 
 export interface PropertyDescriptionInput {
@@ -29,11 +32,13 @@ export interface PropertyDescriptionInput {
   storedDescription?: string | null;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────
+
 const cleanCoords = (s?: string | null): string | null => {
   if (!s) return null;
   const t = String(s).trim();
   if (!t) return null;
-  if (/^-?\d+\.\d+/.test(t)) return null; // looks like GPS
+  if (/^-?\d+\.\d+/.test(t)) return null;
   return t;
 };
 
@@ -43,12 +48,28 @@ const formatMoney = (n?: number | null, currency?: string | null): string | null
   return `${Number(n).toLocaleString('ro-RO')} ${c}`;
 };
 
-/**
- * Compose a varied, factual description (~300-500 chars, 2-4 sentences).
- * Output varies per-listing because surface, floor, price, price/sqm appear inline,
- * and phrasing branches on data (studio vs multi-room, balcony, parking, etc.).
- */
+const capitalize = (s: string): string =>
+  s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+
+/** djb2-ish stable hash → non-negative int. */
+const hash = (s: string): number => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
+
+/** Pick item at index modulo length. */
+const pick = <T,>(arr: T[], n: number): T => arr[n % arr.length];
+
+/** Round price/sqm to nearest 50 to avoid false precision. */
+const roundPpsqm = (n: number): number => Math.round(n / 50) * 50;
+
+// ── Composer ─────────────────────────────────────────────────────────────
+
 export const composePropertyDescription = (i: PropertyDescriptionInput): string => {
+  const stored = (i.storedDescription || '').trim();
+  if (stored.length > 150) return stored;
+
   const rooms = i.rooms && i.rooms > 0 ? Number(i.rooms) : null;
   const surface = i.surface && Number(i.surface) > 0 ? Math.round(Number(i.surface)) : null;
   const isSale = i.isSale !== false;
@@ -62,70 +83,122 @@ export const composePropertyDescription = (i: PropertyDescriptionInput): string 
 
   const zone = cleanCoords(i.zone);
   const city = cleanCoords(i.city);
-  const locParts = [zone, city].filter(Boolean);
-  const locLabel = locParts.length ? locParts.join(', ') : (city || 'București');
+  const locLabel = [zone, city].filter(Boolean).join(', ') || city || 'București';
 
   const priceTxt = formatMoney(i.price, i.currency);
-  const pricePerSqm =
-    i.price && surface && surface > 5
-      ? Math.round(Number(i.price) / surface)
+  const ppsqmRaw =
+    i.price && surface && surface > 5 && isSale
+      ? Number(i.price) / surface
       : null;
+  // Include price/sqm only when it's meaningfully off the round (avoids identical filler).
+  const ppsqm = ppsqmRaw && ppsqmRaw > 300 ? roundPpsqm(ppsqmRaw) : null;
 
-  // ── Sentence 1 — headline fact
-  const s1Parts: string[] = [];
-  s1Parts.push(
-    `${capitalize(propType)} ${action}${i.projectName ? ` în ${i.projectName},` : ''} ${locLabel}`
+  const floorStr = (() => {
+    if (i.floor === null || i.floor === undefined || i.floor === '') return null;
+    if (typeof i.floor === 'number') {
+      return i.floor === 0 ? 'parter' : `etajul ${i.floor}${i.totalFloors ? `/${i.totalFloors}` : ''}`;
+    }
+    const s = String(i.floor);
+    if (/^parter$/i.test(s)) return 'parter';
+    return `etajul ${s}${i.totalFloors ? `/${i.totalFloors}` : ''}`;
+  })();
+
+  // Stable seed from fields that uniquely identify a unit.
+  const seed = hash(
+    [
+      i.projectName || '',
+      rooms ?? '',
+      surface ?? '',
+      i.floor ?? '',
+      i.price ?? '',
+      zone || '',
+    ].join('|')
   );
-  const s1Extras: string[] = [];
-  if (surface) s1Extras.push(`${surface} mp`);
-  if (i.floor !== null && i.floor !== undefined && i.floor !== '') {
-    const floorStr = typeof i.floor === 'number'
-      ? (i.floor === 0 ? 'parter' : `etaj ${i.floor}${i.totalFloors ? `/${i.totalFloors}` : ''}`)
-      : `etaj ${i.floor}${i.totalFloors ? `/${i.totalFloors}` : ''}`;
-    s1Extras.push(floorStr);
-  }
-  if (i.bathrooms) s1Extras.push(`${i.bathrooms} ${i.bathrooms === 1 ? 'baie' : 'băi'}`);
-  const s1 = s1Extras.length
-    ? `${s1Parts.join(' ')} — ${s1Extras.join(', ')}.`
-    : `${s1Parts.join(' ')}.`;
 
-  // ── Sentence 2 — price + price/sqm
-  let s2 = '';
+  // ── Build candidate sentences per role ────────────────────────────────
+  const inLoc = i.projectName ? `în ${i.projectName}, ${locLabel}` : `în ${locLabel}`;
+
+  // ROLE A — opening / headline
+  const openings: string[] = [
+    `${capitalize(propType)} ${action} ${inLoc}.`,
+    `Vă propunem un ${propType} ${action} ${inLoc}.`,
+    `Disponibil ${action}: ${propType} ${inLoc}.`,
+    `${capitalize(inLoc)} — ${propType} ${action}.`,
+  ];
+
+  // ROLE B — specs (surface / floor / bathrooms)
+  const specBits: string[] = [];
+  if (surface) specBits.push(`${surface} mp utili`);
+  if (floorStr) specBits.push(floorStr);
+  if (i.bathrooms) specBits.push(`${i.bathrooms} ${i.bathrooms === 1 ? 'baie' : 'băi'}`);
+  if (i.compartment) specBits.push(`compartimentare ${String(i.compartment).toLowerCase()}`);
+
+  const specsTemplates: ((bits: string[]) => string)[] = [
+    (b) => `Configurație: ${b.join(', ')}.`,
+    (b) => `Locuința are ${b.join(', ')}.`,
+    (b) => `${b[0] ? capitalize(b[0]) : ''}${b.length > 1 ? ', ' + b.slice(1).join(', ') : ''}.`,
+    (b) => `Detalii: ${b.join(' · ')}.`,
+  ];
+  const specsSentence = specBits.length > 0 ? pick(specsTemplates, seed + 7)(specBits) : '';
+
+  // ROLE C — price
+  const priceTemplates: string[] = [];
   if (priceTxt) {
-    const label = isSale ? 'Preț' : 'Chirie';
-    s2 = `${label}: ${priceTxt}${!isSale ? '/lună' : ''}`;
-    if (pricePerSqm && isSale) s2 += ` (~${pricePerSqm.toLocaleString('ro-RO')} ${i.currency || 'EUR'}/mp)`;
-    s2 += '.';
+    const suffix = !isSale ? '/lună' : '';
+    const ppsTxt = ppsqm ? ` (~${ppsqm.toLocaleString('ro-RO')} ${i.currency || 'EUR'}/mp)` : '';
+    if (isSale) {
+      priceTemplates.push(`Preț solicitat: ${priceTxt}${ppsTxt}.`);
+      priceTemplates.push(`Se vinde la ${priceTxt}${ppsTxt}.`);
+      priceTemplates.push(`Cerere: ${priceTxt}${ppsTxt}.`);
+      priceTemplates.push(`Listat la ${priceTxt}${ppsTxt}.`);
+    } else {
+      priceTemplates.push(`Chirie: ${priceTxt}${suffix}.`);
+      priceTemplates.push(`Se închiriază cu ${priceTxt}${suffix}.`);
+      priceTemplates.push(`Disponibil la ${priceTxt}${suffix}.`);
+    }
   }
+  const priceSentence = priceTemplates.length > 0 ? pick(priceTemplates, seed + 13) : '';
 
-  // ── Sentence 3 — amenities / configuration
-  const am: string[] = [];
-  if (i.balconies) am.push(`${i.balconies} ${i.balconies === 1 ? 'balcon' : 'balcoane'}`);
-  if (i.parking) am.push(`${i.parking} ${i.parking === 1 ? 'loc de parcare' : 'locuri de parcare'}`);
-  if (i.furnished) am.push(String(i.furnished).toLowerCase());
-  if (i.heating) am.push(`încălzire ${String(i.heating).toLowerCase()}`);
-  if (i.compartment) am.push(`compartimentare ${String(i.compartment).toLowerCase()}`);
-  if (i.yearBuilt) am.push(`construit în ${i.yearBuilt}`);
-  if (i.buildingType) am.push(String(i.buildingType).toLowerCase());
-  if (i.comfort) am.push(`confort ${String(i.comfort).toLowerCase()}`);
-  const s3 = am.length ? `Dotări: ${am.slice(0, 6).join(', ')}.` : '';
+  // ROLE D — amenities / building / context (only if data exists; no boilerplate)
+  const amBits: string[] = [];
+  if (i.balconies) amBits.push(`${i.balconies} ${i.balconies === 1 ? 'balcon' : 'balcoane'}`);
+  if (i.parking) amBits.push(`${i.parking} ${i.parking === 1 ? 'loc de parcare' : 'locuri de parcare'}`);
+  if (i.furnished) amBits.push(String(i.furnished).toLowerCase());
+  if (i.heating) amBits.push(`încălzire ${String(i.heating).toLowerCase()}`);
+  if (i.comfort) amBits.push(`confort ${String(i.comfort).toLowerCase()}`);
 
-  // ── Sentence 4 — closing context / project
-  const s4 = i.projectName
-    ? `Unitate în ansamblul ${i.projectName}, zonă cu acces rapid la transport, școli și comerț.`
-    : `Zonă bine conectată, cu acces la transport, școli și comerț.`;
+  const amTemplates: ((b: string[]) => string)[] = [
+    (b) => `Include ${b.join(', ')}.`,
+    (b) => `Dotări: ${b.join(', ')}.`,
+    (b) => `În plus, ${b.join(', ')}.`,
+    (b) => `Beneficiază de ${b.join(', ')}.`,
+  ];
+  const amSentence = amBits.length > 0 ? pick(amTemplates, seed + 23)(amBits) : '';
 
-  const composed = [s1, s2, s3, s4].filter(Boolean).join(' ');
-
-  // Weave in the stored description (don't discard it) when present but short.
-  const stored = (i.storedDescription || '').trim();
-  if (stored && stored.length > 0) {
-    if (stored.length > 150) return stored;
-    // Append short stored text after the composed factual block.
-    return `${composed} ${stored}`.replace(/\s+/g, ' ').trim();
+  // ROLE E — building / year (separate, factual only — skip if nothing real)
+  const buildBits: string[] = [];
+  if (i.yearBuilt) buildBits.push(`an construcție ${i.yearBuilt}`);
+  if (i.buildingType) buildBits.push(String(i.buildingType).toLowerCase());
+  const buildTemplates: string[] = [];
+  if (buildBits.length > 0) {
+    buildTemplates.push(`Imobil cu ${buildBits.join(', ')}.`);
+    buildTemplates.push(`Bloc: ${buildBits.join(', ')}.`);
+    buildTemplates.push(`${capitalize(buildBits.join(', '))}.`);
   }
+  const buildSentence = buildTemplates.length > 0 ? pick(buildTemplates, seed + 31) : '';
 
-  return composed.replace(/\s+/g, ' ').trim();
+  // ── Choose order ──────────────────────────────────────────────────────
+  // Two stable orderings; pick by seed parity.
+  const opening = pick(openings, seed);
+  const ordered = (seed & 1) === 0
+    ? [opening, specsSentence, priceSentence, amSentence, buildSentence]
+    : [opening, priceSentence, specsSentence, amSentence, buildSentence];
+
+  // Drop empties; if stored snippet exists, weave it in at the end (don't discard).
+  const sentences = ordered.filter(Boolean);
+  if (stored) sentences.push(stored.replace(/\s+/g, ' '));
+
+  return sentences.join(' ').replace(/\s+/g, ' ').trim();
 };
 
 /** Trim text cleanly to ~maxLen for meta description. */
@@ -136,6 +209,3 @@ export const composeMetaDescription = (text: string, maxLen = 155): string => {
   const lastSpace = cut.lastIndexOf(' ');
   return (lastSpace > 80 ? cut.slice(0, lastSpace) : cut).replace(/[,;:\-–\s]+$/, '') + '…';
 };
-
-const capitalize = (s: string): string =>
-  s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
