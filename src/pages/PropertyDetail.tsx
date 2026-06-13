@@ -49,6 +49,8 @@ import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
+import PropertySeo from "@/components/PropertySeo";
+import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
