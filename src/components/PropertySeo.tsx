@@ -64,9 +64,17 @@ const PropertySeo = ({
   longitude,
   datePosted,
   isSale = true,
+  projectName,
 }: PropertySeoInput) => {
   const url = `${SITE}${canonicalPath}`;
-  const pageTitle = truncateTitle(`${title} — MVA Imobiliare`, 65);
+  // Prefer the full listing title when it fits; otherwise compose a concise factual one.
+  const fullCandidate = (title || '').trim();
+  const shortCandidate = composeShortBaseTitle(rooms, projectName, zone, city);
+  const baseTitle =
+    fullCandidate && (fullCandidate + ' — MVA Imobiliare').length <= 60
+      ? fullCandidate
+      : shortCandidate;
+  const pageTitle = buildPageTitle(baseTitle);
   const firstImage = images[0] || `${SITE}/mva-logo-luxury-horizontal.svg`;
 
   const jsonLd: Record<string, unknown> = {
