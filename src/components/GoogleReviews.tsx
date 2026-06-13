@@ -63,7 +63,44 @@ const GoogleReviews = () => {
 
   if (isLoading || !data?.reviews?.length) return null;
 
-  return (
+  // Build JSON-LD strictly from real Google review data.
+  const sortedReviews = [...data.reviews].sort((a, b) => b.time - a.time);
+  const reviewsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    name: "MVA Imobiliare",
+    url: "https://www.mvaimobiliare.ro/",
+    ...(typeof data.rating === "number" && data.totalReviews > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(data.rating.toFixed(1)),
+            reviewCount: data.totalReviews,
+            bestRating: "5",
+            worstRating: "1",
+          },
+        }
+      : {}),
+    review: sortedReviews.slice(0, 5).map((r) => {
+      const item: Record<string, unknown> = {
+        "@type": "Review",
+        author: { "@type": "Person", name: r.author_name },
+      };
+      if (typeof r.rating === "number") {
+        item.reviewRating = {
+          "@type": "Rating",
+          ratingValue: r.rating,
+          bestRating: "5",
+          worstRating: "1",
+        };
+      }
+      if (r.text) item.reviewBody = r.text;
+      if (typeof r.time === "number" && r.time > 0) {
+        item.datePublished = new Date(r.time * 1000).toISOString().slice(0, 10);
+      }
+      return item;
+    }),
+  };
     <div className="py-4 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
