@@ -162,6 +162,7 @@ const GoogleReviews = () => {
         ))}
       </div>
     </div>
+    </>
   );
 };
 
