@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { extractImmofluxIdFromSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems, type StatItem } from "@/lib/statItem";
+import PropertySeo from "@/components/PropertySeo";
+import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 
 // Heavy / below-the-fold components — split into separate chunks
 const Footer = lazy(() => import("@/components/Footer"));
