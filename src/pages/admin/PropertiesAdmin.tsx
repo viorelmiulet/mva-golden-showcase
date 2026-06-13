@@ -43,8 +43,6 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
-import HomedirectSyncButton from "@/components/HomedirectSyncButton";
-import { syncToHomedirect } from "@/lib/homedirect";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
