@@ -144,7 +144,7 @@ const PropertySeo = ({
       <meta property="og:site_name" content="MVA Imobiliare" />
       <meta property="og:locale" content="ro_RO" />
       <meta property="og:url" content={url} />
-      <meta property="og:title" content={pageTitle} />
+      <meta property="og:title" content={fullCandidate || pageTitle} />
       <meta property="og:description" content={metaDescription} />
       <meta property="og:image" content={firstImage} />
       <meta property="og:image:width" content="1200" />
