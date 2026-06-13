@@ -1,7 +1,8 @@
 import { Helmet } from "react-helmet-async";
+import { buildPageTitle } from "@/lib/pageTitle";
 
 export interface PropertySeoInput {
-  title: string;                 // listing title (used for <title> and H1 source)
+  title: string;                 // listing title (used for og/twitter and H1 source)
   description: string;           // visible/long description
   metaDescription: string;       // trimmed for <meta>
   canonicalPath: string;         // e.g. /proprietati/<slug> or /proprietate/<slug>
@@ -21,15 +22,26 @@ export interface PropertySeoInput {
   longitude?: number | null;
   datePosted?: string | null;
   isSale?: boolean;
+  projectName?: string | null;   // used to build a concise <title> when `title` is long
 }
 
 const SITE = "https://www.mvaimobiliare.ro";
 const PHONE = "+40767941512";
 
-const truncateTitle = (s: string, max = 65): string => {
-  const t = s.trim();
-  return t.length <= max ? t : t.slice(0, max - 1).replace(/[\s,;:\-–]+$/, '') + '…';
+/** Compose a short, factual base title from real fields: e.g.
+ *  "Apartament 2 camere — Militari Residence" or "Garsonieră — Chiajna". */
+const composeShortBaseTitle = (
+  rooms: number | null | undefined,
+  projectName: string | null | undefined,
+  zone: string | null | undefined,
+  city: string | null | undefined,
+): string => {
+  const r = rooms && rooms > 0 ? Number(rooms) : null;
+  const head = r === 1 ? 'Garsonieră' : r ? `Apartament ${r} camere` : 'Apartament';
+  const tail = (projectName || zone || city || '').toString().trim();
+  return tail ? `${head} — ${tail}` : head;
 };
+
 
 const PropertySeo = ({
   title,
@@ -52,9 +64,17 @@ const PropertySeo = ({
   longitude,
   datePosted,
   isSale = true,
+  projectName,
 }: PropertySeoInput) => {
   const url = `${SITE}${canonicalPath}`;
-  const pageTitle = truncateTitle(`${title} — MVA Imobiliare`, 65);
+  // Prefer the full listing title when it fits; otherwise compose a concise factual one.
+  const fullCandidate = (title || '').trim();
+  const shortCandidate = composeShortBaseTitle(rooms, projectName, zone, city);
+  const baseTitle =
+    fullCandidate && (fullCandidate + ' — MVA Imobiliare').length <= 60
+      ? fullCandidate
+      : shortCandidate;
+  const pageTitle = buildPageTitle(baseTitle);
   const firstImage = images[0] || `${SITE}/mva-logo-luxury-horizontal.svg`;
 
   const jsonLd: Record<string, unknown> = {
@@ -124,7 +144,7 @@ const PropertySeo = ({
       <meta property="og:site_name" content="MVA Imobiliare" />
       <meta property="og:locale" content="ro_RO" />
       <meta property="og:url" content={url} />
-      <meta property="og:title" content={pageTitle} />
+      <meta property="og:title" content={fullCandidate || pageTitle} />
       <meta property="og:description" content={metaDescription} />
       <meta property="og:image" content={firstImage} />
       <meta property="og:image:width" content="1200" />
@@ -132,7 +152,7 @@ const PropertySeo = ({
       <meta property="og:image:alt" content={title} />
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:title" content={fullCandidate || pageTitle} />
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={firstImage} />
 
