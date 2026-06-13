@@ -189,14 +189,14 @@ const About = () => {
               </div>
               <div className="grid sm:grid-cols-3 gap-4">
                 {testimonials.map((t, i) => (
-                  <blockquote key={i} className="p-5 glass rounded-2xl border border-border/50" itemScope itemType="https://schema.org/Review">
+                  <blockquote key={i} className="p-5 glass rounded-2xl border border-border/50">
                     <div className="flex gap-1 mb-2" aria-label="5 stars">
                       {[...Array(5)].map((_, s) => (
                         <span key={s} className="text-gold text-sm">★</span>
                       ))}
                     </div>
-                    <p className="text-sm text-foreground italic mb-3" itemProp="reviewBody">"{t.text}"</p>
-                    <footer className="text-xs text-muted-foreground" itemProp="author" itemScope itemType="https://schema.org/Person">— <span itemProp="name">{t.author}</span></footer>
+                    <p className="text-sm text-foreground italic mb-3">"{t.text}"</p>
+                    <footer className="text-xs text-muted-foreground">— <span>{t.author}</span></footer>
                   </blockquote>
                 ))}
               </div>
