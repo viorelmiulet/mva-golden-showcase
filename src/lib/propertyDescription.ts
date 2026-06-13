@@ -51,15 +51,22 @@ const formatMoney = (n?: number | null, currency?: string | null): string | null
 const capitalize = (s: string): string =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 
-/** djb2-ish stable hash → non-negative int. */
+/** djb2 + xorshift finalizer for better low-bit diffusion. */
 const hash = (s: string): number => {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0x5bd1e995);
+  h ^= h >>> 15;
+  return Math.abs(h | 0);
 };
 
+/** Per-role variant index, well-distributed across listings. */
+const variant = (seed: number, salt: number, mod: number): number =>
+  Math.abs(Math.imul(seed ^ salt, 0x27d4eb2d) >>> 0) % mod;
+
 /** Pick item at index modulo length. */
-const pick = <T,>(arr: T[], n: number): T => arr[n % arr.length];
+const pick = <T,>(arr: T[], n: number): T => arr[((n % arr.length) + arr.length) % arr.length];
 
 /** Round price/sqm to nearest 50 to avoid false precision. */
 const roundPpsqm = (n: number): number => Math.round(n / 50) * 50;
