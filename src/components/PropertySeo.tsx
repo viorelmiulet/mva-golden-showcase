@@ -152,7 +152,7 @@ const PropertySeo = ({
       <meta property="og:image:alt" content={title} />
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:title" content={fullCandidate || pageTitle} />
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={firstImage} />
 
