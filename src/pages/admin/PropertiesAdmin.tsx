@@ -43,6 +43,8 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
+import HomedirectSyncButton from "@/components/HomedirectSyncButton";
+import { syncToHomedirect } from "@/lib/homedirect";
 
 const PropertiesAdmin = () => {
   const isMobile = useIsMobile();
@@ -80,6 +82,13 @@ const PropertiesAdmin = () => {
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
+  const [publishing999, setPublishing999] = useState<string | null>(null);
+  const [isBulkSendingHD, setIsBulkSendingHD] = useState(false);
+  const [isBulkResyncingImages, setIsBulkResyncingImages] = useState(false);
+  const [isBulkDeletingHD, setIsBulkDeletingHD] = useState(false);
+  const [confirmBulkDeleteHD, setConfirmBulkDeleteHD] = useState(false);
+  const [isResyncingAllHD, setIsResyncingAllHD] = useState(false);
+  const [confirmResyncAllHD, setConfirmResyncAllHD] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -411,3 +420,1530 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const sendSelectedToHomedirect = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+    const total = ids.length;
+    setIsBulkSendingHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    // Fetch current homedirect status for all selected
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const metaMap = new Map((metaRows || []).map((r: any) => [r.id, r]));
+
+    for (let i = 0; i < ids.length; i++) {
+      const propertyId = ids[i];
+      const meta: any = metaMap.get(propertyId);
+      const action: "publish" | "update" =
+        meta?.homedirect_id && meta?.homedirect_status !== "deleted" ? "update" : "publish";
+      try {
+        const result = await syncToHomedirect(propertyId, action);
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkSendingHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "HomeDirect",
+        description: `${successCount} trimise cu succes${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate pe HomeDirect`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resyncSelectedHomedirectImages = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+
+    // Doar proprietățile deja publicate pe HD pot fi „update"-ate
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const eligible = (metaRows || []).filter(
+      (r: any) => r.homedirect_id && r.homedirect_status !== "deleted"
+    );
+
+    if (eligible.length === 0) {
+      toast({
+        title: "Niciuna eligibilă",
+        description: "Selectează proprietăți deja publicate pe HomeDirect.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const total = eligible.length;
+    setIsBulkResyncingImages(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "update");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkResyncingImages(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Imagini re-sincronizate",
+        description: `${successCount} actualizate${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resyncAllHomedirect = async () => {
+    setConfirmResyncAllHD(false);
+    // Toate proprietățile publicate pe HomeDirect (din întreaga bază, nu doar selecția)
+    const { data: metaRows, error: metaErr } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .not("homedirect_id", "is", null)
+      .neq("homedirect_status", "deleted");
+
+    if (metaErr) {
+      toast({ title: "Eroare", description: metaErr.message, variant: "destructive" });
+      return;
+    }
+
+    const eligible = metaRows || [];
+    if (eligible.length === 0) {
+      toast({
+        title: "Nimic de sincronizat",
+        description: "Nu există anunțuri publicate pe HomeDirect.",
+      });
+      return;
+    }
+
+    const total = eligible.length;
+    setIsResyncingAllHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "update");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsResyncingAllHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Resincronizare finalizată",
+        description: `${successCount} actualizate${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteSelectedFromHomedirect = async () => {
+    if (selectedProperties.size === 0) {
+      toast({ title: "Atenție", description: "Selectează cel puțin o proprietate", variant: "destructive" });
+      return;
+    }
+
+    const ids = Array.from(selectedProperties);
+
+    // Doar proprietățile publicate pe HD pot fi retrase
+    const { data: metaRows } = await supabase
+      .from("catalog_offers")
+      .select("id, homedirect_id, homedirect_status")
+      .in("id", ids);
+    const eligible = (metaRows || []).filter(
+      (r: any) => r.homedirect_id && r.homedirect_status !== "deleted"
+    );
+
+    if (eligible.length === 0) {
+      toast({
+        title: "Niciuna eligibilă",
+        description: "Selectează proprietăți publicate pe HomeDirect.",
+        variant: "destructive",
+      });
+      setConfirmBulkDeleteHD(false);
+      return;
+    }
+
+    const total = eligible.length;
+    setIsBulkDeletingHD(true);
+    setBulkProgress({ current: 0, total });
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < eligible.length; i++) {
+      const propertyId = eligible[i].id;
+      try {
+        const result = await syncToHomedirect(propertyId, "delete");
+        if (result.success) successCount++;
+        else {
+          failCount++;
+          errors.push(`${propertyId.slice(0, 8)}: ${result.error || result.message}`);
+        }
+      } catch (e: any) {
+        failCount++;
+        errors.push(`${propertyId.slice(0, 8)}: ${e?.message || "eroare"}`);
+      }
+      setBulkProgress({ current: i + 1, total });
+    }
+
+    setIsBulkDeletingHD(false);
+    setConfirmBulkDeleteHD(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+
+    if (successCount > 0) {
+      toast({
+        title: "Anunțuri retrase",
+        description: `${successCount} retrase de pe HomeDirect${failCount > 0 ? `, ${failCount} eșuate` : ""}`,
+      });
+    }
+    if (failCount > 0) {
+      toast({
+        title: `${failCount} eșuate`,
+        description: errors.slice(0, 3).join(" | "),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const bulkToggleVisibility = async (visible: boolean) => {
+    if (selectedProperties.size === 0) {
+      toast({
+        title: "Atenție",
+        description: "Selectează cel puțin o proprietate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsBulkTogglingVisibility(true);
+    const total = selectedProperties.size;
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const propertyId of selectedProperties) {
+      try {
+        const { data, error } = await supabase.functions.invoke("admin-offers", {
+          body: { 
+            action: "update_offer", 
+            id: propertyId, 
+            data: { is_published: visible } 
+          },
+        });
+
+        if (error || !data?.success) {
+          failCount++;
+        } else {
+          successCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsBulkTogglingVisibility(false);
+    setSelectedProperties(new Set());
+
+    const actionText = visible ? "afișate" : "ascunse";
+    
+    if (successCount > 0) {
+      toast({
+        title: "Succes!",
+        description: `${successCount} proprietăți ${actionText}${failCount > 0 ? `, ${failCount} au eșuat` : ''}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+    } else {
+      toast({
+        title: "Eroare",
+        description: `Nu s-au putut actualiza proprietățile`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const publishTo999 = async (property: any) => {
+    setPublishing999(property.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("publish-999md", {
+        body: {
+          title: property.title,
+          description: property.description || property.title,
+          price: property.price_min,
+          currency: (property.currency || "EUR").toLowerCase(),
+          phone: "+40726370707",
+          surface: property.surface_min,
+          rooms: property.rooms,
+          floor: property.floor,
+          total_floors: property.total_floors,
+          images: property.images || [],
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        sonnerToast.success("Anunț publicat pe 999.md!");
+      } else {
+        sonnerToast.error(data?.error || "Eroare la publicare pe 999.md");
+      }
+    } catch (e: any) {
+      sonnerToast.error(e.message || "Eroare la publicare pe 999.md");
+    } finally {
+      setPublishing999(null);
+    }
+  };
+
+  const addProperty = async () => {
+    if (!addForm.title || !addForm.location || !addForm.price_min || !addForm.rooms) {
+      toast({
+        title: "Eroare",
+        description: "Completează câmpurile obligatorii: Titlu, Locație, Preț, Camere",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const offer = {
+        title: addForm.title,
+        description: addForm.description || null,
+        location: addForm.location,
+        price_min: parseInt(addForm.price_min) || 0,
+        price_max: parseInt(addForm.price_max) || parseInt(addForm.price_min) || 0,
+        surface_min: parseInt(addForm.surface_min) || null,
+        surface_max: parseInt(addForm.surface_max) || parseInt(addForm.surface_min) || null,
+        rooms: parseInt(addForm.rooms) || 1,
+        project_name: addForm.project_name || null,
+        features: addForm.features
+          ? addForm.features.split(",").map((f: string) => f.trim()).filter(Boolean)
+          : [],
+        amenities: addForm.amenities
+          ? addForm.amenities.split(",").map((a: string) => a.trim()).filter(Boolean)
+          : [],
+        images: addImages,
+        currency: "EUR",
+        availability_status: "available",
+        source: "manual",
+      };
+
+      const { data, error } = await supabase.functions.invoke("admin-offers", {
+        body: { action: "insert_offer", offer },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Insert failed");
+
+      toast({
+        title: "Succes!",
+        description: "Proprietatea a fost adăugată",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["catalog_offers"] });
+      setShowAddDialog(false);
+      resetAddForm();
+    } catch (error: any) {
+      toast({
+        title: "Eroare",
+        description: error.message || "Nu am putut adăuga proprietatea",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  return (
+    <div ref={containerRef}>
+      {isMobile && (
+        <PullToRefreshIndicator 
+          pullDistance={pullDistance} 
+          isRefreshing={isRefreshing} 
+          progress={progress} 
+        />
+      )}
+      <div className="space-y-4 md:space-y-8">
+      {/* Properties List */}
+      <Card className="glass border-gold/20">
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-base md:text-lg">
+              <Home className="w-4 h-4 md:w-5 md:h-5 text-gold" />
+              Proprietăți ({properties?.length || 0})
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => setShowAddDialog(true)}
+                className="bg-gold hover:bg-gold/90 text-black h-8 text-xs md:text-sm"
+              >
+                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                Adaugă Manual
+              </Button>
+            {properties && properties.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-destructive/30 hover:bg-destructive/10 text-destructive h-8 text-xs md:text-sm"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                    Șterge Toate
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-base md:text-lg">Confirmare ștergere</AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm">
+                      Ești sigur că vrei să ștergi toate {properties?.length} proprietățile?
+                      <br />
+                      <span className="font-semibold text-destructive">Acțiunea nu poate fi anulată!</span>
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteAllProperties}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      Șterge Toate
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          {/* Bulk Actions Bar */}
+          {properties && properties.length > 0 && (
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted/30 border border-border/30">
+              <Checkbox
+                id="select-all"
+                checked={properties.length > 0 && selectedProperties.size === properties.length}
+                onCheckedChange={toggleSelectAll}
+              />
+              <Label htmlFor="select-all" className="text-sm cursor-pointer">
+                Selectează toate ({selectedProperties.size}/{properties.length})
+              </Label>
+              {/* Resincronizare TOATE anunțurile publicate pe HomeDirect (independent de selecție) */}
+              {!confirmResyncAllHD ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setConfirmResyncAllHD(true)}
+                  disabled={isResyncingAllHD || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD}
+                  title="Trimite update către HomeDirect pentru toate anunțurile publicate"
+                  className="border-orange-500/40 text-orange-600 hover:bg-orange-500/10 h-8 text-xs"
+                >
+                  {isResyncingAllHD ? (
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isResyncingAllHD
+                      ? `Resync ${bulkProgress.current}/${bulkProgress.total}...`
+                      : "Resync TOATE pe HomeDirect"}
+                  </span>
+                  <span className="sm:hidden">Resync TOATE</span>
+                </Button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setConfirmResyncAllHD(false)}
+                    className="h-8 text-xs"
+                  >
+                    Anulează
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={resyncAllHomedirect}
+                    className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
+                  >
+                    Confirmă resync TOATE
+                  </Button>
+                </div>
+              )}
+              {selectedProperties.size > 0 && (
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                  {(isBulkSending || isBulkTogglingVisibility || isBulkSendingHD || isBulkResyncingImages || isBulkDeletingHD) && bulkProgress.total > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary transition-all duration-300"
+                          style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {bulkProgress.current}/{bulkProgress.total}
+                      </span>
+                    </div>
+                  )}
+                  {/* Visibility bulk actions */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => bulkToggleVisibility(false)}
+                    disabled={isBulkTogglingVisibility || isBulkSending}
+                    className="border-muted-foreground/30 hover:bg-muted h-8 text-xs"
+                  >
+                    {isBulkTogglingVisibility ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">Ascunde {selectedProperties.size}</span>
+                    <span className="sm:hidden">Ascunde</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => bulkToggleVisibility(true)}
+                    disabled={isBulkTogglingVisibility || isBulkSending}
+                    className="border-green-500/30 hover:bg-green-500/10 text-green-600 h-8 text-xs"
+                  >
+                    {isBulkTogglingVisibility ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">Afișează {selectedProperties.size}</span>
+                    <span className="sm:hidden">Afișează</span>
+                  </Button>
+                  {/* Zapier bulk action */}
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToZapier}
+                    disabled={isBulkSending || isBulkTogglingVisibility}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs"
+                  >
+                    {isBulkSending ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
+                    <span className="sm:hidden">Zapier</span>
+                  </Button>
+                  {/* HomeDirect bulk action */}
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToHomedirect}
+                    disabled={isBulkSendingHD || isBulkSending || isBulkTogglingVisibility || isBulkResyncingImages}
+                    className="bg-orange-500 hover:bg-orange-600 text-white h-8 text-xs"
+                  >
+                    {isBulkSendingHD ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Home className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkSendingHD ? `Public...` : `Publică ${selectedProperties.size} pe HomeDirect`}</span>
+                    <span className="sm:hidden">HomeDirect</span>
+                  </Button>
+                  {/* Re-sync HomeDirect images bulk action */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={resyncSelectedHomedirectImages}
+                    disabled={isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                    title="Re-uploadează imaginile în storage și trimite update către HomeDirect (fără a modifica restul datelor)"
+                    className="border-orange-500/40 text-orange-600 hover:bg-orange-500/10 h-8 text-xs"
+                  >
+                    {isBulkResyncingImages ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">{isBulkResyncingImages ? `Re-sync...` : `Re-sync imagini HD`}</span>
+                    <span className="sm:hidden">Imagini HD</span>
+                  </Button>
+                  {/* Retragere bulk de pe HomeDirect */}
+                  {!confirmBulkDeleteHD ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConfirmBulkDeleteHD(true)}
+                      disabled={isBulkDeletingHD || isBulkResyncingImages || isBulkSendingHD || isBulkSending || isBulkTogglingVisibility}
+                      title="Retrage anunțurile selectate de pe HomeDirect"
+                      className="border-red-500/40 text-red-600 hover:bg-red-500/10 h-8 text-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                      <span className="hidden sm:inline">Retrage de pe HD</span>
+                      <span className="sm:hidden">Retrage HD</span>
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmBulkDeleteHD(false)}
+                        disabled={isBulkDeletingHD}
+                        className="h-8 text-xs"
+                      >
+                        Anulează
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={deleteSelectedFromHomedirect}
+                        disabled={isBulkDeletingHD}
+                        className="bg-red-600 hover:bg-red-500 text-white h-8 text-xs"
+                      >
+                        {isBulkDeletingHD ? (
+                          <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                        )}
+                        {isBulkDeletingHD ? `Retrag...` : `Confirmă retragerea ${selectedProperties.size}`}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          {propertiesLoading ? (
+            <div className="text-center py-6 md:py-8">
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-gold" />
+              <p className="text-muted-foreground mt-2 text-sm">Se încarcă...</p>
+            </div>
+          ) : properties && properties.length > 0 ? (
+            <div className="grid gap-3 md:gap-4">
+              {properties.map((property: any) => (
+                <Card
+                  key={property.id}
+                  className={`border-border/30 hover:border-gold/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
+                >
+                  <CardContent className="p-3 md:p-4">
+                    {/* Mobile Layout - Card Style */}
+                    <div className="md:hidden">
+                      {/* Full-width image with checkbox overlay */}
+                      <div className="relative -mx-3 -mt-3 mb-3">
+                        {property.images?.[0] ? (
+                          <img
+                            src={property.images[0]}
+                            alt={property.title}
+                            className="w-full h-40 object-cover rounded-t-lg"
+                          />
+                        ) : (
+                          <div className="w-full h-40 bg-muted/30 rounded-t-lg flex items-center justify-center">
+                            <Home className="w-12 h-12 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        {/* Checkbox overlay */}
+                        <div className="absolute top-2 left-2">
+                          <div className="bg-background/90 backdrop-blur-sm rounded-md p-1.5 shadow-sm">
+                            <Checkbox
+                              checked={selectedProperties.has(property.id)}
+                              onCheckedChange={() => togglePropertySelection(property.id)}
+                            />
+                          </div>
+                        </div>
+                        {/* Price badge overlay */}
+                        <div className="absolute bottom-2 right-2">
+                          <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                            €{property.price_min?.toLocaleString()}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-2.5">
+                        <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                          {property.title}
+                        </h3>
+                        
+                        {/* Property details */}
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Ruler className="w-3.5 h-3.5" />
+                            {property.surface_min} mp
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Home className="w-3.5 h-3.5" />
+                            {property.rooms} camere
+                          </span>
+                        </div>
+                        
+                        {property.location && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            📍 {property.location}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Visibility Toggle and Actions */}
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/20">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={property.is_published !== false}
+                            onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                            disabled={togglingVisibility === property.id}
+                          />
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            {property.is_published !== false ? (
+                              <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
+                            ) : (
+                              <><EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> Ascuns</>
+                            )}
+                          </span>
+                        </div>
+                        {/* Action buttons */}
+                        <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openShareDialog(property.id, property.title)}
+                          disabled={sendingToSocial === property.id}
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-full"
+                          title="Publică pe social media"
+                        >
+                          {sendingToSocial === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                          ) : (
+                            <Share2 className="w-4 h-4 text-blue-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-10 w-full"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
+                          )}
+                        </Button>
+                        <HomedirectSyncButton listingId={property.id} />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditModal(property)}
+                          className="border-gold/30 hover:bg-gold/10 h-10 w-full"
+                        >
+                          <Edit className="w-4 h-4 text-gold" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-full"
+                            >
+                              {deletingId === property.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-destructive" />
+                              ) : (
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Ștergi această proprietate?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteProperty(property.id)}
+                              >
+                                Șterge
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden md:flex gap-4">
+                      <div className="flex items-center shrink-0">
+                        <Checkbox
+                          checked={selectedProperties.has(property.id)}
+                          onCheckedChange={() => togglePropertySelection(property.id)}
+                        />
+                      </div>
+                      {property.images?.[0] && (
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-24 h-24 object-cover rounded-lg shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                          {property.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Euro className="w-3 h-3 mr-0.5" />
+                            €{property.price_min?.toLocaleString()}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Ruler className="w-3 h-3 mr-0.5" />
+                            {property.surface_min}mp
+                          </Badge>
+                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                            <Home className="w-3 h-3 mr-0.5" />
+                            {property.rooms}cam
+                          </Badge>
+                        </div>
+                      </div>
+                      {/* Visibility Toggle */}
+                      <div className="flex items-center gap-2 mr-4 shrink-0">
+                        <Switch
+                          checked={property.is_published !== false}
+                          onCheckedChange={() => toggleVisibility(property.id, property.is_published !== false)}
+                          disabled={togglingVisibility === property.id}
+                        />
+                        <span className="text-xs text-muted-foreground flex items-center gap-1 min-w-[70px]">
+                          {property.is_published !== false ? (
+                            <><Eye className="w-3.5 h-3.5 text-green-500" /> Vizibil</>
+                          ) : (
+                            <><EyeOff className="w-3.5 h-3.5" /> Ascuns</>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex flex-row gap-2 items-start shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openShareDialog(property.id, property.title)}
+                          disabled={sendingToSocial === property.id}
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-8 w-8 p-0"
+                          title="Publică pe social media"
+                        >
+                          {sendingToSocial === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                          ) : (
+                            <Share2 className="w-4 h-4 text-blue-500" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => publishTo999(property)}
+                          disabled={publishing999 === property.id}
+                          className="border-emerald-500/30 hover:bg-emerald-500/10 h-8 w-8 p-0"
+                          title="Publică pe 999.md"
+                        >
+                          {publishing999 === property.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                          ) : (
+                            <Send className="w-4 h-4 text-emerald-500" />
+                          )}
+                        </Button>
+                        <HomedirectSyncButton listingId={property.id} />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEditModal(property)}
+                          className="border-gold/30 h-8 w-8 p-0"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-destructive/30 hover:bg-destructive/10 h-8 w-8 p-0"
+                            >
+                              {deletingId === property.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="max-w-[90vw] sm:max-w-md">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Ștergi această proprietate?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                              <AlertDialogCancel className="mt-0">Anulează</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteProperty(property.id)}
+                              >
+                                Șterge
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 md:py-8">
+              <Home className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
+              <p className="text-muted-foreground text-sm">Nu există proprietăți</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* IMMOFLUX Properties Section */}
+      <Card className="glass border-purple-500/20">
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-base md:text-lg">
+              <Building2 className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+              Proprietăți IMMOFLUX ({immofluxData?.total || 0})
+            </div>
+            <Badge variant="outline" className="border-purple-500/30 text-purple-400 text-xs w-fit">
+              Sincronizate din CRM
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          {immofluxLoading ? (
+            <div className="text-center py-6 md:py-8">
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-purple-400" />
+              <p className="text-muted-foreground mt-2 text-sm">Se încarcă proprietățile IMMOFLUX...</p>
+            </div>
+          ) : immofluxData && immofluxData.data.length > 0 ? (
+            <>
+              <div className="grid gap-3 md:gap-4">
+                {immofluxData.data.map((property: ImmofluxProperty) => {
+                  const isSale = property.devanzare === 1;
+                  const surface = getSurface(property);
+                  return (
+                    <Card
+                      key={`immoflux-${property.idnum}`}
+                      className="border-border/30 hover:border-purple-500/30 transition-colors"
+                    >
+                      <CardContent className="p-3 md:p-4">
+                        {/* Mobile Layout */}
+                        <div className="md:hidden">
+                          <div className="relative -mx-3 -mt-3 mb-3">
+                            <img
+                              src={getMainImage(property)}
+                              alt={getTitle(property)}
+                              className="w-full h-40 object-cover rounded-t-lg"
+                              loading="lazy"
+                            />
+                            <div className="absolute top-2 left-2 flex gap-1.5 flex-wrap">
+                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
+                                {isSale ? "Vânzare" : "Închiriere"}
+                              </Badge>
+                              {property.top === 1 && (
+                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                              )}
+                              {isPoleProperty(property) && (
+                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                              )}
+                            </div>
+                            <div className="absolute bottom-2 right-2">
+                              <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                                {formatPrice(property)}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="space-y-2.5">
+                            <h3 className="font-semibold text-base leading-tight line-clamp-2">
+                              {getTitle(property)}
+                            </h3>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                              {property.nrcamere > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <BedDouble className="w-3.5 h-3.5" />
+                                  {property.nrcamere} cam.
+                                </span>
+                              )}
+                              {surface > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <Maximize className="w-3.5 h-3.5" />
+                                  {surface} mp
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              {[property.zona, property.localitate].filter(Boolean).join(', ')}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-end mt-4 pt-3 border-t border-border/20">
+                            <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-gold">
+                                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                                Vezi pe site
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout */}
+                        <div className="hidden md:flex gap-4">
+                          <img
+                            src={getMainImage(property)}
+                            alt={getTitle(property)}
+                            className="w-24 h-24 object-cover rounded-lg shrink-0"
+                            loading="lazy"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge className="bg-purple-600 text-white text-[10px]">IMMOFLUX</Badge>
+                              <Badge className={isSale ? "bg-emerald-600 text-white text-[10px]" : "bg-blue-600 text-white text-[10px]"}>
+                                {isSale ? "Vânzare" : "Închiriere"}
+                              </Badge>
+                              {property.top === 1 && (
+                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                              )}
+                              {isPoleProperty(property) && (
+                                <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
+                              )}
+                            </div>
+                            <h3 className="font-semibold text-lg mb-1 line-clamp-1">
+                              {getTitle(property)}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+                              <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                <Euro className="w-3 h-3 mr-0.5" />
+                                {formatPrice(property)}
+                              </Badge>
+                              {surface > 0 && (
+                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                  <Ruler className="w-3 h-3 mr-0.5" />
+                                  {surface}mp
+                                </Badge>
+                              )}
+                              {property.nrcamere > 0 && (
+                                <Badge variant="secondary" className="bg-purple-500/10 text-xs px-1.5 py-0.5">
+                                  <Home className="w-3 h-3 mr-0.5" />
+                                  {property.nrcamere}cam
+                                </Badge>
+                              )}
+                              <span className="flex items-center gap-1 text-xs">
+                                <MapPin className="w-3 h-3" />
+                                {[property.zona, property.localitate].filter(Boolean).join(', ')}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center shrink-0">
+                            <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                              <Button variant="outline" size="sm" className="border-purple-500/30 hover:bg-purple-500/10 h-8 text-xs">
+                                <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                                Vezi
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {immofluxData.last_page > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={immofluxPage <= 1}
+                    onClick={() => setImmofluxPage((p) => p - 1)}
+                  >
+                    Anterior
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Pagina {immofluxData.current_page} din {immofluxData.last_page}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={immofluxPage >= immofluxData.last_page}
+                    onClick={() => setImmofluxPage((p) => p + 1)}
+                  >
+                    Următor
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-6 md:py-8">
+              <Building2 className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-2" />
+              <p className="text-muted-foreground text-sm">Nu sunt proprietăți IMMOFLUX disponibile</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!editingProperty} onOpenChange={closeEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editează Proprietatea</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Titlu</Label>
+                <Input
+                  value={editForm.title || ""}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Descriere</Label>
+                <Textarea
+                  value={editForm.description || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Locație</Label>
+                <Input
+                  value={editForm.location || ""}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Nume Proiect</Label>
+                <Input
+                  value={editForm.project_name || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, project_name: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Preț (€)</Label>
+                <Input
+                  type="number"
+                  value={editForm.price_min || ""}
+                  onChange={(e) => setEditForm({ ...editForm, price_min: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Suprafață (mp)</Label>
+                <Input
+                  type="number"
+                  value={editForm.surface_min || ""}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, surface_min: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Camere</Label>
+                <Input
+                  type="number"
+                  value={editForm.rooms || ""}
+                  onChange={(e) => setEditForm({ ...editForm, rooms: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <PropertyImageEditor
+                  images={editImages}
+                  onChange={setEditImages}
+                  label="Imagini Proprietate"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Facilități (separate prin virgulă)</Label>
+                <Input
+                  value={editForm.features || ""}
+                  onChange={(e) => setEditForm({ ...editForm, features: e.target.value })}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Amenajări (separate prin virgulă)</Label>
+                <Input
+                  value={editForm.amenities || ""}
+                  onChange={(e) => setEditForm({ ...editForm, amenities: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 justify-end">
+              <Button
+                variant="outline"
+                disabled={sendingToGBP}
+                onClick={async () => {
+                  if (!editingProperty) return;
+                  setSendingToGBP(true);
+                  try {
+                    // Read Google webhook URL from settings
+                    const { data: settingsData } = await supabase
+                      .from('site_settings')
+                      .select('value')
+                      .eq('key', 'social_webhooks')
+                      .single();
+                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value) : {};
+                    const googleWebhookUrl = webhookSettings.google;
+                    if (!googleWebhookUrl) {
+                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                      setSendingToGBP(false);
+                      return;
+                    }
+                    const slug = generatePropertySlug({
+                      id: editingProperty.id,
+                      rooms: editingProperty.rooms,
+                      project_name: editingProperty.project_name,
+                      zone: editingProperty.zone,
+                      location: editingProperty.location,
+                    });
+                    const images = Array.isArray(editingProperty.images) ? editingProperty.images : [];
+                    const res = await fetch(googleWebhookUrl, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: editingProperty.title || "",
+                        price: editingProperty.price_min || 0,
+                        rooms: editingProperty.rooms || 0,
+                        surface: editingProperty.surface_min || 0,
+                        slug,
+                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                        image: images[0] || "",
+                        description: editingProperty.description || "",
+                      }),
+                    });
+                    if (!res.ok) throw new Error("Request failed");
+                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                  } catch {
+                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                  } finally {
+                    setSendingToGBP(false);
+                  }
+                }}
+                className="border-gold text-gold hover:bg-gold hover:text-black transition-all"
+              >
+                {sendingToGBP ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
+                Postează pe Google Business Profile
+              </Button>
+              <Button variant="outline" onClick={closeEditModal}>
+                Anulează
+              </Button>
+              <Button onClick={updateProperty} disabled={isUpdating} variant="luxury">
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Se salvează...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Salvează
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Property Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Adaugă Proprietate Manual</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Titlu *</Label>
+                <Input
+                  value={addForm.title}
+                  onChange={(e) => setAddForm({ ...addForm, title: e.target.value })}
+                  placeholder="Ex: Apartament 2 camere central"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Descriere</Label>
+                <Textarea
+                  value={addForm.description}
+                  onChange={(e) => setAddForm({ ...addForm, description: e.target.value })}
+                  rows={3}
+                  placeholder="Descriere detaliată a proprietății..."
+                />
+              </div>
+              <div>
+                <Label>Locație *</Label>
+                <Input
+                  value={addForm.location}
+                  onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
+                  placeholder="Ex: București, Sector 1"
+                />
+              </div>
+              <div>
+                <Label>Nume Proiect</Label>
+                <Input
+                  value={addForm.project_name}
+                  onChange={(e) => setAddForm({ ...addForm, project_name: e.target.value })}
+                  placeholder="Ex: Residence Park"
+                />
+              </div>
+              <div>
+                <Label>Preț (€) *</Label>
+                <Input
+                  type="number"
+                  value={addForm.price_min}
+                  onChange={(e) => setAddForm({ ...addForm, price_min: e.target.value })}
+                  placeholder="85000"
+                />
+              </div>
+              <div>
+                <Label>Suprafață (mp)</Label>
+                <Input
+                  type="number"
+                  value={addForm.surface_min}
+                  onChange={(e) => setAddForm({ ...addForm, surface_min: e.target.value })}
+                  placeholder="55"
+                />
+              </div>
+              <div>
+                <Label>Camere *</Label>
+                <Input
+                  type="number"
+                  value={addForm.rooms}
+                  onChange={(e) => setAddForm({ ...addForm, rooms: e.target.value })}
+                  placeholder="2"
+                />
+              </div>
+              <div className="col-span-2">
+                <PropertyImageEditor
+                  images={addImages}
+                  onChange={setAddImages}
+                  label="Imagini Proprietate"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Facilități (separate prin virgulă)</Label>
+                <Input
+                  value={addForm.features}
+                  onChange={(e) => setAddForm({ ...addForm, features: e.target.value })}
+                  placeholder="Balcon, Parcare, Centrală proprie"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label>Amenajări (separate prin virgulă)</Label>
+                <Input
+                  value={addForm.amenities}
+                  onChange={(e) => setAddForm({ ...addForm, amenities: e.target.value })}
+                  placeholder="Lift, Pază, Interfon"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                Anulează
+              </Button>
+              <Button
+                onClick={addProperty}
+                disabled={isAdding}
+                className="bg-gold hover:bg-gold/90 text-black"
+              >
+                {isAdding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Se adaugă...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adaugă Proprietate
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Platform Selection Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Selectează platforma</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              Trimite "{propertyToShare?.title}" către:
+            </p>
+            <div className="grid grid-cols-1 gap-2">
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('facebook')}
+              >
+                <Facebook className="h-5 w-5 text-blue-600" />
+                <span>Facebook</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('instagram')}
+              >
+                <Instagram className="h-5 w-5 text-pink-600" />
+                <span>Instagram</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12"
+                onClick={() => handleShareToSocial('all')}
+              >
+                <Share2 className="h-5 w-5 text-primary" />
+                <span>Toate platformele</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start gap-3 h-12 border-gold/30"
+                onClick={async () => {
+                  if (!propertyToShare) return;
+                  setShareDialogOpen(false);
+                  setSendingToGBP(true);
+                  try {
+                    const { data: settingsData } = await supabase
+                      .from('site_settings')
+                      .select('value')
+                      .eq('key', 'social_webhooks')
+                      .single();
+                    const webhookSettings = settingsData?.value ? JSON.parse(settingsData.value as string) : {};
+                    const googleWebhookUrl = webhookSettings.google;
+                    if (!googleWebhookUrl) {
+                      toast({ title: "Eroare", description: "Configurează webhook-ul Google Business Profile din Marketing AI.", variant: "destructive" });
+                      setSendingToGBP(false);
+                      return;
+                    }
+                    const fullProperty = properties?.find(p => p.id === propertyToShare.id);
+                    if (!fullProperty) throw new Error("Property not found");
+                    const slug = generatePropertySlug(fullProperty);
+                    const images = Array.isArray(fullProperty.images) ? fullProperty.images : [];
+                    const res = await fetch(googleWebhookUrl, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        title: fullProperty.title,
+                        price: fullProperty.price_min,
+                        rooms: fullProperty.rooms,
+                        surface: fullProperty.surface_min,
+                        slug,
+                        url: `https://www.mvaimobiliare.ro/proprietati/${slug}`,
+                        image: images[0] || "",
+                        description: fullProperty.description,
+                      }),
+                    });
+                    if (!res.ok) throw new Error("Request failed");
+                    toast({ title: "Succes!", description: "Proprietatea a fost trimisă pe Google Business Profile!" });
+                  } catch {
+                    toast({ title: "Eroare", description: "Eroare la trimitere. Încearcă din nou.", variant: "destructive" });
+                  } finally {
+                    setSendingToGBP(false);
+                  }
+                }}
+              >
+                <MapPin className="h-5 w-5 text-amber-500" />
+                <span>Google Business Profile</span>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </div>
+    </div>
+  );
+};
+
+export default PropertiesAdmin;
