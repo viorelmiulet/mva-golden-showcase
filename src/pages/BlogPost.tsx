@@ -12,6 +12,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import OptimizedImage from "@/components/OptimizedImage";
 import BlogPropertyLinks from "@/components/BlogPropertyLinks";
+import { buildPageTitle } from "@/lib/pageTitle";
 
 const getCategoryIcon = (categoryId: string) => {
   const icons: Record<string, typeof Home> = {
