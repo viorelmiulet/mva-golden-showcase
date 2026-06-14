@@ -162,12 +162,10 @@ const ImmofluxPropertyDetail = () => {
   const vecinatati = typeof p.vecinatati === 'object' ? p.vecinatati?.ro?.trim() : p.vecinatati?.trim?.();
   const opinieagent = typeof p.opinieagent === 'object' ? p.opinieagent?.ro?.trim() : p.opinieagent?.trim?.();
 
+  // Canonical path is computed from the property payload and emitted via <link rel="canonical">
+  // in PropertySeo. We intentionally do NOT redirect the browser — Google consolidates duplicates
+  // via the canonical tag, and a hard redirect during render breaks bot prerendering (empty body).
   const canonicalPath = getImmofluxPropertyUrl(property as any);
-  const canonicalSlug = canonicalPath.replace('/proprietate/', '');
-  // Client-side redirect to canonical slug if URL slug is outdated (helps consolidate duplicates in GSC)
-  if (typeof window !== 'undefined' && slug && canonicalSlug && slug !== canonicalSlug) {
-    window.location.replace(canonicalPath);
-  }
   const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const ogType = isSale ? "product" : "website";

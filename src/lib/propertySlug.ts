@@ -115,9 +115,10 @@ export const generateImmofluxSlug = (property: {
   zona?: string;
   localitate?: string;
   titlu?: { ro?: string } | string;
-  suprutila?: number;
-  supratotal?: number;
-  suprafata?: number;
+  suprafatautila?: number | string;
+  suprutila?: number | string;
+  supratotal?: number | string;
+  suprafata?: number | string;
   etaj?: number | string;
 }): string => {
   const parts: string[] = [];
@@ -130,17 +131,34 @@ export const generateImmofluxSlug = (property: {
     parts.push(`apartament-${rooms}-camere`);
   }
 
-  // 2. Surface
-  const surface = property.suprutila || property.supratotal || property.suprafata;
-  if (surface && surface > 0) {
+  // 2. Surface — primary field on Immoflux is `suprafatautila`; keep fallbacks for safety.
+  const rawSurface =
+    property.suprafatautila ?? property.suprutila ?? property.supratotal ?? property.suprafata;
+  const surface =
+    typeof rawSurface === 'number'
+      ? rawSurface
+      : typeof rawSurface === 'string'
+        ? parseFloat(rawSurface)
+        : NaN;
+  if (Number.isFinite(surface) && surface > 0) {
     parts.push(`${Math.round(surface)}mp`);
   }
 
-  // 3. Floor
+  // 3. Floor — handle "Parter", "3/10", "", numbers, etc. consistently.
   if (property.etaj !== undefined && property.etaj !== null && property.etaj !== '') {
-    const floorNum = typeof property.etaj === 'string' ? parseInt(property.etaj, 10) : property.etaj;
-    if (!isNaN(floorNum) && floorNum >= 0) {
-      parts.push(`etaj-${floorNum}`);
+    const raw = String(property.etaj).trim();
+    if (raw) {
+      if (/parter|demisol/i.test(raw)) {
+        parts.push('parter');
+      } else {
+        const m = raw.match(/\d+/);
+        if (m) {
+          const n = parseInt(m[0], 10);
+          if (Number.isFinite(n) && n >= 0) {
+            parts.push(n === 0 ? 'parter' : `etaj-${n}`);
+          }
+        }
+      }
     }
   }
 
