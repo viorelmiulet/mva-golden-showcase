@@ -1,0 +1,101 @@
+{
+  "totalMs": 31590,
+  "results": [
+    {
+      "path": "/proprietati/apartament-3-camere-66mp-bucuresti-lujerului-71cf",
+      "ms": 3923,
+      "err": null,
+      "title": "Apartament 3 camere — Lujerului — MVA Imobiliare",
+      "h1": "Metrou Lujerului - ap. 3 camere - necesita renovare completa",
+      "canonical": "https://www.mvaimobiliare.ro/proprietati/apartament-3-camere-66mp-bucuresti-lujerului-71cf",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 149435
+    },
+    {
+      "path": "/proprietati/garsoniera-militari-residence-martie-2026-35c1e451",
+      "ms": 3453,
+      "err": null,
+      "title": "Garsoniera Militari Residence martie 2026 — MVA Imobiliare",
+      "h1": "Garsoniera Militari Residence martie 2026",
+      "canonical": "https://www.mvaimobiliare.ro/proprietati/garsoniera-militari-residence-martie-2026-35c1e451",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 147322
+    },
+    {
+      "path": "/proprietati/garsoniera-militari-residence-aprilie-2026-e02c9c30",
+      "ms": 3034,
+      "err": null,
+      "title": "Garsoniera Militari Residence aprilie 2026 — MVA Imobiliare",
+      "h1": "Garsoniera Militari Residence aprilie 2026",
+      "canonical": "https://www.mvaimobiliare.ro/proprietati/garsoniera-militari-residence-aprilie-2026-e02c9c30",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 149715
+    },
+    {
+      "path": "/proprietati/apartament-2-camere-militari-residence-mutare-imediata-e0efac3e",
+      "ms": 4031,
+      "err": null,
+      "title": "Apartament 2 camere — Militari — MVA Imobiliare",
+      "h1": "Apartament 2 camere Militari Residence mutare imediata",
+      "canonical": "https://www.mvaimobiliare.ro/proprietati/apartament-2-camere-militari-residence-mutare-imediata-e0efac3e",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 151242
+    },
+    {
+      "path": "/proprietati/garsoniera-militari-residence-martie-2026-102a6b4a",
+      "ms": 3014,
+      "err": null,
+      "title": "Garsoniera Militari Residence martie 2026 — MVA Imobiliare",
+      "h1": "Garsoniera Militari Residence martie 2026",
+      "canonical": "https://www.mvaimobiliare.ro/proprietati/garsoniera-militari-residence-martie-2026-102a6b4a",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 156135
+    },
+    {
+      "path": "/proprietate/garsoniera-militari-bucuresti-158376",
+      "ms": 4865,
+      "err": null,
+      "title": "Garsonieră — Militari — MVA Imobiliare",
+      "h1": "Garsoniera in zona Militari Residence finalizare aprilie 2026",
+      "canonical": "https://www.mvaimobiliare.ro/proprietate/garsoniera-militari-bucuresti-158376",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": false,
+      "htmlSize": 116097
+    },
+    {
+      "path": "/",
+      "ms": 3145,
+      "err": null,
+      "title": "Apartamente Militari București – MVA Imobiliare",
+      "h1": "Real Estate SolutionsComplete in Militari",
+      "canonical": "https://www.mvaimobiliare.ro/",
+      "hasLd": true,
+      "hasPrice": true,
+      "hasSqm": true,
+      "htmlSize": 198307
+    },
+    {
+      "path": "/despre-noi",
+      "ms": 2809,
+      "err": null,
+      "title": "About Us | MVA Imobiliare",
+      "h1": "Despre MVA Imobiliare - Agenție Imobiliară din 2016",
+      "canonical": "https://www.mvaimobiliare.ro/despre-noi",
+      "hasLd": true,
+      "hasPrice": false,
+      "hasSqm": false,
+      "htmlSize": 101686
+    }
+  ]
+}
