@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,22 +13,41 @@ import { getPropertyUrl } from "@/lib/propertySlug";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import ScrollReveal from "@/components/ScrollReveal";
 
+const INITIAL_VISIBLE = 12;
+const MAX_FETCH = 60;
+
 const MilitariResidence = () => {
+  const [showAll, setShowAll] = useState(false);
+
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ["militari-residence-properties"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .is("project_id", null)
-        .eq("is_published", true)
-        .or("location.ilike.%militari residence%,location.ilike.%chiajna%,zone.ilike.%militari residence%,zone.ilike.%chiajna%,title.ilike.%militari residence%")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
+      // 6s timeout so a slow upstream never blocks prerender indefinitely
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try {
+        const { data, error } = await supabase
+          .from("catalog_offers")
+          .select("id, slug, title, location, zone, city, project_name, rooms, surface_min, surface_max, price_min, currency, images, is_featured, availability_status")
+          .is("project_id", null)
+          .eq("is_published", true)
+          .or("location.ilike.%militari residence%,location.ilike.%chiajna%,zone.ilike.%militari residence%,zone.ilike.%chiajna%,title.ilike.%militari residence%")
+          .order("created_at", { ascending: false })
+          .limit(MAX_FETCH)
+          .abortSignal(controller.signal);
+        if (error) throw error;
+        return data || [];
+      } catch {
+        return [];
+      } finally {
+        clearTimeout(timer);
+      }
     },
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
+
+  const visibleProperties = showAll ? properties : properties.slice(0, INITIAL_VISIBLE);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -262,68 +282,78 @@ const MilitariResidence = () => {
                     </Link>
                   </div>
                 ) : (
-                  <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                    {properties.map((property) => (
-                      <Link to={getPropertyUrl(property)} key={property.id}>
-                        <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
-                          {property.is_featured && (
-                            <div className="absolute top-3 left-3 z-10">
-                              <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                Recomandat
-                              </Badge>
-                            </div>
-                          )}
-                          <div className="relative overflow-hidden">
-                            <OptimizedPropertyImage
-                              src={property.images?.[0]}
-                              alt={`Apartament ${property.rooms || ""} camere Militari Residence${property.surface_min ? ` ${property.surface_min}mp` : ""}`}
-                              className="group-hover:scale-110 transition-transform duration-700"
-                              aspectRatio="video"
-                              width={640}
-                              height={360}
-                              quality={75}
-                            />
-                            <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
-                              <div className="flex items-center text-gold font-bold">
-                                <Euro className="w-3 h-3 mr-1" />
-                                <span className="text-xs sm:text-sm">
-                                  {property.price_min?.toLocaleString()} {property.currency || "EUR"}
-                                </span>
+                  <>
+                    <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                      {visibleProperties.map((property) => (
+                        <Link to={getPropertyUrl(property)} key={property.id}>
+                          <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
+                            {property.is_featured && (
+                              <div className="absolute top-3 left-3 z-10">
+                                <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
+                                  <Sparkles className="w-3 h-3 mr-1" />
+                                  Recomandat
+                                </Badge>
+                              </div>
+                            )}
+                            <div className="relative overflow-hidden">
+                              <OptimizedPropertyImage
+                                src={property.images?.[0]}
+                                alt={`Apartament ${property.rooms || ""} camere Militari Residence${property.surface_min ? ` ${property.surface_min}mp` : ""}`}
+                                className="group-hover:scale-110 transition-transform duration-700"
+                                aspectRatio="video"
+                                width={640}
+                                height={360}
+                                quality={75}
+                              />
+                              <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
+                                <div className="flex items-center text-gold font-bold">
+                                  <Euro className="w-3 h-3 mr-1" />
+                                  <span className="text-xs sm:text-sm">
+                                    {property.price_min?.toLocaleString()} {property.currency || "EUR"}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <CardContent className="p-4 space-y-3">
-                            <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
-                              {property.title}
-                            </h3>
-                            <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                              <span className="text-xs line-clamp-1">{property.location}</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 text-center">
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">Preț</div>
-                                <div className="text-xs font-semibold text-foreground">{property.price_min?.toLocaleString()}</div>
+                            <CardContent className="p-4 space-y-3">
+                              <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                                {property.title}
+                              </h3>
+                              <div className="flex items-center text-muted-foreground">
+                                <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                                <span className="text-xs line-clamp-1">{property.location}</span>
                               </div>
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">mp</div>
-                                <div className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || "-"}</div>
+                              <div className="grid grid-cols-3 gap-2 text-center">
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">Preț</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.price_min?.toLocaleString()}</div>
+                                </div>
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">mp</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || "-"}</div>
+                                </div>
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">Camere</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.rooms}</div>
+                                </div>
                               </div>
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">Camere</div>
-                                <div className="text-xs font-semibold text-foreground">{property.rooms}</div>
-                              </div>
-                            </div>
-                            <Button variant="luxuryOutline" className="w-full h-9 text-sm group">
-                              Vezi Detalii
-                              <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    ))}
-                  </div>
+                              <Button variant="luxuryOutline" className="w-full h-9 text-sm group">
+                                Vezi Detalii
+                                <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                    {!showAll && properties.length > INITIAL_VISIBLE && (
+                      <div className="text-center mt-8">
+                        <Button variant="luxuryOutline" size="lg" onClick={() => setShowAll(true)}>
+                          Vezi mai multe proprietăți ({properties.length - INITIAL_VISIBLE})
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </section>
             </ScrollReveal>
