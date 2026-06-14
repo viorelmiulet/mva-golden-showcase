@@ -21,7 +21,6 @@ Deno.serve(async (req) => {
       .from('catalog_offers')
       .select('id, slug, updated_at')
       .eq('is_published', true)
-      .is('project_id', null)
       .not('slug', 'is', null)
       .order('updated_at', { ascending: false })
       .limit(5000);
