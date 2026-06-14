@@ -73,5 +73,7 @@ Disallow: /admin/
 # Sitemap index — sursă principală pentru crawlere
 Sitemap: https://www.mvaimobiliare.ro/sitemap-index.xml
 Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
-Sitemap: https://www.mvaimobiliare.ro/news-sitemap.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap-images.xml
+Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap
+Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-news-sitemap
+Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-images
+
