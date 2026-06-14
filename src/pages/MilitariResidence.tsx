@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,22 +13,41 @@ import { getPropertyUrl } from "@/lib/propertySlug";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import ScrollReveal from "@/components/ScrollReveal";
 
+const INITIAL_VISIBLE = 12;
+const MAX_FETCH = 60;
+
 const MilitariResidence = () => {
+  const [showAll, setShowAll] = useState(false);
+
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ["militari-residence-properties"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .is("project_id", null)
-        .eq("is_published", true)
-        .or("location.ilike.%militari residence%,location.ilike.%chiajna%,zone.ilike.%militari residence%,zone.ilike.%chiajna%,title.ilike.%militari residence%")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
+      // 6s timeout so a slow upstream never blocks prerender indefinitely
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try {
+        const { data, error } = await supabase
+          .from("catalog_offers")
+          .select("id, slug, title, location, zone, city, project_name, rooms, surface_min, surface_max, price_min, currency, images, is_featured, availability_status")
+          .is("project_id", null)
+          .eq("is_published", true)
+          .or("location.ilike.%militari residence%,location.ilike.%chiajna%,zone.ilike.%militari residence%,zone.ilike.%chiajna%,title.ilike.%militari residence%")
+          .order("created_at", { ascending: false })
+          .limit(MAX_FETCH)
+          .abortSignal(controller.signal);
+        if (error) throw error;
+        return data || [];
+      } catch {
+        return [];
+      } finally {
+        clearTimeout(timer);
+      }
     },
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
+
+  const visibleProperties = showAll ? properties : properties.slice(0, INITIAL_VISIBLE);
 
   const structuredData = {
     "@context": "https://schema.org",
