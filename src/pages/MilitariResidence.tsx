@@ -282,68 +282,78 @@ const MilitariResidence = () => {
                     </Link>
                   </div>
                 ) : (
-                  <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-                    {properties.map((property) => (
-                      <Link to={getPropertyUrl(property)} key={property.id}>
-                        <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
-                          {property.is_featured && (
-                            <div className="absolute top-3 left-3 z-10">
-                              <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                Recomandat
-                              </Badge>
-                            </div>
-                          )}
-                          <div className="relative overflow-hidden">
-                            <OptimizedPropertyImage
-                              src={property.images?.[0]}
-                              alt={`Apartament ${property.rooms || ""} camere Militari Residence${property.surface_min ? ` ${property.surface_min}mp` : ""}`}
-                              className="group-hover:scale-110 transition-transform duration-700"
-                              aspectRatio="video"
-                              width={640}
-                              height={360}
-                              quality={75}
-                            />
-                            <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
-                              <div className="flex items-center text-gold font-bold">
-                                <Euro className="w-3 h-3 mr-1" />
-                                <span className="text-xs sm:text-sm">
-                                  {property.price_min?.toLocaleString()} {property.currency || "EUR"}
-                                </span>
+                  <>
+                    <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                      {visibleProperties.map((property) => (
+                        <Link to={getPropertyUrl(property)} key={property.id}>
+                          <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
+                            {property.is_featured && (
+                              <div className="absolute top-3 left-3 z-10">
+                                <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
+                                  <Sparkles className="w-3 h-3 mr-1" />
+                                  Recomandat
+                                </Badge>
+                              </div>
+                            )}
+                            <div className="relative overflow-hidden">
+                              <OptimizedPropertyImage
+                                src={property.images?.[0]}
+                                alt={`Apartament ${property.rooms || ""} camere Militari Residence${property.surface_min ? ` ${property.surface_min}mp` : ""}`}
+                                className="group-hover:scale-110 transition-transform duration-700"
+                                aspectRatio="video"
+                                width={640}
+                                height={360}
+                                quality={75}
+                              />
+                              <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
+                                <div className="flex items-center text-gold font-bold">
+                                  <Euro className="w-3 h-3 mr-1" />
+                                  <span className="text-xs sm:text-sm">
+                                    {property.price_min?.toLocaleString()} {property.currency || "EUR"}
+                                  </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <CardContent className="p-4 space-y-3">
-                            <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
-                              {property.title}
-                            </h3>
-                            <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
-                              <span className="text-xs line-clamp-1">{property.location}</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 text-center">
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">Preț</div>
-                                <div className="text-xs font-semibold text-foreground">{property.price_min?.toLocaleString()}</div>
+                            <CardContent className="p-4 space-y-3">
+                              <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                                {property.title}
+                              </h3>
+                              <div className="flex items-center text-muted-foreground">
+                                <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                                <span className="text-xs line-clamp-1">{property.location}</span>
                               </div>
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">mp</div>
-                                <div className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || "-"}</div>
+                              <div className="grid grid-cols-3 gap-2 text-center">
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">Preț</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.price_min?.toLocaleString()}</div>
+                                </div>
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">mp</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.surface_min || property.surface_max || "-"}</div>
+                                </div>
+                                <div className="p-2 rounded-lg">
+                                  <div className="text-xs text-muted-foreground">Camere</div>
+                                  <div className="text-xs font-semibold text-foreground">{property.rooms}</div>
+                                </div>
                               </div>
-                              <div className="p-2 rounded-lg">
-                                <div className="text-xs text-muted-foreground">Camere</div>
-                                <div className="text-xs font-semibold text-foreground">{property.rooms}</div>
-                              </div>
-                            </div>
-                            <Button variant="luxuryOutline" className="w-full h-9 text-sm group">
-                              Vezi Detalii
-                              <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    ))}
-                  </div>
+                              <Button variant="luxuryOutline" className="w-full h-9 text-sm group">
+                                Vezi Detalii
+                                <ArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                    {!showAll && properties.length > INITIAL_VISIBLE && (
+                      <div className="text-center mt-8">
+                        <Button variant="luxuryOutline" size="lg" onClick={() => setShowAll(true)}>
+                          Vezi mai multe proprietăți ({properties.length - INITIAL_VISIBLE})
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </section>
             </ScrollReveal>
