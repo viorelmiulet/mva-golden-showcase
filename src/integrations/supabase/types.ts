@@ -183,8 +183,10 @@ export type Database = {
           description: string | null
           exclusivity: boolean | null
           external_id: string | null
+          extra_sections: Json | null
           features: string[] | null
           floor: number | null
+          floor_label: string | null
           floor_plan: string | null
           furnished: string | null
           has_ac: boolean | null
@@ -203,6 +205,7 @@ export type Database = {
           homedirect_synced_at: string | null
           id: string
           images: string[] | null
+          immoflux_slug: string | null
           is_featured: boolean | null
           is_published: boolean | null
           kitchens: number | null
@@ -263,8 +266,10 @@ export type Database = {
           description?: string | null
           exclusivity?: boolean | null
           external_id?: string | null
+          extra_sections?: Json | null
           features?: string[] | null
           floor?: number | null
+          floor_label?: string | null
           floor_plan?: string | null
           furnished?: string | null
           has_ac?: boolean | null
@@ -283,6 +288,7 @@ export type Database = {
           homedirect_synced_at?: string | null
           id?: string
           images?: string[] | null
+          immoflux_slug?: string | null
           is_featured?: boolean | null
           is_published?: boolean | null
           kitchens?: number | null
@@ -343,8 +349,10 @@ export type Database = {
           description?: string | null
           exclusivity?: boolean | null
           external_id?: string | null
+          extra_sections?: Json | null
           features?: string[] | null
           floor?: number | null
+          floor_label?: string | null
           floor_plan?: string | null
           furnished?: string | null
           has_ac?: boolean | null
@@ -363,6 +371,7 @@ export type Database = {
           homedirect_synced_at?: string | null
           id?: string
           images?: string[] | null
+          immoflux_slug?: string | null
           is_featured?: boolean | null
           is_published?: boolean | null
           kitchens?: number | null
@@ -2228,8 +2237,10 @@ export type Database = {
           description: string | null
           exclusivity: boolean | null
           external_id: string | null
+          extra_sections: Json | null
           features: string[] | null
           floor: number | null
+          floor_label: string | null
           floor_plan: string | null
           furnished: string | null
           has_ac: boolean | null
@@ -2248,6 +2259,7 @@ export type Database = {
           homedirect_synced_at: string | null
           id: string
           images: string[] | null
+          immoflux_slug: string | null
           is_featured: boolean | null
           is_published: boolean | null
           kitchens: number | null
