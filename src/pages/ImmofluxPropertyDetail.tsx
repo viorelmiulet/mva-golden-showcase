@@ -624,24 +624,22 @@ const ImmofluxPropertyDetail = () => {
               const similar = ranked.slice(0, 6);
               if (similar.length === 0) return null;
               return (
-                <section aria-label="Proprietăți similare" className="mt-12 lg:col-span-3">
-                  <h2 className="text-xl md:text-2xl font-bold mb-6">Proprietăți similare</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <section aria-label="Proprietăți similare" className="mt-12">
+                  <h2 className="text-xl md:text-2xl font-bold mb-5">Proprietăți similare</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {similar.map((s: any) => {
                       const img = Array.isArray(s.images) ? s.images[0] : null;
                       return (
-                        <Link key={s.id} to={getImmofluxItemUrl(s)} className="rounded-xl border bg-card overflow-hidden hover:border-gold transition-colors group flex flex-col h-full">
+                        <Link key={s.id} to={getImmofluxItemUrl(s)} className="rounded-xl border bg-card overflow-hidden hover:border-gold transition-colors group">
                           {img && (
-                            <div className="relative w-full h-52 md:h-60 shrink-0">
-                              <img src={img} alt={s.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:opacity-95" />
-                            </div>
+                            <img src={img} alt={s.title} loading="lazy" decoding="async" className="w-full h-44 object-cover group-hover:opacity-95" />
                           )}
-                          <div className="p-5 flex flex-col flex-1">
-                            <div className="font-semibold line-clamp-2 text-base leading-snug flex-1">{s.title}</div>
-                            <div className="text-gold font-bold mt-3 text-lg">
+                          <div className="p-4">
+                            <div className="font-semibold line-clamp-2 text-sm">{s.title}</div>
+                            <div className="text-gold font-bold mt-2">
                               {s.price_min ? `${Number(s.price_min).toLocaleString('ro-RO')} ${s.currency || 'EUR'}${s.transaction_type === 'rent' ? '/lună' : ''}` : 'Preț la cerere'}
                             </div>
-                            {s.zone && <div className="text-sm text-muted-foreground mt-2 truncate">{s.zone}{s.city ? `, ${s.city}` : ''}</div>}
+                            {s.zone && <div className="text-xs text-muted-foreground mt-1 truncate">{s.zone}{s.city ? `, ${s.city}` : ''}</div>}
                           </div>
                         </Link>
                       );
