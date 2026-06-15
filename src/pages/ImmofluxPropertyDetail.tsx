@@ -211,59 +211,27 @@ const ImmofluxPropertyDetail = () => {
     }
   };
 
-  // ── Slug-derived SEO seed (used while loading) ──
-  const slugCanonicalPath = `/proprietate/${urlSlug}`;
-  const slugCanonicalUrl = `https://www.mvaimobiliare.ro${slugCanonicalPath}`;
-  const slugSeed = (() => {
-    if (!urlSlug) return { rooms: null as number | null, surface: null as number | null, floor: null as number | null, h1: 'Proprietate', desc: '' };
-    const garsoniera = /(^|-)garsoniera(-|$)/.test(urlSlug);
-    const roomsM = urlSlug.match(/apartament-(\d+)-camere/);
-    const surfaceM = urlSlug.match(/(\d+)mp/);
-    const floorM = urlSlug.match(/etaj-(\d+)/);
-    const parter = /(^|-)parter(-|$)/.test(urlSlug);
-    const rooms = garsoniera ? 1 : (roomsM ? Number(roomsM[1]) : null);
-    const surface = surfaceM ? Number(surfaceM[1]) : null;
-    const floor = floorM ? Number(floorM[1]) : (parter ? 0 : null);
-    const head = rooms === 1 ? 'Garsonieră' : rooms ? `Apartament ${rooms} camere` : 'Proprietate';
-    const bits: string[] = [];
-    if (surface) bits.push(`${surface} mp`);
-    if (floor !== null) bits.push(floor === 0 ? 'parter' : `etaj ${floor}`);
-    const h1 = bits.length ? `${head}, ${bits.join(', ')}` : head;
-    const desc = `${h1} de vânzare prin MVA Imobiliare. Detalii complete, fotografii și programare vizionare.`;
-    return { rooms, surface, floor, h1, desc };
-  })();
+  // (Slug-derived SEO seed removed — mirroring catalog PropertyDetail.tsx,
+  // we no longer mount real-looking head meta during loading. The prerenderer
+  // must snapshot either skeleton+no-SEO or full-body+full-SEO, never the
+  // head-full / body-empty middle state that caused soft 404s.)
 
-  const LoadingSeoShell = (
-    <>
-      <PropertySeo
-        title={slugSeed.h1}
-        description={slugSeed.desc}
-        metaDescription={slugSeed.desc}
-        canonicalPath={slugCanonicalPath}
-        images={[]}
-        rooms={slugSeed.rooms}
-        surface={slugSeed.surface}
-        floor={slugSeed.floor}
-        city="București"
-        isSale
-      />
-      <Helmet>
-        <meta name="twitter:url" content={slugCanonicalUrl} />
-      </Helmet>
-    </>
-  );
 
+  // NOTE: Do NOT mount PropertySeo / real-looking head meta during loading.
+  // The prerenderer (Hado) treats a ready-looking <head> + skeleton <body> as
+  // "page ready" and snapshots an empty body → soft 404. Mirror catalog
+  // PropertyDetail.tsx: loading branch = skeleton only, no SEO meta. Head + body
+  // land together in the success branch.
   if (isLoading) return (
-    <>
-      {LoadingSeoShell}
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
-      <main className="pt-24 pb-16 container mx-auto px-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{slugSeed.h1}</h1>
-        <p className="text-muted-foreground mb-6 max-w-2xl">{slugSeed.desc}</p>
-        <PropertyDetailSkeleton />
+      <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <PropertyDetailSkeleton />
+        </div>
       </main>
       <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
-    </>
+    </div>
   );
 
   if (isError || !property || !row) return <ImmofluxNotFound />;
