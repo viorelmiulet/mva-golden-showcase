@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const [projectsResult, propertiesResult, blogPostsResult, newsResult] = await Promise.all([
+    const [projectsResult, propertiesResult, immofluxResult, blogPostsResult, newsResult] = await Promise.all([
       supabase
         .from('real_estate_projects')
         .select('id, name, slug, updated_at')
@@ -66,6 +66,17 @@ Deno.serve(async (req) => {
         .not('slug', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5000),
+      // Immoflux properties: use STORED immoflux_slug (canonical), never recompute.
+      // Mirror public visibility: published + not sold (sold are hidden from sitemap).
+      supabase
+        .from('catalog_offers')
+        .select('immoflux_slug, updated_at')
+        .eq('crm_source', 'immoflux')
+        .eq('is_published', true)
+        .neq('availability_status', 'sold')
+        .not('immoflux_slug', 'is', null)
+        .order('updated_at', { ascending: false })
+        .limit(10000),
       supabase
         .from('blog_posts')
         .select('slug, updated_at')
@@ -82,15 +93,19 @@ Deno.serve(async (req) => {
 
     if (projectsResult.error) throw projectsResult.error;
     if (propertiesResult.error) throw propertiesResult.error;
+    if (immofluxResult.error) throw immofluxResult.error;
     if (blogPostsResult.error) throw blogPostsResult.error;
     if (newsResult.error) throw newsResult.error;
 
     const projects = (projectsResult.data || []) as Project[];
     const properties = propertiesResult.data || [];
+    const immofluxProperties = (immofluxResult.data || []).filter(
+      (p: any) => typeof p.immoflux_slug === 'string' && p.immoflux_slug.trim().length > 0,
+    );
     const blogPosts = (blogPostsResult.data || []) as BlogPost[];
     const newsArticles = (newsResult.data || []) as Array<{ slug: string; updated_at: string; published_date: string | null }>;
 
-    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts, ${newsArticles.length} news articles`);
+    console.log(`Found ${projects.length} complexes, ${properties.length} catalog properties, ${immofluxProperties.length} immoflux properties, ${blogPosts.length} blog posts, ${newsArticles.length} news articles`);
 
     const currentDate = new Date().toISOString().split('T')[0];
 
@@ -187,6 +202,20 @@ Deno.serve(async (req) => {
         : currentDate;
       sitemap += `  <url>
     <loc>${SITE_URL}/proprietati/${xmlEscape(property.slug)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    }
+
+    // Immoflux properties — /proprietate/<immoflux_slug>
+    for (const p of immofluxProperties as Array<{ immoflux_slug: string; updated_at: string | null }>) {
+      const lastmod = p.updated_at
+        ? new Date(p.updated_at).toISOString().split('T')[0]
+        : currentDate;
+      sitemap += `  <url>
+    <loc>${SITE_URL}/proprietate/${xmlEscape(p.immoflux_slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
