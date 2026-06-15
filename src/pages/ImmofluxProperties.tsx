@@ -45,10 +45,11 @@ const detectFurnished = (p: any): { label: 'Mobilat' | 'Parțial mobilat' | 'Nem
   return null;
 };
 
-const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
+const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxProperty; slugMap?: Map<number, string> | null }) => {
   const isSale = property.devanzare === 1;
   const surface = getSurface(property);
   const furnished = detectFurnished(property as any);
+  const href = resolveImmofluxUrl(property as any, slugMap);
   const furnishedClass = furnished?.tone === 'furnished'
     ? 'bg-amber-500 text-black'
     : furnished?.tone === 'partial'
