@@ -22,6 +22,7 @@ import {
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const { data: slugMap } = useImmofluxSlugMap();
   const [syncing, setSyncing] = useState(false);
   const queryClient = useQueryClient();
 
