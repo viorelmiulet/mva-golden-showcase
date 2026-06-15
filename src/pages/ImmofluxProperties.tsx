@@ -110,6 +110,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
 const ImmofluxProperties = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const { data: slugMap } = useImmofluxSlugMap();
 
   // Quick filters
   const [zone, setZone] = useState("");
