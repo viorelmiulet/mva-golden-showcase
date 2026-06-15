@@ -99,10 +99,13 @@ Deno.serve(async (req) => {
 
     const projects = (projectsResult.data || []) as Project[];
     const properties = propertiesResult.data || [];
+    const immofluxProperties = (immofluxResult.data || []).filter(
+      (p: any) => typeof p.immoflux_slug === 'string' && p.immoflux_slug.trim().length > 0,
+    );
     const blogPosts = (blogPostsResult.data || []) as BlogPost[];
     const newsArticles = (newsResult.data || []) as Array<{ slug: string; updated_at: string; published_date: string | null }>;
 
-    console.log(`Found ${projects.length} complexes, ${properties.length} properties, ${blogPosts.length} blog posts, ${newsArticles.length} news articles`);
+    console.log(`Found ${projects.length} complexes, ${properties.length} catalog properties, ${immofluxProperties.length} immoflux properties, ${blogPosts.length} blog posts, ${newsArticles.length} news articles`);
 
     const currentDate = new Date().toISOString().split('T')[0];
 
