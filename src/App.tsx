@@ -13,6 +13,7 @@ const SeoLanding = lazy(() => import("./pages/SeoLanding"));
 
 // Eager-load main entry points (homepage + property detail) — main ad/share landing pages
 import Index from "./pages/Index";
+import ImmofluxPropertyDetail from "./pages/ImmofluxPropertyDetail";
 
 // Mobile app pages - lazy loaded for reduced initial bundle
 const MobileAppLayout = lazy(() => import("./layouts/MobileAppLayout"));
@@ -78,7 +79,7 @@ const GarsoniereMilitariResidence = lazy(() => import("./pages/GarsoniereMilitar
 const RenewResidence = lazy(() => import("./pages/RenewResidence"));
 const EurocasaResidence = lazy(() => import("./pages/EurocasaResidence"));
 const ImmofluxProperties = lazy(() => import("./pages/ImmofluxProperties"));
-const ImmofluxPropertyDetail = lazy(() => import("./pages/ImmofluxPropertyDetail"));
+
 const OfertaRedirect = lazy(() => import("./components/OfertaRedirect"));
 
 const WatermarkPage = lazy(() => import("./pages/admin/WatermarkPage"));

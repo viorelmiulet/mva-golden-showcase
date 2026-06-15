@@ -233,37 +233,21 @@ const ImmofluxPropertyDetail = () => {
     return { rooms, surface, floor, h1, desc };
   })();
 
-  const LoadingSeoShell = (
-    <>
-      <PropertySeo
-        title={slugSeed.h1}
-        description={slugSeed.desc}
-        metaDescription={slugSeed.desc}
-        canonicalPath={slugCanonicalPath}
-        images={[]}
-        rooms={slugSeed.rooms}
-        surface={slugSeed.surface}
-        floor={slugSeed.floor}
-        city="București"
-        isSale
-      />
-      <Helmet>
-        <meta name="twitter:url" content={slugCanonicalUrl} />
-      </Helmet>
-    </>
-  );
-
+  // NOTE: Do NOT mount PropertySeo / real-looking head meta during loading.
+  // The prerenderer (Hado) treats a ready-looking <head> + skeleton <body> as
+  // "page ready" and snapshots an empty body → soft 404. Mirror catalog
+  // PropertyDetail.tsx: loading branch = skeleton only, no SEO meta. Head + body
+  // land together in the success branch.
   if (isLoading) return (
-    <>
-      {LoadingSeoShell}
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
-      <main className="pt-24 pb-16 container mx-auto px-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{slugSeed.h1}</h1>
-        <p className="text-muted-foreground mb-6 max-w-2xl">{slugSeed.desc}</p>
-        <PropertyDetailSkeleton />
+      <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
+        <div className="container mx-auto max-w-6xl">
+          <PropertyDetailSkeleton />
+        </div>
       </main>
       <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
-    </>
+    </div>
   );
 
   if (isError || !property || !row) return <ImmofluxNotFound />;
