@@ -278,7 +278,7 @@ const ImmofluxPropertiesAdmin = () => {
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-border/50">
                       <span className="text-sm font-bold text-gold">{formatPrice(property)}</span>
-                      <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                      <Link to={resolveImmofluxUrl(property, slugMap)} target="_blank">
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-gold">
                           <ExternalLink className="h-3 w-3 mr-1" />
                           Vezi
