@@ -218,17 +218,52 @@ const localized = (v: unknown): string => {
 const labelize = (codes: string[], dict: Record<string, string>): string[] =>
   codes.map(c => dict[c]).filter(Boolean);
 
+function buildImmofluxSlug(p: ImmofluxProperty, surface: number | null, floorLabel: string | null): string {
+  const parts: string[] = [];
+  const rooms = p.nrcamere || 1;
+  parts.push(rooms <= 1 ? 'garsoniera' : `apartament-${rooms}-camere`);
+  if (surface && surface > 0) parts.push(`${surface}mp`);
+  if (floorLabel) {
+    if (/parter|demisol/i.test(floorLabel)) parts.push('parter');
+    else {
+      const m = floorLabel.match(/\d+/);
+      if (m) {
+        const n = parseInt(m[0], 10);
+        if (Number.isFinite(n) && n >= 0) parts.push(n === 0 ? 'parter' : `etaj-${n}`);
+      }
+    }
+  }
+  const slugify = (s: string) =>
+    s.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  if (p.zona) {
+    const z = slugify(p.zona.split(',')[0].trim());
+    if (z && z.length > 2 && !parts.some(x => x.includes(z))) parts.push(z);
+  }
+  if (p.localitate) {
+    const c = slugify(p.localitate.split(',')[0].trim());
+    if (c && c.length > 2 && !parts.some(x => x.includes(c))) parts.push(c);
+  }
+  if (p.idnum !== undefined && p.idnum !== null) parts.push(String(p.idnum));
+  return parts.join('-');
+}
+
 function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const title = localized(p.titlu) || `Proprietate #${p.idnum}`;
-  let description = localized(p.descriere);
+  const description = localized(p.descriere);
 
-  // Append context blocks to description
   const vecin = localized(p.vecinatati);
-  if (vecin) description += `\n\nVecinătăți: ${vecin}`;
-  if (p.utilitati) description += `\n\nUtilități: ${p.utilitati}`;
-  if (p.finisaje) description += `\n\nFinisaje: ${p.finisaje}`;
-  if (p.dotari) description += `\n\nDotări: ${p.dotari}`;
-  if (p.altedetaliizona) description += `\n\nAlte detalii zonă: ${p.altedetaliizona}`;
+  const opinieAgent = localized((p as any).opinieagent);
+  const extraSections: Record<string, string> = {};
+  if (p.utilitati) extraSections.utilitati = p.utilitati;
+  if (p.finisaje) extraSections.finisaje = p.finisaje;
+  if (p.dotari) extraSections.dotari = p.dotari;
+  if (vecin) extraSections.vecinatati = vecin;
+  if (opinieAgent) extraSections.opinieagent = opinieAgent;
+  if (p.altedetaliizona) extraSections.altedetaliizona = p.altedetaliizona;
 
   const isSale = p.devanzare === 1;
   const price = isSale ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare);
@@ -261,7 +296,6 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     ...labelize(utilCodes, CLIMATIZARE_LABELS),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
-  // Boolean utility flags (codes per IMMOFLUX docs)
   const has = (code: string) => utilCodes.includes(code);
   const hasDot = (code: string) => dotariCodes.includes(code);
 
@@ -275,18 +309,14 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const has_security = hasDot('30605') || hasDot('30604') || null;
   const has_wood_floors = finisCodes.includes('20201') || finisCodes.includes('20205') || null;
 
-  // Heating
   const heatingCode = utilCodes.find(c => INCALZIRE_LABELS[c]);
   const heating = heatingCode ? INCALZIRE_LABELS[heatingCode] : null;
 
-  // Furnished
   const mobilatCode = dotariCodes.find(c => ['30301', '30302', '30303', '30304'].includes(c));
   const furnished = p.mobilat_value || (mobilatCode ? DOTARI_LABELS[mobilatCode] : null);
 
-  // Parking count
   const parking = (hasDot('30026') ? 1 : 0) + (hasDot('30027') ? 1 : 0) + (p.nrgaraje || 0);
 
-  // Agent
   const agent = p.agent_info?.nume || (p.agent ? `Agent #${p.agent}` : null);
   const agencyContact = p.agent_info ? {
     name: p.agent_info.nume,
@@ -294,12 +324,17 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     phone: p.agent_info.phone || p.agent_info.telefon,
   } : null;
 
-  // Date added
   let date_added: string | null = null;
   if (p.dataadaugare) {
     const ts = typeof p.dataadaugare === 'number' ? p.dataadaugare : parseInt(String(p.dataadaugare));
     if (!isNaN(ts)) date_added = new Date(ts * (ts > 1e12 ? 1 : 1000)).toISOString();
   }
+
+  // Floor: keep both integer and original label
+  const floorLabel = p.etaj ? String(p.etaj).trim() : null;
+  const floorInt = intOrNull(p.etaj);
+
+  const immofluxSlug = buildImmofluxSlug(p, surface, floorLabel);
 
   return {
     external_id: `immoflux-${p.idnum}`,
@@ -308,6 +343,8 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     title,
     description,
     descriere_lunga: description,
+    extra_sections: Object.keys(extraSections).length ? extraSections : null,
+    immoflux_slug: immofluxSlug,
     price_min: price || 0,
     price_max: price || 0,
     currency,
@@ -320,7 +357,8 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     location: p.adresa || p.zona || p.localitate,
     zone: p.zona || null,
     city: p.localitate || null,
-    floor: intOrNull(p.etaj),
+    floor: floorInt,
+    floor_label: floorLabel,
     total_floors: p.nrnivele || null,
     bathrooms: p.nrbai || null,
     balconies: p.nrbalcoane || null,
@@ -355,6 +393,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     project_id: null,
   };
 }
+
 
 async function writeStatus(supabase: any, value: Record<string, unknown>) {
   try {
