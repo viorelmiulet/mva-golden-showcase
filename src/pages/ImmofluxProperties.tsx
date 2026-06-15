@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, type ImmofluxProperty } from "@/hooks/useImmoflux";
-import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
 import { PropertyGridSkeleton } from "@/components/skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,17 +44,18 @@ const detectFurnished = (p: any): { label: 'Mobilat' | 'Parțial mobilat' | 'Nem
   return null;
 };
 
-const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
+const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxProperty; slugMap?: Map<number, string> | null }) => {
   const isSale = property.devanzare === 1;
   const surface = getSurface(property);
   const furnished = detectFurnished(property as any);
+  const href = resolveImmofluxUrl(property as any, slugMap);
   const furnishedClass = furnished?.tone === 'furnished'
     ? 'bg-amber-500 text-black'
     : furnished?.tone === 'partial'
       ? 'bg-amber-200 text-black'
       : 'bg-slate-600 text-white';
   return (
-    <Link to={getImmofluxPropertyUrl(property as any)}>
+    <Link to={href}>
       <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
         <div className="relative h-48 md:h-56 overflow-hidden">
           <img
@@ -108,6 +109,7 @@ const ImmofluxPropertyCard = ({ property }: { property: ImmofluxProperty }) => {
 const ImmofluxProperties = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const { data: slugMap } = useImmofluxSlugMap();
 
   // Quick filters
   const [zone, setZone] = useState("");
@@ -272,7 +274,7 @@ const ImmofluxProperties = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {filtered.map((p) => (
-                    <ImmofluxPropertyCard key={p.idnum} property={p} />
+                    <ImmofluxPropertyCard key={p.idnum} property={p} slugMap={slugMap} />
                   ))}
                 </div>
               )}

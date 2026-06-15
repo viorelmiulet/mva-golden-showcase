@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { Link } from "react-router-dom"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug"
+import { useImmofluxSlugMap } from "@/hooks/useImmofluxSlugMap"
 import ScrollReveal from "@/components/ScrollReveal"
 import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
 import { useMemo } from "react"
@@ -54,9 +55,11 @@ const Properties = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: slugMap } = useImmofluxSlugMap();
+
   // Fetch IMMOFLUX pole position / top properties
   const { data: immofluxFeatured = [], isLoading: isLoadingImmoflux } = useQuery({
-    queryKey: ['immoflux-featured-home'],
+    queryKey: ['immoflux-featured-home', slugMap ? slugMap.size : 0],
     queryFn: async () => {
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy/properties?page=1`, {
         headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY }
@@ -65,7 +68,9 @@ const Properties = () => {
       const data = await res.json();
       const allProps: ImmofluxProperty[] = data.data || [];
       // Filter pole position and top properties
-      return allProps.filter((p: any) => isPoleProperty(p) || p.top === 1).map((p: any) => ({
+      return allProps.filter((p: any) => isPoleProperty(p) || p.top === 1).map((p: any) => {
+        const stored = slugMap?.get(Number(p.idnum));
+        return ({
         id: `immoflux-${p.idnum}`,
         title: typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`),
         description: typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || ''),
@@ -81,16 +86,19 @@ const Properties = () => {
         is_featured: true,
         source: 'immoflux',
         _immoflux_id: p.idnum,
-        _immoflux_slug: p.idnum ? generateImmofluxSlug(p) : null,
+        _immoflux_slug: stored || (p.idnum ? generateImmofluxSlug(p) : null),
          _immoflux_pole: isPoleProperty(p),
         _immoflux_top: p.top === 1,
-      }));
+      });
+      });
     },
+    enabled: slugMap !== undefined,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   const isLoading = isLoadingCatalog || isLoadingImmoflux;
+
 
   // Merge: pole position first, then top, then random catalog offers
   const randomOffers = useMemo(() => {
@@ -211,7 +219,7 @@ const Properties = () => {
                           <ScheduleViewingDialog
                             propertyTitle={property.title}
                             propertyId={property.id}
-                            propertyUrl={shouldUseImmofluxRoute(property) ? getImmofluxPropertyUrl({ idnum: property._immoflux_id, nrcamere: property.rooms, zona: property.zone, localitate: property.city, titlu: property.title }) : getPropertyUrl(property)}
+                            propertyUrl={shouldUseImmofluxRoute(property) ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property)}
                             trigger={
                               <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-primary hover:bg-primary/90">
                                 <Calendar className="w-3 h-3 mr-1" />

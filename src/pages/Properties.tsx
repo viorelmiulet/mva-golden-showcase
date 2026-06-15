@@ -149,14 +149,16 @@ const Properties = () => {
         return {
           ...p,
           _immoflux_id: immofluxId,
-          _immoflux_slug: isImmoflux && immofluxId ? generateImmofluxSlug({
-            idnum: immofluxId,
-            nrcamere: p.rooms,
-            zona: p.zone,
-            localitate: p.location || p.city,
-            suprutila: p.surface_min,
-            etaj: p.floor,
-          } as any) : null,
+          _immoflux_slug: isImmoflux && immofluxId
+            ? (p.immoflux_slug || generateImmofluxSlug({
+                idnum: immofluxId,
+                nrcamere: p.rooms,
+                zona: p.zone,
+                localitate: p.location || p.city,
+                suprutila: p.surface_min,
+                etaj: p.floor,
+              } as any))
+            : null,
           _immoflux_top: isImmoflux && p.promotion_type === 'top',
           _immoflux_pole: isImmoflux && p.promotion_type === 'pole_position',
         }
@@ -960,13 +962,7 @@ const Properties = () => {
                           propertyTitle={property.title}
                           propertyId={property.id}
                           propertyUrl={shouldUseImmofluxRoute(property)
-                            ? getImmofluxPropertyUrl({
-                                idnum: property._immoflux_id,
-                                nrcamere: property.rooms,
-                                zona: property.zone,
-                                localitate: property.city || property.location,
-                                titlu: property.title,
-                              })
+                            ? `/proprietate/${property._immoflux_slug}`
                             : getPropertyUrl(property)}
                           trigger={
                             <Button 

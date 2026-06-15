@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
+import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import {
 const ImmofluxPropertiesAdmin = () => {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error } = useProperties(page);
+  const { data: slugMap } = useImmofluxSlugMap();
   const [syncing, setSyncing] = useState(false);
   const queryClient = useQueryClient();
 
@@ -277,7 +278,7 @@ const ImmofluxPropertiesAdmin = () => {
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-border/50">
                       <span className="text-sm font-bold text-gold">{formatPrice(property)}</span>
-                      <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                      <Link to={resolveImmofluxUrl(property, slugMap)} target="_blank">
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-gold">
                           <ExternalLink className="h-3 w-3 mr-1" />
                           Vezi
