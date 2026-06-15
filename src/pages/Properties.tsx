@@ -962,13 +962,7 @@ const Properties = () => {
                           propertyTitle={property.title}
                           propertyId={property.id}
                           propertyUrl={shouldUseImmofluxRoute(property)
-                            ? getImmofluxPropertyUrl({
-                                idnum: property._immoflux_id,
-                                nrcamere: property.rooms,
-                                zona: property.zone,
-                                localitate: property.city || property.location,
-                                titlu: property.title,
-                              })
+                            ? `/proprietate/${property._immoflux_slug}`
                             : getPropertyUrl(property)}
                           trigger={
                             <Button 
