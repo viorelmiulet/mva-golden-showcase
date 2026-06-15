@@ -38,6 +38,10 @@ Deno.serve(async (req) => {
     <lastmod>${currentDate}</lastmod>
   </sitemap>
   <sitemap>
+    <loc>${baseUrl}/generate-sitemap-immoflux</loc>
+    <lastmod>${currentDate}</lastmod>
+  </sitemap>
+  <sitemap>
     <loc>${baseUrl}/generate-sitemap-images</loc>
     <lastmod>${currentDate}</lastmod>
   </sitemap>
