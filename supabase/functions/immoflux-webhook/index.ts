@@ -13,6 +13,12 @@ interface ImmofluxWebhookPayload {
     idstr?: string;
     titlu?: { ro: string; en?: string } | string;
     descriere?: { ro: string; en?: string } | string;
+    vecinatati?: { ro: string; en?: string } | string;
+    opinieagent?: { ro: string; en?: string } | string;
+    utilitati?: string;
+    finisaje?: string;
+    dotari?: string;
+    altedetaliizona?: string;
     pretvanzare?: number | null;
     pretinchiriere?: number | null;
     monedavanzare?: string;
@@ -43,18 +49,72 @@ interface ImmofluxWebhookPayload {
   timestamp?: string;
 }
 
+function localized(v: unknown): string {
+  if (!v) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') return (v as any).ro || (v as any).en || '';
+  return String(v);
+}
+
+function buildImmofluxSlug(p: ImmofluxWebhookPayload['data'], surface: number | null, floorLabel: string | null): string {
+  const parts: string[] = [];
+  const rooms = p.nrcamere || 1;
+  parts.push(rooms <= 1 ? 'garsoniera' : `apartament-${rooms}-camere`);
+  if (surface && surface > 0) parts.push(`${surface}mp`);
+  if (floorLabel) {
+    if (/parter|demisol/i.test(floorLabel)) parts.push('parter');
+    else {
+      const m = floorLabel.match(/\d+/);
+      if (m) {
+        const n = parseInt(m[0], 10);
+        if (Number.isFinite(n) && n >= 0) parts.push(n === 0 ? 'parter' : `etaj-${n}`);
+      }
+    }
+  }
+  const slugify = (s: string) =>
+    s.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  if (p.zona) {
+    const z = slugify(p.zona.split(',')[0].trim());
+    if (z && z.length > 2 && !parts.some(x => x.includes(z))) parts.push(z);
+  }
+  if (p.localitate) {
+    const c = slugify(p.localitate.split(',')[0].trim());
+    if (c && c.length > 2 && !parts.some(x => x.includes(c))) parts.push(c);
+  }
+  if (p.idnum !== undefined && p.idnum !== null) parts.push(String(p.idnum));
+  return parts.join('-');
+}
+
 function mapToCatalogOffer(p: ImmofluxWebhookPayload['data']): Record<string, unknown> {
   const title = typeof p.titlu === 'object' ? p.titlu?.ro || `Proprietate #${p.idnum}` : String(p.titlu || `Proprietate #${p.idnum}`);
   const description = typeof p.descriere === 'object' ? p.descriere?.ro || '' : String(p.descriere || '');
+  const vecin = localized(p.vecinatati);
+  const opinieAgent = localized(p.opinieagent);
+  const extraSections: Record<string, string> = {};
+  if (p.utilitati) extraSections.utilitati = p.utilitati;
+  if (p.finisaje) extraSections.finisaje = p.finisaje;
+  if (p.dotari) extraSections.dotari = p.dotari;
+  if (vecin) extraSections.vecinatati = vecin;
+  if (opinieAgent) extraSections.opinieagent = opinieAgent;
+  if (p.altedetaliizona) extraSections.altedetaliizona = p.altedetaliizona;
+
   const isSale = p.devanzare === 1;
   const price = isSale ? p.pretvanzare : (p.pretinchiriere || p.pretvanzare);
   const currency = isSale ? (p.monedavanzare || 'EUR') : (p.monedainchiriere || 'EUR');
-  const surface = typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) || null : p.suprafatautila;
+  const surfaceRaw = typeof p.suprafatautila === 'string' ? parseFloat(p.suprafatautila) : p.suprafatautila;
+  const surface = Number.isFinite(surfaceRaw as number) ? Math.round(surfaceRaw as number) : null;
   const surfaceLand = typeof p.suprafatateren === 'string' ? parseFloat(p.suprafatateren as string) || null : (p.suprafatateren || null);
   const images = (p.images || []).sort((a, b) => a.pozitie - b.pozitie).map(img => img.src);
   const isPole = p.pole === 1 || p.poleposition === 1;
   const isTop = p.top === 1;
   const promotionType = isPole ? 'pole_position' : (isTop ? 'top' : null);
+
+  const floorLabel = p.etaj ? String(p.etaj).trim() : null;
+  const floorInt = typeof p.etaj === 'string' ? (parseInt(p.etaj) || (/parter/i.test(p.etaj) ? 0 : null)) : null;
 
   return {
     external_id: `immoflux-${p.idnum}`,
@@ -62,6 +122,8 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload['data']): Record<string, un
     source: 'immoflux',
     title,
     description,
+    extra_sections: Object.keys(extraSections).length ? extraSections : null,
+    immoflux_slug: buildImmofluxSlug(p, surface, floorLabel),
     price_min: price || 0,
     price_max: price || 0,
     currency,
@@ -73,7 +135,8 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload['data']): Record<string, un
     location: p.zona || p.localitate,
     zone: p.zona,
     city: p.localitate,
-    floor: typeof p.etaj === 'string' ? parseInt(p.etaj) || null : null,
+    floor: floorInt,
+    floor_label: floorLabel,
     bathrooms: p.nrbai || null,
     balconies: p.nrbalcoane || null,
     year_built: p.anconstructie || null,
