@@ -76,10 +76,62 @@ const ImmofluxPropertyDetail = () => {
     });
   };
 
+  // ── Slug-derived SEO seed (used while loading AND as the canonical for this URL) ──
+  // We canonicalize to the SLUG IN THE URL (never to a recomputed one). This guarantees
+  // canonical, og:url and twitter:url all share the same URL — no redirects, no divergence.
+  const urlSlug = slug || '';
+  const slugCanonicalPath = `/proprietate/${urlSlug}`;
+  const slugCanonicalUrl = `https://www.mvaimobiliare.ro${slugCanonicalPath}`;
+  const slugSeed = (() => {
+    if (!urlSlug) return { rooms: null as number | null, surface: null as number | null, floor: null as number | null, h1: 'Proprietate', desc: '' };
+    const garsoniera = /(^|-)garsoniera(-|$)/.test(urlSlug);
+    const roomsM = urlSlug.match(/apartament-(\d+)-camere/);
+    const surfaceM = urlSlug.match(/(\d+)mp/);
+    const floorM = urlSlug.match(/etaj-(\d+)/);
+    const parter = /(^|-)parter(-|$)/.test(urlSlug);
+    const rooms = garsoniera ? 1 : (roomsM ? Number(roomsM[1]) : null);
+    const surface = surfaceM ? Number(surfaceM[1]) : null;
+    const floor = floorM ? Number(floorM[1]) : (parter ? 0 : null);
+    const head = rooms === 1 ? 'Garsonieră' : rooms ? `Apartament ${rooms} camere` : 'Proprietate';
+    const bits: string[] = [];
+    if (surface) bits.push(`${surface} mp`);
+    if (floor !== null) bits.push(floor === 0 ? 'parter' : `etaj ${floor}`);
+    const h1 = bits.length ? `${head}, ${bits.join(', ')}` : head;
+    const desc = `${h1} de vânzare prin MVA Imobiliare. Detalii complete, fotografii și programare vizionare.`;
+    return { rooms, surface, floor, h1, desc };
+  })();
+
+  // SEO + minimal visible body (H1 + description) emitted even while loading so bots
+  // never snapshot an empty <body>.
+  const LoadingSeoShell = (
+    <>
+      <PropertySeo
+        title={slugSeed.h1}
+        description={slugSeed.desc}
+        metaDescription={slugSeed.desc}
+        canonicalPath={slugCanonicalPath}
+        images={[]}
+        rooms={slugSeed.rooms}
+        surface={slugSeed.surface}
+        floor={slugSeed.floor}
+        city="București"
+        isSale
+      />
+      <Helmet>
+        <meta name="twitter:url" content={slugCanonicalUrl} />
+      </Helmet>
+    </>
+  );
+
   if (isLoading) return (
     <>
+      {LoadingSeoShell}
       <Header />
-      <main className="pt-24 pb-16 container mx-auto px-4"><PropertyDetailSkeleton /></main>
+      <main className="pt-24 pb-16 container mx-auto px-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{slugSeed.h1}</h1>
+        <p className="text-muted-foreground mb-6 max-w-2xl">{slugSeed.desc}</p>
+        <PropertyDetailSkeleton />
+      </main>
       <Suspense fallback={<FooterSkeleton />}><Footer /></Suspense>
     </>
   );
@@ -165,8 +217,11 @@ const ImmofluxPropertyDetail = () => {
   // Canonical path is computed from the property payload and emitted via <link rel="canonical">
   // in PropertySeo. We intentionally do NOT redirect the browser — Google consolidates duplicates
   // via the canonical tag, and a hard redirect during render breaks bot prerendering (empty body).
-  const canonicalPath = getImmofluxPropertyUrl(property as any);
-  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
+  // Canonical = URL slug (single source of truth, shared with og:url + twitter:url).
+  // We intentionally do NOT recompute the slug from the payload — that's what caused
+  // canonical ↔ og:url ↔ twitter:url divergence and bot-prerender soft 404s.
+  const canonicalPath = slugCanonicalPath;
+  const propertyUrl = slugCanonicalUrl;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
@@ -226,6 +281,9 @@ const ImmofluxPropertyDetail = () => {
         isSale={isSale}
         projectName={p.proiect || p.complex || null}
       />
+      <Helmet>
+        <meta name="twitter:url" content={propertyUrl} />
+      </Helmet>
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
