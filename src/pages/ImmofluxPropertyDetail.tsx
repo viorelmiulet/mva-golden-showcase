@@ -217,8 +217,11 @@ const ImmofluxPropertyDetail = () => {
   // Canonical path is computed from the property payload and emitted via <link rel="canonical">
   // in PropertySeo. We intentionally do NOT redirect the browser — Google consolidates duplicates
   // via the canonical tag, and a hard redirect during render breaks bot prerendering (empty body).
-  const canonicalPath = getImmofluxPropertyUrl(property as any);
-  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
+  // Canonical = URL slug (single source of truth, shared with og:url + twitter:url).
+  // We intentionally do NOT recompute the slug from the payload — that's what caused
+  // canonical ↔ og:url ↔ twitter:url divergence and bot-prerender soft 404s.
+  const canonicalPath = slugCanonicalPath;
+  const propertyUrl = slugCanonicalUrl;
   const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${propertyId}`;
   const ogType = isSale ? "product" : "website";
   const priceAmount = p.pret ? String(p.pret) : null;
