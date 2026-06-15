@@ -209,6 +209,20 @@ Deno.serve(async (req) => {
 `;
     }
 
+    // Immoflux properties — /proprietate/<immoflux_slug>
+    for (const p of immofluxProperties as Array<{ immoflux_slug: string; updated_at: string | null }>) {
+      const lastmod = p.updated_at
+        ? new Date(p.updated_at).toISOString().split('T')[0]
+        : currentDate;
+      sitemap += `  <url>
+    <loc>${SITE_URL}/proprietate/${xmlEscape(p.immoflux_slug)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    }
+
     sitemap += `</urlset>`;
 
     return new Response(sitemap, {
