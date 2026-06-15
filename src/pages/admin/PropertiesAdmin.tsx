@@ -1018,7 +1018,7 @@ const PropertiesAdmin = () => {
                             </p>
                           </div>
                           <div className="flex items-center justify-end mt-4 pt-3 border-t border-border/20">
-                            <Link to={getImmofluxPropertyUrl(property)} target="_blank">
+                            <Link to={resolveImmofluxUrl(property, immofluxSlugMap)} target="_blank">
                               <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-gold">
                                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
                                 Vezi pe site
