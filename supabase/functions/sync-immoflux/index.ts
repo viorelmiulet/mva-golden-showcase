@@ -106,6 +106,7 @@ interface ImmofluxProperty {
   finisaje?: string;
   dotari?: string;
   altedetaliizona?: string;
+  opinieagent?: { ro?: string; en?: string } | string;
   pretnegociabil?: number;
   longitudine?: number;
   latitudine?: number;
