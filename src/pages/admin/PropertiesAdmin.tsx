@@ -46,6 +46,7 @@ import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const PropertiesAdmin = () => {
+  const { data: immofluxSlugMap } = useImmofluxSlugMap();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
