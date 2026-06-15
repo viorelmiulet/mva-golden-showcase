@@ -219,7 +219,7 @@ const Properties = () => {
                           <ScheduleViewingDialog
                             propertyTitle={property.title}
                             propertyId={property.id}
-                            propertyUrl={shouldUseImmofluxRoute(property) ? getImmofluxPropertyUrl({ idnum: property._immoflux_id, nrcamere: property.rooms, zona: property.zone, localitate: property.city, titlu: property.title }) : getPropertyUrl(property)}
+                            propertyUrl={shouldUseImmofluxRoute(property) ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property)}
                             trigger={
                               <Button variant="default" size="sm" className="w-full text-[10px] h-7 bg-primary hover:bg-primary/90">
                                 <Calendar className="w-3 h-3 mr-1" />
