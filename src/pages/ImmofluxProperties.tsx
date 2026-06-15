@@ -56,7 +56,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
       ? 'bg-amber-200 text-black'
       : 'bg-slate-600 text-white';
   return (
-    <Link to={getImmofluxPropertyUrl(property as any)}>
+    <Link to={href}>
       <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
         <div className="relative h-48 md:h-56 overflow-hidden">
           <img
