@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const [projectsResult, propertiesResult, blogPostsResult, newsResult] = await Promise.all([
+    const [projectsResult, propertiesResult, immofluxResult, blogPostsResult, newsResult] = await Promise.all([
       supabase
         .from('real_estate_projects')
         .select('id, name, slug, updated_at')
@@ -66,6 +66,17 @@ Deno.serve(async (req) => {
         .not('slug', 'is', null)
         .order('updated_at', { ascending: false })
         .limit(5000),
+      // Immoflux properties: use STORED immoflux_slug (canonical), never recompute.
+      // Mirror public visibility: published + not sold (sold are hidden from sitemap).
+      supabase
+        .from('catalog_offers')
+        .select('immoflux_slug, updated_at')
+        .eq('crm_source', 'immoflux')
+        .eq('is_published', true)
+        .neq('availability_status', 'sold')
+        .not('immoflux_slug', 'is', null)
+        .order('updated_at', { ascending: false })
+        .limit(10000),
       supabase
         .from('blog_posts')
         .select('slug, updated_at')
@@ -82,6 +93,7 @@ Deno.serve(async (req) => {
 
     if (projectsResult.error) throw projectsResult.error;
     if (propertiesResult.error) throw propertiesResult.error;
+    if (immofluxResult.error) throw immofluxResult.error;
     if (blogPostsResult.error) throw blogPostsResult.error;
     if (newsResult.error) throw newsResult.error;
 
