@@ -122,6 +122,13 @@ const Footer = () => {
           <div className="flex items-center gap-4">
             <Link to="/politica-confidentialitate" className="text-xs text-muted-foreground hover:text-gold transition-colors">{t.footer.privacy}</Link>
             <Link to="/termeni-conditii" className="text-xs text-muted-foreground hover:text-gold transition-colors">{t.footer.terms}</Link>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
+              className="text-xs text-muted-foreground hover:text-gold transition-colors"
+            >
+              {language === 'ro' ? 'Setări Cookie-uri' : 'Cookie settings'}
+            </button>
             <button onClick={scrollToTop} className="w-8 h-8 glass rounded-lg flex items-center justify-center hover:bg-gold/10 transition-colors border border-border/50" title={language === 'ro' ? 'Sus' : 'Top'} aria-label={language === 'ro' ? 'Sus' : 'Back to top'}>
               <ArrowUp className="w-3 h-3 text-gold" />
             </button>
