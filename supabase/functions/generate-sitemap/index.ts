@@ -59,11 +59,16 @@ Deno.serve(async (req) => {
         .select('id, name, slug, updated_at')
         .eq('is_published', true)
         .order('updated_at', { ascending: false }),
+      // Catalog (non-Immoflux) properties — /proprietati/<slug>.
+      // Exclude Immoflux rows (they are emitted under /proprietate/<immoflux_slug>).
+      // Exclude sold rows to match public visibility policy.
       supabase
         .from('catalog_offers')
         .select('id, slug, updated_at')
         .eq('is_published', true)
         .not('slug', 'is', null)
+        .or('crm_source.is.null,crm_source.neq.immoflux')
+        .neq('availability_status', 'sold')
         .order('updated_at', { ascending: false })
         .limit(5000),
       // Immoflux properties: use STORED immoflux_slug (canonical), never recompute.
