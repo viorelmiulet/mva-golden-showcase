@@ -27,6 +27,19 @@ export const ApproximateLocationMap = ({
 }: ApproximateLocationMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const [mapConsent, setMapConsent] = useState(false);
+
+  useEffect(() => {
+    // Initial read of consent state set by CookieConsent (Marketing category)
+    const consent = (window as unknown as { __mvaConsent?: { marketing?: boolean } }).__mvaConsent;
+    if (consent?.marketing) setMapConsent(true);
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent<{ marketing?: boolean }>).detail;
+      setMapConsent(Boolean(detail?.marketing));
+    };
+    window.addEventListener("mva-consent-change", onChange as EventListener);
+    return () => window.removeEventListener("mva-consent-change", onChange as EventListener);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
