@@ -39,13 +39,14 @@ declare global {
   interface Window {
     openCookieSettings?: () => void;
     __mvaConsent?: Categories;
-    plausible?: ((...args: unknown[]) => void) & {
-      q?: unknown[];
-      init?: (opts?: unknown) => void;
-      o?: unknown;
-    };
   }
 }
+
+type PlausibleQueue = ((...args: unknown[]) => void) & {
+  q?: unknown[];
+  init?: (opts?: unknown) => void;
+  o?: unknown;
+};
 
 // --- storage helpers ---
 const clearLegacy = () => {
