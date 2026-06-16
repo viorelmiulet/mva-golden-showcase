@@ -158,13 +158,13 @@ describe('LCP: index.html critical preloads', () => {
     }
   });
 
-  it('defers Google Analytics and Plausible scripts (no render-blocking)', () => {
-    expect(indexHtml).toMatch(/setTimeout[\s\S]*googletagmanager\.com\/gtag\/js/);
-    expect(indexHtml).toMatch(/setTimeout[\s\S]*plausible\.io\/js/);
-
-    // Neither script should be loaded synchronously in head
+  it('does NOT load Google Analytics or Plausible synchronously in head (consent-gated)', () => {
+    // Neither script may be loaded synchronously in head — they are injected only after consent
     expect(indexHtml).not.toMatch(/<script[^>]+src=["']https:\/\/www\.googletagmanager\.com\/gtag\/js/);
     expect(indexHtml).not.toMatch(/<script[^>]+src=["']https:\/\/plausible\.io\/js/);
+    // Consent Mode v2 defaults must be set to denied in head
+    expect(indexHtml).toMatch(/gtag\(['"]consent['"],\s*['"]default['"]/);
+    expect(indexHtml).toMatch(/analytics_storage:\s*['"]denied['"]/);
   });
 });
 
