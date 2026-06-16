@@ -90,14 +90,44 @@ export const ApproximateLocationMap = ({
         ref={containerRef}
         className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-gold/20 bg-muted"
       >
-        <iframe
-          title="Locație aproximativă proprietate"
-          src={src}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          style={{ border: 0, display: "block", width: "100%", height: "100%" }}
-          allowFullScreen
-        />
+        {mapConsent ? (
+          <iframe
+            title="Locație aproximativă proprietate"
+            src={src}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            style={{ border: 0, display: "block", width: "100%", height: "100%" }}
+            allowFullScreen
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center bg-muted">
+            <MapPin className="w-8 h-8 text-gold" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground max-w-sm">
+              Harta Google este blocată până acceptați cookie-urile de marketing.
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button
+                size="sm"
+                onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
+              >
+                Activează harta
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+              >
+                <a
+                  href={`https://www.google.com/maps?q=${lat},${lng}&z=${zoom}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Deschide în Google Maps
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Approximation circle overlay — centered, sized to ~2km, never overflowing */}
         {size.w > 0 && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
