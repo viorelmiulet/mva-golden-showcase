@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ApproximateLocationMapProps {
   latitude: number;
@@ -26,6 +27,19 @@ export const ApproximateLocationMap = ({
 }: ApproximateLocationMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  const [mapConsent, setMapConsent] = useState(false);
+
+  useEffect(() => {
+    // Initial read of consent state set by CookieConsent (Marketing category)
+    const consent = (window as unknown as { __mvaConsent?: { marketing?: boolean } }).__mvaConsent;
+    if (consent?.marketing) setMapConsent(true);
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent<{ marketing?: boolean }>).detail;
+      setMapConsent(Boolean(detail?.marketing));
+    };
+    window.addEventListener("mva-consent-change", onChange as EventListener);
+    return () => window.removeEventListener("mva-consent-change", onChange as EventListener);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -76,16 +90,46 @@ export const ApproximateLocationMap = ({
         ref={containerRef}
         className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-gold/20 bg-muted"
       >
-        <iframe
-          title="Locație aproximativă proprietate"
-          src={src}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          style={{ border: 0, display: "block", width: "100%", height: "100%" }}
-          allowFullScreen
-        />
+        {mapConsent ? (
+          <iframe
+            title="Locație aproximativă proprietate"
+            src={src}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            style={{ border: 0, display: "block", width: "100%", height: "100%" }}
+            allowFullScreen
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center bg-muted">
+            <MapPin className="w-8 h-8 text-gold" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground max-w-sm">
+              Harta Google este blocată până acceptați cookie-urile de marketing.
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button
+                size="sm"
+                onClick={() => window.dispatchEvent(new Event('open-cookie-settings'))}
+              >
+                Activează harta
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+              >
+                <a
+                  href={`https://www.google.com/maps?q=${lat},${lng}&z=${zoom}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Deschide în Google Maps
+                </a>
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Approximation circle overlay — centered, sized to ~2km, never overflowing */}
-        {size.w > 0 && (
+        {mapConsent && size.w > 0 && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div
               className="rounded-full"

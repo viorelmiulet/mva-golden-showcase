@@ -1,224 +1,433 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, Cookie } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { X, Cookie, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const COOKIE_CONSENT_KEY = "cookieConsent";
-const COOKIE_CONSENT_TIMESTAMP_KEY = "cookieConsentTimestamp";
+/**
+ * GDPR + Google Consent Mode v2 compliant consent manager.
+ *
+ * Categories:
+ *  - necessary  (always on, cannot be disabled)
+ *  - analytics  (GA4 + Plausible)
+ *  - marketing  (ads / pixels / 3rd-party embeds like Google Maps iframe)
+ *
+ * NO non-essential script is loaded until the matching category is granted.
+ * Defaults for Google Consent Mode v2 are set to "denied" inline in index.html.
+ *
+ * Re-open the banner anywhere:
+ *   window.dispatchEvent(new Event('open-cookie-settings'))
+ *   or
+ *   window.openCookieSettings?.()
+ */
+
+const STORAGE_KEY = "mva_cookie_consent_v2";
+const LEGACY_KEYS = ["cookieConsent", "cookieConsentTimestamp"];
+const CONSENT_EXPIRY_MS = 180 * 24 * 60 * 60 * 1000;
 const GA_ID = "G-HLZFTKHC80";
 
-// Expiry period for cookie consent preferences (180 days, in ms)
-const CONSENT_EXPIRY_MS = 180 * 24 * 60 * 60 * 1000;
-const CONSENT_EXPIRY_SECONDS = Math.floor(CONSENT_EXPIRY_MS / 1000);
-
-type ConsentValue = "accepted" | "rejected";
-
-const getConsentFromCookie = () => {
-  if (typeof document === "undefined") return null;
-
-  const cookie = document.cookie
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${COOKIE_CONSENT_KEY}=`));
-
-  return cookie ? cookie.split("=")[1] : null;
+type Categories = {
+  necessary: true;
+  analytics: boolean;
+  marketing: boolean;
 };
 
-const clearStoredConsent = () => {
-  try {
-    localStorage.removeItem(COOKIE_CONSENT_KEY);
-    localStorage.removeItem(COOKIE_CONSENT_TIMESTAMP_KEY);
-  } catch {
-    // ignore
-  }
+type StoredConsent = Categories & { ts: number };
 
+declare global {
+  interface Window {
+    openCookieSettings?: () => void;
+    __mvaConsent?: Categories;
+  }
+}
+
+type PlausibleQueue = ((...args: unknown[]) => void) & {
+  q?: unknown[];
+  init?: (opts?: unknown) => void;
+  o?: unknown;
+};
+
+// --- storage helpers ---
+const clearLegacy = () => {
+  try {
+    LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* ignore */
+  }
   if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_CONSENT_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
-    document.cookie = `${COOKIE_CONSENT_TIMESTAMP_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    LEGACY_KEYS.forEach((k) => {
+      document.cookie = `${k}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    });
   }
 };
 
-const getStoredConsent = (): ConsentValue | null => {
-  let value: string | null = null;
-  let timestamp: string | null = null;
-
+const readStored = (): StoredConsent | null => {
   try {
-    value = localStorage.getItem(COOKIE_CONSENT_KEY);
-    timestamp = localStorage.getItem(COOKIE_CONSENT_TIMESTAMP_KEY);
-  } catch {
-    // ignore
-  }
-
-  if (!value) {
-    value = getConsentFromCookie();
-  }
-
-  if (!value) return null;
-
-  // If we have a timestamp, validate freshness
-  if (timestamp) {
-    const ts = parseInt(timestamp, 10);
-    if (!Number.isNaN(ts) && Date.now() - ts > CONSENT_EXPIRY_MS) {
-      clearStoredConsent();
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredConsent;
+    if (!parsed || typeof parsed.ts !== "number") return null;
+    if (Date.now() - parsed.ts > CONSENT_EXPIRY_MS) {
+      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
-  } else {
-    // No timestamp recorded → treat as legacy entry and reset so the user re-consents
-    clearStoredConsent();
+    return { ...parsed, necessary: true };
+  } catch {
     return null;
   }
-
-  return value as ConsentValue;
 };
 
-const setStoredConsent = (value: ConsentValue) => {
-  const now = Date.now().toString();
-
+const writeStored = (c: Categories) => {
   try {
-    localStorage.setItem(COOKIE_CONSENT_KEY, value);
-    localStorage.setItem(COOKIE_CONSENT_TIMESTAMP_KEY, now);
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...c, ts: Date.now() } satisfies StoredConsent)
+    );
   } catch {
-    // Ignore storage errors (e.g. strict/incognito environments)
-  }
-
-  if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_CONSENT_KEY}=${value}; path=/; max-age=${CONSENT_EXPIRY_SECONDS}; SameSite=Lax`;
-    document.cookie = `${COOKIE_CONSENT_TIMESTAMP_KEY}=${now}; path=/; max-age=${CONSENT_EXPIRY_SECONDS}; SameSite=Lax`;
+    /* ignore */
   }
 };
 
-let ga4Loaded = false;
-
-const loadGA4 = () => {
-  if (ga4Loaded || typeof document === "undefined") return;
-  ga4Loaded = true;
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  document.head.appendChild(script);
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer!.push(arguments);
+// --- analytics cookie cleanup when denied ---
+const clearTrackingCookies = () => {
+  if (typeof document === "undefined") return;
+  const host = window.location.hostname;
+  const rootDomain = host.split(".").slice(-2).join(".");
+  const kill = (name: string) => {
+    const variants = [
+      `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `${name}=; path=/; domain=${host}; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `${name}=; path=/; domain=.${host}; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+      `${name}=; path=/; domain=.${rootDomain}; expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+    ];
+    variants.forEach((v) => (document.cookie = v));
   };
-  window.gtag("js", new Date());
-  window.gtag("config", GA_ID, { send_page_view: false });
+  document.cookie
+    .split(";")
+    .map((c) => c.trim().split("=")[0])
+    .filter((n) =>
+      /^(_ga|_gid|_gat|_gcl_|_fbp|_fbc|FPID|FPLC|__utm|_clck|_clsk|_hjSession)/i.test(
+        n
+      )
+    )
+    .forEach(kill);
 };
 
-const scheduleGA4Load = () => {
-  if (ga4Loaded || typeof window === "undefined") return;
+// --- script injectors (idempotent) ---
+let ga4Injected = false;
+const injectGA4 = () => {
+  if (ga4Injected || typeof document === "undefined") return;
+  ga4Injected = true;
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+  document.head.appendChild(s);
+  window.gtag?.("js", new Date());
+  window.gtag?.("config", GA_ID, { anonymize_ip: true, send_page_view: false });
+};
 
-  const start = () => {
-    const idleWindow = window as Window & {
-      requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+let plausibleInjected = false;
+const injectPlausible = () => {
+  if (plausibleInjected || typeof document === "undefined") return;
+  plausibleInjected = true;
+  const w = window as unknown as { plausible?: PlausibleQueue };
+  const queue: PlausibleQueue =
+    w.plausible ||
+    Object.assign(
+      function (...args: unknown[]) {
+        (queue.q = queue.q || []).push(args);
+      },
+      { q: [] as unknown[] }
+    );
+  queue.init =
+    queue.init ||
+    function (i?: unknown) {
+      queue.o = i || {};
     };
-
-    if (idleWindow.requestIdleCallback) {
-      idleWindow.requestIdleCallback(() => loadGA4(), { timeout: 4000 });
-    } else {
-      window.setTimeout(() => loadGA4(), 1500);
-    }
-  };
-
-  if (document.readyState === "complete") {
-    start();
-    return;
-  }
-
-  window.addEventListener("load", start, { once: true });
+  w.plausible = queue;
+  queue.init();
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://plausible.io/js/pa-f5f3NmrOiA-HrfgXtStSS.js";
+  document.head.appendChild(s);
 };
 
+// --- apply consent ---
+const applyConsent = (c: Categories) => {
+  window.__mvaConsent = c;
 
-// Detect Do-Not-Track signal across browsers (navigator.doNotTrack, window.doNotTrack, navigator.msDoNotTrack, Global Privacy Control)
-const isDoNotTrackEnabled = () => {
-  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
-  const nav = navigator as Navigator & { msDoNotTrack?: string; globalPrivacyControl?: boolean };
-  const win = window as Window & { doNotTrack?: string };
-  const dnt = nav.doNotTrack ?? win.doNotTrack ?? nav.msDoNotTrack;
+  const granted = (v: boolean) => (v ? "granted" : "denied");
+  window.gtag?.("consent", "update", {
+    ad_storage: granted(c.marketing),
+    ad_user_data: granted(c.marketing),
+    ad_personalization: granted(c.marketing),
+    analytics_storage: granted(c.analytics),
+  });
+
+  if (c.analytics) {
+    injectGA4();
+    injectPlausible();
+  } else {
+    clearTrackingCookies();
+  }
+
+  // notify the rest of the app (e.g. Google Maps embed) that consent changed
+  window.dispatchEvent(
+    new CustomEvent("mva-consent-change", { detail: c })
+  );
+};
+
+const isDoNotTrack = () => {
+  if (typeof navigator === "undefined") return false;
+  const n = navigator as Navigator & {
+    msDoNotTrack?: string;
+    globalPrivacyControl?: boolean;
+  };
+  const w = window as Window & { doNotTrack?: string };
+  const dnt = n.doNotTrack ?? w.doNotTrack ?? n.msDoNotTrack;
   if (dnt === "1" || dnt === "yes") return true;
-  if (nav.globalPrivacyControl === true) return true;
+  if (n.globalPrivacyControl === true) return true;
   return false;
 };
 
 const CookieConsent = () => {
+  const { language } = useLanguage();
+  const isRo = language === "ro";
+
   const [isVisible, setIsVisible] = useState(false);
-  const { t } = useLanguage();
+  const [showDetails, setShowDetails] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  const [marketing, setMarketing] = useState(false);
 
+  const t = isRo
+    ? {
+        title: "Setări cookie-uri",
+        body:
+          "Folosim cookie-uri esențiale pentru funcționarea site-ului. Cu acordul tău, folosim și cookie-uri pentru analiză și marketing. Poți schimba alegerea oricând din „Setări Cookie-uri” în footer.",
+        acceptAll: "Accept toate",
+        rejectAll: "Refuz toate",
+        customize: "Personalizează",
+        save: "Salvează preferințele",
+        close: "Închide",
+        necessary: "Necesare",
+        necessaryDesc: "Esențiale pentru funcționarea site-ului. Nu pot fi dezactivate.",
+        analytics: "Analytics",
+        analyticsDesc: "Ne ajută să înțelegem cum este folosit site-ul (Google Analytics, Plausible).",
+        marketing: "Marketing",
+        marketingDesc: "Conținut terț și măsurare publicitară (ex. hartă Google Maps, pixeli).",
+        always: "Întotdeauna activ",
+      }
+    : {
+        title: "Cookie settings",
+        body:
+          "We use essential cookies to run the site. With your consent we also use analytics and marketing cookies. You can change your choice anytime from “Cookie settings” in the footer.",
+        acceptAll: "Accept all",
+        rejectAll: "Reject all",
+        customize: "Customize",
+        save: "Save preferences",
+        close: "Close",
+        necessary: "Necessary",
+        necessaryDesc: "Essential for the site to function. Cannot be disabled.",
+        analytics: "Analytics",
+        analyticsDesc: "Help us understand how the site is used (Google Analytics, Plausible).",
+        marketing: "Marketing",
+        marketingDesc: "Third-party content & ad measurement (e.g. Google Maps, pixels).",
+        always: "Always on",
+      };
+
+  // initial mount: migrate legacy, apply saved consent or show banner
   useEffect(() => {
-    // Respect Do-Not-Track: never load analytics, never show consent banner
-    if (isDoNotTrackEnabled()) {
-      // Ensure any previously granted consent is cleared so analytics stays off
-      clearStoredConsent();
+    clearLegacy();
+
+    if (isDoNotTrack()) {
+      applyConsent({ necessary: true, analytics: false, marketing: false });
       return;
     }
 
-    const consent = getStoredConsent();
-
-    if (consent === "accepted") {
-      scheduleGA4Load();
+    const stored = readStored();
+    if (stored) {
+      setAnalytics(stored.analytics);
+      setMarketing(stored.marketing);
+      applyConsent(stored);
       return;
     }
 
-    if (!consent) {
-      const timer = setTimeout(() => setIsVisible(true), 2000);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setIsVisible(true), 1200);
+    return () => clearTimeout(timer);
   }, []);
 
-  const acceptCookies = () => {
-    if (isDoNotTrackEnabled()) {
-      setIsVisible(false);
-      return;
-    }
-    setStoredConsent("accepted");
-    scheduleGA4Load();
-    setIsVisible(false);
-  };
+  // expose open-settings hooks
+  useEffect(() => {
+    const open = () => {
+      const stored = readStored();
+      if (stored) {
+        setAnalytics(stored.analytics);
+        setMarketing(stored.marketing);
+      }
+      setShowDetails(true);
+      setIsVisible(true);
+    };
+    window.openCookieSettings = open;
+    window.addEventListener("open-cookie-settings", open);
+    return () => {
+      window.removeEventListener("open-cookie-settings", open);
+      if (window.openCookieSettings === open) delete window.openCookieSettings;
+    };
+  }, []);
 
-  const rejectCookies = () => {
-    setStoredConsent("rejected");
+  const persist = useCallback((c: Categories) => {
+    writeStored(c);
+    applyConsent(c);
     setIsVisible(false);
-  };
+    setShowDetails(false);
+  }, []);
+
+  const acceptAll = () =>
+    persist({ necessary: true, analytics: true, marketing: true });
+  const rejectAll = () =>
+    persist({ necessary: true, analytics: false, marketing: false });
+  const saveCustom = () =>
+    persist({ necessary: true, analytics, marketing });
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 sm:right-auto sm:w-full sm:max-w-sm xl:max-w-md">
-      <Card className="border bg-background/95 p-4 shadow-lg backdrop-blur-sm">
+    <div
+      role="dialog"
+      aria-modal="false"
+      aria-label={t.title}
+      className="fixed inset-x-0 bottom-0 z-[100] flex justify-center p-3 sm:p-4 pointer-events-none"
+    >
+      <Card className="pointer-events-auto w-full max-w-2xl border bg-background/95 p-4 sm:p-5 shadow-2xl backdrop-blur-md">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
-          <div className="flex-1">
-            <h3 className="mb-2 text-sm font-semibold">
-              {t.cookies?.message?.split(".")[0] || "Cookie Consent"}
-            </h3>
-            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-              {t.cookies?.message || "We use cookies to improve your experience on our site."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={acceptCookies} size="sm" className="text-xs">
-                {t.cookies?.accept || "Accept"}
-              </Button>
-              <Button onClick={rejectCookies} variant="outline" size="sm" className="text-xs">
-                {t.cookies?.decline || "Decline"}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="text-sm font-semibold">{t.title}</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={rejectAll}
+                aria-label={t.close}
+                className="h-auto p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
               </Button>
             </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              {t.body}
+            </p>
+
+            {showDetails && (
+              <div className="mt-4 space-y-3 rounded-md border bg-muted/30 p-3">
+                <CategoryRow
+                  title={t.necessary}
+                  desc={t.necessaryDesc}
+                  alwaysOnLabel={t.always}
+                  locked
+                  checked
+                />
+                <CategoryRow
+                  title={t.analytics}
+                  desc={t.analyticsDesc}
+                  checked={analytics}
+                  onChange={setAnalytics}
+                />
+                <CategoryRow
+                  title={t.marketing}
+                  desc={t.marketingDesc}
+                  checked={marketing}
+                  onChange={setMarketing}
+                />
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Button size="sm" onClick={acceptAll} className="text-xs">
+                {t.acceptAll}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={rejectAll}
+                className="text-xs"
+              >
+                {t.rejectAll}
+              </Button>
+              {showDetails ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={saveCustom}
+                  className="text-xs"
+                >
+                  {t.save}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowDetails(true)}
+                  className="text-xs"
+                >
+                  {t.customize}
+                  <ChevronDown className="ml-1 h-3 w-3" />
+                </Button>
+              )}
+              {showDetails && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowDetails(false)}
+                  className="text-xs"
+                  aria-label={t.close}
+                >
+                  <ChevronUp className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={rejectCookies}
-            aria-label="Închide bannerul de cookies"
-            className="h-auto p-1 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
       </Card>
     </div>
   );
 };
+
+const CategoryRow = ({
+  title,
+  desc,
+  checked,
+  onChange,
+  locked,
+  alwaysOnLabel,
+}: {
+  title: string;
+  desc: string;
+  checked: boolean;
+  onChange?: (v: boolean) => void;
+  locked?: boolean;
+  alwaysOnLabel?: string;
+}) => (
+  <div className="flex items-start justify-between gap-3">
+    <div className="min-w-0">
+      <p className="text-xs font-semibold">{title}</p>
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
+        {desc}
+      </p>
+    </div>
+    {locked ? (
+      <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">
+        {alwaysOnLabel}
+      </span>
+    ) : (
+      <Switch
+        checked={checked}
+        onCheckedChange={(v) => onChange?.(Boolean(v))}
+        aria-label={title}
+      />
+    )}
+  </div>
+);
 
 export default CookieConsent;

@@ -126,35 +126,24 @@
       }
     </style>
 
-    <!-- Google Analytics 4 - deferred to not block rendering -->
+    <!-- Google Consent Mode v2 — defaults to DENIED. Updated by CookieConsent.tsx after user consent. -->
+    <!-- NOTE: GA4 / Plausible / Maps / Pixel scripts are NOT loaded here. They are injected by
+         src/components/CookieConsent.tsx ONLY after the user grants the matching category. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HLZFTKHC80', { send_page_view: false });
-      // Load GA4 script after page load
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var s = document.createElement('script');
-          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-HLZFTKHC80';
-          s.async = true;
-          document.head.appendChild(s);
-        }, 2000);
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
       });
-    </script>
-
-    <!-- Privacy-friendly analytics by Plausible - deferred -->
-    <script>
-      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-      plausible.init();
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var s = document.createElement('script');
-          s.src = 'https://plausible.io/js/pa-f5f3NmrOiA-HrfgXtStSS.js';
-          s.async = true;
-          document.head.appendChild(s);
-        }, 2500);
-      });
+      gtag('set', 'url_passthrough', true);
+      gtag('set', 'ads_data_redaction', true);
     </script>
 
     <!-- Open Graph / Facebook — per-page tags set via React Helmet; only sitewide defaults here -->
