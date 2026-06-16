@@ -131,13 +131,9 @@ let plausibleInjected = false;
 const injectPlausible = () => {
   if (plausibleInjected || typeof document === "undefined") return;
   plausibleInjected = true;
-  // queue stub so calls before script load are captured
-  const queue: ((...args: unknown[]) => void) & {
-    q?: unknown[];
-    init?: (opts?: unknown) => void;
-    o?: unknown;
-  } =
-    window.plausible ||
+  const w = window as unknown as { plausible?: PlausibleQueue };
+  const queue: PlausibleQueue =
+    w.plausible ||
     Object.assign(
       function (...args: unknown[]) {
         (queue.q = queue.q || []).push(args);
@@ -149,7 +145,7 @@ const injectPlausible = () => {
     function (i?: unknown) {
       queue.o = i || {};
     };
-  window.plausible = queue;
+  w.plausible = queue;
   queue.init();
   const s = document.createElement("script");
   s.async = true;
