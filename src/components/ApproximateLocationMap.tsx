@@ -129,7 +129,7 @@ export const ApproximateLocationMap = ({
           </div>
         )}
         {/* Approximation circle overlay — centered, sized to ~2km, never overflowing */}
-        {size.w > 0 && (
+        {mapConsent && size.w > 0 && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div
               className="rounded-full"
