@@ -402,6 +402,13 @@ const ContractGeneratorPage = () => {
       setIsExtractingChirias(true);
     }
 
+    const partyLabel = type === 'proprietar' ? 'proprietar' : 'chiriaș';
+    const toastId = `extract-${type}`;
+    toast.loading(
+      `Se procesează ${images.length} imagine${images.length > 1 ? 'i' : ''} pentru ${partyLabel}...`,
+      { id: toastId, description: 'AI analizează documentul. Poate dura 10–30 sec.' }
+    );
+
     try {
       const { data, error } = await supabase.functions.invoke('extract-id-data', {
         body: images.length === 1
@@ -409,14 +416,34 @@ const ContractGeneratorPage = () => {
           : { imageBase64List: images }
       });
 
-      if (error) throw error;
-
-      if (data.error) {
-        toast.error(data.error);
+      if (error) {
+        // Try to surface specific HTTP errors from the edge function
+        const status = (error as any)?.context?.status ?? (error as any)?.status;
+        let msg = error.message || 'Eroare la apelul funcției de extracție';
+        if (status === 429) msg = 'Limită de cereri AI depășită. Așteptați câteva secunde și reîncercați.';
+        else if (status === 402) msg = 'Credit AI insuficient. Reîncărcați workspace-ul.';
+        else if (status === 401) msg = 'Sesiune expirată. Faceți login din nou.';
+        toast.error(msg, { id: toastId });
         return;
       }
 
-      const extracted = data.data as ExtractedData;
+      if (data?.error) {
+        toast.error(data.error, {
+          id: toastId,
+          description: 'Verificați că imaginile sunt clare, complete și bine luminate.',
+        });
+        return;
+      }
+
+      const extracted = data?.data as ExtractedData | undefined;
+      if (!extracted) {
+        toast.error('Răspuns gol de la AI', {
+          id: toastId,
+          description: 'Încercați imagini mai clare sau de rezoluție mai mare.',
+        });
+        return;
+      }
+
       const fullAddress = formatAddress(extracted.adresa);
 
       // Convert data_emiterii from DD.MM.YYYY to YYYY-MM-DD for input type="date"
@@ -442,22 +469,42 @@ const ContractGeneratorPage = () => {
 
       if (type === 'proprietar') {
         setExtractedDataProprietar(extracted);
-        setContractData(prev => ({
-          ...prev,
-          proprietar: personData,
-        }));
+        setContractData(prev => ({ ...prev, proprietar: personData }));
       } else {
         setExtractedDataChirias(extracted);
-        setContractData(prev => ({
-          ...prev,
-          chirias: personData,
-        }));
+        setContractData(prev => ({ ...prev, chirias: personData }));
       }
 
-      toast.success(`Date ${type === 'proprietar' ? 'proprietar' : 'chiriaș'} extrase cu succes!`);
+      // Build a per-field summary so the user knows what came back and what didn't
+      const checks: Array<[string, string]> = [
+        ['Nume', personData.nume],
+        ['Prenume', personData.prenume],
+        ['CNP', personData.cnp],
+        ['Serie CI', personData.seria_ci],
+        ['Număr CI', personData.numar_ci],
+        ['Emitent', personData.ci_emitent],
+        ['Data emiterii', personData.ci_data_emiterii],
+        ['Adresă', personData.adresa],
+      ];
+      const filled = checks.filter(([, v]) => v && v.trim() !== '').map(([k]) => k);
+      const missing = checks.filter(([, v]) => !v || v.trim() === '').map(([k]) => k);
+
+      toast.success(
+        `Date ${partyLabel}: ${filled.length}/${checks.length} câmpuri completate`,
+        {
+          id: toastId,
+          description: missing.length > 0
+            ? `Lipsesc: ${missing.join(', ')}. Adăugați o imagine suplimentară sau completați manual.`
+            : 'Toate câmpurile au fost extrase cu succes.',
+          duration: 6000,
+        }
+      );
     } catch (error: any) {
       console.error('Error extracting data:', error);
-      toast.error(error.message || "Eroare la extragerea datelor");
+      toast.error('Eroare la extragerea datelor', {
+        id: toastId,
+        description: error?.message || 'Verificați conexiunea la internet și reîncercați.',
+      });
     } finally {
       if (type === 'proprietar') {
         setIsExtractingProprietar(false);
@@ -466,6 +513,7 @@ const ContractGeneratorPage = () => {
       }
     }
   };
+
 
 
   const handleCompanyCertUpload = async (
@@ -2349,7 +2397,10 @@ const ContractGeneratorPage = () => {
           {isExtracting ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-muted-foreground text-sm">Se extrag datele cu AI...</p>
+              <p className="text-muted-foreground text-sm">
+                Se procesează {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''} cu AI...
+              </p>
+              <p className="text-xs text-muted-foreground">Poate dura 10–30 secunde</p>
             </div>
           ) : uploadedImages.length > 0 ? (
             <div className="space-y-3">
