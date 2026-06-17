@@ -1395,283 +1395,37 @@ const ContractGeneratorPage = () => {
     setIsDownloadingUnsigned(true);
 
     try {
-      const doc = new jsPDF("p", "mm", "a4");
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
-      const textWidth = pageWidth - 2 * margin;
-      let y = 25;
+      // Fetch site settings for footer
+      const { data: siteSettingsData } = await supabase
+        .from('site_settings')
+        .select('key, value');
+      const settingsMap: Record<string, string> = {};
+      siteSettingsData?.forEach((item: any) => { settingsMap[item.key] = item.value || ''; });
 
-      const formatDateRomanianLocal = (dateStr: string | null | undefined) => {
-        if (!dateStr) return "-";
-        return formatDateRomanian(dateStr) || "-";
-      };
-
-      // Helper function to add section title (bold, blue)
-      const addSectionTitle = (title: string) => {
-        if (y > 260) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.setFontSize(11);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(0, 51, 153); // Blue color
-        doc.text(title, margin, y);
-        y += 8;
-        doc.setTextColor(0, 0, 0); // Reset to black
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-      };
-
-
-      // Helper function to add paragraph with indent
-      const addParagraph = (text: string, indent: number = 8) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.setFont("helvetica", "normal");
-        const lines = doc.splitTextToSize(replaceDiacritics(text), textWidth - indent);
-        for (let i = 0; i < lines.length; i++) {
-          doc.text(lines[i], margin + indent, y);
-          y += 5;
-        }
-        y += 2;
-      };
-
-      // Helper function to draw a box with text content
-      const drawPartyBox = (title: string, data: {
-        nume: string;
-        cnp: string;
-        seria: string;
-        numar: string;
-        emitent: string;
-        dataEmiterii: string;
-        domiciliu: string;
-        cetatenie: string;
-        isCompany?: boolean;
-        companyName?: string;
-        companyCui?: string;
-        companyRegCom?: string;
-        companySediu?: string;
-        functionTitle?: string;
-      }) => {
-        const ctx = { doc, y, margin, textWidth, pageWidth };
-        sharedDrawPartyBox(ctx as any, title, data as any);
-        y = ctx.y;
-      };
-
-      const numCamere = parseInt(contractData.numar_camere) || 1;
-      const camereText = numCamere === 1 ? "o camera" : numCamere === 2 ? "doua camere" : numCamere === 3 ? "trei camere" : numCamere === 4 ? "patru camere" : `${numCamere} camere`;
-      const moneda = contractData.moneda || "EUR";
-      const garantieVal = contractData.garantie || contractData.proprietate_pret;
-
-      // TITLU
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.text("CONTRACT DE INCHIRIERE", pageWidth / 2, y, { align: "center" });
-      y += 12;
-
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Incheiat astazi, ${formatDateRomanianLocal(contractData.data_contract)} intre:`, pageWidth / 2, y, { align: "center" });
-      y += 12;
-
-      // 1. PROPRIETAR BOX
-      drawPartyBox("1. PROPRIETAR (LOCATOR):", {
-        nume: `${contractData.proprietar.prenume} ${contractData.proprietar.nume}`,
-        cnp: contractData.proprietar.cnp,
-        seria: contractData.proprietar.seria_ci,
-        numar: contractData.proprietar.numar_ci,
-        emitent: contractData.proprietar.ci_emitent || '-',
-        dataEmiterii: formatDateRomanianLocal(contractData.proprietar.ci_data_emiterii) || '-',
-        domiciliu: contractData.proprietar.adresa,
-        cetatenie: contractData.proprietar.cetatenie || 'Romana',
-        isCompany: contractData.proprietar.is_company,
-        companyName: contractData.proprietar.company_name,
-        companyCui: contractData.proprietar.company_cui,
-        companyRegCom: contractData.proprietar.company_reg_com,
-        companySediu: contractData.proprietar.company_sediu,
-        functionTitle: contractData.proprietar.function_title,
+      // Build PDF using the SHARED unsigned-contract generator (single source of truth)
+      // Pass contractData WITHOUT signatures so the signature section stays blank.
+      const doc = await generateRentalContractPdf({
+        contractData: {
+          ...contractData,
+          semnatura_proprietar: "",
+          semnatura_chirias: "",
+        },
+        contractClauses,
+        inventoryItems,
+        siteSettings: {
+          companyName: settingsMap.companyName,
+          phone: settingsMap.phone,
+          email: settingsMap.email,
+          websiteUrl: settingsMap.websiteUrl,
+        },
+        inventoryImageSize,
       });
-
-      // 2. CHIRIAS BOX
-      drawPartyBox("2. CHIRIAS (LOCATAR):", {
-        nume: `${contractData.chirias.prenume} ${contractData.chirias.nume}`,
-        cnp: contractData.chirias.cnp,
-        seria: contractData.chirias.seria_ci,
-        numar: contractData.chirias.numar_ci,
-        emitent: contractData.chirias.ci_emitent || '-',
-        dataEmiterii: formatDateRomanianLocal(contractData.chirias.ci_data_emiterii) || '-',
-        domiciliu: contractData.chirias.adresa,
-        cetatenie: contractData.chirias.cetatenie || 'romana',
-        isCompany: contractData.chirias.is_company,
-        companyName: contractData.chirias.company_name,
-        companyCui: contractData.chirias.company_cui,
-        companyRegCom: contractData.chirias.company_reg_com,
-        companySediu: contractData.chirias.company_sediu,
-        functionTitle: contractData.chirias.function_title,
-      });
-
-      // I. OBIECTUL CONTRACTULUI
-      addSectionTitle("I. OBIECTUL CONTRACTULUI");
-      addParagraph(`Proprietarul inchiriaza chiriasului imobilul format din ${camereText} situat in ${contractData.proprietate_adresa}`);
-
-      // II. DESTINATIA
-      addSectionTitle("II. DESTINATIA");
-      addParagraph("Imobilul va fi folosit de chirias cu destinatia LOCUINTA. Destinatia spatiului inchiriat nu poate fi schimbata.");
-
-      // III. DURATA
-      addSectionTitle("III. DURATA");
-      addParagraph(`Acest contract este incheiat pentru o perioada de ${contractData.durata_inchiriere || "12"} luni, incepand cu data de ${formatDateRomanianLocal(contractData.data_incepere || contractData.data_contract)}.`);
-      addParagraph("Cu 30 de zile inaintea expirarii contractului, chiriasul va putea prelungi acest contract pentru aceeasi perioada sau pentru o perioada mai mica, numai cu acordul scris al proprietarului.");
-
-      // IV. CHIRIA SI MODALITATI DE PLATA
-      addSectionTitle("IV. CHIRIA SI MODALITATI DE PLATA");
-      addParagraph(`Chiria lunara convenita de comun acord este de ${contractData.proprietate_pret} ${moneda}/ luna.`);
-      
-      const garantieTextUnsigned = contractData.garantie_status === "platita" 
-        ? `Garantia in valoare de ${garantieVal} ${moneda} s-a platit la data semnarii contractului.`
-        : `Garantia in valoare de ${garantieVal} ${moneda} se va plati in termen de 10 zile lucratoare de la data semnarii contractului.`;
-      addParagraph(garantieTextUnsigned);
-      addParagraph("Garantia se va restitui in termen de 30 de zile de la incetarea contractului.");
-
-      // V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI
-      addSectionTitle("V. OBLIGATIILE SI DREPTURILE PROPRIETARULUI");
-      addParagraph("Obligatii: proprietarul isi asuma raspunderea ca spatiul este liber si va ramane astfel pe toata perioada contractului.");
-      addParagraph("Drepturi: sa viziteze imobilul cu anuntarea prealabila; sa verifice achitarea obligatiilor de plata.");
-
-      // VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI
-      addSectionTitle("VI. OBLIGATIILE SI DREPTURILE CHIRIASULUI");
-      addParagraph("Obligatii: sa foloseasca imobilul conform destinatiei; sa nu subinchirieze; sa achite utilitatile; sa mentina bunurile in buna stare; sa predea spatiul in starea initiala.");
-      addParagraph("Drepturi: sa utilizeze imobilul in exclusivitate; sa faca imbunatatiri cu acordul proprietarului.");
-
-      // VII. PREDAREA IMOBILULUI
-      addSectionTitle("VII. PREDAREA IMOBILULUI");
-      addParagraph("Dupa expirarea contractului chiriasul va preda imobilul in starea in care l-a primit.");
-
-      // VIII. FORTA MAJORA - from database
-      const fortaMajoraUnsigned = contractClauses.find(c => c.section_key === 'forta_majora');
-      addSectionTitle(fortaMajoraUnsigned?.section_title || "VIII. FORTA MAJORA");
-      const fortaMajoraUnsignedContent = fortaMajoraUnsigned?.content || "Orice cauza neprevazuta si imposibil de evitat va fi considerata cauza de forta majora si va exonera de raspundere partea care o invoca.";
-      fortaMajoraUnsignedContent.split('\n').forEach(line => {
-        if (line.trim()) addParagraph(line.trim());
-      });
-
-      // IX. CONDITIILE DE INCETARE A CONTRACTULUI - from database
-      const incetareUnsigned = contractClauses.find(c => c.section_key === 'incetare_contract');
-      addSectionTitle(incetareUnsigned?.section_title || "IX. CONDITIILE DE INCETARE A CONTRACTULUI");
-      const incetareUnsignedContent = incetareUnsigned?.content || "a) la expirarea duratei pentru care a fost incheiat;\nb) in situatia nerespectarii clauzelor contractuale;\nc) clauza fortei majore;\nd) prin denuntare unilaterala cu notificare prealabila de 30 de zile.";
-      incetareUnsignedContent.split('\n').forEach(line => {
-        if (line.trim()) addParagraph(line.trim());
-      });
-
-      // Art. 8 - INVENTAR IMOBIL with table
-      if (inventoryItems.length > 0) {
-        addSectionTitle("Art. 8 - INVENTAR IMOBIL");
-        addParagraph("Lista bunurilor care fac parte din imobil:");
-        
-        // New page for inventory table
-        doc.addPage();
-        y = 25;
-        
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("Lista de Inventar", pageWidth / 2, y, { align: "center" });
-        y += 12;
-        
-        // Table configuration
-        const colWidths = [15, 65, 25, 30, 35];
-        const startX = margin;
-        const rowHeight = 8;
-        
-        // Draw table header
-        doc.setFillColor(255, 255, 255);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setLineWidth(0.3);
-        
-        let currentX = startX;
-        const headers = ["Nr.", "Denumire", "Cantitate", "Stare", "Observatii"];
-        
-        headers.forEach((header, i) => {
-          doc.rect(currentX, y, colWidths[i], rowHeight);
-          doc.text(header, currentX + 2, y + 5.5);
-          currentX += colWidths[i];
-        });
-        y += rowHeight;
-        
-        // Draw table rows
-        doc.setFont("helvetica", "normal");
-        
-        const conditionLabels: Record<string, string> = {
-          'noua': 'Noua',
-          'foarte_buna': 'F. buna',
-          'buna': 'Buna',
-          'satisfacatoare': 'Satisf.',
-          'uzata': 'Uzata'
-        };
-        
-        inventoryItems.forEach((item, index) => {
-          if (y > 270) {
-            doc.addPage();
-            y = 20;
-            
-            // Redraw header on new page
-            currentX = startX;
-            doc.setFont("helvetica", "bold");
-            headers.forEach((header, i) => {
-              doc.rect(currentX, y, colWidths[i], rowHeight);
-              doc.text(header, currentX + 2, y + 5.5);
-              currentX += colWidths[i];
-            });
-            y += rowHeight;
-            doc.setFont("helvetica", "normal");
-          }
-          
-          currentX = startX;
-          const rowData = [
-            (index + 1).toString(),
-            item.item_name.substring(0, 28),
-            item.quantity.toString(),
-            conditionLabels[item.condition] || 'Buna',
-            (item.notes || '-').substring(0, 15)
-          ];
-          
-          rowData.forEach((text, i) => {
-            doc.rect(currentX, y, colWidths[i], rowHeight);
-            doc.text(text, currentX + 2, y + 5.5);
-            currentX += colWidths[i];
-          });
-          y += rowHeight;
-        });
-      }
-
-      // Signature area without actual signatures
-      if (y > 220) {
-        doc.addPage();
-        y = 30;
-      }
-      y += 15;
-      doc.setFont("helvetica", "bold");
-      doc.text("PROPRIETAR", margin, y);
-      doc.text("CHIRIAS", pageWidth - margin - 30, y);
-      y += 8;
-      doc.setFont("helvetica", "normal");
-      doc.text(`${contractData.proprietar.prenume} ${contractData.proprietar.nume}`, margin, y);
-      doc.text(`${contractData.chirias.prenume} ${contractData.chirias.nume}`, pageWidth - margin - 50, y);
-      y += 15;
-      
-      // Add signature lines (without actual signatures)
-      doc.text("_______________", margin, y);
-      doc.text("_______________", pageWidth - margin - 40, y);
 
       // Generate filename
       const clientName = `${contractData.chirias.prenume}_${contractData.chirias.nume}`.replace(/\s+/g, '_');
       const dateStr = format(new Date(), 'yyyy-MM-dd');
       const filename = `Contract_Nesemnat_${clientName}_${dateStr}.pdf`;
 
-      // Download
       doc.save(filename);
       toast.success("Contract nesemnat descărcat cu succes!");
     } catch (error) {
@@ -1681,6 +1435,7 @@ const ContractGeneratorPage = () => {
       setIsDownloadingUnsigned(false);
     }
   };
+
 
   const handleDeleteContract = async (id: string) => {
     try {
