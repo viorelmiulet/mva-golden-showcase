@@ -2319,7 +2319,7 @@ const ContractGeneratorPage = () => {
     type: 'proprietar' | 'chirias',
     title: string,
     isExtracting: boolean,
-    uploadedImage: string | null,
+    uploadedImages: string[],
     extractedData: ExtractedData | null,
     fileInputRef: React.RefObject<HTMLInputElement>
   ) => (
@@ -2333,7 +2333,7 @@ const ContractGeneratorPage = () => {
       <CardContent className="space-y-4">
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-            uploadedImage ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+            uploadedImages.length > 0 ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
           }`}
           onClick={() => fileInputRef.current?.click()}
         >
@@ -2341,34 +2341,71 @@ const ContractGeneratorPage = () => {
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             onChange={(e) => handleImageUpload(e, type)}
             className="hidden"
           />
-          
+
           {isExtracting ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
               <p className="text-muted-foreground text-sm">Se extrag datele cu AI...</p>
             </div>
-          ) : uploadedImage ? (
+          ) : uploadedImages.length > 0 ? (
             <div className="space-y-3">
-              <img 
-                src={uploadedImage} 
-                alt="CI" 
-                className="max-h-32 mx-auto rounded-lg shadow-md"
-              />
-              <p className="text-xs text-muted-foreground">Click pentru a schimba</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {uploadedImages.map((img, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={img}
+                      alt={`CI ${idx + 1}`}
+                      className="h-24 w-auto rounded-md shadow-md object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeUploadedImage(type, idx);
+                      }}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md opacity-90 hover:opacity-100"
+                      aria-label="Șterge imaginea"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''} încărcate · Click pentru a adăuga
+              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <Upload className="h-10 w-10 text-muted-foreground" />
               <div>
                 <p className="font-medium text-sm">Încărcați CI</p>
-                <p className="text-xs text-muted-foreground">JPG, PNG - Max 10MB</p>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG - Max 10MB · Multiple imagini (față/verso, permis de ședere)
+                </p>
               </div>
             </div>
           )}
         </div>
+
+        {uploadedImages.length > 0 && !isExtracting && (
+          <Button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              extractDataFromImage(uploadedImages, type);
+            }}
+            className="w-full"
+            size="sm"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Extrage date din {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''}
+          </Button>
+        )}
 
         {extractedData && (
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
@@ -2385,6 +2422,7 @@ const ContractGeneratorPage = () => {
       </CardContent>
     </Card>
   );
+
 
   const renderPersonForm = (
     type: 'proprietar' | 'chirias',
