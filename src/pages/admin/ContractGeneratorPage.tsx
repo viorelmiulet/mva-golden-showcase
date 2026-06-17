@@ -609,7 +609,7 @@ const ContractGeneratorPage = () => {
         proprietar_function_title: contractData.proprietar.function_title || null,
         property_address: contractData.proprietate_adresa,
         property_price: contractData.proprietate_pret ? parseFloat(contractData.proprietate_pret) : null,
-        property_surface: contractData.garantie ? parseFloat(contractData.garantie) : null,
+        property_surface: null,
         garantie_amount: contractData.garantie ? parseFloat(contractData.garantie) : null,
         garantie_status: contractData.garantie_status,
         property_currency: contractData.moneda || 'EUR',
