@@ -2687,7 +2687,7 @@ const ContractGeneratorPage = () => {
           'chirias',
           'CI Chiriaș',
           isExtractingChirias,
-          uploadedImageChirias,
+          uploadedImagesChirias,
           extractedDataChirias,
           fileInputChiriasRef
         )}
