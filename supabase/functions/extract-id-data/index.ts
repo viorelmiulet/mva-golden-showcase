@@ -34,9 +34,15 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { imageBase64 } = await req.json();
+    const body = await req.json();
+    const { imageBase64, imageBase64List } = body ?? {};
 
-    if (!imageBase64) {
+    // Normalize to array (accept either single image — backward compatible — or a list)
+    const images: string[] = Array.isArray(imageBase64List) && imageBase64List.length > 0
+      ? imageBase64List
+      : (imageBase64 ? [imageBase64] : []);
+
+    if (images.length === 0) {
       return new Response(
         JSON.stringify({ error: 'Image is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -48,7 +54,22 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Extracting data from ID card...');
+    console.log(`Extracting data from ${images.length} ID image(s)...`);
+
+    const userContent: Array<Record<string, unknown>> = [
+      {
+        type: 'text',
+        text: images.length > 1
+          ? `Extrage toate datele din aceste ${images.length} imagini ale aceluiași document de identitate (ex: față + verso CI românească, sau ambele fețe ale unui permis de ședere). Combină informațiile într-un singur JSON conform schemei.`
+          : 'Extrage toate datele din această carte de identitate românească:'
+      },
+      ...images.map((img) => ({
+        type: 'image_url',
+        image_url: {
+          url: img.startsWith('data:') ? img : `data:image/jpeg;base64,${img}`
+        }
+      }))
+    ];
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -61,14 +82,21 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Ești un expert în extragerea datelor din documente de identitate românești (carte de identitate).
-Analizează imaginea și extrage următoarele informații:
-- Nume complet (nume și prenume)
-- CNP (cod numeric personal - 13 cifre)
-- Seria și numărul CI
-- Emitentul CI (ex: SPCLEP Sector 1, SPCLEP Cluj-Napoca, etc.)
-- Data emiterii CI
+            content: `Ești un expert în extragerea datelor din documente de identitate românești (carte de identitate) ȘI din permise de ședere pentru cetățeni străini.
+
+IMPORTANT: Poți primi MAI MULTE imagini ale ACELUIAȘI document de identitate al ACELEIAȘI persoane — de exemplu față + verso ale unei cărți de identitate noi românești, sau ambele fețe ale unui permis de ședere (residence permit) pentru un cetățean străin. Analizează TOATE imaginile și returnează UN SINGUR obiect JSON combinat:
+- Dacă un câmp apare doar într-o imagine, folosește acea valoare.
+- Dacă apare în mai multe imagini, alege varianta cea mai clară/completă.
+- Nu duplica și nu inventa câmpuri.
+
+Câmpuri de extras:
+- Nume și prenume
+- CNP / cod numeric personal (sau echivalent pentru permis de ședere)
+- Seria și numărul documentului
+- Emitentul (ex: SPCLEP Sector 1, Inspectoratul General pentru Imigrări, etc.)
+- Data emiterii
 - Adresa completă (strada, număr, bloc, scară, etaj, apartament, localitate, județ)
+- Cod poștal (dacă apare pe document)
 - Data nașterii
 - Locul nașterii
 - Sexul
@@ -93,7 +121,8 @@ Format:
     "etaj": "string sau null",
     "apartament": "string sau null",
     "localitate": "string",
-    "judet": "string"
+    "judet": "string",
+    "cod_postal": "string sau null"
   },
   "data_nasterii": "string (DD.MM.YYYY)",
   "locul_nasterii": "string",
@@ -104,18 +133,7 @@ Format:
           },
           {
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Extrage toate datele din această carte de identitate românească:'
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`
-                }
-              }
-            ]
+            content: userContent
           }
         ],
       }),

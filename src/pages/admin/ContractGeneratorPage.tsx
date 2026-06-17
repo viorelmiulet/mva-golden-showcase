@@ -91,8 +91,8 @@ const ContractGeneratorPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; name: string } | null>(null);
   
-  const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
-  const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
+  const [uploadedImagesProprietar, setUploadedImagesProprietar] = useState<string[]>([]);
+  const [uploadedImagesChirias, setUploadedImagesChirias] = useState<string[]>([]);
   const [extractedDataProprietar, setExtractedDataProprietar] = useState<ExtractedData | null>(null);
   const [extractedDataChirias, setExtractedDataChirias] = useState<ExtractedData | null>(null);
   const [isExtractingCompanyProprietar, setIsExtractingCompanyProprietar] = useState(false);
@@ -337,46 +337,76 @@ const ContractGeneratorPage = () => {
     ].filter(Boolean).join(', ');
   };
 
+  const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => resolve(ev.target?.result as string);
+      reader.onerror = () => reject(new Error("Eroare la citirea fișierului"));
+      reader.readAsDataURL(file);
+    });
+
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'proprietar' | 'chirias'
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    // reset input so the same file can be re-selected
+    e.target.value = '';
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error("Vă rugăm selectați o imagine");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Imaginea este prea mare. Maxim 10MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string;
-      if (type === 'proprietar') {
-        setUploadedImageProprietar(base64);
-      } else {
-        setUploadedImageChirias(base64);
+    const valid: File[] = [];
+    for (const f of files) {
+      if (!f.type.startsWith('image/')) {
+        toast.error(`"${f.name}" nu este o imagine`);
+        continue;
       }
-      await extractDataFromImage(base64, type);
-    };
-    reader.readAsDataURL(file);
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error(`"${f.name}" depășește 10MB`);
+        continue;
+      }
+      valid.push(f);
+    }
+    if (valid.length === 0) return;
+
+    try {
+      const base64List = await Promise.all(valid.map(fileToDataUrl));
+      if (type === 'proprietar') {
+        setUploadedImagesProprietar((prev) => [...prev, ...base64List]);
+      } else {
+        setUploadedImagesChirias((prev) => [...prev, ...base64List]);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Eroare la încărcarea imaginilor");
+    }
   };
 
-  const extractDataFromImage = async (imageBase64: string, type: 'proprietar' | 'chirias') => {
+  const removeUploadedImage = (type: 'proprietar' | 'chirias', index: number) => {
+    if (type === 'proprietar') {
+      setUploadedImagesProprietar((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setUploadedImagesChirias((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const extractDataFromImage = async (
+    images: string[],
+    type: 'proprietar' | 'chirias'
+  ) => {
+    if (!images || images.length === 0) {
+      toast.error("Adăugați cel puțin o imagine");
+      return;
+    }
     if (type === 'proprietar') {
       setIsExtractingProprietar(true);
     } else {
       setIsExtractingChirias(true);
     }
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('extract-id-data', {
-        body: { imageBase64 }
+        body: images.length === 1
+          ? { imageBase64: images[0] }
+          : { imageBase64List: images }
       });
 
       if (error) throw error;
@@ -436,6 +466,7 @@ const ContractGeneratorPage = () => {
       }
     }
   };
+
 
   const handleCompanyCertUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -2234,8 +2265,8 @@ const ContractGeneratorPage = () => {
   };
 
   const handleReset = () => {
-    setUploadedImageProprietar(null);
-    setUploadedImageChirias(null);
+    setUploadedImagesProprietar([]);
+    setUploadedImagesChirias([]);
     setExtractedDataProprietar(null);
     setExtractedDataChirias(null);
     setContractData({
@@ -2288,7 +2319,7 @@ const ContractGeneratorPage = () => {
     type: 'proprietar' | 'chirias',
     title: string,
     isExtracting: boolean,
-    uploadedImage: string | null,
+    uploadedImages: string[],
     extractedData: ExtractedData | null,
     fileInputRef: React.RefObject<HTMLInputElement>
   ) => (
@@ -2302,7 +2333,7 @@ const ContractGeneratorPage = () => {
       <CardContent className="space-y-4">
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-            uploadedImage ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+            uploadedImages.length > 0 ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
           }`}
           onClick={() => fileInputRef.current?.click()}
         >
@@ -2310,34 +2341,71 @@ const ContractGeneratorPage = () => {
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             onChange={(e) => handleImageUpload(e, type)}
             className="hidden"
           />
-          
+
           {isExtracting ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
               <p className="text-muted-foreground text-sm">Se extrag datele cu AI...</p>
             </div>
-          ) : uploadedImage ? (
+          ) : uploadedImages.length > 0 ? (
             <div className="space-y-3">
-              <img 
-                src={uploadedImage} 
-                alt="CI" 
-                className="max-h-32 mx-auto rounded-lg shadow-md"
-              />
-              <p className="text-xs text-muted-foreground">Click pentru a schimba</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {uploadedImages.map((img, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={img}
+                      alt={`CI ${idx + 1}`}
+                      className="h-24 w-auto rounded-md shadow-md object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeUploadedImage(type, idx);
+                      }}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md opacity-90 hover:opacity-100"
+                      aria-label="Șterge imaginea"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''} încărcate · Click pentru a adăuga
+              </p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <Upload className="h-10 w-10 text-muted-foreground" />
               <div>
                 <p className="font-medium text-sm">Încărcați CI</p>
-                <p className="text-xs text-muted-foreground">JPG, PNG - Max 10MB</p>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG - Max 10MB · Multiple imagini (față/verso, permis de ședere)
+                </p>
               </div>
             </div>
           )}
         </div>
+
+        {uploadedImages.length > 0 && !isExtracting && (
+          <Button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              extractDataFromImage(uploadedImages, type);
+            }}
+            className="w-full"
+            size="sm"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Extrage date din {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''}
+          </Button>
+        )}
 
         {extractedData && (
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
@@ -2354,6 +2422,7 @@ const ContractGeneratorPage = () => {
       </CardContent>
     </Card>
   );
+
 
   const renderPersonForm = (
     type: 'proprietar' | 'chirias',
@@ -2610,7 +2679,7 @@ const ContractGeneratorPage = () => {
           'proprietar',
           'CI Proprietar',
           isExtractingProprietar,
-          uploadedImageProprietar,
+          uploadedImagesProprietar,
           extractedDataProprietar,
           fileInputProprietarRef
         )}
@@ -2618,7 +2687,7 @@ const ContractGeneratorPage = () => {
           'chirias',
           'CI Chiriaș',
           isExtractingChirias,
-          uploadedImageChirias,
+          uploadedImagesChirias,
           extractedDataChirias,
           fileInputChiriasRef
         )}
