@@ -337,46 +337,76 @@ const ContractGeneratorPage = () => {
     ].filter(Boolean).join(', ');
   };
 
+  const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => resolve(ev.target?.result as string);
+      reader.onerror = () => reject(new Error("Eroare la citirea fișierului"));
+      reader.readAsDataURL(file);
+    });
+
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'proprietar' | 'chirias'
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    // reset input so the same file can be re-selected
+    e.target.value = '';
+    if (files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error("Vă rugăm selectați o imagine");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Imaginea este prea mare. Maxim 10MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64 = event.target?.result as string;
-      if (type === 'proprietar') {
-        setUploadedImageProprietar(base64);
-      } else {
-        setUploadedImageChirias(base64);
+    const valid: File[] = [];
+    for (const f of files) {
+      if (!f.type.startsWith('image/')) {
+        toast.error(`"${f.name}" nu este o imagine`);
+        continue;
       }
-      await extractDataFromImage(base64, type);
-    };
-    reader.readAsDataURL(file);
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error(`"${f.name}" depășește 10MB`);
+        continue;
+      }
+      valid.push(f);
+    }
+    if (valid.length === 0) return;
+
+    try {
+      const base64List = await Promise.all(valid.map(fileToDataUrl));
+      if (type === 'proprietar') {
+        setUploadedImagesProprietar((prev) => [...prev, ...base64List]);
+      } else {
+        setUploadedImagesChirias((prev) => [...prev, ...base64List]);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Eroare la încărcarea imaginilor");
+    }
   };
 
-  const extractDataFromImage = async (imageBase64: string, type: 'proprietar' | 'chirias') => {
+  const removeUploadedImage = (type: 'proprietar' | 'chirias', index: number) => {
+    if (type === 'proprietar') {
+      setUploadedImagesProprietar((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setUploadedImagesChirias((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const extractDataFromImage = async (
+    images: string[],
+    type: 'proprietar' | 'chirias'
+  ) => {
+    if (!images || images.length === 0) {
+      toast.error("Adăugați cel puțin o imagine");
+      return;
+    }
     if (type === 'proprietar') {
       setIsExtractingProprietar(true);
     } else {
       setIsExtractingChirias(true);
     }
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('extract-id-data', {
-        body: { imageBase64 }
+        body: images.length === 1
+          ? { imageBase64: images[0] }
+          : { imageBase64List: images }
       });
 
       if (error) throw error;
@@ -436,6 +466,7 @@ const ContractGeneratorPage = () => {
       }
     }
   };
+
 
   const handleCompanyCertUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
