@@ -66,7 +66,7 @@ export const ro = {
   // Contact
   contact: {
     title: "Contactează-ne",
-    subtitle: "Suntem aici să te ajutăm",
+    subtitle: "Contact MVA Imobiliare pentru servicii imobiliare premium în București și Chiajna: vizionări, evaluări, consultanță și asistență juridică.",
     name: "Nume",
     email: "Email",
     phone: "Telefon",
@@ -85,7 +85,7 @@ export const ro = {
   about: {
     title: "Despre Noi",
     subtitle: "Experiență și profesionalism în imobiliare",
-    description: "Cu peste 10 ani de experiență pe piața imobiliară din București, oferim servicii de consultanță și intermediere pentru achiziția, vânzarea și închirierea proprietăților.",
+    description: "Cu peste 10 ani de experiență în imobiliare București, oferim consultanță și intermediere pentru achiziția, vânzarea și închirierea de proprietăți.",
     mission: "Misiunea noastră",
     missionText: "Să găsim proprietatea perfectă pentru fiecare client, oferind servicii personalizate și transparente.",
     values: "Valorile noastre",
@@ -97,7 +97,7 @@ export const ro = {
   // Services
   services: {
     title: "Servicii",
-    subtitle: "Ce oferim",
+    subtitle: "Servicii imobiliare complete: cumpărare, vânzare, închiriere, evaluări profesionale și consultanță pentru proprietăți din București.",
     buying: "Cumpărare",
     buyingDesc: "Te ajutăm să găsești proprietatea perfectă pentru nevoile tale.",
     selling: "Vânzare",
