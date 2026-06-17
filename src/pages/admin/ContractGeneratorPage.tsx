@@ -2679,7 +2679,7 @@ const ContractGeneratorPage = () => {
           'proprietar',
           'CI Proprietar',
           isExtractingProprietar,
-          uploadedImageProprietar,
+          uploadedImagesProprietar,
           extractedDataProprietar,
           fileInputProprietarRef
         )}
