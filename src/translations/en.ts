@@ -68,7 +68,7 @@ export const en: TranslationKeys = {
   // Contact
   contact: {
     title: "Contact Us",
-    subtitle: "We're here to help",
+    subtitle: "Contact MVA Imobiliare for premium real estate services in Bucharest and Chiajna: viewings, valuations, consulting and legal assistance.",
     name: "Name",
     email: "Email",
     phone: "Phone",
@@ -99,7 +99,7 @@ export const en: TranslationKeys = {
   // Services
   services: {
     title: "Services",
-    subtitle: "What we offer",
+    subtitle: "Complete real estate services: buying, selling, renting, professional valuations and consulting for properties in Bucharest.",
     buying: "Buying",
     buyingDesc: "We help you find the perfect property for your needs.",
     selling: "Selling",
