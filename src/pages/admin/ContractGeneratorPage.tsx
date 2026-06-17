@@ -2265,8 +2265,8 @@ const ContractGeneratorPage = () => {
   };
 
   const handleReset = () => {
-    setUploadedImageProprietar(null);
-    setUploadedImageChirias(null);
+    setUploadedImagesProprietar([]);
+    setUploadedImagesChirias([]);
     setExtractedDataProprietar(null);
     setExtractedDataChirias(null);
     setContractData({
