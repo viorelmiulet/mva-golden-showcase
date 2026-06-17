@@ -38,7 +38,7 @@ const FAQ = () => {
       ]} />
       <Helmet>
         <title>Întrebări Frecvente Apartamente Militari – MVA Imobiliare</title>
-        <meta name="description" content="Răspunsuri la întrebările frecvente despre cumpărarea, vânzarea și închirierea apartamentelor în cartierul Militari, Sector 6 București." />
+        <meta name="description" content="Răspunsuri la întrebări frecvente despre comisioane, documente, evaluare proprietăți, proces vânzare-cumpărare și servicii de închiriere în Militari și Sector 6 București." />
         <meta name="robots" content="index, follow" />
         <meta name="keywords" content="întrebări frecvente imobiliare Militari, FAQ agenție imobiliară, comision agenție, vânzare apartament Militari, cumpărare apartament Sector 6" />
         <link rel="canonical" href="https://www.mvaimobiliare.ro/intrebari-frecvente" />
