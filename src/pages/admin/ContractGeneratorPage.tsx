@@ -31,9 +31,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
 import { fetchContractClauses, type ContractClause } from "@/hooks/useContractClauses";
-import { replaceDiacritics } from "@/lib/utils";
 import { getSignedContractUrl } from "@/lib/storageUrl";
-import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 
@@ -47,19 +45,9 @@ import type {
   InventoryItem as InventoryItemType
 } from "@/types/contract";
 import { emptyPerson, conditionLabels as conditionLabelsConst, imageSizeConfig as imageSizeConfigConst } from "@/types/contract";
-import { 
-  formatDateRomanian, 
-  imageUrlToBase64,
-  createPdfContext,
-  addSectionTitle,
-  addParagraph,
-  drawPartyBox as sharedDrawPartyBox,
-  addSignatureSection,
-  addInventoryTable,
-  addPageFooter
-} from "@/lib/pdf/contractPdfUtils";
-import { generateRentalContractPdf, generateSignedRentalContractPdf, generatePreviewPdf } from "@/lib/pdf/rentalContractPdf";
+import { generateRentalContractPdf, generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { generateRentalContractDocx, generateDocxFilename, downloadDocxBlob } from "@/lib/pdf/rentalContractDocx";
+
 
 const ContractGeneratorPage = () => {
   const [isExtractingProprietar, setIsExtractingProprietar] = useState(false);
