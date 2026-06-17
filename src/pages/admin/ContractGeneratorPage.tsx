@@ -91,8 +91,8 @@ const ContractGeneratorPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<{ id: string; name: string } | null>(null);
   
-  const [uploadedImageProprietar, setUploadedImageProprietar] = useState<string | null>(null);
-  const [uploadedImageChirias, setUploadedImageChirias] = useState<string | null>(null);
+  const [uploadedImagesProprietar, setUploadedImagesProprietar] = useState<string[]>([]);
+  const [uploadedImagesChirias, setUploadedImagesChirias] = useState<string[]>([]);
   const [extractedDataProprietar, setExtractedDataProprietar] = useState<ExtractedData | null>(null);
   const [extractedDataChirias, setExtractedDataChirias] = useState<ExtractedData | null>(null);
   const [isExtractingCompanyProprietar, setIsExtractingCompanyProprietar] = useState(false);
