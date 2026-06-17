@@ -2397,7 +2397,10 @@ const ContractGeneratorPage = () => {
           {isExtracting ? (
             <div className="flex flex-col items-center gap-3">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-muted-foreground text-sm">Se extrag datele cu AI...</p>
+              <p className="text-muted-foreground text-sm">
+                Se procesează {uploadedImages.length} imagine{uploadedImages.length > 1 ? 'i' : ''} cu AI...
+              </p>
+              <p className="text-xs text-muted-foreground">Poate dura 10–30 secunde</p>
             </div>
           ) : uploadedImages.length > 0 ? (
             <div className="space-y-3">
