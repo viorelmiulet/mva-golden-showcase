@@ -234,7 +234,7 @@ const BlogAdminPage = () => {
         <div className="grid gap-4">
           {posts.map((post) => (
             <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4 flex items-center justify-between gap-4">
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold truncate">{post.title}</h3>
@@ -258,7 +258,7 @@ const BlogAdminPage = () => {
                     <span>{new Date(post.created_at).toLocaleDateString("ro-RO")}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   <Button
                     variant="outline"
                     size="icon"

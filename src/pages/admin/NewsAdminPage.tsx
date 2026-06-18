@@ -248,7 +248,7 @@ const NewsAdminPage = () => {
         <div className="grid gap-3">
           {filtered.map((a) => (
             <Card key={a.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4 flex items-center justify-between gap-4">
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold truncate">{a.title}</h3>
@@ -272,7 +272,7 @@ const NewsAdminPage = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   {a.status === "published" && (
                     <Button
                       variant="outline"
