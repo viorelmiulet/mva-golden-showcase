@@ -29,6 +29,8 @@ import {
 } from "recharts";
 import { format, subDays, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 interface PropertyViewStat {
   page_path: string;
@@ -49,6 +51,7 @@ const itemVariants = {
 };
 
 const PropertyViewsPage = () => {
+  const isMobile = useIsMobile();
   const [days, setDays] = useState("30");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"views" | "unique_sessions" | "avg_duration">("views");
