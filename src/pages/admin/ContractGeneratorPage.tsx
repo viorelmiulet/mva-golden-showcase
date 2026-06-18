@@ -2287,7 +2287,7 @@ const ContractGeneratorPage = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => setEditingItemId(null)}
-                              className="h-8 w-8 text-green-600 hover:text-green-700"
+                              className="h-10 w-10 md:h-8 md:w-8 text-green-600 hover:text-green-700"
                             >
                               <Check className="h-4 w-4" />
                             </Button>
@@ -2296,7 +2296,7 @@ const ContractGeneratorPage = () => {
                               variant="ghost"
                               size="icon"
                               onClick={() => setEditingItemId(item.id)}
-                              className="h-8 w-8"
+                              className="h-10 w-10 md:h-8 md:w-8"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -2305,7 +2305,7 @@ const ContractGeneratorPage = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => removeInventoryItem(item.id)}
-                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            className="h-10 w-10 md:h-8 md:w-8 text-destructive hover:text-destructive"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -2447,7 +2447,7 @@ const ContractGeneratorPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 md:h-7 md:w-7"
                       onClick={() => setSearchQuery("")}
                     >
                       <X className="h-3 w-3" />
@@ -2662,7 +2662,7 @@ const ContractGeneratorPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className={`h-7 w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              className={`h-10 w-10 md:h-7 md:w-7 ${contract.proprietar_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
                               onClick={() => openEmailDialog(contract.id, 'proprietar', contract.property_address)}
                               title={contract.proprietar_signed ? "Proprietar a semnat" : "Trimite email proprietar"}
                               disabled={contract.proprietar_signed}
@@ -2676,7 +2676,7 @@ const ContractGeneratorPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className={`h-7 w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
+                              className={`h-10 w-10 md:h-7 md:w-7 ${contract.chirias_signed ? 'text-green-500' : 'text-blue-500 hover:text-blue-600'}`}
                               onClick={() => openEmailDialog(contract.id, 'chirias', contract.property_address)}
                               title={contract.chirias_signed ? "Chiriaș a semnat" : "Trimite email chiriaș"}
                               disabled={contract.chirias_signed}
@@ -2694,7 +2694,7 @@ const ContractGeneratorPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700"
+                              className="h-10 w-10 md:h-8 md:w-8 text-blue-600 hover:text-blue-700"
                               onClick={() => openPreviewDialog(contract)}
                               disabled={previewingContractId === contract.id}
                               title="Previzualizare PDF"
@@ -2709,7 +2709,7 @@ const ContractGeneratorPage = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-green-600 hover:text-green-700"
+                                className="h-10 w-10 md:h-8 md:w-8 text-green-600 hover:text-green-700"
                                 onClick={() => regeneratePdfWithSignatures(contract)}
                                 disabled={regeneratingContractId === contract.id}
                                 title="Regenerează PDF cu semnături"
@@ -2725,7 +2725,7 @@ const ContractGeneratorPage = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 md:h-8 md:w-8"
                                 onClick={() => downloadContract(contract, 'pdf')}
                                 title="Descarcă PDF"
                               >
@@ -2736,7 +2736,7 @@ const ContractGeneratorPage = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-10 w-10 md:h-8 md:w-8"
                                 onClick={() => downloadContract(contract, 'docx')}
                                 title="Descarcă Word"
                               >
@@ -2749,7 +2749,7 @@ const ContractGeneratorPage = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            className="h-10 w-10 md:h-8 md:w-8 text-destructive hover:text-destructive"
                             onClick={() => openDeleteDialog(contract)}
                           >
                             <Trash2 className="h-4 w-4" />

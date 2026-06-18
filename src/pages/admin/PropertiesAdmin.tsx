@@ -873,7 +873,7 @@ const PropertiesAdmin = () => {
                           variant="outline"
                           onClick={() => openShareDialog(property.id, property.title)}
                           disabled={sendingToSocial === property.id}
-                          className="border-blue-500/30 hover:bg-blue-500/10 h-8 w-8 p-0"
+                          className="border-blue-500/30 hover:bg-blue-500/10 h-10 w-10 md:h-8 md:w-8 p-0"
                           title="Publică pe social media"
                         >
                           {sendingToSocial === property.id ? (
@@ -886,7 +886,7 @@ const PropertiesAdmin = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30 h-8 w-8 p-0"
+                          className="border-gold/30 h-10 w-10 md:h-8 md:w-8 p-0"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -895,7 +895,7 @@ const PropertiesAdmin = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-destructive/30 hover:bg-destructive/10 h-8 w-8 p-0"
+                              className="border-destructive/30 hover:bg-destructive/10 h-10 w-10 md:h-8 md:w-8 p-0"
                             >
                               {deletingId === property.id ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />

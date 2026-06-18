@@ -357,7 +357,7 @@ const ContractsPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-10 w-10 md:h-8 md:w-8"
               onClick={() => paginate(-1)}
               disabled={mobileCardIndex === 0}
               aria-label="Cardul anterior"
@@ -384,7 +384,7 @@ const ContractsPage = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-10 w-10 md:h-8 md:w-8"
               onClick={() => paginate(1)}
               disabled={mobileCardIndex === contractTypes.length - 1}
               aria-label="Cardul următor"
