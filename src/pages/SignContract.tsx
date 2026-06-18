@@ -897,7 +897,15 @@ const SignContract = () => {
               )}
             </div>
             {pdfBlobUrl && (
-              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
+              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex flex-wrap justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={handleOpenPdf}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deschide PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintPdf}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Tipărește
+                </Button>
                 <Button onClick={handleDownloadPdf}>
                   <Download className="h-4 w-4 mr-2" />
                   Descarcă PDF
