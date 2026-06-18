@@ -16,6 +16,7 @@ import {
   Save, Edit, Plus, Settings, Mail, Search
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { replaceDiacritics } from "@/lib/utils";
