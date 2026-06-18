@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText, Printer, ExternalLink } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
@@ -235,6 +235,32 @@ const SignContract = () => {
       setIsGeneratingPdf(false);
     }
   }, [pdfBlobUrl, contractInfo, contractType, contractId, contractClauses, inventoryItems]);
+
+  const handleOpenPdf = useCallback(() => {
+    if (pdfBlobUrl) {
+      window.open(pdfBlobUrl, '_blank');
+    }
+  }, [pdfBlobUrl]);
+
+  const handlePrintPdf = useCallback(() => {
+    if (!pdfBlobUrl) return;
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.src = pdfBlobUrl;
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        if (iframe.parentNode) document.body.removeChild(iframe);
+      }, 1000);
+    };
+    document.body.appendChild(iframe);
+  }, [pdfBlobUrl]);
 
   useEffect(() => {
     if (token) {
@@ -842,6 +868,14 @@ const SignContract = () => {
                   {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                   Descarcă Contract PDF
                 </Button>
+                <Button variant="outline" className="w-full" onClick={handleOpenPdf} disabled={!pdfBlobUrl || isGeneratingPdf}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deschide în vizualizator
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handlePrintPdf} disabled={!pdfBlobUrl || isGeneratingPdf}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Tipărește
+                </Button>
               </div>
             )}
           </CardContent>
@@ -863,7 +897,15 @@ const SignContract = () => {
               )}
             </div>
             {pdfBlobUrl && (
-              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
+              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex flex-wrap justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={handleOpenPdf}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deschide PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintPdf}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Tipărește
+                </Button>
                 <Button onClick={handleDownloadPdf}>
                   <Download className="h-4 w-4 mr-2" />
                   Descarcă PDF
@@ -1058,7 +1100,15 @@ const SignContract = () => {
             )}
           </div>
             {pdfBlobUrl && (
-              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
+              <div className="px-6 py-3 border-t border-border flex-shrink-0 flex flex-wrap justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={handleOpenPdf}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deschide PDF
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePrintPdf}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Tipărește
+                </Button>
                 <Button onClick={handleDownloadPdf}>
                   <Download className="h-4 w-4 mr-2" />
                   Descarcă PDF
