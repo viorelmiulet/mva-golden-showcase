@@ -30,6 +30,7 @@ interface Preview {
 }
 
 const FacebookCatalogFeedPage = () => {
+  const isMobile = useIsMobile();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [loading, setLoading] = useState(false);
 
