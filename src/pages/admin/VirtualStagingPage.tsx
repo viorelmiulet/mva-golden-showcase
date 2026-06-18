@@ -538,7 +538,7 @@ export default function VirtualStagingPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 flex-shrink-0"
+                          className="h-10 w-10 md:h-7 md:w-7 flex-shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleRemoveImage(img.id);
@@ -711,7 +711,7 @@ export default function VirtualStagingPage() {
                       Original
                     </div>
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="secondary" className="h-7 w-7" aria-label="Mărește imaginea originală">
+                      <Button size="icon" variant="secondary" className="h-10 w-10 md:h-7 md:w-7" aria-label="Mărește imaginea originală">
                         <ZoomIn className="h-4 w-4" />
                       </Button>
                     </div>
@@ -729,7 +729,7 @@ export default function VirtualStagingPage() {
                       Mobilat
                     </div>
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button size="icon" variant="secondary" className="h-7 w-7" aria-label="Mărește imaginea mobilată">
+                      <Button size="icon" variant="secondary" className="h-10 w-10 md:h-7 md:w-7" aria-label="Mărește imaginea mobilată">
                         <ZoomIn className="h-4 w-4" />
                       </Button>
                     </div>
@@ -887,7 +887,7 @@ export default function VirtualStagingPage() {
                         <Button
                           size="icon"
                           variant="secondary"
-                          className="h-8 w-8"
+                          className="h-10 w-10 md:h-8 md:w-8"
                           onClick={() => {
                             const link = document.createElement('a');
                             link.href = img.url;
@@ -901,7 +901,7 @@ export default function VirtualStagingPage() {
                         <Button
                           size="icon"
                           variant="destructive"
-                          className="h-8 w-8"
+                          className="h-10 w-10 md:h-8 md:w-8"
                           onClick={() => handleDeleteSavedImage(img.name)}
                           aria-label="Șterge imaginea salvată"
                         >

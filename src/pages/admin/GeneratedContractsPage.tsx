@@ -681,7 +681,7 @@ const GeneratedContractsPage = () => {
                   key={idx}
                   variant="ghost"
                   size="icon"
-                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  className={`h-10 w-10 md:h-8 md:w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
                   onClick={action.onClick}
                   title={action.label}
                   aria-label={action.label}
@@ -695,7 +695,7 @@ const GeneratedContractsPage = () => {
             <div className="md:hidden shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Mai multe acțiuni">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 md:h-8 md:w-8" aria-label="Mai multe acțiuni">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -793,7 +793,7 @@ const GeneratedContractsPage = () => {
                   key={idx}
                   variant="ghost"
                   size="icon"
-                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  className={`h-10 w-10 md:h-8 md:w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
                   onClick={action.onClick}
                   title={action.label}
                   aria-label={action.label}
@@ -807,7 +807,7 @@ const GeneratedContractsPage = () => {
             <div className="md:hidden shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Mai multe acțiuni">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 md:h-8 md:w-8" aria-label="Mai multe acțiuni">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -903,7 +903,7 @@ const GeneratedContractsPage = () => {
                   key={idx}
                   variant="ghost"
                   size="icon"
-                  className={`h-8 w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
+                  className={`h-10 w-10 md:h-8 md:w-8 ${action.destructive ? "text-destructive hover:text-destructive" : ""}`}
                   onClick={action.onClick}
                   title={action.label}
                 >
@@ -916,7 +916,7 @@ const GeneratedContractsPage = () => {
             <div className="md:hidden shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 md:h-8 md:w-8">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

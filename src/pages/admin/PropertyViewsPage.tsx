@@ -411,7 +411,7 @@ const PropertyViewsPage = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <Button variant="ghost" size="icon" className="h-10 w-10 md:h-7 md:w-7">
                               <ExternalLink className="w-3.5 h-3.5" />
                             </Button>
                           </a>

@@ -1121,7 +1121,7 @@ ${originalBody}`;
                   </button>
                 )}
               </div>
-              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8 shrink-0">
+              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-10 w-10 md:h-8 md:w-8 shrink-0">
                 <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
               </Button>
             </div>
@@ -1532,7 +1532,7 @@ ${originalBody}`;
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="h-10 w-10 md:h-8 md:w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => handleDeleteDraft(e, draft.id)}
                       >
                         <X className="h-4 w-4" />

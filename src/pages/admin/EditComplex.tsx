@@ -526,7 +526,7 @@ const EditComplex = () => {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-green-600"
+                                  className="h-10 w-10 md:h-8 md:w-8 text-green-600"
                                   onClick={saveVideoTitle}
                                   aria-label="Salvează titlul videoclipului"
                                 >
@@ -536,7 +536,7 @@ const EditComplex = () => {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8"
+                                  className="h-10 w-10 md:h-8 md:w-8"
                                   onClick={cancelEditingVideo}
                                   aria-label="Anulează editarea titlului"
                                 >

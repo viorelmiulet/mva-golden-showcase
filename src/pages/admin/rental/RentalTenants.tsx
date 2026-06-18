@@ -226,8 +226,8 @@ const RentalTenants = () => {
                   <TableCell><Badge variant={t.status === "active" ? "default" : "secondary"}>{t.status === "active" ? "Activ" : t.status}</Badge></TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => { if (confirm("Ștergi?")) deleteMutation.mutate(t.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-10 w-10 md:h-8 md:w-8" onClick={() => openEdit(t)}><Pencil className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-10 w-10 md:h-8 md:w-8 text-destructive" onClick={() => { if (confirm("Ștergi?")) deleteMutation.mutate(t.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
