@@ -883,7 +883,7 @@ export default function VirtualStagingPage() {
                         alt={img.name}
                         className="w-full aspect-square object-cover rounded-lg border"
                       />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                         <Button
                           size="icon"
                           variant="secondary"
