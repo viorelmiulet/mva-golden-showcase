@@ -102,22 +102,22 @@ All colors MUST be HSL.
     --radius: 0.875rem;
 
     /* Modern Admin Sidebar - Dark Glass */
-    --sidebar-background: 220 30% 6%;
+    --sidebar-background: 220 6% 12%;
     --sidebar-foreground: 45 30% 85%;
     --sidebar-primary: 45 100% 60%;
-    --sidebar-primary-foreground: 220 30% 6%;
-    --sidebar-accent: 220 30% 12%;
+    --sidebar-primary-foreground: 220 6% 14%;
+    --sidebar-accent: 220 6% 20%;
     --sidebar-accent-foreground: 45 100% 95%;
-    --sidebar-border: 220 30% 20%;
+    --sidebar-border: 220 5% 24%;
     --sidebar-ring: 45 100% 60%;
     
     /* Modern Admin Tokens */
     --admin-gradient: linear-gradient(180deg, 
-      hsla(220, 30%, 8%, 1) 0%, 
-      hsla(220, 30%, 5%, 1) 100%);
+      hsla(220, 6%, 16%, 1) 0%, 
+      hsla(220, 6%, 12%, 1) 100%);
     --admin-header-gradient: linear-gradient(90deg,
-      hsla(220, 30%, 10%, 0.95) 0%,
-      hsla(220, 30%, 8%, 0.98) 100%);
+      hsla(220, 6%, 16%, 0.95) 0%,
+      hsla(220, 6%, 14%, 0.98) 100%);
     --admin-card: 220 30% 10%;
     --admin-card-hover: 220 30% 14%;
     --admin-border: 220 30% 18%;
