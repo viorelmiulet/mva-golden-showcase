@@ -731,7 +731,7 @@ const SettingsPage = () => {
             <div className="p-6">
               <div className="rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="mb-3 text-sm text-muted-foreground">Vor fi notificate aceste URL-uri principale:</p>
-                <div className="grid gap-2 md:grid-cols-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {MAIN_SITE_URLS.map((url) => (
                     <div key={url} className="rounded-lg border border-white/10 bg-background/30 px-3 py-2 text-xs text-muted-foreground break-all">
                       {url}

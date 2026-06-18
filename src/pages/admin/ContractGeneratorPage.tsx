@@ -1672,7 +1672,7 @@ const ContractGeneratorPage = () => {
                   className="h-9"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">CUI</Label>
                   <Input
@@ -1710,7 +1710,7 @@ const ContractGeneratorPage = () => {
             {data.is_company ? 'Reprezentant legal' : 'Date personale'}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Prenume</Label>
               <Input
@@ -1753,7 +1753,7 @@ const ContractGeneratorPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Seria CI</Label>
               <Input
@@ -1774,7 +1774,7 @@ const ContractGeneratorPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Emitent CI</Label>
               <Input
@@ -1795,7 +1795,7 @@ const ContractGeneratorPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">{data.is_company ? 'Adresa reprezentant' : 'Adresa'}</Label>
               <Textarea
@@ -1880,7 +1880,7 @@ const ContractGeneratorPage = () => {
               />
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Nr. camere</Label>
                 <Input
@@ -1955,7 +1955,7 @@ const ContractGeneratorPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Data Semnării</Label>
                 <Input
