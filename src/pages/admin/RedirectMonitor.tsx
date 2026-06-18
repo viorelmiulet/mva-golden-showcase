@@ -61,6 +61,7 @@ const emptyTarget: Partial<Target> = {
 
 export default function RedirectMonitor() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [editing, setEditing] = useState<Partial<Target> | null>(null);
   const [running, setRunning] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
