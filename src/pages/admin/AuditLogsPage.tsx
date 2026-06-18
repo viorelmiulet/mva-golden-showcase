@@ -31,6 +31,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 import { 
   History, 
   Search, 
@@ -105,6 +107,7 @@ const tableNameLabels: Record<string, string> = {
 };
 
 const AuditLogsPage = () => {
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [actionFilter, setActionFilter] = useState<string>("all");
   const [tableFilter, setTableFilter] = useState<string>("all");
@@ -271,48 +274,74 @@ const AuditLogsPage = () => {
               </div>
             ) : logs && logs.length > 0 ? (
               <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-border/50">
-                        <TableHead>Data</TableHead>
-                        <TableHead>Utilizator</TableHead>
-                        <TableHead>Acțiune</TableHead>
-                        <TableHead>Tabel</TableHead>
-                        <TableHead>Înregistrare</TableHead>
-                        <TableHead>Date Vechi</TableHead>
-                        <TableHead>Date Noi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {logs.map((log) => (
-                        <TableRow key={log.id} className="border-border/30">
-                          <TableCell className="whitespace-nowrap text-sm">
-                            {formatDate(log.created_at)}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {log.user_email || "-"}
-                          </TableCell>
-                          <TableCell>
-                            {getActionBadge(log.action_type)}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {getTableLabel(log.table_name)}
-                          </TableCell>
-                          <TableCell className="max-w-[200px] truncate text-sm">
+                {isMobile ? (
+                  <div className="p-3 space-y-3">
+                    {logs.map((log) => (
+                      <MobileTableCard key={log.id}>
+                        <MobileCardHeader
+                          title={log.user_email || "Sistem"}
+                          subtitle={formatDate(log.created_at)}
+                          badge={getActionBadge(log.action_type)}
+                        />
+                        <MobileCardRow label="Tabel">
+                          <span className="text-sm">{getTableLabel(log.table_name)}</span>
+                        </MobileCardRow>
+                        <MobileCardRow label="Înregistrare">
+                          <span className="text-sm truncate max-w-[180px] inline-block">
                             {log.record_title || log.record_id || "-"}
-                          </TableCell>
-                          <TableCell>
-                            <JsonViewer data={log.old_data} title="Date anterioare" />
-                          </TableCell>
-                          <TableCell>
-                            <JsonViewer data={log.new_data} title="Date noi" />
-                          </TableCell>
+                          </span>
+                        </MobileCardRow>
+                        <MobileCardActions>
+                          <JsonViewer data={log.old_data} title="Date anterioare" />
+                          <JsonViewer data={log.new_data} title="Date noi" />
+                        </MobileCardActions>
+                      </MobileTableCard>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-border/50">
+                          <TableHead>Data</TableHead>
+                          <TableHead>Utilizator</TableHead>
+                          <TableHead>Acțiune</TableHead>
+                          <TableHead>Tabel</TableHead>
+                          <TableHead>Înregistrare</TableHead>
+                          <TableHead>Date Vechi</TableHead>
+                          <TableHead>Date Noi</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {logs.map((log) => (
+                          <TableRow key={log.id} className="border-border/30">
+                            <TableCell className="whitespace-nowrap text-sm">
+                              {formatDate(log.created_at)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {log.user_email || "-"}
+                            </TableCell>
+                            <TableCell>
+                              {getActionBadge(log.action_type)}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {getTableLabel(log.table_name)}
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate text-sm">
+                              {log.record_title || log.record_id || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <JsonViewer data={log.old_data} title="Date anterioare" />
+                            </TableCell>
+                            <TableCell>
+                              <JsonViewer data={log.new_data} title="Date noi" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
                 <div className="flex items-center justify-between p-4 border-t border-border/50">
                   <Button
                     variant="outline"
