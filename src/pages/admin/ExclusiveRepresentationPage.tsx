@@ -896,7 +896,7 @@ const ExclusiveRepresentationPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Prenume</Label>
               <Input
@@ -927,7 +927,7 @@ const ExclusiveRepresentationPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Seria CI</Label>
               <Input
@@ -948,7 +948,7 @@ const ExclusiveRepresentationPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Emitent CI</Label>
               <Input
@@ -991,7 +991,7 @@ const ExclusiveRepresentationPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Localitate</Label>
               <Input
@@ -1021,7 +1021,7 @@ const ExclusiveRepresentationPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Bloc</Label>
               <Input
@@ -1060,7 +1060,7 @@ const ExclusiveRepresentationPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Nr. Camere</Label>
               <Input
@@ -1108,7 +1108,7 @@ const ExclusiveRepresentationPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Nr. Băi</Label>
               <Input
@@ -1149,7 +1149,7 @@ const ExclusiveRepresentationPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Preț Vânzare (EUR)</Label>
               <Input

@@ -530,7 +530,7 @@ const ComodatContractPage = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Nume</Label>
             <Input
@@ -558,7 +558,7 @@ const ComodatContractPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Seria CI</Label>
             <Input
@@ -577,7 +577,7 @@ const ComodatContractPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Emitent</Label>
             <Input
@@ -606,7 +606,7 @@ const ComodatContractPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Telefon</Label>
             <Input
@@ -697,7 +697,7 @@ const ComodatContractPage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <Label>Tip proprietate</Label>
               <Select

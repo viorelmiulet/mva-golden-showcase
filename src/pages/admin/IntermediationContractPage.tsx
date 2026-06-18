@@ -830,7 +830,7 @@ const IntermediationContractPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Nume *</Label>
                   <Input
@@ -848,7 +848,7 @@ const IntermediationContractPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">CNP</Label>
                   <Input
@@ -857,7 +857,7 @@ const IntermediationContractPage = () => {
                     className="h-9"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-xs">Seria CI</Label>
                     <Input
@@ -876,7 +876,7 @@ const IntermediationContractPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Emitent CI</Label>
                   <Input
@@ -903,7 +903,7 @@ const IntermediationContractPage = () => {
                   className="h-9"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Telefon</Label>
                   <Input
@@ -934,7 +934,7 @@ const IntermediationContractPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Tip Imobil</Label>
                   <Select
@@ -962,7 +962,7 @@ const IntermediationContractPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Suprafață Min (mp)</Label>
                   <Input
@@ -1000,7 +1000,7 @@ const IntermediationContractPage = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Buget Min (EUR)</Label>
                   <Input
