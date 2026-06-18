@@ -369,7 +369,6 @@ const CommissionsPage = () => {
   const getTransactionBadgeColor = (type: string) => {
     const lowerType = type.toLowerCase();
     if (lowerType.includes('chirie')) return "bg-blue-500";
-    if (lowerType.includes('parcare') || lowerType.includes('boxă') || lowerType.includes('boxa')) return "bg-orange-500";
     return "bg-green-600";
   };
 
@@ -779,7 +778,6 @@ const CommissionsPage = () => {
                           const type = c.transaction_type.toLowerCase();
                           let category = 'Vânzări';
                           if (type.includes('chirie')) category = 'Chirii';
-                          else if (type.includes('parcare') || type.includes('boxă') || type.includes('boxa')) category = 'Parcare/Boxă';
                           
                           typeData[category] = (typeData[category] || 0) + c.amount;
                         });
@@ -806,7 +804,6 @@ const CommissionsPage = () => {
                     >
                       <Cell fill="#22c55e" />
                       <Cell fill="#3b82f6" />
-                      <Cell fill="#f97316" />
                     </Pie>
                     <Tooltip 
                       formatter={(value: number) => [`€${value.toLocaleString()}`, 'Total']}
