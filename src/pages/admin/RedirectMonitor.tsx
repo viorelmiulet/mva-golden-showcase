@@ -23,6 +23,8 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { CheckCircle2, XCircle, RefreshCw, Plus, Trash2, ShieldAlert, Activity } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 type Target = {
   id: string;
@@ -59,6 +61,7 @@ const emptyTarget: Partial<Target> = {
 
 export default function RedirectMonitor() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [editing, setEditing] = useState<Partial<Target> | null>(null);
   const [running, setRunning] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
@@ -296,7 +299,52 @@ export default function RedirectMonitor() {
         <CardHeader>
           <CardTitle className="text-base">URL-uri monitorizate</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className={isMobile ? "" : "overflow-x-auto"}>
+          {isMobile ? (
+            <div className="space-y-3">
+              {(targets ?? []).map((t) => {
+                const last = latestByUrl.get(t.url);
+                return (
+                  <MobileTableCard key={t.id}>
+                    <MobileCardHeader
+                      title={<span className="font-mono text-xs break-all">{t.url}</span>}
+                      subtitle={last ? format(new Date(last.checked_at), "dd MMM HH:mm", { locale: ro }) : "—"}
+                      badge={
+                        last ? (
+                          <Badge variant={last.is_healthy ? "default" : "destructive"}>
+                            {last.actual_status ?? "ERR"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">—</Badge>
+                        )
+                      }
+                    />
+                    <MobileCardRow label="Așteptat">
+                      <Badge variant="outline">{t.expected_status}</Badge>
+                    </MobileCardRow>
+                    <MobileCardRow label="Activ">
+                      <Switch
+                        checked={t.is_active}
+                        onCheckedChange={(v) => saveMutation.mutate({ ...t, is_active: v })}
+                      />
+                    </MobileCardRow>
+                    <MobileCardActions>
+                      <Button size="sm" variant="outline" onClick={() => testOne(t)} disabled={testingId === t.id}>
+                        <RefreshCw className={`h-3 w-3 mr-1 ${testingId === t.id ? "animate-spin" : ""}`} />
+                        {testingId === t.id ? "Testez..." : "Testează"}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditing(t)}>Edit</Button>
+                      <Button size="sm" variant="ghost" onClick={() => {
+                        if (confirm("Ștergi acest URL?")) deleteMutation.mutate(t.id);
+                      }}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </MobileCardActions>
+                  </MobileTableCard>
+                );
+              })}
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -355,6 +403,7 @@ export default function RedirectMonitor() {
               })}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
 

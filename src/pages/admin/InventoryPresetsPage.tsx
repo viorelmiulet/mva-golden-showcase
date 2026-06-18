@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Save, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 interface PresetItem {
   id: string;
@@ -21,6 +23,7 @@ interface PresetItem {
 }
 
 const InventoryPresetsPage = () => {
+  const isMobile = useIsMobile();
   const [items, setItems] = useState<PresetItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -250,6 +253,72 @@ const InventoryPresetsPage = () => {
               Nu exista articole presetate. Adauga primul articol!
             </div>
           ) : (
+            isMobile ? (
+              <div className="space-y-3">
+                {items.map((item, index) => {
+                  const isEditing = editingId === item.id;
+                  return (
+                    <MobileTableCard key={item.id}>
+                      <MobileCardHeader
+                        title={isEditing ? (
+                          <Input
+                            value={editForm.item_name || ''}
+                            onChange={(e) => setEditForm({ ...editForm, item_name: e.target.value })}
+                          />
+                        ) : item.item_name}
+                        subtitle={`#${index + 1}`}
+                      />
+                      <MobileCardRow label="Cantitate">
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            min={1}
+                            className="w-24"
+                            value={editForm.quantity || 1}
+                            onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 1 })}
+                          />
+                        ) : <span>{item.quantity}</span>}
+                      </MobileCardRow>
+                      <MobileCardRow label="Stare">
+                        {isEditing ? (
+                          <Select value={editForm.condition || ''} onValueChange={(v) => setEditForm({ ...editForm, condition: v })}>
+                            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {conditions.map(c => (<SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>))}
+                            </SelectContent>
+                          </Select>
+                        ) : <span>{item.condition}</span>}
+                      </MobileCardRow>
+                      <MobileCardRow label="Locație">
+                        {isEditing ? (
+                          <Select value={editForm.location || ''} onValueChange={(v) => setEditForm({ ...editForm, location: v })}>
+                            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {locations.map(l => (<SelectItem key={l} value={l}>{l}</SelectItem>))}
+                            </SelectContent>
+                          </Select>
+                        ) : <span>{item.location}</span>}
+                      </MobileCardRow>
+                      <MobileCardActions>
+                        <Button size="sm" variant="ghost" onClick={() => moveItem(item.id, 'up')} disabled={index === 0} aria-label="Sus">▲</Button>
+                        <Button size="sm" variant="ghost" onClick={() => moveItem(item.id, 'down')} disabled={index === items.length - 1} aria-label="Jos">▼</Button>
+                        {isEditing ? (
+                          <>
+                            <Button size="sm" onClick={handleSaveEdit}><Save className="h-4 w-4" /></Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingId(null)}><X className="h-4 w-4" /></Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => handleEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
+                          </>
+                        )}
+                      </MobileCardActions>
+                    </MobileTableCard>
+                  );
+                })}
+              </div>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -364,6 +433,7 @@ const InventoryPresetsPage = () => {
                 ))}
               </TableBody>
             </Table>
+            )
           )}
         </CardContent>
       </Card>

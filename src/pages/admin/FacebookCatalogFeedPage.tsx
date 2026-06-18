@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Copy, ExternalLink, RefreshCw, FileSpreadsheet, Download, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 // Default feed = standard Commerce/Products (acceptat de WhatsApp Business + Meta Commerce)
 const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
@@ -28,6 +30,7 @@ interface Preview {
 }
 
 const FacebookCatalogFeedPage = () => {
+  const isMobile = useIsMobile();
   const [preview, setPreview] = useState<Preview | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -219,6 +222,20 @@ const FacebookCatalogFeedPage = () => {
         </CardHeader>
         <CardContent>
           {preview && preview.rows.length > 0 ? (
+            isMobile ? (
+              <div className="space-y-3">
+                {preview.rows.map((row, i) => (
+                  <MobileTableCard key={i}>
+                    {preview.headers.slice(0, 7).map((h, j) => (
+                      <MobileCardRow key={h} label={h}>
+                        <span className="text-xs truncate max-w-[180px] inline-block" title={row[j]}>{row[j]}</span>
+                      </MobileCardRow>
+                    ))}
+                  </MobileTableCard>
+                ))}
+                <Badge variant="outline" className="mt-1">Afișate primele 7 coloane din 12</Badge>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
@@ -242,6 +259,7 @@ const FacebookCatalogFeedPage = () => {
               </table>
               <Badge variant="outline" className="mt-3">Afișate primele 7 coloane din 12</Badge>
             </div>
+            )
           ) : (
             <p className="text-sm text-muted-foreground">Niciun produs disponibil.</p>
           )}
@@ -267,6 +285,18 @@ const FacebookCatalogFeedPage = () => {
             <p className="text-sm text-muted-foreground">Se încarcă...</p>
           ) : preview.excluded_count === 0 ? (
             <p className="text-sm text-muted-foreground">Toate proprietățile publicate trec validările feed-ului.</p>
+          ) : isMobile ? (
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {preview.excluded.map((r, i) => (
+                <MobileTableCard key={i}>
+                  <MobileCardHeader
+                    title={<span className="truncate">{r.title}</span>}
+                    subtitle={<span className="font-mono text-xs">{r.external_id || r.id.slice(0, 8)}</span>}
+                    badge={<Badge variant="destructive" className="font-normal">{r.reason}</Badge>}
+                  />
+                </MobileTableCard>
+              ))}
+            </div>
           ) : (
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="w-full text-xs border-collapse">
