@@ -582,7 +582,7 @@ export default function VirtualStagingPage() {
             {/* Default Room Type for new uploads */}
             <div className="space-y-3">
               <Label>Tip Cameră Implicit (pentru imagini noi)</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {roomTypes.map((room) => {
                   const Icon = room.icon;
                   return (
