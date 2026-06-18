@@ -236,6 +236,32 @@ const SignContract = () => {
     }
   }, [pdfBlobUrl, contractInfo, contractType, contractId, contractClauses, inventoryItems]);
 
+  const handleOpenPdf = useCallback(() => {
+    if (pdfBlobUrl) {
+      window.open(pdfBlobUrl, '_blank');
+    }
+  }, [pdfBlobUrl]);
+
+  const handlePrintPdf = useCallback(() => {
+    if (!pdfBlobUrl) return;
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.src = pdfBlobUrl;
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        if (iframe.parentNode) document.body.removeChild(iframe);
+      }, 1000);
+    };
+    document.body.appendChild(iframe);
+  }, [pdfBlobUrl]);
+
   useEffect(() => {
     if (token) {
       parseTokenAndFetchContract();
