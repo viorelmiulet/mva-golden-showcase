@@ -697,7 +697,7 @@ export default function VirtualStagingPage() {
             ) : selectedImage?.result ? (
               <div className="space-y-4">
                 {/* Main Image - Before/After */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div 
                     className="relative cursor-pointer group"
                     onClick={() => openPreview(selectedImage.id, 'original')}
