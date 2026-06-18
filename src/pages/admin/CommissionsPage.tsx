@@ -811,7 +811,8 @@ const CommissionsPage = () => {
                         backgroundColor: 'hsl(var(--card))', 
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
-                        fontSize: '11px'
+                        fontSize: '11px',
+                        color: 'hsl(var(--card-foreground))'
                       }}
                     />
                     <Legend verticalAlign="bottom" height={30} formatter={(value) => <span className="text-xs">{value}</span>} />
