@@ -868,6 +868,14 @@ const SignContract = () => {
                   {isGeneratingPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                   Descarcă Contract PDF
                 </Button>
+                <Button variant="outline" className="w-full" onClick={handleOpenPdf} disabled={!pdfBlobUrl || isGeneratingPdf}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deschide în vizualizator
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handlePrintPdf} disabled={!pdfBlobUrl || isGeneratingPdf}>
+                  <Printer className="h-4 w-4 mr-2" />
+                  Tipărește
+                </Button>
               </div>
             )}
           </CardContent>
