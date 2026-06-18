@@ -783,7 +783,7 @@ export default function VirtualStagingPage() {
                 {doneCount > 1 && (
                   <div className="space-y-2 pt-4 border-t">
                     <Label className="text-sm">Toate rezultatele ({doneCount})</Label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {uploadedImages.filter(img => img.result).map((img) => (
                         <button
                           key={img.id}
