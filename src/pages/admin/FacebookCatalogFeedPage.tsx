@@ -222,6 +222,20 @@ const FacebookCatalogFeedPage = () => {
         </CardHeader>
         <CardContent>
           {preview && preview.rows.length > 0 ? (
+            isMobile ? (
+              <div className="space-y-3">
+                {preview.rows.map((row, i) => (
+                  <MobileTableCard key={i}>
+                    {preview.headers.slice(0, 7).map((h, j) => (
+                      <MobileCardRow key={h} label={h}>
+                        <span className="text-xs truncate max-w-[180px] inline-block" title={row[j]}>{row[j]}</span>
+                      </MobileCardRow>
+                    ))}
+                  </MobileTableCard>
+                ))}
+                <Badge variant="outline" className="mt-1">Afișate primele 7 coloane din 12</Badge>
+              </div>
+            ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse">
                 <thead>
@@ -245,6 +259,7 @@ const FacebookCatalogFeedPage = () => {
               </table>
               <Badge variant="outline" className="mt-3">Afișate primele 7 coloane din 12</Badge>
             </div>
+            )
           ) : (
             <p className="text-sm text-muted-foreground">Niciun produs disponibil.</p>
           )}

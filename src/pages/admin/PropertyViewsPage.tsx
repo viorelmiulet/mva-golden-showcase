@@ -374,6 +374,35 @@ const PropertyViewsPage = () => {
               <p className="text-sm text-muted-foreground text-center py-8">
                 Nu au fost găsite proprietăți cu vizualizări în perioada selectată.
               </p>
+            ) : isMobile ? (
+              <div className="space-y-3">
+                {filteredStats.map((stat, idx) => (
+                  <MobileTableCard key={stat.page_path}>
+                    <MobileCardHeader
+                      title={stat.title || stat.page_path}
+                      subtitle={stat.page_path}
+                      badge={<Badge variant="secondary" className="font-mono">{stat.views}</Badge>}
+                    />
+                    <MobileCardRow label="Poziție">
+                      <span className="text-sm text-muted-foreground">#{idx + 1}</span>
+                    </MobileCardRow>
+                    <MobileCardRow label="Sesiuni unice">
+                      <span className="font-mono text-sm">{stat.unique_sessions}</span>
+                    </MobileCardRow>
+                    <MobileCardRow label="Durată medie">
+                      <span className="font-mono text-sm">{stat.avg_duration}s</span>
+                    </MobileCardRow>
+                    <MobileCardActions>
+                      <a href={stat.page_path} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          Deschide
+                        </Button>
+                      </a>
+                    </MobileCardActions>
+                  </MobileTableCard>
+                ))}
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
