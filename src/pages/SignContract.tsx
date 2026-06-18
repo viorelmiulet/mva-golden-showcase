@@ -1049,22 +1049,14 @@ const SignContract = () => {
             <DialogTitle>Previzualizare Contract</DialogTitle>
           </DialogHeader>
           <div className="flex-1 min-h-0">
-              {isGeneratingPdf ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : pdfBlobUrl ? (
-                <iframe 
-                  src={pdfBlobUrl} 
-                  className="w-full h-full border-0"
-                  title="Contract PDF"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Nu s-a putut genera previzualizarea.
-                </div>
-              )}
-            </div>
+            {isGeneratingPdf && !pdfBlobUrl ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ContractPdfViewer file={pdfBlobUrl} onDownload={handleDownloadPdf} />
+            )}
+          </div>
             {pdfBlobUrl && (
               <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
                 <Button onClick={handleDownloadPdf}>
