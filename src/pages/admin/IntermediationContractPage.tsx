@@ -1124,6 +1124,58 @@ const IntermediationContractPage = () => {
                   <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p>Nu există contracte salvate</p>
                 </div>
+              ) : isMobile ? (
+                <div className="space-y-3">
+                  {savedContracts.map((contract) => (
+                    <MobileTableCard key={contract.id}>
+                      <MobileCardHeader
+                        title={`${contract.client_prenume || ''} ${contract.client_name || ''}`.trim() || '—'}
+                        subtitle={contract.contract_date ? formatDateRomanian(contract.contract_date) : '-'}
+                        badge={getStatusBadge(contract)}
+                      />
+                      {contract.property_address && (
+                        <MobileCardRow label="Criterii">
+                          <span className="text-sm truncate max-w-[200px]">{contract.property_address}</span>
+                        </MobileCardRow>
+                      )}
+                      <MobileCardActions>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setEmailDialogData({
+                              contractId: contract.id,
+                              propertyAddress: contract.property_address || '',
+                              clientEmail: '',
+                              clientName: `${contract.client_prenume || ''} ${contract.client_name || ''}`.trim(),
+                            });
+                            setEmailDialogOpen(true);
+                          }}
+                          aria-label="Trimite link semnare"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => loadContractForEdit(contract)}
+                          aria-label="Editează"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => deleteContractMutation.mutate(contract.id)}
+                          aria-label="Șterge"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </MobileCardActions>
+                    </MobileTableCard>
+                  ))}
+                </div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
