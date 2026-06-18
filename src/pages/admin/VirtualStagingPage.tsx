@@ -875,7 +875,7 @@ export default function VirtualStagingPage() {
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : savedImages.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {savedImages.map((img) => (
                     <div key={img.name} className="relative group">
                       <img
