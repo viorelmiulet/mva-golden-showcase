@@ -582,7 +582,7 @@ export default function VirtualStagingPage() {
             {/* Default Room Type for new uploads */}
             <div className="space-y-3">
               <Label>Tip Cameră Implicit (pentru imagini noi)</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {roomTypes.map((room) => {
                   const Icon = room.icon;
                   return (
@@ -697,7 +697,7 @@ export default function VirtualStagingPage() {
             ) : selectedImage?.result ? (
               <div className="space-y-4">
                 {/* Main Image - Before/After */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div 
                     className="relative cursor-pointer group"
                     onClick={() => openPreview(selectedImage.id, 'original')}
@@ -783,7 +783,7 @@ export default function VirtualStagingPage() {
                 {doneCount > 1 && (
                   <div className="space-y-2 pt-4 border-t">
                     <Label className="text-sm">Toate rezultatele ({doneCount})</Label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {uploadedImages.filter(img => img.result).map((img) => (
                         <button
                           key={img.id}
@@ -875,7 +875,7 @@ export default function VirtualStagingPage() {
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : savedImages.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {savedImages.map((img) => (
                     <div key={img.name} className="relative group">
                       <img
@@ -883,7 +883,7 @@ export default function VirtualStagingPage() {
                         alt={img.name}
                         className="w-full aspect-square object-cover rounded-lg border"
                       />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                         <Button
                           size="icon"
                           variant="secondary"
@@ -1026,7 +1026,7 @@ export default function VirtualStagingPage() {
                 {/* Image Content */}
                 <div className="flex items-center justify-center h-[calc(95vh-140px)]">
                   {previewMode === 'compare' ? (
-                    <div className="grid grid-cols-2 gap-4 w-full h-full max-w-6xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-6xl">
                       <div className="relative flex items-center justify-center bg-muted/20 rounded-lg overflow-hidden">
                         <img
                           src={previewImage.base64}
