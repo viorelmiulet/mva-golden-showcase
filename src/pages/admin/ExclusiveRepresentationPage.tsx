@@ -1422,6 +1422,68 @@ const ExclusiveRepresentationPage = () => {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : savedContracts && savedContracts.length > 0 ? (
+                isMobile ? (
+                  <div className="space-y-3">
+                    {savedContracts.map((contract) => (
+                      <MobileTableCard key={contract.id}>
+                        <MobileCardHeader
+                          title={`${contract.beneficiary_prenume || ''} ${contract.beneficiary_name || ''}`.trim() || '—'}
+                          subtitle={format(new Date(contract.contract_date), 'dd.MM.yyyy')}
+                          badge={getStatusBadge(contract.status || 'draft')}
+                        />
+                        {contract.property_address && (
+                          <MobileCardRow label="Adresă">
+                            <span className="text-sm truncate max-w-[200px]">{contract.property_address}</span>
+                          </MobileCardRow>
+                        )}
+                        <MobileCardRow label="Preț">
+                          <span className="text-sm">{contract.sales_price?.toLocaleString()} {contract.currency}</span>
+                        </MobileCardRow>
+                        <MobileCardRow label="Comision">
+                          <span className="text-sm">{contract.commission_percent}%</span>
+                        </MobileCardRow>
+                        <MobileCardActions>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setEmailDialogData({
+                                contractId: contract.id,
+                                propertyAddress: contract.property_address || '',
+                                beneficiaryEmail: contract.beneficiary_email || '',
+                                beneficiaryName: `${contract.beneficiary_prenume || ''} ${contract.beneficiary_name || ''}`.trim(),
+                              });
+                              setEmailDialogOpen(true);
+                            }}
+                            aria-label="Trimite link semnare"
+                          >
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => loadContractForEdit(contract)}
+                            aria-label="Editează"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              if (confirm('Sigur doriți să ștergeți acest contract?')) {
+                                deleteContractMutation.mutate(contract.id);
+                              }
+                            }}
+                            aria-label="Șterge"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </MobileCardActions>
+                      </MobileTableCard>
+                    ))}
+                  </div>
+                ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -1499,6 +1561,7 @@ const ExclusiveRepresentationPage = () => {
                     </TableBody>
                   </Table>
                 </div>
+                )
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
