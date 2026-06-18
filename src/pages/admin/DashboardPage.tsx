@@ -699,7 +699,7 @@ const DashboardPage = () => {
             </DialogHeader>
             {selectedDayDetails && (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3 rounded-lg bg-primary/10 text-center">
                     <p className="text-2xl font-bold text-primary">{selectedDayDetails.totalEUR.toLocaleString()} €</p>
                     <p className="text-xs text-muted-foreground">Total EUR</p>
