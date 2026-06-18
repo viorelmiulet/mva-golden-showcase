@@ -10,6 +10,39 @@
   height: env(safe-area-inset-bottom);
 }
 
+/* ============================================================
+   Admin-only theme override — neutral dark gray, less eye-straining
+   than the public site's navy. Scoped to .admin-theme so the
+   public site (which uses :root from index.css) is untouched.
+   Gold accent (--primary) is intentionally NOT overridden.
+   ============================================================ */
+.admin-theme {
+  --background: 220 6% 14%;
+  --card: 220 5% 18%;
+  --card-foreground: 45 100% 96%;
+  --muted: 220 5% 20%;
+  --muted-foreground: 220 5% 70%;
+  --popover: 220 6% 16%;
+  --popover-foreground: 45 100% 96%;
+  --secondary: 220 5% 20%;
+  --secondary-foreground: 45 100% 96%;
+  --border: 220 5% 24%;
+  --input: 220 5% 22%;
+
+  --sidebar-background: 220 6% 12%;
+  --sidebar-foreground: 45 30% 85%;
+  --sidebar-accent: 220 6% 20%;
+  --sidebar-accent-foreground: 45 100% 95%;
+  --sidebar-border: 220 5% 24%;
+
+  --admin-gradient: linear-gradient(180deg,
+    hsla(220, 6%, 16%, 1) 0%,
+    hsla(220, 6%, 12%, 1) 100%);
+  --admin-header-gradient: linear-gradient(90deg,
+    hsla(220, 6%, 16%, 0.95) 0%,
+    hsla(220, 6%, 14%, 0.98) 100%);
+}
+
 .admin-card-mobile {
   border-radius: 0.5rem;
   border: 1px solid hsl(var(--border) / 0.4);
@@ -27,11 +60,11 @@
 
 .admin-glass-card {
   background: linear-gradient(135deg,
-    hsla(220, 30%, 12%, 0.6) 0%,
-    hsla(220, 30%, 8%, 0.8) 100%);
+    hsla(220, 6%, 20%, 0.6) 0%,
+    hsla(220, 6%, 16%, 0.8) 100%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsla(220, 30%, 25%, 0.3);
+  border: 1px solid hsla(220, 6%, 30%, 0.3);
   box-shadow:
     0 4px 24px hsla(0, 0%, 0%, 0.3),
     inset 0 1px 0 hsla(255, 255%, 255%, 0.05);
@@ -40,8 +73,8 @@
 
 .admin-glass-card:hover {
   background: linear-gradient(135deg,
-    hsla(220, 30%, 14%, 0.7) 0%,
-    hsla(220, 30%, 10%, 0.85) 100%);
+    hsla(220, 6%, 22%, 0.7) 0%,
+    hsla(220, 6%, 18%, 0.85) 100%);
   border-color: hsla(45, 100%, 60%, 0.2);
   box-shadow:
     0 8px 32px hsla(0, 0%, 0%, 0.4),
@@ -50,18 +83,18 @@
 
 .admin-sidebar-modern {
   background: linear-gradient(180deg,
-    hsla(220, 30%, 8%, 0.98) 0%,
-    hsla(220, 30%, 5%, 1) 100%);
-  border-right: 1px solid hsla(220, 30%, 20%, 0.5);
+    hsla(220, 6%, 14%, 0.98) 0%,
+    hsla(220, 6%, 12%, 1) 100%);
+  border-right: 1px solid hsla(220, 6%, 26%, 0.5);
 }
 
 .admin-header-modern {
   background: linear-gradient(90deg,
-    hsla(220, 30%, 10%, 0.95) 0%,
-    hsla(220, 30%, 8%, 0.98) 100%);
+    hsla(220, 6%, 16%, 0.95) 0%,
+    hsla(220, 6%, 14%, 0.98) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid hsla(220, 30%, 20%, 0.4);
+  border-bottom: 1px solid hsla(220, 6%, 26%, 0.4);
 }
 
 .admin-nav-item {
@@ -72,7 +105,7 @@
 }
 
 .admin-nav-item:hover {
-  background: hsla(220, 30%, 18%, 0.5);
+  background: hsla(220, 6%, 24%, 0.5);
 }
 
 .admin-nav-item.active {
