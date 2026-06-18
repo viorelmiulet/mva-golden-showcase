@@ -865,7 +865,7 @@ const ProjectsAdmin = () => {
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Nume Proiect</Label>
                 <Input
@@ -894,7 +894,7 @@ const ProjectsAdmin = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="price_range">Interval Prețuri</Label>
                 <Input
@@ -1024,7 +1024,7 @@ const ProjectsAdmin = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="completion_date">Data Finalizare</Label>
                 <Input
@@ -1140,7 +1140,7 @@ const ProjectsAdmin = () => {
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_project_name">Nume Proiect</Label>
                 <Input
@@ -1169,7 +1169,7 @@ const ProjectsAdmin = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="new_project_price_range">Interval Prețuri</Label>
                 <Input
@@ -1244,7 +1244,7 @@ const ProjectsAdmin = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_project_completion_date">Data Finalizare</Label>
                 <Input
@@ -1288,7 +1288,7 @@ const ProjectsAdmin = () => {
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_title">Titlu</Label>
                 <Input
@@ -1308,7 +1308,7 @@ const ProjectsAdmin = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_price_min">Preț Min (€)</Label>
                 <Input
@@ -1329,7 +1329,7 @@ const ProjectsAdmin = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_surface_min">Suprafață Min (mp)</Label>
                 <Input
@@ -1350,7 +1350,7 @@ const ProjectsAdmin = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="new_rooms">Camere</Label>
                 <Input
@@ -1404,7 +1404,7 @@ const ProjectsAdmin = () => {
           
           {editingProperty && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="property_title">Titlu</Label>
                   <Input
@@ -1427,7 +1427,7 @@ const ProjectsAdmin = () => {
               <div className="space-y-2">
                 <Label>Imagini Proprietate</Label>
                 {Array.isArray(editingProperty.images) && editingProperty.images.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {editingProperty.images.map((img: string, idx: number) => (
                       <div key={idx} className="relative group">
                         <img
@@ -1463,7 +1463,7 @@ const ProjectsAdmin = () => {
               </div>
 
               {/* Property Details */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="price_min">Preț Min (€)</Label>
                   <Input
