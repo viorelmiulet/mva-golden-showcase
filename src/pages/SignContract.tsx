@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { getSignedContractUrl } from "@/lib/storageUrl";
+import ContractPdfViewer from "@/components/admin/ContractPdfViewer";
 
 interface InventoryItem {
   id: string;
