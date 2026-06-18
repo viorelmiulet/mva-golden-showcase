@@ -460,11 +460,11 @@ const NewsAdminPage = () => {
               </Label>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={closeDialog}>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={closeDialog} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" disabled={saveMutation.isPending}>
+              <Button type="submit" disabled={saveMutation.isPending} className="w-full sm:w-auto">
                 {saveMutation.isPending
                   ? "Saving..."
                   : editing
