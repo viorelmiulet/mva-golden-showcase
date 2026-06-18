@@ -1026,7 +1026,7 @@ export default function VirtualStagingPage() {
                 {/* Image Content */}
                 <div className="flex items-center justify-center h-[calc(95vh-140px)]">
                   {previewMode === 'compare' ? (
-                    <div className="grid grid-cols-2 gap-4 w-full h-full max-w-6xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full h-full max-w-6xl">
                       <div className="relative flex items-center justify-center bg-muted/20 rounded-lg overflow-hidden">
                         <img
                           src={previewImage.base64}
