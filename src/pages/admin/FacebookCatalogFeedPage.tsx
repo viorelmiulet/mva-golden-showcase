@@ -285,6 +285,18 @@ const FacebookCatalogFeedPage = () => {
             <p className="text-sm text-muted-foreground">Se încarcă...</p>
           ) : preview.excluded_count === 0 ? (
             <p className="text-sm text-muted-foreground">Toate proprietățile publicate trec validările feed-ului.</p>
+          ) : isMobile ? (
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {preview.excluded.map((r, i) => (
+                <MobileTableCard key={i}>
+                  <MobileCardHeader
+                    title={<span className="truncate">{r.title}</span>}
+                    subtitle={<span className="font-mono text-xs">{r.external_id || r.id.slice(0, 8)}</span>}
+                    badge={<Badge variant="destructive" className="font-normal">{r.reason}</Badge>}
+                  />
+                </MobileTableCard>
+              ))}
+            </div>
           ) : (
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="w-full text-xs border-collapse">
