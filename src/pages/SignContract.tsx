@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { getSignedContractUrl } from "@/lib/storageUrl";
+import ContractPdfViewer from "@/components/admin/ContractPdfViewer";
 
 interface InventoryItem {
   id: string;
@@ -853,20 +854,12 @@ const SignContract = () => {
               <DialogTitle>Previzualizare Contract</DialogTitle>
             </DialogHeader>
             <div className="flex-1 min-h-0">
-              {isGeneratingPdf ? (
+              {isGeneratingPdf && !pdfBlobUrl ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
-              ) : pdfBlobUrl ? (
-                <iframe 
-                  src={pdfBlobUrl} 
-                  className="w-full h-full border-0"
-                  title="Contract PDF"
-                />
               ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Nu s-a putut genera previzualizarea.
-                </div>
+                <ContractPdfViewer file={pdfBlobUrl} onDownload={handleDownloadPdf} />
               )}
             </div>
             {pdfBlobUrl && (
@@ -1056,22 +1049,14 @@ const SignContract = () => {
             <DialogTitle>Previzualizare Contract</DialogTitle>
           </DialogHeader>
           <div className="flex-1 min-h-0">
-              {isGeneratingPdf ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : pdfBlobUrl ? (
-                <iframe 
-                  src={pdfBlobUrl} 
-                  className="w-full h-full border-0"
-                  title="Contract PDF"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Nu s-a putut genera previzualizarea.
-                </div>
-              )}
-            </div>
+            {isGeneratingPdf && !pdfBlobUrl ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ContractPdfViewer file={pdfBlobUrl} onDownload={handleDownloadPdf} />
+            )}
+          </div>
             {pdfBlobUrl && (
               <div className="px-6 py-3 border-t border-border flex-shrink-0 flex justify-end">
                 <Button onClick={handleDownloadPdf}>
