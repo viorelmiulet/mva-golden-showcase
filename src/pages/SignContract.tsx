@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText } from "lucide-react";
+import { Loader2, Check, Eraser, FileText, AlertCircle, Eye, Download, Package, Home, Handshake, Building2, Users, ScrollText, Printer, ExternalLink } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
