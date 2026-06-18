@@ -250,8 +250,6 @@ const ContractGeneratorPage = () => {
   const fileInputProprietarRef = useRef<HTMLInputElement>(null);
   const fileInputChiriasRef = useRef<HTMLInputElement>(null);
 
-  // Track contracts that need auto-regeneration
-  const autoRegeneratedRef = useRef<Set<string>>(new Set());
   
   // Contract clauses from database
   const [contractClauses, setContractClauses] = useState<ContractClause[]>([]);
