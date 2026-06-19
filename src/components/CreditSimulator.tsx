@@ -262,9 +262,10 @@ const CreditSimulator = () => {
           {/* Property Value */}
           <div className="field">
             <div className="field-header">
-              <span className="field-label">{isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}</span>
+              <label htmlFor="property-value" className="field-label">{isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}</label>
               <div className="field-value-input">
                 <input
+                  id="property-value"
                   type="text"
                   inputMode="numeric"
                   value={inputValue}
@@ -277,6 +278,7 @@ const CreditSimulator = () => {
               </div>
             </div>
             <input
+              aria-label={isPersonal ? 'Sumă împrumut' : 'Valoare proprietate'}
               type="range"
               min={limits.valMin}
               max={limits.valMax}
@@ -294,11 +296,11 @@ const CreditSimulator = () => {
           {!isPersonal && (
             <div className="field">
               <div className="field-header">
-                <span className="field-label">
+                <label htmlFor="down-payment" className="field-label">
                   Avans <span className="info-tip" title="Loan-to-Value: raportul dintre credit și valoarea proprietății">i</span>
-                </span>
+                </label>
                 <div className="field-value-input">
-                  <input type="text" inputMode="numeric" value={inputDown}
+                  <input id="down-payment" type="text" inputMode="numeric" value={inputDown}
                     onChange={(e) => setInputDown(e.target.value.replace(/[^0-9]/g, ''))}
                     onBlur={() => { const v = Math.min(80, Math.max(5, Number(inputDown) || 5)); setDownPaymentPct(v); }}
                     onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
@@ -307,6 +309,7 @@ const CreditSimulator = () => {
                 </div>
               </div>
               <input
+                aria-label="Avans"
                 type="range"
                 min={5} max={80} step={1}
                 value={downPaymentPct}
@@ -326,9 +329,9 @@ const CreditSimulator = () => {
           {/* Period */}
           <div className="field">
             <div className="field-header">
-              <span className="field-label">Perioadă</span>
+              <label htmlFor="period" className="field-label">Perioadă</label>
               <div className="field-value-input">
-                <input type="text" inputMode="numeric" value={inputYears}
+                <input id="period" type="text" inputMode="numeric" value={inputYears}
                   onChange={(e) => setInputYears(e.target.value.replace(/[^0-9]/g, ''))}
                   onBlur={() => { const v = Number(inputYears) || limits.yrMin; setYears(v); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
@@ -337,6 +340,7 @@ const CreditSimulator = () => {
               </div>
             </div>
             <input
+              aria-label="Perioadă"
               type="range"
               min={limits.yrMin} max={limits.yrMax} step={1}
               value={clampedYears}
@@ -358,9 +362,9 @@ const CreditSimulator = () => {
           {/* Interest Rate */}
           <div className="field">
             <div className="field-header">
-              <span className="field-label">Rată dobândă anuală</span>
+              <label htmlFor="interest-rate" className="field-label">Rată dobândă anuală</label>
               <div className="field-value-input">
-                <input type="text" inputMode="decimal" value={inputRate}
+                <input id="interest-rate" type="text" inputMode="decimal" value={inputRate}
                   onChange={(e) => setInputRate(e.target.value.replace(/[^0-9.]/g, ''))}
                   onBlur={() => { const v = Number(inputRate) || limits.rateMin; setInterestRate(v); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
@@ -369,6 +373,7 @@ const CreditSimulator = () => {
               </div>
             </div>
             <input
+              aria-label="Rată dobândă anuală"
               type="range"
               min={limits.rateMin} max={limits.rateMax} step={0.1}
               value={clampedRate}
@@ -396,9 +401,9 @@ const CreditSimulator = () => {
           {/* Extra Costs */}
           <div className="field">
             <div className="field-header">
-              <span className="field-label">Costuri suplimentare / lună</span>
+              <label htmlFor="extra-costs" className="field-label">Costuri suplimentare / lună</label>
               <div className="field-value-input">
-                <input type="text" inputMode="numeric" value={inputExtra}
+                <input id="extra-costs" type="text" inputMode="numeric" value={inputExtra}
                   onChange={(e) => setInputExtra(e.target.value.replace(/[^0-9]/g, ''))}
                   onBlur={() => { setExtraCosts(Number(inputExtra) || 0); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
@@ -407,6 +412,7 @@ const CreditSimulator = () => {
               </div>
             </div>
             <input
+              aria-label="Costuri suplimentare pe lună"
               type="range"
               min={0} max={currency === 'RON' ? 2000 : 400} step={currency === 'RON' ? 50 : 10}
               value={extraCosts}
