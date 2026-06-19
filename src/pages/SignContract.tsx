@@ -236,14 +236,48 @@ const SignContract = () => {
     }
   }, [pdfBlobUrl, contractInfo, contractType, contractId, contractClauses, inventoryItems]);
 
+  // Detect environments where iframe-based PDF print is unreliable:
+  // iOS Safari and in-app webviews (Gmail/WhatsApp/Facebook/Instagram/etc.)
+  // do not invoke the native PDF viewer inside hidden iframes, so
+  // iframe.contentWindow.print() either prints a blank page or no-ops.
+  const isIosOrInAppWebview = useCallback(() => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const isIos = /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+    const isInApp = /(FBAN|FBAV|Instagram|Line|WhatsApp|GSA|FxiOS|CriOS|Snapchat|LinkedInApp|Twitter|TikTok|MicroMessenger)/i.test(ua);
+    return isIos || isInApp;
+  }, []);
+
   const handleOpenPdf = useCallback(() => {
-    if (pdfBlobUrl) {
-      window.open(pdfBlobUrl, '_blank');
+    if (!pdfBlobUrl || isGeneratingPdf) {
+      toast.info('Documentul se pregătește, încearcă din nou într-o clipă.');
+      return;
     }
-  }, [pdfBlobUrl]);
+    const win = window.open(pdfBlobUrl, '_blank', 'noopener,noreferrer');
+    if (!win) {
+      toast.error('Deschiderea a fost blocată. Folosește butonul „Descarcă PDF".');
+    }
+  }, [pdfBlobUrl, isGeneratingPdf]);
 
   const handlePrintPdf = useCallback(() => {
-    if (!pdfBlobUrl) return;
+    if (!pdfBlobUrl || isGeneratingPdf) {
+      toast.info('Documentul se pregătește, încearcă din nou într-o clipă.');
+      return;
+    }
+
+    // On iOS / in-app webviews the hidden-iframe print trick prints blank.
+    // Open the PDF in a new tab so the user can use the system share/print sheet.
+    if (isIosOrInAppWebview()) {
+      const win = window.open(pdfBlobUrl, '_blank', 'noopener,noreferrer');
+      if (!win) {
+        toast.error('Deschide PDF-ul manual pentru a-l tipări (descarcă-l mai întâi).');
+      } else {
+        toast.info('Folosește butonul „Partajează" → „Tipărește" din vizualizatorul PDF.');
+      }
+      return;
+    }
+
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -252,15 +286,29 @@ const SignContract = () => {
     iframe.style.height = '0';
     iframe.style.border = '0';
     iframe.src = pdfBlobUrl;
+    let printed = false;
     iframe.onload = () => {
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        printed = true;
+      } catch (err) {
+        console.error('Print error:', err);
+        toast.error('Nu s-a putut deschide dialogul de tipărire. Deschide PDF-ul manual.');
+      }
       setTimeout(() => {
         if (iframe.parentNode) document.body.removeChild(iframe);
-      }, 1000);
+      }, 2000);
     };
+    // Fallback if iframe never loads (some webviews silently fail)
+    setTimeout(() => {
+      if (!printed && iframe.parentNode) {
+        document.body.removeChild(iframe);
+        window.open(pdfBlobUrl, '_blank', 'noopener,noreferrer');
+      }
+    }, 4000);
     document.body.appendChild(iframe);
-  }, [pdfBlobUrl]);
+  }, [pdfBlobUrl, isGeneratingPdf, isIosOrInAppWebview]);
 
   useEffect(() => {
     if (token) {
