@@ -75,3 +75,5 @@ project_id = "fdpandnzblzvamhsoukt"
     verify_jwt = false
   [functions.facebook-catalog-feed]
     verify_jwt = false
+  [functions.import-lukian]
+    verify_jwt = false
