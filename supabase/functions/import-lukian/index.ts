@@ -101,12 +101,15 @@ const PROPERTY_TYPE_RO: Record<string, string> = {
 function buildSeoSlug(p: LukianProperty): string {
   const parts: string[] = [];
   const typeRo = PROPERTY_TYPE_RO[(p.property_type || "").toLowerCase()] || "proprietate";
-  parts.push(typeRo);
-
   const rooms = toInt(p.rooms);
-  if (typeRo === "apartament" || typeRo === "casa" || typeRo === "vila") {
-    if (rooms && rooms > 0) {
-      parts.push(rooms <= 1 ? "garsoniera" : `${rooms}-camere`);
+
+  if (typeRo === "apartament" && rooms && rooms <= 1) {
+    // Studio: just "garsoniera", no "apartament-" prefix
+    parts.push("garsoniera");
+  } else {
+    parts.push(typeRo);
+    if ((typeRo === "apartament" || typeRo === "casa" || typeRo === "vila") && rooms && rooms >= 2) {
+      parts.push(`${rooms}-camere`);
     }
   }
 
