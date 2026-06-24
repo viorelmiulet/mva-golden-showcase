@@ -465,9 +465,21 @@ const ImmofluxPropertyDetail = () => {
 
               {(() => {
                 const PREVIEW_LIMIT = 12;
+                const splitTopLevel = (raw: string) => {
+                  const out: string[] = [];
+                  let depth = 0, buf = '';
+                  for (const ch of raw) {
+                    if (ch === '(' || ch === '[') depth++;
+                    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+                    if (ch === ',' && depth === 0) { if (buf.trim()) out.push(buf.trim()); buf = ''; }
+                    else buf += ch;
+                  }
+                  if (buf.trim()) out.push(buf.trim());
+                  return out;
+                };
                 const renderCardSection = (raw: string | null | undefined, sectionTitle: string, Icon: any) => {
                   if (!raw) return null;
-                  const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+                  const items = splitTopLevel(raw);
                   if (items.length === 0) return null;
                   const hasMore = items.length > PREVIEW_LIMIT;
                   const visible = hasMore ? items.slice(0, PREVIEW_LIMIT) : items;
