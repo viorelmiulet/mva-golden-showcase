@@ -89,6 +89,7 @@ const News = lazy(() => import("./pages/News"));
 const NewsDetail = lazy(() => import("./pages/NewsDetail"));
 const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
+const ImmofluxDashboard = lazy(() => import("./pages/admin/ImmofluxDashboard"));
 const RentalLayout = lazy(() => import("./pages/admin/rental/RentalLayout"));
 const RentalDashboard = lazy(() => import("./pages/admin/rental/RentalDashboard"));
 const RentalProperties = lazy(() => import("./pages/admin/rental/RentalProperties"));
