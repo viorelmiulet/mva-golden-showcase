@@ -60,6 +60,7 @@ const menuItems = [
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "News", url: "/admin/news", icon: FileText },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
+  { title: "Immoflux Sync", url: "/admin/immoflux", icon: Database },
   { title: "Setări", url: "/admin/setari", icon: Settings },
 
 ];
