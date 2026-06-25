@@ -219,6 +219,7 @@ const AppRoutes = () => {
                 <Route path="news" element={<NewsAdminPage />} />
                 <Route path="inbox" element={<InboxPage />} />
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
+                <Route path="immoflux" element={<ImmofluxDashboard />} />
                 <Route path="gestiune-chirii" element={<RentalLayout />}>
                   <Route index element={<RentalDashboard />} />
                   <Route path="proprietati" element={<RentalProperties />} />
