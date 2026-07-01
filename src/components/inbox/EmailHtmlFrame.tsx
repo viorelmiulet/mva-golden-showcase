@@ -103,14 +103,16 @@ export function EmailHtmlFrame({ html, className }: Props) {
   }, [srcDoc]);
 
   return (
-    <iframe
-      ref={iframeRef}
-      title="Email content"
-      srcDoc={srcDoc}
-      sandbox="allow-same-origin allow-popups"
-      className={className}
-      style={{ width: "100%", border: 0, display: "block", height }}
-    />
+    <div className="w-full max-w-full overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        title="Email content"
+        srcDoc={srcDoc}
+        sandbox="allow-same-origin allow-popups"
+        className={className}
+        style={{ width: "100%", maxWidth: "100%", border: 0, display: "block", height }}
+      />
+    </div>
   );
 }
 
