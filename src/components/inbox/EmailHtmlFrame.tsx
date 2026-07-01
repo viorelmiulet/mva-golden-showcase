@@ -6,12 +6,14 @@ interface Props {
 }
 
 /**
- * Renders email HTML inside a sandboxed iframe so that broken/desktop-only
- * markup (fixed widths, huge tables, inline styles) doesn't blow out the
- * layout on mobile. Auto-resizes to content height.
+ * Renders email HTML inside a sandboxed iframe. On narrow viewports we render
+ * the email at a wider virtual width and scale it down with CSS `zoom`, so the
+ * text stays readable instead of wrapping into unreadable slivers. We also
+ * bump the base font on small screens.
  */
 export function EmailHtmlFrame({ html, className }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(400);
 
   const srcDoc = `<!DOCTYPE html>
@@ -27,8 +29,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
     background: transparent;
     color: #1a1a1a;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 16px;
+    line-height: 1.6;
     word-wrap: break-word;
     overflow-wrap: anywhere;
     overflow-x: hidden !important;
@@ -44,13 +46,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
   td, th {
     max-width: 100% !important; width: auto !important;
     word-break: break-word; white-space: normal !important;
-    display: block !important;
   }
-  /* Restore side-by-side for small tables */
-  @media (min-width: 480px) {
-    td, th { display: table-cell !important; }
-  }
-  pre, code { white-space: pre-wrap !important; word-break: break-word; }
+  pre, code { white-space: pre-wrap !important; word-break: break-word; font-size: 14px; }
   a { color: #DAA520; word-break: break-word; }
   blockquote { border-left: 3px solid #DAA520; margin: 8px 0; padding: 4px 12px; color: #555; }
   div, span, p, section, article, header, footer, main {
@@ -58,6 +55,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
   }
   [style*="width"] { max-width: 100% !important; }
   [width] { max-width: 100% !important; width: auto !important; }
+  p, li { font-size: 1rem; }
+  h1 { font-size: 1.4rem; } h2 { font-size: 1.25rem; } h3 { font-size: 1.1rem; }
 </style>
 </head>
 <body>${html}</body>
@@ -67,31 +66,62 @@ export function EmailHtmlFrame({ html, className }: Props) {
     const iframe = iframeRef.current;
     if (!iframe) return;
 
-    const resize = () => {
+    const applyLayout = () => {
       try {
         const doc = iframe.contentDocument;
-        if (!doc) return;
+        const wrapper = wrapperRef.current;
+        if (!doc || !doc.body || !wrapper) return;
+
+        const containerWidth = wrapper.clientWidth || iframe.clientWidth;
+
+        // Reset any prior zoom to measure natural width
+        doc.body.style.zoom = "1";
+        (doc.body.style as any).minWidth = "";
+
+        // Natural content width (respecting any elements that couldn't shrink)
+        const naturalWidth = Math.max(
+          doc.body.scrollWidth,
+          doc.documentElement.scrollWidth
+        );
+
+        // On narrow screens, if content is still wider than the container,
+        // scale it down with `zoom` so text is legible without side-scrolling.
+        let zoom = 1;
+        if (containerWidth > 0 && naturalWidth > containerWidth) {
+          zoom = Math.max(0.55, containerWidth / naturalWidth);
+        }
+
+        // On very narrow screens, render at a slightly wider virtual width so
+        // paragraphs don't collapse into 1-2 words per line, then scale down.
+        if (containerWidth > 0 && containerWidth < 420 && naturalWidth < 420) {
+          const virtualWidth = 480;
+          zoom = containerWidth / virtualWidth;
+          (doc.body.style as any).minWidth = virtualWidth + "px";
+        }
+
+        doc.body.style.zoom = String(zoom);
+
+        // Height must account for the applied zoom
         const h = Math.max(
           doc.documentElement.scrollHeight,
-          doc.body?.scrollHeight ?? 0
-        );
-        setHeight(h + 8);
+          doc.body.scrollHeight
+        ) * zoom;
+        setHeight(Math.ceil(h) + 8);
       } catch {
         /* noop */
       }
     };
 
     const onLoad = () => {
-      resize();
+      applyLayout();
       try {
         const doc = iframe.contentDocument;
         if (!doc) return;
-        // Force all images to fully load then re-measure
         const imgs = Array.from(doc.images);
         imgs.forEach((img) => {
-          if (!img.complete) img.addEventListener("load", resize);
+          if (!img.complete) img.addEventListener("load", applyLayout);
         });
-        const ro = new ResizeObserver(resize);
+        const ro = new ResizeObserver(applyLayout);
         if (doc.body) ro.observe(doc.body);
       } catch {
         /* noop */
@@ -99,11 +129,16 @@ export function EmailHtmlFrame({ html, className }: Props) {
     };
 
     iframe.addEventListener("load", onLoad);
-    return () => iframe.removeEventListener("load", onLoad);
+    const onResize = () => applyLayout();
+    window.addEventListener("resize", onResize);
+    return () => {
+      iframe.removeEventListener("load", onLoad);
+      window.removeEventListener("resize", onResize);
+    };
   }, [srcDoc]);
 
   return (
-    <div className="w-full max-w-full overflow-hidden">
+    <div ref={wrapperRef} className="w-full max-w-full overflow-hidden">
       <iframe
         ref={iframeRef}
         title="Email content"
