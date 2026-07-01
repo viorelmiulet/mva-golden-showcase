@@ -147,7 +147,14 @@ export function EmailHtmlFrame({ html, className }: Props) {
         srcDoc={srcDoc}
         sandbox="allow-same-origin allow-popups"
         className={className}
-        style={{ width: "100%", maxWidth: "100%", border: 0, display: "block", height }}
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          border: 0,
+          display: "block",
+          height,
+          maxHeight: "calc(100dvh - 220px)",
+        }}
       />
     </div>
   );
