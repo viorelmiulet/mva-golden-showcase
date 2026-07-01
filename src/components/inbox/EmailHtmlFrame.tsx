@@ -15,7 +15,6 @@ export function EmailHtmlFrame({ html, className }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(500);
-  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
 
   const srcDoc = `<!DOCTYPE html>
 <html lang="ro">
