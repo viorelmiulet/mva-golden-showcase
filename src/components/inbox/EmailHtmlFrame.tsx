@@ -31,17 +31,33 @@ export function EmailHtmlFrame({ html, className }: Props) {
     line-height: 1.55;
     word-wrap: break-word;
     overflow-wrap: anywhere;
+    overflow-x: hidden !important;
     -webkit-text-size-adjust: 100%;
+    max-width: 100vw;
   }
-  * { max-width: 100% !important; box-sizing: border-box; }
+  * { max-width: 100% !important; box-sizing: border-box !important; }
   img, video { max-width: 100% !important; height: auto !important; display: inline-block; }
-  table { max-width: 100% !important; width: auto !important; height: auto !important; table-layout: auto !important; border-collapse: collapse; }
-  td, th { max-width: 100% !important; word-break: break-word; white-space: normal !important; }
+  table, tbody, thead, tfoot, tr {
+    max-width: 100% !important; width: auto !important; height: auto !important;
+    table-layout: auto !important; border-collapse: collapse;
+  }
+  td, th {
+    max-width: 100% !important; width: auto !important;
+    word-break: break-word; white-space: normal !important;
+    display: block !important;
+  }
+  /* Restore side-by-side for small tables */
+  @media (min-width: 480px) {
+    td, th { display: table-cell !important; }
+  }
   pre, code { white-space: pre-wrap !important; word-break: break-word; }
   a { color: #DAA520; word-break: break-word; }
   blockquote { border-left: 3px solid #DAA520; margin: 8px 0; padding: 4px 12px; color: #555; }
+  div, span, p, section, article, header, footer, main {
+    max-width: 100% !important;
+  }
   [style*="width"] { max-width: 100% !important; }
-  [width] { max-width: 100% !important; }
+  [width] { max-width: 100% !important; width: auto !important; }
 </style>
 </head>
 <body>${html}</body>
@@ -87,14 +103,16 @@ export function EmailHtmlFrame({ html, className }: Props) {
   }, [srcDoc]);
 
   return (
-    <iframe
-      ref={iframeRef}
-      title="Email content"
-      srcDoc={srcDoc}
-      sandbox="allow-same-origin allow-popups"
-      className={className}
-      style={{ width: "100%", border: 0, display: "block", height }}
-    />
+    <div className="w-full max-w-full overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        title="Email content"
+        srcDoc={srcDoc}
+        sandbox="allow-same-origin allow-popups"
+        className={className}
+        style={{ width: "100%", maxWidth: "100%", border: 0, display: "block", height }}
+      />
+    </div>
   );
 }
 
