@@ -1261,10 +1261,7 @@ ${originalBody}`;
                 {/* Body */}
                 <div className="email-message-content mb-6 overflow-hidden rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
                   {selectedEmail?.body_html ? (
-                    <div 
-                      className="prose prose-sm max-w-none text-sm prose-p:my-1.5 prose-p:text-email-preview-foreground prose-headings:text-email-preview-foreground prose-strong:text-email-preview-foreground prose-li:text-email-preview-foreground prose-a:text-email-preview-link"
-                      dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
-                    />
+                    <EmailHtmlFrame html={selectedEmail.body_html} />
                   ) : (
                     <div className="whitespace-pre-wrap text-sm text-email-preview-foreground leading-relaxed">
                       {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}
