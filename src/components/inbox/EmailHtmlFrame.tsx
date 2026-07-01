@@ -14,7 +14,7 @@ interface Props {
 export function EmailHtmlFrame({ html, className }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(400);
+  const [height, setHeight] = useState(500);
 
   const srcDoc = `<!DOCTYPE html>
 <html lang="ro">
@@ -34,6 +34,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
     word-wrap: break-word;
     overflow-wrap: anywhere;
     overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
     -webkit-text-size-adjust: 100%;
     max-width: 100vw;
   }
@@ -145,7 +147,14 @@ export function EmailHtmlFrame({ html, className }: Props) {
         srcDoc={srcDoc}
         sandbox="allow-same-origin allow-popups"
         className={className}
-        style={{ width: "100%", maxWidth: "100%", border: 0, display: "block", height }}
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          border: 0,
+          display: "block",
+          height,
+          maxHeight: "calc(100dvh - 220px)",
+        }}
       />
     </div>
   );
