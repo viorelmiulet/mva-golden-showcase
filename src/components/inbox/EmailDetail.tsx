@@ -1,3 +1,4 @@
+import { EmailHtmlFrame } from "./EmailHtmlFrame";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -380,16 +381,7 @@ export const EmailDetail = ({
                 >
                   <div className="p-4 sm:p-6 text-email-preview-foreground">
                     {email.body_html ? (
-                      <div 
-                        className="prose prose-sm sm:prose-base max-w-none overflow-x-auto break-words
-                          prose-headings:text-email-preview-foreground prose-headings:font-semibold
-                          prose-p:text-email-preview-foreground prose-p:leading-relaxed
-                          prose-a:text-email-preview-link prose-a:no-underline hover:prose-a:underline
-                          prose-strong:text-email-preview-foreground
-                          prose-li:text-email-preview-foreground
-                          [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:table-auto [&_table]:w-full [&_td]:break-words [&_th]:break-words [&_iframe]:max-w-full"
-                        dangerouslySetInnerHTML={{ __html: email.body_html }}
-                      />
+                      <EmailHtmlFrame html={email.body_html} />
                     ) : (
                       <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base text-email-preview-foreground leading-relaxed">
                         {email.body_plain || email.stripped_text || 'Nu există conținut'}
