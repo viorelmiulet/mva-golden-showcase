@@ -275,10 +275,7 @@ export const GmailEmailDetail = ({
 
             <div className="email-message-content overflow-hidden bg-email-preview-background px-6 py-6 text-email-preview-foreground">
               {email.body_html ? (
-                <div
-                  className="prose prose-sm max-w-none overflow-x-auto break-words prose-p:my-2 prose-p:text-email-preview-foreground prose-headings:text-email-preview-foreground prose-strong:text-email-preview-foreground prose-li:text-email-preview-foreground prose-a:text-email-preview-link prose-a:no-underline hover:prose-a:underline [&_img]:max-w-full [&_img]:h-auto [&_table]:max-w-full [&_table]:table-auto [&_table]:w-full [&_td]:break-words [&_th]:break-words [&_iframe]:max-w-full"
-                  dangerouslySetInnerHTML={{ __html: email.body_html }}
-                />
+                <EmailHtmlFrame html={email.body_html} />
               ) : (
                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
                   {email.body_plain || email.stripped_text || 'Nu există conținut'}
