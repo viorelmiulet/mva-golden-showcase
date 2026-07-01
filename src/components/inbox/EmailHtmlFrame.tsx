@@ -34,6 +34,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
     word-wrap: break-word;
     overflow-wrap: anywhere;
     overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
     -webkit-text-size-adjust: 100%;
     max-width: 100vw;
   }
