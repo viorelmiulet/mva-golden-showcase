@@ -1,3 +1,4 @@
+import { EmailHtmlFrame } from "./EmailHtmlFrame";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
