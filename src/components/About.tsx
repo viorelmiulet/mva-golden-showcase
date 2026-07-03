@@ -6,7 +6,7 @@ const About = () => {
   const { language } = useLanguage();
 
   const achievements = [
-    { icon: Award, number: "15+", label: language === 'ro' ? "Ani experiență" : "Years experience" },
+    { icon: Award, number: "10+", label: language === 'ro' ? "Ani experiență" : "Years experience" },
     { icon: Users, number: "500+", label: language === 'ro' ? "Clienți mulțumiți" : "Happy clients" },
     { icon: TrendingUp, number: "€50M+", label: language === 'ro' ? "Valoare tranzacții" : "Transaction value" }
   ];
