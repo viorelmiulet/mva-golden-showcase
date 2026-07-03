@@ -35,15 +35,7 @@ const About = () => {
     { name: "Renew Residence", url: "/renew-residence" }
   ];
 
-  const testimonials = language === 'ro' ? [
-    { text: "Profesionalism și transparență la cel mai înalt nivel. Recomand cu încredere!", author: "Maria D." },
-    { text: "Am găsit apartamentul perfect cu ajutorul echipei MVA. Mulțumesc!", author: "Andrei P." },
-    { text: "Consultanță excelentă, ne-au ghidat prin fiecare pas al procesului.", author: "Elena T." }
-  ] : [
-    { text: "Professionalism and transparency at the highest level. I recommend with confidence!", author: "Maria D." },
-    { text: "We found the perfect apartment with the MVA team's help. Thank you!", author: "Andrei P." },
-    { text: "Excellent consultancy, they guided us through every step of the process.", author: "Elena T." }
-  ];
+  // Generic testimonials removed — only real Google Reviews are displayed on the site.
 
   return (
     <section id="despre" className="py-16 sm:py-20 lg:py-24" itemScope itemType="https://schema.org/AboutPage">
