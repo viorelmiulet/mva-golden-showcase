@@ -13,19 +13,15 @@ const STORAGE_KEY = "mva_language";
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    // Check localStorage first
+    // Site targets a 100% Romanian audience — always default to Romanian.
+    // Only honor an explicit saved preference (from the language toggle).
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved === "en" || saved === "ro") {
         return saved;
       }
-      // Check browser language
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith("en")) {
-        return "en";
-      }
     }
-    return "ro"; // Default to Romanian
+    return "ro";
   });
 
   const setLanguage = (lang: Language) => {
