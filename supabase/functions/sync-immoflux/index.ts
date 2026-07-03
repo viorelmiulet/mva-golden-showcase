@@ -29,6 +29,39 @@ async function getBaseUrlFromDb(supabase: any): Promise<string> {
   return url;
 }
 
+// ─── Zone sanitizer ─────────────────────────────────────────────────────
+// Immoflux occasionally sends a street/boulevard name (e.g. "Timisoara" for
+// Bd. Timișoara in Bucharest) in the `zona` field. Drop it when the "zone"
+// looks like another Romanian city while our city is Bucharest, or when the
+// street address literally starts with a street prefix followed by that zone.
+const OTHER_RO_CITIES = new Set([
+  'timisoara','cluj','cluj-napoca','constanta','iasi','brasov','sibiu',
+  'craiova','galati','ploiesti','oradea','arad','pitesti','bacau','buzau',
+  'targu-mures','baia-mare','satu-mare','braila','suceava','ramnicu-valcea',
+  'targoviste','focsani','tulcea','deva','alba-iulia'
+]);
+function normalizeRo(s: string) {
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[șş]/g, 's').replace(/[țţ]/g, 't')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function sanitizeZone(rawZone: any, city: any, address: any): string | null {
+  if (!rawZone) return null;
+  const z = String(rawZone).trim();
+  if (!z) return null;
+  const zNorm = normalizeRo(z);
+  const cityNorm = city ? normalizeRo(String(city)) : '';
+  if (cityNorm.startsWith('bucur') && OTHER_RO_CITIES.has(zNorm.replace(/\s+/g, '-'))) return null;
+  if (address) {
+    const aNorm = normalizeRo(String(address));
+    const embedded = new RegExp(`(^|\\W)(bd\\.?|b-dul|bulevardul|str\\.?|strada|sos\\.?|soseaua|calea|aleea|intrarea|splaiul)\\s+${zNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(aNorm);
+    if (embedded) return null;
+  }
+  return z;
+}
+
 // ─── IMMOFLUX code dictionaries (per documentatie-api) ──────────────────
 const UTILITATI_LABELS: Record<string, string> = {
   '10001': 'Curent', '10002': 'Apă', '10003': 'Canalizare', '10004': 'Gaz',
@@ -356,7 +389,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     surface_land: surfaceLand,
     images,
     location: p.adresa || p.zona || p.localitate,
-    zone: p.zona || null,
+    zone: sanitizeZone(p.zona, p.localitate, p.adresa),
     city: p.localitate || null,
     floor: floorInt,
     floor_label: floorLabel,

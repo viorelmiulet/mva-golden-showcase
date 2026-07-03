@@ -6,6 +6,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
 };
 
+// Drop street-derived zones (see sync-immoflux for full explanation).
+const OTHER_RO_CITIES = new Set([
+  'timisoara','cluj','cluj-napoca','constanta','iasi','brasov','sibiu',
+  'craiova','galati','ploiesti','oradea','arad','pitesti','bacau','buzau',
+  'targu-mures','baia-mare','satu-mare','braila','suceava','ramnicu-valcea',
+  'targoviste','focsani','tulcea','deva','alba-iulia'
+]);
+function normalizeRo(s: string) {
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[șş]/g, 's').replace(/[țţ]/g, 't')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function sanitizeZone(rawZone: any, city: any, address: any): string | null {
+  if (!rawZone) return null;
+  const z = String(rawZone).trim();
+  if (!z) return null;
+  const zNorm = normalizeRo(z);
+  const cityNorm = city ? normalizeRo(String(city)) : '';
+  if (cityNorm.startsWith('bucur') && OTHER_RO_CITIES.has(zNorm.replace(/\s+/g, '-'))) return null;
+  if (address) {
+    const aNorm = normalizeRo(String(address));
+    const embedded = new RegExp(`(^|\\W)(bd\\.?|b-dul|bulevardul|str\\.?|strada|sos\\.?|soseaua|calea|aleea|intrarea|splaiul)\\s+${zNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(aNorm);
+    if (embedded) return null;
+  }
+  return z;
+}
+
 interface ImmofluxWebhookPayload {
   event: 'property.created' | 'property.updated' | 'property.deleted' | 'property.status_changed';
   data: {
@@ -133,7 +162,7 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload['data']): Record<string, un
     surface_land: surfaceLand ? Math.round(surfaceLand as number) : null,
     images,
     location: p.zona || p.localitate,
-    zone: p.zona,
+    zone: sanitizeZone(p.zona, p.localitate, (p as any).adresa),
     city: p.localitate,
     floor: floorInt,
     floor_label: floorLabel,
