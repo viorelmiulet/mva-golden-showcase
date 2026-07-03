@@ -389,7 +389,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     surface_land: surfaceLand,
     images,
     location: p.adresa || p.zona || p.localitate,
-    zone: p.zona || null,
+    zone: sanitizeZone(p.zona, p.localitate, p.adresa),
     city: p.localitate || null,
     floor: floorInt,
     floor_label: floorLabel,
