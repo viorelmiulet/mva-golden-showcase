@@ -31,7 +31,7 @@ const badges: TrustBadge[] = [
   },
   {
     icon: Clock3,
-    title: "15+ Ani Experiență",
+    title: "10+ Ani Experiență",
     subtitle: "Pe piața imobiliară",
   },
   {

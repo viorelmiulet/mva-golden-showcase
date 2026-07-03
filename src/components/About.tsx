@@ -6,7 +6,7 @@ const About = () => {
   const { language } = useLanguage();
 
   const achievements = [
-    { icon: Award, number: "15+", label: language === 'ro' ? "Ani experiență" : "Years experience" },
+    { icon: Award, number: "10+", label: language === 'ro' ? "Ani experiență" : "Years experience" },
     { icon: Users, number: "500+", label: language === 'ro' ? "Clienți mulțumiți" : "Happy clients" },
     { icon: TrendingUp, number: "€50M+", label: language === 'ro' ? "Valoare tranzacții" : "Transaction value" }
   ];
@@ -35,15 +35,7 @@ const About = () => {
     { name: "Renew Residence", url: "/renew-residence" }
   ];
 
-  const testimonials = language === 'ro' ? [
-    { text: "Profesionalism și transparență la cel mai înalt nivel. Recomand cu încredere!", author: "Maria D." },
-    { text: "Am găsit apartamentul perfect cu ajutorul echipei MVA. Mulțumesc!", author: "Andrei P." },
-    { text: "Consultanță excelentă, ne-au ghidat prin fiecare pas al procesului.", author: "Elena T." }
-  ] : [
-    { text: "Professionalism and transparency at the highest level. I recommend with confidence!", author: "Maria D." },
-    { text: "We found the perfect apartment with the MVA team's help. Thank you!", author: "Andrei P." },
-    { text: "Excellent consultancy, they guided us through every step of the process.", author: "Elena T." }
-  ];
+  // Generic testimonials removed — only real Google Reviews are displayed on the site.
 
   return (
     <section id="despre" className="py-16 sm:py-20 lg:py-24" itemScope itemType="https://schema.org/AboutPage">
@@ -59,8 +51,8 @@ const About = () => {
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
                 {language === 'ro' 
-                  ? 'Cu peste 15 ani de experiență în domeniul imobiliar premium, MVA IMOBILIARE este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.'
-                  : 'With over 15 years of experience in premium real estate, MVA IMOBILIARE is the leader in selling exceptional properties in western Bucharest.'}
+                  ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.'
+                  : 'Active since 2016, with over 10 years of experience in the premium real estate segment, MVA IMOBILIARE is the leader in selling exceptional properties in western Bucharest.'}
               </p>
             </header>
           </ScrollReveal>
@@ -178,30 +170,7 @@ const About = () => {
             </article>
           </ScrollReveal>
 
-          {/* Social Proof / Testimonials */}
-          <ScrollReveal>
-            <article id="testimonials" className="mb-12 lg:mb-16">
-              <div className="flex items-center gap-3 mb-4">
-                <Award className="w-5 h-5 text-gold" />
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                  {language === 'ro' ? 'Recenzii Clienți' : 'Client Testimonials'}
-                </h2>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {testimonials.map((t, i) => (
-                  <blockquote key={i} className="p-5 glass rounded-2xl border border-border/50">
-                    <div className="flex gap-1 mb-2" aria-label="5 stars">
-                      {[...Array(5)].map((_, s) => (
-                        <span key={s} className="text-gold text-sm">★</span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-foreground italic mb-3">"{t.text}"</p>
-                    <footer className="text-xs text-muted-foreground">— <span>{t.author}</span></footer>
-                  </blockquote>
-                ))}
-              </div>
-            </article>
-          </ScrollReveal>
+          {/* Social Proof / Testimonials — removed generic testimonials; real Google Reviews are shown in the footer carousel. */}
 
           {/* Featured Partners / Websites */}
           <ScrollReveal>
