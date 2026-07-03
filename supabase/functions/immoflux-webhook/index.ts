@@ -162,7 +162,7 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload['data']): Record<string, un
     surface_land: surfaceLand ? Math.round(surfaceLand as number) : null,
     images,
     location: p.zona || p.localitate,
-    zone: p.zona,
+    zone: sanitizeZone(p.zona, p.localitate, (p as any).adresa),
     city: p.localitate,
     floor: floorInt,
     floor_label: floorLabel,
