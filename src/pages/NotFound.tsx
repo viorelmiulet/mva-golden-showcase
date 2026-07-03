@@ -42,7 +42,7 @@ const NotFound = () => {
       <Helmet>
         <meta name="robots" content="noindex, follow" />
         <meta name="googlebot" content="noindex, follow" />
-        <title>404 - Pagina nu a fost găsită | MVA Imobiliare</title>
+        <title>Pagina nu a fost găsită – MVA Imobiliare</title>
         <meta
           name="description"
           content="Pagina căutată nu mai există. Explorează proprietățile MVA Imobiliare sau contactează un consultant."
