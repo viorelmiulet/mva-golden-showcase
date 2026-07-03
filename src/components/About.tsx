@@ -170,30 +170,7 @@ const About = () => {
             </article>
           </ScrollReveal>
 
-          {/* Social Proof / Testimonials */}
-          <ScrollReveal>
-            <article id="testimonials" className="mb-12 lg:mb-16">
-              <div className="flex items-center gap-3 mb-4">
-                <Award className="w-5 h-5 text-gold" />
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                  {language === 'ro' ? 'Recenzii Clienți' : 'Client Testimonials'}
-                </h2>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {testimonials.map((t, i) => (
-                  <blockquote key={i} className="p-5 glass rounded-2xl border border-border/50">
-                    <div className="flex gap-1 mb-2" aria-label="5 stars">
-                      {[...Array(5)].map((_, s) => (
-                        <span key={s} className="text-gold text-sm">★</span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-foreground italic mb-3">"{t.text}"</p>
-                    <footer className="text-xs text-muted-foreground">— <span>{t.author}</span></footer>
-                  </blockquote>
-                ))}
-              </div>
-            </article>
-          </ScrollReveal>
+          {/* Social Proof / Testimonials — removed generic testimonials; real Google Reviews are shown in the footer carousel. */}
 
           {/* Featured Partners / Websites */}
           <ScrollReveal>
