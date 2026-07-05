@@ -8,10 +8,20 @@ const corsHeaders = {
 
 // Drop street-derived zones (see sync-immoflux for full explanation).
 const OTHER_RO_CITIES = new Set([
-  'timisoara','cluj','cluj-napoca','constanta','iasi','brasov','sibiu',
+  'cluj','cluj-napoca','constanta','iasi','brasov','sibiu',
   'craiova','galati','ploiesti','oradea','arad','pitesti','bacau','buzau',
   'targu-mures','baia-mare','satu-mare','braila','suceava','ramnicu-valcea',
   'targoviste','focsani','tulcea','deva','alba-iulia'
+]);
+// See sync-immoflux for full explanation.
+const BUCHAREST_NEIGHBORHOODS = new Set([
+  'berceni','pantelimon','colentina','titan','rahova','dorobanti','aviatorilor',
+  'iancului','timisoara','ghencea','militari','giulesti','crangasi','vitan',
+  'dristor','obor','unirii','floreasca','baneasa','pipera','aviatiei',
+  'drumul taberei','lujerului','grozavesti','politehnica','cotroceni','domenii',
+  'victoriei','romana','universitate','tineretului','giurgiului','sebastian',
+  'orizont','13 septembrie','bucurestii noi','aparatorii patriei',
+  'eroii revolutiei','metalurgiei','valea cascadelor','prelungirea ghencea'
 ]);
 function normalizeRo(s: string) {
   return s.toLowerCase()
@@ -26,7 +36,9 @@ function sanitizeZone(rawZone: any, city: any, address: any): string | null {
   if (!z) return null;
   const zNorm = normalizeRo(z);
   const cityNorm = city ? normalizeRo(String(city)) : '';
-  if (cityNorm.startsWith('bucur') && OTHER_RO_CITIES.has(zNorm.replace(/\s+/g, '-'))) return null;
+  const isBucharest = cityNorm.startsWith('bucur');
+  if (isBucharest && BUCHAREST_NEIGHBORHOODS.has(zNorm)) return z;
+  if (isBucharest && OTHER_RO_CITIES.has(zNorm.replace(/\s+/g, '-'))) return null;
   if (address) {
     const aNorm = normalizeRo(String(address));
     const embedded = new RegExp(`(^|\\W)(bd\\.?|b-dul|bulevardul|str\\.?|strada|sos\\.?|soseaua|calea|aleea|intrarea|splaiul)\\s+${zNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(aNorm);
