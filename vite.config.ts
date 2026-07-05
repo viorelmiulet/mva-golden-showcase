@@ -146,6 +146,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     heroPreloadSync(),
+    mcpPlugin(),
     react(),
     mode === 'development' && componentTagger(),
     // Gzip compression for assets
