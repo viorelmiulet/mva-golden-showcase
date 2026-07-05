@@ -77,3 +77,5 @@ project_id = "fdpandnzblzvamhsoukt"
     verify_jwt = false
   [functions.import-lukian]
     verify_jwt = false
+  [functions.mcp]
+    verify_jwt = false
