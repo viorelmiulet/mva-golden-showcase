@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "mva-imobiliare-mcp",
+      "version": "0.1.0",
+      "title": "MVA Imobiliare MCP"
+    },
+    "tools": [
+      {
+        "name": "search_properties",
+        "title": "Caută proprietăți",
+        "description": "Caută proprietăți imobiliare din catalogul MVA Imobiliare. Filtre opționale: număr camere, preț min/max EUR, locație (text), doar recomandate.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "rooms": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Număr de camere"
+            },
+            "min_price": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Preț minim EUR"
+            },
+            "max_price": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Preț maxim EUR"
+            },
+            "location": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Text căutat în locație (ex: Militari)"
+            },
+            "featured_only": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Doar oferte recomandate"
+            },
+            "limit": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 50
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Număr maxim rezultate (default 10)"
+            }
+          },
+          "required": [
+            "rooms",
+            "min_price",
+            "max_price",
+            "location",
+            "featured_only",
+            "limit"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_property",
+        "title": "Detalii proprietate",
+        "description": "Returnează detaliile complete pentru o proprietate identificată prin slug.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Slug-ul proprietății (ex: garsoniera-45mp-bucuresti-timisoara-439b)"
+            }
+          },
+          "required": [
+            "slug"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_complexes",
+        "title": "Listă ansambluri rezidențiale",
+        "description": "Returnează ansamblurile rezidențiale (complexuri) disponibile în catalog.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Număr maxim rezultate (default 20)"
+            }
+          },
+          "required": [
+            "limit"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "contact_info",
+        "title": "Informații de contact MVA",
+        "description": "Returnează informațiile oficiale de contact ale agenției MVA Imobiliare.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
