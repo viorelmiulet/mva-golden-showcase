@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import viteCompression from "vite-plugin-compression";
 import { syncHeroPreloads } from "./scripts/sync-hero-preloads.mjs";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
 /**
  * Keeps <link rel="preload"> tags in index.html in sync with the
@@ -145,6 +146,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     heroPreloadSync(),
+    mcpPlugin(),
     react(),
     mode === 'development' && componentTagger(),
     // Gzip compression for assets
