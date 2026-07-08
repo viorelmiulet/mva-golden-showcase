@@ -264,7 +264,6 @@ const AppRoutes = () => {
               <Route path="/termeni-conditii" element={<TermeniConditii />} />
               <Route path="/sitemap" element={<Sitemap />} />
               <Route path="/politici-editoriale" element={<PoliticiEditoriale />} />
-              <Route path="/intrebari-frecvente" element={<FAQ />} />
               {seoLandingPresets.map((preset) => (
                 <Route
                   key={preset.slug}
