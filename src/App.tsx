@@ -251,6 +251,7 @@ const AppRoutes = () => {
               <Route path="/facilitati-militari-residence" element={<FacilitatiMilitariResidence />} />
               <Route path="/militari-vs-chiajna-comparatie" element={<MilitariVsChiajna />} />
               <Route path="/viata-in-militari-residence" element={<ViataInMilitariResidence />} />
+              <Route path="/pareri-militari-residence" element={<PareriMilitariResidence />} />
               <Route path="/comparatie-complexuri-militari-chiajna" element={<ComparatieComplexuriMilitariChiajna />} />
               <Route path="/costuri-tranzactie-imobiliara" element={<CosturiTranzactieImobiliara />} />
               <Route path="/ghid-noua-casa-2024" element={<GhidNouaCasa2024 />} />
