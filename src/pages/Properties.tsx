@@ -96,22 +96,46 @@ const Properties = () => {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
 
-  // Initialize filters from URL params (one-directional: URL -> state on mount)
+  // Initialize filters from URL params (one-directional: URL -> state on mount).
+  // Validate against allowed values so invalid params fall back to defaults
+  // instead of silently filtering out every property.
+  const pickAllowed = (raw: string | null, allowed: readonly string[], fallback = "all") =>
+    raw && allowed.includes(raw) ? raw : fallback
+  const pickPositiveInt = (raw: string | null) => {
+    if (!raw) return ""
+    const n = parseInt(raw, 10)
+    return Number.isFinite(n) && n >= 0 ? String(n) : ""
+  }
+  const pickFloor = (raw: string | null) => {
+    if (!raw) return "all"
+    if (raw === "all" || raw === "ground" || raw === "top") return raw
+    const n = parseInt(raw, 10)
+    return Number.isFinite(n) && n >= 0 && n <= 100 ? String(n) : "all"
+  }
+
   const [searchQuery, setSearchQuery] = useState<string>(() => searchParams.get("search") || "")
-  const [priceMin, setPriceMin] = useState<string>(() => searchParams.get("priceMin") || "")
-  const [priceMax, setPriceMax] = useState<string>(() => searchParams.get("priceMax") || "")
-  const [roomsFilter, setRoomsFilter] = useState(() => searchParams.get("rooms") || "all")
+  const [priceMin, setPriceMin] = useState<string>(() => pickPositiveInt(searchParams.get("priceMin")))
+  const [priceMax, setPriceMax] = useState<string>(() => pickPositiveInt(searchParams.get("priceMax")))
+  const [roomsFilter, setRoomsFilter] = useState(() =>
+    pickAllowed(searchParams.get("rooms"), ["all", "1", "2", "3", "4", "5", "6", "7"])
+  )
   const [locationFilter, setLocationFilter] = useState(
     () => searchParams.get("zone") || searchParams.get("location") || "all"
   )
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState(
-    () => searchParams.get("transactionType") || "all"
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState(() =>
+    pickAllowed(searchParams.get("transactionType"), ["all", "sale", "rent"])
   )
   // Advanced filters
-  const [floorFilter, setFloorFilter] = useState(() => searchParams.get("floor") || "all")
-  const [bathroomsFilter, setBathroomsFilter] = useState(() => searchParams.get("bathrooms") || "all")
-  const [yearBuiltFilter, setYearBuiltFilter] = useState(() => searchParams.get("yearBuilt") || "all")
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState(() => searchParams.get("propertyType") || "all")
+  const [floorFilter, setFloorFilter] = useState(() => pickFloor(searchParams.get("floor")))
+  const [bathroomsFilter, setBathroomsFilter] = useState(() =>
+    pickAllowed(searchParams.get("bathrooms"), ["all", "1", "2", "3"])
+  )
+  const [yearBuiltFilter, setYearBuiltFilter] = useState(() =>
+    pickAllowed(searchParams.get("yearBuilt"), ["all", "new", "recent", "2010s", "older"])
+  )
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState(() =>
+    pickAllowed(searchParams.get("propertyType"), ["all", "apartament", "casa", "penthouse", "studio"])
+  )
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
 
   const [showFilters, setShowFilters] = useState(true)
