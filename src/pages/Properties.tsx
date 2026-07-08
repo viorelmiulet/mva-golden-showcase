@@ -601,29 +601,36 @@ const Properties = () => {
                       </div>
                       {/* Price Range Filter */}
                       <div className="col-span-2 lg:col-span-2">
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {t.properties?.price || 'Preț'} (EUR)
-                        </label>
                         <div className="flex gap-1.5 sm:gap-2 items-center">
-                          <Input
-                            id="property-price-min"
-                            type="number"
-                            placeholder="Min"
-                            value={priceMin}
-                            onChange={(e) => setPriceMin(e.target.value)}
-                            className="glass h-9 sm:h-10 text-xs sm:text-sm"
-                            min={0}
-                          />
-                          <span className="text-muted-foreground text-xs sm:text-sm">-</span>
-                          <Input
-                            id="property-price-max"
-                            type="number"
-                            placeholder="Max"
-                            value={priceMax}
-                            onChange={(e) => setPriceMax(e.target.value)}
-                            className="glass h-9 sm:h-10 text-xs sm:text-sm"
-                            min={0}
-                          />
+                          <div className="flex-1 min-w-0">
+                            <label htmlFor="property-price-min" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {t.properties?.price || 'Preț'} {language === 'ro' ? 'min' : 'min'} (EUR)
+                            </label>
+                            <Input
+                              id="property-price-min"
+                              type="number"
+                              placeholder="Min"
+                              value={priceMin}
+                              onChange={(e) => setPriceMin(e.target.value)}
+                              className="glass h-9 sm:h-10 text-xs sm:text-sm"
+                              min={0}
+                            />
+                          </div>
+                          <span className="text-muted-foreground text-xs sm:text-sm self-end mb-2.5 sm:mb-3">-</span>
+                          <div className="flex-1 min-w-0">
+                            <label htmlFor="property-price-max" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                              {t.properties?.price || 'Preț'} {language === 'ro' ? 'max' : 'max'} (EUR)
+                            </label>
+                            <Input
+                              id="property-price-max"
+                              type="number"
+                              placeholder="Max"
+                              value={priceMax}
+                              onChange={(e) => setPriceMax(e.target.value)}
+                              className="glass h-9 sm:h-10 text-xs sm:text-sm"
+                              min={0}
+                            />
+                          </div>
                         </div>
                       </div>
 
