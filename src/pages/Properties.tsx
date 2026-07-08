@@ -36,7 +36,7 @@ import Footer from "@/components/Footer"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 
@@ -91,21 +91,29 @@ const getListingPropertyUrl = (property: any): string => {
 };
 
 const Properties = () => {
+  const [searchParams] = useSearchParams()
+
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
-  
-  const [priceMin, setPriceMin] = useState<string>("")
-  const [priceMax, setPriceMax] = useState<string>("")
-  const [roomsFilter, setRoomsFilter] = useState("all")
-  const [locationFilter, setLocationFilter] = useState("all")
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
+
+  // Initialize filters from URL params (one-directional: URL -> state on mount)
+  const [searchQuery, setSearchQuery] = useState<string>(() => searchParams.get("search") || "")
+  const [priceMin, setPriceMin] = useState<string>(() => searchParams.get("priceMin") || "")
+  const [priceMax, setPriceMax] = useState<string>(() => searchParams.get("priceMax") || "")
+  const [roomsFilter, setRoomsFilter] = useState(() => searchParams.get("rooms") || "all")
+  const [locationFilter, setLocationFilter] = useState(
+    () => searchParams.get("zone") || searchParams.get("location") || "all"
+  )
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState(
+    () => searchParams.get("transactionType") || "all"
+  )
   // Advanced filters
-  const [floorFilter, setFloorFilter] = useState("all")
-  const [bathroomsFilter, setBathroomsFilter] = useState("all")
-  const [yearBuiltFilter, setYearBuiltFilter] = useState("all")
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState("all")
+  const [floorFilter, setFloorFilter] = useState(() => searchParams.get("floor") || "all")
+  const [bathroomsFilter, setBathroomsFilter] = useState(() => searchParams.get("bathrooms") || "all")
+  const [yearBuiltFilter, setYearBuiltFilter] = useState(() => searchParams.get("yearBuilt") || "all")
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState(() => searchParams.get("propertyType") || "all")
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
-  
+
   const [showFilters, setShowFilters] = useState(true)
   const [visibleCount, setVisibleCount] = useState(12)
   const { toast } = useToast()
@@ -260,7 +268,23 @@ const Properties = () => {
 
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
+    const normalize = (s: string) =>
+      s.toLowerCase()
+        .replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i')
+        .replace(/ș/g, 's').replace(/ş/g, 's').replace(/ț/g, 't').replace(/ţ/g, 't')
+    const queryTokens = normalize(searchQuery.trim())
+      .split(/\s+/)
+      .filter(Boolean)
+
     return properties.filter(property => {
+      // Free-text search: match every token against title/description/zone/location/city
+      if (queryTokens.length > 0) {
+        const haystack = normalize(
+          `${property.title || ''} ${property.description || ''} ${property.zone || ''} ${property.location || ''} ${property.city || ''} ${property.project_name || ''}`
+        )
+        if (!queryTokens.every(tok => haystack.includes(tok))) return false
+      }
+
       // Price range filter
       const minPriceValue = priceMin ? parseInt(priceMin) : null
       const maxPriceValue = priceMax ? parseInt(priceMax) : null
@@ -354,7 +378,7 @@ const Properties = () => {
 
       return true
     })
-  }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
+  }, [properties, searchQuery, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
 
   // Paginated properties for rendering
   const visibleProperties = useMemo(() => {
@@ -363,6 +387,7 @@ const Properties = () => {
 
   // Reset visible count when filters change
   const resetFilters = () => {
+    setSearchQuery("")
     setPriceMin("")
     setPriceMax("")
     setRoomsFilter("all")
@@ -516,6 +541,22 @@ const Properties = () => {
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-3 sm:p-4 md:p-6">
+                    {/* Free-text Search */}
+                    <div className="mb-3 sm:mb-4">
+                      <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                        {language === 'ro' ? 'Căutare' : 'Search'}
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        <Input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder={language === 'ro' ? 'Ex: garsonieră militari, 2 camere pipera...' : 'e.g. studio militari, 2 rooms pipera...'}
+                          className="glass h-9 sm:h-10 text-xs sm:text-sm pl-9"
+                        />
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                       {/* Transaction Type Filter */}
                       <div className="col-span-2 sm:col-span-1">
