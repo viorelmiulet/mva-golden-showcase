@@ -242,6 +242,7 @@ const AppRoutes = () => {
               <Route path="/news" element={<News />} />
               <Route path="/news/:slug" element={<NewsDetail />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/intrebari-frecvente" element={<Navigate to="/faq" replace />} />
               <Route path="/calculator-credit" element={<CalculatorCredit />} />
               
               <Route path="/militari-residence" element={<MilitariResidence />} />
