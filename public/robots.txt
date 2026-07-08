@@ -3,22 +3,35 @@
 
 User-agent: *
 Allow: /
-Allow: /blog
-Allow: /blog/
-Allow: /news
-Allow: /news/
+
+# Public sections (explicit allow for clarity)
 Allow: /proprietati
 Allow: /proprietati/
 Allow: /proprietate/
 Allow: /complexe
 Allow: /complexe/
-Allow: /complexuri-rezidentiale
+Allow: /blog
+Allow: /blog/
+Allow: /news
+Allow: /news/
 Allow: /militari-residence
 Allow: /renew-residence
 Allow: /eurocasa-residence
+Allow: /pareri-militari-residence
+Allow: /pareri
+Allow: /garsoniere-militari-residence
+Allow: /ghid-militari-residence
+Allow: /facilitati-militari-residence
+Allow: /viata-in-militari-residence
+Allow: /militari-vs-chiajna-comparatie
+Allow: /comparatie-complexuri-militari-chiajna
+Allow: /top-ansambluri-rezidentiale-sector-6
+Allow: /costuri-tranzactie-imobiliara
+Allow: /ghid-noua-casa-2024
+Allow: /faq
+Allow: /sitemap
 Allow: /sitemap.xml
-Allow: /news-sitemap.xml
-Allow: /sitemap-images.xml
+Allow: /sitemap-index.xml
 
 # Private / non-indexable areas (mirror X-Robots-Tag: noindex)
 Disallow: /admin
@@ -69,11 +82,5 @@ Allow: /news/
 Disallow: /admin
 Disallow: /admin/
 
-# Sitemaps (canonical absolute URLs)
-# Sitemap index — sursă principală pentru crawlere
+# Sitemaps (canonical absolute URL)
 Sitemap: https://www.mvaimobiliare.ro/sitemap-index.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
-Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap
-Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-news-sitemap
-Sitemap: https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/generate-sitemap-images
-
