@@ -36,7 +36,7 @@ import Footer from "@/components/Footer"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { Helmet } from "react-helmet-async"
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
 
@@ -91,21 +91,29 @@ const getListingPropertyUrl = (property: any): string => {
 };
 
 const Properties = () => {
+  const [searchParams] = useSearchParams()
+
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
-  
-  const [priceMin, setPriceMin] = useState<string>("")
-  const [priceMax, setPriceMax] = useState<string>("")
-  const [roomsFilter, setRoomsFilter] = useState("all")
-  const [locationFilter, setLocationFilter] = useState("all")
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
+
+  // Initialize filters from URL params (one-directional: URL -> state on mount)
+  const [searchQuery, setSearchQuery] = useState<string>(() => searchParams.get("search") || "")
+  const [priceMin, setPriceMin] = useState<string>(() => searchParams.get("priceMin") || "")
+  const [priceMax, setPriceMax] = useState<string>(() => searchParams.get("priceMax") || "")
+  const [roomsFilter, setRoomsFilter] = useState(() => searchParams.get("rooms") || "all")
+  const [locationFilter, setLocationFilter] = useState(
+    () => searchParams.get("zone") || searchParams.get("location") || "all"
+  )
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState(
+    () => searchParams.get("transactionType") || "all"
+  )
   // Advanced filters
-  const [floorFilter, setFloorFilter] = useState("all")
-  const [bathroomsFilter, setBathroomsFilter] = useState("all")
-  const [yearBuiltFilter, setYearBuiltFilter] = useState("all")
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState("all")
+  const [floorFilter, setFloorFilter] = useState(() => searchParams.get("floor") || "all")
+  const [bathroomsFilter, setBathroomsFilter] = useState(() => searchParams.get("bathrooms") || "all")
+  const [yearBuiltFilter, setYearBuiltFilter] = useState(() => searchParams.get("yearBuilt") || "all")
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState(() => searchParams.get("propertyType") || "all")
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
-  
+
   const [showFilters, setShowFilters] = useState(true)
   const [visibleCount, setVisibleCount] = useState(12)
   const { toast } = useToast()
