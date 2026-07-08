@@ -541,6 +541,22 @@ const Properties = () => {
               {/* Advanced Filters */}
                 <Card className="glass border-[0.5px]">
                   <CardContent className="p-3 sm:p-4 md:p-6">
+                    {/* Free-text Search */}
+                    <div className="mb-3 sm:mb-4">
+                      <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
+                        {language === 'ro' ? 'Căutare' : 'Search'}
+                      </label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        <Input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder={language === 'ro' ? 'Ex: garsonieră militari, 2 camere pipera...' : 'e.g. studio militari, 2 rooms pipera...'}
+                          className="glass h-9 sm:h-10 text-xs sm:text-sm pl-9"
+                        />
+                      </div>
+                    </div>
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                       {/* Transaction Type Filter */}
                       <div className="col-span-2 sm:col-span-1">
