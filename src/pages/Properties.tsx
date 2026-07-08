@@ -268,7 +268,23 @@ const Properties = () => {
 
   // Filter properties based on filters
   const filteredProperties = useMemo(() => {
+    const normalize = (s: string) =>
+      s.toLowerCase()
+        .replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i')
+        .replace(/ș/g, 's').replace(/ş/g, 's').replace(/ț/g, 't').replace(/ţ/g, 't')
+    const queryTokens = normalize(searchQuery.trim())
+      .split(/\s+/)
+      .filter(Boolean)
+
     return properties.filter(property => {
+      // Free-text search: match every token against title/description/zone/location/city
+      if (queryTokens.length > 0) {
+        const haystack = normalize(
+          `${property.title || ''} ${property.description || ''} ${property.zone || ''} ${property.location || ''} ${property.city || ''} ${property.project_name || ''}`
+        )
+        if (!queryTokens.every(tok => haystack.includes(tok))) return false
+      }
+
       // Price range filter
       const minPriceValue = priceMin ? parseInt(priceMin) : null
       const maxPriceValue = priceMax ? parseInt(priceMax) : null
@@ -362,7 +378,7 @@ const Properties = () => {
 
       return true
     })
-  }, [properties, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
+  }, [properties, searchQuery, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
 
   // Paginated properties for rendering
   const visibleProperties = useMemo(() => {
@@ -371,6 +387,7 @@ const Properties = () => {
 
   // Reset visible count when filters change
   const resetFilters = () => {
+    setSearchQuery("")
     setPriceMin("")
     setPriceMax("")
     setRoomsFilter("all")
