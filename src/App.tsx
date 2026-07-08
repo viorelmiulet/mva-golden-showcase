@@ -71,6 +71,7 @@ const GhidMilitariResidence = lazy(() => import("./pages/GhidMilitariResidence")
 const FacilitatiMilitariResidence = lazy(() => import("./pages/FacilitatiMilitariResidence"));
 const MilitariVsChiajna = lazy(() => import("./pages/MilitariVsChiajna"));
 const ViataInMilitariResidence = lazy(() => import("./pages/ViataInMilitariResidence"));
+const PareriMilitariResidence = lazy(() => import("./pages/PareriMilitariResidence"));
 const ComparatieComplexuriMilitariChiajna = lazy(() => import("./pages/ComparatieComplexuriMilitariChiajna"));
 const CosturiTranzactieImobiliara = lazy(() => import("./pages/CosturiTranzactieImobiliara"));
 const GhidNouaCasa2024 = lazy(() => import("./pages/GhidNouaCasa2024"));
