@@ -224,6 +224,7 @@ const AppRoutes = () => {
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
                 <Route path="immoflux" element={<ImmofluxDashboard />} />
                 <Route path="facebook-queue" element={<FacebookQueuePage />} />
+                <Route path="facebook-groups" element={<FacebookGroupsPage />} />
                 <Route path="gestiune-chirii" element={<RentalLayout />}>
                   <Route index element={<RentalDashboard />} />
                   <Route path="proprietati" element={<RentalProperties />} />
