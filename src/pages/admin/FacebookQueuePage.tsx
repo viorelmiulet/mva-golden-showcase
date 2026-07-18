@@ -107,6 +107,7 @@ const FacebookQueuePage = () => {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState<Record<string, { errors?: boolean; msg?: boolean }>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | QueueRow["status"]>("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
