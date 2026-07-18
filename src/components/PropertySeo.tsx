@@ -136,7 +136,7 @@ const PropertySeo = ({
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <link rel="canonical" href={url} />
 
-      <meta property="og:type" content={isSale ? "product" : "website"} />
+      <meta property="og:type" content="website" />
       <meta property="og:site_name" content="MVA Imobiliare" />
       <meta property="og:locale" content="ro_RO" />
       <meta property="og:url" content={url} />
