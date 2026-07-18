@@ -92,6 +92,7 @@ const InboxPage = lazy(() => import("./pages/admin/InboxPage"));
 const VoiceAgentPage = lazy(() => import("./pages/admin/VoiceAgentPage"));
 const ImmofluxDashboard = lazy(() => import("./pages/admin/ImmofluxDashboard"));
 const FacebookQueuePage = lazy(() => import("./pages/admin/FacebookQueuePage"));
+const FacebookGroupsPage = lazy(() => import("./pages/admin/FacebookGroupsPage"));
 const RentalLayout = lazy(() => import("./pages/admin/rental/RentalLayout"));
 const RentalDashboard = lazy(() => import("./pages/admin/rental/RentalDashboard"));
 const RentalProperties = lazy(() => import("./pages/admin/rental/RentalProperties"));
@@ -223,6 +224,7 @@ const AppRoutes = () => {
                 <Route path="agent-vocal" element={<VoiceAgentPage />} />
                 <Route path="immoflux" element={<ImmofluxDashboard />} />
                 <Route path="facebook-queue" element={<FacebookQueuePage />} />
+                <Route path="facebook-groups" element={<FacebookGroupsPage />} />
                 <Route path="gestiune-chirii" element={<RentalLayout />}>
                   <Route index element={<RentalDashboard />} />
                   <Route path="proprietati" element={<RentalProperties />} />
