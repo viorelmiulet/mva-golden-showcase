@@ -271,6 +271,33 @@ serve(async (req) => {
       });
     }
 
+    // Withdrawn / retras / inactive status → hard-delete, do not upsert.
+    const rawStatus = (payload.data.status || '').toString().toLowerCase().trim();
+    const isWithdrawn = rawStatus.includes('retras')
+      || rawStatus.includes('inactiv')
+      || rawStatus.includes('inactive')
+      || rawStatus.includes('unavailable')
+      || rawStatus.includes('indisponibil')
+      || rawStatus.includes('expirat')
+      || rawStatus.includes('expired');
+
+    if (isWithdrawn) {
+      const { error: delErr } = await supabase
+        .from('catalog_offers')
+        .delete()
+        .eq('external_id', externalId);
+      if (delErr) {
+        console.error('[immoflux-webhook] Delete withdrawn failed:', delErr.message);
+        return new Response(JSON.stringify({ success: false, error: delErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, action: 'deleted_withdrawn', external_id: externalId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // For created, updated, status_changed → upsert
     const mapped = mapToCatalogOffer(payload.data);
     const { error, data } = await supabase
