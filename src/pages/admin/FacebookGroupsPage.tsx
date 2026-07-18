@@ -1,109 +1,126 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { adminApi } from "@/lib/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, Plus, Trash2, ExternalLink, Save, Download, Chrome } from "lucide-react";
+import { Facebook, Plus, Trash2, ExternalLink, Download, Chrome, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
-
-const SETTINGS_KEY = "facebook_groups";
 
 type FbGroup = {
   id: string;
   name: string;
   url: string;
   active: boolean;
-  notes?: string;
+  notes: string | null;
+  created_at?: string;
+  updated_at?: string;
 };
+
+const EMPTY_GROUPS: FbGroup[] = [];
+const fbGroupsTable = () => (supabase as any).from("fb_groups");
 
 const isValidFacebookUrl = (url: string) =>
   /^https?:\/\/(www\.|m\.|web\.)?facebook\.com\/(groups\/[^\s]+|[^\s]+)/i.test(url.trim());
 
-const genId = () =>
-  (globalThis.crypto?.randomUUID?.() ?? `g_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
-
-const parseGroups = (raw: string | null | undefined): FbGroup[] => {
-  if (!raw) return [];
-  try {
-    const arr = JSON.parse(raw);
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .filter((g) => g && typeof g === "object" && typeof g.url === "string")
-      .map((g: any) => ({
-        id: String(g.id ?? genId()),
-        name: String(g.name ?? "").trim() || "Grup fără nume",
-        url: String(g.url).trim(),
-        active: g.active !== false,
-        notes: g.notes ? String(g.notes) : undefined,
-      }));
-  } catch {
-    return [];
-  }
-};
-
 export default function FacebookGroupsPage() {
   const queryClient = useQueryClient();
-  const [groups, setGroups] = useState<FbGroup[]>([]);
-  const [dirty, setDirty] = useState(false);
+  const [editingNames, setEditingNames] = useState<Record<string, string>>({});
   const [draft, setDraft] = useState<{ name: string; url: string; notes: string }>({
     name: "",
     url: "",
     notes: "",
   });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["site_settings", SETTINGS_KEY],
+  const { data: groupsData, isLoading } = useQuery<FbGroup[]>({
+    queryKey: ["fb_groups"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", SETTINGS_KEY)
-        .maybeSingle();
+      const { data, error } = await fbGroupsTable()
+        .select("id, name, url, active, notes, created_at, updated_at")
+        .order("created_at", { ascending: true });
       if (error) throw error;
-      return data?.value ?? null;
+      return (data ?? []) as FbGroup[];
     },
   });
+  const groups = groupsData ?? EMPTY_GROUPS;
 
   useEffect(() => {
-    setGroups(parseGroups(data));
-    setDirty(false);
-  }, [data]);
+    setEditingNames(
+      Object.fromEntries(groups.map((group) => [group.id, group.name]))
+    );
+  }, [groups]);
 
-  const saveMutation = useMutation({
-    mutationFn: async (next: FbGroup[]) => {
-      const result = await adminApi.upsert(
-        "site_settings",
-        { key: SETTINGS_KEY, value: JSON.stringify(next), updated_at: new Date().toISOString() },
-        "key"
-      );
-
-      if (!result.success) {
-        throw new Error(result.error || "Nu s-a putut salva lista");
+  const addMutation = useMutation({
+    mutationFn: async (payload: { name: string; url: string; notes: string }) => {
+      const { error } = await fbGroupsTable()
+        .insert({
+          name: payload.name,
+          url: payload.url,
+          active: true,
+          notes: payload.notes || null,
+        })
+        .select("id")
+        .single();
+      if (error) {
+        throw new Error(error.message || "Nu s-a putut adăuga grupul");
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["site_settings", SETTINGS_KEY] });
-      setDirty(false);
-      toast.success("Lista de grupuri a fost salvată");
+      queryClient.invalidateQueries({ queryKey: ["fb_groups"] });
+      setDraft({ name: "", url: "", notes: "" });
+      toast.success("Grupul a fost salvat");
     },
     onError: (err) => {
       console.error(err);
-      toast.error("Nu s-a putut salva lista");
+      toast.error(err instanceof Error ? err.message : "Nu s-a putut adăuga grupul");
     },
   });
 
-  const updateGroups = (next: FbGroup[]) => {
-    setGroups(next);
-    setDirty(true);
-  };
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<Pick<FbGroup, "name" | "active" | "notes">> }) => {
+      const { error } = await fbGroupsTable()
+        .update(patch)
+        .eq("id", id)
+        .select("id")
+        .single();
+      if (error) {
+        throw new Error(error.message || "Nu s-a putut actualiza grupul");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fb_groups"] });
+      toast.success("Grupul a fost actualizat");
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Nu s-a putut actualiza grupul");
+    },
+  });
 
-  const handleAdd = () => {
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await fbGroupsTable()
+        .delete()
+        .eq("id", id);
+      if (error) {
+        throw new Error(error.message || "Nu s-a putut șterge grupul");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fb_groups"] });
+      toast.success("Grupul a fost șters");
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Nu s-a putut șterge grupul");
+    },
+  });
+
+  const handleAdd = async () => {
     const name = draft.name.trim();
     const url = draft.url.trim();
     if (!name || !url) {
@@ -118,25 +135,48 @@ export default function FacebookGroupsPage() {
       toast.error("Acest grup există deja în listă");
       return;
     }
-    updateGroups([
-      ...groups,
-      { id: genId(), name, url, active: true, notes: draft.notes.trim() || undefined },
-    ]);
-    setDraft({ name: "", url: "", notes: "" });
+    try {
+      await addMutation.mutateAsync({ name, url, notes: draft.notes.trim() });
+    } catch {
+      // Error toast is handled by the mutation.
+    }
   };
 
-  const handleToggle = (id: string, active: boolean) =>
-    updateGroups(groups.map((g) => (g.id === id ? { ...g, active } : g)));
+  const handleToggle = async (id: string, active: boolean) => {
+    try {
+      await updateMutation.mutateAsync({ id, patch: { active } });
+    } catch {
+      // Error toast is handled by the mutation.
+    }
+  };
 
-  const handleRename = (id: string, name: string) =>
-    updateGroups(groups.map((g) => (g.id === id ? { ...g, name } : g)));
+  const handleRename = async (group: FbGroup) => {
+    const name = (editingNames[group.id] ?? "").trim();
+    if (!name) {
+      setEditingNames((prev) => ({ ...prev, [group.id]: group.name }));
+      toast.error("Numele grupului nu poate fi gol");
+      return;
+    }
+    if (name !== group.name) {
+      try {
+        await updateMutation.mutateAsync({ id: group.id, patch: { name } });
+      } catch {
+        // Error toast is handled by the mutation.
+      }
+    }
+  };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Ștergi acest grup din listă?")) return;
-    updateGroups(groups.filter((g) => g.id !== id));
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch {
+      // Error toast is handled by the mutation.
+    }
   };
 
   const activeCount = groups.filter((g) => g.active).length;
+  const isSaving = addMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-6 space-y-6">
@@ -155,14 +195,12 @@ export default function FacebookGroupsPage() {
             Gestionează lista de grupuri unde vor fi publicate ofertele din coada Facebook.
           </p>
         </div>
-        <Button
-          onClick={() => saveMutation.mutate(groups)}
-          disabled={!dirty || saveMutation.isPending}
-          className="min-h-10"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {saveMutation.isPending ? "Se salvează…" : "Salvează lista"}
-        </Button>
+        {isSaving && (
+          <Badge variant="secondary" className="min-h-10 gap-2 px-3">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Se salvează…
+          </Badge>
+        )}
       </div>
 
       <Card className="border-primary/30">
@@ -237,9 +275,9 @@ export default function FacebookGroupsPage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <Button onClick={handleAdd} className="w-full sm:w-auto min-h-10">
+            <Button onClick={handleAdd} disabled={addMutation.isPending} className="w-full sm:w-auto min-h-10">
               <Plus className="mr-2 h-4 w-4" />
-              Adaugă în listă
+              {addMutation.isPending ? "Se adaugă…" : "Adaugă în listă"}
             </Button>
           </div>
         </CardContent>
@@ -283,8 +321,16 @@ export default function FacebookGroupsPage() {
                 <li key={g.id} className="py-3 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <div className="flex-1 min-w-0 space-y-1">
                     <Input
-                      value={g.name}
-                      onChange={(e) => handleRename(g.id, e.target.value)}
+                      value={editingNames[g.id] ?? g.name}
+                      onChange={(e) =>
+                        setEditingNames((prev) => ({ ...prev, [g.id]: e.target.value }))
+                      }
+                      onBlur={() => handleRename(g)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.currentTarget.blur();
+                        }
+                      }}
                       className="font-medium"
                     />
                     <a
@@ -305,6 +351,7 @@ export default function FacebookGroupsPage() {
                       <Switch
                         checked={g.active}
                         onCheckedChange={(v) => handleToggle(g.id, v)}
+                        disabled={updateMutation.isPending}
                         aria-label={`Activează ${g.name}`}
                       />
                       <span className="text-xs text-muted-foreground w-14">
@@ -315,6 +362,7 @@ export default function FacebookGroupsPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(g.id)}
+                      disabled={deleteMutation.isPending}
                       className="h-10 w-10 text-destructive hover:text-destructive"
                       aria-label={`Șterge ${g.name}`}
                     >
@@ -328,11 +376,6 @@ export default function FacebookGroupsPage() {
         </CardContent>
       </Card>
 
-      {dirty && (
-        <p className="text-xs text-muted-foreground text-center">
-          Ai modificări nesalvate. Apasă „Salvează lista" pentru a le trimite pe server.
-        </p>
-      )}
     </div>
   );
 }

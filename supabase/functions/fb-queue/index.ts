@@ -52,8 +52,25 @@ Deno.serve(async (req) => {
   }
 });
 
+async function getActiveGroups(fallbackGroups: unknown): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("fb_groups")
+    .select("url")
+    .eq("active", true)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  const savedGroups = (data ?? [])
+    .map((group) => String(group.url ?? "").trim())
+    .filter(Boolean);
+
+  if (savedGroups.length > 0) return savedGroups;
+  return Array.isArray(fallbackGroups) ? fallbackGroups.map((g) => String(g).trim()).filter(Boolean) : [];
+}
+
 async function handleNext(body: { groups?: string[] }): Promise<Response> {
-  const groups = Array.isArray(body?.groups) ? body.groups.filter(Boolean) : [];
+  const groups = await getActiveGroups(body?.groups);
   if (groups.length === 0) return json(null);
 
   const { data: rows, error } = await supabase

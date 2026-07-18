@@ -121,8 +121,7 @@ async function tick(opts = {}) {
     return;
   }
   if (!cfg.groups.length) {
-    await log('Configurare lipsă: adaugă URL-urile grupurilor în Setări.');
-    return;
+    await log('Nu există grupuri locale în extensie; folosesc grupurile active salvate în admin.');
   }
   if (st.busy) {
     if (force) {
