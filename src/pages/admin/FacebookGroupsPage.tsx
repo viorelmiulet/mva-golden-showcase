@@ -26,9 +26,6 @@ const fbGroupsTable = () => (supabase as any).from("fb_groups");
 const isValidFacebookUrl = (url: string) =>
   /^https?:\/\/(www\.|m\.|web\.)?facebook\.com\/(groups\/[^\s]+|[^\s]+)/i.test(url.trim());
 
-const genId = () =>
-  (globalThis.crypto?.randomUUID?.() ?? `g_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
-
 export default function FacebookGroupsPage() {
   const queryClient = useQueryClient();
   const [editingNames, setEditingNames] = useState<Record<string, string>>({});
