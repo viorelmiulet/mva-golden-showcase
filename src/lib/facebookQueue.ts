@@ -143,65 +143,65 @@ export const buildFacebookMessage = (o: OfferLike): string => {
   const lines: string[] = [];
 
   const title = (o.title || "").trim();
-  if (title) lines.push(title);
+  if (title) lines.push(`🏠 ${title}`);
 
   const price = o.price_min ?? o.price_max;
   const surface = o.surface_min ?? o.surface_max;
   if (price && Number(price) > 0) {
-    lines.push(`${formatRoLocaleNumber(Number(price))} EUR`);
+    lines.push(`💶 ${formatRoLocaleNumber(Number(price))} EUR`);
   }
 
-  if (o.rooms && Number(o.rooms) > 0) lines.push(`Camere: ${o.rooms}`);
-  if (o.bathrooms && Number(o.bathrooms) > 0) lines.push(`Băi: ${o.bathrooms}`);
-  if (surface && Number(surface) > 0) lines.push(`Suprafață utilă: ${surface} mp`);
+  if (o.rooms && Number(o.rooms) > 0) lines.push(`🛏️ Camere: ${o.rooms}`);
+  if (o.bathrooms && Number(o.bathrooms) > 0) lines.push(`🛁 Băi: ${o.bathrooms}`);
+  if (surface && Number(surface) > 0) lines.push(`📐 Suprafață utilă: ${surface} mp`);
 
   const floor = formatFloor(o);
-  if (floor) lines.push(`Etaj: ${floor}`);
+  if (floor) lines.push(`🏢 Etaj: ${floor}`);
 
   if (o.total_floors && Number(o.total_floors) > 0) {
-    lines.push(`Nr. nivele: ${o.total_floors}`);
+    lines.push(`🏗️ Nr. nivele: ${o.total_floors}`);
   }
-  if (o.balconies && Number(o.balconies) > 0) lines.push(`Balcoane: ${o.balconies}`);
-  if (o.year_built && Number(o.year_built) > 0) lines.push(`An construcție: ${o.year_built}`);
+  if (o.balconies && Number(o.balconies) > 0) lines.push(`🌇 Balcoane: ${o.balconies}`);
+  if (o.year_built && Number(o.year_built) > 0) lines.push(`📅 An construcție: ${o.year_built}`);
 
   const layout = cleanLabel(o.compartment);
-  if (layout) lines.push(`Compartimentare: ${layout}`);
+  if (layout) lines.push(`🧭 Compartimentare: ${layout}`);
 
   const comfort = cleanLabel(o.comfort);
-  if (comfort) lines.push(`Confort: ${comfort}`);
+  if (comfort) lines.push(`✨ Confort: ${comfort}`);
 
   const structure = cleanLabel(o.build_materials);
-  if (structure) lines.push(`Structură: ${structure}`);
+  if (structure) lines.push(`🧱 Structură: ${structure}`);
 
   const furnished = mapFurnished(o.furnished);
-  if (furnished) lines.push(`Mobilat: ${furnished}`);
+  if (furnished) lines.push(`🛋️ Mobilat: ${furnished}`);
 
   const zone = cleanLabel(o.zone);
-  if (zone) lines.push(`Zonă: ${zone}`);
+  if (zone) lines.push(`📍 Zonă: ${zone}`);
 
   const city = cleanLabel(o.city);
-  if (city) lines.push(`Oraș: ${city}`);
+  if (city) lines.push(`🏙️ Oraș: ${city}`);
 
   const loc = cleanLabel(o.location);
-  if (loc) lines.push(`Locație: ${loc}`);
+  if (loc) lines.push(`🗺️ Locație: ${loc}`);
 
   if (o.transaction_type) {
     const tt = String(o.transaction_type).toLowerCase();
     if (tt === "rent" || /închiri|inchiri/.test(tt)) {
-      lines.push("Tip tranzacție: Închiriere");
+      lines.push("🤝 Tip tranzacție: Închiriere");
     } else if (tt === "sale" || /vânzare|vanzare/.test(tt)) {
-      lines.push("Tip tranzacție: Vânzare");
+      lines.push("🏷️ Tip tranzacție: Vânzare");
     }
   }
 
   const utilities = collectUtilities(o);
-  if (utilities.length) lines.push(`Utilități: ${utilities.join(" • ")}`);
+  if (utilities.length) lines.push(`🔌 Utilități: ${utilities.join(" • ")}`);
 
   const finishes = collectFinishes(o);
-  if (finishes.length) lines.push(`Finisaje: ${finishes.join(" • ")}`);
+  if (finishes.length) lines.push(`🎨 Finisaje: ${finishes.join(" • ")}`);
 
   lines.push(PHONE_LINE);
-  lines.push(`Detalii: ${resolveOfferUrl(o)}`);
+  lines.push(`🔗 Detalii: ${resolveOfferUrl(o)}`);
 
   return lines.join("\n");
 };
