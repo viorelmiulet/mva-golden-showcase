@@ -148,13 +148,7 @@ export const buildFacebookMessage = (o: OfferLike): string => {
   const price = o.price_min ?? o.price_max;
   const surface = o.surface_min ?? o.surface_max;
   if (price && Number(price) > 0) {
-    const priceStr = `${formatRoLocaleNumber(Number(price))} EUR`;
-    if (surface && Number(surface) > 0) {
-      const perMp = Number(price) / Number(surface);
-      lines.push(`${priceStr} (${formatRoLocaleNumber(perMp, 2)} EUR/mp)`);
-    } else {
-      lines.push(priceStr);
-    }
+    lines.push(`${formatRoLocaleNumber(Number(price))} EUR`);
   }
 
   if (o.rooms && Number(o.rooms) > 0) lines.push(`Camere: ${o.rooms}`);
