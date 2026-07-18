@@ -7,7 +7,8 @@
       body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #1a1a1a; color: #f5f5f5; padding: 24px; max-width: 520px; margin: 0 auto; }
       h1 { color: #DAA520; margin-top: 0; }
       label { display: block; font-size: 13px; margin: 14px 0 4px; font-weight: 600; }
-      input { width: 100%; box-sizing: border-box; padding: 8px 10px; background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 6px; color: #f5f5f5; font-size: 13px; }
+      input, textarea { width: 100%; box-sizing: border-box; padding: 8px 10px; background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 6px; color: #f5f5f5; font-size: 13px; }
+      textarea { min-height: 120px; resize: vertical; line-height: 1.4; }
       .row { display: flex; gap: 12px; }
       .row > div { flex: 1; }
       button { margin-top: 20px; padding: 10px 16px; background: #DAA520; color: #1a1a1a; font-weight: 700; border: 0; border-radius: 6px; cursor: pointer; }
@@ -23,6 +24,9 @@
 
     <label for="apiKey">API Key (X-Api-Key)</label>
     <input id="apiKey" type="password" placeholder="FB_QUEUE_API_KEY" />
+
+    <label for="groups">URL-uri grupuri Facebook active</label>
+    <textarea id="groups" placeholder="https://www.facebook.com/groups/...&#10;https://www.facebook.com/groups/..."></textarea>
 
     <div class="row">
       <div>
@@ -43,7 +47,7 @@
     <span id="savedMsg" class="ok" style="display:none">✓ Salvat</span>
 
     <div class="note">
-      Grupurile țintă se gestionează din admin, la <strong>/admin/facebook-groups</strong>.
+      Copiază aici URL-urile grupurilor active din admin, de la <strong>/admin/facebook-groups</strong>, câte unul pe linie.
     </div>
 
     <script src="options.js"></script>

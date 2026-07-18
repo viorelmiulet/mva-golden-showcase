@@ -15,6 +15,7 @@ Extensie Chrome (Manifest V3) care postează automat oferte imobiliare MVA în g
 2. Completează:
    - **URL Edge Function** — baza (fără `/next` sau `/result`), ex: `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/fb-queue`
    - **API Key** — valoarea `FB_QUEUE_API_KEY` (aceeași salvată în edge function secrets)
+   - **URL-uri grupuri Facebook active** — copiază din admin grupurile active, câte unul pe linie
    - **Delay minim / maxim (min)** — pauza aleatoare între postări
    - **Max postări/zi** — limită de siguranță
 3. Salvează.
