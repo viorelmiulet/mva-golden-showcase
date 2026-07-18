@@ -265,7 +265,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg && msg.type === 'MVA_RUN_NOW') {
     (async () => {
       try {
-        await tick();
+        await tick({ force: true });
         sendResponse({ ok: true });
       } catch (e) {
         sendResponse({ ok: false, error: e.message || String(e) });
