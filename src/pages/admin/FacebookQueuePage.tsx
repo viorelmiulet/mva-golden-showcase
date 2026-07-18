@@ -174,6 +174,35 @@ const FacebookQueuePage = () => {
     queryClient.invalidateQueries({ queryKey: ["fb_post_queue"] });
   };
 
+  const filteredRows = useMemo(() => {
+    if (!rows) return [];
+    const q = search.trim().toLowerCase();
+    const fromTs = dateFrom ? new Date(`${dateFrom}T00:00:00`).getTime() : null;
+    const toTs = dateTo ? new Date(`${dateTo}T23:59:59.999`).getTime() : null;
+    return rows.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      const ts = new Date(r.created_at).getTime();
+      if (fromTs !== null && ts < fromTs) return false;
+      if (toTs !== null && ts > toTs) return false;
+      if (q) {
+        const title = (r.offer?.title || "").toLowerCase();
+        const project = (r.offer?.project_name || "").toLowerCase();
+        if (!title.includes(q) && !project.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [rows, statusFilter, dateFrom, dateTo, search]);
+
+  const hasActiveFilters =
+    statusFilter !== "all" || dateFrom !== "" || dateTo !== "" || search.trim() !== "";
+
+  const clearFilters = () => {
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setSearch("");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -198,9 +227,75 @@ const FacebookQueuePage = () => {
       </div>
 
       <Card className="admin-glass-card">
+        <CardContent className="pt-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1.5 lg:col-span-1 sm:col-span-2">
+              <Label htmlFor="fb-search" className="text-xs">Caută după titlu</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="fb-search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="ex: garsonieră Militari"
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="fb-status" className="text-xs">Status</Label>
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+                <SelectTrigger id="fb-status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toate statusurile</SelectItem>
+                  <SelectItem value="pending">În așteptare</SelectItem>
+                  <SelectItem value="posting">Se postează</SelectItem>
+                  <SelectItem value="done">Finalizat</SelectItem>
+                  <SelectItem value="error">Eroare</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="fb-from" className="text-xs">De la</Label>
+              <Input
+                id="fb-from"
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                max={dateTo || undefined}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="fb-to" className="text-xs">Până la</Label>
+              <Input
+                id="fb-to"
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                min={dateFrom || undefined}
+              />
+            </div>
+          </div>
+          {hasActiveFilters && (
+            <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+              <span>
+                {filteredRows.length} din {rows?.length ?? 0} intrări
+              </span>
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs">
+                <X className="w-3.5 h-3.5 mr-1" />
+                Șterge filtrele
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="admin-glass-card">
         <CardHeader>
           <CardTitle className="text-base">
-            {rows ? `${rows.length} intrări în coadă` : "Coadă"}
+            {rows ? `${filteredRows.length} intrări afișate` : "Coadă"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -208,9 +303,11 @@ const FacebookQueuePage = () => {
             <div className="text-center py-10">
               <Loader2 className="w-6 h-6 animate-spin mx-auto text-gold" />
             </div>
-          ) : !rows || rows.length === 0 ? (
+          ) : !filteredRows || filteredRows.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
-              Nu există postări în coadă.
+              {hasActiveFilters
+                ? "Nicio intrare nu corespunde filtrelor active."
+                : "Nu există postări în coadă."}
             </div>
           ) : (
             <div className="space-y-3">
