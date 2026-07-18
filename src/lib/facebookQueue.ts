@@ -2,66 +2,125 @@ import { supabase } from "@/integrations/supabase/client";
 import { generatePropertySlug } from "@/lib/propertySlug";
 
 const SITE = "https://www.mvaimobiliare.ro";
-const PHONE_LINE = "☎️ 0767.941.512 – MVA Imobiliare";
+const PHONE_LINE = "☎️ 0767.941.512";
 
 type OfferLike = {
   id: string;
   slug?: string | null;
   title?: string | null;
-  description?: string | null;
   zone?: string | null;
   project_name?: string | null;
   location?: string | null;
+  city?: string | null;
   surface_min?: number | null;
   surface_max?: number | null;
   rooms?: number | null;
+  bathrooms?: number | null;
+  balconies?: number | null;
   floor?: number | null;
   floor_label?: string | null;
+  total_floors?: number | null;
+  year_built?: number | null;
+  compartment?: string | null;
+  comfort?: string | null;
+  build_materials?: string | null;
+  furnished?: string | null;
+  property_type?: string | null;
+  building_type?: string | null;
+  transaction_type?: string | null;
   price_min?: number | null;
   price_max?: number | null;
   price_type?: string | null;
-  property_type?: string | null;
-  building_type?: string | null;
-  city?: string | null;
+  features?: string[] | null;
+  amenities?: string[] | null;
+  has_ac?: boolean | null;
+  has_electricity?: boolean | null;
+  has_gas?: boolean | null;
+  has_internet?: boolean | null;
+  has_phone?: boolean | null;
+  has_security?: boolean | null;
+  has_tv?: boolean | null;
+  has_water?: boolean | null;
+  has_wood_floors?: boolean | null;
 };
 
-const pickEmoji = (o: OfferLike): string => {
-  const bag = `${o.property_type || ""} ${o.building_type || ""} ${o.title || ""}`.toLowerCase();
-  if (/\b(casa|casă|vila|vilă|duplex|townhouse)\b/.test(bag)) return "🏠";
-  return "🏢";
+// Reuse the exact mapping from PropertyDetail.tsx
+const mapFurnished = (raw: string | null | undefined): string | null => {
+  if (!raw) return null;
+  const codeMap: Record<string, string> = {
+    "30301": "Nemobilat",
+    "30302": "Parțial mobilat",
+    "30303": "Mobilat",
+    "30304": "Mobilat",
+  };
+  const rawStr = String(raw).trim();
+  if (!rawStr) return null;
+  if (codeMap[rawStr]) return codeMap[rawStr];
+  const lower = rawStr.toLowerCase();
+  if (/nemobilat/.test(lower)) return "Nemobilat";
+  if (/parțial|partial/.test(lower)) return "Parțial mobilat";
+  if (/mobilat/.test(lower)) return "Mobilat";
+  const found = Object.entries(codeMap).find(([c]) => lower.includes(c))?.[1];
+  if (found) return found;
+  // Skip raw unmapped numeric codes
+  if (/^\d+$/.test(rawStr)) return null;
+  return rawStr;
 };
 
-const pickLocation = (o: OfferLike): string => {
-  return (o.zone || o.project_name || o.location || o.city || "").toString().trim();
+// Skip raw numeric CRM codes when no mapping exists
+const cleanLabel = (raw: string | null | undefined): string | null => {
+  if (raw === null || raw === undefined) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  if (/^\d+$/.test(s)) return null;
+  return s;
 };
 
-const pickSurface = (o: OfferLike): number | null => {
-  const s = o.surface_min ?? o.surface_max;
-  return s && Number(s) > 0 ? Number(s) : null;
+const formatFloor = (o: OfferLike): string | null => {
+  if (o.floor_label && String(o.floor_label).trim()) {
+    const label = String(o.floor_label).trim();
+    if (o.total_floors) return `${label} / ${o.total_floors}`;
+    return label;
+  }
+  if (o.floor === 0) return o.total_floors ? `Parter / ${o.total_floors}` : "Parter";
+  if (typeof o.floor === "number" && o.floor > 0) {
+    return o.total_floors ? `${o.floor} / ${o.total_floors}` : `${o.floor}`;
+  }
+  return null;
 };
 
-const pickFloor = (o: OfferLike): string => {
-  if (o.floor_label && String(o.floor_label).trim()) return String(o.floor_label).trim();
-  if (o.floor === 0) return "Parter";
-  if (typeof o.floor === "number" && o.floor > 0) return `Etaj ${o.floor}`;
-  return "";
+const formatRoLocaleNumber = (n: number, decimals = 0): string => {
+  return n.toLocaleString("ro-RO", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
 };
 
-const pickPrice = (o: OfferLike): number | null => {
-  const p = o.price_min ?? o.price_max;
-  return p && Number(p) > 0 ? Number(p) : null;
+const collectUtilities = (o: OfferLike): string[] => {
+  const list: string[] = [];
+  if (o.has_gas) list.push("Gaz");
+  if (o.has_water) list.push("Apă");
+  if (o.has_electricity) list.push("Curent");
+  if (o.has_ac) list.push("Aer condiționat");
+  if (o.has_internet) list.push("Internet");
+  if (o.has_tv) list.push("TV cablu");
+  if (o.has_phone) list.push("Telefon");
+  if (o.has_security) list.push("Sistem securitate");
+  if (o.has_wood_floors) list.push("Parchet");
+  return list;
 };
 
-const hasVat = (o: OfferLike): boolean => {
-  return !!o.price_type && /tva/i.test(o.price_type);
-};
-
-const truncateAtWord = (text: string, max = 200): string => {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (clean.length <= max) return clean;
-  const cut = clean.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > max * 0.5 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:\-–—.]+$/, "");
+const collectFinishes = (o: OfferLike): string[] => {
+  const set = new Set<string>();
+  (o.features || []).forEach((f) => {
+    const c = cleanLabel(f);
+    if (c) set.add(c);
+  });
+  (o.amenities || []).forEach((a) => {
+    const c = cleanLabel(a);
+    if (c) set.add(c);
+  });
+  return Array.from(set);
 };
 
 export const resolveOfferUrl = (o: OfferLike): string => {
@@ -81,37 +140,76 @@ export const resolveOfferUrl = (o: OfferLike): string => {
 };
 
 export const buildFacebookMessage = (o: OfferLike): string => {
-  const emoji = pickEmoji(o);
-  const title = (o.title || "").trim();
-  const loc = pickLocation(o);
-  const surface = pickSurface(o);
-  const rooms = o.rooms && Number(o.rooms) > 0 ? Number(o.rooms) : null;
-  const floor = pickFloor(o);
-  const price = pickPrice(o);
-  const url = resolveOfferUrl(o);
-
   const lines: string[] = [];
-  if (title) lines.push(`${emoji} ${title}`);
-  if (loc) lines.push(`📍 ${loc}`);
 
-  const specBits: string[] = [];
-  if (surface) specBits.push(`${surface} mp utili`);
-  if (rooms) specBits.push(rooms === 1 ? "1 cameră" : `${rooms} camere`);
-  if (floor) specBits.push(floor);
-  if (specBits.length) lines.push(`📐 ${specBits.join(" · ")}`);
+  const title = (o.title || "").trim();
+  if (title) lines.push(title);
 
-  if (price) {
-    lines.push(`💰 ${price.toLocaleString("ro-RO")} EUR${hasVat(o) ? " + TVA" : ""}`);
+  const price = o.price_min ?? o.price_max;
+  const surface = o.surface_min ?? o.surface_max;
+  if (price && Number(price) > 0) {
+    const priceStr = `${formatRoLocaleNumber(Number(price))} EUR`;
+    if (surface && Number(surface) > 0) {
+      const perMp = Number(price) / Number(surface);
+      lines.push(`${priceStr} (${formatRoLocaleNumber(perMp, 2)} EUR/mp)`);
+    } else {
+      lines.push(priceStr);
+    }
   }
 
-  if (o.description && o.description.trim()) {
-    lines.push(`${truncateAtWord(o.description, 200)}...`);
+  if (o.rooms && Number(o.rooms) > 0) lines.push(`Camere: ${o.rooms}`);
+  if (o.bathrooms && Number(o.bathrooms) > 0) lines.push(`Băi: ${o.bathrooms}`);
+  if (surface && Number(surface) > 0) lines.push(`Suprafață utilă: ${surface} mp`);
+
+  const floor = formatFloor(o);
+  if (floor) lines.push(`Etaj: ${floor}`);
+
+  if (o.total_floors && Number(o.total_floors) > 0) {
+    lines.push(`Nr. nivele: ${o.total_floors}`);
+  }
+  if (o.balconies && Number(o.balconies) > 0) lines.push(`Balcoane: ${o.balconies}`);
+  if (o.year_built && Number(o.year_built) > 0) lines.push(`An construcție: ${o.year_built}`);
+
+  const layout = cleanLabel(o.compartment);
+  if (layout) lines.push(`Compartimentare: ${layout}`);
+
+  const comfort = cleanLabel(o.comfort);
+  if (comfort) lines.push(`Confort: ${comfort}`);
+
+  const structure = cleanLabel(o.build_materials);
+  if (structure) lines.push(`Structură: ${structure}`);
+
+  const furnished = mapFurnished(o.furnished);
+  if (furnished) lines.push(`Mobilat: ${furnished}`);
+
+  const zone = cleanLabel(o.zone);
+  if (zone) lines.push(`Zonă: ${zone}`);
+
+  const city = cleanLabel(o.city);
+  if (city) lines.push(`Oraș: ${city}`);
+
+  const loc = cleanLabel(o.location);
+  if (loc) lines.push(`Locație: ${loc}`);
+
+  if (o.transaction_type) {
+    const tt = String(o.transaction_type).toLowerCase();
+    if (tt === "rent" || /închiri|inchiri/.test(tt)) {
+      lines.push("Tip tranzacție: Închiriere");
+    } else if (tt === "sale" || /vânzare|vanzare/.test(tt)) {
+      lines.push("Tip tranzacție: Vânzare");
+    }
   }
 
-  lines.push(`Detalii complete și poze: ${url}`);
+  const utilities = collectUtilities(o);
+  if (utilities.length) lines.push(`Utilități: ${utilities.join(" • ")}`);
+
+  const finishes = collectFinishes(o);
+  if (finishes.length) lines.push(`Finisaje: ${finishes.join(" • ")}`);
+
   lines.push(PHONE_LINE);
+  lines.push(`Detalii: ${resolveOfferUrl(o)}`);
 
-  return lines.join("\n\n");
+  return lines.join("\n");
 };
 
 export type EnqueueResult = {
