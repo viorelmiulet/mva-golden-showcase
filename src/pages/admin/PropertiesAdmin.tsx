@@ -80,6 +80,7 @@ const PropertiesAdmin = () => {
   const [propertyToShare, setPropertyToShare] = useState<{ id: string; title: string } | null>(null);
   const [selectedProperties, setSelectedProperties] = useState<Set<string>>(new Set());
   const [isBulkSending, setIsBulkSending] = useState(false);
+  const [isBulkQueuingFb, setIsBulkQueuingFb] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [isBulkTogglingVisibility, setIsBulkTogglingVisibility] = useState(false);
@@ -414,6 +415,40 @@ const PropertiesAdmin = () => {
     }
   };
 
+  const sendSelectedToFacebookGroups = async () => {
+    if (!properties || selectedProperties.size === 0) return;
+    const targets = properties.filter((p) => selectedProperties.has(p.id));
+    setIsBulkQueuingFb(true);
+    setBulkProgress({ current: 0, total: targets.length });
+    let queued = 0;
+    let duplicates = 0;
+    let errors = 0;
+    let i = 0;
+    for (const p of targets) {
+      const res = await enqueueOfferToFacebook(p as any);
+      if (res.status === "queued") queued++;
+      else if (res.status === "duplicate") {
+        duplicates++;
+        sonnerToast(`«${res.offerTitle}» este deja în coadă`);
+      } else {
+        errors++;
+        sonnerToast.error(`Eroare «${res.offerTitle}»`, { description: res.error });
+      }
+      i++;
+      setBulkProgress({ current: i, total: targets.length });
+    }
+    setIsBulkQueuingFb(false);
+    setBulkProgress({ current: 0, total: 0 });
+    setSelectedProperties(new Set());
+    if (queued > 0) {
+      sonnerToast.success(`${queued} anunțuri adăugate în coada Facebook`);
+    } else if (duplicates === targets.length) {
+      sonnerToast("Toate anunțurile selectate erau deja în coadă");
+    } else if (errors === targets.length) {
+      sonnerToast.error("Nu s-a putut adăuga niciun anunț în coadă");
+    }
+  };
+
 
 
 
@@ -659,7 +694,7 @@ const PropertiesAdmin = () => {
                   <Button
                     size="sm"
                     onClick={sendSelectedToZapier}
-                    disabled={isBulkSending || isBulkTogglingVisibility}
+                    disabled={isBulkSending || isBulkTogglingVisibility || isBulkQueuingFb}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-xs"
                   >
                     {isBulkSending ? (
@@ -669,6 +704,23 @@ const PropertiesAdmin = () => {
                     )}
                     <span className="hidden sm:inline">{isBulkSending ? `Trimit...` : `Trimite ${selectedProperties.size} către Zapier`}</span>
                     <span className="sm:hidden">Zapier</span>
+                  </Button>
+                  {/* Facebook groups queue */}
+                  <Button
+                    size="sm"
+                    onClick={sendSelectedToFacebookGroups}
+                    disabled={isBulkQueuingFb || isBulkSending || isBulkTogglingVisibility}
+                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs"
+                  >
+                    {isBulkQueuingFb ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Facebook className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {isBulkQueuingFb ? "Adaug..." : `Trimite pe grupuri Facebook (${selectedProperties.size})`}
+                    </span>
+                    <span className="sm:hidden">FB Grupuri</span>
                   </Button>
                 </div>
               )}
