@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/adminApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,13 +77,15 @@ export default function FacebookGroupsPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (next: FbGroup[]) => {
-      const { error } = await supabase
-        .from("site_settings")
-        .upsert(
-          { key: SETTINGS_KEY, value: JSON.stringify(next), updated_at: new Date().toISOString() },
-          { onConflict: "key" }
-        );
-      if (error) throw error;
+      const result = await adminApi.upsert(
+        "site_settings",
+        { key: SETTINGS_KEY, value: JSON.stringify(next), updated_at: new Date().toISOString() },
+        "key"
+      );
+
+      if (!result.success) {
+        throw new Error(result.error || "Nu s-a putut salva lista");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["site_settings", SETTINGS_KEY] });
