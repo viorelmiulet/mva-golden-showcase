@@ -162,6 +162,45 @@ export default function FacebookGroupsPage() {
         </Button>
       </div>
 
+      <Card className="border-primary/30">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Chrome className="h-5 w-5" />
+            Extensie Chrome — MVA Facebook Poster
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Extensia postează automat în grupurile de mai jos ofertele adăugate în coada Facebook.
+            Descarc-o oricând ai nevoie și instaleaz-o din <code className="bg-muted px-1 py-0.5 rounded text-xs">chrome://extensions</code> (Developer mode → Load unpacked).
+          </p>
+          <Button
+            onClick={async () => {
+              try {
+                const res = await fetch("/mva-fb-poster-extension.zip");
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "mva-fb-poster-extension.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast.success("Extensia a fost descărcată");
+              } catch (e: any) {
+                toast.error("Eroare la descărcare: " + (e?.message ?? "necunoscută"));
+              }
+            }}
+            className="min-h-10"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Descarcă extensia (.zip)
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Adaugă grup nou</CardTitle>
