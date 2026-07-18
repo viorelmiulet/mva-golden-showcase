@@ -1,8 +1,9 @@
 // MVA Facebook Group Poster - Background Service Worker
 
 const DEFAULTS = {
-  edgeUrl: '',
+  edgeUrl: 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/fb-queue',
   apiKey: '',
+  groups: [],
   minDelay: 4,
   maxDelay: 9,
   enabled: false,
@@ -20,7 +21,14 @@ const MAX_LOG = 50;
 
 async function getConfig() {
   const cfg = await chrome.storage.local.get(Object.keys(DEFAULTS));
-  return { ...DEFAULTS, ...cfg };
+  const merged = { ...DEFAULTS, ...cfg };
+  if (!merged.edgeUrl) merged.edgeUrl = DEFAULTS.edgeUrl;
+  merged.edgeUrl = String(merged.edgeUrl).trim().replace(/\/+$/, '');
+  merged.apiKey = String(merged.apiKey || '').trim();
+  merged.groups = Array.isArray(merged.groups)
+    ? merged.groups.map((g) => String(g).trim()).filter(Boolean)
+    : [];
+  return merged;
 }
 
 async function getState() {
@@ -108,7 +116,11 @@ async function tick() {
 
   if (!cfg.enabled) return;
   if (!cfg.edgeUrl || !cfg.apiKey) {
-    await log('Configurare lipsă: edgeUrl sau apiKey.');
+    await log(`Configurare lipsă: ${!cfg.edgeUrl ? 'edgeUrl' : ''}${!cfg.edgeUrl && !cfg.apiKey ? ' și ' : ''}${!cfg.apiKey ? 'apiKey' : ''}.`);
+    return;
+  }
+  if (!cfg.groups.length) {
+    await log('Configurare lipsă: adaugă URL-urile grupurilor în Setări.');
     return;
   }
   if (st.busy) return;
@@ -136,7 +148,7 @@ async function tick() {
         'Content-Type': 'application/json',
         'X-Api-Key': cfg.apiKey,
       },
-      body: '{}',
+      body: JSON.stringify({ groups: cfg.groups }),
     });
 
     if (!nextRes.ok) {
@@ -222,6 +234,8 @@ chrome.runtime.onInstalled.addListener(async () => {
   for (const k of Object.keys(DEFAULTS)) {
     if (existing[k] === undefined) patch[k] = DEFAULTS[k];
   }
+  if (!existing.edgeUrl) patch.edgeUrl = DEFAULTS.edgeUrl;
+  if (!Array.isArray(existing.groups)) patch.groups = DEFAULTS.groups;
   if (Object.keys(patch).length) await chrome.storage.local.set(patch);
   await setState({ busy: false });
   ensurePeriodicAlarm();
