@@ -30,11 +30,8 @@ describe("buildFacebookMessage", () => {
       ...baseOffer,
       title: "Test",
       // câmpuri care ar putea genera „Disponibilitate" într-o versiune anterioară
-      // @ts-expect-error – câmp de test intenționat inexistent în tip
-      availability: "Disponibil",
-      // @ts-expect-error
-      status: "available",
-    });
+      ...({ availability: "Disponibil", status: "available" } as Record<string, unknown>),
+    } as Parameters<typeof buildFacebookMessage>[0]);
     expect(msg).not.toMatch(/disponibilitate/i);
     expect(msg).not.toMatch(/disponibil/i);
   });
