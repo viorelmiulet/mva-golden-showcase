@@ -175,11 +175,6 @@ export const buildFacebookMessage = (o: OfferLike): string => {
   const zone = cleanLabel(o.zone);
   if (zone) detailLines.push(`📍 Zonă: ${zone}`);
 
-  const city = cleanLabel(o.city);
-  if (city) detailLines.push(`🏙️ Oraș: ${city}`);
-
-  const loc = cleanLabel(o.location);
-  if (loc) detailLines.push(`🗺️ Locație: ${loc}`);
 
   if (o.transaction_type) {
     const tt = String(o.transaction_type).toLowerCase();
