@@ -236,3 +236,69 @@ export const enqueueOfferToFacebook = async (o: OfferLike): Promise<EnqueueResul
     return { offerId: o.id, offerTitle, status: "error", error: err?.message || String(err) };
   }
 };
+
+const OFFER_FIELDS =
+  "id, slug, title, zone, project_name, location, city, surface_min, surface_max, rooms, bathrooms, balconies, floor, floor_label, total_floors, year_built, compartment, comfort, build_materials, furnished, property_type, building_type, transaction_type, price_min, price_max, price_type, features, amenities, has_ac, has_electricity, has_gas, has_internet, has_phone, has_security, has_tv, has_water, has_wood_floors";
+
+export type RegenerateResult = {
+  scanned: number;
+  updated: number;
+  skipped: number;
+  errors: { id: string; error: string }[];
+};
+
+/**
+ * Rebuilds `message` and `offer_url` for every queue row still eligible for
+ * publishing (status = pending or error), using the current buildFacebookMessage
+ * template. Ensures old queued content never reaches Facebook after the template
+ * changes (e.g. removed fields like Oraș / Locație).
+ */
+export const regenerateQueuedMessages = async (
+  statuses: Array<"pending" | "posting" | "done" | "error"> = ["pending", "error"],
+): Promise<RegenerateResult> => {
+  const result: RegenerateResult = { scanned: 0, updated: 0, skipped: 0, errors: [] };
+
+  const { data: rows, error } = await supabase
+    .from("fb_post_queue")
+    .select("id, offer_id, message")
+    .in("status", statuses);
+  if (error) throw error;
+
+  result.scanned = rows?.length || 0;
+  if (!rows || rows.length === 0) return result;
+
+  const offerIds = Array.from(new Set(rows.map((r) => r.offer_id).filter(Boolean)));
+  const { data: offers, error: offErr } = await supabase
+    .from("catalog_offers")
+    .select(OFFER_FIELDS)
+    .in("id", offerIds);
+  if (offErr) throw offErr;
+
+  const byId = new Map<string, OfferLike>();
+  (offers || []).forEach((o: any) => byId.set(o.id, o as OfferLike));
+
+  for (const row of rows) {
+    const offer = byId.get(row.offer_id);
+    if (!offer) {
+      result.skipped += 1;
+      continue;
+    }
+    const newMessage = buildFacebookMessage(offer);
+    const newUrl = resolveOfferUrl(offer);
+    if (newMessage === row.message) {
+      result.skipped += 1;
+      continue;
+    }
+    const { error: upErr } = await supabase
+      .from("fb_post_queue")
+      .update({ message: newMessage, offer_url: newUrl })
+      .eq("id", row.id);
+    if (upErr) {
+      result.errors.push({ id: row.id, error: upErr.message });
+    } else {
+      result.updated += 1;
+    }
+  }
+
+  return result;
+};
