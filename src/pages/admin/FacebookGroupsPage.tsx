@@ -21,6 +21,7 @@ type FbGroup = {
   updated_at?: string;
 };
 
+const EMPTY_GROUPS: FbGroup[] = [];
 const fbGroupsTable = () => (supabase as any).from("fb_groups");
 
 const isValidFacebookUrl = (url: string) =>
@@ -35,7 +36,7 @@ export default function FacebookGroupsPage() {
     notes: "",
   });
 
-  const { data: groups = [], isLoading } = useQuery<FbGroup[]>({
+  const { data: groupsData, isLoading } = useQuery<FbGroup[]>({
     queryKey: ["fb_groups"],
     queryFn: async () => {
       const { data, error } = await fbGroupsTable()
@@ -45,6 +46,7 @@ export default function FacebookGroupsPage() {
       return (data ?? []) as FbGroup[];
     },
   });
+  const groups = groupsData ?? EMPTY_GROUPS;
 
   useEffect(() => {
     setEditingNames(
@@ -118,7 +120,7 @@ export default function FacebookGroupsPage() {
     },
   });
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const name = draft.name.trim();
     const url = draft.url.trim();
     if (!name || !url) {
@@ -133,13 +135,22 @@ export default function FacebookGroupsPage() {
       toast.error("Acest grup există deja în listă");
       return;
     }
-    addMutation.mutate({ name, url, notes: draft.notes.trim() });
+    try {
+      await addMutation.mutateAsync({ name, url, notes: draft.notes.trim() });
+    } catch {
+      // Error toast is handled by the mutation.
+    }
   };
 
-  const handleToggle = (id: string, active: boolean) =>
-    updateMutation.mutate({ id, patch: { active } });
+  const handleToggle = async (id: string, active: boolean) => {
+    try {
+      await updateMutation.mutateAsync({ id, patch: { active } });
+    } catch {
+      // Error toast is handled by the mutation.
+    }
+  };
 
-  const handleRename = (group: FbGroup) => {
+  const handleRename = async (group: FbGroup) => {
     const name = (editingNames[group.id] ?? "").trim();
     if (!name) {
       setEditingNames((prev) => ({ ...prev, [group.id]: group.name }));
@@ -147,13 +158,21 @@ export default function FacebookGroupsPage() {
       return;
     }
     if (name !== group.name) {
-      updateMutation.mutate({ id: group.id, patch: { name } });
+      try {
+        await updateMutation.mutateAsync({ id: group.id, patch: { name } });
+      } catch {
+        // Error toast is handled by the mutation.
+      }
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("Ștergi acest grup din listă?")) return;
-    deleteMutation.mutate(id);
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch {
+      // Error toast is handled by the mutation.
+    }
   };
 
   const activeCount = groups.filter((g) => g.active).length;
