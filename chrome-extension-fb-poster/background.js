@@ -110,11 +110,12 @@ async function scheduleNextRun(cfg) {
   await log(`Următoarea rulare programată în ~${minutes} min.`);
 }
 
-async function tick() {
+async function tick(opts = {}) {
+  const force = !!opts.force;
   const cfg = await getConfig();
   let st = await getState();
 
-  if (!cfg.enabled) return;
+  if (!cfg.enabled && !force) return;
   if (!cfg.edgeUrl || !cfg.apiKey) {
     await log(`Configurare lipsă: ${!cfg.edgeUrl ? 'edgeUrl' : ''}${!cfg.edgeUrl && !cfg.apiKey ? ' și ' : ''}${!cfg.apiKey ? 'apiKey' : ''}.`);
     return;
@@ -123,7 +124,15 @@ async function tick() {
     await log('Configurare lipsă: adaugă URL-urile grupurilor în Setări.');
     return;
   }
-  if (st.busy) return;
+  if (st.busy) {
+    if (force) {
+      await log('Reset stare „busy" blocată — forțez rularea.');
+      await setState({ busy: false });
+      st.busy = false;
+    } else {
+      return;
+    }
+  }
 
   // Reset daily counter
   const today = todayKey();
@@ -256,7 +265,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg && msg.type === 'MVA_RUN_NOW') {
     (async () => {
       try {
-        await tick();
+        await tick({ force: true });
         sendResponse({ ok: true });
       } catch (e) {
         sendResponse({ ok: false, error: e.message || String(e) });
