@@ -217,15 +217,42 @@ const FacebookQueuePage = () => {
             Postări programate către grupurile Facebook. Se reîmprospătează automat la 30s.
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto"
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["fb_post_queue"] })}
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Reîmprospătează
-        </Button>
+        <div className="ml-auto flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={regenerating}
+            onClick={async () => {
+              setRegenerating(true);
+              try {
+                const res = await regenerateQueuedMessages();
+                toast.success("Mesaje regenerate", {
+                  description: `Actualizate: ${res.updated} • Neschimbate: ${res.skipped} • Erori: ${res.errors.length}`,
+                });
+                queryClient.invalidateQueries({ queryKey: ["fb_post_queue"] });
+              } catch (e: any) {
+                toast.error("Regenerare eșuată", { description: e?.message || String(e) });
+              } finally {
+                setRegenerating(false);
+              }
+            }}
+          >
+            {regenerating ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <MessageSquare className="w-4 h-4 mr-2" />
+            )}
+            Regenerează mesajele
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => queryClient.invalidateQueries({ queryKey: ["fb_post_queue"] })}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Reîmprospătează
+          </Button>
+        </div>
       </div>
 
       <Card className="admin-glass-card">
