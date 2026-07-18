@@ -142,10 +142,12 @@
   }
 
   async function doPost(job) {
-    await sleep(rand(2000, 5000));
+    await sleep(rand(3000, 6000));
 
-    const trigger = await pollForComposer(20000);
+    const trigger = await pollForComposer(30000);
     if (!trigger) throw new Error('Nu am găsit butonul „Scrie ceva".');
+    trigger.scrollIntoView({ block: 'center' });
+    await sleep(400);
     trigger.click();
 
     const found = await waitForDialog(15000);
