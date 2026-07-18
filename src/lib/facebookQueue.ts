@@ -159,16 +159,16 @@ export const buildFacebookMessage = (o: OfferLike): string => {
   if (floor) lines.push(`🏢 Etaj: ${floor}`);
 
   if (o.total_floors && Number(o.total_floors) > 0) {
-    lines.push(`🏗️ Nr. nivele: ${o.total_floors}`);
+    lines.push(`🗂️ Nr. nivele: ${o.total_floors}`);
   }
-  if (o.balconies && Number(o.balconies) > 0) lines.push(`🌇 Balcoane: ${o.balconies}`);
-  if (o.year_built && Number(o.year_built) > 0) lines.push(`📅 An construcție: ${o.year_built}`);
+  if (o.balconies && Number(o.balconies) > 0) lines.push(`🗂️ Balcoane: ${o.balconies}`);
+  if (o.year_built && Number(o.year_built) > 0) lines.push(`🏗️ An construcție: ${o.year_built}`);
 
   const layout = cleanLabel(o.compartment);
-  if (layout) lines.push(`🧭 Compartimentare: ${layout}`);
+  if (layout) lines.push(`🗂️ Compartimentare: ${layout}`);
 
   const comfort = cleanLabel(o.comfort);
-  if (comfort) lines.push(`✨ Confort: ${comfort}`);
+  if (comfort) lines.push(`🏠 Confort: ${comfort}`);
 
   const structure = cleanLabel(o.build_materials);
   if (structure) lines.push(`🧱 Structură: ${structure}`);
