@@ -1244,6 +1244,50 @@ export type Database = {
         }
         Relationships: []
       }
+      fb_post_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          errors: string[]
+          groups_done: string[]
+          id: string
+          message: string
+          offer_id: string
+          offer_url: string
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          errors?: string[]
+          groups_done?: string[]
+          id?: string
+          message: string
+          offer_id: string
+          offer_url: string
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          errors?: string[]
+          groups_done?: string[]
+          id?: string
+          message?: string
+          offer_id?: string
+          offer_url?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fb_post_queue_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       image_validation_cache: {
         Row: {
           checked_at: string
