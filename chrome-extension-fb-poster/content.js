@@ -4,27 +4,73 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
+  const COMPOSER_PHRASES = [
+    'scrie ceva',
+    'scrieți ceva',
+    'scrieti ceva',
+    'write something',
+    'creează o postare',
+    'creaza o postare',
+    'create a public post',
+    'create post',
+    'ce ai în minte',
+    'ce ai in minte',
+    "what's on your mind",
+    'what is on your mind',
+  ];
+
   function textMatchesComposer(txt) {
     if (!txt) return false;
     const t = txt.trim().toLowerCase();
-    return (
-      t.startsWith('scrie ceva') ||
-      t.startsWith('write something') ||
-      t.startsWith('creează o postare publică') ||
-      t.startsWith('creaza o postare publica') ||
-      t.startsWith('create a public post')
-    );
+    if (!t || t.length > 200) return false;
+    return COMPOSER_PHRASES.some((p) => t.includes(p));
   }
 
-  async function pollForComposer(timeoutMs = 20000) {
+  function isVisible(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    const r = el.getBoundingClientRect();
+    if (r.width < 20 || r.height < 10) return false;
+    const st = window.getComputedStyle(el);
+    return st.visibility !== 'hidden' && st.display !== 'none';
+  }
+
+  async function pollForComposer(timeoutMs = 30000) {
     const deadline = Date.now() + timeoutMs;
+    let scrollTick = 0;
     while (Date.now() < deadline) {
-      const buttons = document.querySelectorAll('div[role="button"]');
+      // 1) role=button whose text/aria-label contains a composer phrase
+      const buttons = document.querySelectorAll('div[role="button"], span[role="button"]');
       for (const b of buttons) {
-        const t = (b.textContent || '').trim();
+        if (!isVisible(b)) continue;
+        const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+        if (textMatchesComposer(aria)) return b;
+        const t = (b.innerText || b.textContent || '').trim();
         if (textMatchesComposer(t)) return b;
       }
-      await sleep(500);
+      // 2) any span/div text node with the phrase → click nearest ancestor button
+      const spans = document.querySelectorAll('span, div');
+      for (const s of spans) {
+        const t = (s.innerText || '').trim();
+        if (!textMatchesComposer(t)) continue;
+        if (!isVisible(s)) continue;
+        const btn = s.closest('[role="button"]');
+        if (btn) return btn;
+        return s; // fallback — click the span itself
+      }
+      // 3) contenteditable placeholder at top of feed
+      const editables = document.querySelectorAll('div[contenteditable="true"]');
+      for (const e of editables) {
+        if (!isVisible(e)) continue;
+        const ph = (e.getAttribute('aria-placeholder') || e.getAttribute('data-placeholder') || '').toLowerCase();
+        if (textMatchesComposer(ph)) return e;
+      }
+      // Nudge the page: scroll a bit to force lazy-render
+      if (scrollTick++ % 4 === 3) {
+        window.scrollBy({ top: 200, behavior: 'instant' });
+        await sleep(300);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+      await sleep(600);
     }
     return null;
   }
