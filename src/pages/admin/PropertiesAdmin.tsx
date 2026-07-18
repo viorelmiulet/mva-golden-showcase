@@ -44,6 +44,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import PropertyImageEditor from "@/components/admin/PropertyImageEditor";
 import { Checkbox } from "@/components/ui/checkbox";
+import { enqueueOfferToFacebook } from "@/lib/facebookQueue";
 
 const PropertiesAdmin = () => {
   const { data: immofluxSlugMap } = useImmofluxSlugMap();
