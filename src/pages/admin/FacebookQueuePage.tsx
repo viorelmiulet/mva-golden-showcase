@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { generatePropertySlug } from "@/lib/propertySlug";
+import { regenerateQueuedMessages } from "@/lib/facebookQueue";
 
 type QueueRow = {
   id: string;
