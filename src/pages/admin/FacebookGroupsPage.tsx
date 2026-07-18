@@ -243,11 +243,29 @@ export default function FacebookGroupsPage() {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap">
           <CardTitle className="text-lg">Lista grupurilor</CardTitle>
-          <Badge variant="secondary">
-            {activeCount} active / {groups.length} total
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={activeCount === 0}
+              onClick={async () => {
+                const urls = groups.filter((g) => g.active).map((g) => g.url).join("\n");
+                try {
+                  await navigator.clipboard.writeText(urls);
+                  toast.success(`${activeCount} URL-uri copiate — lipește-le în Setări extensie`);
+                } catch {
+                  toast.error("Nu s-a putut copia în clipboard");
+                }
+              }}
+            >
+              Copiază URL-uri active
+            </Button>
+            <Badge variant="secondary">
+              {activeCount} active / {groups.length} total
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
