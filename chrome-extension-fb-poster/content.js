@@ -91,25 +91,17 @@
   async function insertText(textbox, text) {
     textbox.focus();
     await sleep(1000);
-    let ok = false;
     try {
-      ok = document.execCommand('insertText', false, text);
-    } catch (_) {
-      ok = false;
-    }
-    if (!ok || !(textbox.textContent || '').includes(text.slice(0, 20))) {
-      try {
-        const dt = new DataTransfer();
-        dt.setData('text/plain', text);
-        const evt = new ClipboardEvent('paste', {
-          clipboardData: dt,
-          bubbles: true,
-          cancelable: true,
-        });
-        textbox.dispatchEvent(evt);
-      } catch (e) {
-        throw new Error('Nu am putut insera textul în composer.');
-      }
+      const dt = new DataTransfer();
+      dt.setData('text/plain', text);
+      const evt = new ClipboardEvent('paste', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      });
+      textbox.dispatchEvent(evt);
+    } catch (e) {
+      throw new Error('Nu am putut insera textul în composer.');
     }
   }
 
