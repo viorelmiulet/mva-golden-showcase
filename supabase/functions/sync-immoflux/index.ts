@@ -459,13 +459,42 @@ async function writeStatus(supabase: any, value: Record<string, unknown>) {
   }
 }
 
+// Withdrawn / inactive statuses from Immoflux (retras/inactiv/indisponibil/expirat).
+// These must be fully removed from the catalog — no upsert, delete existing rows.
+function isWithdrawnStatus(raw: string | null | undefined): boolean {
+  if (!raw) return false;
+  const s = String(raw).toLowerCase().trim();
+  return s.includes('retras')
+    || s.includes('inactiv')
+    || s.includes('inactive')
+    || s.includes('unavailable')
+    || s.includes('indisponibil')
+    || s.includes('expirat')
+    || s.includes('expired');
+}
+
 async function runSync(supabase: any, startedAt: string) {
   try {
     console.log('[sync-immoflux] Starting sync...');
     await writeStatus(supabase, { status: 'running', started_at: startedAt, stage: 'fetching' });
 
     const properties = await fetchAllProperties(supabase);
-    const mapped = properties.map(mapToCatalogOffer);
+
+    // Split out withdrawn/retras properties — they get deleted, not upserted.
+    const withdrawnExternalIds: string[] = [];
+    const activeProperties: ImmofluxProperty[] = [];
+    for (const p of properties) {
+      if (isWithdrawnStatus(p.status)) {
+        withdrawnExternalIds.push(`immoflux-${p.idnum}`);
+      } else {
+        activeProperties.push(p);
+      }
+    }
+    if (withdrawnExternalIds.length > 0) {
+      console.log(`[sync-immoflux] Skipping ${withdrawnExternalIds.length} withdrawn (retras) properties`);
+    }
+
+    const mapped = activeProperties.map(mapToCatalogOffer);
     console.log(`[sync-immoflux] Mapped ${mapped.length} properties for upsert`);
 
     await writeStatus(supabase, {
@@ -493,6 +522,19 @@ async function runSync(supabase: any, startedAt: string) {
         }
       } else {
         upserted += batch.length;
+      }
+    }
+
+    // Hard-delete any existing rows that came back as withdrawn/retras.
+    if (withdrawnExternalIds.length > 0) {
+      const delBatch = 100;
+      for (let i = 0; i < withdrawnExternalIds.length; i += delBatch) {
+        const slice = withdrawnExternalIds.slice(i, i + delBatch);
+        const { error: delErr } = await supabase
+          .from('catalog_offers')
+          .delete()
+          .in('external_id', slice);
+        if (delErr) console.warn(`[sync-immoflux] Delete withdrawn batch failed: ${delErr.message}`);
       }
     }
 
