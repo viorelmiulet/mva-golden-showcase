@@ -67,14 +67,10 @@ const PropertySeo = ({
   projectName,
 }: PropertySeoInput) => {
   const url = `${SITE}${canonicalPath}`;
-  // Prefer the full listing title when it fits; otherwise compose a concise factual one.
   const fullCandidate = (title || '').trim();
   const shortCandidate = composeShortBaseTitle(rooms, projectName, zone, city);
-  const baseTitle =
-    fullCandidate && (fullCandidate + ' — MVA Imobiliare').length <= 60
-      ? fullCandidate
-      : shortCandidate;
-  const pageTitle = buildPageTitle(baseTitle);
+  const baseTitle = fullCandidate || shortCandidate;
+  const pageTitle = baseTitle ? `${baseTitle} | MVA Imobiliare` : 'MVA Imobiliare';
   const firstImage = images[0] || `${SITE}/mva-logo-luxury-horizontal.svg`;
 
   const jsonLd: Record<string, unknown> = {
@@ -140,7 +136,7 @@ const PropertySeo = ({
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <link rel="canonical" href={url} />
 
-      <meta property="og:type" content={isSale ? "product" : "website"} />
+      <meta property="og:type" content="website" />
       <meta property="og:site_name" content="MVA Imobiliare" />
       <meta property="og:locale" content="ro_RO" />
       <meta property="og:url" content={url} />
