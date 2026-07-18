@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, Plus, Trash2, ExternalLink, Save } from "lucide-react";
+import { Facebook, Plus, Trash2, ExternalLink, Save, Download, Chrome } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 
