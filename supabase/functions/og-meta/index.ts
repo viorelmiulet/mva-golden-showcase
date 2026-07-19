@@ -132,9 +132,8 @@ serve(async (req) => {
       if (project) {
         title = `${project.name} - Apartamente Disponibile | MVA Imobiliare`;
         description = project.description?.substring(0, 160) || `Apartamente noi în ${project.location}`;
-        if (project.main_image) {
-          image = project.main_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
