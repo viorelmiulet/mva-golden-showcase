@@ -151,9 +151,8 @@ serve(async (req) => {
         title = post.title;
         description = post.meta_description || post.excerpt || '';
         ogType = 'article';
-        if (post.cover_image) {
-          image = post.cover_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
