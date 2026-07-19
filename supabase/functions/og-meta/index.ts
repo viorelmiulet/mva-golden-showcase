@@ -172,9 +172,8 @@ serve(async (req) => {
         title = article.title;
         description = article.description || '';
         ogType = 'article';
-        if (article.featured_image) {
-          image = article.featured_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
 
         const datePublished = article.published_date || article.created_at;
         const articleImage = /^https?:\/\//i.test(image) ? image : `${SITE_URL}${image.startsWith('/') ? '' : '/'}${image}`;
