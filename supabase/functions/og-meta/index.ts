@@ -53,9 +53,8 @@ serve(async (req) => {
             description = `${prop.suprafatautila || ''}mp, etaj ${prop.etaj || '-'}, ${zona}. Detalii și vizionare la MVA Imobiliare.`;
             ogType = 'article';
             
-            if (prop.images && Array.isArray(prop.images) && prop.images.length > 0) {
-              image = prop.images[0].src || prop.images[0];
-            }
+            // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
           }
         } catch (e) {
           console.error('og-meta: immoflux fetch error:', e);
