@@ -107,9 +107,8 @@ serve(async (req) => {
         description = `${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`;
         ogType = 'article';
         
-        if (property.images && Array.isArray(property.images) && property.images.length > 0) {
-          image = property.images[0];
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
