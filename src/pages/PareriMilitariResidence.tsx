@@ -255,7 +255,7 @@ const PareriMilitariResidence = () => {
           property="og:description"
           content="Review complet Militari Residence: note pe calitate construcție, comunitate, trafic, comerț și testimoniale reale ale locatarilor."
         />
-        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-image.jpg?v=20260719" />
+        <meta property="og:image" content="https://www.mvaimobiliare.ro/og-image.jpg?v=20260719c" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify(reviewSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(aggregateSchema)}</script>
