@@ -24,7 +24,8 @@ serve(async (req) => {
 
     let title = 'MVA Imobiliare | Apartamente și Ansambluri Rezidențiale';
     let description = 'Descoperă apartamente de vânzare, ansambluri rezidențiale și servicii imobiliare în București și împrejurimi cu MVA Imobiliare.';
-    let image = `${SITE_URL}/og-image.jpg`;
+    // Global brand image (MVA logo). Do NOT override per-page — user prefers a single, consistent OG image everywhere.
+    const image = `${SITE_URL}/og-image.jpg`;
     let ogUrl = `${SITE_URL}${path}`;
     let ogType = 'website';
 
