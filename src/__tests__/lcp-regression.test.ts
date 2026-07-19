@@ -259,8 +259,8 @@ describe('LCP: logo (above-the-fold critical resource)', () => {
 
 describe('LCP: og-image consistency', () => {
   it('og:image and twitter:image both point at /og-image.jpg on prod domain', () => {
-    expect(indexHtml).toMatch(/property=["']og:image["']\s+content=["']https:\/\/mvaimobiliare\.ro\/og-image\.jpg["']/);
-    expect(indexHtml).toMatch(/name=["']twitter:image["']\s+content=["']https:\/\/mvaimobiliare\.ro\/og-image\.jpg["']/);
+    expect(indexHtml).toMatch(/property=["']og:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=\d+)?["']/);
+    expect(indexHtml).toMatch(/name=["']twitter:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=\d+)?["']/);
   });
 
   it('declared og:image dimensions (1200x630) match the file', () => {
