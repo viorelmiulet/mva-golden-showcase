@@ -24,7 +24,8 @@ serve(async (req) => {
 
     let title = 'MVA Imobiliare | Apartamente și Ansambluri Rezidențiale';
     let description = 'Descoperă apartamente de vânzare, ansambluri rezidențiale și servicii imobiliare în București și împrejurimi cu MVA Imobiliare.';
-    let image = `${SITE_URL}/og-image.jpg`;
+    // Global brand image (MVA logo). Do NOT override per-page — user prefers a single, consistent OG image everywhere.
+    const image = `${SITE_URL}/og-image.jpg`;
     let ogUrl = `${SITE_URL}${path}`;
     let ogType = 'website';
 
@@ -52,9 +53,8 @@ serve(async (req) => {
             description = `${prop.suprafatautila || ''}mp, etaj ${prop.etaj || '-'}, ${zona}. Detalii și vizionare la MVA Imobiliare.`;
             ogType = 'article';
             
-            if (prop.images && Array.isArray(prop.images) && prop.images.length > 0) {
-              image = prop.images[0].src || prop.images[0];
-            }
+            // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
           }
         } catch (e) {
           console.error('og-meta: immoflux fetch error:', e);
@@ -107,9 +107,8 @@ serve(async (req) => {
         description = `${property.surface_min || ''}mp, etaj ${property.floor ?? '-'}, ${zona} Militari. Detalii și vizionare la MVA Imobiliare.`;
         ogType = 'article';
         
-        if (property.images && Array.isArray(property.images) && property.images.length > 0) {
-          image = property.images[0];
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
@@ -133,9 +132,8 @@ serve(async (req) => {
       if (project) {
         title = `${project.name} - Apartamente Disponibile | MVA Imobiliare`;
         description = project.description?.substring(0, 160) || `Apartamente noi în ${project.location}`;
-        if (project.main_image) {
-          image = project.main_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
@@ -153,9 +151,8 @@ serve(async (req) => {
         title = post.title;
         description = post.meta_description || post.excerpt || '';
         ogType = 'article';
-        if (post.cover_image) {
-          image = post.cover_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
       }
     }
 
@@ -175,9 +172,8 @@ serve(async (req) => {
         title = article.title;
         description = article.description || '';
         ogType = 'article';
-        if (article.featured_image) {
-          image = article.featured_image;
-        }
+        // og:image intentionally NOT overridden — global MVA logo is used site-wide.
+
 
         const datePublished = article.published_date || article.created_at;
         const articleImage = /^https?:\/\//i.test(image) ? image : `${SITE_URL}${image.startsWith('/') ? '' : '/'}${image}`;
