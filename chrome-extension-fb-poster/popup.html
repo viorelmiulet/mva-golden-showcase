@@ -1,33 +1,48 @@
 <!doctype html>
 <html lang="ro">
-  <head>
-    <meta charset="utf-8" />
-    <title>MVA Facebook Poster</title>
-    <style>
-      body { width: 340px; margin: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #1a1a1a; color: #f5f5f5; }
-      header { padding: 12px 14px; background: linear-gradient(90deg,#DAA520,#b8860b); color: #1a1a1a; font-weight: 700; }
-      main { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-      button { cursor: pointer; padding: 8px 12px; border-radius: 6px; border: 0; font-weight: 600; font-size: 13px; }
-      .primary { background: #DAA520; color: #1a1a1a; }
-      .secondary { background: #333; color: #f5f5f5; }
-      .row { display: flex; gap: 8px; }
-      .row > * { flex: 1; }
-      a.link { color: #DAA520; text-decoration: none; font-size: 12px; }
-      .stats { font-size: 12px; opacity: .85; }
-      .log { background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 6px; height: 180px; overflow: auto; padding: 8px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; white-space: pre-wrap; line-height: 1.35; }
-    </style>
-  </head>
-  <body>
-    <header>MVA Facebook Poster</header>
-    <main>
-      <div class="row">
-        <button id="toggleBtn" class="primary">Pornește</button>
-        <button id="runBtn" class="secondary">Rulează acum</button>
-      </div>
-      <a class="link" id="settingsLink" href="#">⚙️ Setări</a>
-      <div class="stats" id="stats">Azi: 0/0 postări</div>
-      <div class="log" id="log">—</div>
-    </main>
-    <script src="popup.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>MVA Facebook Poster</title>
+  <style>
+    body { width: 340px; margin: 0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#1a1a1a; color:#eee; }
+    header { padding:12px 14px; background:#000; border-bottom:1px solid #333; }
+    header h1 { font-size:14px; margin:0; color:#DAA520; }
+    .row { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #222; }
+    .row label { font-size:13px; }
+    button { background:#DAA520; color:#000; border:0; border-radius:6px; padding:8px 12px; font-weight:600; cursor:pointer; font-size:13px; }
+    button.secondary { background:#333; color:#eee; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .stats { padding:10px 14px; font-size:12px; color:#ccc; }
+    .stats .next { color:#DAA520; }
+    a { color:#DAA520; text-decoration:none; font-size:12px; }
+    .log { max-height:220px; overflow:auto; font-family: ui-monospace, Menlo, monospace; font-size:11px; padding:8px 14px; background:#111; color:#bbb; white-space:pre-wrap; }
+    .log div { margin-bottom:4px; }
+    .toggle { display:inline-block; width:40px; height:22px; background:#444; border-radius:11px; position:relative; cursor:pointer; }
+    .toggle::after { content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; }
+    .toggle.on { background:#DAA520; }
+    .toggle.on::after { left:20px; }
+  </style>
+</head>
+<body>
+  <header><h1>MVA Facebook Poster</h1></header>
+
+  <div class="row">
+    <label>Automatizare</label>
+    <div id="toggle" class="toggle"></div>
+  </div>
+
+  <div class="row">
+    <button id="runNow">Rulează acum</button>
+    <a href="#" id="openOptions">Setări</a>
+  </div>
+
+  <div class="stats">
+    <div id="today">Azi: 0/0 postări</div>
+    <div id="next" class="next"></div>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <script src="popup.js"></script>
+</body>
 </html>
