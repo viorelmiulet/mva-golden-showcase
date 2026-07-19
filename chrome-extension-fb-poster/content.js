@@ -4,73 +4,38 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 
-  const COMPOSER_PHRASES = [
+  const COMPOSER_PREFIXES = [
     'scrie ceva',
-    'scrieți ceva',
-    'scrieti ceva',
     'write something',
-    'creează o postare',
-    'creaza o postare',
+    'creează o postare publică',
+    'creaza o postare publica',
     'create a public post',
-    'create post',
-    'ce ai în minte',
-    'ce ai in minte',
-    "what's on your mind",
-    'what is on your mind',
   ];
 
-  function textMatchesComposer(txt) {
-    if (!txt) return false;
-    const t = txt.trim().toLowerCase();
-    if (!t || t.length > 200) return false;
-    return COMPOSER_PHRASES.some((p) => t.includes(p));
+  function matchesComposer(text) {
+    if (!text) return false;
+    const t = text.trim().toLowerCase();
+    return COMPOSER_PREFIXES.some((p) => t.startsWith(p));
   }
 
   function isVisible(el) {
     if (!el || !el.getBoundingClientRect) return false;
     const r = el.getBoundingClientRect();
-    if (r.width < 20 || r.height < 10) return false;
+    if (r.width < 10 || r.height < 5) return false;
     const st = window.getComputedStyle(el);
     return st.visibility !== 'hidden' && st.display !== 'none';
   }
 
-  async function pollForComposer(timeoutMs = 30000) {
+  async function findComposerTrigger(timeoutMs = 20000) {
     const deadline = Date.now() + timeoutMs;
-    let scrollTick = 0;
     while (Date.now() < deadline) {
-      // 1) role=button whose text/aria-label contains a composer phrase
-      const buttons = document.querySelectorAll('div[role="button"], span[role="button"]');
-      for (const b of buttons) {
+      const btns = document.querySelectorAll('div[role="button"]');
+      for (const b of btns) {
         if (!isVisible(b)) continue;
-        const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-        if (textMatchesComposer(aria)) return b;
-        const t = (b.innerText || b.textContent || '').trim();
-        if (textMatchesComposer(t)) return b;
+        const txt = (b.textContent || '').trim();
+        if (matchesComposer(txt)) return b;
       }
-      // 2) any span/div text node with the phrase → click nearest ancestor button
-      const spans = document.querySelectorAll('span, div');
-      for (const s of spans) {
-        const t = (s.innerText || '').trim();
-        if (!textMatchesComposer(t)) continue;
-        if (!isVisible(s)) continue;
-        const btn = s.closest('[role="button"]');
-        if (btn) return btn;
-        return s; // fallback — click the span itself
-      }
-      // 3) contenteditable placeholder at top of feed
-      const editables = document.querySelectorAll('div[contenteditable="true"]');
-      for (const e of editables) {
-        if (!isVisible(e)) continue;
-        const ph = (e.getAttribute('aria-placeholder') || e.getAttribute('data-placeholder') || '').toLowerCase();
-        if (textMatchesComposer(ph)) return e;
-      }
-      // Nudge the page: scroll a bit to force lazy-render
-      if (scrollTick++ % 4 === 3) {
-        window.scrollBy({ top: 200, behavior: 'instant' });
-        await sleep(300);
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-      await sleep(600);
+      await sleep(500);
     }
     return null;
   }
@@ -91,31 +56,36 @@
   async function insertText(textbox, text) {
     textbox.focus();
     await sleep(1000);
+    let inserted = false;
     try {
-      const dt = new DataTransfer();
-      dt.setData('text/plain', text);
-      const evt = new ClipboardEvent('paste', {
-        clipboardData: dt,
-        bubbles: true,
-        cancelable: true,
-      });
-      textbox.dispatchEvent(evt);
-    } catch (e) {
-      throw new Error('Nu am putut insera textul în composer.');
+      inserted = document.execCommand('insertText', false, text);
+    } catch (_) {
+      inserted = false;
+    }
+    await sleep(300);
+    if (!inserted || !(textbox.textContent || '').includes(text.slice(0, 20))) {
+      try {
+        const dt = new DataTransfer();
+        dt.setData('text/plain', text);
+        const evt = new ClipboardEvent('paste', {
+          clipboardData: dt,
+          bubbles: true,
+          cancelable: true,
+        });
+        textbox.dispatchEvent(evt);
+      } catch (e) {
+        throw new Error('Nu am putut insera textul în composer.');
+      }
     }
   }
 
   function findPostButton(dialog) {
     const labels = ['postează', 'posteaza', 'post', 'publică', 'publica'];
-    // aria-label match
     const aria = dialog.querySelectorAll('[aria-label]');
     for (const el of aria) {
       const l = (el.getAttribute('aria-label') || '').trim().toLowerCase();
-      if (labels.includes(l) && el.getAttribute('role') !== 'textbox') {
-        return el;
-      }
+      if (labels.includes(l) && el.getAttribute('role') !== 'textbox') return el;
     }
-    // div[role=button] with text
     const btns = dialog.querySelectorAll('div[role="button"]');
     for (const b of btns) {
       const t = (b.textContent || '').trim().toLowerCase();
@@ -134,9 +104,9 @@
   }
 
   async function doPost(job) {
-    await sleep(rand(3000, 6000));
+    await sleep(rand(2000, 5000));
 
-    const trigger = await pollForComposer(30000);
+    const trigger = await findComposerTrigger(20000);
     if (!trigger) throw new Error('Nu am găsit butonul „Scrie ceva".');
     trigger.scrollIntoView({ block: 'center' });
     await sleep(400);
@@ -163,11 +133,8 @@
     return true;
   }
 
-  // Announce readiness after 3s
   setTimeout(() => {
-    try {
-      chrome.runtime.sendMessage({ type: 'MVA_READY' });
-    } catch (_) {}
+    try { chrome.runtime.sendMessage({ type: 'MVA_READY' }); } catch (_) {}
   }, 3000);
 
   chrome.runtime.onMessage.addListener((msg) => {

@@ -1,24 +1,32 @@
-const toggleBtn = document.getElementById('toggleBtn');
-const runBtn = document.getElementById('runBtn');
-const settingsLink = document.getElementById('settingsLink');
-const statsEl = document.getElementById('stats');
+const toggle = document.getElementById('toggle');
+const runBtn = document.getElementById('runNow');
+const optionsLink = document.getElementById('openOptions');
+const todayEl = document.getElementById('today');
+const nextEl = document.getElementById('next');
 const logEl = document.getElementById('log');
 
+function pad(n) { return String(n).padStart(2, '0'); }
+
 async function refresh() {
-  const s = await chrome.storage.local.get([
-    'enabled', 'todayCount', 'maxPerDay', 'lastLog', 'edgeUrl', 'apiKey', 'groups',
+  const cfg = await chrome.storage.local.get([
+    'enabled', 'maxPerDay', 'todayCount', 'todayDate', 'nextAllowedAt', 'lastLog',
   ]);
-  const enabled = !!s.enabled;
-  toggleBtn.textContent = enabled ? 'Oprește' : 'Pornește';
-  toggleBtn.style.background = enabled ? '#c0392b' : '#DAA520';
-  toggleBtn.style.color = enabled ? '#fff' : '#1a1a1a';
-  const groupsCount = Array.isArray(s.groups) ? s.groups.length : 0;
-  statsEl.textContent = `Azi: ${s.todayCount || 0}/${s.maxPerDay || 0} postări · Grupuri: ${groupsCount} · Config: ${s.edgeUrl && s.apiKey ? 'OK' : 'lipsă'}`;
-  const log = Array.isArray(s.lastLog) ? s.lastLog : [];
-  logEl.textContent = log.length ? log.join('\n') : '— fără activitate —';
+  toggle.classList.toggle('on', !!cfg.enabled);
+  todayEl.textContent = `Azi: ${cfg.todayCount || 0}/${cfg.maxPerDay || 15} postări`;
+
+  const now = Date.now();
+  if (cfg.nextAllowedAt && cfg.nextAllowedAt > now) {
+    const d = new Date(cfg.nextAllowedAt);
+    nextEl.textContent = `Următoarea postare: ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } else {
+    nextEl.textContent = '';
+  }
+
+  const lines = (cfg.lastLog || []).map((l) => `<div>${l.replace(/</g, '&lt;')}</div>`).join('');
+  logEl.innerHTML = lines || '<div style="color:#666">Fără evenimente încă.</div>';
 }
 
-toggleBtn.addEventListener('click', async () => {
+toggle.addEventListener('click', async () => {
   const { enabled } = await chrome.storage.local.get('enabled');
   await chrome.storage.local.set({ enabled: !enabled });
   refresh();
@@ -26,7 +34,7 @@ toggleBtn.addEventListener('click', async () => {
 
 runBtn.addEventListener('click', async () => {
   runBtn.disabled = true;
-  runBtn.textContent = 'Se rulează…';
+  runBtn.textContent = 'Rulez...';
   try {
     await chrome.runtime.sendMessage({ type: 'MVA_RUN_NOW' });
   } catch (_) {}
@@ -35,7 +43,7 @@ runBtn.addEventListener('click', async () => {
   refresh();
 });
 
-settingsLink.addEventListener('click', (e) => {
+optionsLink.addEventListener('click', (e) => {
   e.preventDefault();
   chrome.runtime.openOptionsPage();
 });

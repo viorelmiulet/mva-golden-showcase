@@ -1,9 +1,8 @@
-// MVA Facebook Group Poster - Background Service Worker
+// MVA Facebook Group Poster - Background Service Worker (MV3 resilient)
 
-const DEFAULTS = {
+const CONFIG_DEFAULTS = {
   edgeUrl: 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/fb-queue',
   apiKey: '',
-  groups: [],
   minDelay: 4,
   maxDelay: 9,
   enabled: false,
@@ -11,23 +10,22 @@ const DEFAULTS = {
 };
 
 const STATE_DEFAULTS = {
-  busy: false,
+  busySince: 0,
+  nextAllowedAt: 0,
   todayCount: 0,
   todayDate: '',
   lastLog: [],
 };
 
 const MAX_LOG = 50;
+const BUSY_TIMEOUT_MS = 3 * 60 * 1000;
+const ALARM_NAME = 'mva-tick';
 
 async function getConfig() {
-  const cfg = await chrome.storage.local.get(Object.keys(DEFAULTS));
-  const merged = { ...DEFAULTS, ...cfg };
-  if (!merged.edgeUrl) merged.edgeUrl = DEFAULTS.edgeUrl;
-  merged.edgeUrl = String(merged.edgeUrl).trim().replace(/\/+$/, '');
+  const cfg = await chrome.storage.local.get(Object.keys(CONFIG_DEFAULTS));
+  const merged = { ...CONFIG_DEFAULTS, ...cfg };
+  merged.edgeUrl = String(merged.edgeUrl || '').trim().replace(/\/+$/, '');
   merged.apiKey = String(merged.apiKey || '').trim();
-  merged.groups = Array.isArray(merged.groups)
-    ? merged.groups.map((g) => String(g).trim()).filter(Boolean)
-    : [];
   return merged;
 }
 
@@ -45,6 +43,10 @@ function todayKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 async function log(entry) {
   const st = await getState();
   const ts = new Date().toLocaleString('ro-RO');
@@ -54,15 +56,36 @@ async function log(entry) {
   console.log('[MVA-FB]', line);
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+function ensureAlarm() {
+  chrome.alarms.get(ALARM_NAME, (a) => {
+    if (!a) {
+      chrome.alarms.create(ALARM_NAME, { periodInMinutes: 2 });
+    }
+  });
 }
 
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+async function waitForResult(tabId, timeoutMs = 90000) {
+  return new Promise((resolve) => {
+    let done = false;
+    const listener = (msg, sender) => {
+      if (!sender.tab || sender.tab.id !== tabId) return;
+      if (msg && msg.type === 'MVA_POST_RESULT') {
+        done = true;
+        chrome.runtime.onMessage.removeListener(listener);
+        resolve({ ok: !!msg.ok, error: msg.error || null });
+      }
+    };
+    chrome.runtime.onMessage.addListener(listener);
+    setTimeout(() => {
+      if (!done) {
+        chrome.runtime.onMessage.removeListener(listener);
+        resolve({ ok: false, error: 'Timeout așteptând rezultatul postării (90s).' });
+      }
+    }, timeoutMs);
+  });
 }
 
-async function waitForContentReady(tabId, timeoutMs = 30000) {
+async function waitForReady(tabId, timeoutMs = 45000) {
   return new Promise((resolve, reject) => {
     let done = false;
     const listener = (msg, sender) => {
@@ -83,80 +106,47 @@ async function waitForContentReady(tabId, timeoutMs = 30000) {
   });
 }
 
-async function waitForResult(tabId, timeoutMs = 90000) {
-  return new Promise((resolve, reject) => {
-    let done = false;
-    const listener = (msg, sender) => {
-      if (!sender.tab || sender.tab.id !== tabId) return;
-      if (msg && msg.type === 'MVA_POST_RESULT') {
-        done = true;
-        chrome.runtime.onMessage.removeListener(listener);
-        resolve(msg);
-      }
-    };
-    chrome.runtime.onMessage.addListener(listener);
-    setTimeout(() => {
-      if (!done) {
-        chrome.runtime.onMessage.removeListener(listener);
-        reject(new Error('Timeout așteptând rezultatul postării.'));
-      }
-    }, timeoutMs);
-  });
-}
-
-async function scheduleNextRun(cfg) {
-  const minutes = randInt(cfg.minDelay, cfg.maxDelay);
-  await chrome.alarms.create('mva-next-run', { delayInMinutes: minutes });
-  await log(`Următoarea rulare programată în ~${minutes} min.`);
-}
-
-async function tick(opts = {}) {
-  const force = !!opts.force;
+async function tick(force = false) {
   const cfg = await getConfig();
-  let st = await getState();
-
   if (!cfg.enabled && !force) return;
   if (!cfg.edgeUrl || !cfg.apiKey) {
-    await log(`Configurare lipsă: ${!cfg.edgeUrl ? 'edgeUrl' : ''}${!cfg.edgeUrl && !cfg.apiKey ? ' și ' : ''}${!cfg.apiKey ? 'apiKey' : ''}.`);
+    await log('Configurare lipsă: edgeUrl sau apiKey.');
     return;
   }
-  if (!cfg.groups.length) {
-    await log('Nu există grupuri locale în extensie; folosesc grupurile active salvate în admin.');
-  }
-  if (st.busy) {
-    if (force) {
-      await log('Reset stare „busy" blocată — forțez rularea.');
-      await setState({ busy: false });
-      st.busy = false;
-    } else {
-      return;
-    }
+
+  const st = await getState();
+  const now = Date.now();
+
+  // busySince guard — treat old values as dead worker
+  if (st.busySince && (now - st.busySince) < BUSY_TIMEOUT_MS) {
+    return;
   }
 
-  // Reset daily counter
+  // spacing
+  if (!force && now < (st.nextAllowedAt || 0)) return;
+
+  // daily cap
   const today = todayKey();
+  let todayCount = st.todayDate === today ? (st.todayCount || 0) : 0;
   if (st.todayDate !== today) {
     await setState({ todayDate: today, todayCount: 0 });
-    st.todayCount = 0;
-    st.todayDate = today;
   }
-  if (st.todayCount >= cfg.maxPerDay) {
-    await log(`Limita zilnică atinsă (${st.todayCount}/${cfg.maxPerDay}).`);
+  if (todayCount >= cfg.maxPerDay) {
+    await log(`Limita zilnică atinsă (${todayCount}/${cfg.maxPerDay}).`);
     return;
   }
 
-  await setState({ busy: true });
+  await setState({ busySince: now });
   let openedTabId = null;
 
   try {
-    // Fetch next job
     const nextRes = await fetch(`${cfg.edgeUrl}/next`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Api-Key': cfg.apiKey,
       },
-      body: JSON.stringify({ groups: cfg.groups }),
+      body: JSON.stringify({}),
     });
 
     if (!nextRes.ok) {
@@ -164,15 +154,14 @@ async function tick(opts = {}) {
       return;
     }
 
-    const job = await nextRes.json();
-    if (!job || !job.id) {
-      // nothing to do
-      return;
-    }
+    const raw = await nextRes.text();
+    if (!raw || raw === 'null') return;
+    let job;
+    try { job = JSON.parse(raw); } catch { await log('Răspuns invalid la /next.'); return; }
+    if (!job || !job.id) return;
 
     await log(`Job primit: ${job.id} → ${job.group_url}`);
 
-    // Open target group in inactive tab
     const tab = await chrome.tabs.create({ url: job.group_url, active: false });
     openedTabId = tab.id;
 
@@ -180,17 +169,16 @@ async function tick(opts = {}) {
     let errorMsg = null;
 
     try {
-      await waitForContentReady(openedTabId, 45000);
+      await waitForReady(openedTabId, 45000);
       chrome.tabs.sendMessage(openedTabId, { type: 'MVA_DO_POST', job });
       const result = await waitForResult(openedTabId, 90000);
-      ok = !!result.ok;
-      errorMsg = result.error || null;
+      ok = result.ok;
+      errorMsg = result.error;
     } catch (e) {
       ok = false;
       errorMsg = e && e.message ? e.message : String(e);
     }
 
-    // Report result
     try {
       await fetch(`${cfg.edgeUrl}/result`, {
         method: 'POST',
@@ -198,12 +186,7 @@ async function tick(opts = {}) {
           'Content-Type': 'application/json',
           'X-Api-Key': cfg.apiKey,
         },
-        body: JSON.stringify({
-          id: job.id,
-          group_url: job.group_url,
-          ok,
-          error: errorMsg,
-        }),
+        body: JSON.stringify({ id: job.id, group_url: job.group_url, ok, error: errorMsg }),
       });
     } catch (e) {
       await log(`Eroare la /result: ${e.message || e}`);
@@ -211,60 +194,57 @@ async function tick(opts = {}) {
 
     if (ok) {
       const st2 = await getState();
-      await setState({ todayCount: (st2.todayCount || 0) + 1 });
+      const newCount = (st2.todayDate === today ? (st2.todayCount || 0) : 0) + 1;
+      await setState({ todayDate: today, todayCount: newCount });
       await log(`✅ Postat în ${job.group_url}`);
     } else {
       await log(`❌ Eșec ${job.group_url}: ${errorMsg}`);
     }
 
-    // Close tab after 8s
     setTimeout(() => {
       if (openedTabId != null) {
         chrome.tabs.remove(openedTabId).catch(() => {});
       }
     }, 8000);
 
-    await scheduleNextRun(cfg);
+    const delayMin = randInt(cfg.minDelay, cfg.maxDelay);
+    await setState({ nextAllowedAt: Date.now() + delayMin * 60 * 1000 });
+    await log(`Următoarea postare permisă în ~${delayMin} min.`);
   } catch (e) {
     await log(`Eroare tick: ${e.message || e}`);
   } finally {
-    await setState({ busy: false });
+    await setState({ busySince: 0 });
   }
 }
 
-function ensurePeriodicAlarm() {
-  chrome.alarms.create('mva-periodic', { periodInMinutes: 2 });
-}
+// Top-level alarm registration — runs whenever worker wakes
+ensureAlarm();
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const existing = await chrome.storage.local.get(Object.keys(DEFAULTS));
+  const existing = await chrome.storage.local.get(Object.keys(CONFIG_DEFAULTS));
   const patch = {};
-  for (const k of Object.keys(DEFAULTS)) {
-    if (existing[k] === undefined) patch[k] = DEFAULTS[k];
+  for (const k of Object.keys(CONFIG_DEFAULTS)) {
+    if (existing[k] === undefined) patch[k] = CONFIG_DEFAULTS[k];
   }
-  if (!existing.edgeUrl) patch.edgeUrl = DEFAULTS.edgeUrl;
-  if (!Array.isArray(existing.groups)) patch.groups = DEFAULTS.groups;
   if (Object.keys(patch).length) await chrome.storage.local.set(patch);
-  await setState({ busy: false });
-  ensurePeriodicAlarm();
+  await setState({ busySince: 0 });
+  ensureAlarm();
 });
 
-chrome.runtime.onStartup.addListener(() => {
-  ensurePeriodicAlarm();
-  setState({ busy: false });
+chrome.runtime.onStartup.addListener(async () => {
+  await setState({ busySince: 0 });
+  ensureAlarm();
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === 'mva-periodic' || alarm.name === 'mva-next-run') {
-    tick();
-  }
+  if (alarm.name === ALARM_NAME) tick(false);
 });
 
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg && msg.type === 'MVA_RUN_NOW') {
     (async () => {
       try {
-        await tick({ force: true });
+        await tick(true);
         sendResponse({ ok: true });
       } catch (e) {
         sendResponse({ ok: false, error: e.message || String(e) });
