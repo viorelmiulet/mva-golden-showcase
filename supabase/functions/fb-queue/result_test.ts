@@ -123,3 +123,88 @@ Deno.test("many successful posts never trigger attempts>=10 exclusion", async ()
     await cleanup(id);
   }
 });
+
+Deno.test("ok=true appends group_url to groups_done (single call)", async () => {
+  const id = await seedRow(0);
+  try {
+    const url = "https://facebook.com/groups/success-1";
+    const status = await postResult({ id, group_url: url, ok: true });
+    assertEquals(status, 200);
+
+    const row = await readRow(id);
+    assertEquals(row.groups_done, [url]);
+    assertEquals(row.errors, []);
+  } finally {
+    await cleanup(id);
+  }
+});
+
+Deno.test("ok=true does not duplicate group_url in groups_done", async () => {
+  const id = await seedRow(0);
+  try {
+    const url = "https://facebook.com/groups/dup";
+    await postResult({ id, group_url: url, ok: true });
+    await postResult({ id, group_url: url, ok: true });
+
+    const row = await readRow(id);
+    assertEquals(row.groups_done, [url], "duplicate posts must not repeat url");
+  } finally {
+    await cleanup(id);
+  }
+});
+
+Deno.test("ok=false leaves groups_done unchanged", async () => {
+  const id = await seedRow(0);
+  try {
+    // seed a successful post first
+    const okUrl = "https://facebook.com/groups/ok-1";
+    await postResult({ id, group_url: okUrl, ok: true });
+
+    // now a failure — must NOT modify groups_done
+    const failUrl = "https://facebook.com/groups/fail-1";
+    const status = await postResult({
+      id,
+      group_url: failUrl,
+      ok: false,
+      error: "blocked",
+    });
+    assertEquals(status, 200);
+
+    const row = await readRow(id);
+    assertEquals(row.groups_done, [okUrl], "failure must not touch groups_done");
+    assertEquals(row.errors, [`${failUrl}: blocked`]);
+  } finally {
+    await cleanup(id);
+  }
+});
+
+Deno.test("mixed sequence: only ok=true entries land in groups_done", async () => {
+  const id = await seedRow(0);
+  try {
+    const sequence: Array<{ url: string; ok: boolean }> = [
+      { url: "https://facebook.com/groups/a", ok: true },
+      { url: "https://facebook.com/groups/b", ok: false },
+      { url: "https://facebook.com/groups/c", ok: true },
+      { url: "https://facebook.com/groups/d", ok: false },
+      { url: "https://facebook.com/groups/e", ok: true },
+    ];
+    for (const s of sequence) {
+      await postResult({
+        id,
+        group_url: s.url,
+        ok: s.ok,
+        error: s.ok ? undefined : "err",
+      });
+    }
+
+    const row = await readRow(id);
+    assertEquals(row.groups_done, [
+      "https://facebook.com/groups/a",
+      "https://facebook.com/groups/c",
+      "https://facebook.com/groups/e",
+    ]);
+    assertEquals(row.attempts, 2, "only failures increment attempts");
+  } finally {
+    await cleanup(id);
+  }
+});
