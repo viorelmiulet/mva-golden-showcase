@@ -219,40 +219,54 @@
     }
   }
 
-  async function attachImages(dialog, urls) {
+  async function attachImages(dialog, urls, diag) {
     const capped = Array.isArray(urls) ? urls.slice(0, 7) : [];
+    diag.requested = capped.length;
     console.log('[MVA-FB] fetching', capped.length, 'images (max 7)');
     let files = capped.length ? await fetchImagesAsFiles(capped) : [];
+    diag.fetched = files.length;
     console.log('[MVA-FB] fetched', files.length, 'of', capped.length);
 
     if (files.length === 0) {
       console.warn('[MVA-FB] using fallback cover image');
       const fb = await fetchFallbackFile();
-      if (fb) files = [fb];
+      if (fb) { files = [fb]; diag.usedFallback = true; }
     }
-    if (files.length === 0) throw new Error('Nu am putut atașa nicio imagine (nici fallback).');
+    if (files.length === 0) {
+      diag.step = 'no-files';
+      throw new Error(`Nicio imagine disponibilă (${diag.requested} URL-uri primite, 0 descărcate, fallback indisponibil).`);
+    }
 
-    // Snapshot existing file inputs BEFORE clicking, so we can detect the fresh one.
+    diag.step = 'click-photo-button';
     const before = new Set(listFileInputs());
     const clicked = await clickPhotoVideoButton(dialog);
+    diag.photoButtonClicked = clicked;
     console.log('[MVA-FB] photo/video button clicked:', clicked);
+    if (!clicked) {
+      throw new Error(`Nu am găsit butonul „Foto/video" (${files.length} imagini pregătite, dar nu s-au putut atașa).`);
+    }
 
-    // Give Facebook a moment to mount the dedicated input.
+    diag.step = 'wait-file-input';
     await sleep(800);
     const input = await waitForNewInput(before, 12000);
-    if (!input) throw new Error('Nu am găsit input-ul pentru fotografii.');
-    console.log('[MVA-FB] using input; accept =', input.getAttribute('accept'));
+    if (!input) {
+      throw new Error(`Nu am găsit input-ul pentru fotografii după click pe „Foto/video" (${files.length} imagini pregătite).`);
+    }
+    diag.inputAccept = input.getAttribute('accept') || '';
+    console.log('[MVA-FB] using input; accept =', diag.inputAccept);
 
+    diag.step = 'inject-files';
     const dt = new DataTransfer();
     files.forEach((f) => dt.items.add(f));
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Wait for FB to render N thumbnails inside the composer dialog.
+    diag.step = 'wait-thumbnails';
     const started = Date.now();
+    let ready = 0;
     while (Date.now() - started < 60000) {
       const imgs = dialog.querySelectorAll('img');
-      let ready = 0;
+      ready = 0;
       for (const im of imgs) {
         const w = im.naturalWidth || 0;
         if (w > 40 && w < 800) ready += 1;
@@ -260,7 +274,13 @@
       if (ready >= files.length) break;
       await sleep(1000);
     }
+    diag.thumbnailsReady = ready;
+    if (ready === 0) {
+      throw new Error(`Facebook nu a randat niciun thumbnail după injectarea a ${files.length} imagini (accept="${diag.inputAccept}").`);
+    }
     await sleep(3000);
+    diag.step = 'done';
+    diag.attached = files.length;
     return { attached: files.length };
   }
 
