@@ -26,5 +26,11 @@
     "default_popup": "popup.html",
     "default_title": "MVA Facebook Group Poster"
   },
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["fallback.png"],
+      "matches": ["https://www.facebook.com/*"]
+    }
+  ]
 }
