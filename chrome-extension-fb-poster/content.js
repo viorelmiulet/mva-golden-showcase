@@ -56,27 +56,39 @@
   async function insertText(textbox, text) {
     textbox.focus();
     await sleep(1000);
-    let inserted = false;
+    // Paste-first: preserves blank lines between blocks (\n\n) exactly.
+    // execCommand('insertText') collapses/rewraps newlines in FB's Lexical editor,
+    // breaking the block alignment of the MVA template.
+    let pasted = false;
     try {
-      inserted = document.execCommand('insertText', false, text);
+      const dt = new DataTransfer();
+      dt.setData('text/plain', text);
+      const evt = new ClipboardEvent('paste', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      });
+      pasted = textbox.dispatchEvent(evt);
     } catch (_) {
-      inserted = false;
+      pasted = false;
     }
-    await sleep(300);
-    if (!inserted || !(textbox.textContent || '').includes(text.slice(0, 20))) {
-      try {
-        const dt = new DataTransfer();
-        dt.setData('text/plain', text);
-        const evt = new ClipboardEvent('paste', {
-          clipboardData: dt,
-          bubbles: true,
-          cancelable: true,
-        });
-        textbox.dispatchEvent(evt);
-      } catch (e) {
-        throw new Error('Nu am putut insera textul în composer.');
+    await sleep(400);
+    const probe = text.slice(0, 20);
+    if (!(textbox.textContent || '').includes(probe)) {
+      // Fallback: insert line by line, using an explicit line break between
+      // lines so blank lines survive as real empty paragraphs.
+      textbox.focus();
+      const lines = text.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].length) {
+          document.execCommand('insertText', false, lines[i]);
+        }
+        if (i < lines.length - 1) {
+          document.execCommand('insertLineBreak');
+        }
       }
     }
+    await sleep(300);
   }
 
   function findPostButton(dialog) {
