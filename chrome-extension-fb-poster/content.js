@@ -374,13 +374,14 @@
     if (msg && msg.type === 'MVA_DO_POST') {
       (async () => {
         try {
-          await doPost(msg.job || {});
-          reportResult({ ok: true, jobId: msg.job && msg.job.id });
+          const res = await doPost(msg.job || {});
+          reportResult({ ok: true, jobId: msg.job && msg.job.id, diag: res && res.diag });
         } catch (e) {
           reportResult({
             ok: false,
             jobId: msg.job && msg.job.id,
             error: (e && e.message) ? e.message : String(e),
+            diag: e && e.diag,
           });
         }
       })();
