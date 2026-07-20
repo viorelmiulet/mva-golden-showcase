@@ -4,11 +4,13 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL =
   Deno.env.get("SUPABASE_URL") ?? Deno.env.get("VITE_SUPABASE_URL")!;
-const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const ANON_KEY =
+  Deno.env.get("VITE_SUPABASE_PUBLISHABLE_KEY") ??
+  Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
 const API_KEY = Deno.env.get("FB_QUEUE_API_KEY")!;
 const FN_URL = `${SUPABASE_URL}/functions/v1/fb-queue`;
 
-const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
+const admin = createClient(SUPABASE_URL, ANON_KEY, {
   auth: { persistSession: false },
 });
 
