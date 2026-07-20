@@ -151,21 +151,34 @@
     return files;
   }
 
-  async function findFileInput(timeoutMs = 8000) {
+  function listFileInputs() {
+    const all = Array.from(document.querySelectorAll('input[type="file"]'));
+    return all.filter((inp) => {
+      const accept = (inp.getAttribute('accept') || '').toLowerCase();
+      // Skip inputs that clearly aren't for images (e.g., .csv, application/*)
+      if (accept && !accept.includes('image') && !accept.includes('video') && !accept.includes('*')) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  async function waitForNewInput(existingSet, timeoutMs = 12000) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-      const inputs = document.querySelectorAll('input[type="file"]');
-      for (const inp of inputs) {
-        const accept = (inp.getAttribute('accept') || '').toLowerCase();
-        if (!accept || accept.includes('image') || accept.includes('video')) return inp;
-      }
-      await sleep(300);
+      const inputs = listFileInputs();
+      // Prefer an input that wasn't there before clicking Foto/video.
+      const fresh = inputs.find((i) => !existingSet.has(i));
+      if (fresh) return fresh;
+      await sleep(250);
     }
-    return null;
+    // Fallback: return the LAST image input on the page (usually the composer's).
+    const inputs = listFileInputs();
+    return inputs.length ? inputs[inputs.length - 1] : null;
   }
 
   async function clickPhotoVideoButton(dialog) {
-    const labels = ['foto/video', 'photo/video', 'foto', 'photo', 'add photos', 'adaugă fotografii', 'adauga fotografii', 'adaugă foto', 'adauga foto'];
+    const labels = ['foto/video', 'photo/video', 'foto', 'photo', 'add photos', 'adaugă fotografii', 'adauga fotografii', 'adaugă foto', 'adauga foto', 'add to your post', 'adaugă la postare', 'adauga la postare'];
     const scopes = [dialog, document];
     for (const scope of scopes) {
       const nodes = scope.querySelectorAll('div[role="button"], [aria-label]');
@@ -189,20 +202,23 @@
     console.log('[MVA-FB] fetched', files.length, 'of', urls.length);
     if (files.length === 0) throw new Error('Nu am putut descărca nicio imagine.');
 
-    let input = await findFileInput(2000);
-    if (!input) {
-      const clicked = await clickPhotoVideoButton(dialog);
-      console.log('[MVA-FB] photo/video button clicked:', clicked);
-      await sleep(1500);
-      input = await findFileInput(10000);
-    }
+    // Snapshot existing file inputs BEFORE clicking, so we can detect the fresh one.
+    const before = new Set(listFileInputs());
+    const clicked = await clickPhotoVideoButton(dialog);
+    console.log('[MVA-FB] photo/video button clicked:', clicked);
+
+    // Give Facebook a moment to mount the dedicated input.
+    await sleep(800);
+    const input = await waitForNewInput(before, 12000);
     if (!input) throw new Error('Nu am găsit input-ul pentru fotografii.');
+    console.log('[MVA-FB] using input; accept =', input.getAttribute('accept'));
 
     const dt = new DataTransfer();
     files.forEach((f) => dt.items.add(f));
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 
+    // Wait for FB to render N thumbnails inside the composer dialog.
     const started = Date.now();
     while (Date.now() - started < 60000) {
       const imgs = dialog.querySelectorAll('img');
@@ -214,9 +230,11 @@
       if (ready >= files.length) break;
       await sleep(1000);
     }
-    await sleep(2500);
+    await sleep(3000);
     return { attached: files.length };
   }
+
+
 
   async function doPost(job) {
     await sleep(rand(2000, 5000));
