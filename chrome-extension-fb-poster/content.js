@@ -195,12 +195,30 @@
     return false;
   }
 
+  async function fetchFallbackFile() {
+    try {
+      const url = chrome.runtime.getURL('fallback.png');
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return new File([blob], `mva_fallback_${Date.now()}.png`, { type: 'image/png' });
+    } catch (e) {
+      console.warn('[MVA-FB] fallback fetch failed:', e && e.message);
+      return null;
+    }
+  }
+
   async function attachImages(dialog, urls) {
-    if (!urls || urls.length === 0) return { attached: 0 };
-    console.log('[MVA-FB] fetching', urls.length, 'images');
-    const files = await fetchImagesAsFiles(urls);
-    console.log('[MVA-FB] fetched', files.length, 'of', urls.length);
-    if (files.length === 0) throw new Error('Nu am putut descărca nicio imagine.');
+    const capped = Array.isArray(urls) ? urls.slice(0, 7) : [];
+    console.log('[MVA-FB] fetching', capped.length, 'images (max 7)');
+    let files = capped.length ? await fetchImagesAsFiles(capped) : [];
+    console.log('[MVA-FB] fetched', files.length, 'of', capped.length);
+
+    if (files.length === 0) {
+      console.warn('[MVA-FB] using fallback cover image');
+      const fb = await fetchFallbackFile();
+      if (fb) files = [fb];
+    }
+    if (files.length === 0) throw new Error('Nu am putut atașa nicio imagine (nici fallback).');
 
     // Snapshot existing file inputs BEFORE clicking, so we can detect the fresh one.
     const before = new Set(listFileInputs());
@@ -253,13 +271,13 @@
 
     await sleep(rand(3000, 5000));
 
-    // Attach photos - REQUIRED: at least 1 image must be attached.
-    if (!Array.isArray(job.image_urls) || job.image_urls.length === 0) {
-      throw new Error('Nicio imagine disponibilă pentru această ofertă (necesar minim 1).');
-    }
-    const result = await attachImages(dialog, job.image_urls);
-    if (!result || !result.attached || result.attached < 1) {
-      throw new Error('Nu s-a putut atașa nicio imagine (necesar minim 1).');
+    // Attach photos: try offer images (max 7); if none work, fallback cover image.
+    // Never abort the post on attach errors — publish text-only as last resort.
+    try {
+      await attachImages(dialog, job.image_urls || []);
+    } catch (e) {
+      console.warn('[MVA-FB] attach images failed, posting without photos:', e && e.message);
+      await sleep(rand(1500, 2500));
     }
 
     const postBtn = findPostButton(dialog);

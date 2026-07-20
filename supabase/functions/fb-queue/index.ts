@@ -109,7 +109,7 @@ async function handleNext(body: { groups?: string[] }): Promise<Response> {
           image_urls = offer.images
             .map((u: unknown) => String(u || "").trim())
             .filter((u) => u.startsWith("http"))
-            .slice(0, 5);
+            .slice(0, 7);
         }
       }
 
