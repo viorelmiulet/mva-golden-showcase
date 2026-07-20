@@ -156,7 +156,9 @@ async function tick(force = false) {
   }
 
   await setState({ busySince: now });
+  await chrome.storage.local.remove('lastPostResult').catch(() => {});
   let openedTabId = null;
+  const stopKeepalive = startKeepalive();
 
   try {
     const nextRes = await fetch(`${cfg.edgeUrl}/next`, {
@@ -188,9 +190,9 @@ async function tick(force = false) {
     let errorMsg = null;
 
     try {
-      await waitForReady(openedTabId, 45000);
+      await waitForReady(openedTabId, 60000);
       chrome.tabs.sendMessage(openedTabId, { type: 'MVA_DO_POST', job });
-      const result = await waitForResult(openedTabId, 90000);
+      const result = await waitForResult(openedTabId, job.id, 120000);
       ok = result.ok;
       errorMsg = result.error;
     } catch (e) {
@@ -220,18 +222,18 @@ async function tick(force = false) {
       await log(`❌ Eșec ${job.group_url}: ${errorMsg}`);
     }
 
-    setTimeout(() => {
-      if (openedTabId != null) {
-        chrome.tabs.remove(openedTabId).catch(() => {});
-      }
-    }, 8000);
-
     const delayMin = randInt(cfg.minDelay, cfg.maxDelay);
     await setState({ nextAllowedAt: Date.now() + delayMin * 60 * 1000 });
     await log(`Următoarea postare permisă în ~${delayMin} min.`);
   } catch (e) {
     await log(`Eroare tick: ${e.message || e}`);
   } finally {
+    stopKeepalive();
+    if (openedTabId != null) {
+      const tabToClose = openedTabId;
+      setTimeout(() => { chrome.tabs.remove(tabToClose).catch(() => {}); }, 8000);
+    }
+    await chrome.storage.local.remove('lastPostResult').catch(() => {});
     await setState({ busySince: 0 });
   }
 }
