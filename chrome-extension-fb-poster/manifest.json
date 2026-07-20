@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MVA Facebook Group Poster",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Postează automat oferte imobiliare MVA în grupuri Facebook prin coada fb-queue.",
   "permissions": ["storage", "alarms", "tabs", "scripting"],
   "host_permissions": [
