@@ -137,16 +137,26 @@
     try { chrome.runtime.sendMessage({ type: 'MVA_READY' }); } catch (_) {}
   }, 3000);
 
+  function reportResult(payload) {
+    // Dublu-canal: mesaj + storage, ca să nu se piardă rezultatul dacă service worker-ul MV3 a murit.
+    try { chrome.runtime.sendMessage({ type: 'MVA_POST_RESULT', ...payload }); } catch (_) {}
+    try {
+      chrome.storage.local.set({
+        lastPostResult: { ...payload, ts: Date.now(), url: location.href },
+      });
+    } catch (_) {}
+  }
+
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg && msg.type === 'MVA_DO_POST') {
       (async () => {
         try {
           await doPost(msg.job || {});
-          chrome.runtime.sendMessage({ type: 'MVA_POST_RESULT', ok: true });
+          reportResult({ ok: true, jobId: msg.job && msg.job.id });
         } catch (e) {
-          chrome.runtime.sendMessage({
-            type: 'MVA_POST_RESULT',
+          reportResult({
             ok: false,
+            jobId: msg.job && msg.job.id,
             error: (e && e.message) ? e.message : String(e),
           });
         }
