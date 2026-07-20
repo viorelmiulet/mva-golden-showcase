@@ -219,40 +219,54 @@
     }
   }
 
-  async function attachImages(dialog, urls) {
+  async function attachImages(dialog, urls, diag) {
     const capped = Array.isArray(urls) ? urls.slice(0, 7) : [];
+    diag.requested = capped.length;
     console.log('[MVA-FB] fetching', capped.length, 'images (max 7)');
     let files = capped.length ? await fetchImagesAsFiles(capped) : [];
+    diag.fetched = files.length;
     console.log('[MVA-FB] fetched', files.length, 'of', capped.length);
 
     if (files.length === 0) {
       console.warn('[MVA-FB] using fallback cover image');
       const fb = await fetchFallbackFile();
-      if (fb) files = [fb];
+      if (fb) { files = [fb]; diag.usedFallback = true; }
     }
-    if (files.length === 0) throw new Error('Nu am putut atașa nicio imagine (nici fallback).');
+    if (files.length === 0) {
+      diag.step = 'no-files';
+      throw new Error(`Nicio imagine disponibilă (${diag.requested} URL-uri primite, 0 descărcate, fallback indisponibil).`);
+    }
 
-    // Snapshot existing file inputs BEFORE clicking, so we can detect the fresh one.
+    diag.step = 'click-photo-button';
     const before = new Set(listFileInputs());
     const clicked = await clickPhotoVideoButton(dialog);
+    diag.photoButtonClicked = clicked;
     console.log('[MVA-FB] photo/video button clicked:', clicked);
+    if (!clicked) {
+      throw new Error(`Nu am găsit butonul „Foto/video" (${files.length} imagini pregătite, dar nu s-au putut atașa).`);
+    }
 
-    // Give Facebook a moment to mount the dedicated input.
+    diag.step = 'wait-file-input';
     await sleep(800);
     const input = await waitForNewInput(before, 12000);
-    if (!input) throw new Error('Nu am găsit input-ul pentru fotografii.');
-    console.log('[MVA-FB] using input; accept =', input.getAttribute('accept'));
+    if (!input) {
+      throw new Error(`Nu am găsit input-ul pentru fotografii după click pe „Foto/video" (${files.length} imagini pregătite).`);
+    }
+    diag.inputAccept = input.getAttribute('accept') || '';
+    console.log('[MVA-FB] using input; accept =', diag.inputAccept);
 
+    diag.step = 'inject-files';
     const dt = new DataTransfer();
     files.forEach((f) => dt.items.add(f));
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Wait for FB to render N thumbnails inside the composer dialog.
+    diag.step = 'wait-thumbnails';
     const started = Date.now();
+    let ready = 0;
     while (Date.now() - started < 60000) {
       const imgs = dialog.querySelectorAll('img');
-      let ready = 0;
+      ready = 0;
       for (const im of imgs) {
         const w = im.naturalWidth || 0;
         if (w > 40 && w < 800) ready += 1;
@@ -260,25 +274,46 @@
       if (ready >= files.length) break;
       await sleep(1000);
     }
+    diag.thumbnailsReady = ready;
+    if (ready === 0) {
+      throw new Error(`Facebook nu a randat niciun thumbnail după injectarea a ${files.length} imagini (accept="${diag.inputAccept}").`);
+    }
     await sleep(3000);
+    diag.step = 'done';
+    diag.attached = files.length;
     return { attached: files.length };
   }
 
 
 
   async function doPost(job) {
+    const diag = {
+      step: 'start',
+      requested: 0,
+      fetched: 0,
+      usedFallback: false,
+      photoButtonClicked: false,
+      inputAccept: '',
+      thumbnailsReady: 0,
+      attached: 0,
+      attachError: null,
+    };
+
     await sleep(rand(2000, 5000));
 
+    diag.step = 'find-composer';
     const trigger = await findComposerTrigger(20000);
-    if (!trigger) throw new Error('Nu am găsit butonul „Scrie ceva".');
+    if (!trigger) { const e = new Error('Nu am găsit butonul „Scrie ceva".'); e.diag = diag; throw e; }
     trigger.scrollIntoView({ block: 'center' });
     await sleep(400);
     trigger.click();
 
+    diag.step = 'wait-dialog';
     const found = await waitForDialog(15000);
-    if (!found) throw new Error('Nu s-a deschis dialogul de postare.');
+    if (!found) { const e = new Error('Nu s-a deschis dialogul de postare.'); e.diag = diag; throw e; }
     const { dialog, textbox } = found;
 
+    diag.step = 'insert-text';
     await insertText(textbox, job.message || '');
 
     await sleep(rand(3000, 5000));
@@ -286,24 +321,40 @@
     // Attach photos: try offer images (max 7); if none work, fallback cover image.
     // Never abort the post on attach errors — publish text-only as last resort.
     try {
-      await attachImages(dialog, job.image_urls || []);
+      await attachImages(dialog, job.image_urls || [], diag);
     } catch (e) {
-      console.warn('[MVA-FB] attach images failed, posting without photos:', e && e.message);
+      diag.attachError = (e && e.message) ? e.message : String(e);
+      console.warn('[MVA-FB] attach images failed, posting without photos:', diag.attachError, diag);
       await sleep(rand(1500, 2500));
     }
 
+    diag.step = 'find-post-button';
     const postBtn = findPostButton(dialog);
-    if (!postBtn) throw new Error('Nu am găsit butonul „Postează".');
+    if (!postBtn) { const e = new Error(buildErr('Nu am găsit butonul „Postează".', diag)); e.diag = diag; throw e; }
     if (postBtn.getAttribute('aria-disabled') === 'true') {
-      throw new Error('Butonul „Postează" este dezactivat.');
+      const e = new Error(buildErr('Butonul „Postează" este dezactivat.', diag)); e.diag = diag; throw e;
     }
     postBtn.click();
 
+    diag.step = 'wait-dialog-gone';
     const gone = await waitDialogGone(dialog, 60000);
-    if (!gone) throw new Error('Dialogul nu s-a închis după publicare.');
+    if (!gone) { const e = new Error(buildErr('Dialogul nu s-a închis după publicare.', diag)); e.diag = diag; throw e; }
 
-    return true;
+    diag.step = 'success';
+    return { ok: true, diag };
   }
+
+  function buildErr(base, d) {
+    const parts = [
+      `imagini: ${d.fetched}/${d.requested} descărcate${d.usedFallback ? ' + fallback' : ''}`,
+      `atașate: ${d.attached}`,
+      `thumbnails: ${d.thumbnailsReady}`,
+      `pas: ${d.step}`,
+    ];
+    if (d.attachError) parts.push(`attach: ${d.attachError}`);
+    return `${base} [${parts.join(' • ')}]`;
+  }
+
 
   setTimeout(() => {
     try { chrome.runtime.sendMessage({ type: 'MVA_READY' }); } catch (_) {}
@@ -323,13 +374,14 @@
     if (msg && msg.type === 'MVA_DO_POST') {
       (async () => {
         try {
-          await doPost(msg.job || {});
-          reportResult({ ok: true, jobId: msg.job && msg.job.id });
+          const res = await doPost(msg.job || {});
+          reportResult({ ok: true, jobId: msg.job && msg.job.id, diag: res && res.diag });
         } catch (e) {
           reportResult({
             ok: false,
             jobId: msg.job && msg.job.id,
             error: (e && e.message) ? e.message : String(e),
+            diag: e && e.diag,
           });
         }
       })();
