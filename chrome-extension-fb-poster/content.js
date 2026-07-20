@@ -253,16 +253,13 @@
 
     await sleep(rand(3000, 5000));
 
-    // Attach photos if provided by the edge function.
-    if (Array.isArray(job.image_urls) && job.image_urls.length > 0) {
-      try {
-        await attachImages(dialog, job.image_urls);
-      } catch (e) {
-        // Non-fatal: continue posting text-only if attach fails.
-        console.warn('[MVA-FB] attach images failed:', e && e.message);
-      }
-    } else {
-      await sleep(rand(3000, 4000));
+    // Attach photos - REQUIRED: at least 1 image must be attached.
+    if (!Array.isArray(job.image_urls) || job.image_urls.length === 0) {
+      throw new Error('Nicio imagine disponibilă pentru această ofertă (necesar minim 1).');
+    }
+    const result = await attachImages(dialog, job.image_urls);
+    if (!result || !result.attached || result.attached < 1) {
+      throw new Error('Nu s-a putut atașa nicio imagine (necesar minim 1).');
     }
 
     const postBtn = findPostButton(dialog);
