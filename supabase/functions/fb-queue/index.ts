@@ -146,7 +146,7 @@ async function handleResult(body: {
   const { error: upErr } = await supabase
     .from("fb_post_queue")
     .update({
-      attempts: (row.attempts ?? 0) + 1,
+      attempts: ok ? (row.attempts ?? 0) : (row.attempts ?? 0) + 1,
       status: "pending",
       groups_done,
       errors,
