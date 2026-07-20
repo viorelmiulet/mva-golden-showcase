@@ -273,4 +273,25 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     })();
     return true;
   }
+  if (msg && msg.type === 'MVA_FETCH_IMAGE' && msg.url) {
+    (async () => {
+      try {
+        const res = await fetch(msg.url, { credentials: 'omit' });
+        if (!res.ok) { sendResponse({ ok: false, error: `HTTP ${res.status}` }); return; }
+        const buf = await res.arrayBuffer();
+        const type = res.headers.get('content-type') || 'image/jpeg';
+        // Convert to base64 (chunked to avoid stack overflow on large images).
+        const bytes = new Uint8Array(buf);
+        let binary = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+          binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        }
+        sendResponse({ ok: true, base64: btoa(binary), type });
+      } catch (e) {
+        sendResponse({ ok: false, error: e.message || String(e) });
+      }
+    })();
+    return true;
+  }
 });
