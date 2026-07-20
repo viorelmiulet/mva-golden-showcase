@@ -103,34 +103,61 @@
     return false;
   }
 
+  function fetchImageViaBackground(url) {
+    return new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: 'MVA_FETCH_IMAGE', url }, (resp) => {
+          if (chrome.runtime.lastError || !resp || !resp.ok) {
+            resolve(null);
+            return;
+          }
+          try {
+            const bin = atob(resp.base64);
+            const arr = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+            resolve({ blob: new Blob([arr], { type: resp.type || 'image/jpeg' }), type: resp.type || 'image/jpeg' });
+          } catch (_) {
+            resolve(null);
+          }
+        });
+      } catch (_) {
+        resolve(null);
+      }
+    });
+  }
+
   async function fetchImagesAsFiles(urls) {
     const files = [];
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
+      let got = null;
       try {
         const res = await fetch(url, { credentials: 'omit', mode: 'cors' });
-        if (!res.ok) continue;
-        const blob = await res.blob();
-        if (!blob || blob.size === 0) continue;
-        let type = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/jpeg';
-        let ext = type.split('/')[1] || 'jpg';
-        if (ext === 'jpeg') ext = 'jpg';
-        const name = `photo_${Date.now()}_${i}.${ext}`;
-        files.push(new File([blob], name, { type }));
-      } catch (_) {
-        // skip broken image
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob && blob.size > 0) got = { blob, type: blob.type };
+        }
+      } catch (_) { /* fall through */ }
+      if (!got) got = await fetchImageViaBackground(url);
+      if (!got || !got.blob || got.blob.size === 0) {
+        console.warn('[MVA-FB] image fetch failed:', url);
+        continue;
       }
+      let type = got.type && got.type.startsWith('image/') ? got.type : 'image/jpeg';
+      let ext = type.split('/')[1] || 'jpg';
+      if (ext === 'jpeg') ext = 'jpg';
+      files.push(new File([got.blob], `photo_${Date.now()}_${i}.${ext}`, { type }));
     }
     return files;
   }
 
-  async function findFileInput(dialog, timeoutMs = 8000) {
+  async function findFileInput(timeoutMs = 8000) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-      const inputs = dialog.querySelectorAll('input[type="file"]');
+      const inputs = document.querySelectorAll('input[type="file"]');
       for (const inp of inputs) {
         const accept = (inp.getAttribute('accept') || '').toLowerCase();
-        if (!accept || accept.includes('image')) return inp;
+        if (!accept || accept.includes('image') || accept.includes('video')) return inp;
       }
       await sleep(300);
     }
@@ -138,13 +165,18 @@
   }
 
   async function clickPhotoVideoButton(dialog) {
-    const labels = ['foto/video', 'photo/video', 'foto', 'photo', 'add photos', 'adaugă fotografii', 'adauga fotografii'];
-    const nodes = dialog.querySelectorAll('div[role="button"], [aria-label]');
-    for (const el of nodes) {
-      const t = ((el.getAttribute('aria-label') || '') + ' ' + (el.textContent || '')).trim().toLowerCase();
-      if (labels.some((l) => t === l || t.startsWith(l))) {
-        el.click();
-        return true;
+    const labels = ['foto/video', 'photo/video', 'foto', 'photo', 'add photos', 'adaugă fotografii', 'adauga fotografii', 'adaugă foto', 'adauga foto'];
+    const scopes = [dialog, document];
+    for (const scope of scopes) {
+      const nodes = scope.querySelectorAll('div[role="button"], [aria-label]');
+      for (const el of nodes) {
+        if (!isVisible(el)) continue;
+        const aria = (el.getAttribute('aria-label') || '').trim().toLowerCase();
+        const txt = (el.textContent || '').trim().toLowerCase();
+        if (labels.some((l) => aria === l || aria.startsWith(l) || txt === l || txt.startsWith(l))) {
+          el.click();
+          return true;
+        }
       }
     }
     return false;
@@ -152,14 +184,17 @@
 
   async function attachImages(dialog, urls) {
     if (!urls || urls.length === 0) return { attached: 0 };
+    console.log('[MVA-FB] fetching', urls.length, 'images');
     const files = await fetchImagesAsFiles(urls);
-    if (files.length === 0) return { attached: 0 };
+    console.log('[MVA-FB] fetched', files.length, 'of', urls.length);
+    if (files.length === 0) throw new Error('Nu am putut descărca nicio imagine.');
 
-    let input = await findFileInput(dialog, 2000);
+    let input = await findFileInput(2000);
     if (!input) {
-      await clickPhotoVideoButton(dialog);
-      await sleep(1200);
-      input = await findFileInput(dialog, 8000);
+      const clicked = await clickPhotoVideoButton(dialog);
+      console.log('[MVA-FB] photo/video button clicked:', clicked);
+      await sleep(1500);
+      input = await findFileInput(10000);
     }
     if (!input) throw new Error('Nu am găsit input-ul pentru fotografii.');
 
@@ -168,7 +203,6 @@
     input.files = dt.files;
     input.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Wait for thumbnails to actually render — up to 60s (upload can be slow).
     const started = Date.now();
     while (Date.now() - started < 60000) {
       const imgs = dialog.querySelectorAll('img');
@@ -180,7 +214,6 @@
       if (ready >= files.length) break;
       await sleep(1000);
     }
-    // Extra buffer for Facebook to enable the Post button.
     await sleep(2500);
     return { attached: files.length };
   }
