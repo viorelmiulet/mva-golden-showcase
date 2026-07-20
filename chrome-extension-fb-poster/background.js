@@ -64,28 +64,47 @@ function ensureAlarm() {
   });
 }
 
-async function waitForResult(tabId, timeoutMs = 90000) {
+// Keepalive: apeluri periodice la API-uri chrome țin service worker-ul viu în timpul așteptării.
+function startKeepalive() {
+  const id = setInterval(() => {
+    try { chrome.runtime.getPlatformInfo(() => {}); } catch (_) {}
+    try { chrome.storage.local.get('busySince', () => {}); } catch (_) {}
+  }, 20000);
+  return () => clearInterval(id);
+}
+
+async function waitForResult(tabId, jobId, timeoutMs = 120000) {
   return new Promise((resolve) => {
     let done = false;
+    const finish = (val) => {
+      if (done) return;
+      done = true;
+      chrome.runtime.onMessage.removeListener(listener);
+      clearInterval(pollId);
+      resolve(val);
+    };
     const listener = (msg, sender) => {
       if (!sender.tab || sender.tab.id !== tabId) return;
       if (msg && msg.type === 'MVA_POST_RESULT') {
-        done = true;
-        chrome.runtime.onMessage.removeListener(listener);
-        resolve({ ok: !!msg.ok, error: msg.error || null });
+        finish({ ok: !!msg.ok, error: msg.error || null });
       }
     };
     chrome.runtime.onMessage.addListener(listener);
-    setTimeout(() => {
-      if (!done) {
-        chrome.runtime.onMessage.removeListener(listener);
-        resolve({ ok: false, error: 'Timeout așteptând rezultatul postării (90s).' });
-      }
-    }, timeoutMs);
+    // Fallback: dacă worker-ul a fost repornit și mesajul s-a pierdut, citim din storage.
+    const pollId = setInterval(async () => {
+      try {
+        const { lastPostResult } = await chrome.storage.local.get('lastPostResult');
+        if (lastPostResult && lastPostResult.jobId === jobId) {
+          await chrome.storage.local.remove('lastPostResult');
+          finish({ ok: !!lastPostResult.ok, error: lastPostResult.error || null });
+        }
+      } catch (_) {}
+    }, 3000);
+    setTimeout(() => finish({ ok: false, error: 'Timeout așteptând rezultatul postării (120s).' }), timeoutMs);
   });
 }
 
-async function waitForReady(tabId, timeoutMs = 45000) {
+async function waitForReady(tabId, timeoutMs = 60000) {
   return new Promise((resolve, reject) => {
     let done = false;
     const listener = (msg, sender) => {
