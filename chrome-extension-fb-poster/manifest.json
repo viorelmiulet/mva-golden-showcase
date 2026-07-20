@@ -1,12 +1,16 @@
 {
   "manifest_version": 3,
   "name": "MVA Facebook Group Poster",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Postează automat oferte imobiliare MVA în grupuri Facebook prin coada fb-queue.",
   "permissions": ["storage", "alarms", "tabs", "scripting"],
   "host_permissions": [
     "https://www.facebook.com/*",
-    "https://fdpandnzblzvamhsoukt.supabase.co/*"
+    "https://fdpandnzblzvamhsoukt.supabase.co/*",
+    "https://*.supabase.co/*",
+    "https://apcdn.immoflux.ro/*",
+    "https://*.immoflux.ro/*",
+    "https://*.mvaimobiliare.ro/*"
   ],
   "background": {
     "service_worker": "background.js"

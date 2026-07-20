@@ -192,7 +192,7 @@ async function tick(force = false) {
     try {
       await waitForReady(openedTabId, 60000);
       chrome.tabs.sendMessage(openedTabId, { type: 'MVA_DO_POST', job });
-      const result = await waitForResult(openedTabId, job.id, 120000);
+      const result = await waitForResult(openedTabId, job.id, 240000);
       ok = result.ok;
       errorMsg = result.error;
     } catch (e) {

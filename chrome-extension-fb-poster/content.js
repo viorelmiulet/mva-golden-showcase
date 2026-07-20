@@ -103,6 +103,88 @@
     return false;
   }
 
+  async function fetchImagesAsFiles(urls) {
+    const files = [];
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      try {
+        const res = await fetch(url, { credentials: 'omit', mode: 'cors' });
+        if (!res.ok) continue;
+        const blob = await res.blob();
+        if (!blob || blob.size === 0) continue;
+        let type = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/jpeg';
+        let ext = type.split('/')[1] || 'jpg';
+        if (ext === 'jpeg') ext = 'jpg';
+        const name = `photo_${Date.now()}_${i}.${ext}`;
+        files.push(new File([blob], name, { type }));
+      } catch (_) {
+        // skip broken image
+      }
+    }
+    return files;
+  }
+
+  async function findFileInput(dialog, timeoutMs = 8000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const inputs = dialog.querySelectorAll('input[type="file"]');
+      for (const inp of inputs) {
+        const accept = (inp.getAttribute('accept') || '').toLowerCase();
+        if (!accept || accept.includes('image')) return inp;
+      }
+      await sleep(300);
+    }
+    return null;
+  }
+
+  async function clickPhotoVideoButton(dialog) {
+    const labels = ['foto/video', 'photo/video', 'foto', 'photo', 'add photos', 'adaugă fotografii', 'adauga fotografii'];
+    const nodes = dialog.querySelectorAll('div[role="button"], [aria-label]');
+    for (const el of nodes) {
+      const t = ((el.getAttribute('aria-label') || '') + ' ' + (el.textContent || '')).trim().toLowerCase();
+      if (labels.some((l) => t === l || t.startsWith(l))) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async function attachImages(dialog, urls) {
+    if (!urls || urls.length === 0) return { attached: 0 };
+    const files = await fetchImagesAsFiles(urls);
+    if (files.length === 0) return { attached: 0 };
+
+    let input = await findFileInput(dialog, 2000);
+    if (!input) {
+      await clickPhotoVideoButton(dialog);
+      await sleep(1200);
+      input = await findFileInput(dialog, 8000);
+    }
+    if (!input) throw new Error('Nu am găsit input-ul pentru fotografii.');
+
+    const dt = new DataTransfer();
+    files.forEach((f) => dt.items.add(f));
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Wait for thumbnails to actually render — up to 60s (upload can be slow).
+    const started = Date.now();
+    while (Date.now() - started < 60000) {
+      const imgs = dialog.querySelectorAll('img');
+      let ready = 0;
+      for (const im of imgs) {
+        const w = im.naturalWidth || 0;
+        if (w > 40 && w < 800) ready += 1;
+      }
+      if (ready >= files.length) break;
+      await sleep(1000);
+    }
+    // Extra buffer for Facebook to enable the Post button.
+    await sleep(2500);
+    return { attached: files.length };
+  }
+
   async function doPost(job) {
     await sleep(rand(2000, 5000));
 
@@ -118,7 +200,19 @@
 
     await insertText(textbox, job.message || '');
 
-    await sleep(rand(6000, 9000));
+    await sleep(rand(3000, 5000));
+
+    // Attach photos if provided by the edge function.
+    if (Array.isArray(job.image_urls) && job.image_urls.length > 0) {
+      try {
+        await attachImages(dialog, job.image_urls);
+      } catch (e) {
+        // Non-fatal: continue posting text-only if attach fails.
+        console.warn('[MVA-FB] attach images failed:', e && e.message);
+      }
+    } else {
+      await sleep(rand(3000, 4000));
+    }
 
     const postBtn = findPostButton(dialog);
     if (!postBtn) throw new Error('Nu am găsit butonul „Postează".');
@@ -127,7 +221,7 @@
     }
     postBtn.click();
 
-    const gone = await waitDialogGone(dialog, 20000);
+    const gone = await waitDialogGone(dialog, 60000);
     if (!gone) throw new Error('Dialogul nu s-a închis după publicare.');
 
     return true;

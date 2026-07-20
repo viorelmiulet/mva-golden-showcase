@@ -96,11 +96,29 @@ async function handleNext(body: { groups?: string[] }): Promise<Response> {
           .eq("id", row.id);
         if (upErr) throw upErr;
       }
+
+      // Fetch up to 5 property images so the extension can attach real photos.
+      let image_urls: string[] = [];
+      if (row.offer_id) {
+        const { data: offer } = await supabase
+          .from("catalog_offers")
+          .select("images")
+          .eq("id", row.offer_id)
+          .maybeSingle();
+        if (offer && Array.isArray(offer.images)) {
+          image_urls = offer.images
+            .map((u: unknown) => String(u || "").trim())
+            .filter((u) => u.startsWith("http"))
+            .slice(0, 5);
+        }
+      }
+
       return json({
         id: row.id,
         offer_ref: row.offer_id,
         message: row.message,
         group_url: remaining,
+        image_urls,
       });
     } else {
       // All configured groups already done for this row -> mark done
@@ -110,6 +128,7 @@ async function handleNext(body: { groups?: string[] }): Promise<Response> {
       continue;
     }
   }
+
 
   return json(null);
 }
