@@ -287,18 +287,33 @@
 
 
   async function doPost(job) {
+    const diag = {
+      step: 'start',
+      requested: 0,
+      fetched: 0,
+      usedFallback: false,
+      photoButtonClicked: false,
+      inputAccept: '',
+      thumbnailsReady: 0,
+      attached: 0,
+      attachError: null,
+    };
+
     await sleep(rand(2000, 5000));
 
+    diag.step = 'find-composer';
     const trigger = await findComposerTrigger(20000);
-    if (!trigger) throw new Error('Nu am găsit butonul „Scrie ceva".');
+    if (!trigger) { const e = new Error('Nu am găsit butonul „Scrie ceva".'); e.diag = diag; throw e; }
     trigger.scrollIntoView({ block: 'center' });
     await sleep(400);
     trigger.click();
 
+    diag.step = 'wait-dialog';
     const found = await waitForDialog(15000);
-    if (!found) throw new Error('Nu s-a deschis dialogul de postare.');
+    if (!found) { const e = new Error('Nu s-a deschis dialogul de postare.'); e.diag = diag; throw e; }
     const { dialog, textbox } = found;
 
+    diag.step = 'insert-text';
     await insertText(textbox, job.message || '');
 
     await sleep(rand(3000, 5000));
@@ -306,24 +321,40 @@
     // Attach photos: try offer images (max 7); if none work, fallback cover image.
     // Never abort the post on attach errors — publish text-only as last resort.
     try {
-      await attachImages(dialog, job.image_urls || []);
+      await attachImages(dialog, job.image_urls || [], diag);
     } catch (e) {
-      console.warn('[MVA-FB] attach images failed, posting without photos:', e && e.message);
+      diag.attachError = (e && e.message) ? e.message : String(e);
+      console.warn('[MVA-FB] attach images failed, posting without photos:', diag.attachError, diag);
       await sleep(rand(1500, 2500));
     }
 
+    diag.step = 'find-post-button';
     const postBtn = findPostButton(dialog);
-    if (!postBtn) throw new Error('Nu am găsit butonul „Postează".');
+    if (!postBtn) { const e = new Error(buildErr('Nu am găsit butonul „Postează".', diag)); e.diag = diag; throw e; }
     if (postBtn.getAttribute('aria-disabled') === 'true') {
-      throw new Error('Butonul „Postează" este dezactivat.');
+      const e = new Error(buildErr('Butonul „Postează" este dezactivat.', diag)); e.diag = diag; throw e;
     }
     postBtn.click();
 
+    diag.step = 'wait-dialog-gone';
     const gone = await waitDialogGone(dialog, 60000);
-    if (!gone) throw new Error('Dialogul nu s-a închis după publicare.');
+    if (!gone) { const e = new Error(buildErr('Dialogul nu s-a închis după publicare.', diag)); e.diag = diag; throw e; }
 
-    return true;
+    diag.step = 'success';
+    return { ok: true, diag };
   }
+
+  function buildErr(base, d) {
+    const parts = [
+      `imagini: ${d.fetched}/${d.requested} descărcate${d.usedFallback ? ' + fallback' : ''}`,
+      `atașate: ${d.attached}`,
+      `thumbnails: ${d.thumbnailsReady}`,
+      `pas: ${d.step}`,
+    ];
+    if (d.attachError) parts.push(`attach: ${d.attachError}`);
+    return `${base} [${parts.join(' • ')}]`;
+  }
+
 
   setTimeout(() => {
     try { chrome.runtime.sendMessage({ type: 'MVA_READY' }); } catch (_) {}
