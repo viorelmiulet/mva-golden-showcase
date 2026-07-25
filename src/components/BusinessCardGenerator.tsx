@@ -481,40 +481,20 @@ const BusinessCardGenerator = () => {
     
     // Generează logo-ul în funcție de tipul selectat
     if (logoType === "default") {
-      backLogoSection = `<!-- Outer ring -->
-    <circle 
-      cx="0" 
-      cy="0" 
-      r="75" 
-      fill="none"
-      stroke="url(#logoGradientVerso)"
-      stroke-width="3.6"
-      opacity="0.8"
-    />
-    
-    <!-- Main hexagon -->
-    <path 
-      d="M0 -60 L51 -30 L51 30 L0 60 L-51 30 L-51 -30 Z" 
-      fill="url(#logoGradientVerso)" 
-      opacity="0.9"
-    />
-    
-    <!-- Inner background -->
-    <path 
-      d="M0 -48 L42 -24 L42 24 L0 48 L-42 24 L-42 -24 Z" 
-      fill="url(#cardGradientVerso)"
-    />
-    
-    <!-- Premium "M" letterform - scaled up -->
-    <path 
-      d="M-21 -6 L-12 -6 L0 12 L12 -6 L21 -6 L21 27 L12 27 L12 3 L3 15 L-3 15 L-12 3 L-12 27 L-21 27 Z"
-      fill="url(#logoGradientVerso)"
-    />
-    
+      backLogoSection = `<!-- Chimney on right slope -->
+    <rect x="36" y="-30" width="8" height="18" fill="url(#logoGradientVerso)"/>
+    <!-- Roof line silhouette centered at (0,0) -->
+    <path d="M-60 12 L0 -48 L60 12" fill="none" stroke="url(#logoGradientVerso)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- MVA letters -->
+    <g font-family="Cinzel, Georgia, serif" font-weight="800" font-size="46" text-anchor="middle" letter-spacing="3">
+      <text x="-40" y="52" fill="url(#logoGradientVerso)">M</text>
+      <text x="0" y="52" fill="#E0E0E0">V</text>
+      <text x="40" y="52" fill="url(#logoGradientVerso)">A</text>
+    </g>
     <!-- Luxury accents -->
-    <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
-    <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
-    <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />`;
+    <circle cx="55" cy="-40" r="3" fill="#FFD700" opacity="0.8" />
+    <circle cx="-55" cy="40" r="2.4" fill="#D4AF37" opacity="0.6" />`;
+
     }
     // logoType === "none" results in empty backLogoSection
     
