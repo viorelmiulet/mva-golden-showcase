@@ -78,7 +78,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 lg:px-6">
         
         <div className="py-10 lg:py-14">
-          <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-5">
             
             {/* Brand */}
             <div className="lg:col-span-2">
@@ -120,6 +120,23 @@ const Footer = () => {
                 {services.map((s, i) => <li key={i}><span className="text-xs text-muted-foreground">{s}</span></li>)}
               </ul>
             </div>
+
+            {/* Zone acoperite */}
+            <div>
+              <h3 className="text-sm font-semibold text-gradient-gold mb-4">{language === 'ro' ? 'Zone acoperite' : 'Areas covered'}</h3>
+              <ul className="space-y-2">
+                {zoneLinks.map((z) => (
+                  <li key={z.to}>
+                    <Link to={z.to} className="text-xs text-muted-foreground hover:text-gold transition-colors">
+                      {z.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
           </div>
         </div>
 
