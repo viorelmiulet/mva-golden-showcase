@@ -18,7 +18,7 @@ test.describe("brand logo visual regression", () => {
     // snapshot is deterministic regardless of initial scroll position.
     await page.evaluate(() => window.scrollTo(0, 400));
     // Give the header transition (500ms) time to settle.
-    await page.waitForTimeout: 600;
+    await page.waitForTimeout(600);
   });
 
   test("header logo renders on dark bg", async ({ page }) => {
