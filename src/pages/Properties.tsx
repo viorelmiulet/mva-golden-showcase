@@ -429,14 +429,23 @@ const Properties = () => {
     setVisibleCount(12)
   }
 
-  // Get unique zones for filter dropdown (using extractZone function)
+  // Zones for the dropdown: pulled dynamically from catalog_offers.zone values
+  // so new zones appear automatically as properties are added. Falls back to
+  // extracted zones from title/description when a row's zone column is empty.
   const uniqueZones = useMemo(() => {
-    const zones = properties
-      .map(p => extractZone(p))
-      .filter(Boolean)
-      .filter((zone): zone is string => zone !== null)
-    return [...new Set(zones)].sort()
-  }, [properties])
+    const set = new Set<string>()
+    for (const p of properties) {
+      const raw = (p.zone || '').trim()
+      if (raw && !isCoordinates(raw)) {
+        set.add(raw.toUpperCase())
+        continue
+      }
+      const extracted = extractZone(p)
+      if (extracted) set.add(extracted.toUpperCase())
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ro'))
+  }, [properties, propertyZones])
+
 
   const openPropertyGallery = (property: any, index = 0) => {
     setSelectedProperty(property)
