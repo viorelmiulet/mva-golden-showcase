@@ -136,6 +136,63 @@ const Index = () => {
         <script type="application/ld+json">
           {JSON.stringify(localBusinessSchema)}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "În ce zone din București activează MVA Imobiliare?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "MVA Imobiliare este o agenție imobiliară activă în tot Bucureștiul și în localitățile limitrofe, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna, Sector 6, Drumul Taberei, Crângași și Giulești. Intermediem tranzacții și în alte zone precum Titan, Pantelimon, Berceni, Giurgiului, Tineretului și Văcărești."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Ce servicii imobiliare oferă MVA Imobiliare?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Oferim servicii complete de vânzare și închiriere apartamente, consultanță pentru investiții imobiliare, evaluări profesionale, intermediere în ansambluri rezidențiale noi, consultanță juridică pentru tranzacții și management de proprietăți. Colaborăm cu dezvoltatori pentru complexe precum Militari Residence, Renew Residence și Eurocasa Residence."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "De ce este MVA Imobiliare specializată pe Militari și Chiajna?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Cu peste 10 ani de experiență, echipa MVA Imobiliare cunoaște în detaliu piața din vestul Bucureștiului — Militari, Chiajna și Sector 6 — inclusiv ansamblurile rezidențiale noi, infrastructura, școlile, mijloacele de transport și evoluția prețurilor. Această expertiză locală ne permite să recomandăm cele mai potrivite proprietăți pentru fiecare client."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Cât costă serviciile unei agenții imobiliare?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Comisionul se stabilește transparent, în funcție de tipul tranzacției (vânzare sau închiriere) și de valoarea proprietății. Consultanța inițială, evaluarea proprietății și prezentarea ofertelor sunt gratuite. Pentru detalii personalizate ne puteți contacta la 0767941512 sau la contact@mvaimobiliare.ro."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Cum pot programa o vizionare la un apartament?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Puteți programa o vizionare direct din pagina proprietății folosind butonul „Programează vizionare”, sau ne puteți contacta telefonic la 0767941512, pe WhatsApp, ori prin email la contact@mvaimobiliare.ro. Vizionările sunt gratuite și pot fi organizate inclusiv în weekend."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Ajutați și cumpărătorii cu credit ipotecar sau programul Noua Casă?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Da. Oferim consultanță pentru achiziții cu credit ipotecar și programul Noua Casă, inclusiv recomandări de bănci partenere, ghid pas cu pas al procesului de finanțare și un calculator de credit disponibil pe site. Vă ajutăm să estimați rata lunară înainte de a face o ofertă."
+                }
+              }
+            ]
+          })}
+        </script>
+
       </Helmet>
       <div className="min-h-screen">
         <Header />
