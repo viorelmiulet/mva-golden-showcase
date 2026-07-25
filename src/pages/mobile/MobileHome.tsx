@@ -103,7 +103,7 @@ const MobileHome = () => {
         {/* Logo and welcome */}
         <div className="flex items-center gap-3 mb-5">
           <img 
-            src="/mva-logo-luxury.svg" 
+            src="/mva-logo-luxury.svg?v=20260725" 
             alt="MVA Imobiliare - Agenție imobiliară premium în București și Chiajna"
             title="MVA Imobiliare"
             className="h-10 w-10"

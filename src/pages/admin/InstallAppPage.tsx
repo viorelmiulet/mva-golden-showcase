@@ -114,7 +114,7 @@ const InstallAppPage = () => {
       <motion.div variants={itemVariants} className="text-center">
         <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl border border-border/50 flex items-center justify-center shadow-2xl">
           <img 
-            src="/mva-logo-luxury.svg" 
+            src="/mva-logo-luxury.svg?v=20260725" 
             alt="MVA Admin" 
             className="w-12 h-12"
           />

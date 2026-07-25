@@ -106,7 +106,7 @@ const Header = () => {
           {/* Logo - Optimized for mobile */}
           <Link to="/" aria-label="Logo MVA Imobiliare - Agenție imobiliară în București" className="flex items-center group cursor-pointer" onClick={handleLogoClick}>
             <img
-              src="/mva-logo-luxury-horizontal.svg"
+              src="/mva-logo-luxury-horizontal.svg?v=20260725"
               alt="MVA Imobiliare"
               width="160"
               height="56"
