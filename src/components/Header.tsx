@@ -104,102 +104,16 @@ const Header = () => {
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo - Optimized for mobile */}
-          <Link to="/" aria-label="Logo MVA Imobiliare - Agenție imobiliară în Militari, București" className="flex items-center space-x-2 sm:space-x-4 group cursor-pointer" onClick={handleLogoClick}>
-            <div className="relative flex items-center justify-center">
-              {/* Ultra Luxury Premium Logo */}
-              <div className="relative">
-                <svg width="40" height="40" viewBox="0 0 50 50" className="sm:w-[50px] sm:h-[50px] transition-all duration-500 group-hover:scale-110 group-hover:rotate-2 filter drop-shadow-2xl">
-                  <defs>
-                    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#D4AF37" />
-                      <stop offset="25%" stopColor="#FFD700" />
-                      <stop offset="50%" stopColor="#F4E5B1" />
-                      <stop offset="75%" stopColor="#FFD700" />
-                      <stop offset="100%" stopColor="#B8860B" />
-                    </linearGradient>
-                    <linearGradient id="innerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#1A1A1A" />
-                      <stop offset="50%" stopColor="#2D2D2D" />
-                      <stop offset="100%" stopColor="#1A1A1A" />
-                    </linearGradient>
-                    <filter id="luxuryGlow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                      <feMerge> 
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                    <filter id="innerShadow">
-                      <feOffset dx="0" dy="2"/>
-                      <feGaussianBlur stdDeviation="2" result="offset-blur"/>
-                      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
-                      <feFlood floodColor="#000000" floodOpacity="0.3"/>
-                      <feComposite operator="in" in2="inverse"/>
-                      <feComposite operator="over" in2="SourceGraphic"/>
-                    </filter>
-                  </defs>
-                  
-                  {/* Outer luxury ring */}
-                  <circle 
-                    cx="25" 
-                    cy="25" 
-                    r="24" 
-                    fill="none"
-                    stroke="url(#luxuryGradient)"
-                    strokeWidth="2"
-                    className="opacity-80 group-hover:opacity-100 transition-all duration-500"
-                    filter="url(#luxuryGlow)"
-                  />
-                  
-                  {/* Main luxury hexagon */}
-                  <path 
-                    d="M25 3 L43 13 L43 37 L25 47 L7 37 L7 13 Z" 
-                    fill="url(#luxuryGradient)" 
-                    className="opacity-95 group-hover:opacity-100 transition-all duration-500"
-                    filter="url(#luxuryGlow)"
-                  />
-                  
-                  {/* Inner dark background */}
-                  <path 
-                    d="M25 6 L40 15 L40 35 L25 44 L10 35 L10 15 Z" 
-                    fill="url(#innerGradient)"
-                    filter="url(#innerShadow)"
-                  />
-                  
-                  {/* Premium "M" letterform */}
-                  <path 
-                    d="M16 18 L19.5 18 L25 28 L30.5 18 L34 18 L34 32 L31.5 32 L31.5 22 L27 30 L23 30 L18.5 22 L18.5 32 L16 32 Z"
-                    fill="url(#luxuryGradient)"
-                    className="drop-shadow-lg"
-                  />
-                  
-                  {/* Luxury corner accents */}
-                  <circle cx="40" cy="10" r="1.5" fill="#FFD700" className="opacity-80" />
-                  <circle cx="10" cy="40" r="1" fill="#D4AF37" className="opacity-60" />
-                  <polygon points="42,40 44,38 44,42" fill="#B8860B" className="opacity-40" />
-                </svg>
-                
-                {/* Premium glow effects */}
-                <div className="absolute inset-0 bg-gradient-radial from-yellow-400/30 via-yellow-600/20 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse"></div>
-                <div className="absolute inset-0 bg-gradient-conic from-yellow-300 via-yellow-500 to-yellow-300 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-all duration-1000"></div>
-              </div>
-            </div>
-            
-            <div className="hidden sm:block">
-              <div className="relative overflow-hidden">
-                <div className="font-cinzel text-2xl sm:text-3xl font-bold tracking-wider bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 bg-clip-text text-transparent group-hover:from-yellow-300 group-hover:via-yellow-400 group-hover:to-yellow-600 transition-all duration-500 filter drop-shadow-lg">
-                  MVA
-                </div>
-                <div className="font-playfair text-muted-foreground/90 text-xs font-medium tracking-[0.4em] uppercase -mt-1 group-hover:text-muted-foreground transition-all duration-300 relative">
-                  <span className="relative z-10">IMOBILIARE</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                </div>
-                {/* Luxury accent line with animation */}
-                <div className="relative mt-1 h-[2px] bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent">
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-700 ease-out"></div>
-                </div>
-              </div>
-            </div>
+          <Link to="/" aria-label="Logo MVA Imobiliare - Agenție imobiliară în București" className="flex items-center group cursor-pointer" onClick={handleLogoClick}>
+            <img
+              src="/mva-logo-luxury-horizontal.svg"
+              alt="MVA Imobiliare"
+              width="160"
+              height="56"
+              className="h-10 sm:h-14 w-auto transition-transform duration-500 group-hover:scale-105"
+              fetchPriority="high"
+              decoding="async"
+            />
           </Link>
           
           {/* Desktop Navigation - Hidden on mobile/tablet */}

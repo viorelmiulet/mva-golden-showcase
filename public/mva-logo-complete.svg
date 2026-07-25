@@ -1,90 +1,34 @@
-<svg width="300" height="80" viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460" role="img" aria-label="MVA Imobiliare">
   <defs>
-    <linearGradient id="logoGradientComplete" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D4AF37" />
-      <stop offset="25%" stop-color="#FFD700" />
-      <stop offset="50%" stop-color="#F4E5B1" />
-      <stop offset="75%" stop-color="#FFD700" />
-      <stop offset="100%" stop-color="#B8860B" />
+    <linearGradient id="cGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE7A0"/>
+      <stop offset=".5" stop-color="#DAA520"/>
+      <stop offset="1" stop-color="#B8860B"/>
     </linearGradient>
-    <linearGradient id="innerGradientComplete" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1A1A1A" />
-      <stop offset="50%" stop-color="#2D2D2D" />
-      <stop offset="100%" stop-color="#1A1A1A" />
+    <linearGradient id="cSilver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2F2F2"/>
+      <stop offset=".5" stop-color="#BFBFBF"/>
+      <stop offset="1" stop-color="#8A8A8A"/>
     </linearGradient>
-    <linearGradient id="textGradientMVA" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FFD700" />
-      <stop offset="33%" stop-color="#F4E5B1" />
-      <stop offset="66%" stop-color="#FFD700" />
-      <stop offset="100%" stop-color="#D4AF37" />
-    </linearGradient>
-    <filter id="luxuryGlowComplete" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge> 
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="innerShadowComplete">
-      <feOffset dx="0" dy="1"/>
-      <feGaussianBlur stdDeviation="1" result="offset-blur"/>
-      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
-      <feFlood flood-color="#000000" flood-opacity="0.3"/>
-      <feComposite operator="in" in2="inverse"/>
-      <feComposite operator="over" in2="SourceGraphic"/>
-    </filter>
   </defs>
-  
-  <!-- Logo Symbol -->
   <g>
-    <!-- Outer luxury ring -->
-    <circle 
-      cx="40" 
-      cy="40" 
-      r="38" 
-      fill="none"
-      stroke="url(#logoGradientComplete)"
-      stroke-width="2"
-      opacity="0.8"
-      filter="url(#luxuryGlowComplete)"
-    />
-    
-    <!-- Main luxury hexagon -->
-    <path 
-      d="M40 5 L68 20 L68 60 L40 75 L12 60 L12 20 Z" 
-      fill="url(#logoGradientComplete)" 
-      opacity="0.95"
-      filter="url(#luxuryGlowComplete)"
-    />
-    
-    <!-- Inner dark background -->
-    <path 
-      d="M40 10 L63 23 L63 57 L40 70 L17 57 L17 23 Z" 
-      fill="url(#innerGradientComplete)"
-      filter="url(#innerShadowComplete)"
-    />
-    
-    <!-- Premium "M" letterform -->
-    <path 
-      d="M26 28 L31 28 L40 44 L49 28 L54 28 L54 52 L51 52 L51 33 L43 46 L37 46 L29 33 L29 52 L26 52 Z"
-      fill="url(#logoGradientComplete)"
-    />
-    
-    <!-- Luxury corner accents -->
-    <circle cx="63" cy="17" r="1.5" fill="#FFD700" opacity="0.8" />
-    <circle cx="17" cy="63" r="1" fill="#D4AF37" opacity="0.6" />
-    <polygon points="66,60 68,58 68,62" fill="#B8860B" opacity="0.4" />
+    <rect x="120" y="40"  width="30" height="60" fill="url(#cGold)"/>
+    <rect x="155" y="20"  width="30" height="80" fill="url(#cSilver)"/>
+    <rect x="190" y="35"  width="30" height="65" fill="url(#cGold)"/>
+    <rect x="225" y="55"  width="30" height="45" fill="url(#cSilver)"/>
   </g>
-  
-  <!-- Text Content -->
-  <g>
-    <!-- MVA Text -->
-    <text x="90" y="35" font-family="Cinzel, serif" font-size="24" font-weight="bold" fill="url(#textGradientMVA)" letter-spacing="1.5px">MVA</text>
-    
-    <!-- IMOBILIARE Text -->
-    <text x="90" y="55" font-family="Playfair Display, serif" font-size="10" font-weight="500" fill="#8B8B8B" letter-spacing="3px">IMOBILIARE</text>
-    
-    <!-- Decorative accent line -->
-    <line x1="90" y1="60" x2="200" y2="60" stroke="url(#logoGradientComplete)" stroke-width="1" opacity="0.5"/>
+  <rect x="256" y="140" width="14" height="30" fill="url(#cGold)"/>
+  <path d="M60 190 L200 110 L340 190" fill="none" stroke="url(#cGold)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <g font-family="'Cinzel','Playfair Display',Georgia,serif" font-weight="700" font-size="120" text-anchor="middle" letter-spacing="4">
+    <text x="105" y="330" fill="url(#cGold)">M</text>
+    <text x="200" y="330" fill="url(#cSilver)">V</text>
+    <text x="295" y="330" fill="url(#cGold)">A</text>
   </g>
+  <g stroke="url(#cGold)" stroke-width="2" fill="none">
+    <rect x="284" y="298" width="22" height="18"/>
+    <line x1="295" y1="298" x2="295" y2="316"/>
+    <line x1="284" y1="307" x2="306" y2="307"/>
+  </g>
+  <line x1="80" y1="380" x2="320" y2="380" stroke="url(#cGold)" stroke-width="1.5"/>
+  <text x="200" y="420" font-family="'Cinzel','Playfair Display',Georgia,sans-serif" font-weight="500" font-size="32" text-anchor="middle" letter-spacing="14" fill="url(#cSilver)">IMOBILIARE</text>
 </svg>
