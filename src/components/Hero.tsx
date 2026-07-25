@@ -60,16 +60,16 @@ const Hero = () => {
           <header className="space-y-5 sm:space-y-6 text-center lg:text-left" itemScope itemType="https://schema.org/WPHeader">
             <h1 className="text-[2.25rem] leading-[1.1] sm:text-5xl md:text-5xl lg:text-6xl font-bold tracking-tight" itemProp="headline">
               <span className="block text-foreground">
-                {language === 'ro' ? 'Soluții Imobiliare' : 'Real Estate Solutions'}
+                {language === 'ro' ? 'Soluții imobiliare complete' : 'Complete Real Estate Solutions'}
               </span>
               <span className="block text-gradient-gold">
-                {language === 'ro' ? 'Complete în Militari' : 'Complete in Militari'}
+                {language === 'ro' ? 'în București' : 'in Bucharest'}
               </span>
             </h1>
             
             <p className="text-base sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0" itemProp="description">
               {language === 'ro' 
-                ? 'Descoperă cele mai selective proiecte imobiliare din vestul Bucureștiului. Investiții sigure cu finisaje premium și locații strategice.'
+                ? 'Agenție imobiliară activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și împrejurimi. Investiții sigure, finisaje premium și locații strategice.'
                 : 'Discover the most selective real estate projects in western Bucharest. Safe investments with premium finishes and strategic locations.'}
             </p>
             
