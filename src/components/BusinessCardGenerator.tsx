@@ -378,40 +378,21 @@ const BusinessCardGenerator = () => {
     <!-- Logo Symbol -->
     ${logoSection}
     <g>
-      <!-- Outer ring -->
-      <circle 
-        cx="60" 
-        cy="60" 
-        r="54" 
-        fill="none"
-        stroke="url(#logoGradientCard)"
-        stroke-width="3.6"
-        opacity="0.9"
-      />
-      
-      <!-- Main hexagon -->
-      <path 
-        d="M60 12 L99 30 L99 90 L60 108 L21 90 L21 30 Z" 
-        fill="url(#logoGradientCard)" 
-        opacity="0.95"
-      />
-      
-      <!-- Inner background -->
-      <path 
-        d="M60 21 L90 36 L90 84 L60 99 L30 84 L30 36 Z" 
-        fill="url(#cardGradient)"
-      />
-      
-      <!-- "M" letter -->
-      <path 
-        d="M45 48 L51 48 L60 66 L69 48 L75 66 L75 78 L69 78 L69 57 L63 69 L57 69 L51 57 L51 78 L45 78 Z"
-        fill="url(#logoGradientCard)"
-      />
-      
+      <!-- Chimney on right slope -->
+      <rect x="86" y="30" width="6" height="14" fill="url(#logoGradientCard)"/>
+      <!-- Roof line -->
+      <path d="M10 68 L60 20 L110 68" fill="none" stroke="url(#logoGradientCard)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- MVA letters -->
+      <g font-family="Cinzel, Georgia, serif" font-weight="800" font-size="36" text-anchor="middle" letter-spacing="2">
+        <text x="30" y="102" fill="url(#logoGradientCard)">M</text>
+        <text x="60" y="102" fill="#E0E0E0">V</text>
+        <text x="90" y="102" fill="url(#logoGradientCard)">A</text>
+      </g>
       <!-- Accents -->
-      <circle cx="90" cy="30" r="2.4" fill="#FFD700" opacity="0.8" />
-      <circle cx="30" cy="90" r="1.8" fill="#D4AF37" opacity="0.6" />
+      <circle cx="100" cy="18" r="2" fill="#FFD700" opacity="0.7" />
+      <circle cx="20" cy="90" r="1.6" fill="#D4AF37" opacity="0.5" />
     </g>
+
     
     <!-- Company Text -->
     <text x="150" y="54" font-family="Cinzel, serif" font-size="36" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="3px">MVA</text>
