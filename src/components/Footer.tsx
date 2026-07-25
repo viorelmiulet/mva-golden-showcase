@@ -61,6 +61,18 @@ const Footer = () => {
     ? ['Vânzare Apartamente', 'Consultanță Investiții', 'Evaluări Profesionale', 'Management Proprietăți', 'Consultanță Juridică']
     : ['Apartment Sales', 'Investment Consulting', 'Professional Valuations', 'Property Management', 'Legal Consulting'];
 
+  const zoneLinks = [
+    { name: 'Apartamente 2 camere Militari', to: '/apartamente-2-camere-militari' },
+    { name: 'Apartamente 3 camere Militari', to: '/apartamente-3-camere-militari' },
+    { name: 'Apartamente Drumul Taberei', to: '/apartamente-drumul-taberei' },
+    { name: 'Apartamente Crângași & Giulești', to: '/apartamente-crangasi-giulesti' },
+    { name: 'Apartamente Titan & Pantelimon', to: '/apartamente-titan-pantelimon' },
+    { name: 'Apartamente Berceni & Giurgiului', to: '/apartamente-berceni-giurgiului' },
+    { name: 'Apartamente Tineretului & Văcărești', to: '/apartamente-tineretului-vacaresti' },
+    { name: 'Apartamente Sector 6', to: '/apartamente-sector-6' },
+  ];
+
+
   return (
     <footer className="border-t border-border/50">
       <div className="container mx-auto px-4 lg:px-6">
