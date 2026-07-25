@@ -328,10 +328,15 @@ const Properties = () => {
         }
       }
 
-      // Zone filter (using extracted zone from title/description)
+      // Zone filter: match against catalog_offers.zone directly OR the extracted
+      // zone from title/description (fallback for legacy rows with empty zone).
       if (locationFilter && locationFilter !== "all") {
-        const propertyZone = extractZone(property)
-        if (!propertyZone || propertyZone !== locationFilter) {
+        const rawZone = (property.zone || '').trim()
+        const dbZoneMatch = rawZone && !isCoordinates(rawZone)
+          && rawZone.toUpperCase() === locationFilter.toUpperCase()
+        const extractedZone = extractZone(property)
+        const extractedMatch = extractedZone && extractedZone.toUpperCase() === locationFilter.toUpperCase()
+        if (!dbZoneMatch && !extractedMatch) {
           return false
         }
       }
