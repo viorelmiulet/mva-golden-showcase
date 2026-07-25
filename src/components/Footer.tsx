@@ -61,12 +61,24 @@ const Footer = () => {
     ? ['Vânzare Apartamente', 'Consultanță Investiții', 'Evaluări Profesionale', 'Management Proprietăți', 'Consultanță Juridică']
     : ['Apartment Sales', 'Investment Consulting', 'Professional Valuations', 'Property Management', 'Legal Consulting'];
 
+  const zoneLinks = [
+    { name: 'Apartamente 2 camere Militari', to: '/apartamente-2-camere-militari' },
+    { name: 'Apartamente 3 camere Militari', to: '/apartamente-3-camere-militari' },
+    { name: 'Apartamente Drumul Taberei', to: '/apartamente-drumul-taberei' },
+    { name: 'Apartamente Crângași & Giulești', to: '/apartamente-crangasi-giulesti' },
+    { name: 'Apartamente Titan & Pantelimon', to: '/apartamente-titan-pantelimon' },
+    { name: 'Apartamente Berceni & Giurgiului', to: '/apartamente-berceni-giurgiului' },
+    { name: 'Apartamente Tineretului & Văcărești', to: '/apartamente-tineretului-vacaresti' },
+    { name: 'Apartamente Sector 6', to: '/apartamente-sector-6' },
+  ];
+
+
   return (
     <footer className="border-t border-border/50">
       <div className="container mx-auto px-4 lg:px-6">
         
         <div className="py-10 lg:py-14">
-          <div className="max-w-5xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-5">
             
             {/* Brand */}
             <div className="lg:col-span-2">
@@ -108,8 +120,24 @@ const Footer = () => {
                 {services.map((s, i) => <li key={i}><span className="text-xs text-muted-foreground">{s}</span></li>)}
               </ul>
             </div>
+
+            {/* Zone acoperite */}
+            <div>
+              <h3 className="text-sm font-semibold text-gradient-gold mb-4">{language === 'ro' ? 'Zone acoperite' : 'Areas covered'}</h3>
+              <ul className="space-y-2">
+                {zoneLinks.map((z) => (
+                  <li key={z.to}>
+                    <Link to={z.to} className="text-xs text-muted-foreground hover:text-gold transition-colors">
+                      {z.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
+
+
 
         {/* Google Reviews */}
         <GoogleReviews />

@@ -328,10 +328,15 @@ const Properties = () => {
         }
       }
 
-      // Zone filter (using extracted zone from title/description)
+      // Zone filter: match against catalog_offers.zone directly OR the extracted
+      // zone from title/description (fallback for legacy rows with empty zone).
       if (locationFilter && locationFilter !== "all") {
-        const propertyZone = extractZone(property)
-        if (!propertyZone || propertyZone !== locationFilter) {
+        const rawZone = (property.zone || '').trim()
+        const dbZoneMatch = rawZone && !isCoordinates(rawZone)
+          && rawZone.toUpperCase() === locationFilter.toUpperCase()
+        const extractedZone = extractZone(property)
+        const extractedMatch = extractedZone && extractedZone.toUpperCase() === locationFilter.toUpperCase()
+        if (!dbZoneMatch && !extractedMatch) {
           return false
         }
       }
@@ -424,14 +429,23 @@ const Properties = () => {
     setVisibleCount(12)
   }
 
-  // Get unique zones for filter dropdown (using extractZone function)
+  // Zones for the dropdown: pulled dynamically from catalog_offers.zone values
+  // so new zones appear automatically as properties are added. Falls back to
+  // extracted zones from title/description when a row's zone column is empty.
   const uniqueZones = useMemo(() => {
-    const zones = properties
-      .map(p => extractZone(p))
-      .filter(Boolean)
-      .filter((zone): zone is string => zone !== null)
-    return [...new Set(zones)].sort()
-  }, [properties])
+    const set = new Set<string>()
+    for (const p of properties) {
+      const raw = (p.zone || '').trim()
+      if (raw && !isCoordinates(raw)) {
+        set.add(raw.toUpperCase())
+        continue
+      }
+      const extracted = extractZone(p)
+      if (extracted) set.add(extracted.toUpperCase())
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ro'))
+  }, [properties, propertyZones])
+
 
   const openPropertyGallery = (property: any, index = 0) => {
     setSelectedProperty(property)
