@@ -90,7 +90,7 @@ const About = () => {
                 </p>
                 <p>
                   {language === 'ro'
-                    ? 'De-a lungul anilor, am construit relații solide cu cei mai importanți dezvoltatori din zona Militari, Chiajna și Sectorul 6, devenind partenerul oficial pentru complexe rezidențiale precum Eurocasa Residence, Militari Residence și Renew Residence.'
+                    ? 'Intermediem tranzacții în toate zonele Bucureștiului și, de-a lungul anilor, am construit relații solide cu cei mai importanți dezvoltatori din zona Militari, Chiajna și Sectorul 6, devenind partenerul oficial pentru complexe rezidențiale precum Eurocasa Residence, Militari Residence și Renew Residence.'
                     : 'Over the years, we have built strong relationships with the most important developers in the Militari, Chiajna, and Sector 6 areas, becoming the official partner for residential complexes such as Eurocasa Residence, Militari Residence, and Renew Residence.'}
                 </p>
               </div>
