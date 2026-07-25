@@ -138,7 +138,7 @@ describe('LCP: index.html critical preloads', () => {
   });
 
   it('preloads the logo (above-the-fold)', () => {
-    expect(indexHtml).toMatch(/rel=["']preload["'][^>]*href=["']\/mva-logo-luxury-horizontal\.svg["'][^>]*as=["']image["']/i);
+    expect(indexHtml).toMatch(/rel=["']preload["'][^>]*href=["']\/mva-logo-luxury-horizontal\.svg(?:\?v=[^"']+)?["'][^>]*as=["']image["']/i);
   });
 
   it('preconnects to Supabase and Google Fonts origins', () => {
@@ -243,7 +243,7 @@ describe('LCP: logo (above-the-fold critical resource)', () => {
   });
 
   it('logo is rendered inline in initial HTML shell (no JS needed for paint)', () => {
-    expect(indexHtml).toMatch(new RegExp(`<img[^>]*src=["']${logoPath}["']`));
+    expect(indexHtml).toMatch(new RegExp(`<img[^>]*src=["']${logoPath}(?:\\?v=[^"']+)?["']`));
   });
 
   it('logo SVG stays under 20 KB', () => {
