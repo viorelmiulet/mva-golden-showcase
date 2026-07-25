@@ -52,7 +52,7 @@ const MobileHeader = ({
               src="/mva-logo-3d.png?v=20260725" 
               alt="MVA Imobiliare - Agenție imobiliară premium în București și Chiajna"
               title="MVA Imobiliare"
-              className="h-9 w-9"
+              className="h-11 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
             />
           )}
         </div>
