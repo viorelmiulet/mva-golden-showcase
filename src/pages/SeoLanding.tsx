@@ -80,7 +80,9 @@ const SeoLanding = ({ preset }: Props) => {
       if (f.rooms !== undefined && p.rooms !== f.rooms) return false;
       if (f.minRooms !== undefined && (!p.rooms || p.rooms < f.minRooms)) return false;
       if (f.transactionType && p.transaction_type && p.transaction_type !== f.transactionType) return false;
-      if (f.zone && !matchesZone(p, f.zone)) return false;
+      if (f.zone && !matchesAnyZone(p, [f.zone])) return false;
+      if (f.zones && f.zones.length > 0 && !matchesAnyZone(p, f.zones)) return false;
+
       if (f.propertyType === "house" && !detectIsHouse(p)) return false;
       if (f.propertyType === "land" && !detectIsLand(p)) return false;
       if (f.propertyType === "garsoniera" && p.rooms && p.rooms > 1) return false;
