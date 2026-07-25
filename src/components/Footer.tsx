@@ -137,8 +137,7 @@ const Footer = () => {
           </div>
         </div>
 
-          </div>
-        </div>
+
 
         {/* Google Reviews */}
         <GoogleReviews />
