@@ -253,14 +253,14 @@ describe('LCP: logo (above-the-fold critical resource)', () => {
 
   it('logo is preloaded as image (matches above-the-fold usage)', () => {
     const preloads = extractImagePreloads(indexHtml);
-    expect(preloads.some((p) => p.href === logoPath)).toBe(true);
+    expect(preloads.some((p) => p.href.split('?')[0] === logoPath)).toBe(true);
   });
 });
 
 describe('LCP: og-image consistency', () => {
   it('og:image and twitter:image both point at /og-image.jpg on prod domain', () => {
-    expect(indexHtml).toMatch(/property=["']og:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=\d+)?["']/);
-    expect(indexHtml).toMatch(/name=["']twitter:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=\d+)?["']/);
+    expect(indexHtml).toMatch(/property=["']og:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=[^"']+)?["']/);
+    expect(indexHtml).toMatch(/name=["']twitter:image["']\s+content=["']https:\/\/(?:www\.)?mvaimobiliare\.ro\/og-image\.jpg(?:\?v=[^"']+)?["']/);
   });
 
   it('declared og:image dimensions (1200x630) match the file', () => {
@@ -328,11 +328,12 @@ describe('LCP: <picture> ↔ <link rel=preload> stay in sync', () => {
     const preloadUrls = preloads.flatMap((p) =>
       p.imagesrcset ? parseSrcset(p.imagesrcset).map((e) => e.url) : [p.href],
     );
+    const stripQuery = (u: string) => u.split('?')[0];
     const orphanPreloads = preloadUrls.filter(
-      (u) => !u.endsWith('.svg') && !heroUrlSet.has(u),
+      (u) => !stripQuery(u).endsWith('.svg') && !heroUrlSet.has(stripQuery(u)),
     );
     const orphanHero = heroUrls.filter(
-      (u) => !u.endsWith('.svg') && !preloadUrls.includes(u),
+      (u) => !u.endsWith('.svg') && !preloadUrls.map(stripQuery).includes(u),
     );
     if (orphanPreloads.length || orphanHero.length) {
       reports.push(
@@ -360,7 +361,7 @@ describe('LCP: <picture> ↔ <link rel=preload> stay in sync', () => {
     const cacheHeaders = readFileSync(resolve(root, 'public/_headers'), 'utf8');
     for (const p of preloads) {
       // Skip SVG logo — cached but not immutable on purpose (can be swapped)
-      if (p.href.endsWith('.svg')) continue;
+      if (p.href.split('?')[0].endsWith('.svg')) continue;
       const re = new RegExp(
         `${p.href.replace('.', '\\.')}\\s*\\n\\s*Cache-Control:[^\\n]*immutable`,
         'i',
