@@ -129,10 +129,10 @@ serve(async (req) => {
            CRITICAL - MVA LOGO PLACEMENT:
            You MUST include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner of the image.
            The logo design is:
-           - A golden hexagonal badge with a glowing golden "M" letter in the center
-           - Below the hexagon: "MVA" in large golden letters
-           - Below MVA: "IMOBILIARE" in smaller golden letters
-           - The logo has a premium, elegant golden color (#D4AF37 to #F4E4A6 gradient)
+           - A golden roof-line silhouette (two angled strokes meeting at a peak) with a small chimney on the right slope
+           - Below the roof: "MVA" in serif capitals — M and A in gold, V in silver
+           - Below MVA: "IMOBILIARE" in smaller golden letters with wide letter-spacing
+           - The logo has a premium, elegant golden color (#DAA520 to #FFE7A0 gradient)
            - The logo should have a subtle glow effect
            - Size: approximately 15-20% of the image height
            - Position: corner placement with some padding from edges
@@ -167,10 +167,10 @@ serve(async (req) => {
            CRITICAL - MVA LOGO PLACEMENT:
            You MUST include the MVA IMOBILIARE logo in the TOP-LEFT or TOP-RIGHT corner of the image.
            The logo design is:
-           - A golden hexagonal badge with a glowing golden "M" letter in the center
-           - Below the hexagon: "MVA" in large golden letters
-           - Below MVA: "IMOBILIARE" in smaller golden letters
-           - The logo has a premium, elegant golden color (#D4AF37 to #F4E4A6 gradient)
+           - A golden roof-line silhouette (two angled strokes meeting at a peak) with a small chimney on the right slope
+           - Below the roof: "MVA" in serif capitals — M and A in gold, V in silver
+           - Below MVA: "IMOBILIARE" in smaller golden letters with wide letter-spacing
+           - The logo has a premium, elegant golden color (#DAA520 to #FFE7A0 gradient)
            - The logo should have a subtle glow effect
            - Size: approximately 15-20% of the image height
            - Position: corner placement with some padding from edges

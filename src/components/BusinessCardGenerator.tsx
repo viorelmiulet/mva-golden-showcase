@@ -311,41 +311,22 @@ const BusinessCardGenerator = () => {
     
     if (logoType === "default") {
       logoSection = `<g>
-      <!-- Outer ring -->
-      <circle 
-        cx="60" 
-        cy="60" 
-        r="54" 
-        fill="none"
-        stroke="url(#logoGradientCard)"
-        stroke-width="3.6"
-        opacity="0.9"
-      />
-      
-      <!-- Main hexagon -->
-      <path 
-        d="M60 12 L99 30 L99 90 L60 108 L21 90 L21 30 Z" 
-        fill="url(#logoGradientCard)" 
-        opacity="0.95"
-      />
-      
-      <!-- Inner background -->
-      <path 
-        d="M60 21 L90 36 L90 84 L60 99 L30 84 L30 36 Z" 
-        fill="url(#cardGradient)"
-      />
-      
-      <!-- "M" letter -->
-      <path 
-        d="M45 48 L51 48 L60 66 L69 48 L75 66 L75 78 L69 78 L69 57 L63 69 L57 69 L51 57 L51 78 L45 78 Z"
-        fill="url(#logoGradientCard)"
-      />
-      
+      <!-- Chimney on right slope -->
+      <rect x="86" y="30" width="6" height="14" fill="url(#logoGradientCard)"/>
+      <!-- Roof line -->
+      <path d="M10 68 L60 20 L110 68" fill="none" stroke="url(#logoGradientCard)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- MVA letters -->
+      <g font-family="Cinzel, Georgia, serif" font-weight="800" font-size="36" text-anchor="middle" letter-spacing="2">
+        <text x="30" y="102" fill="url(#logoGradientCard)">M</text>
+        <text x="60" y="102" fill="${colors.textPrimary}">V</text>
+        <text x="90" y="102" fill="url(#logoGradientCard)">A</text>
+      </g>
       <!-- Accents -->
-      <circle cx="90" cy="30" r="2.4" fill="${colors.secondary}" opacity="0.8" />
-      <circle cx="30" cy="90" r="1.8" fill="${colors.primary}" opacity="0.6" />
+      <circle cx="100" cy="18" r="2" fill="${colors.secondary}" opacity="0.7" />
+      <circle cx="20" cy="90" r="1.6" fill="${colors.primary}" opacity="0.5" />
     </g>`;
     }
+
     // logoType === "none" results in empty logoSection
 
     return `<svg width="1050" height="600" viewBox="0 0 1050 600" xmlns="http://www.w3.org/2000/svg">
@@ -397,40 +378,21 @@ const BusinessCardGenerator = () => {
     <!-- Logo Symbol -->
     ${logoSection}
     <g>
-      <!-- Outer ring -->
-      <circle 
-        cx="60" 
-        cy="60" 
-        r="54" 
-        fill="none"
-        stroke="url(#logoGradientCard)"
-        stroke-width="3.6"
-        opacity="0.9"
-      />
-      
-      <!-- Main hexagon -->
-      <path 
-        d="M60 12 L99 30 L99 90 L60 108 L21 90 L21 30 Z" 
-        fill="url(#logoGradientCard)" 
-        opacity="0.95"
-      />
-      
-      <!-- Inner background -->
-      <path 
-        d="M60 21 L90 36 L90 84 L60 99 L30 84 L30 36 Z" 
-        fill="url(#cardGradient)"
-      />
-      
-      <!-- "M" letter -->
-      <path 
-        d="M45 48 L51 48 L60 66 L69 48 L75 66 L75 78 L69 78 L69 57 L63 69 L57 69 L51 57 L51 78 L45 78 Z"
-        fill="url(#logoGradientCard)"
-      />
-      
+      <!-- Chimney on right slope -->
+      <rect x="86" y="30" width="6" height="14" fill="url(#logoGradientCard)"/>
+      <!-- Roof line -->
+      <path d="M10 68 L60 20 L110 68" fill="none" stroke="url(#logoGradientCard)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- MVA letters -->
+      <g font-family="Cinzel, Georgia, serif" font-weight="800" font-size="36" text-anchor="middle" letter-spacing="2">
+        <text x="30" y="102" fill="url(#logoGradientCard)">M</text>
+        <text x="60" y="102" fill="#E0E0E0">V</text>
+        <text x="90" y="102" fill="url(#logoGradientCard)">A</text>
+      </g>
       <!-- Accents -->
-      <circle cx="90" cy="30" r="2.4" fill="#FFD700" opacity="0.8" />
-      <circle cx="30" cy="90" r="1.8" fill="#D4AF37" opacity="0.6" />
+      <circle cx="100" cy="18" r="2" fill="#FFD700" opacity="0.7" />
+      <circle cx="20" cy="90" r="1.6" fill="#D4AF37" opacity="0.5" />
     </g>
+
     
     <!-- Company Text -->
     <text x="150" y="54" font-family="Cinzel, serif" font-size="36" font-weight="bold" fill="url(#textGradientCard)" letter-spacing="3px">MVA</text>
@@ -519,40 +481,20 @@ const BusinessCardGenerator = () => {
     
     // Generează logo-ul în funcție de tipul selectat
     if (logoType === "default") {
-      backLogoSection = `<!-- Outer ring -->
-    <circle 
-      cx="0" 
-      cy="0" 
-      r="75" 
-      fill="none"
-      stroke="url(#logoGradientVerso)"
-      stroke-width="3.6"
-      opacity="0.8"
-    />
-    
-    <!-- Main hexagon -->
-    <path 
-      d="M0 -60 L51 -30 L51 30 L0 60 L-51 30 L-51 -30 Z" 
-      fill="url(#logoGradientVerso)" 
-      opacity="0.9"
-    />
-    
-    <!-- Inner background -->
-    <path 
-      d="M0 -48 L42 -24 L42 24 L0 48 L-42 24 L-42 -24 Z" 
-      fill="url(#cardGradientVerso)"
-    />
-    
-    <!-- Premium "M" letterform - scaled up -->
-    <path 
-      d="M-21 -6 L-12 -6 L0 12 L12 -6 L21 -6 L21 27 L12 27 L12 3 L3 15 L-3 15 L-12 3 L-12 27 L-21 27 Z"
-      fill="url(#logoGradientVerso)"
-    />
-    
+      backLogoSection = `<!-- Chimney on right slope -->
+    <rect x="36" y="-30" width="8" height="18" fill="url(#logoGradientVerso)"/>
+    <!-- Roof line silhouette centered at (0,0) -->
+    <path d="M-60 12 L0 -48 L60 12" fill="none" stroke="url(#logoGradientVerso)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- MVA letters -->
+    <g font-family="Cinzel, Georgia, serif" font-weight="800" font-size="46" text-anchor="middle" letter-spacing="3">
+      <text x="-40" y="52" fill="url(#logoGradientVerso)">M</text>
+      <text x="0" y="52" fill="#E0E0E0">V</text>
+      <text x="40" y="52" fill="url(#logoGradientVerso)">A</text>
+    </g>
     <!-- Luxury accents -->
-    <circle cx="48" cy="-36" r="3" fill="#FFD700" opacity="0.8" />
-    <circle cx="-48" cy="36" r="2.4" fill="#D4AF37" opacity="0.6" />
-    <polygon points="51,33 57,27 57,39" fill="#B8860B" opacity="0.4" />`;
+    <circle cx="55" cy="-40" r="3" fill="#FFD700" opacity="0.8" />
+    <circle cx="-55" cy="40" r="2.4" fill="#D4AF37" opacity="0.6" />`;
+
     }
     // logoType === "none" results in empty backLogoSection
     
