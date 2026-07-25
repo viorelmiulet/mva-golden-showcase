@@ -27,21 +27,26 @@ export interface SeoLandingPreset {
     minRooms?: number;
     transactionType?: "sale" | "rent";
     propertyType?: "apartment" | "house" | "land" | "garsoniera";
-    zone?: string; // uppercase keyword to match in title/zone/location
+    zone?: string; // single uppercase keyword to match
+    zones?: string[]; // ANY of these uppercase keywords match (OR)
     newBuild?: boolean;
   };
   breadcrumb: string;
+  /** Optional related landing pages shown at the bottom. */
+  relatedLinks?: { slug: string; label: string }[];
+  /** Optional custom empty-state message (used when 0 matches). */
+  emptyStateMessage?: string;
 }
 
 interface Props {
   preset: SeoLandingPreset;
 }
 
-const matchesZone = (p: any, zone: string) => {
-  const z = zone.toUpperCase();
+const matchesAnyZone = (p: any, zones: string[]) => {
   const hay = `${p.title || ""} ${p.zone || ""} ${p.location || ""} ${p.city || ""} ${p.project_name || ""}`.toUpperCase();
-  return hay.includes(z);
+  return zones.some((z) => hay.includes(z.toUpperCase()));
 };
+
 
 const detectIsHouse = (p: any) => {
   const t = `${p.title || ""} ${p.description || ""}`.toLowerCase();
