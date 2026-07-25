@@ -108,9 +108,9 @@ const Header = () => {
             <img
               src="/mva-logo-3d.png?v=20260725"
               alt="MVA Imobiliare"
-              width="56"
-              height="56"
-              className="h-12 sm:h-16 w-auto transition-transform duration-500 group-hover:scale-105"
+              width="72"
+              height="72"
+              className="h-14 sm:h-20 w-auto object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-105"
               fetchPriority="high"
               decoding="async"
             />
