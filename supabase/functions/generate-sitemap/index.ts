@@ -154,6 +154,13 @@ Deno.serve(async (req) => {
       { loc: '/apartamente-noi', priority: '0.85', changefreq: 'daily', lastmod: currentDate },
       { loc: '/apartamente-2-camere-militari', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
       { loc: '/apartamente-3-camere-militari', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-drumul-taberei', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-crangasi-giulesti', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-titan-pantelimon', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-berceni-giurgiului', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-tineretului-vacaresti', priority: '0.8', changefreq: 'weekly', lastmod: currentDate },
+      { loc: '/apartamente-sector-6', priority: '0.85', changefreq: 'weekly', lastmod: currentDate },
+
     ];
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

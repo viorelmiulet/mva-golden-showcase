@@ -27,21 +27,26 @@ export interface SeoLandingPreset {
     minRooms?: number;
     transactionType?: "sale" | "rent";
     propertyType?: "apartment" | "house" | "land" | "garsoniera";
-    zone?: string; // uppercase keyword to match in title/zone/location
+    zone?: string; // single uppercase keyword to match
+    zones?: string[]; // ANY of these uppercase keywords match (OR)
     newBuild?: boolean;
   };
   breadcrumb: string;
+  /** Optional related landing pages shown at the bottom. */
+  relatedLinks?: { slug: string; label: string }[];
+  /** Optional custom empty-state message (used when 0 matches). */
+  emptyStateMessage?: string;
 }
 
 interface Props {
   preset: SeoLandingPreset;
 }
 
-const matchesZone = (p: any, zone: string) => {
-  const z = zone.toUpperCase();
+const matchesAnyZone = (p: any, zones: string[]) => {
   const hay = `${p.title || ""} ${p.zone || ""} ${p.location || ""} ${p.city || ""} ${p.project_name || ""}`.toUpperCase();
-  return hay.includes(z);
+  return zones.some((z) => hay.includes(z.toUpperCase()));
 };
+
 
 const detectIsHouse = (p: any) => {
   const t = `${p.title || ""} ${p.description || ""}`.toLowerCase();
@@ -75,7 +80,9 @@ const SeoLanding = ({ preset }: Props) => {
       if (f.rooms !== undefined && p.rooms !== f.rooms) return false;
       if (f.minRooms !== undefined && (!p.rooms || p.rooms < f.minRooms)) return false;
       if (f.transactionType && p.transaction_type && p.transaction_type !== f.transactionType) return false;
-      if (f.zone && !matchesZone(p, f.zone)) return false;
+      if (f.zone && !matchesAnyZone(p, [f.zone])) return false;
+      if (f.zones && f.zones.length > 0 && !matchesAnyZone(p, f.zones)) return false;
+
       if (f.propertyType === "house" && !detectIsHouse(p)) return false;
       if (f.propertyType === "land" && !detectIsLand(p)) return false;
       if (f.propertyType === "garsoniera" && p.rooms && p.rooms > 1) return false;
@@ -142,14 +149,24 @@ const SeoLanding = ({ preset }: Props) => {
             ))}
           </div>
         ) : count === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground mb-4">
-              Momentan nu avem oferte care să corespundă acestei căutări. Vezi toate proprietățile disponibile.
+          <div className="text-center py-16 px-4 rounded-lg border border-border bg-card/40">
+            <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-3">
+              În curând proprietăți în această zonă
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-6">
+              {preset.emptyStateMessage ||
+                "Nu avem încă oferte publicate pentru această zonă. Lasă-ne datele tale și te contactăm imediat ce apare o proprietate potrivită, sau descoperă alte zone."}
             </p>
-            <Button asChild>
-              <Link to="/proprietati">Vezi toate proprietățile</Link>
-            </Button>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button asChild>
+                <Link to="/contact">Contactează un consultant</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/proprietati">Vezi toate proprietățile</Link>
+              </Button>
+            </div>
           </div>
+
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.slice(0, 60).map((p: any) => (
@@ -212,6 +229,30 @@ const SeoLanding = ({ preset }: Props) => {
           <h2 className="text-2xl font-semibold text-foreground mb-3">Despre {preset.breadcrumb.toLowerCase()}</h2>
           <p className="text-muted-foreground">{preset.intro}</p>
         </section>
+
+        {preset.relatedLinks && preset.relatedLinks.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Explorează și alte zone</h2>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/proprietati"
+                className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent text-sm text-foreground transition-colors"
+              >
+                Toate proprietățile
+              </Link>
+              {preset.relatedLinks.map((l) => (
+                <Link
+                  key={l.slug}
+                  to={`/${l.slug}`}
+                  className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent text-sm text-foreground transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
       </main>
 
       <Footer />
