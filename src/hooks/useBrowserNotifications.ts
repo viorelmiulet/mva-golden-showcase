@@ -46,8 +46,8 @@ export const useBrowserNotifications = () => {
 
     try {
       const notification = new Notification(title, {
-        icon: '/favicon-mva.png',
-        badge: '/favicon-mva.png',
+        icon: '/favicon-mva.png?v=20260725',
+        badge: '/favicon-mva.png?v=20260725',
         tag: 'mva-email-notification',
         ...options,
       });
