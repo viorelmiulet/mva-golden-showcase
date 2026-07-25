@@ -51,7 +51,7 @@ const About = () => {
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
                 {language === 'ro' 
-                  ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.'
+                  ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este o agenție activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și Sectorul 6.'
                   : 'Active since 2016, with over 10 years of experience in the premium real estate segment, MVA IMOBILIARE is the leader in selling exceptional properties in western Bucharest.'}
               </p>
             </header>
