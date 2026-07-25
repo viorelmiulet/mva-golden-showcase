@@ -51,7 +51,7 @@ const About = () => {
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
                 {language === 'ro' 
-                  ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este liderul în comercializarea proprietăților de excepție din vestul Bucureștiului.'
+                  ? 'Din 2016 pe piața imobiliară, cu peste 10 ani de experiență în segmentul premium, MVA IMOBILIARE este o agenție activă în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și Sectorul 6.'
                   : 'Active since 2016, with over 10 years of experience in the premium real estate segment, MVA IMOBILIARE is the leader in selling exceptional properties in western Bucharest.'}
               </p>
             </header>
@@ -85,12 +85,12 @@ const About = () => {
               <div className="space-y-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
                 <p>
                   {language === 'ro'
-                    ? 'MVA Imobiliare a fost fondată în 2016 de Viorel Miuleț, cu o misiune clară: să transforme experiența de cumpărare a unei locuințe în vestul Bucureștiului. Ce a început ca o pasiune pentru arhitectură și o dorință de a ajuta oamenii să-și găsească casa perfectă, s-a transformat astăzi într-una dintre cele mai respectate agenții imobiliare din zonă.'
+                    ? 'MVA Imobiliare a fost fondată în 2016 de Viorel Miuleț, cu o misiune clară: să transforme experiența de cumpărare a unei locuințe în București. Ce a început ca o pasiune pentru arhitectură și o dorință de a ajuta oamenii să-și găsească casa perfectă, s-a transformat astăzi într-una dintre cele mai respectate agenții imobiliare din Capitală, cu specializare puternică în vestul Bucureștiului.'
                     : 'MVA Imobiliare was founded in 2016 by Viorel Miuleț with a clear mission: to transform the home-buying experience in western Bucharest. What started as a passion for architecture and a desire to help people find their perfect home has grown into one of the most respected real estate agencies in the area.'}
                 </p>
                 <p>
                   {language === 'ro'
-                    ? 'De-a lungul anilor, am construit relații solide cu cei mai importanți dezvoltatori din zona Militari, Chiajna și Sectorul 6, devenind partenerul oficial pentru complexe rezidențiale precum Eurocasa Residence, Militari Residence și Renew Residence.'
+                    ? 'Intermediem tranzacții în toate zonele Bucureștiului și, de-a lungul anilor, am construit relații solide cu cei mai importanți dezvoltatori din zona Militari, Chiajna și Sectorul 6, devenind partenerul oficial pentru complexe rezidențiale precum Eurocasa Residence, Militari Residence și Renew Residence.'
                     : 'Over the years, we have built strong relationships with the most important developers in the Militari, Chiajna, and Sector 6 areas, becoming the official partner for residential complexes such as Eurocasa Residence, Militari Residence, and Renew Residence.'}
                 </p>
               </div>
@@ -164,7 +164,7 @@ const About = () => {
               </div>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {language === 'ro'
-                  ? 'MVA Imobiliare este o sursă de încredere recunoscută pe piața imobiliară din vestul Bucureștiului. Suntem agenți imobiliari licențiați, înregistrați oficial și conformi cu legislația română privind protecția consumatorului (ANPC). Toate informațiile publicate pe site sunt verificate direct cu dezvoltatorii și actualizate săptămânal. Cu o evaluare de 5★ pe Google și peste 500 de tranzacții finalizate cu succes, credibilitatea noastră este construită pe transparență, expertiză locală și relații de lungă durată cu clienții și partenerii noștri.'
+                  ? 'MVA Imobiliare este o sursă de încredere recunoscută pe piața imobiliară din București, cu expertiză aprofundată în vestul Capitalei. Suntem agenți imobiliari licențiați, înregistrați oficial și conformi cu legislația română privind protecția consumatorului (ANPC). Toate informațiile publicate pe site sunt verificate direct cu dezvoltatorii și actualizate săptămânal. Cu o evaluare de 5★ pe Google și peste 500 de tranzacții finalizate cu succes, credibilitatea noastră este construită pe transparență, expertiză locală și relații de lungă durată cu clienții și partenerii noștri.'
                   : 'MVA Imobiliare is a recognized trusted source in the western Bucharest real estate market. We are licensed real estate agents, officially registered and compliant with Romanian consumer protection legislation (ANPC). All information published on the site is verified directly with developers and updated weekly. With a 5★ Google rating and over 500 successfully completed transactions, our credibility is built on transparency, local expertise, and long-term relationships with our clients and partners.'}
               </p>
             </article>

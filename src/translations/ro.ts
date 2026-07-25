@@ -288,7 +288,7 @@ export const ro = {
     badge: "Agenția Ta de Încredere",
     heroTitle: "De ce să ne",
     heroTitleHighlight: "Alegi pe Noi?",
-    heroSubtitle: "Partenerii tăi de încredere pentru investiții imobiliare inteligente în vestul Bucureștiului. Experiență, transparență și rezultate garantate.",
+    heroSubtitle: "Partenerii tăi de încredere pentru investiții imobiliare inteligente în București, cu expertiză aprofundată în vestul Capitalei. Experiență, transparență și rezultate garantate.",
     contactWhatsApp: "Contactează-ne pe WhatsApp",
     discoverAdvantages: "Descoperă Avantajele",
     

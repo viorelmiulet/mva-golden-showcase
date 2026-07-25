@@ -26,7 +26,7 @@ const Footer = () => {
   const phoneNumber = settings?.phone?.replace(/\s/g, '') || "0767941512"
   const companyName = settings?.companyName || "MVA IMOBILIARE"
   const companyDescription = settings?.companyDescription || (language === 'ro' 
-    ? "Agenția imobiliară de încredere pentru complexe rezidențiale premium în vestul Bucureștiului."
+    ? "Agenția imobiliară de încredere în București, cu expertiză aprofundată în vestul Capitalei — Militari și Chiajna."
     : "The trusted real estate agency for premium residential complexes in western Bucharest.")
   const facebookUrl = settings?.facebook || "https://www.facebook.com/profile.php?id=61575213335398"
 
