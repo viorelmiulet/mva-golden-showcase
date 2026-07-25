@@ -149,14 +149,24 @@ const SeoLanding = ({ preset }: Props) => {
             ))}
           </div>
         ) : count === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground mb-4">
-              Momentan nu avem oferte care să corespundă acestei căutări. Vezi toate proprietățile disponibile.
+          <div className="text-center py-16 px-4 rounded-lg border border-border bg-card/40">
+            <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-3">
+              În curând proprietăți în această zonă
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-6">
+              {preset.emptyStateMessage ||
+                "Nu avem încă oferte publicate pentru această zonă. Lasă-ne datele tale și te contactăm imediat ce apare o proprietate potrivită, sau descoperă alte zone."}
             </p>
-            <Button asChild>
-              <Link to="/proprietati">Vezi toate proprietățile</Link>
-            </Button>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button asChild>
+                <Link to="/contact">Contactează un consultant</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/proprietati">Vezi toate proprietățile</Link>
+              </Button>
+            </div>
           </div>
+
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.slice(0, 60).map((p: any) => (
