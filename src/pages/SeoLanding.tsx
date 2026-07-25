@@ -229,6 +229,30 @@ const SeoLanding = ({ preset }: Props) => {
           <h2 className="text-2xl font-semibold text-foreground mb-3">Despre {preset.breadcrumb.toLowerCase()}</h2>
           <p className="text-muted-foreground">{preset.intro}</p>
         </section>
+
+        {preset.relatedLinks && preset.relatedLinks.length > 0 && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-foreground mb-4">Explorează și alte zone</h2>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/proprietati"
+                className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent text-sm text-foreground transition-colors"
+              >
+                Toate proprietățile
+              </Link>
+              {preset.relatedLinks.map((l) => (
+                <Link
+                  key={l.slug}
+                  to={`/${l.slug}`}
+                  className="px-4 py-2 rounded-md border border-border bg-card hover:bg-accent text-sm text-foreground transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
       </main>
 
       <Footer />
