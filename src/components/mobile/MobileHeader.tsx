@@ -49,7 +49,7 @@ const MobileHeader = ({
             </Button>
           ) : (
             <img 
-              src="/mva-logo-luxury.svg" 
+              src="/mva-logo-luxury.svg?v=20260725" 
               alt="MVA Imobiliare - Agenție imobiliară premium în București și Chiajna"
               title="MVA Imobiliare"
               className="h-8 w-8"
