@@ -23,7 +23,8 @@ import {
   Video,
   Play,
   Calendar,
-  Loader2
+  Loader2,
+  Phone
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
