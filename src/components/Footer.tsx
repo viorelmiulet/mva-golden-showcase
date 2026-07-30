@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react"
-import { Separator } from "@/components/ui/separator"
 import { ArrowUp, Download } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { useLanguage } from "@/contexts/LanguageContext"
-import GoogleReviews from "@/components/GoogleReviews"
 
 const LEGAL_BADGE_FALLBACKS = {
   anpc: "https://anpc.ro/wp-content/uploads/2022/07/SAL-PICTOGRAMA.png",
