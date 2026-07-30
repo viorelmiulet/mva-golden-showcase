@@ -192,7 +192,7 @@ const Complexe = () => {
               <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               {projects?.length || 0} {language === 'ro' ? 'Ansambluri Disponibile' : 'Available Complexes'}
             </Badge>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gradient-gold drop-shadow-lg px-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-brass px-2">
               {t.complexes?.title || 'Complexe Rezidențiale'}
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-2">
@@ -249,7 +249,7 @@ const Complexe = () => {
                         
                         {/* Project Name Overlay */}
                         <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-2 sm:left-3 md:left-4 right-2 sm:right-3 md:right-4">
-                          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white drop-shadow-lg line-clamp-1">
+                          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-paper line-clamp-1">
                             {project.name}
                           </h2>
                         </div>

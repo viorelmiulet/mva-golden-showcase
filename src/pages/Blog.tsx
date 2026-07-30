@@ -135,7 +135,7 @@ const Blog = () => {
                     const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                        <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-brass">
+                        <Card className="transition-colors cursor-pointer h-full border-2 border-gold/30 bg-brass">
                           {post.cover_image && (
                             <OptimizedImage
                               src={post.cover_image}
@@ -220,7 +220,7 @@ const Blog = () => {
                   const CategoryIcon = getCategoryIcon(post.category_id);
                   return (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                      <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border hover:border-gold/50">
+                      <Card className="transition-colors cursor-pointer h-full border hover:border-gold/50">
                         {post.cover_image && (
                           <OptimizedImage
                             src={post.cover_image}

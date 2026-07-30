@@ -427,7 +427,7 @@ const ComplexDetail = () => {
                   <Building2 className="h-4 w-4 mr-2" />
                   Complex Rezidențial Premium
                 </Badge>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gradient-gold drop-shadow-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-brass">
                   {project.name}
                 </h1>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
