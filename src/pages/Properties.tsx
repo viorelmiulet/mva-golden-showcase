@@ -1,1108 +1,612 @@
-import { useState, useMemo, lazy, Suspense } from "react"
-import SpecRail from "@/components/SpecRail";
+import { useMemo, useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import PropertyCard, { PropertyCardSkeleton, getCardZone } from "@/components/PropertyCard";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug";
 
-import { useToast } from "@/components/ui/use-toast"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { supabase } from "@/integrations/supabase/client"
-import { 
-  MapPin, 
-  Euro, 
-  Home, 
-  Ruler,
-  Loader2,
-  ExternalLink,
-  Images,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Info,
-  Calendar,
-  Building,
-  Phone,
-  Filter,
-  Search,
-  Heart,
-  Bath,
-  Construction
-} from "lucide-react"
-import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import Breadcrumbs from "@/components/Breadcrumbs"
-import BreadcrumbSchema from "@/components/BreadcrumbSchema"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link, useSearchParams } from "react-router-dom"
-import { Helmet } from "react-helmet-async"
-import OptimizedPropertyImage from "@/components/OptimizedPropertyImage"
+const PER_PAGE = 24;
 
-import { PropertyGridSkeleton } from "@/components/skeletons"
-import { useLanguage } from "@/contexts/LanguageContext"
-import { getPropertyUrl, generateImmofluxSlug, getImmofluxPropertyUrl } from "@/lib/propertySlug"
-import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog"
-
-// Lazy load heavy components
-const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
-const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
-
-interface ScrapedProperty {
-  title: string
-  description: string
-  location: string
-  images: string[]
-  price_min: number
-  price_max: number
-  surface_min?: number
-  surface_max?: number
-  rooms: number
-  features: string[]
-}
-
-// Check if a string looks like GPS coordinates
 const isCoordinates = (str: string): boolean => {
   if (!str) return false;
   return /^\d{2,}\.\d{3,}/.test(str.trim()) || /^-?\d+\.\d+,?\s*-?\d+\.\d+$/.test(str.trim());
 };
 
-const getDisplayLocation = (p: any): string => {
-  if (p.zone && !isCoordinates(p.zone)) return p.zone;
-  if (p.location && !isCoordinates(p.location)) return p.location;
-  if (p.city && !isCoordinates(p.city)) return p.city;
-  if (p.project_name) return p.project_name;
-  return 'București';
-};
-
 const shouldUseImmofluxRoute = (property: any): boolean =>
-  property.availability_status !== 'sold'
-  && Boolean(property._immoflux_id)
-  && Boolean(property._immoflux_slug)
-  && !String(property._immoflux_slug).includes('undefined');
+  property.availability_status !== "sold" &&
+  Boolean(property._immoflux_id) &&
+  Boolean(property._immoflux_slug) &&
+  !String(property._immoflux_slug).includes("undefined");
 
-const getListingPropertyUrl = (property: any): string => {
-  if (shouldUseImmofluxRoute(property)) {
-    return `/proprietate/${property._immoflux_slug}`;
+const getListingPropertyUrl = (property: any): string =>
+  shouldUseImmofluxRoute(property) ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property);
+
+const normalize = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/ă/g, "a")
+    .replace(/â/g, "a")
+    .replace(/î/g, "i")
+    .replace(/ș/g, "s")
+    .replace(/ş/g, "s")
+    .replace(/ț/g, "t")
+    .replace(/ţ/g, "t");
+
+const detectTransactionType = (property: any): "sale" | "rent" => {
+  const text = normalize(`${property.title || ""} ${property.description || ""}`);
+  const rentKeywords = [
+    "de inchiriat",
+    "se inchiriaza",
+    "inchiriere",
+    "inchiriez",
+    "chirie",
+    "for rent",
+    "/luna",
+    "/ luna",
+    "eur/luna",
+  ];
+  const saleKeywords = ["de vanzare", "se vinde", "for sale", "vand "];
+  const hasRentText = rentKeywords.some((k) => text.includes(k));
+  const hasSaleText = saleKeywords.some((k) => text.includes(k));
+  const price = Number(property.price_min) || 0;
+  const looksLikeRentPrice = price > 0 && price < 3000;
+  const looksLikeSalePrice = price >= 10000;
+
+  if (hasRentText && !hasSaleText) return "rent";
+  if (looksLikeRentPrice && hasRentText) return "rent";
+  if (hasSaleText && !hasRentText) return "sale";
+  if (property.transaction_type === "rent" || property.transaction_type === "sale") {
+    if (property.transaction_type === "sale" && looksLikeRentPrice) return "rent";
+    if (property.transaction_type === "rent" && looksLikeSalePrice) return "sale";
+    return property.transaction_type;
   }
-
-  return getPropertyUrl(property);
+  if (looksLikeRentPrice) return "rent";
+  if (looksLikeSalePrice) return "sale";
+  return "sale";
 };
+
+const PRICE_STEPS = [50000, 75000, 100000, 125000, 150000, 200000, 300000];
+const SURFACE_STEPS = [40, 50, 60, 80, 100, 120];
+
+const SORTS = [
+  { value: "recente", label: "Cele mai noi" },
+  { value: "pret_asc", label: "Preț crescător" },
+  { value: "pret_desc", label: "Preț descrescător" },
+  { value: "suprafata", label: "Suprafață" },
+] as const;
 
 const Properties = () => {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sheetOpen, setSheetOpen] = useState(false);
 
-  const [selectedProperty, setSelectedProperty] = useState<any>(null)
-  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0)
+  // ---- URL is the single source of truth -------------------------------
+  const param = (key: string) => searchParams.get(key) || "";
+  const zona = param("zona");
+  const camere = param("camere");
+  const pretMax = param("pret_max");
+  const tip = param("tip");
+  const suprMin = param("supr_min");
+  const etaj = param("etaj");
+  const compartimentare = param("compartimentare");
+  const an = param("an");
+  const ansamblu = param("ansamblu");
+  const sort = param("sort") || "recente";
+  const page = Math.max(1, parseInt(param("p") || "1", 10) || 1);
 
-  // Initialize filters from URL params (one-directional: URL -> state on mount).
-  // Validate against allowed values so invalid params fall back to defaults
-  // instead of silently filtering out every property.
-  const pickAllowed = (raw: string | null, allowed: readonly string[], fallback = "all") =>
-    raw && allowed.includes(raw) ? raw : fallback
-  const pickPositiveInt = (raw: string | null) => {
-    if (!raw) return ""
-    const n = parseInt(raw, 10)
-    return Number.isFinite(n) && n >= 0 ? String(n) : ""
-  }
-  const pickFloor = (raw: string | null) => {
-    if (!raw) return "all"
-    if (raw === "all" || raw === "ground" || raw === "top") return raw
-    const n = parseInt(raw, 10)
-    return Number.isFinite(n) && n >= 0 && n <= 100 ? String(n) : "all"
-  }
+  const setParam = (key: string, value: string, resetPage = true) => {
+    const next = new URLSearchParams(searchParams);
+    if (!value || value === "all") next.delete(key);
+    else next.set(key, value);
+    if (resetPage) next.delete("p");
+    setSearchParams(next, { replace: true });
+  };
 
-  const [searchQuery, setSearchQuery] = useState<string>(() => searchParams.get("search") || "")
-  const [priceMin, setPriceMin] = useState<string>(() => pickPositiveInt(searchParams.get("priceMin")))
-  const [priceMax, setPriceMax] = useState<string>(() => pickPositiveInt(searchParams.get("priceMax")))
-  const [roomsFilter, setRoomsFilter] = useState(() =>
-    pickAllowed(searchParams.get("rooms"), ["all", "1", "2", "3", "4", "5", "6", "7"])
-  )
-  const [locationFilter, setLocationFilter] = useState(
-    () => searchParams.get("zone") || searchParams.get("location") || "all"
-  )
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState(() =>
-    pickAllowed(searchParams.get("transactionType"), ["all", "sale", "rent"])
-  )
-  // Advanced filters
-  const [floorFilter, setFloorFilter] = useState(() => pickFloor(searchParams.get("floor")))
-  const [bathroomsFilter, setBathroomsFilter] = useState(() =>
-    pickAllowed(searchParams.get("bathrooms"), ["all", "1", "2", "3"])
-  )
-  const [yearBuiltFilter, setYearBuiltFilter] = useState(() =>
-    pickAllowed(searchParams.get("yearBuilt"), ["all", "new", "recent", "2010s", "older"])
-  )
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState(() =>
-    pickAllowed(searchParams.get("propertyType"), ["all", "apartament", "casa", "penthouse", "studio"])
-  )
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const clearAll = () => setSearchParams(new URLSearchParams(), { replace: true });
 
-  const [showFilters, setShowFilters] = useState(true)
-  const [visibleCount, setVisibleCount] = useState(12)
-  const { toast } = useToast()
-  const queryClient = useQueryClient()
-  
-  const { t, language } = useLanguage()
-
-  const pageText = useMemo(() => ({
-    transactionType: language === 'ro' ? 'Tip tranzacție' : 'Transaction type',
-    selectTransactionType: language === 'ro' ? 'Selectează tipul' : 'Select transaction type',
-    zone: language === 'ro' ? 'Zonă' : 'Zone',
-    allZones: language === 'ro' ? 'Toate zonele' : 'All zones',
-    showAdvancedFilters: language === 'ro' ? 'Arată filtre avansate' : 'Show advanced filters',
-    hideAdvancedFilters: language === 'ro' ? 'Ascunde filtre avansate' : 'Hide advanced filters',
-    resultsCount: language === 'ro' ? 'proprietăți găsite' : 'properties found',
-    resetFilters: language === 'ro' ? 'Resetează filtrele' : 'Reset filters',
-    noFilteredResultsTitle: language === 'ro' ? 'Nu s-au găsit proprietăți' : 'No properties found',
-    noFilteredResultsDescription: language === 'ro' ? 'Modifică filtrele pentru a găsi proprietăți' : 'Adjust the filters to find properties',
-    noPropertiesTitle: language === 'ro' ? 'Nu există proprietăți' : 'No properties available',
-    noPropertiesDescription: language === 'ro' ? 'Proprietățile vor apărea aici după ce sunt adăugate' : 'Properties will appear here after they are added',
-    call: language === 'ro' ? 'Sună' : 'Call',
-  }), [language])
-
-  // Fetch all properties (local + synced IMMOFLUX from catalog_offers)
-  const { data: catalogProperties = [], isLoading: isLoadingProperties } = useQuery({
-    queryKey: ['catalog_offers'],
+  // ---- Data (unchanged Supabase query) ---------------------------------
+  const { data: catalogProperties = [], isLoading } = useQuery({
+    queryKey: ["catalog_offers"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('catalog_offers')
-        .select('*')
-        .is('project_id', null)
-        .neq('is_published', false)
-        .neq('availability_status', 'sold')
-        .order('created_at', { ascending: false })
-      
-      
-      if (error) throw error
+        .from("catalog_offers")
+        .select("*")
+        .is("project_id", null)
+        .neq("is_published", false)
+        .neq("availability_status", "sold")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
       return (data || []).map((p: any) => {
-        const isImmoflux = p.crm_source === 'immoflux' || p.source === 'immoflux';
-        const immofluxId = isImmoflux && p.external_id ? Number(String(p.external_id).replace('immoflux-', '')) : null;
+        const isImmoflux = p.crm_source === "immoflux" || p.source === "immoflux";
+        const immofluxId =
+          isImmoflux && p.external_id ? Number(String(p.external_id).replace("immoflux-", "")) : null;
         return {
           ...p,
           _immoflux_id: immofluxId,
-          _immoflux_slug: isImmoflux && immofluxId
-            ? (p.immoflux_slug || generateImmofluxSlug({
-                idnum: immofluxId,
-                nrcamere: p.rooms,
-                zona: p.zone,
-                localitate: p.location || p.city,
-                suprutila: p.surface_min,
-                etaj: p.floor,
-              } as any))
-            : null,
-          _immoflux_top: isImmoflux && p.promotion_type === 'top',
-          _immoflux_pole: isImmoflux && p.promotion_type === 'pole_position',
-        }
-      })
+          _immoflux_slug:
+            isImmoflux && immofluxId
+              ? p.immoflux_slug ||
+                generateImmofluxSlug({
+                  idnum: immofluxId,
+                  nrcamere: p.rooms,
+                  zona: p.zone,
+                  localitate: p.location || p.city,
+                  suprutila: p.surface_min,
+                  etaj: p.floor,
+                } as any)
+              : null,
+          _immoflux_top: isImmoflux && p.promotion_type === "top",
+          _immoflux_pole: isImmoflux && p.promotion_type === "pole_position",
+        };
+      });
     },
     staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true
-  })
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+  });
 
-  const properties = useMemo(() => {
-    return [...catalogProperties].sort((a: any, b: any) => {
-      const aPole = a._immoflux_pole ? 2 : 0;
-      const bPole = b._immoflux_pole ? 2 : 0;
-      const aTop = a._immoflux_top ? 1 : 0;
-      const bTop = b._immoflux_top ? 1 : 0;
-      return (bPole + bTop) - (aPole + aTop);
-    });
-  }, [catalogProperties]);
+  const properties = useMemo(
+    () =>
+      [...catalogProperties].sort((a: any, b: any) => {
+        const aScore = (a._immoflux_pole ? 2 : 0) + (a._immoflux_top ? 1 : 0);
+        const bScore = (b._immoflux_pole ? 2 : 0) + (b._immoflux_top ? 1 : 0);
+        return bScore - aScore;
+      }),
+    [catalogProperties]
+  );
 
-
-  // Helper: detect transaction type. Strong text/price signals override DB value
-  // (some imports mislabel rentals as 'sale' and vice-versa).
-  const detectTransactionType = (property: any): 'sale' | 'rent' => {
-    const base = `${property.title || ''} ${property.description || ''}`.toLowerCase()
-    const text = base
-      .replace(/ă/g,'a').replace(/â/g,'a').replace(/î/g,'i')
-      .replace(/ș/g,'s').replace(/ş/g,'s').replace(/ț/g,'t').replace(/ţ/g,'t')
-
-    const rentKeywords = [
-      'de inchiriat', 'se inchiriaza',
-      'inchiriere', 'inchiriez', 'chirie', 'for rent', '/luna', '/ luna', 'eur/luna'
-    ]
-    const saleKeywords = ['de vanzare', 'se vinde', 'for sale', 'vand ']
-
-    const hasRentText = rentKeywords.some(k => text.includes(k))
-    const hasSaleText = saleKeywords.some(k => text.includes(k))
-
-    const price = Number(property.price_min) || 0
-    const looksLikeRentPrice = price > 0 && price < 3000
-    const looksLikeSalePrice = price >= 10000
-
-    // Strong rent signal overrides DB
-    if (hasRentText && !hasSaleText) return 'rent'
-    if (looksLikeRentPrice && hasRentText) return 'rent'
-
-    // Strong sale signal overrides DB
-    if (hasSaleText && !hasRentText) return 'sale'
-
-    // Trust DB when no conflicting evidence
-    if (property.transaction_type === 'rent' || property.transaction_type === 'sale') {
-      // But also flip obviously wrong DB labels (e.g. rent-priced item marked sale)
-      if (property.transaction_type === 'sale' && looksLikeRentPrice) return 'rent'
-      if (property.transaction_type === 'rent' && looksLikeSalePrice) return 'sale'
-      return property.transaction_type
+  // ---- Options derived from data --------------------------------------
+  const zoneOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of properties) {
+      const raw = (p.zone || "").trim();
+      if (raw && !isCoordinates(raw)) set.add(raw.toUpperCase());
     }
-
-    if (looksLikeRentPrice) return 'rent'
-    if (looksLikeSalePrice) return 'sale'
-
-    return 'sale'
-  }
-
-  // Memoized zone extraction cache
-  const propertyZones = useMemo(() => {
-    const zoneMap = new Map<string, string | null>();
-    const knownZones = [
-      'MILITARI RESIDENCE', 'RENEW RESIDENCE', 'EUROCASA RESIDENCE',
-      'COSMOPOLIS', 'GREENFIELD', 'VALEA CASCADELOR', 'PRELUNGIREA GHENCEA',
-      'PLAZA ROMANIA', '13 SEPTEMBRIE', 'BUCURESTII NOI', 'EROII REVOLUTIEI',
-      'APARATORII PATRIEI', 'POPESTI-LEORDENI', 'POPESTI LEORDENI',
-      'DRUMUL TABEREI', 'AVIATIEI', 'PIPERA', 'BĂNEASA', 'BANEASA',
-      'FLOREASCA', 'RAHOVA', 'GHENCEA', 'TITAN', 'PANTELIMON', 'BERCENI',
-      'UNIRII', 'VITAN', 'DRISTOR', 'IANCULUI', 'OBOR', 'COLENTINA',
-      'METALURGIEI', 'BRAGADIRU', 'VOLUNTARI', 'CHIAJNA', 'MILITARI',
-      'CRANGASI', 'GIULESTI', 'TIMISOARA', 'LUJERULUI', 'GROZAVESTI',
-      'POLITEHNICA', 'COTROCENI', 'DOMENII', 'VICTORIEI', 'ROMANA',
-      'UNIVERSITATE', 'TINERETULUI', 'GIURGIULUI', 'SEBASTIAN', 'ORIZONT'
-    ];
-
-    for (const property of properties) {
-      const text = `${property.title || ''} ${property.description || ''}`.toUpperCase();
-      let found: string | null = null;
-      for (const zone of knownZones) {
-        if (text.includes(zone)) {
-          found = zone;
-          break;
-        }
-      }
-      zoneMap.set(property.id, found);
-    }
-
-    return zoneMap;
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
 
-  const extractZone = (property: any): string | null => {
-    return propertyZones.get(property.id) ?? null;
-  }
+  const compartmentOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of properties) if (p.compartment) set.add(String(p.compartment).trim());
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
+  }, [properties]);
 
-  // Filter properties based on filters
-  const filteredProperties = useMemo(() => {
-    const normalize = (s: string) =>
-      s.toLowerCase()
-        .replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i')
-        .replace(/ș/g, 's').replace(/ş/g, 's').replace(/ț/g, 't').replace(/ţ/g, 't')
-    const queryTokens = normalize(searchQuery.trim())
-      .split(/\s+/)
-      .filter(Boolean)
+  const projectOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of properties) if (p.project_name) set.add(String(p.project_name).trim());
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
+  }, [properties]);
 
-    return properties.filter(property => {
-      // Free-text search: match every token against title/description/zone/location/city
-      if (queryTokens.length > 0) {
-        const haystack = normalize(
-          `${property.title || ''} ${property.description || ''} ${property.zone || ''} ${property.location || ''} ${property.city || ''} ${property.project_name || ''}`
-        )
-        if (!queryTokens.every(tok => haystack.includes(tok))) return false
+  // ---- Filtering --------------------------------------------------------
+  const filtered = useMemo(() => {
+    return properties.filter((p: any) => {
+      if (zona) {
+        const raw = (p.zone || "").trim();
+        if (!raw || isCoordinates(raw) || raw.toUpperCase() !== zona.toUpperCase()) return false;
       }
-
-      // Price range filter
-      const minPriceValue = priceMin ? parseInt(priceMin) : null
-      const maxPriceValue = priceMax ? parseInt(priceMax) : null
-      
-      if (minPriceValue !== null && property.price_min < minPriceValue) return false
-      if (maxPriceValue !== null && property.price_min > maxPriceValue) return false
-
-      // Rooms filter
-      if (roomsFilter && roomsFilter !== "all") {
-        const selectedRooms = parseInt(roomsFilter)
-        if (roomsFilter === "7") {
-          // 7+ means 7 or more rooms
-          if (property.rooms < 7) return false
-        } else {
-          // Exact match for other values
-          if (property.rooms !== selectedRooms) return false
-        }
+      if (camere) {
+        const n = parseInt(camere, 10);
+        if (camere === "5") {
+          if (!p.rooms || p.rooms < 5) return false;
+        } else if (p.rooms !== n) return false;
       }
-
-      // Zone filter: match against catalog_offers.zone directly OR the extracted
-      // zone from title/description (fallback for legacy rows with empty zone).
-      if (locationFilter && locationFilter !== "all") {
-        const rawZone = (property.zone || '').trim()
-        const dbZoneMatch = rawZone && !isCoordinates(rawZone)
-          && rawZone.toUpperCase() === locationFilter.toUpperCase()
-        const extractedZone = extractZone(property)
-        const extractedMatch = extractedZone && extractedZone.toUpperCase() === locationFilter.toUpperCase()
-        if (!dbZoneMatch && !extractedMatch) {
-          return false
-        }
+      if (pretMax) {
+        const max = parseInt(pretMax, 10);
+        if (!p.price_min || p.price_min > max) return false;
       }
-
-      // Transaction type filter
-      if (transactionTypeFilter && transactionTypeFilter !== "all") {
-        const txType = detectTransactionType(property)
-        if (txType !== transactionTypeFilter) return false
+      if (tip && detectTransactionType(p) !== tip) return false;
+      if (suprMin) {
+        const min = parseInt(suprMin, 10);
+        const surface = p.surface_min || p.surface_max;
+        if (!surface || surface < min) return false;
       }
-
-      // Floor filter
-      if (floorFilter && floorFilter !== "all") {
-        if (floorFilter === "ground") {
-          if (property.floor !== 0) return false
-        } else if (floorFilter === "top") {
-          if (!property.floor || !property.total_floors || property.floor !== property.total_floors) return false
-        } else {
-          const selectedFloor = parseInt(floorFilter)
-          if (property.floor !== selectedFloor) return false
-        }
+      if (etaj) {
+        if (etaj === "parter") {
+          if (p.floor !== 0) return false;
+        } else if (etaj === "ultimul") {
+          if (!p.floor || !p.total_floors || p.floor !== p.total_floors) return false;
+        } else if (p.floor !== parseInt(etaj, 10)) return false;
       }
-
-      // Bathrooms filter
-      if (bathroomsFilter && bathroomsFilter !== "all") {
-        const selectedBathrooms = parseInt(bathroomsFilter)
-        if (bathroomsFilter === "3") {
-          // 3+ means 3 or more bathrooms
-          if (!property.bathrooms || property.bathrooms < 3) return false
-        } else {
-          if (property.bathrooms !== selectedBathrooms) return false
-        }
+      if (compartimentare && String(p.compartment || "").trim() !== compartimentare) return false;
+      if (an) {
+        if (!p.year_built) return false;
+        const current = new Date().getFullYear();
+        if (an === "nou" && p.year_built < current - 2) return false;
+        if (an === "recent" && p.year_built < current - 5) return false;
+        if (an === "2010s" && (p.year_built < 2010 || p.year_built > 2019)) return false;
+        if (an === "vechi" && p.year_built >= 2010) return false;
       }
+      if (ansamblu && String(p.project_name || "").trim() !== ansamblu) return false;
+      return true;
+    });
+  }, [properties, zona, camere, pretMax, tip, suprMin, etaj, compartimentare, an, ansamblu]);
 
-      // Year built filter
-      if (yearBuiltFilter && yearBuiltFilter !== "all") {
-        if (!property.year_built) return false
-        const currentYear = new Date().getFullYear()
-        if (yearBuiltFilter === "new") {
-          // Last 2 years
-          if (property.year_built < currentYear - 2) return false
-        } else if (yearBuiltFilter === "recent") {
-          // Last 5 years
-          if (property.year_built < currentYear - 5) return false
-        } else if (yearBuiltFilter === "2010s") {
-          // 2010-2019
-          if (property.year_built < 2010 || property.year_built > 2019) return false
-        } else if (yearBuiltFilter === "older") {
-          // Before 2010
-          if (property.year_built >= 2010) return false
-        }
-      }
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    if (sort === "pret_asc") list.sort((a, b) => (a.price_min || 0) - (b.price_min || 0));
+    else if (sort === "pret_desc") list.sort((a, b) => (b.price_min || 0) - (a.price_min || 0));
+    else if (sort === "suprafata")
+      list.sort((a, b) => (b.surface_min || b.surface_max || 0) - (a.surface_min || a.surface_max || 0));
+    else
+      list.sort(
+        (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      );
+    return list;
+  }, [filtered, sort]);
 
-      // Property type filter
-      if (propertyTypeFilter && propertyTypeFilter !== "all") {
-        const propType = (property.property_type || '').toLowerCase()
-        const title = (property.title || '').toLowerCase()
-        
-        if (propertyTypeFilter === "apartament") {
-          if (!propType.includes('apartament') && !title.includes('apartament') && !title.includes('garsoniera')) return false
-        } else if (propertyTypeFilter === "casa") {
-          if (!propType.includes('casa') && !propType.includes('vila') && !title.includes('casa') && !title.includes('vila')) return false
-        } else if (propertyTypeFilter === "penthouse") {
-          if (!propType.includes('penthouse') && !title.includes('penthouse')) return false
-        } else if (propertyTypeFilter === "studio") {
-          if (!propType.includes('studio') && !propType.includes('garsoniera') && !title.includes('studio') && !title.includes('garsoniera')) return false
-        }
-      }
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = sorted.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
-      return true
-    })
-  }, [properties, searchQuery, priceMin, priceMax, roomsFilter, locationFilter, transactionTypeFilter, floorFilter, bathroomsFilter, yearBuiltFilter, propertyTypeFilter])
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
-  // Paginated properties for rendering
-  const visibleProperties = useMemo(() => {
-    return filteredProperties.slice(0, visibleCount)
-  }, [filteredProperties, visibleCount])
+  // ---- Active chips -----------------------------------------------------
+  const chips: { key: string; label: string }[] = [];
+  if (zona) chips.push({ key: "zona", label: zona });
+  if (camere) chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
+  if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
+  if (tip) chips.push({ key: "tip", label: tip === "rent" ? "Închiriere" : "Vânzare" });
+  if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
+  if (etaj) chips.push({ key: "etaj", label: etaj === "parter" ? "Parter" : etaj === "ultimul" ? "Ultimul etaj" : `Etaj ${etaj}` });
+  if (compartimentare) chips.push({ key: "compartimentare", label: compartimentare });
+  if (an) chips.push({ key: "an", label: `An: ${an}` });
+  if (ansamblu) chips.push({ key: "ansamblu", label: ansamblu });
 
-  // Reset visible count when filters change
-  const resetFilters = () => {
-    setSearchQuery("")
-    setPriceMin("")
-    setPriceMax("")
-    setRoomsFilter("all")
-    setLocationFilter("all")
-    setTransactionTypeFilter("all")
-    setFloorFilter("all")
-    setBathroomsFilter("all")
-    setYearBuiltFilter("all")
-    setPropertyTypeFilter("all")
-    setVisibleCount(12)
-  }
+  // ---- Controls ---------------------------------------------------------
+  const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
 
-  // Zones for the dropdown: pulled dynamically from catalog_offers.zone values
-  // so new zones appear automatically as properties are added. Falls back to
-  // extracted zones from title/description when a row's zone column is empty.
-  const uniqueZones = useMemo(() => {
-    const set = new Set<string>()
-    for (const p of properties) {
-      const raw = (p.zone || '').trim()
-      if (raw && !isCoordinates(raw)) {
-        set.add(raw.toUpperCase())
-        continue
-      }
-      const extracted = extractZone(p)
-      if (extracted) set.add(extracted.toUpperCase())
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'ro'))
-  }, [properties, propertyZones])
+  const MainFilters = ({ stacked = false }: { stacked?: boolean }) => (
+    <div className={stacked ? "grid grid-cols-1 gap-3" : "flex flex-wrap items-center gap-2"}>
+      <Select value={zona || "all"} onValueChange={(v) => setParam("zona", v)}>
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
+          <SelectValue placeholder="Zonă" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Toate zonele</SelectItem>
+          {zoneOptions.map((z) => (
+            <SelectItem key={z} value={z}>
+              {z}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
+      <Select value={camere || "all"} onValueChange={(v) => setParam("camere", v)}>
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
+          <SelectValue placeholder="Camere" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice camere</SelectItem>
+          {["1", "2", "3", "4"].map((n) => (
+            <SelectItem key={n} value={n}>
+              {n} camere
+            </SelectItem>
+          ))}
+          <SelectItem value="5">5+ camere</SelectItem>
+        </SelectContent>
+      </Select>
 
-  const openPropertyGallery = (property: any, index = 0) => {
-    setSelectedProperty(property)
-    setGalleryInitialIndex(index)
-  }
+      <Select value={pretMax || "all"} onValueChange={(v) => setParam("pret_max", v)}>
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
+          <SelectValue placeholder="Preț" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice preț</SelectItem>
+          {PRICE_STEPS.map((v) => (
+            <SelectItem key={v} value={String(v)}>
+              până în {v.toLocaleString("ro-RO")} €
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-  const closeGallery = () => {
-    setSelectedProperty(null)
-  }
+      <Select value={tip || "all"} onValueChange={(v) => setParam("tip", v)}>
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
+          <SelectValue placeholder="Tip" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Toate tipurile</SelectItem>
+          <SelectItem value="sale">Vânzare</SelectItem>
+          <SelectItem value="rent">Închiriere</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
-  // Enhanced structured data for AI understanding
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Acasă",
-        "item": "https://www.mvaimobiliare.ro/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Proprietăți",
-        "item": "https://www.mvaimobiliare.ro/proprietati"
-      }
-    ]
-  };
+  const MoreFilters = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <Select value={suprMin || "all"} onValueChange={(v) => setParam("supr_min", v)}>
+        <SelectTrigger className={selectClass}>
+          <SelectValue placeholder="Suprafață utilă" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice suprafață</SelectItem>
+          {SURFACE_STEPS.map((v) => (
+            <SelectItem key={v} value={String(v)}>
+              peste {v} mp
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={etaj || "all"} onValueChange={(v) => setParam("etaj", v)}>
+        <SelectTrigger className={selectClass}>
+          <SelectValue placeholder="Etaj" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice etaj</SelectItem>
+          <SelectItem value="parter">Parter</SelectItem>
+          {["1", "2", "3", "4", "5"].map((n) => (
+            <SelectItem key={n} value={n}>
+              Etaj {n}
+            </SelectItem>
+          ))}
+          <SelectItem value="ultimul">Ultimul etaj</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={compartimentare || "all"} onValueChange={(v) => setParam("compartimentare", v)}>
+        <SelectTrigger className={selectClass}>
+          <SelectValue placeholder="Compartimentare" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice compartimentare</SelectItem>
+          {compartmentOptions.map((c) => (
+            <SelectItem key={c} value={c}>
+              {c}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={an || "all"} onValueChange={(v) => setParam("an", v)}>
+        <SelectTrigger className={selectClass}>
+          <SelectValue placeholder="An construcție" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice an</SelectItem>
+          <SelectItem value="nou">Construcție nouă</SelectItem>
+          <SelectItem value="recent">Ultimii 5 ani</SelectItem>
+          <SelectItem value="2010s">2010 – 2019</SelectItem>
+          <SelectItem value="vechi">Înainte de 2010</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={ansamblu || "all"} onValueChange={(v) => setParam("ansamblu", v)}>
+        <SelectTrigger className={selectClass}>
+          <SelectValue placeholder="Ansamblu" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover z-50">
+          <SelectItem value="all">Orice ansamblu</SelectItem>
+          {projectOptions.map((p) => (
+            <SelectItem key={p} value={p}>
+              {p}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  const [showMore, setShowMore] = useState(false);
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "Proprietăți disponibile de vânzare",
-    "description": "Lista completă de apartamente și case premium disponibile pentru vânzare",
-    "numberOfItems": filteredProperties.length,
-    "itemListElement": filteredProperties.slice(0, 10).map((property, index) => ({
+    name: "Proprietăți disponibile",
+    numberOfItems: sorted.length,
+    itemListElement: pageItems.slice(0, 10).map((property: any, index: number) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": property.rooms > 2 ? "House" : "Apartment",
-        "@id": `https://www.mvaimobiliare.ro/proprietati#${property.id}`,
-        "name": property.title,
-        "description": property.description,
-        "image": property.images?.[0] || "",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": getDisplayLocation(property),
-          "addressRegion": "București",
-          "addressCountry": "RO"
-        },
-        "numberOfRooms": property.rooms,
-        "floorSize": {
-          "@type": "QuantitativeValue",
-          "value": property.surface_min,
-          "unitCode": "MTK"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": property.price_min,
-          "priceCurrency": property.currency || "EUR",
-          "availability": "https://schema.org/InStock",
-          "seller": {
-            "@type": "RealEstateAgent",
-            "name": "MVA Imobiliare"
-          }
-        }
-      }
-    }))
+      position: (currentPage - 1) * PER_PAGE + index + 1,
+      name: property.title,
+      url: `https://www.mvaimobiliare.ro${getListingPropertyUrl(property)}`,
+    })),
   };
 
   return (
     <>
       <Helmet>
-        <title>Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare</title>
-        <meta name="description" content="Apartamente de vânzare în Militari: garsoniere, 2-4 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate." />
-        <meta name="robots" content="index, follow" />
-        <meta name="keywords" content="apartamente vânzare Militari, garsoniere Gorjului, 2 camere Lujerului, 3 camere Iuliu Maniu, apartamente Sector 6, Pacii, agent imobiliar Militari" />
+        <title>Apartamente de vânzare în București | MVA Imobiliare</title>
+        <meta
+          name="description"
+          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, număr de camere, preț și suprafață."
+        />
         <link rel="canonical" href="https://www.mvaimobiliare.ro/proprietati" />
-        
-        {/* AI Crawler Optimization */}
-        <meta name="summary" content="Catalog complet de apartamente de vânzare în cartierul Militari, Sector 6 București. Include garsoniere, apartamente cu 2-4 camere în Gorjului, Lujerului, Iuliu Maniu, Pacii. Prețuri actualizate. Contact direct: 0767941512." />
-        <meta name="category" content="Real Estate Listings" />
-        <meta name="inventory-size" content={`${filteredProperties.length} properties`} />
-        
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.mvaimobiliare.ro/proprietati" />
-        <meta property="og:title" content="Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare" />
-        <meta property="og:description" content="Apartamente de vânzare în Militari: garsoniere, 2-4 camere în Gorjului, Lujerului, Iuliu Maniu. Prețuri actualizate." />
-        <meta property="og:locale" content="ro_RO" />
-        <meta property="og:image" content={filteredProperties[0]?.images?.[0] || "https://www.mvaimobiliare.ro/mva-logo-luxury-horizontal.svg"} />
-
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Apartamente de Vânzare Militari Sector 6 – MVA Imobiliare" />
-        <meta property="twitter:description" content="Apartamente de vânzare în Militari: garsoniere, 2 camere, 3 camere. Prețuri actualizate." />
-
-        {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(itemListSchema)}
-        </script>
+        <meta property="og:title" content="Apartamente de vânzare în București | MVA Imobiliare" />
+        <meta
+          property="og:description"
+          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, camere, preț."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
       </Helmet>
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-        <Header />
-      
-      <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16">
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="max-w-6xl mx-auto">
-            
-            {/* Breadcrumbs */}
-            <Breadcrumbs items={[{ label: t.properties?.title || 'Proprietăți' }]} />
 
-            {/* Header */}
-            <div className="text-center mb-6 sm:mb-8 md:mb-12 px-2">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4">
-                <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                  Apartamente de Vânzare și Închiriat în Militari
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-2 sm:px-4">
-                {t.properties?.subtitle || 'Descoperă proprietățile noastre disponibile pentru vânzare'}
-              </p>
+      <Header />
+
+      <main className="min-h-screen bg-background pt-16">
+        {/* Filter bar */}
+        <div className="sticky top-16 z-40 bg-paper border-b border-stone">
+          <div className="container mx-auto px-4 lg:px-6 py-3">
+            {/* Desktop */}
+            <div className="hidden md:flex items-center gap-2">
+              <MainFilters />
+              <button
+                type="button"
+                onClick={() => setShowMore((v) => !v)}
+                className="h-10 px-3 text-small text-muted-foreground hover:text-brass transition-colors"
+              >
+                Mai multe filtre
+              </button>
             </div>
+            {showMore && <div className="hidden md:block pt-3">{<MoreFilters />}</div>}
 
-            {/* Filters */}
-            <div className="mb-4 sm:mb-6 md:mb-8">
-              {/* Advanced Filters */}
-                <Card className="glass border-[0.5px]">
-                  <CardContent className="p-3 sm:p-4 md:p-6">
-                    {/* Free-text Search */}
-                    <div className="mb-3 sm:mb-4">
-                      <label htmlFor="property-search" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                        {language === 'ro' ? 'Căutare' : 'Search'}
-                      </label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                        <Input
-                          id="property-search"
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder={language === 'ro' ? 'Ex: garsonieră militari, 2 camere pipera...' : 'e.g. studio militari, 2 rooms pipera...'}
-                          className="glass h-9 sm:h-10 text-xs sm:text-sm pl-9"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-                      {/* Transaction Type Filter */}
-                      <div className="col-span-2 sm:col-span-1">
-                        <label htmlFor="property-transaction-type" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {pageText.transactionType}
-                        </label>
-                        <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
-                          <SelectTrigger id="property-transaction-type" className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder={pageText.selectTransactionType} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                            <SelectItem value="sale">{t.properties?.forSale || 'Vânzare'}</SelectItem>
-                            <SelectItem value="rent">{t.properties?.forRent || 'Chirie'}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {/* Price Range Filter */}
-                      <div className="col-span-2 lg:col-span-2">
-                        <div className="flex gap-1.5 sm:gap-2 items-center">
-                          <div className="flex-1 min-w-0">
-                            <label htmlFor="property-price-min" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {t.properties?.price || 'Preț'} {language === 'ro' ? 'min' : 'min'} (EUR)
-                            </label>
-                            <Input
-                              id="property-price-min"
-                              type="number"
-                              placeholder="Min"
-                              value={priceMin}
-                              onChange={(e) => setPriceMin(e.target.value)}
-                              className="glass h-9 sm:h-10 text-xs sm:text-sm"
-                              min={0}
-                            />
-                          </div>
-                          <span className="text-muted-foreground text-xs sm:text-sm self-end mb-2.5 sm:mb-3">-</span>
-                          <div className="flex-1 min-w-0">
-                            <label htmlFor="property-price-max" className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {t.properties?.price || 'Preț'} {language === 'ro' ? 'max' : 'max'} (EUR)
-                            </label>
-                            <Input
-                              id="property-price-max"
-                              type="number"
-                              placeholder="Max"
-                              value={priceMax}
-                              onChange={(e) => setPriceMax(e.target.value)}
-                              className="glass h-9 sm:h-10 text-xs sm:text-sm"
-                              min={0}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Rooms Filter */}
-                      <div>
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {language === 'ro' ? 'Camere' : 'Rooms'}
-                        </label>
-                        <Select value={roomsFilter} onValueChange={setRoomsFilter}>
-                          <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder={t.properties?.rooms || 'Camere'} />
-                          </SelectTrigger>
-                           <SelectContent>
-                            <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                            <SelectItem value="1">1 {language === 'ro' ? 'cameră' : 'room'}</SelectItem>
-                            <SelectItem value="2">2 {t.properties?.rooms || 'camere'}</SelectItem>
-                            <SelectItem value="3">3 {t.properties?.rooms || 'camere'}</SelectItem>
-                            <SelectItem value="4">4 {t.properties?.rooms || 'camere'}</SelectItem>
-                            <SelectItem value="5">5 {t.properties?.rooms || 'camere'}</SelectItem>
-                            <SelectItem value="6">6 {t.properties?.rooms || 'camere'}</SelectItem>
-                            <SelectItem value="7">7+ {t.properties?.rooms || 'camere'}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Zone Filter */}
-                      <div>
-                        <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                          {pageText.zone}
-                        </label>
-                        <Select value={locationFilter} onValueChange={setLocationFilter}>
-                          <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                            <SelectValue placeholder={pageText.zone} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{pageText.allZones}</SelectItem>
-                            {uniqueZones.map((zone) => (
-                              <SelectItem key={zone} value={zone}>
-                                {zone}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Advanced Filters Toggle */}
-                    <div className="mt-3 sm:mt-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                        className="text-xs sm:text-sm text-gold hover:text-gold/80"
-                      >
-                        <Filter className="w-3.5 h-3.5 mr-1.5" />
-                        {showAdvancedFilters 
-                          ? pageText.hideAdvancedFilters
-                          : pageText.showAdvancedFilters
-                        }
-                      </Button>
-                    </div>
-
-                    {/* Advanced Filters */}
-                    {showAdvancedFilters && (
-                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/50">
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                          {/* Floor Filter */}
-                          <div>
-                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {language === 'ro' ? 'Etaj' : 'Floor'}
-                            </label>
-                            <Select value={floorFilter} onValueChange={setFloorFilter}>
-                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                                <SelectValue placeholder={language === 'ro' ? 'Etaj' : 'Floor'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                                <SelectItem value="ground">{language === 'ro' ? 'Parter' : 'Ground floor'}</SelectItem>
-                                <SelectItem value="1">{language === 'ro' ? 'Etaj 1' : 'Floor 1'}</SelectItem>
-                                <SelectItem value="2">{language === 'ro' ? 'Etaj 2' : 'Floor 2'}</SelectItem>
-                                <SelectItem value="3">{language === 'ro' ? 'Etaj 3' : 'Floor 3'}</SelectItem>
-                                <SelectItem value="4">{language === 'ro' ? 'Etaj 4' : 'Floor 4'}</SelectItem>
-                                <SelectItem value="5">{language === 'ro' ? 'Etaj 5+' : 'Floor 5+'}</SelectItem>
-                                <SelectItem value="top">{language === 'ro' ? 'Ultimul etaj' : 'Top floor'}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Bathrooms Filter */}
-                          <div>
-                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {language === 'ro' ? 'Băi' : 'Bathrooms'}
-                            </label>
-                            <Select value={bathroomsFilter} onValueChange={setBathroomsFilter}>
-                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                                <SelectValue placeholder={language === 'ro' ? 'Băi' : 'Bathrooms'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                                <SelectItem value="1">1 {language === 'ro' ? 'baie' : 'bathroom'}</SelectItem>
-                                <SelectItem value="2">2 {language === 'ro' ? 'băi' : 'bathrooms'}</SelectItem>
-                                <SelectItem value="3">3+ {language === 'ro' ? 'băi' : 'bathrooms'}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Year Built Filter */}
-                          <div>
-                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {language === 'ro' ? 'An construcție' : 'Year built'}
-                            </label>
-                            <Select value={yearBuiltFilter} onValueChange={setYearBuiltFilter}>
-                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                                <SelectValue placeholder={language === 'ro' ? 'An' : 'Year'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                                <SelectItem value="new">{language === 'ro' ? 'Construcție nouă (2+ ani)' : 'New build (2+ years)'}</SelectItem>
-                                <SelectItem value="recent">{language === 'ro' ? 'Recent (5 ani)' : 'Recent (5 years)'}</SelectItem>
-                                <SelectItem value="2010s">2010 - 2019</SelectItem>
-                                <SelectItem value="older">{language === 'ro' ? 'Înainte de 2010' : 'Before 2010'}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Property Type Filter */}
-                          <div>
-                            <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">
-                              {language === 'ro' ? 'Tip proprietate' : 'Property type'}
-                            </label>
-                            <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
-                              <SelectTrigger className="glass h-9 sm:h-10 text-xs sm:text-sm">
-                                <SelectValue placeholder={language === 'ro' ? 'Tip' : 'Type'} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">{t.common?.all || 'Toate'}</SelectItem>
-                                <SelectItem value="apartament">{language === 'ro' ? 'Apartament' : 'Apartment'}</SelectItem>
-                                <SelectItem value="casa">{language === 'ro' ? 'Casă / Vilă' : 'House / Villa'}</SelectItem>
-                                <SelectItem value="penthouse">Penthouse</SelectItem>
-                                <SelectItem value="studio">{language === 'ro' ? 'Garsonieră / Studio' : 'Studio'}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Clear Filters */}
-                    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {filteredProperties.length} {pageText.resultsCount}
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={resetFilters}
-                        className="glass hover:glass-hover w-full sm:w-auto min-h-[44px] touch-manipulation"
-                      >
-                        {pageText.resetFilters}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-            </div>
-
-            {/* Recently Viewed Section */}
-            <Suspense fallback={<div className="mb-8 h-32 bg-muted animate-pulse rounded-xl" />}>
-              <RecentlyViewed className="mb-8" maxItems={6} />
-            </Suspense>
-
-            {/* Properties List */}
-            {isLoadingProperties ? (
-              <PropertyGridSkeleton count={8} />
-            ) : filteredProperties.length === 0 && properties.length > 0 ? (
-              <Card className="max-w-2xl mx-auto glass border-[0.5px]">
-                <CardContent className="py-12 text-center">
-                  <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">{pageText.noFilteredResultsTitle}</h3>
-                    <p className="text-muted-foreground">{pageText.noFilteredResultsDescription}</p>
-                </CardContent>
-              </Card>
-            ) : properties.length === 0 ? (
-              <Card className="max-w-2xl mx-auto glass border-[0.5px]">
-                <CardContent className="py-12 text-center">
-                  <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">{pageText.noPropertiesTitle}</h3>
-                    <p className="text-muted-foreground">{pageText.noPropertiesDescription}</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-              <div className="grid lg:grid-cols-4 gap-6">
-                {visibleProperties.map((property, index) => (
-                  <Card key={property.id} className="group glass hover:glass-hover border-[0.5px] relative">
-                    <CardContent className="p-6">
-                      
-
-                      
-                      {/* Promotion badges */}
-                      {(property._immoflux_pole || property._immoflux_top) && (
-                        <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
-                          {property._immoflux_pole && (
-                            <Badge className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-lg shadow-purple-600/30 border-0">
-                              ⚡ POLE POSITION
-                            </Badge>
-                          )}
-                          {property._immoflux_top && !property._immoflux_pole && (
-                            <Badge className="bg-gold hover:bg-gold/90 text-black font-bold text-xs shadow-lg shadow-gold/30 border-0">
-                              ★ TOP
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Furnished badge */}
-                      {(() => {
-                        const codeMap: Record<string, 'Mobilat' | 'Parțial mobilat' | 'Nemobilat'> = {
-                          '30301': 'Nemobilat', '30302': 'Parțial mobilat', '30303': 'Mobilat', '30304': 'Mobilat',
-                        };
-                        const rawStr = String(property.furnished || '').trim();
-                        const raw = rawStr.toLowerCase();
-                        let label: 'Mobilat' | 'Parțial mobilat' | 'Nemobilat' | null = null;
-                        if (codeMap[rawStr]) label = codeMap[rawStr];
-                        else if (/nemobilat/.test(raw)) label = 'Nemobilat';
-                        else if (/parțial|partial/.test(raw)) label = 'Parțial mobilat';
-                        else if (/mobilat/.test(raw)) label = 'Mobilat';
-                        else {
-                          for (const [code, l] of Object.entries(codeMap)) {
-                            if (raw.includes(code)) { label = l; break; }
-                          }
-                        }
-                        if (!label) return null;
-                        const cls = label === 'Nemobilat'
-                          ? 'bg-slate-700 text-white border-0 text-xs shadow-lg'
-                          : label === 'Parțial mobilat'
-                            ? 'bg-amber-200 text-black border-0 text-xs shadow-lg'
-                            : 'bg-amber-500 text-black border-0 text-xs shadow-lg';
-                        return (
-                          <div className="absolute top-4 right-4 z-10">
-                            <Badge className={cls}>{label}</Badge>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Images */}
-                      {property.images && Array.isArray(property.images) && property.images.length > 0 && (
-                        <div className={`mb-4 overflow-hidden rounded-lg ${property._immoflux_pole ? 'ring-2 ring-purple-500/50' : property._immoflux_top ? 'ring-2 ring-gold/50' : ''}`}>
-                          <OptimizedPropertyImage 
-                            src={(property.images as string[])[0]} 
-                            alt={`Apartament ${property.rooms || ''} camere ${property.transaction_type === 'rent' ? 'închiriere' : 'vânzare'} ${getDisplayLocation(property)}${property.surface_min ? ` ${property.surface_min}mp` : ''}`}
-                            title={`${property.title} - ${property.price_min?.toLocaleString('de-DE')} ${property.currency || 'EUR'}`}
-                            className="group-hover:scale-105 transition-transform duration-300"
-                            aspectRatio="video"
-                            priority={index < 4}
-                            isSold={property.availability_status === 'sold'}
-                          />
-                        </div>
-                      )}
-                      
-                      {/* Title & Location with Source Badge */}
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-start justify-between">
-                          <h3 className="text-xl font-bold text-foreground group-hover:text-gold transition-colors flex-1">
-                            {property.title}
-                          </h3>
-                          {(property.source === 'crm' || property.source === 'api') && (
-                            <Badge variant="secondary" className="bg-gold/10 text-gold border-[0.5px] border-gold/20 ml-2">
-                              Nou
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-4 h-4 mr-2 text-gold" />
-                              <span>{getDisplayLocation(property)}</span>
-                            </div>
-                          <Badge 
-                            variant={detectTransactionType(property) === 'rent' ? 'default' : 'secondary'}
-                            className={detectTransactionType(property) === 'rent' 
-                              ? 'bg-blue-600 hover:bg-blue-700 text-white font-semibold border-0' 
-                              : 'bg-gold/20 hover:bg-gold/30 text-gold-dark border-gold/30 font-semibold'}
-                          >
-                            {detectTransactionType(property) === 'rent' ? 'Închiriere' : 'Vânzare'}
-                          </Badge>
-                          {extractZone(property) && (
-                            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-semibold">
-                              {extractZone(property)}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Spec rail */}
-                      <SpecRail
-                        className="mb-3"
-                        items={[
-                          property.rooms ? `${property.rooms} CAM` : null,
-                          (property.surface_min || property.surface_max) ? `${property.surface_min || property.surface_max} MP` : null,
-                          (property.floor !== null && property.floor !== undefined)
-                            ? `ET ${property.floor}${property.total_floors ? `/${property.total_floors}` : ''}`
-                            : null,
-                          (property.bathrooms !== null && property.bathrooms !== undefined)
-                            ? `${property.bathrooms} ${property.bathrooms === 1 ? 'BAIE' : 'BAI'}`
-                            : null,
-                          property.year_built ? `${property.year_built}` : null,
-                          (property.parking !== null && property.parking !== undefined && property.parking > 0)
-                            ? `${property.parking} PARCARE`
-                            : null,
-                          property.surface_land ? `TEREN ${property.surface_land} MP` : null,
-                        ]}
-                      />
-
-                      <div className="text-title text-primary tabular mb-3">
-                        €{property.price_min?.toLocaleString('de-DE')}
-                      </div>
-
-                      {/* Description */}
-                      {property.description && (
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                          {property.description}
-                        </p>
-                      )}
-
-                      {/* Features */}
-                      {property.features && Array.isArray(property.features) && property.features.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {(property.features as string[]).slice(0, 3).map((feature, index) => (
-                            <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-[0.5px] border-gold/20 text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
-                          {(property.features as string[]).length > 3 && (
-                            <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
-                              +{(property.features as string[]).length - 3} mai multe
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Agent / Agency */}
-                      {(property.agent || property.agency) && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                          <Building className="w-3 h-3 text-gold flex-shrink-0" />
-                          <span className="truncate">
-                            {property.agent && property.agency 
-                              ? `${property.agent} • ${property.agency}`
-                              : property.agent || property.agency
-                            }
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Project Name */}
-                      {property.project_name && (
-                        <div className="text-center p-3 bg-gold/10 rounded-lg border-[0.5px] border-gold/20 mb-4">
-                          <p className="text-sm font-cormorant font-medium text-gold tracking-wide">
-                            {property.project_name}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Actions */}
-                      <div className="flex flex-col gap-2">
-                        <ScheduleViewingDialog
-                          propertyTitle={property.title}
-                          propertyId={property.id}
-                          propertyUrl={shouldUseImmofluxRoute(property)
-                            ? `/proprietate/${property._immoflux_slug}`
-                            : getPropertyUrl(property)}
-                          trigger={
-                            <Button 
-                              variant="default"
-                              size="sm" 
-                              className="w-full text-xs h-8 bg-primary hover:bg-primary/90"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Calendar className="w-3 h-3 mr-1" />
-                              Solicită vizionare
-                            </Button>
-                          }
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          {/* Call Now Button */}
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            asChild
-                            className="hover:bg-gold/10 hover:border-gold text-xs h-8"
-                          >
-                            <a href="tel:0767941512">
-                              <Phone className="w-3 h-3 mr-1" />
-                              {pageText.call}
-                            </a>
-                          </Button>
-                          
-                          {/* WhatsApp Button */}
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            asChild
-                            className="hover:bg-green-50 hover:border-green-400 text-xs h-8"
-                          >
-                            <a href="https://wa.me/40767941512" target="_blank" rel="noopener noreferrer">
-                              <WhatsAppIcon className="w-3 h-3 mr-1" />
-                              WhatsApp
-                            </a>
-                          </Button>
-                        </div>
-                        <Button 
-                          asChild
-                          className="w-full text-xs h-8"
-                          size="sm"
-                        >
-                          <Link to={getListingPropertyUrl(property)}>
-                            <Info className="w-3 h-3 mr-1" />
-                            Vezi Detalii
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  ))}
-                </div>
-                {/* Load More Button */}
-                {visibleCount < filteredProperties.length && (
-                  <div className="flex justify-center mt-8">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => setVisibleCount(prev => prev + 12)}
-                      className="glass hover:glass-hover min-w-[200px]"
-                    >
-                      Arată mai multe ({filteredProperties.length - visibleCount} rămase)
-                    </Button>
+            {/* Mobile */}
+            <div className="md:hidden">
+              <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full h-11 border border-stone rounded-sm text-small text-foreground"
+                  >
+                    Filtre{chips.length > 0 ? ` (${chips.length})` : ""}
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-sm">
+                  <SheetHeader>
+                    <SheetTitle className="text-title">Filtre</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4 space-y-3 pb-24">
+                    <MainFilters stacked />
+                    <MoreFilters />
                   </div>
+                  <div className="sticky bottom-0 bg-background pt-3 pb-4">
+                    <button
+                      type="button"
+                      onClick={() => setSheetOpen(false)}
+                      className="w-full h-11 bg-brass text-ink rounded-sm text-small font-medium"
+                    >
+                      Arată {sorted.length} proprietăți
+                    </button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Active chips */}
+            {chips.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 pt-3">
+                {chips.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    onClick={() => setParam(c.key, "")}
+                    className="inline-flex items-center gap-1.5 border border-brass text-brass text-small px-2.5 py-1 rounded-sm hover:bg-brass/10 transition-colors"
+                  >
+                    {c.label}
+                    <X className="w-3 h-3" />
+                  </button>
+                ))}
+                {chips.length >= 2 && (
+                  <button
+                    type="button"
+                    onClick={clearAll}
+                    className="text-small text-muted-foreground hover:text-brass underline"
+                  >
+                    Șterge tot
+                  </button>
                 )}
-              </>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 lg:px-6 py-6">
+          <Breadcrumbs items={[{ label: "Proprietăți" }]} />
+
+          {/* Results header */}
+          <div className="flex items-center justify-between gap-4 mt-4 mb-6">
+            <h1 className="text-title text-foreground">
+              {isLoading ? "Se încarcă…" : `${sorted.length} proprietăți`}
+            </h1>
+            <Select value={sort} onValueChange={(v) => setParam("sort", v)}>
+              <SelectTrigger className={`${selectClass} w-[190px]`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {SORTS.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : sorted.length === 0 ? (
+            <div className="py-8">
+              <h2 className="text-display-md text-foreground">Nicio proprietate cu aceste filtre</h2>
+              <p className="text-body text-muted-foreground mt-3 max-w-xl">
+                {pretMax
+                  ? "Încearcă să mărești pragul de preț sau să elimini filtrul de zonă."
+                  : "Încearcă să elimini filtrul de zonă sau să alegi un alt număr de camere."}
+              </p>
+              <button
+                type="button"
+                onClick={clearAll}
+                className="mt-5 h-11 px-5 bg-brass text-ink rounded-sm text-small font-medium"
+              >
+                Șterge filtrele
+              </button>
+
+              {properties.length > 0 && (
+                <div className="mt-12">
+                  <p className="text-spec text-muted-foreground mb-4">PROPRIETĂȚI SIMILARE</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {properties.slice(0, 6).map((p: any, i: number) => (
+                      <PropertyCard key={p.id} property={p} to={getListingPropertyUrl(p)} priority={i < 3} />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          </div>
-        </main>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pageItems.map((p: any, i: number) => (
+                  <PropertyCard key={p.id} property={p} to={getListingPropertyUrl(p)} priority={i < 3} />
+                ))}
+              </div>
 
-
-      {/* Image Gallery - Optimized Lightbox with swipe */}
-      <Suspense fallback={null}>
-        <ImageLightbox
-          images={selectedProperty?.images || []}
-          isOpen={!!selectedProperty}
-          onClose={closeGallery}
-          initialIndex={galleryInitialIndex}
-        />
-      </Suspense>
+              {totalPages > 1 && (
+                <nav className="flex flex-wrap items-center gap-2 mt-10" aria-label="Paginare">
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const n = i + 1;
+                    const active = n === currentPage;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setParam("p", n === 1 ? "" : String(n), false)}
+                        aria-current={active ? "page" : undefined}
+                        className={`h-10 min-w-10 px-3 rounded-sm border text-small transition-colors ${
+                          active
+                            ? "border-brass text-brass"
+                            : "border-stone text-muted-foreground hover:text-brass hover:border-brass"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                </nav>
+              )}
+            </>
+          )}
+        </div>
+      </main>
 
       <Footer />
-    </div>
     </>
-  )
-}
+  );
+};
 
-export default Properties
+export default Properties;
