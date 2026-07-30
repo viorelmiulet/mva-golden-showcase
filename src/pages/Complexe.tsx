@@ -6,7 +6,6 @@ import { Building2, Home, MapPin, Heart, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { Helmet } from "react-helmet-async";
@@ -357,22 +356,16 @@ const Complexe = () => {
 
                         {/* Schedule Viewing + CTA */}
                         <div className="pt-2.5 sm:pt-3 md:pt-4 space-y-2">
-                          <ScheduleViewingDialog
-                            propertyTitle={project.name}
-                            propertyId={project.id}
-                            propertyUrl={getComplexUrl(project)}
-                            trigger={
-                              <Button 
-                                variant="default"
-                                size="sm" 
-                                className="w-full text-xs sm:text-sm h-8 sm:h-9 bg-primary hover:bg-primary/90"
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                              >
-                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-                                {language === 'ro' ? 'Solicită vizionare' : 'Schedule viewing'}
-                              </Button>
-                            }
-                          />
+                          <a href="tel:0767941512" onClick={(e) => e.stopPropagation()} className="block">
+                            <Button 
+                              variant="outline"
+                              size="sm" 
+                              className="w-full text-xs sm:text-sm h-8 sm:h-9 border-brass text-brass hover:bg-brass hover:text-paper"
+                            >
+                              <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                              {language === 'ro' ? 'Sună 0767 941 512' : 'Call 0767 941 512'}
+                            </Button>
+                          </a>
                           <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
                             <span className="font-semibold text-xs sm:text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}

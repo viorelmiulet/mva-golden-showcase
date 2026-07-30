@@ -32,7 +32,6 @@ import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import { Helmet } from "react-helmet-async";
 import { ApartmentEditDialog } from "@/components/ApartmentEditDialog";
-import { ScheduleViewingDialog } from "@/components/ScheduleViewingDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ZoomableFloorPlan } from "@/components/ZoomableFloorPlan";
 import { ComplexDetailSkeleton } from "@/components/skeletons";
@@ -826,21 +825,16 @@ const ComplexDetail = () => {
                               {/* Schedule Viewing Button - rendered AFTER floor plan to avoid Dialog interference */}
                               {isAvailable && (
                                 <div className="space-y-1.5 sm:space-y-2">
-                                  <ScheduleViewingDialog
-                                    propertyTitle={`${project.name} - Ap. ${aptNumber}`}
-                                    propertyId={apt.id}
-                                    propertyUrl={getComplexUrl(project)}
-                                    trigger={
-                                      <Button 
-                                        size="sm" 
-                                        variant="default"
-                                        className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 glow-gold"
-                                      >
-                                        <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
-                                        Vizionare
-                                      </Button>
-                                    }
-                                  />
+                                  <a href="tel:0767941512" className="block">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="w-full h-7 sm:h-8 md:h-9 text-[10px] sm:text-xs md:text-sm border-brass text-brass hover:bg-brass hover:text-paper"
+                                    >
+                                      <Phone className="mr-1 sm:mr-2 h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4" />
+                                      Sună
+                                    </Button>
+                                  </a>
                                 </div>
                               )}
 
