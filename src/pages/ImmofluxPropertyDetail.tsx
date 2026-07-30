@@ -288,7 +288,7 @@ const ImmofluxPropertyDetail = () => {
   const canonicalSlug = p.immoflux_slug || urlSlug;
   const canonicalPath = `/proprietate/${canonicalSlug}`;
   const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
-  const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=immoflux&id=${p.idnum}`;
+  const ogImage = images[0]?.src || `https://www.mvaimobiliare.ro/og-image.jpg`;
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
 
