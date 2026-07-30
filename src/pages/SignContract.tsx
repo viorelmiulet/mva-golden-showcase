@@ -407,7 +407,15 @@ const SignContract = () => {
         .eq('contract_id', sigData.contract_id);
       
       if (invData) {
-        setInventoryItems(invData);
+        setInventoryItems(invData.map((i: any) => ({
+          id: i.id,
+          item_name: i.item_name ?? '',
+          quantity: i.quantity ?? 1,
+          condition: i.condition ?? '',
+          location: i.location ?? '',
+          notes: i.notes ?? '',
+          images: i.images ?? [],
+        })));
       }
     }
 
