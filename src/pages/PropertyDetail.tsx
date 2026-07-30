@@ -50,6 +50,9 @@ import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } 
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
 import PropertySeo from "@/components/PropertySeo";
+import PropertyGallery from "@/components/property/PropertyGallery";
+import SpecRail from "@/components/SpecRail";
+import PropertyCard from "@/components/PropertyCard";
 import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
