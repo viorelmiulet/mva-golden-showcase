@@ -458,7 +458,7 @@ const SettingsPage = () => {
                 {section.fields.map((field) => (
                   <div key={field.id} className="space-y-2">
                     <Label htmlFor={field.id} className="flex items-center gap-2 text-sm">
-                      {field.icon && <field.icon className="h-4 w-4 text-muted-foreground" />}
+                      {"icon" in field && field.icon && <field.icon className="h-4 w-4 text-muted-foreground" />}
                       {field.label}
                     </Label>
                     {field.type === "textarea" ? (
@@ -474,7 +474,7 @@ const SettingsPage = () => {
                         id={field.id}
                         value={field.value}
                         onChange={(e) => handleChange(field.id as keyof SiteSettings, e.target.value)}
-                        placeholder={field.placeholder}
+                        placeholder={"placeholder" in field ? field.placeholder : undefined}
                         className="bg-white/5 border-white/10 focus:border-gold/50"
                       />
                     )}

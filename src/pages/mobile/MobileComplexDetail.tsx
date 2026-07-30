@@ -36,7 +36,7 @@ const MobileComplexDetail = () => {
       const { data, error } = await supabase
         .from('real_estate_projects')
         .select('*')
-        .eq('id', id)
+        .eq('id', id!)
         .single();
       
       if (error) throw error;
@@ -52,7 +52,7 @@ const MobileComplexDetail = () => {
       const { data, error } = await supabase
         .from('catalog_offers')
         .select('*')
-        .eq('project_id', id)
+        .eq('project_id', id!)
         .eq('availability_status', 'available')
         .order('rooms', { ascending: true })
         .order('price_min', { ascending: true });

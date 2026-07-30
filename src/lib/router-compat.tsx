@@ -155,4 +155,13 @@ export const Outlet = TSOutlet;
 
 // ---------- NavLink (minimal) ----------
 
-export const NavLink = Link;
+type NavLinkProps = LinkProps & { end?: boolean };
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { end, ...rest },
+  ref,
+) {
+  // react-router's `end` = exact match for active styling; callers here compute
+  // active classes themselves, so map it to TanStack's activeOptions and move on.
+  return <Link ref={ref} activeOptions={end != null ? ({ exact: end } as never) : undefined} {...rest} />;
+});

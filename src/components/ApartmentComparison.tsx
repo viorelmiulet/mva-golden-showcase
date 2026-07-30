@@ -151,12 +151,12 @@ export const ApartmentComparison = ({
         }
         
         doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
+        doc.setFont('helvetica', 'bold');
         doc.text(apt.title, 14, yPos);
         yPos += 7;
         
         doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
+        doc.setFont('helvetica', 'normal');
         const splitDescription = doc.splitTextToSize(apt.description || '', 260);
         doc.text(splitDescription, 14, yPos);
         yPos += splitDescription.length * 5 + 10;

@@ -25,8 +25,8 @@ interface UseOptimizedImageReturn {
   hasError: boolean;
   isSupabaseImage: boolean;
   supportsWebP: boolean;
-  containerRef: React.RefObject<HTMLDivElement>;
-  imgRef: React.RefObject<HTMLImageElement>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  imgRef: React.RefObject<HTMLImageElement | null>;
   handleLoad: () => void;
   handleError: () => void;
   blurDataUrl: string;

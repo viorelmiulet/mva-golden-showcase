@@ -46,7 +46,7 @@ const ContractClausesEditor = () => {
         .order("sort_order", { ascending: true });
 
       if (error) throw error;
-      setClauses(data || []);
+      setClauses((data || []).map((c) => ({ ...c, sort_order: c.sort_order ?? 0, is_active: c.is_active ?? true })));
     } catch (error) {
       console.error("Error fetching clauses:", error);
       toast.error("Eroare la încărcarea clauzelor");
@@ -152,7 +152,7 @@ const ContractClausesEditor = () => {
 
       if (error) throw error;
 
-      setClauses(prev => [...prev, data]);
+      setClauses(prev => [...prev, { ...data, sort_order: data.sort_order ?? 0, is_active: data.is_active ?? true }]);
       setNewClause({ section_key: "", section_title: "", content: "" });
       setShowNewClauseForm(false);
       toast.success("Clauza nouă a fost adăugată");

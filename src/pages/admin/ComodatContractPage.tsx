@@ -487,7 +487,7 @@ const ComodatContractPage = () => {
     onChange: (field: keyof PersonData, value: string) => void;
     onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isExtracting: boolean;
-    fileInputRef: React.RefObject<HTMLInputElement>;
+    fileInputRef: React.RefObject<HTMLInputElement | null>;
     icon: typeof User;
   }) => (
     <Card className="border-border/50 bg-card/50">

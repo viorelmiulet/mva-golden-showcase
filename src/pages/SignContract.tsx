@@ -17,9 +17,9 @@ interface InventoryItem {
   id: string;
   item_name: string;
   quantity: number;
-  condition: string | null;
-  location: string | null;
-  notes: string | null;
+  condition: string;
+  location: string;
+  notes: string;
   images: string[];
 }
 
@@ -28,8 +28,8 @@ interface ContractClause {
   section_key: string;
   section_title: string;
   content: string;
-  sort_order: number | null;
-  is_active: boolean | null;
+  sort_order: number;
+  is_active: boolean;
 }
 
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
@@ -407,7 +407,15 @@ const SignContract = () => {
         .eq('contract_id', sigData.contract_id);
       
       if (invData) {
-        setInventoryItems(invData);
+        setInventoryItems(invData.map((i: any) => ({
+          id: i.id,
+          item_name: i.item_name ?? '',
+          quantity: i.quantity ?? 1,
+          condition: i.condition ?? '',
+          location: i.location ?? '',
+          notes: i.notes ?? '',
+          images: i.images ?? [],
+        })));
       }
     }
 
@@ -423,7 +431,7 @@ const SignContract = () => {
       .order('sort_order', { ascending: true });
     
     if (clauses) {
-      setContractClauses(clauses);
+      setContractClauses(clauses.map((c) => ({ ...c, sort_order: c.sort_order ?? 0, is_active: c.is_active ?? true })));
     }
   };
 

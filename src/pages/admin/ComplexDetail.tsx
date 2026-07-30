@@ -469,7 +469,7 @@ const ComplexDetail = () => {
   // Sort properties within each group
   Object.keys(groupedByBuildingAndFloor).forEach(building => {
     Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
-      groupedByBuildingAndFloor[building][floor].sort((a, b) => {
+      groupedByBuildingAndFloor[building]![floor]!.sort((a, b) => {
         // Apply custom sort if selected
         if (sortBy) {
           let aVal: number, bVal: number;
@@ -1177,9 +1177,9 @@ const ComplexDetail = () => {
                                   className="h-7 text-[10px] md:text-xs px-1"
                                   onClick={() => {
                                     if (commissions[apt.id]?.type === 'cash') {
-                                      handleCommissionChange(apt.id, null, priceCash, priceCredit);
+                                      handleCommissionChange(apt.id, null, priceCash ?? 0, priceCredit ?? 0);
                                     } else {
-                                      handleCommissionChange(apt.id, 'cash', priceCash, priceCredit);
+                                      handleCommissionChange(apt.id, 'cash', priceCash ?? 0, priceCredit ?? 0);
                                     }
                                   }}
                                 >
@@ -1191,9 +1191,9 @@ const ComplexDetail = () => {
                                   className="h-7 text-[10px] md:text-xs px-1"
                                   onClick={() => {
                                     if (commissions[apt.id]?.type === 'credit') {
-                                      handleCommissionChange(apt.id, null, priceCash, priceCredit);
+                                      handleCommissionChange(apt.id, null, priceCash ?? 0, priceCredit ?? 0);
                                     } else {
-                                      handleCommissionChange(apt.id, 'credit', priceCash, priceCredit);
+                                      handleCommissionChange(apt.id, 'credit', priceCash ?? 0, priceCredit ?? 0);
                                     }
                                   }}
                                 >
@@ -1368,8 +1368,8 @@ const ComplexDetail = () => {
                   if (property) {
                     handleManualCommissionSubmit(
                       selectedPropertyForCommission,
-                      property.price_min,
-                      property.price_max
+                      property.price_min ?? 0,
+                      property.price_max ?? 0
                     );
                   }
                 }

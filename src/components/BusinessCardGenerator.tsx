@@ -94,7 +94,7 @@ const BusinessCardGenerator = () => {
         return;
       }
 
-      setSavedCards(data || []);
+      setSavedCards((data || []).map((c) => ({ ...c, qr_link: c.qr_link ?? '' })));
     } catch (error) {
       console.error('Error:', error);
       toast.error('Eroare la încărcarea cărților salvate');
