@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 import { Link } from "@/lib/router-compat";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Calendar, ArrowRight, Loader2, Newspaper } from "lucide-react";

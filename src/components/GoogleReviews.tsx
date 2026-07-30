@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 
 interface GoogleReview {
   author_name: string;
