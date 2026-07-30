@@ -279,16 +279,16 @@ const ProjectDetail = () => {
               </div>
 
               {/* Features & Amenities */}
-              {(project.features?.length > 0 || project.amenities?.length > 0) && (
+              {(!!project.features?.length || !!project.amenities?.length) && (
                 <div className="mt-12 grid md:grid-cols-2 gap-6">
-                  {project.features?.length > 0 && (
+                  {!!project.features?.length && (
                     <Card className="glass border-gold/20">
                       <CardContent className="p-6">
                         <h2 className="text-xl font-bold mb-4 text-gold">
                           Facilități
                         </h2>
                         <div className="space-y-3">
-                          {project.features.map((feature: string, index: number) => (
+                          {(project.features ?? []).map((feature: string, index: number) => (
                             <div key={index} className="flex items-start">
                               <CheckCircle className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" />
                               <span className="text-foreground">{feature}</span>
@@ -298,14 +298,14 @@ const ProjectDetail = () => {
                       </CardContent>
                     </Card>
                   )}
-                  {project.amenities?.length > 0 && (
+                  {!!project.amenities?.length && (
                     <Card className="glass border-gold/20">
                       <CardContent className="p-6">
                         <h2 className="text-xl font-bold mb-4 text-gold">
                           Amenajări
                         </h2>
                         <div className="space-y-3">
-                          {project.amenities.map((amenity: string, index: number) => (
+                          {(project.amenities ?? []).map((amenity: string, index: number) => (
                             <div key={index} className="flex items-start">
                               <CheckCircle className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" />
                               <span className="text-foreground">{amenity}</span>

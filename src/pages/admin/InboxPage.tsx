@@ -1363,8 +1363,8 @@ ${originalBody}`;
                   <GmailEmailList
                     emails={filteredEmails || []}
                     selectedEmailId={selectedEmail?.id || null}
-                    onSelectEmail={handleSelectEmail}
-                    onToggleStar={handleToggleStar}
+                    onSelectEmail={(email) => handleSelectEmail(email as ReceivedEmail)}
+                    onToggleStar={(e, email) => handleToggleStar(e, email as ReceivedEmail)}
                     onDelete={(email) => {
                       if (filter === 'sent') {
                         deleteSentEmailMutation.mutate(email.id);

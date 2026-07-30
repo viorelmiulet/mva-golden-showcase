@@ -17,9 +17,9 @@ interface InventoryItem {
   id: string;
   item_name: string;
   quantity: number;
-  condition: string | null;
-  location: string | null;
-  notes: string | null;
+  condition: string;
+  location: string;
+  notes: string;
   images: string[];
 }
 
@@ -28,8 +28,8 @@ interface ContractClause {
   section_key: string;
   section_title: string;
   content: string;
-  sort_order: number | null;
-  is_active: boolean | null;
+  sort_order: number;
+  is_active: boolean;
 }
 
 type ContractType = "inchiriere" | "comodat" | "exclusiv" | "intermediere";
