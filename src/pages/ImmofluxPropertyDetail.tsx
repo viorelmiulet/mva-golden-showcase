@@ -39,7 +39,7 @@ const LazyMapMount = ({ children }: { children: React.ReactNode }) => {
 
 // Fetch the Immoflux property directly from catalog_offers (PostgREST, fast).
 // Lookup order: immoflux_slug → external_id (from numeric trailing id) → slug (legacy).
-async function fetchImmofluxFromCatalog(urlSlug: string): Promise<any | null> {
+export async function fetchImmofluxFromCatalog(urlSlug: string): Promise<any | null> {
   if (!urlSlug) return null;
   // 1. by stored immoflux_slug
   {
