@@ -58,8 +58,6 @@ import { composePropertyDescription, composeMetaDescription } from "@/lib/proper
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
 // Lazy load heavy below-fold components
-const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
-const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 interface Property {
