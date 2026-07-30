@@ -211,7 +211,7 @@ const AdminHeader = ({
 };
 
 const AdminLayout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem("admin_auth") === "true");
+  const [isAuthenticated, setIsAuthenticated] = useState(() => typeof window !== "undefined" && sessionStorage.getItem("admin_auth") === "true");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

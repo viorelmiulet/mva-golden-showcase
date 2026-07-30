@@ -363,7 +363,7 @@ const ImmofluxPropertyDetail = () => {
                   className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   loading="eager"
                   // @ts-ignore
-                  fetchpriority="high"
+                  fetchPriority="high"
                   decoding="async"
                   width={1200}
                   height={800}
@@ -384,7 +384,7 @@ const ImmofluxPropertyDetail = () => {
                         loading="lazy"
                         decoding="async"
                         // @ts-ignore
-                        fetchpriority="low"
+                        fetchPriority="low"
                         width={600}
                         height={400}
                         onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
@@ -402,7 +402,7 @@ const ImmofluxPropertyDetail = () => {
                           loading="lazy"
                           decoding="async"
                           // @ts-ignore
-                          fetchpriority="low"
+                          fetchPriority="low"
                           width={600}
                           height={400}
                         />
