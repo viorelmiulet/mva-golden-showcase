@@ -50,8 +50,8 @@ export function EmailHtmlFrame({ html, className }: Props) {
     word-break: break-word; white-space: normal !important;
   }
   pre, code { white-space: pre-wrap !important; word-break: break-word; font-size: 14px; }
-  a { color: #DAA520; word-break: break-word; }
-  blockquote { border-left: 3px solid #DAA520; margin: 8px 0; padding: 4px 12px; color: #555; }
+  a { color: #A8762C; word-break: break-word; }
+  blockquote { border-left: 3px solid #A8762C; margin: 8px 0; padding: 4px 12px; color: #555; }
   div, span, p, section, article, header, footer, main {
     max-width: 100% !important;
   }

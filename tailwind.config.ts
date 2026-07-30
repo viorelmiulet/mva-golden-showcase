@@ -41,10 +41,26 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
-				'playfair': ['Playfair Display', 'serif'],
-				'cormorant': ['Cormorant Garamond', 'serif'],
-				'cinzel': ['Cinzel', 'serif'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				serif: ['Fraunces', 'Georgia', 'serif'],
+				mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'display': ['Fraunces', 'Georgia', 'serif'],
+				'spec': ['IBM Plex Mono', 'ui-monospace', 'monospace'],
+				// Legacy aliases -> display face
+				'playfair': ['Fraunces', 'Georgia', 'serif'],
+				'cormorant': ['Fraunces', 'Georgia', 'serif'],
+				'cinzel': ['Fraunces', 'Georgia', 'serif'],
+			},
+			boxShadow: {
+				none: 'none',
+				sm: 'none',
+				DEFAULT: 'none',
+				md: 'none',
+				lg: 'none',
+				xl: 'none',
+				'2xl': 'none',
+				inner: 'none',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -80,10 +96,26 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				ink: 'hsl(var(--ink))',
+				graphite: 'hsl(var(--graphite))',
+				slate: 'hsl(var(--slate))',
+				paper: 'hsl(var(--paper))',
+				stone: 'hsl(var(--stone))',
+				pine: 'hsl(var(--pine))',
+				brass: {
+					DEFAULT: 'hsl(var(--brass))',
+					light: 'hsl(var(--brass-light))',
+					dark: 'hsl(var(--brass-dark))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				/* Legacy alias, now brass */
 				gold: {
-					DEFAULT: 'hsl(var(--gold))',
-					light: 'hsl(var(--gold-light))',
-					dark: 'hsl(var(--gold-dark))'
+					DEFAULT: 'hsl(var(--brass))',
+					light: 'hsl(var(--brass-light))',
+					dark: 'hsl(var(--brass-dark))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

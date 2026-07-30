@@ -74,7 +74,7 @@ const Footer = () => {
 
 
   return (
-    <footer className="border-t border-border/50">
+    <footer className="bg-ink text-paper border-t border-graphite">
       <div className="container mx-auto px-4 lg:px-6">
         
         <div className="py-10 lg:py-14">

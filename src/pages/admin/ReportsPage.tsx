@@ -29,7 +29,7 @@ const generateBarChart = (
   title: string,
   width: number = 500,
   height: number = 200,
-  barColor: string = "#DAA520"
+  barColor: string = "#A8762C"
 ): string => {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -315,7 +315,7 @@ const ReportsPage = () => {
         doc.setFontSize(14);
         doc.text("Grafic Comisioane Lunare", 14, finalY + 15);
 
-        const eurChart = generateBarChart(eurData, "Comisioane EUR pe luni", 500, 180, "#DAA520");
+        const eurChart = generateBarChart(eurData, "Comisioane EUR pe luni", 500, 180, "#A8762C");
         if (eurChart) {
           doc.addImage(eurChart, "PNG", 14, finalY + 20, 180, 65);
         }

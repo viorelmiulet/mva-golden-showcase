@@ -40,7 +40,7 @@ import { format, parseISO, subDays } from "date-fns";
 import { ro } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-const COLORS = ['#DAA520', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#A8762C', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -276,8 +276,8 @@ const AnalyticsPage = () => {
                   <AreaChart data={data?.dailyData || []}>
                     <defs>
                       <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#DAA520" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#DAA520" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#A8762C" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#A8762C" stopOpacity={0}/>
                       </linearGradient>
                       <linearGradient id="colorPageviews" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
@@ -299,7 +299,7 @@ const AnalyticsPage = () => {
                       }
                       return null;
                     }} />
-                    <Area type="monotone" dataKey="visitors" stroke="#DAA520" fillOpacity={1} fill="url(#colorVisitors)" />
+                    <Area type="monotone" dataKey="visitors" stroke="#A8762C" fillOpacity={1} fill="url(#colorVisitors)" />
                     <Area type="monotone" dataKey="pageviews" stroke="#10b981" fillOpacity={1} fill="url(#colorPageviews)" />
                   </AreaChart>
                 </ResponsiveContainer>
