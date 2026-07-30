@@ -74,45 +74,11 @@ const LatestProperties = () => {
         <h2 className="text-display-md text-foreground mb-8">Ultimele proprietăți</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {offers.map((p: any, index: number) => {
-            const badge = getBadge(p);
-            return (
-              <Link key={p.id} to={getPropertyUrl(p)} className="group block">
-                <div className="relative overflow-hidden rounded-sm border border-stone">
-                  <OptimizedPropertyImage
-                    src={p.images?.[0]}
-                    alt={`${p.title || "Proprietate"} — ${getZone(p)}`}
-                    aspectRatio="4/3"
-                    className="w-full h-full object-cover"
-                    width={640}
-                    height={480}
-                    quality={75}
-                    priority={index < 3}
-                  />
-                  {badge && (
-                    <span className="absolute top-2 left-2 bg-pine text-paper text-spec px-2 py-1 rounded-sm">
-                      {badge}
-                    </span>
-                  )}
-                </div>
-
-                <p className="mt-3 font-sans font-semibold text-[1.375rem] leading-tight tabular text-foreground">
-                  {formatPrice(p.price_min, p.currency)}
-                </p>
-                <p className="text-small text-muted-foreground mt-1">{getZone(p)}</p>
-                <SpecRail
-                  className="mt-2"
-                  items={[
-                    p.rooms ? `${p.rooms} CAM` : null,
-                    p.surface_min ? `${p.surface_min} MP` : null,
-                    floorLabel(p),
-                    p.year_built || null,
-                  ]}
-                />
-              </Link>
-            );
-          })}
+          {offers.map((p: any, index: number) => (
+            <PropertyCard key={p.id} property={p} priority={index < 3} />
+          ))}
         </div>
+
 
         <div className="mt-8">
           <Link to="/proprietati" className="text-small text-brass hover:underline">
