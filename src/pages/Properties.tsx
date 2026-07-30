@@ -1,4 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from "react"
+import SpecRail from "@/components/SpecRail";
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -937,68 +938,29 @@ const Properties = () => {
                         </div>
                       </div>
 
-                      {/* Stats */}
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                            <Euro className="w-5 h-5 text-gold" />
-                          </div>
-                          <div className="text-xs text-muted-foreground">Preț</div>
-                          <div className="text-sm font-semibold">
-                            €{property.price_min?.toLocaleString('de-DE')}
-                          </div>
-                        </div>
+                      {/* Spec rail */}
+                      <SpecRail
+                        className="mb-3"
+                        items={[
+                          property.rooms ? `${property.rooms} CAM` : null,
+                          (property.surface_min || property.surface_max) ? `${property.surface_min || property.surface_max} MP` : null,
+                          (property.floor !== null && property.floor !== undefined)
+                            ? `ET ${property.floor}${property.total_floors ? `/${property.total_floors}` : ''}`
+                            : null,
+                          (property.bathrooms !== null && property.bathrooms !== undefined)
+                            ? `${property.bathrooms} ${property.bathrooms === 1 ? 'BAIE' : 'BAI'}`
+                            : null,
+                          property.year_built ? `${property.year_built}` : null,
+                          (property.parking !== null && property.parking !== undefined && property.parking > 0)
+                            ? `${property.parking} PARCARE`
+                            : null,
+                          property.surface_land ? `TEREN ${property.surface_land} MP` : null,
+                        ]}
+                      />
 
-                        {(property.surface_min || property.surface_max) && (
-                          <div className="text-center">
-                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                              <Ruler className="w-5 h-5 text-gold" />
-                            </div>
-                            <div className="text-xs text-muted-foreground">Suprafață</div>
-                            <div className="text-sm font-semibold">
-                              {property.surface_min || property.surface_max || '-'} mp
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="text-center">
-                          <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                            <Home className="w-5 h-5 text-gold" />
-                          </div>
-                          <div className="text-xs text-muted-foreground">Camere</div>
-                          <div className="text-sm font-semibold">{property.rooms}</div>
-                        </div>
+                      <div className="text-title text-primary tabular mb-3">
+                        €{property.price_min?.toLocaleString('de-DE')}
                       </div>
-
-                      {/* Extra Details Row */}
-                      {(property.floor !== null || property.bathrooms || property.year_built || property.heating || property.building_type || property.parking) && (
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs text-muted-foreground">
-                          {property.floor !== null && property.floor !== undefined && (
-                            <span className="flex items-center gap-1">
-                              <Building className="w-3 h-3 text-gold" />
-                              Etaj {property.floor}{property.total_floors ? `/${property.total_floors}` : ''}
-                            </span>
-                          )}
-                          {property.bathrooms !== null && property.bathrooms !== undefined && (
-                            <span className="flex items-center gap-1">
-                              <Bath className="w-3 h-3 text-gold" />
-                              {property.bathrooms} {property.bathrooms === 1 ? 'baie' : 'băi'}
-                            </span>
-                          )}
-                          {property.year_built && (
-                            <span className="flex items-center gap-1">
-                              <Construction className="w-3 h-3 text-gold" />
-                              {property.year_built}
-                            </span>
-                          )}
-                          {property.parking !== null && property.parking !== undefined && property.parking > 0 && (
-                            <span>🅿️ {property.parking} loc{property.parking > 1 ? 'uri' : ''}</span>
-                          )}
-                          {property.surface_land && (
-                            <span>🏗️ Teren {property.surface_land} mp</span>
-                          )}
-                        </div>
-                      )}
 
                       {/* Description */}
                       {property.description && (
