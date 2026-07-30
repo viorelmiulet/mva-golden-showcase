@@ -1,19 +1,14 @@
 import Header from "@/components/Header"
-import Hero from "@/components/Hero"
+import HeroBand from "@/components/home/HeroBand"
+import LatestProperties from "@/components/home/LatestProperties"
+import DevelopmentsRow from "@/components/home/DevelopmentsRow"
+import ZoneNav from "@/components/home/ZoneNav"
+import Footer from "@/components/Footer"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
-import { useEffect, lazy, Suspense } from "react"
+import { useEffect } from "react"
 import { Helmet } from "react-helmet-async"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 
-// Lazy load components that are below the fold
-const About = lazy(() => import("@/components/About"))
-const TrustBadges = lazy(() => import("@/components/TrustBadges"))
-const Services = lazy(() => import("@/components/Services"))
-const Properties = lazy(() => import("@/components/Properties"))
-const Contact = lazy(() => import("@/components/Contact"))
-const Footer = lazy(() => import("@/components/Footer"))
-const PWAInstallBanner = lazy(() => import("@/components/PWAInstallBanner"))
-const ScheduleViewingSection = lazy(() => import("@/components/ScheduleViewingSection"))
 
 
 const Index = () => {
@@ -194,50 +189,17 @@ const Index = () => {
         </script>
 
       </Helmet>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Header />
-        <main>
-          <Hero />
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Properties />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <ScheduleViewingSection />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <About />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-16" />}>
-              <TrustBadges />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Services />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Contact />
-            </Suspense>
-          </div>
+        <main className="pt-16">
+          <HeroBand />
+          <LatestProperties />
+          <DevelopmentsRow />
+          <ZoneNav />
         </main>
-        <div style={{ contentVisibility: "auto" }}>
-          <Suspense fallback={<div />}>
-            <Footer />
-          </Suspense>
-        </div>
-        <Suspense fallback={null}>
-          <PWAInstallBanner />
-        </Suspense>
+        <Footer />
       </div>
+
     </>
   );
 };
