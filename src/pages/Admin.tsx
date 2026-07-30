@@ -55,7 +55,7 @@ const Admin = () => {
   const [loadingStates, setLoadingStates] = useState(Array(5).fill(false))
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [editingProperty, setEditingProperty] = useState<any>(null)
-  const [editForm, setEditForm] = useState<any>({})
+  const [editForm, setEditForm] = useState<Record<string, any>>({})
   const [isUpdating, setIsUpdating] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('admin_authenticated') === 'true')
   const [password, setPassword] = useState("")
@@ -645,7 +645,7 @@ const Admin = () => {
                               <p className="text-xs text-muted-foreground truncate">{property.location}</p>
                               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs text-muted-foreground">
                                 <span>{property.rooms} camere</span>
-                                <span>€{property.price_min.toLocaleString('de-DE')}</span>
+                                <span>€{(property.price_min ?? 0).toLocaleString('de-DE')}</span>
                               </div>
                             </div>
                             
@@ -829,7 +829,7 @@ const Admin = () => {
                   </div>
                   <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
                     <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
-                      {properties.filter(p => p.rooms >= 3).length}
+                      {properties.filter(p => (p.rooms ?? 0) >= 3).length}
                     </div>
                     <div className="text-xs sm:text-sm text-muted-foreground">3+ camere</div>
                   </div>

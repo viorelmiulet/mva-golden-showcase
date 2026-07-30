@@ -36,7 +36,7 @@ export const useContractClauses = () => {
         .order("sort_order", { ascending: true });
 
       if (error) throw error;
-      setClauses(data || []);
+      setClauses((data || []).map((c) => ({ ...c, sort_order: c.sort_order ?? 0, is_active: c.is_active ?? true })));
     } catch (error) {
       console.error("Error fetching clauses:", error);
     } finally {
@@ -93,7 +93,7 @@ export const fetchContractClauses = async (): Promise<ContractClause[]> => {
       .order("sort_order", { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []).map((c) => ({ ...c, sort_order: c.sort_order ?? 0, is_active: c.is_active ?? true }));
   } catch (error) {
     console.error("Error fetching clauses:", error);
     return [];

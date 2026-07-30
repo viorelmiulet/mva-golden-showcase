@@ -123,6 +123,42 @@ export interface InventoryItem {
   images: string[];
 }
 
+// Normalizes raw DB rows (nullable columns) into the strict InventoryItem shape.
+export const normalizeInventoryRows = (
+  rows:
+    | Array<{
+        id: string;
+        item_name: string | null;
+        quantity: number | null;
+        condition: string | null;
+        location: string | null;
+        notes: string | null;
+        images: string[] | null;
+      }>
+    | null
+    | undefined,
+): InventoryItem[] =>
+  (rows ?? []).map((r) => ({
+    id: r.id,
+    item_name: r.item_name ?? "",
+    quantity: r.quantity ?? 1,
+    condition: r.condition ?? "",
+    location: r.location ?? "",
+    notes: r.notes ?? "",
+    images: r.images ?? [],
+  }));
+
+// Normalizes a raw contracts DB row (nullable columns) into SavedContract.
+export const normalizeSavedContractRow = (row: any): SavedContract => ({
+  ...row,
+  client_name: row.client_name ?? "",
+  property_address: row.property_address ?? "",
+  contract_type: row.contract_type ?? "inchiriere",
+  contract_date: row.contract_date ?? "",
+  proprietar_signed: row.proprietar_signed ?? false,
+  chirias_signed: row.chirias_signed ?? false,
+});
+
 export interface PartyBoxData {
   nume: string;
   cnp: string;

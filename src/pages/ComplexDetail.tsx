@@ -245,7 +245,7 @@ const ComplexDetail = () => {
   // Sort properties within each group based on selected criteria
   Object.keys(groupedByBuildingAndFloor).forEach(building => {
     Object.keys(groupedByBuildingAndFloor[building]).forEach(floor => {
-      groupedByBuildingAndFloor[building][floor].sort((a, b) => {
+      groupedByBuildingAndFloor[building]![floor]!.sort((a, b) => {
         switch (sortBy) {
           case "price-asc":
             return (a.price_min || 0) - (b.price_min || 0);
@@ -310,7 +310,7 @@ const ComplexDetail = () => {
         <meta property="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@MVAImobiliare" />
         <meta property="twitter:title" content={project.name} />
-        <meta property="twitter:description" content={project.description} />
+        <meta property="twitter:description" content={project.description ?? ''} />
         <meta property="twitter:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
         
         {/* Structured Data - Residence */}
