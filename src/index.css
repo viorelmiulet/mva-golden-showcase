@@ -2,168 +2,144 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Design system. All colors MUST be HSL.
+   Palette: ink #0F1115 · graphite #2A2E35 · slate #5C636E · paper #FCFBF9
+            stone #E9E5DE · brass #A8762C · pine #1E5F4B
 */
 
 @layer base {
   :root {
-    --background: 220 6% 14%;
-    --foreground: 45 100% 96%;
+    /* Brand scale */
+    --ink: 220 17% 7%;
+    --graphite: 218 12% 19%;
+    --slate: 217 9% 40%;
+    --paper: 40 33% 98%;
+    --stone: 38 20% 89%;
+    --brass: 36 59% 42%;
+    --brass-light: 36 59% 52%;
+    --brass-dark: 36 59% 32%;
+    --pine: 162 52% 25%;
 
-    --card: 220 5% 18%;
-    --card-foreground: 45 100% 96%;
+    /* shadcn mapping */
+    --background: var(--paper);
+    --foreground: var(--ink);
 
-    --popover: 220 6% 16%;
-    --popover-foreground: 45 100% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: var(--ink);
 
-    --primary: 45 100% 58%;
-    --primary-foreground: 220 6% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--ink);
 
-    --secondary: 220 5% 20%;
-    --secondary-foreground: 45 100% 96%;
+    --primary: var(--brass);
+    --primary-foreground: var(--paper);
 
-    --muted: 220 5% 20%;
-    --muted-foreground: 220 5% 70%;
+    --secondary: var(--stone);
+    --secondary-foreground: var(--ink);
 
-    --accent: 45 100% 58%;
-    --accent-foreground: 220 6% 14%;
+    --muted: var(--stone);
+    --muted-foreground: var(--slate);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 45 100% 96%;
+    --accent: var(--stone);
+    --accent-foreground: var(--ink);
 
-    --border: 220 5% 24%;
-    --input: 220 5% 22%;
-    --ring: 45 100% 58%;
+    --destructive: 0 65% 42%;
+    --destructive-foreground: var(--paper);
 
-    --radius: 1rem;
+    --success: var(--pine);
+    --success-foreground: var(--paper);
 
-    /* Modern Luxury Design Tokens */
-    --gold: 45 100% 58%;
-    --gold-light: 45 100% 68%;
-    --gold-dark: 45 100% 42%;
-    --gold-glow: 45 100% 50%;
-    --glass-white: 0 0% 100% / 0.08;
-    --glass-dark: 220 30% 4% / 0.4;
-    --glass-border: 0 0% 100% / 0.12;
-    
-    /* Modern Gradient System */
-    --gradient-glass: linear-gradient(135deg, 
-      hsla(220, 30%, 15%, 0.4) 0%, 
-      hsla(220, 30%, 10%, 0.6) 50%, 
-      hsla(45, 100%, 58%, 0.08) 100%);
-    --gradient-glass-hover: linear-gradient(135deg, 
-      hsla(220, 30%, 18%, 0.5) 0%, 
-      hsla(220, 30%, 12%, 0.7) 50%, 
-      hsla(45, 100%, 58%, 0.15) 100%);
-    --gradient-hero-glass: linear-gradient(135deg, 
-      hsla(220, 30%, 6%, 0.85) 0%, 
-      hsla(220, 30%, 10%, 0.7) 50%, 
-      hsla(45, 100%, 58%, 0.12) 100%);
-    --gradient-section: linear-gradient(180deg,
-      hsla(220, 30%, 6%, 1) 0%,
-      hsla(220, 30%, 8%, 1) 50%,
-      hsla(220, 30%, 6%, 1) 100%);
-    --gradient-gold: linear-gradient(135deg,
-      hsl(45, 100%, 58%) 0%,
-      hsl(45, 100%, 68%) 50%,
-      hsl(45, 100%, 48%) 100%);
-    --gradient-text-gold: linear-gradient(135deg,
-      hsl(45, 100%, 65%) 0%,
-      hsl(45, 100%, 75%) 40%,
-      hsl(45, 100%, 55%) 100%);
-    
-    /* Modern Shadow System */
-    --shadow-glass: 0 4px 24px hsla(220, 30%, 4%, 0.5), 
-                    0 2px 12px hsla(45, 100%, 58%, 0.08),
-                    inset 0 1px 0 hsla(0, 0%, 100%, 0.1);
-    --shadow-glass-hover: 0 8px 40px hsla(220, 30%, 4%, 0.6), 
-                          0 4px 20px hsla(45, 100%, 58%, 0.12),
-                          inset 0 1px 0 hsla(0, 0%, 100%, 0.15);
-    --shadow-card: 0 4px 20px hsla(220, 30%, 4%, 0.4),
-                   0 8px 40px hsla(220, 30%, 4%, 0.2);
-    --shadow-card-hover: 0 8px 32px hsla(220, 30%, 4%, 0.5),
-                         0 16px 56px hsla(220, 30%, 4%, 0.3),
-                         0 0 24px hsla(45, 100%, 58%, 0.1);
-    --shadow-gold-glow: 0 0 40px hsla(45, 100%, 58%, 0.3),
-                        0 0 80px hsla(45, 100%, 58%, 0.15);
-    
-    /* Backdrop & Blur */
-    --backdrop-blur: blur(20px);
-    --backdrop-blur-strong: blur(32px);
-    --backdrop-blur-ultra: blur(48px);
-    
-    /* Modern Animations */
-    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --border: var(--stone);
+    --input: var(--stone);
+    --ring: var(--brass);
 
-    --radius: 0.875rem;
+    --radius: 0.25rem;
 
-    /* Modern Admin Sidebar - Dark Glass */
-    --sidebar-background: 220 6% 12%;
-    --sidebar-foreground: 45 30% 85%;
-    --sidebar-primary: 45 100% 60%;
-    --sidebar-primary-foreground: 220 6% 14%;
-    --sidebar-accent: 220 6% 20%;
-    --sidebar-accent-foreground: 45 100% 95%;
-    --sidebar-border: 220 5% 24%;
-    --sidebar-ring: 45 100% 60%;
-    
-    /* Modern Admin Tokens */
-    --admin-gradient: linear-gradient(180deg, 
-      hsla(220, 6%, 16%, 1) 0%, 
-      hsla(220, 6%, 12%, 1) 100%);
-    --admin-header-gradient: linear-gradient(90deg,
-      hsla(220, 6%, 16%, 0.95) 0%,
-      hsla(220, 6%, 14%, 0.98) 100%);
-    --admin-card: 220 30% 10%;
-    --admin-card-hover: 220 30% 14%;
-    --admin-border: 220 30% 18%;
+    /* Legacy alias kept so existing `gold` utilities resolve to brass */
+    --gold: var(--brass);
+    --gold-light: var(--brass-light);
+    --gold-dark: var(--brass-dark);
+    --gold-glow: var(--brass);
+
+    /* Surfaces on dark (header/footer) */
+    --surface-dark: var(--ink);
+    --surface-dark-foreground: var(--paper);
+    --surface-dark-muted: var(--graphite);
+
+    --glass-border: 38 20% 89%;
+
+    /* Flat system: no shadows */
+    --shadow-glass: none;
+    --shadow-glass-hover: none;
+    --shadow-card: none;
+    --shadow-card-hover: none;
+    --shadow-gold-glow: none;
+
+    --gradient-glass: none;
+    --gradient-glass-hover: none;
+    --gradient-hero-glass: none;
+    --gradient-section: none;
+    --gradient-gold: none;
+    --gradient-text-gold: none;
+
+    --backdrop-blur: none;
+    --backdrop-blur-strong: none;
+    --backdrop-blur-ultra: none;
+
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Admin sidebar */
+    --sidebar-background: var(--ink);
+    --sidebar-foreground: 40 20% 88%;
+    --sidebar-primary: var(--brass);
+    --sidebar-primary-foreground: var(--paper);
+    --sidebar-accent: var(--graphite);
+    --sidebar-accent-foreground: var(--paper);
+    --sidebar-border: var(--graphite);
+    --sidebar-ring: var(--brass);
+
+    --admin-gradient: none;
+    --admin-header-gradient: none;
+    --admin-card: 0 0% 100%;
+    --admin-card-hover: 38 20% 96%;
+    --admin-border: var(--stone);
 
     --email-preview-background: 0 0% 100%;
-    --email-preview-foreground: 220 30% 6%;
-    --email-preview-muted: 220 12% 38%;
-    --email-preview-link: 45 100% 34%;
+    --email-preview-foreground: var(--ink);
+    --email-preview-muted: var(--slate);
+    --email-preview-link: var(--brass);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: var(--ink);
+    --foreground: var(--paper);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: var(--graphite);
+    --card-foreground: var(--paper);
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: var(--graphite);
+    --popover-foreground: var(--paper);
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: var(--brass-light);
+    --primary-foreground: var(--ink);
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: var(--graphite);
+    --secondary-foreground: var(--paper);
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: var(--graphite);
+    --muted-foreground: 40 8% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: var(--graphite);
+    --accent-foreground: var(--paper);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 55% 40%;
+    --destructive-foreground: var(--paper);
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: var(--graphite);
+    --input: var(--graphite);
+    --ring: var(--brass-light);
   }
 }
 
@@ -172,19 +148,28 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
-    /* Optimize for mobile scrolling */
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+  html {
+    -webkit-text-size-adjust: 100%;
   }
 
-  /* Enhanced responsive breakpoints */
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0, 'WONK' 1;
+  }
+
   .container {
     @apply mx-auto px-4;
   }
 
-  /* Touch targets optimization for mobile */
   @media (max-width: 768px) {
     button, a, [role="button"] {
       min-height: 44px;
@@ -192,253 +177,198 @@ All colors MUST be HSL.
     }
   }
 
-  /* Performance optimizations - CLS prevention */
   img, video, iframe {
     @apply max-w-full h-auto;
-    /* Reserve space to prevent layout shift */
-    aspect-ratio: attr(width) / attr(height);
   }
 
-  /* Optimize animations for better INP - reduce jank */
-  * {
-    transition: var(--transition-luxury);
-  }
-  
-  /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
-  
-  /* Focus states for accessibility */
-  button:focus-visible, 
-  a:focus-visible, 
-  input:focus-visible, 
-  textarea:focus-visible {
-    @apply ring-2 ring-gold ring-offset-2 ring-offset-background outline-none;
+
+  /* Visible brass focus ring on every interactive element */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible {
+    outline: 2px solid hsl(var(--brass));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+}
+
+@layer components {
+  /* ---- Type scale ---- */
+  .text-display-xl {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0, 'WONK' 1;
+    font-weight: 700;
+    font-size: 3.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
   }
 
-  /* Modern Glass Effects */
-  .glass {
-    background: var(--gradient-glass);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow: var(--shadow-glass);
+  .text-display-md {
+    font-family: 'Fraunces', Georgia, serif;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0, 'WONK' 1;
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .text-title {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.35;
+  }
+
+  .text-body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .text-small {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .text-spec {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .text-display-xl { font-size: 2.25rem; }
+    .text-display-md { font-size: 1.625rem; }
+  }
+
+  /* ---- Flat surfaces (legacy class names, restyled) ---- */
+  .glass,
+  .glass-strong,
+  .card-modern,
+  .card-responsive,
+  .stats-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transition: var(--transition-base);
   }
 
-  .glass-hover:hover {
-    background: var(--gradient-glass-hover);
-    box-shadow: var(--shadow-glass-hover);
-    backdrop-filter: var(--backdrop-blur-strong);
-    -webkit-backdrop-filter: var(--backdrop-blur-strong);
-    transform: translateY(-2px);
-  }
-
-  .glass-strong {
-    background: hsla(220, 30%, 8%, 0.6);
-    backdrop-filter: var(--backdrop-blur-strong);
-    -webkit-backdrop-filter: var(--backdrop-blur-strong);
-    border: 1px solid hsl(var(--glass-border));
-    box-shadow: var(--shadow-glass-hover);
-  }
-
-  /* Modern Card System */
   .card-responsive {
-    @apply p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl;
-    @apply glass glass-hover;
+    @apply p-4 sm:p-6;
   }
 
-  .card-modern {
-    background: linear-gradient(135deg, 
-      hsla(220, 30%, 12%, 0.5) 0%, 
-      hsla(220, 30%, 8%, 0.7) 100%);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
-    border: 1px solid hsla(0, 0%, 100%, 0.08);
-    box-shadow: var(--shadow-card);
-    transition: var(--transition-base);
-    border-radius: 1.5rem;
+  .stats-card {
+    @apply relative overflow-hidden p-6;
   }
 
-  .card-modern:hover {
-    background: linear-gradient(135deg, 
-      hsla(220, 30%, 14%, 0.6) 0%, 
-      hsla(220, 30%, 10%, 0.8) 100%);
-    border-color: hsla(45, 100%, 58%, 0.2);
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-4px);
+  .glass-hover:hover,
+  .card-modern:hover,
+  .stats-card:hover {
+    border-color: hsl(var(--brass) / 0.5);
+    box-shadow: none;
+    transform: none;
   }
 
-  /* Gold Glow Effects */
-  .glow-gold {
-    position: relative;
-  }
-
-  .glow-gold::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: var(--gradient-gold);
-    border-radius: inherit;
-    opacity: 0;
-    transition: var(--transition-base);
-    z-index: -1;
-    filter: blur(20px);
-  }
-
-  .glow-gold:hover::before {
-    opacity: 0.4;
-  }
-
-  /* Modern Text Gradient */
-  .text-gradient-gold {
-    background: var(--gradient-text-gold);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Animated Border */
-  .border-glow {
-    position: relative;
-    overflow: hidden;
-  }
-
+  .glow-gold::before,
   .border-glow::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, 
-      hsla(45, 100%, 58%, 0.4) 0%, 
-      transparent 50%, 
-      hsla(45, 100%, 58%, 0.4) 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: var(--transition-base);
+    content: none;
   }
 
-  .border-glow:hover::before {
-    opacity: 1;
+  .text-gradient-gold {
+    color: hsl(var(--brass));
+    background: none;
+    -webkit-text-fill-color: currentColor;
   }
 
-  /* Floating Animation */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  /* Shimmer Effect */
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  .shimmer {
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      hsla(45, 100%, 58%, 0.15) 50%, 
-      transparent 100%);
-    background-size: 200% 100%;
-    animation: shimmer 3s infinite linear;
-  }
-
-  /* Section Divider */
   .section-divider {
     height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      hsla(45, 100%, 58%, 0.3) 50%, 
-      transparent 100%);
+    background: hsl(var(--border));
   }
 
-  /* Modern Stats Card */
-  .stats-card {
-    @apply relative overflow-hidden rounded-2xl p-6;
-    background: linear-gradient(135deg, 
-      hsla(220, 30%, 12%, 0.6) 0%, 
-      hsla(220, 30%, 8%, 0.8) 100%);
-    border: 1px solid hsla(45, 100%, 58%, 0.15);
-    transition: var(--transition-base);
-  }
-
-  .stats-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      hsla(45, 100%, 58%, 0.4) 50%, 
-      transparent 100%);
-  }
-
-  .stats-card:hover {
-    border-color: hsla(45, 100%, 58%, 0.3);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-card-hover);
-  }
-
-  /* Button optimizations */
   .btn-responsive {
-    @apply px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-4;
-    @apply text-sm sm:text-base lg:text-lg;
+    @apply px-4 py-2 sm:px-6 sm:py-3;
+    @apply text-sm sm:text-base;
     @apply min-h-[44px] touch-manipulation;
   }
 
-  /* Hide scrollbars but keep functionality */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  /* Safe area utilities for iOS */
   .safe-area-inset-top {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .pb-safe {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-  
+
   .h-safe-area-inset-bottom {
     height: env(safe-area-inset-bottom);
   }
 
-  /* Touch optimization for mobile admin */
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Performance: contain layout for independent sections */
   .contain-layout {
     contain: layout style;
   }
-  
-  /* Performance: reduce paint for floating decorations */
+
   .animate-float {
-    will-change: transform;
-    contain: layout style;
+    animation: none;
+  }
+}
+
+@layer base {
+  /* Numeric data always aligns */
+  .price,
+  .stat-value,
+  [data-numeric],
+  table td,
+  time {
+    font-variant-numeric: tabular-nums;
   }
 
   .email-message-content {
@@ -467,12 +397,5 @@ All colors MUST be HSL.
   .email-message-content a,
   .email-message-content a * {
     color: hsl(var(--email-preview-link)) !important;
-  }
-
-  /* Performance: GPU-accelerated transitions */
-  .card-modern,
-  .glass,
-  .stats-card {
-    contain: layout style;
   }
 }
