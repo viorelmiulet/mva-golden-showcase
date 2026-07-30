@@ -59,10 +59,7 @@ const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
 // Lazy load heavy below-fold components
 const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
-const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then(m => ({ default: m.ScheduleViewingDialog })));
 const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
-const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
-const MortgageCalculator = lazy(() => import("@/components/MortgageCalculator"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 interface Property {
