@@ -161,7 +161,7 @@ const MobileComplexDetail = () => {
             priority
             quality={85}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+          <div className="absolute inset-0 bg-ink/40 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
             <div className="flex flex-wrap gap-2">
               {complex.is_recommended && (

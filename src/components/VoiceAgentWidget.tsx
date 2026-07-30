@@ -146,7 +146,7 @@ export const VoiceAgentWidget = ({
               <Button
                 onClick={() => setIsExpanded(true)}
                 size="lg"
-                className="rounded-full h-14 w-14 shadow-lg bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                className="rounded-full h-14 w-14  bg-brass hover:from-primary/90 hover:to-primary/70"
               >
                 <MessageCircle className="h-6 w-6" />
               </Button>

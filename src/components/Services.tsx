@@ -59,7 +59,7 @@ const Services = () => {
           {/* CTA */}
           <ScrollReveal delay={0.3}>
             <div className="mt-12 text-center">
-              <a href="tel:0767941512" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-gold to-gold-dark text-primary-foreground rounded-xl text-sm font-semibold hover:shadow-lg transition-all group">
+              <a href="tel:0767941512" className="inline-flex items-center px-6 py-3 bg-brass text-primary-foreground rounded-xl text-sm font-semibold  transition-all group">
                 <Phone className="mr-2 w-4 h-4 group-hover:rotate-12 transition-transform" />
                 0767 941 512
               </a>

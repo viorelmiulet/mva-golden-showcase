@@ -249,7 +249,7 @@ const BlogPost = () => {
                 />
               )}
 
-              <div className="mt-12 p-6 sm:p-8 bg-gradient-to-br from-gold/10 to-gold/5 rounded-2xl border border-gold/20">
+              <div className="mt-12 p-6 sm:p-8 bg-brass rounded-2xl border border-gold/20">
                 <h3 className="text-xl font-bold mb-3">Ai nevoie de ajutor?</h3>
                 <p className="text-muted-foreground mb-4">
                   Echipa noastră de specialiști este aici să te ghideze în procesul de cumpărare sau vânzare a proprietății tale.
@@ -281,7 +281,7 @@ const BlogPost = () => {
                   <div className="grid gap-4 sm:grid-cols-3">
                     {relatedPosts.map((relatedPost) => (
                       <Link key={relatedPost.slug} to={`/blog/${relatedPost.slug}`}>
-                        <Card className="h-full hover:shadow-lg transition-all hover:border-gold/50">
+                        <Card className="h-full  transition-all hover:border-gold/50">
                           <CardHeader className="p-4">
                             <CardTitle className="text-base line-clamp-2 group-hover:text-gold transition-colors">
                               {relatedPost.title}

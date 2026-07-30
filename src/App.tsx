@@ -105,8 +105,6 @@ const TermeniConditii = lazy(() => import("./pages/TermeniConditii"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PoliticiEditoriale = lazy(() => import("./pages/PoliticiEditoriale"));
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
-const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
-const PhoneButton = lazy(() => import("@/components/PhoneButton"));
 const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
@@ -308,8 +306,6 @@ const AppRoutes = () => {
         <AppErrorBoundary>
           <Suspense fallback={null}>
             <DeferredShell />
-            <WhatsAppButton />
-            <PhoneButton />
             <CookieConsent />
             <ScrollIndicator />
           </Suspense>

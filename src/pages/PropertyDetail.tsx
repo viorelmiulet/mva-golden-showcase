@@ -58,11 +58,6 @@ import { composePropertyDescription, composeMetaDescription } from "@/lib/proper
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
 // Lazy load heavy below-fold components
-const ApartmentImageGallery = lazy(() => import("@/components/ApartmentImageGallery").then(m => ({ default: m.ApartmentImageGallery })));
-const ScheduleViewingDialog = lazy(() => import("@/components/ScheduleViewingDialog").then(m => ({ default: m.ScheduleViewingDialog })));
-const TiltCard = lazy(() => import("@/components/TiltCard").then(m => ({ default: m.TiltCard })));
-const RecentlyViewed = lazy(() => import("@/components/RecentlyViewed").then(m => ({ default: m.RecentlyViewed })));
-const MortgageCalculator = lazy(() => import("@/components/MortgageCalculator"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
 
 interface Property {
@@ -475,7 +470,7 @@ const PropertyDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <div className="min-h-screen bg-ink/40 to-secondary/20">
         <Header />
         <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
           <div className="container mx-auto max-w-6xl">

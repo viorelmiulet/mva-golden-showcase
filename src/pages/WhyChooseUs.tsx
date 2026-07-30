@@ -120,7 +120,7 @@ const WhyChooseUs = () => {
       
       <main>
         {/* Hero Section */}
-        <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-gradient-to-br from-background to-muted">
+        <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-ink/40 to-muted">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="text-center max-w-4xl mx-auto">
               <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm">
@@ -129,7 +129,7 @@ const WhyChooseUs = () => {
               
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 md:mb-6 px-2">
                 <span className="block text-foreground">{t.whyChooseUs.heroTitle}</span>
-                <span className="block bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                <span className="block text-brass">
                   {t.whyChooseUs.heroTitleHighlight}
                 </span>
               </h1>
@@ -313,7 +313,7 @@ const WhyChooseUs = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-12 md:py-20 bg-gradient-to-r from-gold/10 via-gold-light/10 to-gold/10">
+        <section className="py-12 md:py-20 bg-brass">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6 px-2">

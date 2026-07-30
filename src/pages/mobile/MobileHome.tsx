@@ -117,7 +117,7 @@ const MobileHome = () => {
         </div>
 
         {/* Hero Card */}
-        <div className="bg-gradient-to-br from-gold/20 via-gold/10 to-transparent rounded-2xl p-5 border border-gold/20 mb-6">
+        <div className="bg-brass rounded-2xl p-5 border border-gold/20 mb-6">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-gold" />
             <span className="text-sm font-medium text-gold">
@@ -291,7 +291,7 @@ const MobileHome = () => {
                       aspectRatio="auto"
                       quality={70}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+                    <div className="absolute inset-0 bg-ink/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-3">
                       <h3 className="font-semibold text-sm mb-1">{complex.name}</h3>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">

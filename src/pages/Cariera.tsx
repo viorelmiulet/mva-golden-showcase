@@ -190,7 +190,7 @@ const Cariera = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
+      <div className="min-h-screen bg-ink/40 to-secondary/10">
         <Header />
 
         <main className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 md:pb-20" role="main">
@@ -202,7 +202,7 @@ const Cariera = () => {
               <span className="text-xs sm:text-sm text-gold">{t.career.badge}</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-cinzel font-bold mb-4 sm:mb-6 bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent px-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-cinzel font-bold mb-4 sm:mb-6 text-brass px-2">
               {t.career.heroTitle}
             </h1>
 

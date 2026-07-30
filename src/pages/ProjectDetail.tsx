@@ -72,7 +72,7 @@ const ProjectDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <div className="min-h-screen bg-ink/40 to-secondary/20">
         <Header />
         <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
           <ProjectDetailSkeleton />
@@ -85,7 +85,7 @@ const ProjectDetail = () => {
   if (!project) {
     return (
       <>
-        <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+        <div className="min-h-screen bg-ink/40 to-secondary/20">
           <Header />
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
@@ -162,7 +162,7 @@ const ProjectDetail = () => {
         <meta name="twitter:image:alt" content={`${project.name} – ansamblu rezidențial`} />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <div className="min-h-screen bg-ink/40 to-secondary/20">
         <Header />
 
         <main className="pt-20 sm:pt-24 pb-12 sm:pb-16">
@@ -192,7 +192,7 @@ const ProjectDetail = () => {
                   />
                   {project.is_recommended && (
                     <div className="absolute top-4 left-4">
-                      <Badge className="bg-gold text-primary-foreground shadow-lg">
+                      <Badge className="bg-gold text-primary-foreground ">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Recomandat
                       </Badge>
@@ -204,7 +204,7 @@ const ProjectDetail = () => {
                 <div className="space-y-6">
                   <div>
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-                      <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                      <span className="text-brass">
                         {project.name}
                       </span>
                     </h1>
@@ -352,18 +352,18 @@ const ProjectDetail = () => {
                     return (
                       <div key={floor}>
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="bg-gradient-to-r from-gold/20 to-transparent h-px flex-1" />
+                          <div className="bg-brass h-px flex-1" />
                           <h3 className="text-xl font-bold uppercase tracking-wider text-gold">
                             {floor}
                           </h3>
-                          <div className="bg-gradient-to-l from-gold/20 to-transparent h-px flex-1" />
+                          <div className="bg-brass h-px flex-1" />
                         </div>
                         
                         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                           {floorApartments.map((apartment: any) => (
                             <Card
                               key={apartment.id}
-                              className="relative overflow-hidden border-2 border-gold/30 bg-gradient-to-br from-background via-background to-gold/5"
+                              className="relative overflow-hidden border-2 border-gold/30 bg-ink/40 to-gold/5"
                             >
                               <CardContent className="p-4 space-y-3">
                                 {/* Header */}

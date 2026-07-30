@@ -59,7 +59,7 @@ const RelatedBlogPosts = ({ complexName, maxPosts = 3 }: RelatedBlogPostsProps) 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <Link key={post.slug} to={`/blog/${post.slug}`} className="group">
-            <Card className="h-full hover:shadow-lg transition-all hover:border-gold/50 overflow-hidden">
+            <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
               {post.cover_image && (
                 <div className="h-36 overflow-hidden">
                   <OptimizedImage

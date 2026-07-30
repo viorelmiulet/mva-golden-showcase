@@ -111,7 +111,7 @@ const AddProperty = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-ink/40 to-secondary/20">
       <Header />
       
       <main className="pt-24 pb-16">
@@ -132,7 +132,7 @@ const AddProperty = () => {
               
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 <span className="text-foreground">Adaugă </span>
-                <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                <span className="text-brass">
                   Proprietate Nouă
                 </span>
               </h1>

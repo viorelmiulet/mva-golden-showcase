@@ -171,7 +171,7 @@ const SeoLanding = ({ preset }: Props) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.slice(0, 60).map((p: any) => (
               <Link key={p.id} to={getPropertyUrl(p)} className="group">
-                <Card className="overflow-hidden h-full transition-shadow hover:shadow-lg">
+                <Card className="overflow-hidden h-full transition-shadow ">
                   <div className="relative aspect-[4/3] bg-muted">
                     <OptimizedPropertyImage
                       src={p.images?.[0]}

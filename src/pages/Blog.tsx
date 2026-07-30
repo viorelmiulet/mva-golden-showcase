@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, User, ArrowRight, Clock, TrendingUp, Home, Lightbulb, PiggyBank, Scale, FileText, Building2 } from "lucide-react";
+import { Calendar, User, ArrowRight, Clock, TrendingUp, Home, Lightbulb, PiggyBank, Scale, FileText, Building2, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -110,7 +110,7 @@ const Blog = () => {
       
       <main className="min-h-screen pt-20">
         {/* Hero Section */}
-        <section className="py-12 sm:py-16 bg-gradient-to-b from-background to-muted/30">
+        <section className="py-12 sm:py-16 bg-ink/40 to-muted/30">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <Breadcrumbs items={[{ label: "Blog" }]} />
             <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
@@ -135,7 +135,7 @@ const Blog = () => {
                     const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                        <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-gradient-to-br from-gold/5 to-transparent">
+                        <Card className="transition-colors cursor-pointer h-full border-2 border-gold/30 bg-brass">
                           {post.cover_image && (
                             <OptimizedImage
                               src={post.cover_image}
@@ -203,7 +203,7 @@ const Blog = () => {
                       onClick={() => setSelectedCategory(category.id)}
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         selectedCategory === category.id
-                          ? "bg-gold text-primary-foreground shadow-md"
+                          ? "bg-gold text-primary-foreground "
                           : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -220,7 +220,7 @@ const Blog = () => {
                   const CategoryIcon = getCategoryIcon(post.category_id);
                   return (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                      <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border hover:border-gold/50">
+                      <Card className="transition-colors cursor-pointer h-full border hover:border-gold/50">
                         {post.cover_image && (
                           <OptimizedImage
                             src={post.cover_image}
@@ -273,21 +273,21 @@ const Blog = () => {
           </div>
         </section>
 
-        {/* Newsletter CTA */}
-        <section className="py-12 sm:py-16 bg-muted/50">
+        {/* Contact CTA */}
+        <section className="py-12 sm:py-16 bg-stone/40 border-t border-stone">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3">Rămâi Informat!</h2>
-              <p className="text-muted-foreground mb-6">
-                Contactează-ne pentru consultanță gratuită și sfaturi personalizate despre piața imobiliară.
+              <h2 className="text-display-md mb-3">Ai o întrebare?</h2>
+              <p className="text-slate mb-6">
+                Sună-ne pentru consultanță gratuită despre piața imobiliară din București.
               </p>
-              <Link 
-                to="/#contact" 
-                className="inline-flex items-center gap-2 bg-gold hover:bg-gold/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all hover:scale-105"
+              <a
+                href="tel:0767941512"
+                className="inline-flex items-center gap-2 bg-brass text-paper px-6 py-3 rounded-sm font-semibold hover:bg-brass-dark transition-colors"
               >
-                Contactează-ne
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+                <Phone className="h-4 w-4" />
+                Sună 0767 941 512
+              </a>
             </div>
           </div>
         </section>

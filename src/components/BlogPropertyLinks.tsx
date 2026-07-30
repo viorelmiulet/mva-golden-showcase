@@ -96,7 +96,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                 to={getComplexUrl(complex)}
                 className="group"
               >
-                <Card className="h-full hover:shadow-lg transition-all hover:border-gold/50 overflow-hidden">
+                <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
                   {complex.main_image && (
                     <div className="h-32 overflow-hidden">
                       <img
@@ -148,7 +148,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                   to={getPropertyUrl(prop)}
                   className="group"
                 >
-                  <Card className="h-full hover:shadow-lg transition-all hover:border-gold/50 overflow-hidden">
+                  <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
                     <div className="aspect-[4/3] overflow-hidden relative">
                       {firstImage ? (
                         <OptimizedPropertyImage

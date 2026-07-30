@@ -135,7 +135,7 @@ const OptimizedImage = ({
         </picture>
       )}
       {!isLoaded && placeholder === 'blur' && (
-        <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/10" />
+        <div className="absolute inset-0 bg-stone" />
       )}
     </div>
   );

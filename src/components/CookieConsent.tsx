@@ -299,7 +299,7 @@ const CookieConsent = () => {
       aria-label={t.title}
       className="fixed inset-x-0 bottom-0 z-[100] flex justify-center p-3 sm:p-4 pointer-events-none"
     >
-      <Card className="pointer-events-auto w-full max-w-2xl border bg-background/95 p-4 sm:p-5 shadow-2xl backdrop-blur-md">
+      <Card className="pointer-events-auto w-full max-w-2xl rounded-sm border border-stone bg-paper p-4 sm:p-5 shadow-none">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
           <div className="flex-1 min-w-0">

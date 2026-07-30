@@ -38,7 +38,7 @@ const DefaultCrashFallback = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 text-center ">
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">MVA Imobiliare</p>
         <h1 className="mt-4 text-3xl font-bold text-foreground">Pagina a întâmpinat o eroare.</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">

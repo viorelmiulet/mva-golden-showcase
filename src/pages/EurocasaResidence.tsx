@@ -169,7 +169,7 @@ const EurocasaResidence = () => {
                       Momentan nu avem proprietăți listate în Eurocasa Residence. Contactează-ne pentru oferte actualizate!
                     </p>
                     <Link to="/contact">
-                      <Button variant="luxury" size="lg" className="glow-gold">
+                      <Button variant="luxury" size="lg" className="">
                         <Phone className="w-4 h-4 mr-2" />
                         Contactează-ne
                       </Button>
@@ -182,7 +182,7 @@ const EurocasaResidence = () => {
                         <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
                           {property.is_featured && (
                             <div className="absolute top-3 left-3 z-10">
-                              <Badge className="bg-gold text-primary-foreground shadow-lg text-xs">
+                              <Badge className="bg-gold text-primary-foreground  text-xs">
                                 <Sparkles className="w-3 h-3 mr-1" />
                                 Recomandat
                               </Badge>
@@ -241,7 +241,7 @@ const EurocasaResidence = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Link to="/contact">
-                    <Button variant="luxury" size="lg" className="glow-gold w-full sm:w-auto">
+                    <Button variant="luxury" size="lg" className=" w-full sm:w-auto">
                       <Phone className="w-4 h-4 mr-2" />
                       Contactează-ne
                     </Button>
