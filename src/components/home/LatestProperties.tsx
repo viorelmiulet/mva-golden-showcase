@@ -1,42 +1,9 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
-import SpecRail from "@/components/SpecRail";
+import PropertyCard from "@/components/PropertyCard";
 import { getPropertyUrl } from "@/lib/propertySlug";
 
-const isCoordinates = (str: string | null | undefined) => !!str && /^\d{2,}\.\d{3,}/.test(str.trim());
-
-const getZone = (p: any): string => {
-  if (p.zone && !isCoordinates(p.zone)) return p.zone;
-  if (p.location && !isCoordinates(p.location)) return p.location;
-  if (p.city && !isCoordinates(p.city)) return p.city;
-  return "București";
-};
-
-const formatPrice = (value: number | null | undefined, currency?: string | null) => {
-  if (!value) return "Preț la cerere";
-  const symbol = (currency || "EUR").toUpperCase() === "EUR" ? "€" : currency;
-  return `${Number(value).toLocaleString("ro-RO")} ${symbol}`;
-};
-
-/** Exactly one badge, or none. COMISION 0% wins over NOU. */
-const getBadge = (p: any): "COMISION 0%" | "NOU" | null => {
-  const zeroCommission =
-    Number(p.commission_value) === 0 ||
-    String(p.commission_type || "").toLowerCase().includes("0");
-  if (zeroCommission) return "COMISION 0%";
-  const created = p.created_at ? new Date(p.created_at).getTime() : 0;
-  if (created && Date.now() - created < 21 * 24 * 60 * 60 * 1000) return "NOU";
-  return null;
-};
-
-const floorLabel = (p: any) => {
-  if (p.floor_label) return String(p.floor_label);
-  if (p.floor === 0) return "PARTER";
-  if (typeof p.floor === "number") return `ET ${p.floor}`;
-  return null;
-};
 
 const LatestProperties = () => {
   const { data: offers = [] } = useQuery({
