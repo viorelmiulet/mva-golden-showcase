@@ -217,7 +217,7 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-52 max-h-80 overflow-y-auto bg-background border border-border shadow-lg z-[9999]"
+        className="w-52 max-h-80 overflow-y-auto bg-background border border-border  z-[9999]"
         sideOffset={5}
       >
         <div className="px-2 py-1.5 text-xs text-muted-foreground font-medium">

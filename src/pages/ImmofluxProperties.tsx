@@ -56,7 +56,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
       : 'bg-slate-600 text-white';
   return (
     <Link to={href}>
-      <Card className="overflow-hidden group hover:shadow-lg transition-shadow duration-300">
+      <Card className="overflow-hidden group  transition-shadow duration-300">
         <div className="relative h-48 md:h-56 overflow-hidden">
           <img
             src={getMainImage(property)}
@@ -171,7 +171,7 @@ const ImmofluxProperties = () => {
           </h1>
 
           {/* Quick filters */}
-          <div className="bg-card border rounded-lg p-4 mb-6 shadow-sm">
+          <div className="bg-card border rounded-lg p-4 mb-6 ">
             <div className="flex items-center gap-2 mb-3 text-sm font-medium text-foreground">
               <Filter className="h-4 w-4 text-gold" />
               Filtre rapide

@@ -174,7 +174,7 @@ const GhidMilitariResidence = () => {
 
       <main className="min-h-screen bg-background">
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/50 bg-gradient-to-b from-muted/40 to-background">
+        <section className="relative overflow-hidden border-b border-border/50 bg-stone">
           <div className="container mx-auto max-w-5xl px-4 py-16 md:py-24">
             <Badge className="mb-4" variant="secondary">
               <MapPin className="mr-1.5 h-3.5 w-3.5" /> Chiajna, Ilfov · Vestul Bucureștiului
@@ -361,7 +361,7 @@ const GhidMilitariResidence = () => {
 
         {/* Why MVA */}
         <section className="container mx-auto max-w-5xl px-4 py-12">
-          <Card className="bg-gradient-to-br from-primary/5 to-background border-primary/20">
+          <Card className="bg-brass border-primary/20">
             <CardContent className="py-8 md:py-10">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
                 De ce să cumperi prin MVA Imobiliare

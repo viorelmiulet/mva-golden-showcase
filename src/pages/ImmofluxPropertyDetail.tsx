@@ -223,7 +223,7 @@ const ImmofluxPropertyDetail = () => {
   // PropertyDetail.tsx: loading branch = skeleton only, no SEO meta. Head + body
   // land together in the success branch.
   if (isLoading) return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-ink/40 to-secondary/20">
       <Header />
       <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
         <div className="container mx-auto max-w-6xl">
@@ -434,7 +434,7 @@ const ImmofluxPropertyDetail = () => {
               </div>
 
               {statCards.length > 0 && (
-                <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                <section className="rounded-2xl border bg-card p-4 sm:p-6 ">
                   <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                     <ClipboardList className="h-5 w-5 text-emerald-400" />
                     Detalii Anunț
@@ -484,7 +484,7 @@ const ImmofluxPropertyDetail = () => {
                   const hasMore = items.length > PREVIEW_LIMIT;
                   const visible = hasMore ? items.slice(0, PREVIEW_LIMIT) : items;
                   return (
-                    <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-sm">
+                    <section className="rounded-2xl border bg-card p-4 sm:p-6 ">
                       <div className="flex items-center justify-between gap-2 mb-4">
                         <h2 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
                           <Icon className="h-5 w-5 text-gold" /> {sectionTitle}
@@ -562,7 +562,7 @@ const ImmofluxPropertyDetail = () => {
 
             <div className="lg:col-span-1 space-y-4">
               {agentInfo && (
-                <div className="rounded-xl border bg-card p-5 space-y-3 shadow-sm">
+                <div className="rounded-xl border bg-card p-5 space-y-3 ">
                   <h2 className="text-sm font-semibold text-foreground">Agent</h2>
                   <div className="flex items-center gap-3">
                     <div>
@@ -582,7 +582,7 @@ const ImmofluxPropertyDetail = () => {
                 </div>
               )}
 
-              <div className="sticky top-28 rounded-xl border bg-card p-6 space-y-4 shadow-sm">
+              <div className="sticky top-28 rounded-xl border bg-card p-6 space-y-4 ">
                 <h2 className="text-lg font-semibold text-foreground">Solicită informații</h2>
                 <form onSubmit={handleContact} className="space-y-3">
                   <Input placeholder="Nume *" required value={contactForm.nume} onChange={e => setContactForm(f => ({ ...f, nume: e.target.value }))} />

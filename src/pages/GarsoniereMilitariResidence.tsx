@@ -133,7 +133,7 @@ const GarsoniereMilitariResidence = () => {
 
       <main className="min-h-screen bg-background">
         {/* HERO */}
-        <section className="relative bg-gradient-to-br from-primary/10 via-background to-background pt-32 pb-16">
+        <section className="relative bg-brass pt-32 pb-16">
           <div className="container mx-auto px-4 max-w-5xl">
             <Badge variant="outline" className="mb-4">
               Ghid expert · Militari Residence

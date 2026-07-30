@@ -29,7 +29,7 @@ const WhatsAppButton = () => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}
-          className="group fixed bottom-4 right-4 z-50 flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg transition-all duration-300 active:scale-95 touch-manipulation hover:scale-110 hover:shadow-[0_0_25px_rgba(37,211,102,0.6)] hover:rotate-[15deg]"
+          className="group fixed bottom-4 right-4 z-50 flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full  transition-all duration-300 active:scale-95 touch-manipulation hover:scale-110 hover:shadow-[0_0_25px_rgba(37,211,102,0.6)] hover:rotate-[15deg]"
           aria-label="Contactează-ne pe WhatsApp"
         >
           {/* Official WhatsApp Logo */}

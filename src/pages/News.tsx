@@ -161,7 +161,7 @@ const News = () => {
                 });
                 return (
                   <Link key={a.id} to={`/news/${a.slug}`} className="group block">
-                    <Card className="h-full overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                    <Card className="h-full overflow-hidden border-border/60 hover:border-primary/40  hover:-translate-y-1 transition-all duration-300 flex flex-col">
                       <div className="relative aspect-video overflow-hidden bg-muted">
                         {a.featured_image ? (
                           <img
@@ -180,8 +180,8 @@ const News = () => {
                             <Newspaper className="h-12 w-12 text-muted-foreground/40" />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <Badge className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground border-0 shadow-md">
+                        <div className="absolute inset-0 bg-ink/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <Badge className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground border-0 ">
                           <Newspaper className="h-3 w-3 mr-1" />
                           Știri
                         </Badge>

@@ -410,7 +410,7 @@ const PareriMilitariResidence = () => {
 
         {/* Verdict */}
         <section className="container mx-auto px-4 max-w-5xl mt-14">
-          <Card className="bg-gradient-to-br from-gold/5 to-gold/10 border-gold/30">
+          <Card className="bg-brass border-gold/30">
             <CardContent className="p-8">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
                 Verdict MVA Imobiliare: merită Militari Residence în 2026?

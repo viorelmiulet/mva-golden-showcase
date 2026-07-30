@@ -98,7 +98,7 @@ const NotFound = () => {
             </div>
 
             <h1 className="relative mb-4 font-bold leading-none tracking-tight text-foreground">
-              <span className="block bg-gradient-to-b from-gold via-gold to-gold/40 bg-clip-text text-[7rem] text-transparent sm:text-[10rem]">
+              <span className="block bg-brass bg-clip-text text-[7rem] text-transparent sm:text-[10rem]">
                 404
               </span>
             </h1>
@@ -166,7 +166,7 @@ const NotFound = () => {
                 <Link
                   key={to}
                   to={to}
-                  className="group rounded-xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-lg hover:shadow-gold/5"
+                  className="group rounded-xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-gold/50  /5"
                 >
                   <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold transition-colors group-hover:bg-gold group-hover:text-primary-foreground">
                     <Icon className="h-5 w-5" />

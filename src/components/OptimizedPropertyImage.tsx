@@ -129,7 +129,7 @@ const OptimizedPropertyImage = ({
       {/* Blur placeholder */}
       {!isLoaded && (
         <div 
-          className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/10"
+          className="absolute inset-0 bg-stone"
           style={{
             backgroundImage: `url(${blurDataUrl})`,
             backgroundSize: 'cover',
@@ -140,7 +140,7 @@ const OptimizedPropertyImage = ({
       {/* Sold overlay */}
       {isSold && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20 pointer-events-none">
-          <span className="bg-white/95 text-red-600 border-2 border-red-600 font-black text-lg sm:text-xl px-5 py-2 rounded-lg shadow-2xl uppercase tracking-wider transform -rotate-12">
+          <span className="bg-white/95 text-red-600 border-2 border-red-600 font-black text-lg sm:text-xl px-5 py-2 rounded-lg  uppercase tracking-wider transform -rotate-12">
             VÂNDUT
           </span>
         </div>

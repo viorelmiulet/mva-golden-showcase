@@ -64,7 +64,7 @@ const PWAInstallBanner = () => {
         ? 'bottom-6 right-6 max-w-sm' 
         : 'bottom-20 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm'
     }`}>
-      <div className="bg-card/95 backdrop-blur-md border border-gold/30 rounded-2xl p-4 shadow-2xl shadow-gold/10">
+      <div className="bg-card/95 backdrop-blur-md border border-gold/30 rounded-2xl p-4  /10">
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-secondary/80 transition-colors"
@@ -74,7 +74,7 @@ const PWAInstallBanner = () => {
         </button>
 
         <div className="flex items-start gap-3 pr-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dark/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-brass flex items-center justify-center flex-shrink-0">
             <DeviceIcon className="w-6 h-6 text-gold" />
           </div>
           

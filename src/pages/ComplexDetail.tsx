@@ -395,9 +395,9 @@ const ComplexDetail = () => {
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -left-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-gold-400/15 to-gold-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <Header />
@@ -438,7 +438,7 @@ const ComplexDetail = () => {
               
               {/* Quick Stats */}
               <div className="flex gap-2 sm:gap-4">
-                <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial glow-gold">
+                <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial ">
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-gradient-gold">{properties?.length || 0}</div>
                   <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Apartamente</div>
                 </Card>
@@ -452,7 +452,7 @@ const ComplexDetail = () => {
             </div>
 
             {project.main_image && (
-              <div className="rounded-xl overflow-hidden shadow-2xl border-glow">
+              <div className="rounded-xl overflow-hidden  border-glow">
                 <OptimizedPropertyImage
                   src={project.main_image}
                   alt={`${project.name} - complex rezidențial în ${project.location || 'București'} cu apartamente moderne, finisaje premium și facilități complete`}
@@ -635,7 +635,7 @@ const ComplexDetail = () => {
                     onClick={() => setSelectedBuilding(building)}
                     className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 flex-1 sm:flex-none justify-center ${
                       isSelected
-                        ? 'glass bg-primary/20 border-2 border-primary text-primary glow-gold'
+                        ? 'glass bg-primary/20 border-2 border-primary text-primary '
                         : 'glass-hover border border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -689,7 +689,7 @@ const ComplexDetail = () => {
                             key={apt.id}
                             className={`relative overflow-hidden transition-all duration-300 ${
                               isAvailable 
-                                ? 'card-modern hover:shadow-xl border-glow' 
+                                ? 'card-modern  border-glow' 
                                 : 'opacity-60 glass border border-muted'
                             }`}
                           >
@@ -791,7 +791,7 @@ const ComplexDetail = () => {
                                 {apt.floor_plan && isAvailable ? (
                                   <button
                                     type="button"
-                                    className="w-full rounded-lg overflow-hidden border border-primary/20 hover:border-primary/50 transition-all hover:shadow-md cursor-zoom-in group"
+                                    className="w-full rounded-lg overflow-hidden border border-primary/20 hover:border-primary/50 transition-all  cursor-zoom-in group"
                                     onClick={() => {
                                       setSelectedFloorPlan(apt.floor_plan || null);
                                       setFloorPlanOpen(true);
@@ -908,7 +908,7 @@ const ComplexDetail = () => {
                 alt="Schiță apartament" 
               />
               <Button 
-                className="w-full h-9 sm:h-10 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 glow-gold"
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm bg-brass hover:from-primary/90 hover:to-primary/70 "
                 onClick={() => {
                   const link = document.createElement('a');
                   link.href = selectedFloorPlan;

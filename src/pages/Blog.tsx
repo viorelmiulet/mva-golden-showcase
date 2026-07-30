@@ -110,7 +110,7 @@ const Blog = () => {
       
       <main className="min-h-screen pt-20">
         {/* Hero Section */}
-        <section className="py-12 sm:py-16 bg-gradient-to-b from-background to-muted/30">
+        <section className="py-12 sm:py-16 bg-ink/40 to-muted/30">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <Breadcrumbs items={[{ label: "Blog" }]} />
             <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12">
@@ -135,7 +135,7 @@ const Blog = () => {
                     const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                        <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-gradient-to-br from-gold/5 to-transparent">
+                        <Card className="hover:shadow-xl transition-all hover:scale-[1.02] cursor-pointer h-full border-2 border-gold/30 bg-brass">
                           {post.cover_image && (
                             <OptimizedImage
                               src={post.cover_image}
@@ -203,7 +203,7 @@ const Blog = () => {
                       onClick={() => setSelectedCategory(category.id)}
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         selectedCategory === category.id
-                          ? "bg-gold text-primary-foreground shadow-md"
+                          ? "bg-gold text-primary-foreground "
                           : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
                       }`}
                     >

@@ -145,7 +145,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
         <Button
           variant="secondary"
           size="icon"
-          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
+          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm "
           onClick={handleZoomOut}
           aria-label="Micșorează schița"
         >
@@ -154,7 +154,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
         <Button
           variant="secondary"
           size="icon"
-          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
+          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm "
           onClick={handleZoomIn}
           aria-label="Mărește schița"
         >
@@ -163,7 +163,7 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
         <Button
           variant="secondary"
           size="icon"
-          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm shadow-md"
+          className="h-8 w-8 sm:h-9 sm:w-9 bg-background/90 backdrop-blur-sm "
           onClick={handleReset}
           aria-label="Resetează zoom-ul"
         >
@@ -173,13 +173,13 @@ export const ZoomableFloorPlan = ({ src, alt }: ZoomableFloorPlanProps) => {
 
       {/* Zoom indicator */}
       {scale !== 1 && (
-        <div className="absolute bottom-2 left-2 z-10 px-2 py-1 bg-background/90 backdrop-blur-sm rounded text-xs font-medium shadow-md">
+        <div className="absolute bottom-2 left-2 z-10 px-2 py-1 bg-background/90 backdrop-blur-sm rounded text-xs font-medium ">
           {Math.round(scale * 100)}%
         </div>
       )}
 
       {/* Instructions */}
-      <div className="absolute bottom-2 right-2 z-10 px-2 py-1 bg-background/90 backdrop-blur-sm rounded text-[10px] sm:text-xs text-muted-foreground shadow-md">
+      <div className="absolute bottom-2 right-2 z-10 px-2 py-1 bg-background/90 backdrop-blur-sm rounded text-[10px] sm:text-xs text-muted-foreground ">
         <span className="hidden sm:inline">Scroll pentru zoom • Trage pentru pan</span>
         <span className="sm:hidden">Ciupește pentru zoom • Trage pentru pan</span>
       </div>

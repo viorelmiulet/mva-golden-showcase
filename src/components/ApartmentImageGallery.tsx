@@ -72,8 +72,8 @@ const OptimizedGalleryImage = ({
     <div className="relative w-full h-full overflow-hidden">
       {/* Blur placeholder with gradient */}
       {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gradient-to-br from-muted via-muted/80 to-muted-foreground/20 animate-pulse">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-stone animate-pulse">
+          <div className="absolute inset-0 bg-ink/40 to-transparent" />
         </div>
       )}
       
@@ -549,7 +549,7 @@ export const ApartmentImageGallery = ({
               variant="ghost"
               size="icon"
               onClick={() => setIsLightboxOpen(false)}
-              className="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] text-white h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 shadow-lg"
+              className="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] text-white h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 "
               aria-label="Închide galeria"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -665,7 +665,7 @@ export const ApartmentImageGallery = ({
                         variant="ghost"
                         size="icon"
                         onClick={goToPrevious}
-                        className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                        className="hidden sm:flex absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40  border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
                         aria-label="Imaginea anterioară"
                       >
                         <ChevronLeft className="w-7 h-7 lg:w-8 lg:h-8" />
@@ -674,7 +674,7 @@ export const ApartmentImageGallery = ({
                         variant="ghost"
                         size="icon"
                         onClick={goToNext}
-                        className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40 shadow-2xl border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+                        className="hidden sm:flex absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 text-white hover:bg-white/30 h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-black/60 hover:bg-black/80 z-40  border border-white/20 backdrop-blur-sm transition-all duration-200 hover:scale-110"
                         aria-label="Imaginea următoare"
                       >
                         <ChevronRight className="w-7 h-7 lg:w-8 lg:h-8" />

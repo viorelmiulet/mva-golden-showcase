@@ -173,7 +173,7 @@ const MilitariVsChiajna = () => {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-gradient-to-b from-background to-muted/40 border-b">
+        <section className="bg-ink/40 to-muted/40 border-b">
           <div className="container mx-auto px-4 py-12 lg:py-16 max-w-5xl">
             <Badge variant="secondary" className="mb-4">
               Ghid comparativ 2026

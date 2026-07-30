@@ -409,7 +409,7 @@ const Admin = () => {
   // Show password form if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 flex items-center justify-center">
+      <div className="min-h-screen bg-ink/40 to-secondary/20 flex items-center justify-center">
         <Card className="w-full max-w-md mx-4">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4">
@@ -470,7 +470,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/10">
+    <div className="min-h-screen bg-ink/40 to-secondary/10">
       <Header />
       
       <main className="pt-24 pb-16 px-3 sm:px-6">
@@ -499,12 +499,12 @@ const Admin = () => {
               </div>
               
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-gold/20 to-gold-light/20 mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brass mb-4">
                   <BarChart3 className="w-8 h-8 text-gold" />
                 </div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
                   <span className="text-foreground">Panou </span>
-                  <span className="bg-gradient-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
+                  <span className="text-brass">
                     Administrare
                   </span>
                 </h1>

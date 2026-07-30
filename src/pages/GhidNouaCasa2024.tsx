@@ -220,7 +220,7 @@ const GhidNouaCasa2024 = () => {
 
       <main className="min-h-screen bg-background">
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/50 bg-gradient-to-b from-muted/40 to-background">
+        <section className="relative overflow-hidden border-b border-border/50 bg-stone">
           <div className="container mx-auto max-w-5xl px-4 py-16 md:py-24">
             <Badge className="mb-4" variant="secondary">
               <Home className="mr-1.5 h-3.5 w-3.5" /> Ghid financiar 2024

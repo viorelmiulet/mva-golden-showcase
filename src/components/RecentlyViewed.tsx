@@ -81,7 +81,7 @@ export const RecentlyViewed = ({
             {displayItems.map((property) => (
               <div key={property.id} className="relative group flex-shrink-0 w-[200px] sm:w-[240px]">
                 <Link to={getPropertyUrl(property)}>
-                  <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg">
+                  <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 ">
                     <div className="relative overflow-hidden">
                       <OptimizedPropertyImage
                         src={property.image}
@@ -138,7 +138,7 @@ export const RecentlyViewed = ({
           {displayItems.map((property) => (
             <div key={property.id} className="relative group">
               <Link to={getPropertyUrl(property)}>
-                <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 hover:shadow-lg h-full">
+                <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300  h-full">
                   <div className="relative overflow-hidden">
                     <OptimizedPropertyImage
                       src={property.image}

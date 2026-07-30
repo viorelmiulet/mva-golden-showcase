@@ -175,9 +175,9 @@ const Complexe = () => {
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background Decorations */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -left-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-40 -right-40 w-96 h-96 bg-gradient-to-br from-gold-400/15 to-gold-600/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-20 -left-40 w-80 h-80 hidden rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-40 -right-40 w-96 h-96 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/3 w-64 h-64 hidden rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
         </div>
 
         <Header />
@@ -220,7 +220,7 @@ const Complexe = () => {
                   >
                     <Card className="card-modern overflow-hidden h-full border-glow">
                       {/* Project Image */}
-                      <div className="relative h-40 sm:h-48 md:h-64 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden">
+                      <div className="relative h-40 sm:h-48 md:h-64 bg-brass overflow-hidden">
                         {project.main_image ? (
                           <img
                             src={project.main_image}
@@ -235,14 +235,14 @@ const Complexe = () => {
                             <Building2 className="h-24 w-24 text-primary/20" />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                        <div className="absolute inset-0 bg-ink/40 to-transparent" />
                         
 
 
 
                         {/* Recommended Badge */}
                         {project.is_recommended && (
-                          <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold border-0 glow-gold text-[10px] sm:text-xs">
+                          <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-brass text-black font-semibold border-0  text-[10px] sm:text-xs">
                             ⭐ Recomandat
                           </Badge>
                         )}
@@ -307,21 +307,21 @@ const Complexe = () => {
                             {/* Dual bar chart */}
                             <div className="flex gap-0.5 sm:gap-1 h-2.5 sm:h-3 md:h-4 rounded-full overflow-hidden glass">
                               <div 
-                                className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
+                                className="bg-stone transition-all duration-300" 
                                 style={{ width: `${stats.percentage}%` }}
                               />
                               <div 
-                                className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-300" 
+                                className="bg-stone transition-all duration-300" 
                                 style={{ width: `${100 - stats.percentage}%` }}
                               />
                             </div>
                             <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 text-[9px] sm:text-[10px] md:text-xs">
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
                                 <span>{stats.available} {t.properties?.available || 'disponibile'}</span>
                               </div>
                               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-red-400 to-red-600 flex-shrink-0"></div>
+                                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full bg-stone flex-shrink-0"></div>
                                 <span>{stats.sold} {t.properties?.sold || 'vândute'}</span>
                               </div>
                             </div>
@@ -339,11 +339,11 @@ const Complexe = () => {
                                     </div>
                                     <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden glass">
                                       <div 
-                                        className="bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300" 
+                                        className="bg-stone transition-all duration-300" 
                                         style={{ width: `${100 - corp.soldPercentage}%` }}
                                       />
                                       <div 
-                                        className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-300" 
+                                        className="bg-stone transition-all duration-300" 
                                         style={{ width: `${corp.soldPercentage}%` }}
                                       />
                                     </div>
