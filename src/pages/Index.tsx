@@ -6,7 +6,7 @@ import ZoneNav from "@/components/home/ZoneNav"
 import Footer from "@/components/Footer"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
 import { useEffect } from "react"
-import { Helmet } from "react-helmet-async"
+import { Helmet } from "@/lib/helmet-compat"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 
 

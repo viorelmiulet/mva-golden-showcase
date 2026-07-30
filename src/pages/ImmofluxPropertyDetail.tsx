@@ -1,5 +1,5 @@
 import { useParams, Link } from "@/lib/router-compat";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
@@ -363,7 +363,7 @@ const ImmofluxPropertyDetail = () => {
                   className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   loading="eager"
                   // @ts-ignore
-                  fetchpriority="high"
+                  fetchPriority="high"
                   decoding="async"
                   width={1200}
                   height={800}
@@ -384,7 +384,7 @@ const ImmofluxPropertyDetail = () => {
                         loading="lazy"
                         decoding="async"
                         // @ts-ignore
-                        fetchpriority="low"
+                        fetchPriority="low"
                         width={600}
                         height={400}
                         onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
@@ -402,7 +402,7 @@ const ImmofluxPropertyDetail = () => {
                           loading="lazy"
                           decoding="async"
                           // @ts-ignore
-                          fetchpriority="low"
+                          fetchPriority="low"
                           width={600}
                           height={400}
                         />

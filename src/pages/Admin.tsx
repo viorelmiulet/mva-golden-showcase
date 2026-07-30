@@ -57,7 +57,7 @@ const Admin = () => {
   const [editingProperty, setEditingProperty] = useState<any>(null)
   const [editForm, setEditForm] = useState<Record<string, any>>({})
   const [isUpdating, setIsUpdating] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('admin_authenticated') === 'true')
+  const [isAuthenticated, setIsAuthenticated] = useState(() => typeof window !== 'undefined' && localStorage.getItem('admin_authenticated') === 'true')
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const { toast } = useToast()

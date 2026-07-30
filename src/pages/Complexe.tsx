@@ -8,7 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 import { Button } from "@/components/ui/button";
 
 import { ComplexGridSkeleton } from "@/components/skeletons";
@@ -356,16 +356,19 @@ const Complexe = () => {
 
                         {/* Schedule Viewing + CTA */}
                         <div className="pt-2.5 sm:pt-3 md:pt-4 space-y-2">
-                          <a href="tel:0767941512" onClick={(e) => e.stopPropagation()} className="block">
-                            <Button 
-                              variant="outline"
-                              size="sm" 
-                              className="w-full text-xs sm:text-sm h-8 sm:h-9 border-brass text-brass hover:bg-brass hover:text-paper"
-                            >
-                              <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
-                              {language === 'ro' ? 'Sună 0767 941 512' : 'Call 0767 941 512'}
-                            </Button>
-                          </a>
+                          <Button 
+                            variant="outline"
+                            size="sm" 
+                            className="w-full text-xs sm:text-sm h-8 sm:h-9 border-brass text-brass hover:bg-brass hover:text-paper"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              window.location.href = "tel:0767941512";
+                            }}
+                          >
+                            <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+                            {language === 'ro' ? 'Sună 0767 941 512' : 'Call 0767 941 512'}
+                          </Button>
                           <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
                             <span className="font-semibold text-xs sm:text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}

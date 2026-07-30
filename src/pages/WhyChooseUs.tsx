@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { usePageTracking } from "@/hooks/useGoogleAnalytics"
-import { Helmet } from "react-helmet-async"
+import { Helmet } from "@/lib/helmet-compat"
 import BreadcrumbSchema from "@/components/BreadcrumbSchema"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { 

@@ -52,7 +52,7 @@ export const useUserRoles = () => {
   });
 
   // Admin is determined by sessionStorage (simple password auth)
-  const isAdmin = sessionStorage.getItem("admin_auth") === "true";
+  const isAdmin = typeof window !== "undefined" && sessionStorage.getItem("admin_auth") === "true";
 
   // Current user role - admin panel uses simple password, so role is always admin when authenticated
   const currentUserRole: AppRole | null = isAdmin ? "admin" : null;

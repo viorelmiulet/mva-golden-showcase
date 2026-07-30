@@ -40,7 +40,7 @@ import {
   Link2,
 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { PropertyDetailSkeleton } from "@/components/skeletons";
 import { usePlausible } from "@/hooks/usePlausible";

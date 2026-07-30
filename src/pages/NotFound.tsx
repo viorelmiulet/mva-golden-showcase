@@ -1,6 +1,6 @@
 import { useLocation, Link, useNavigate } from "@/lib/router-compat";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { Helmet } from "@/lib/helmet-compat";
 import { Home, Search, Building2, Phone, ArrowLeft, AlertTriangle, Send, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
