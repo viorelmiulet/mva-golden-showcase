@@ -82,13 +82,17 @@ const Footer = () => {
             <button onClick={scrollToTop} className="text-title text-brass mb-3">{companyName}</button>
             <p className="text-small text-paper/70 leading-relaxed max-w-sm">{companyDescription}</p>
             <p className="text-small text-paper/50 mt-4">
-              MVA PERFECT BUSINESS S.R.L. · CUI: 50477503 · Nr. Reg. Com.: J23/18361/2024
+              🏢 MVA PERFECT BUSINESS S.R.L. · 🧾 CUI: 50477503 · 📄 Nr. Reg. Com.: J23/18361/2024
             </p>
             <p className="text-small text-paper/50 mt-1">
-              <a href={`tel:${phoneNumber}`} className="hover:text-brass transition-colors">{phoneNumber}</a>
-              {" · "}
-              <a href="mailto:contact@mvaimobiliare.ro" className="hover:text-brass transition-colors">contact@mvaimobiliare.ro</a>
+              📍 jud. Ilfov, com. Chiajna, str. Tineretului nr. 17, bl. 2, parter, ap. 24
             </p>
+            <p className="text-small text-paper/50 mt-1">
+              📞 <a href={`tel:${phoneNumber}`} className="hover:text-brass transition-colors">{phoneNumber}</a>
+              {" · "}
+              ✉️ <a href="mailto:contact@mvaimobiliare.ro" className="hover:text-brass transition-colors">contact@mvaimobiliare.ro</a>
+            </p>
+
             <div className="flex gap-2 mt-4">
               {facebookUrl && (
                 <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-stone/20 rounded-sm flex items-center justify-center text-brass hover:border-brass transition-colors" aria-label="Facebook MVA Imobiliare">
