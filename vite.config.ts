@@ -12,4 +12,14 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      alias: {
+        // jspdf@4 exports only "node"/"browser" conditions (no "default"), so the
+        // workerd SSR build cannot resolve ".". Point straight at the ES build,
+        // which is allowed via the package's "./dist/*" export.
+        jspdf: "jspdf/dist/jspdf.es.min.js",
+      },
+    },
+  },
 });
