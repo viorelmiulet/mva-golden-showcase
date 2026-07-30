@@ -189,50 +189,17 @@ const Index = () => {
         </script>
 
       </Helmet>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Header />
-        <main>
-          <Hero />
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Properties />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <ScheduleViewingSection />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <About />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-16" />}>
-              <TrustBadges />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Services />
-            </Suspense>
-          </div>
-          <div style={{ contentVisibility: "auto" }}>
-            <Suspense fallback={<div className="py-24" />}>
-              <Contact />
-            </Suspense>
-          </div>
+        <main className="pt-16">
+          <HeroBand />
+          <LatestProperties />
+          <DevelopmentsRow />
+          <ZoneNav />
         </main>
-        <div style={{ contentVisibility: "auto" }}>
-          <Suspense fallback={<div />}>
-            <Footer />
-          </Suspense>
-        </div>
-        <Suspense fallback={null}>
-          <PWAInstallBanner />
-        </Suspense>
+        <Footer />
       </div>
+
     </>
   );
 };
