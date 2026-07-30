@@ -273,21 +273,21 @@ const Blog = () => {
           </div>
         </section>
 
-        {/* Newsletter CTA */}
-        <section className="py-12 sm:py-16 bg-muted/50">
+        {/* Contact CTA */}
+        <section className="py-12 sm:py-16 bg-stone/40 border-t border-stone">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-xl sm:text-2xl font-bold mb-3">Rămâi Informat!</h2>
-              <p className="text-muted-foreground mb-6">
-                Contactează-ne pentru consultanță gratuită și sfaturi personalizate despre piața imobiliară.
+              <h2 className="text-display-md mb-3">Ai o întrebare?</h2>
+              <p className="text-slate mb-6">
+                Sună-ne pentru consultanță gratuită despre piața imobiliară din București.
               </p>
-              <Link 
-                to="/#contact" 
-                className="inline-flex items-center gap-2 bg-gold hover:bg-gold/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all hover:scale-105"
+              <a
+                href="tel:0767941512"
+                className="inline-flex items-center gap-2 bg-brass text-paper px-6 py-3 rounded-sm font-semibold hover:bg-brass-dark transition-colors"
               >
-                Contactează-ne
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+                <Phone className="h-4 w-4" />
+                Sună 0767 941 512
+              </a>
             </div>
           </div>
         </section>
