@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { submitContactForm } from "@/lib/publicForms.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePlausible } from "@/hooks/usePlausible";
@@ -31,10 +32,7 @@ const Contact = () => {
       if (!formData.nume || !formData.telefon || !formData.email || !formData.mesaj) {
         throw new Error("Completează toate câmpurile.");
       }
-      const { error } = await supabase.functions.invoke("send-contact-email", {
-        body: { ...formData, prenume: "" },
-      });
-      if (error) throw new Error("Eroare la trimiterea mesajului.");
+      await submitContactForm({ data: { ...formData, prenume: "" } });
       trackContact("form", "contact_page");
       trackGA4Contact("form");
       toast({ title: "Mesaj trimis", description: "Te contactăm în cel mai scurt timp." });
