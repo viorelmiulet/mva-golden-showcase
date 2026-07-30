@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/lib/router-compat';
 import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import { supabase } from '@/integrations/supabase/client';
 

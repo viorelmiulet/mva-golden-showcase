@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -19,7 +19,7 @@ const ROOMS = ["1", "2", "3", "4"];
 const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
 
 const selectClass =
-  "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-none";
+  "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
 
 const HeroBand = () => {
   const navigate = useNavigate();

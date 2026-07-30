@@ -102,7 +102,7 @@ const RichTextEditor = ({
     content: value,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none p-3',
+        class: 'prose prose-sm max-w-none focus:outline-hidden p-3',
       },
     },
     onUpdate: ({ editor }) => {
@@ -234,7 +234,7 @@ const RichTextEditor = ({
       >
         <EditorContent 
           editor={editor} 
-          className="h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:p-3 [&_.ProseMirror]:focus:outline-none [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none"
+          className="h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:p-3 [&_.ProseMirror]:focus:outline-hidden [&_.ProseMirror_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child]:before:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child]:before:float-left [&_.ProseMirror_p.is-editor-empty:first-child]:before:pointer-events-none"
         />
       </div>
 

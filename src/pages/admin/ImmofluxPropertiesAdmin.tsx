@@ -9,7 +9,7 @@ import { MapPin, BedDouble, Maximize, ChevronLeft, ChevronRight, AlertCircle, Ex
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
 import {
   Select,

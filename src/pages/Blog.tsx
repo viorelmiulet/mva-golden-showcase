@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, User, ArrowRight, Clock, TrendingUp, Home, Lightbulb, PiggyBank, Scale, FileText, Building2, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";

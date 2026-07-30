@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "@/lib/router-compat";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import {

@@ -70,7 +70,7 @@ const TrustBadges = () => {
                     href={badge.href}
                     target={badge.external ? "_blank" : undefined}
                     rel={badge.external ? "noreferrer" : undefined}
-                    className="block transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="block transition-opacity hover:opacity-80 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     {content}
                   </a>

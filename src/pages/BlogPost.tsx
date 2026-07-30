@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, User, ArrowLeft, ArrowRight, Clock, Home, TrendingUp, Lightbulb, PiggyBank, Scale, Building2 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

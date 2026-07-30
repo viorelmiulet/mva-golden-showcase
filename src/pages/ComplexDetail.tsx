@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link, Navigate } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";

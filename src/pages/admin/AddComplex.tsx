@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Building2, ArrowLeft, Upload, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { z } from "zod";
 
 const containerVariants = {
@@ -416,7 +416,7 @@ const AddComplex = () => {
                     id="status"
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-border/50 bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex h-10 w-full rounded-md border border-border/50 bg-background/50 px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <option value="available">Disponibil</option>
                     <option value="sold_out">Vândut</option>

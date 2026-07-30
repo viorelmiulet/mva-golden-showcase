@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useLocation } from "@/lib/router-compat";
 import { ArrowLeft, LayoutDashboard, Home, Users, UserCheck, Zap, Calendar, FileText, Package, Wrench, TicketCheck, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

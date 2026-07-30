@@ -18,7 +18,7 @@ import {
   Layers, Plus, FileSpreadsheet, Coins, ArrowRight, Mail,
   MailOpen, Calendar, RefreshCw, Eye
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell, Legend, LineChart, Line, ComposedChart

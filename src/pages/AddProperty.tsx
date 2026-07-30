@@ -14,7 +14,7 @@ import {
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useQueryClient } from "@tanstack/react-query"
-import { Link } from "react-router-dom"
+import { Link } from "@/lib/router-compat"
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost"
 import { toast as sonnerToast } from "sonner"
 
