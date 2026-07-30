@@ -209,10 +209,11 @@ const ExclusiveRepresentationPage = () => {
         .maybeSingle();
       
       if (!error && data?.value) {
-        setDefaultAgentSignature(data.value);
+        const value = data.value;
+        setDefaultAgentSignature(value);
         setFormData(prev => ({
           ...prev,
-          semnatura_prestator: data.value
+          semnatura_prestator: value
         }));
       }
     };

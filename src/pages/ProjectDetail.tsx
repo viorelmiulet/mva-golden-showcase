@@ -34,7 +34,7 @@ const ProjectDetail = () => {
       const { data, error } = await supabase
         .from("real_estate_projects")
         .select("*")
-        .eq("id", id)
+        .eq("id", id!)
         .single();
 
       if (error) {
@@ -54,7 +54,7 @@ const ProjectDetail = () => {
       const { data, error } = await supabase
         .from("catalog_offers")
         .select("*")
-        .eq("project_id", id)
+        .eq("project_id", id!)
         .order("price_min", { ascending: true });
 
       if (error) {

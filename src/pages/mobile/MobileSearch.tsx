@@ -85,7 +85,7 @@ const MobileSearch = () => {
       if (roomsFilter !== 'all') {
         const rooms = parseInt(roomsFilter);
         if (roomsFilter === '4') {
-          if (property.rooms < 4) return false;
+          if ((property.rooms ?? 0) < 4) return false;
         } else {
           if (property.rooms !== rooms) return false;
         }
@@ -94,8 +94,8 @@ const MobileSearch = () => {
       // Price range
       const minPrice = priceMin ? parseInt(priceMin) : null;
       const maxPrice = priceMax ? parseInt(priceMax) : null;
-      if (minPrice && property.price_min < minPrice) return false;
-      if (maxPrice && property.price_min > maxPrice) return false;
+      if (minPrice && (property.price_min ?? 0) < minPrice) return false;
+      if (maxPrice && (property.price_min ?? 0) > maxPrice) return false;
 
       return true;
     });
