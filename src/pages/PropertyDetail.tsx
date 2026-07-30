@@ -394,17 +394,25 @@ const PropertyDetail = () => {
 
   const fetchSimilarProperties = async () => {
     if (!property) return;
-    
+
     try {
-      // Fetch properties with similar characteristics (same rooms or similar price range)
-      const { data, error } = await supabase
+      // Same zone or same complex, fallback to same room count
+      const orParts: string[] = [];
+      if (property.project_name) orParts.push(`project_name.eq.${property.project_name}`);
+      if (property.zone && !isCoordinates(property.zone)) orParts.push(`zone.ilike.%${property.zone}%`);
+      if (orParts.length === 0 && property.rooms) orParts.push(`rooms.eq.${property.rooms}`);
+
+      let query = supabase
         .from("catalog_offers")
         .select("*")
         .neq("id", property.id)
-        .is("project_id", null) // Only individual properties, not complex apartments
+        .is("project_id", null)
         .eq("availability_status", "available")
-        .or(`rooms.eq.${property.rooms},location.ilike.%${property.location?.split(',')[0] || ''}%`)
-        .limit(4);
+        .limit(3);
+
+      if (orParts.length > 0) query = query.or(orParts.join(","));
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -413,6 +421,7 @@ const PropertyDetail = () => {
       console.error("Error fetching similar properties:", error);
     }
   };
+
 
   const shareProperty = useCallback(async () => {
     const url = window.location.href;
