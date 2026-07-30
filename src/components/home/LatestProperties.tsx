@@ -87,7 +87,7 @@ const LatestProperties = () => {
                     width={640}
                     height={480}
                     quality={75}
-                    loading={index < 3 ? "eager" : "lazy"}
+                    priority={index < 3}
                   />
                   {badge && (
                     <span className="absolute top-2 left-2 bg-pine text-paper text-spec px-2 py-1 rounded-sm">
