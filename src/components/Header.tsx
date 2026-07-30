@@ -126,15 +126,15 @@ const Header = () => {
                 <Link 
                   key={item.id}
                   to={item.id}
-                  className={`relative px-3 py-2 transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm group ${
+                  className={`relative px-3 py-2 transition-all duration-300 hover:bg-brass/10 rounded-lg font-medium text-sm group ${
                     location.pathname === item.id 
-                      ? 'text-gold bg-gold/10' 
-                      : 'text-foreground hover:text-gold'
+                      ? 'text-brass bg-brass/10' 
+                      : 'text-paper/80 hover:text-brass'
                   }`}
                   {...prefetchProps}
                 >
                   {item.name}
-                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-gold transition-all duration-300 ${
+                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-brass transition-all duration-300 ${
                     location.pathname === item.id ? 'w-1/2' : 'w-0 group-hover:w-1/3'
                   }`}></span>
                 </Link>
@@ -142,10 +142,10 @@ const Header = () => {
                 <button 
                   key={item.id}
                   onClick={() => handleNavigation(item)} 
-                  className="relative px-3 py-2 text-foreground hover:text-gold transition-all duration-300 hover:bg-gold/5 rounded-lg font-medium text-sm group"
+                  className="relative px-3 py-2 text-paper/80 hover:text-brass transition-all duration-300 hover:bg-brass/10 rounded-lg font-medium text-sm group"
                 >
                   {item.name}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-gold transition-all duration-300 group-hover:w-1/3"></span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-1/3"></span>
                 </button>
               )
             })}
@@ -189,7 +189,7 @@ const Header = () => {
                       className={`text-left px-4 py-4 transition-colors text-base border-b border-border/30 rounded-lg ${
                         location.pathname === item.id 
                           ? 'text-gold bg-gold/10 border-gold/20' 
-                          : 'text-foreground hover:text-gold hover:bg-gold/5'
+                          : 'text-foreground hover:text-gold hover:bg-brass/10'
                       }`}
                     >
                       {item.name}
@@ -198,7 +198,7 @@ const Header = () => {
                     <button 
                       key={item.id}
                       onClick={() => handleNavigation(item)} 
-                      className="text-left px-4 py-4 text-foreground hover:text-gold hover:bg-gold/5 transition-colors text-base border-b border-border/30 rounded-lg"
+                      className="text-left px-4 py-4 text-foreground hover:text-gold hover:bg-brass/10 transition-colors text-base border-b border-border/30 rounded-lg"
                     >
                       {item.name}
                     </button>
