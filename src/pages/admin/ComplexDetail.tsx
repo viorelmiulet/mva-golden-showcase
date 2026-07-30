@@ -1369,7 +1369,7 @@ const ComplexDetail = () => {
                     handleManualCommissionSubmit(
                       selectedPropertyForCommission,
                       property.price_min ?? 0,
-                      property.price_max
+                      property.price_max ?? 0
                     );
                   }
                 }
