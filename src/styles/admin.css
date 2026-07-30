@@ -130,3 +130,20 @@
   box-shadow: none;
 }
 
+
+/* Flatten legacy utility styling inside the admin panel so it matches
+   the flat public design system (no shadows, no pills, no blur). */
+.admin-theme [class*="shadow-"] {
+  box-shadow: none !important;
+}
+
+.admin-theme [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.admin-theme .rounded-2xl,
+.admin-theme .rounded-3xl,
+.admin-theme .rounded-xl {
+  border-radius: var(--radius) !important;
+}
