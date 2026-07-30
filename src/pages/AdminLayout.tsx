@@ -270,19 +270,13 @@ const AdminLayout = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="admin-theme min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-background p-4 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-64 h-64 bg-gold/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-gold/3 rounded-full blur-3xl" />
-        </div>
-        
-        <Card className="w-full max-w-md admin-glass-card border-0 relative z-10">
+      <div className="admin-theme min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md admin-glass-card relative z-10">
           <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-gold/20 to-gold/5 rounded-2xl flex items-center justify-center mb-6 admin-glow">
-              <Lock className="w-7 h-7 text-gold" />
+            <div className="mx-auto w-14 h-14 border border-brass/40 rounded flex items-center justify-center mb-6">
+              <Lock className="w-6 h-6 text-brass" />
             </div>
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <CardTitle className="text-display-md text-foreground">
               Panou Admin
             </CardTitle>
             <p className="text-muted-foreground text-sm mt-2">
@@ -297,7 +291,7 @@ const AdminLayout = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="text-center text-lg tracking-[0.3em] h-12 bg-white/5 border-white/10 rounded-xl focus:border-gold/50 focus:ring-gold/20"
+                  className="text-center text-lg tracking-[0.3em] h-12 bg-background border-border focus:border-brass/60"
                   autoFocus
                 />
                 {error && (
@@ -306,12 +300,12 @@ const AdminLayout = () => {
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-black font-semibold rounded-xl transition-all duration-300 admin-glow"
+                className="w-full h-12 bg-brass text-primary-foreground hover:bg-brass-dark font-semibold"
               >
                 Autentificare
               </Button>
               <Link to="/" className="block">
-                <Button type="button" variant="ghost" className="w-full gap-2 rounded-xl hover:bg-white/5">
+                <Button type="button" variant="ghost" className="w-full gap-2">
                   <ArrowLeft className="w-4 h-4" />
                   Înapoi la site
                 </Button>
@@ -325,7 +319,8 @@ const AdminLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="admin-theme min-h-screen flex w-full bg-gradient-to-br from-background via-background to-background/95">
+      <div className="admin-theme min-h-screen flex w-full bg-background">
+
         <AdminSidebar />
 
         <div className="flex-1 flex flex-col min-w-0">
