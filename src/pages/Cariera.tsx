@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { submitJobApplication } from "@/lib/publicForms.functions";
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -96,8 +97,7 @@ const Cariera = () => {
         }
       }
 
-      const { error } = await supabase.functions.invoke("send-job-application", {
-        body: {
+      await submitJobApplication({ data: {
           fullName: data.fullName,
           email: data.email,
           phone: data.phone,
@@ -105,10 +105,7 @@ const Cariera = () => {
           experience: data.experience,
           coverLetter: data.coverLetter,
           cv: cvData,
-        },
-      })
-
-      if (error) throw error
+        } })
 
       toast({
         title: t.career.successTitle,
