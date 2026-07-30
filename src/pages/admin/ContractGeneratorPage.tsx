@@ -44,7 +44,7 @@ import type {
   ContractSignature, 
   InventoryItem as InventoryItemType
 } from "@/types/contract";
-import { emptyPerson, conditionLabels as conditionLabelsConst, imageSizeConfig as imageSizeConfigConst } from "@/types/contract";
+import { emptyPerson, conditionLabels as conditionLabelsConst, imageSizeConfig as imageSizeConfigConst, normalizeInventoryRows, normalizeSavedContractRow } from "@/types/contract";
 import { generateRentalContractPdf, generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { generateRentalContractDocx, generateDocxFilename, downloadDocxBlob } from "@/lib/pdf/rentalContractDocx";
 
@@ -275,7 +275,7 @@ const ContractGeneratorPage = () => {
         .limit(50);
 
       if (error) throw error;
-      setContracts(data || []);
+      setContracts((data || []).map(normalizeSavedContractRow));
     } catch (error: any) {
       console.error('Error fetching contracts:', error);
       toast.error("Eroare la încărcarea istoricului");
@@ -744,7 +744,7 @@ const ContractGeneratorPage = () => {
         const pdf = await generateSignedRentalContractPdf({
           contract,
           contractClauses,
-          inventoryItems: savedInventory || [],
+          inventoryItems: normalizeInventoryRows(savedInventory),
           proprietarSignature: proprietarSig,
           chiriasSignature: chiriasSig,
           siteSettings: {
@@ -998,7 +998,7 @@ const ContractGeneratorPage = () => {
       const doc = await generateSignedRentalContractPdf({
         contract,
         contractClauses,
-        inventoryItems: savedInventory || [],
+        inventoryItems: normalizeInventoryRows(savedInventory),
         proprietarSignature,
         chiriasSignature,
         siteSettings: {
@@ -1073,7 +1073,7 @@ const ContractGeneratorPage = () => {
         const pdf = await generateSignedRentalContractPdf({
           contract,
           contractClauses,
-          inventoryItems: savedInventory || [],
+          inventoryItems: normalizeInventoryRows(savedInventory),
           proprietarSignature,
           chiriasSignature,
           siteSettings: {
@@ -1123,7 +1123,7 @@ const ContractGeneratorPage = () => {
       const doc = await generateSignedRentalContractPdf({
         contract,
         contractClauses,
-        inventoryItems: savedInventory || [],
+        inventoryItems: normalizeInventoryRows(savedInventory),
         proprietarSignature: undefined,
         chiriasSignature: undefined,
         siteSettings: {
@@ -1478,7 +1478,7 @@ const ContractGeneratorPage = () => {
     isExtracting: boolean,
     uploadedImages: string[],
     extractedData: ExtractedData | null,
-    fileInputRef: React.RefObject<HTMLInputElement>
+    fileInputRef: React.RefObject<HTMLInputElement | null>
   ) => (
     <Card>
       <CardHeader>

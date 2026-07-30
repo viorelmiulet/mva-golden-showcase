@@ -431,7 +431,7 @@ const SignContract = () => {
       .order('sort_order', { ascending: true });
     
     if (clauses) {
-      setContractClauses(clauses);
+      setContractClauses(clauses.map((c) => ({ ...c, sort_order: c.sort_order ?? 0, is_active: c.is_active ?? true })));
     }
   };
 
