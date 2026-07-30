@@ -32,7 +32,7 @@ import {
   MapPin,
   RefreshCw,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { useProperties, formatPrice, getTitle, getMainImage, getSurface, isPoleProperty, type ImmofluxProperty } from "@/hooks/useImmoflux";
 import { getImmofluxPropertyUrl, generatePropertySlug } from "@/lib/propertySlug";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Card, CardContent } from "@/components/ui/card";
 import MobileHeader from "@/components/mobile/MobileHeader";
 import { GoogleTranslate } from "@/components/GoogleTranslate";

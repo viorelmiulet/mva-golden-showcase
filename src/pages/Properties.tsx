@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 

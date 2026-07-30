@@ -1,4 +1,4 @@
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "@/lib/router-compat";
 
 const NavigateToComplex = () => {
   const { slug } = useParams<{ slug: string }>();

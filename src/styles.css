@@ -1,0 +1,676 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Custom range breakpoints ported from tailwind.config.ts */
+@custom-variant mobile (@media (max-width: 767px));
+@custom-variant tablet (@media (min-width: 768px) and (max-width: 1023px));
+@custom-variant desktop (@media (min-width: 1024px));
+
+/*
+ * MVA Imobiliare design system — ported from src/index.css + tailwind.config.ts.
+ * Palette: ink #0F1115 · graphite #2A2E35 · slate #5C636E · paper #FCFBF9
+ *          stone #E9E5DE · brass #A8762C · pine #1E5F4B
+ * All brand variables stay HSL triplets (hsl(var(--x)) is used across admin.css
+ * and inline styles), and utilities are registered via @theme inline.
+ */
+
+@theme inline {
+  /* Radius scale (0.25rem base, no pills) */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* shadcn semantic colors */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-ring-offset-background: hsl(var(--background));
+
+  /* Brand scale */
+  --color-ink: hsl(var(--ink));
+  --color-graphite: hsl(var(--graphite));
+  --color-slate: hsl(var(--slate));
+  --color-paper: hsl(var(--paper));
+  --color-stone: hsl(var(--stone));
+  --color-pine: hsl(var(--pine));
+  --color-brass: hsl(var(--brass));
+  --color-brass-light: hsl(var(--brass-light));
+  --color-brass-dark: hsl(var(--brass-dark));
+
+  /* Legacy gold alias -> brass */
+  --color-gold: hsl(var(--brass));
+  --color-gold-light: hsl(var(--brass-light));
+  --color-gold-dark: hsl(var(--brass-dark));
+
+  /* Admin sidebar */
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* Email preview */
+  --color-email-preview-background: hsl(var(--email-preview-background));
+  --color-email-preview-foreground: hsl(var(--email-preview-foreground));
+  --color-email-preview-muted: hsl(var(--email-preview-muted));
+  --color-email-preview-link: hsl(var(--email-preview-link));
+
+  /* Fonts (Fraunces display · Inter UI · IBM Plex Mono data) */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-inter: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-spec: "IBM Plex Mono", ui-monospace, monospace;
+  /* Legacy aliases -> display face */
+  --font-playfair: "Fraunces", Georgia, serif;
+  --font-cormorant: "Fraunces", Georgia, serif;
+  --font-cinzel: "Fraunces", Georgia, serif;
+}
+
+@theme {
+  /* Breakpoints (xs added, 2xl overridden to 1400px) */
+  --breakpoint-xs: 30rem;
+  --breakpoint-2xl: 87.5rem;
+
+  /* Flat system: every shadow is none */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --inset-shadow-2xs: 0 0 #0000;
+  --inset-shadow-xs: 0 0 #0000;
+  --inset-shadow-sm: 0 0 #0000;
+
+  /* Preserve Tailwind v3 blur values used across the codebase */
+  --blur-xs: 2px;
+  --blur-sm: 4px;
+
+  /* Safe-area spacing */
+  --spacing-safe-top: env(safe-area-inset-top);
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+  --spacing-safe-left: env(safe-area-inset-left);
+  --spacing-safe-right: env(safe-area-inset-right);
+
+  /* Extended max-widths */
+  --container-8xl: 88rem;
+  --container-9xl: 96rem;
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-fade-out: fade-out 0.3s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+  --animate-scale-out: scale-out 0.2s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-slide-down: slide-down 0.3s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-out {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+  @keyframes scale-in {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes scale-out {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+  }
+  @keyframes slide-up {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slide-down {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Container ported from tailwind.config.ts (centered, responsive padding, 1400px cap) */
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-inline: 2rem;
+  }
+  @media (min-width: 1280px) {
+    padding-inline: 3rem;
+  }
+  @media (min-width: 480px) {
+    max-width: 480px;
+  }
+  @media (min-width: 640px) {
+    max-width: 640px;
+  }
+  @media (min-width: 768px) {
+    max-width: 768px;
+  }
+  @media (min-width: 1024px) {
+    max-width: 1024px;
+  }
+  @media (min-width: 1280px) {
+    max-width: 1280px;
+  }
+  @media (min-width: 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@layer base {
+  :root {
+    /* Brand scale */
+    --ink: 220 17% 7%;
+    --graphite: 218 12% 19%;
+    --slate: 217 9% 40%;
+    --paper: 40 33% 98%;
+    --stone: 38 20% 89%;
+    --brass: 36 59% 42%;
+    --brass-light: 36 59% 52%;
+    --brass-dark: 36 59% 32%;
+    --pine: 162 52% 25%;
+
+    /* shadcn mapping */
+    --background: var(--paper);
+    --foreground: var(--ink);
+
+    --card: 0 0% 100%;
+    --card-foreground: var(--ink);
+
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--ink);
+
+    --primary: var(--brass);
+    --primary-foreground: var(--paper);
+
+    --secondary: var(--stone);
+    --secondary-foreground: var(--ink);
+
+    --muted: var(--stone);
+    --muted-foreground: var(--slate);
+
+    --accent: var(--stone);
+    --accent-foreground: var(--ink);
+
+    --destructive: 0 65% 42%;
+    --destructive-foreground: var(--paper);
+
+    --success: var(--pine);
+    --success-foreground: var(--paper);
+
+    --border: var(--stone);
+    --input: var(--stone);
+    --ring: var(--brass);
+
+    --radius: 0.25rem;
+
+    /* Legacy alias kept so existing `gold` utilities resolve to brass */
+    --gold: var(--brass);
+    --gold-light: var(--brass-light);
+    --gold-dark: var(--brass-dark);
+    --gold-glow: var(--brass);
+
+    /* Surfaces on dark (header/footer) */
+    --surface-dark: var(--ink);
+    --surface-dark-foreground: var(--paper);
+    --surface-dark-muted: var(--graphite);
+
+    --glass-border: 38 20% 89%;
+
+    /* Flat system: no shadows */
+    --shadow-glass: none;
+    --shadow-glass-hover: none;
+    --shadow-card: none;
+    --shadow-card-hover: none;
+    --shadow-gold-glow: none;
+
+    --gradient-glass: none;
+    --gradient-glass-hover: none;
+    --gradient-hero-glass: none;
+    --gradient-section: none;
+    --gradient-gold: none;
+    --gradient-text-gold: none;
+
+    --backdrop-blur: none;
+    --backdrop-blur-strong: none;
+    --backdrop-blur-ultra: none;
+
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Admin sidebar */
+    --sidebar-background: var(--ink);
+    --sidebar-foreground: 40 20% 88%;
+    --sidebar-primary: var(--brass);
+    --sidebar-primary-foreground: var(--paper);
+    --sidebar-accent: var(--graphite);
+    --sidebar-accent-foreground: var(--paper);
+    --sidebar-border: var(--graphite);
+    --sidebar-ring: var(--brass);
+
+    --admin-gradient: none;
+    --admin-header-gradient: none;
+    --admin-card: 0 0% 100%;
+    --admin-card-hover: 38 20% 96%;
+    --admin-border: var(--stone);
+
+    --email-preview-background: 0 0% 100%;
+    --email-preview-foreground: var(--ink);
+    --email-preview-muted: var(--slate);
+    --email-preview-link: var(--brass);
+  }
+
+  .dark {
+    --background: var(--ink);
+    --foreground: var(--paper);
+
+    --card: var(--graphite);
+    --card-foreground: var(--paper);
+
+    --popover: var(--graphite);
+    --popover-foreground: var(--paper);
+
+    --primary: var(--brass-light);
+    --primary-foreground: var(--ink);
+
+    --secondary: var(--graphite);
+    --secondary-foreground: var(--paper);
+
+    --muted: var(--graphite);
+    --muted-foreground: 40 8% 70%;
+
+    --accent: var(--graphite);
+    --accent-foreground: var(--paper);
+
+    --destructive: 0 55% 40%;
+    --destructive-foreground: var(--paper);
+
+    --border: var(--graphite);
+    --input: var(--graphite);
+    --ring: var(--brass-light);
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+  }
+
+  @media (max-width: 768px) {
+    button,
+    a,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Visible brass focus ring on every interactive element */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  [role="menuitem"]:focus-visible,
+  [role="option"]:focus-visible {
+    outline: 2px solid hsl(var(--brass));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+}
+
+@layer components {
+  /* ---- Type scale ---- */
+  .text-display-xl {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-weight: 700;
+    font-size: 3.25rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .text-display-md {
+    font-family: "Fraunces", Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1;
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .text-title {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.35;
+  }
+
+  .text-body {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .text-small {
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .text-spec {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .text-display-xl {
+      font-size: 2.25rem;
+    }
+    .text-display-md {
+      font-size: 1.625rem;
+    }
+  }
+
+  /* ---- Flat surfaces (legacy class names, restyled) ---- */
+  .glass,
+  .glass-strong,
+  .card-modern,
+  .card-responsive,
+  .stats-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: var(--transition-base);
+  }
+
+  .card-responsive {
+    padding: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .card-responsive {
+      padding: 1.5rem;
+    }
+  }
+
+  .stats-card {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+  }
+
+  .glass-hover:hover,
+  .card-modern:hover,
+  .stats-card:hover {
+    border-color: hsl(var(--brass) / 0.5);
+    box-shadow: none;
+    transform: none;
+  }
+
+  .glow-gold::before,
+  .border-glow::before {
+    content: none;
+  }
+
+  .text-gradient-gold {
+    color: hsl(var(--brass));
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: hsl(var(--border));
+  }
+
+  .btn-responsive {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (min-width: 640px) {
+    .btn-responsive {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .h-safe-area-inset-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .contain-layout {
+    contain: layout style;
+  }
+
+  .animate-float {
+    animation: none;
+  }
+}
+
+@layer base {
+  /* Numeric data always aligns */
+  .price,
+  .stat-value,
+  [data-numeric],
+  table td,
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .email-message-content {
+    background-color: hsl(var(--email-preview-background)) !important;
+    color: hsl(var(--email-preview-foreground)) !important;
+    color-scheme: light;
+  }
+
+  .email-message-content *,
+  .email-message-content p,
+  .email-message-content span,
+  .email-message-content div,
+  .email-message-content td,
+  .email-message-content th,
+  .email-message-content li,
+  .email-message-content h1,
+  .email-message-content h2,
+  .email-message-content h3,
+  .email-message-content h4,
+  .email-message-content h5,
+  .email-message-content h6 {
+    background-color: transparent !important;
+    color: hsl(var(--email-preview-foreground)) !important;
+  }
+
+  .email-message-content a,
+  .email-message-content a * {
+    color: hsl(var(--email-preview-link)) !important;
+  }
+}

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import OptimizedPropertyImage from "@/components/OptimizedPropertyImage";
 import SpecRail from "@/components/SpecRail";
 import { getPropertyUrl } from "@/lib/propertySlug";

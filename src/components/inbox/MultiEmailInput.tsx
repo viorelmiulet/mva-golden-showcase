@@ -232,7 +232,7 @@ export const MultiEmailInput = ({
           onBlur={handleBlur}
           onPaste={handlePaste}
           placeholder={emails.length === 0 ? placeholder : "Adaugă altă adresă..."}
-          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground"
+          className="flex-1 min-w-[120px] bg-transparent border-none outline-hidden text-sm placeholder:text-muted-foreground"
           autoComplete="off"
         />
       </div>

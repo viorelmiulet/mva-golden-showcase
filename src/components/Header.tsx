@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, Phone } from "lucide-react"
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation } from "@/lib/router-compat"
 import { usePrefetch } from "@/hooks/usePrefetch"
 
 const PHONE_DISPLAY = "0767 941 512"

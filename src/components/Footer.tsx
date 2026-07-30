@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { ArrowUp, Download } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation } from "@/lib/router-compat"
 import { useSiteSettings } from "@/hooks/useSiteSettings"
 import { useLanguage } from "@/contexts/LanguageContext"
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "@/lib/router-compat";
 import MobileBottomNav from "@/components/mobile/MobileBottomNav";
 import MobileOnboarding from "@/components/mobile/MobileOnboarding";
 
