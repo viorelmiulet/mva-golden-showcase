@@ -116,7 +116,7 @@ const ApiKeyCard: React.FC<ApiKeyCardProps> = ({ apiKey, onToggle, onDelete }) =
             <Switch
               checked={!!apiKey.is_active}
               onCheckedChange={(checked) => onToggle(apiKey.id, checked)}
-              disabled={isExpired}
+              disabled={!!isExpired}
             />
             
             <AlertDialog>
