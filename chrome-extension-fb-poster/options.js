@@ -2,7 +2,7 @@ const FIELDS = ['edgeUrl', 'apiKey', 'minDelay', 'maxDelay', 'maxPerDay'];
 
 async function load() {
   const cfg = await chrome.storage.local.get(FIELDS);
-  document.getElementById('edgeUrl').value = cfg.edgeUrl || 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/fb-queue';
+  document.getElementById('edgeUrl').value = cfg.edgeUrl || 'https://mvaimobiliare.ro/api/public/fb-queue';
   document.getElementById('apiKey').value = cfg.apiKey || '';
   document.getElementById('minDelay').value = cfg.minDelay ?? 4;
   document.getElementById('maxDelay').value = cfg.maxDelay ?? 9;

@@ -8,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
 
 // Default feed = standard Commerce/Products (acceptat de WhatsApp Business + Meta Commerce)
-const FEED_URL = `https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/facebook-catalog-feed`;
+const FEED_URL = `https://mvaimobiliare.ro/api/public/facebook-catalog-feed`;
 const HOME_LISTINGS_URL = `${FEED_URL}?format=home_listings`;
 const PREVIEW_URL = `${FEED_URL}?preview=1&limit=5`;
 

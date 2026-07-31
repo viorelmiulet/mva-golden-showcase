@@ -301,7 +301,7 @@ const ComplexDetail = () => {
         <meta property="og:url" content={`https://www.mvaimobiliare.ro${getComplexUrl(project)}`} />
         <meta property="og:title" content={`${project.name} - Apartamente Disponibile`} />
         <meta property="og:description" content={`${properties?.length || 0} apartamente în ${project.location}. ${properties?.filter(p => p.availability_status === 'available').length || 0} disponibile acum!`} />
-        <meta property="og:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
+        <meta property="og:image" content={`https://mvaimobiliare.ro/api/public/og-image?type=project&id=${project.id}`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={`${project.name} – ansamblu rezidențial`} />
@@ -311,7 +311,7 @@ const ComplexDetail = () => {
         <meta name="twitter:site" content="@MVAImobiliare" />
         <meta property="twitter:title" content={project.name} />
         <meta property="twitter:description" content={project.description ?? ''} />
-        <meta property="twitter:image" content={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${project.id}`} />
+        <meta property="twitter:image" content={`https://mvaimobiliare.ro/api/public/og-image?type=project&id=${project.id}`} />
         
         {/* Structured Data - Residence */}
         <script type="application/ld+json">
