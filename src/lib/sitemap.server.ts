@@ -101,14 +101,7 @@ function urlEntry(loc: string, lastmod: string, changefreq: string, priority: st
 
 export function buildSitemapIndex(): string {
   const now = new Date().toISOString();
-  const children = [
-    "/sitemap.xml",
-    "/sitemap-complexe.xml",
-    "/sitemap-properties.xml",
-    "/sitemap-immoflux.xml",
-    "/sitemap-images.xml",
-    "/news-sitemap.xml",
-  ];
+  const children = ["/sitemap-static.xml", "/sitemap-proprietati.xml", "/sitemap-complexe.xml"];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${children
@@ -116,6 +109,7 @@ ${children
   .join("\n")}
 </sitemapindex>`;
 }
+
 
 /* --------------------------------------------------------------- static */
 
