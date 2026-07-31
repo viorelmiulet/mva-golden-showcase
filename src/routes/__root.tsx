@@ -142,19 +142,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
-      { title: SITE_TITLE },
-      { name: "title", content: SITE_TITLE },
-      { name: "description", content: SITE_DESCRIPTION },
       {
         name: "keywords",
         content:
           "agenție imobiliară București, apartamente de vânzare București, ansambluri rezidențiale, apartamente Militari, apartamente Chiajna, proprietăți premium, MVA Imobiliare",
       },
       { name: "author", content: "MVA IMOBILIARE" },
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-      },
       { name: "googlebot", content: "index, follow, max-image-preview:large" },
       { name: "bingbot", content: "index, follow" },
       { name: "google-site-verification", content: "wJfWVfZiGs4Tl0iih3cb1TotB3Fd1nt86hCkmqohNus" },
@@ -170,19 +163,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "MVA Imobiliare" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "application-name", content: "MVA Imobiliare" },
-      /* Open Graph — sitewide defaults; per-page overrides via React Helmet */
-      { property: "og:type", content: "website" },
+      /* Open Graph — only sitewide constants; page-level tags come from each route */
       { property: "og:site_name", content: "MVA Imobiliare" },
       { property: "og:locale", content: "ro_RO" },
-      { property: "og:title", content: SITE_TITLE },
-      { property: "og:description", content: OG_DESCRIPTION },
-      { property: "og:image", content: OG_IMAGE },
-      { property: "og:image:alt", content: "MVA Imobiliare" },
-      /* Twitter / X */
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: SITE_TITLE },
-      { name: "twitter:description", content: OG_DESCRIPTION },
-      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -190,8 +173,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fdpandnzblzvamhsoukt.supabase.co", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "dns-prefetch", href: "https://web.immoflux.ro" },
-      { rel: "dns-prefetch", href: "https://img.immoflux.ro" },
+      { rel: "preconnect", href: "https://apcdn.immoflux.ro", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://apcdn.immoflux.ro" },
       { rel: "dns-prefetch", href: "https://www.googletagmanager.com" },
       { rel: "dns-prefetch", href: "https://plausible.io" },
       /* Favicons — Google requires PNG 48x48+ */
