@@ -219,12 +219,6 @@ ${imageBlock}  </url>
 }
 
 
-  const inner = (data ?? [])
-    .filter((p) => typeof p.slug === "string" && p.slug.trim().length > 0)
-    .map((p) => urlEntry(`${SITE}/proprietati/${p.slug}`, day(p.updated_at), "weekly", "0.8"))
-    .join("");
-  return urlset(inner);
-}
 
 /* ------------------------------------------------------------- immoflux */
 
