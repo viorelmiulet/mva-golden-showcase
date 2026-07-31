@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { EmailHtmlFrame } from "./EmailHtmlFrame";
+import { looksLikeHtml, toPreviewText } from "@/lib/emailHtml";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
