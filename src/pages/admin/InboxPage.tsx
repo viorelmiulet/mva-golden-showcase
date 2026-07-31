@@ -832,6 +832,21 @@ ${originalBody}`;
     setForwardAttachments([]);
     setShowForwardCcBcc(false);
     setForwardDialogOpen(true);
+    setForwardAttachments([]);
+    setForwardOriginalAttachments(
+      (Array.isArray(email.attachments) ? email.attachments : [])
+        .filter((att: any) => att && (att.path || att.storage_path || att.url))
+        .map((att: any) => ({
+          filename: att.filename || att.name || 'atasament',
+          contentType: att.contentType || att.type || 'application/octet-stream',
+          size: att.size,
+          path: att.path || att.storage_path || undefined,
+          bucket: att.bucket || 'email-attachments',
+          url: att.url || undefined,
+        }))
+    );
+    setShowForwardCcBcc(false);
+    setForwardDialogOpen(true);
   };
 
   const handleSendReply = async () => {
