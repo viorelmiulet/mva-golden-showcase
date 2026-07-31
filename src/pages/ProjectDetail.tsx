@@ -126,7 +126,7 @@ const ProjectDetail = () => {
   };
 
   const projectUrl = `https://www.mvaimobiliare.ro/proiecte/${id}`;
-  const ogImage = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=project&id=${id}`;
+  const ogImage = `https://mvaimobiliare.ro/api/public/og-image?type=project&id=${id}`;
   const metaDesc = (project.description || `Descoperă ${project.name} cu MVA Imobiliare.`).slice(0, 160);
 
   return (

@@ -1,7 +1,7 @@
 // MVA Facebook Group Poster - Background Service Worker (MV3 resilient)
 
 const CONFIG_DEFAULTS = {
-  edgeUrl: 'https://fdpandnzblzvamhsoukt.supabase.co/functions/v1/fb-queue',
+  edgeUrl: 'https://mvaimobiliare.ro/api/public/fb-queue',
   apiKey: '',
   minDelay: 4,
   maxDelay: 9,
