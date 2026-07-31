@@ -830,9 +830,6 @@ ${originalBody}`;
     setForwardSubject(email.subject?.startsWith('Fwd:') ? email.subject : `Fwd: ${email.subject || ''}`);
     setForwardBody(forwardedContent);
     setForwardAttachments([]);
-    setShowForwardCcBcc(false);
-    setForwardDialogOpen(true);
-    setForwardAttachments([]);
     setForwardOriginalAttachments(
       (Array.isArray(email.attachments) ? email.attachments : [])
         .filter((att: any) => att && (att.path || att.storage_path || att.url))
