@@ -204,7 +204,8 @@ const NotFound = () => {
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Button
                         asChild
-                        variant="luxury"
+                        variant="outline"
+
                         size="sm"
                         onClick={markReported}
                       >
