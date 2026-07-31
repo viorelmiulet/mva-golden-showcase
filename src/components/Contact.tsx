@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePlausible } from "@/hooks/usePlausible";
 import { useGA4 } from "@/hooks/useGA4";
+import { trackConversion, CONVERSION_EVENTS } from "@/lib/analytics/conversions";
+
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
