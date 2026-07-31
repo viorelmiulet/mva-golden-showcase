@@ -462,6 +462,96 @@ const AnalyticsPage = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="conversions" className="space-y-4">
+            {/* KPI conversii */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { key: 'click_to_call', icon: PhoneCall, color: 'text-amber-400' },
+                { key: 'whatsapp_click', icon: MessageCircle, color: 'text-emerald-400' },
+                { key: 'email_click', icon: Mail, color: 'text-blue-400' },
+                { key: 'contact_form_submit', icon: Send, color: 'text-violet-400' },
+              ].map(({ key, icon: Icon, color }) => (
+                <div key={key} className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-muted-foreground">{CONVERSION_LABELS[key]}</span>
+                    <div className={cn("p-2 rounded-xl bg-white/5", color)}><Icon className="h-4 w-4" /></div>
+                  </div>
+                  {isLoading ? <Skeleton className="h-8 w-16" /> : (
+                    <div className="text-2xl font-bold">
+                      {data?.conversionStats?.find(c => c.event_type === key)?.total || 0}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Evoluție zilnică a lead-urilor */}
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Target className="h-5 w-5 text-gold" />
+                  Evoluție lead-uri
+                </h3>
+                <p className="text-sm text-muted-foreground">Conversii pe zi în ultimele {days} zile</p>
+              </div>
+              {isLoading ? <Skeleton className="h-[260px] w-full" /> : (
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={data?.conversionDaily || []}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-white/10" />
+                    <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'dd MMM', { locale: ro })} className="text-xs" stroke="#666" />
+                    <YAxis allowDecimals={false} className="text-xs" stroke="#666" />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                      contentStyle={{ background: 'hsl(var(--card))', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                      labelFormatter={(v) => format(parseISO(String(v)), 'dd MMMM yyyy', { locale: ro })}
+                      formatter={(value: number) => [value, 'Lead-uri']}
+                    />
+                    <Bar dataKey="total" fill="#A8762C" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Surse lead-uri */}
+              <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+                <h3 className="text-lg font-semibold mb-4">Surse care aduc lead-uri</h3>
+                {isLoading ? <Skeleton className="h-[240px] w-full" /> : (
+                  <div className="space-y-3">
+                    {(!data?.leadSources || data.leadSources.length === 0) && (
+                      <p className="text-muted-foreground text-center py-8">Nu sunt lead-uri în această perioadă.</p>
+                    )}
+                    {data?.leadSources?.map((s) => (
+                      <div key={s.source} className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                        <span className="font-medium truncate max-w-[220px]">{s.source}</span>
+                        <Badge className="bg-gold/10 text-gold border-0">{s.total}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Pagini care generează lead-uri */}
+              <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
+                <h3 className="text-lg font-semibold mb-4">Pagini care generează lead-uri</h3>
+                {isLoading ? <Skeleton className="h-[240px] w-full" /> : (
+                  <div className="space-y-3">
+                    {(!data?.leadPages || data.leadPages.length === 0) && (
+                      <p className="text-muted-foreground text-center py-8">Nu sunt lead-uri în această perioadă.</p>
+                    )}
+                    {data?.leadPages?.map((p) => (
+                      <div key={p.page} className="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                        <span className="font-medium truncate max-w-[240px]">{p.page}</span>
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-0">{p.total}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+
           <TabsContent value="contacts" className="space-y-4">
             <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
               <div className="mb-4">
