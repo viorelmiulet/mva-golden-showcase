@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { RefreshCw, CheckCircle2, AlertCircle, Loader2, Database, Clock, TrendingUp, XCircle } from "lucide-react";
 import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
+import { triggerImmofluxSync, fetchImmofluxSyncStatus } from "@/lib/immofluxSync";
+
 
 interface SyncStatus {
   status?: "running" | "done" | "error" | string;
