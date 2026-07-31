@@ -49,7 +49,6 @@ import { useGA4 } from "@/hooks/useGA4";
 import { generatePropertySlug, extractShortIdFromSlug, isUUID, getPropertyUrl } from "@/lib/propertySlug";
 import { usePropertyViews } from "@/hooks/usePropertyViews";
 import { Eye } from "lucide-react";
-import PropertySeo from "@/components/PropertySeo";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import SpecRail from "@/components/SpecRail";
 import PropertyCard from "@/components/PropertyCard";
@@ -526,29 +525,6 @@ const PropertyDetail = () => {
 
   return (
     <>
-      <PropertySeo
-        title={titleForSeo}
-        description={composedDescription}
-        metaDescription={metaDesc}
-        canonicalPath={getPropertyUrl(property)}
-        images={Array.isArray(property.images) ? property.images : []}
-        price={property.price_min}
-        currency={property.currency}
-        isAvailable={property.availability_status === 'available'}
-        rooms={property.rooms}
-        bathrooms={property.bathrooms}
-        surface={property.surface_min}
-        floor={property.floor}
-        yearBuilt={property.year_built}
-        zone={property.zone || zona}
-        city={property.city}
-        street={zona}
-        latitude={property.latitude}
-        longitude={property.longitude}
-        datePosted={property.created_at}
-        isSale={isSale}
-        projectName={property.project_name}
-      />
       {property.images?.[0] && (
         <Helmet>
           <link rel="preload" as="image" href={property.images[0]} fetchPriority="high" />

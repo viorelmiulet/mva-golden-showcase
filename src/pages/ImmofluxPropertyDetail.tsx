@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems } from "@/lib/statItem";
-import PropertySeo from "@/components/PropertySeo";
 import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
 
 const Footer = lazy(() => import("@/components/Footer"));
@@ -319,33 +318,6 @@ const ImmofluxPropertyDetail = () => {
 
   return (
     <>
-      <PropertySeo
-        title={title}
-        description={composedDescription}
-        metaDescription={metaDesc}
-        canonicalPath={canonicalPath}
-        images={images.map((i: any) => i.src)}
-        price={priceAmount ? Number(priceAmount) : null}
-        currency={currency}
-        isAvailable={true}
-        rooms={rooms}
-        bathrooms={p.nrbai ? Number(p.nrbai) : null}
-        surface={surface || null}
-        floor={parseFloor(p.etaj, p.nretaj, p.floor)}
-        yearBuilt={p.anconstructie ? Number(p.anconstructie) : null}
-        zone={zona}
-        city={localitate}
-        street={p.adresa || null}
-        latitude={lat ? Number(lat) : null}
-        longitude={lng ? Number(lng) : null}
-        datePosted={addedDate || null}
-        isSale={isSale}
-        projectName={p.proiect || p.complex || null}
-      />
-      <Helmet>
-        <meta name="twitter:url" content={propertyUrl} />
-        <meta property="og:image" content={ogImage} />
-      </Helmet>
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
