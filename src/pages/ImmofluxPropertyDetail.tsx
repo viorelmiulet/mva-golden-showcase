@@ -397,7 +397,7 @@ const ImmofluxPropertyDetail = () => {
                       >
                         <img
                           src={images[4].src}
-                          alt={`${title} 5`}
+                          alt={`${title} — imagine 5 din ${images.length}`}
                           className="w-full h-full object-cover"
                           loading="lazy"
                           decoding="async"
