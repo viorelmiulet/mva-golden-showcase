@@ -333,7 +333,9 @@ const AnalyticsPage = () => {
           <TabsList className="bg-white/5 border border-white/10">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Prezentare</TabsTrigger>
             <TabsTrigger value="pages" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Pagini</TabsTrigger>
+            <TabsTrigger value="conversions" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Conversii</TabsTrigger>
             <TabsTrigger value="contacts" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Contacte</TabsTrigger>
+
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
