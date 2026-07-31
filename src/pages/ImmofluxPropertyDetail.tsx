@@ -2,24 +2,22 @@ import { useParams, Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
+import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Phone, Mail, Home, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, Phone } from "lucide-react";
 import Header from "@/components/Header";
-import { useState, lazy, Suspense, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SpecRail from "@/components/SpecRail";
+import PropertyCard from "@/components/PropertyCard";
+import PropertyGallery from "@/components/property/PropertyGallery";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
-import { filterStatItems } from "@/lib/statItem";
 import { composePropertyDescription } from "@/lib/propertyDescription";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
-const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
-const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
 
 const LazyMapMount = ({ children }: { children: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
