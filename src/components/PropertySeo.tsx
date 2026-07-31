@@ -76,8 +76,8 @@ const PropertySeo = ({
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    name: title,
-    description: metaDescription,
+    name: (title || '').trim(),
+    description: (metaDescription || '').trim(),
     url,
     image: images.length > 0 ? images.slice(0, 10) : [firstImage],
     datePosted: datePosted || new Date().toISOString(),
