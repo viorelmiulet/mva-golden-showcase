@@ -173,6 +173,59 @@ export async function buildPropertiesSitemap(): Promise<string> {
   return urlset(inner);
 }
 
+/**
+ * Canonical property sitemap: one <url> per active property as
+ * /proprietati/{slug}, with the first photo as an <image:image> entry.
+ */
+export async function buildProprietatiSitemap(): Promise<string> {
+  const supabase = publicSupabase();
+  const { data } = await supabase
+    .from("catalog_offers")
+    .select("id, title, slug, immoflux_slug, images, updated_at")
+    .eq("is_published", true)
+    .neq("availability_status", "sold")
+    .order("updated_at", { ascending: false })
+    .limit(10000);
+
+  const seen = new Set<string>();
+  let inner = "";
+
+  for (const p of data ?? []) {
+    const slug = (p.slug ?? p.immoflux_slug ?? "").trim();
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+
+    const images = Array.isArray(p.images) ? (p.images as unknown[]) : [];
+    const first = typeof images[0] === "string" ? toAbsoluteUrl(images[0] as string) : "";
+    const imageBlock =
+      first && isValidUrl(first)
+        ? `    <image:image>
+      <image:loc>${escapeXml(first)}</image:loc>
+      <image:title>${escapeXml(p.title || "Proprietate imobiliară")}</image:title>
+    </image:image>
+`
+        : "";
+
+    inner += `  <url>
+    <loc>${escapeXml(`${SITE}/proprietati/${slug}`)}</loc>
+    <lastmod>${day(p.updated_at)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+${imageBlock}  </url>
+`;
+  }
+
+  return urlset(inner, `\n        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"`);
+}
+
+
+  const inner = (data ?? [])
+    .filter((p) => typeof p.slug === "string" && p.slug.trim().length > 0)
+    .map((p) => urlEntry(`${SITE}/proprietati/${p.slug}`, day(p.updated_at), "weekly", "0.8"))
+    .join("");
+  return urlset(inner);
+}
+
 /* ------------------------------------------------------------- immoflux */
 
 export async function buildImmofluxSitemap(): Promise<string> {
