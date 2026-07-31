@@ -521,7 +521,6 @@ const PropertyDetail = () => {
     propertyType: property.property_type,
     storedDescription: property.description,
   });
-  const metaDesc = composeMetaDescription(composedDescription);
 
   return (
     <>

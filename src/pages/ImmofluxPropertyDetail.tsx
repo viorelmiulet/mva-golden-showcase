@@ -287,7 +287,6 @@ const ImmofluxPropertyDetail = () => {
   const canonicalSlug = p.immoflux_slug || urlSlug;
   const canonicalPath = `/proprietati/${canonicalSlug}`;
   const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
-  const ogImage = images[0]?.src || `https://www.mvaimobiliare.ro/og-image.jpg`;
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
 
@@ -314,7 +313,6 @@ const ImmofluxPropertyDetail = () => {
     propertyType: (p.tiplocuinta || 'apartament').trim(),
     storedDescription: description || null,
   });
-  const metaDesc = composeMetaDescription(composedDescription);
 
   return (
     <>
