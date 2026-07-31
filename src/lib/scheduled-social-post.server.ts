@@ -153,7 +153,7 @@ export async function handleScheduledSocialPost(): Promise<Response> {
             description: property.description,
             currency: property.currency,
             created_at: property.created_at,
-          },
+          } as PropertyData,
           platform,
           content,
           propertyUrl: `${siteUrl}/proprietati/${property.slug || property.id}`,
