@@ -43,22 +43,6 @@ interface Props {
   preset: SeoLandingPreset;
 }
 
-const matchesAnyZone = (p: any, zones: string[]) => {
-  const hay = `${p.title || ""} ${p.zone || ""} ${p.location || ""} ${p.city || ""} ${p.project_name || ""}`.toUpperCase();
-  return zones.some((z) => hay.includes(z.toUpperCase()));
-};
-
-
-const detectIsHouse = (p: any) => {
-  const t = `${p.title || ""} ${p.description || ""}`.toLowerCase();
-  return /\bcas[aă]\b|\bvil[aă]\b/.test(t) && !/apartament/.test(t);
-};
-
-const detectIsLand = (p: any) => {
-  const t = `${p.title || ""} ${p.description || ""}`.toLowerCase();
-  return /\bteren\b|\bteren(uri)?\b/.test(t);
-};
-
 const SeoLanding = ({ preset }: Props) => {
   const { data: all = [], isLoading } = useQuery({
     queryKey: ["catalog_offers", "seo-landing"],
@@ -75,30 +59,7 @@ const SeoLanding = ({ preset }: Props) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const filtered = useMemo(() => {
-    return all.filter((p: any) => {
-      const f = preset.filter;
-      if (f.rooms !== undefined && p.rooms !== f.rooms) return false;
-      if (f.minRooms !== undefined && (!p.rooms || p.rooms < f.minRooms)) return false;
-      if (f.transactionType && p.transaction_type && p.transaction_type !== f.transactionType) return false;
-      if (f.zone && !matchesAnyZone(p, [f.zone])) return false;
-      if (f.zones && f.zones.length > 0 && !matchesAnyZone(p, f.zones)) return false;
-
-      if (f.propertyType === "house" && !detectIsHouse(p)) return false;
-      if (f.propertyType === "land" && !detectIsLand(p)) return false;
-      if (f.propertyType === "garsoniera" && p.rooms && p.rooms > 1) return false;
-      if (f.propertyType === "apartment") {
-        if (detectIsHouse(p) || detectIsLand(p)) return false;
-      }
-      if (f.newBuild) {
-        const currentYear = new Date().getFullYear();
-        const yb = p.year_built || 0;
-        const isNew = yb >= currentYear - 3 || /bloc nou|apartamente noi|finisat la cheie|ansamblu nou/i.test(`${p.title || ""} ${p.description || ""}`);
-        if (!isNew) return false;
-      }
-      return true;
-    });
-  }, [all, preset]);
+  const filtered = useMemo(() => filterForPreset(all as any[], preset), [all, preset]);
 
   const canonical = `${SITE_URL}/${preset.slug}`;
   const count = filtered.length;
