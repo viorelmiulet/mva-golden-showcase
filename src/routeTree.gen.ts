@@ -118,6 +118,7 @@ import { Route as ApiPublicOgMetaRouteImport } from './routes/api/public/og-meta
 import { Route as ApiPublicProcessEmailQueueRouteImport } from './routes/api/public/process-email-queue'
 import { Route as ApiPublicProcessSitemapQueueRouteImport } from './routes/api/public/process-sitemap-queue'
 import { Route as ApiPublicReceiveMailgunEmailRouteImport } from './routes/api/public/receive-mailgun-email'
+import { Route as ApiPublicScheduledSocialPostRouteImport } from './routes/api/public/scheduled-social-post'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as AppComplexIdRouteImport } from './routes/app/complex/$id'
 import { Route as AppProprietateSlugRouteImport } from './routes/app/proprietate/$slug'
@@ -698,6 +699,12 @@ const ApiPublicReceiveMailgunEmailRoute =
     path: '/api/public/receive-mailgun-email',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicScheduledSocialPostRoute =
+  ApiPublicScheduledSocialPostRouteImport.update({
+    id: '/api/public/scheduled-social-post',
+    path: '/api/public/scheduled-social-post',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -855,6 +862,7 @@ export interface FileRoutesByFullPath {
   '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
   '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
   '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
+  '/api/public/scheduled-social-post': typeof ApiPublicScheduledSocialPostRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -972,6 +980,7 @@ export interface FileRoutesByTo {
   '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
   '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
   '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
+  '/api/public/scheduled-social-post': typeof ApiPublicScheduledSocialPostRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -1093,6 +1102,7 @@ export interface FileRoutesById {
   '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
   '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
   '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
+  '/api/public/scheduled-social-post': typeof ApiPublicScheduledSocialPostRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -1215,6 +1225,7 @@ export interface FileRouteTypes {
     | '/api/public/process-email-queue'
     | '/api/public/process-sitemap-queue'
     | '/api/public/receive-mailgun-email'
+    | '/api/public/scheduled-social-post'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1332,6 +1343,7 @@ export interface FileRouteTypes {
     | '/api/public/process-email-queue'
     | '/api/public/process-sitemap-queue'
     | '/api/public/receive-mailgun-email'
+    | '/api/public/scheduled-social-post'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1452,6 +1464,7 @@ export interface FileRouteTypes {
     | '/api/public/process-email-queue'
     | '/api/public/process-sitemap-queue'
     | '/api/public/receive-mailgun-email'
+    | '/api/public/scheduled-social-post'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1536,6 +1549,7 @@ export interface RootRouteChildren {
   ApiPublicProcessEmailQueueRoute: typeof ApiPublicProcessEmailQueueRoute
   ApiPublicProcessSitemapQueueRoute: typeof ApiPublicProcessSitemapQueueRoute
   ApiPublicReceiveMailgunEmailRoute: typeof ApiPublicReceiveMailgunEmailRoute
+  ApiPublicScheduledSocialPostRoute: typeof ApiPublicScheduledSocialPostRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
 }
@@ -2305,6 +2319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicReceiveMailgunEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/scheduled-social-post': {
+      id: '/api/public/scheduled-social-post'
+      path: '/api/public/scheduled-social-post'
+      fullPath: '/api/public/scheduled-social-post'
+      preLoaderRoute: typeof ApiPublicScheduledSocialPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -2574,6 +2595,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicProcessEmailQueueRoute: ApiPublicProcessEmailQueueRoute,
   ApiPublicProcessSitemapQueueRoute: ApiPublicProcessSitemapQueueRoute,
   ApiPublicReceiveMailgunEmailRoute: ApiPublicReceiveMailgunEmailRoute,
+  ApiPublicScheduledSocialPostRoute: ApiPublicScheduledSocialPostRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
 }

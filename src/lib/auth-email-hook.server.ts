@@ -1,5 +1,5 @@
 import * as React from "react";
-import { renderAsync } from "@react-email/components";
+import { render } from "@react-email/components";
 import { parseEmailWebhookPayload } from "@lovable.dev/email-js";
 import { WebhookError, verifyWebhookRequest } from "@lovable.dev/webhooks-js";
 import { SignupEmail } from "./email-templates/signup";
@@ -112,7 +112,7 @@ export async function handleAuthEmailHookPreview(req: Request): Promise<Response
   }
 
   const sampleData = SAMPLE_DATA[type] || {};
-  const html = await renderAsync(React.createElement(EmailTemplate, sampleData));
+  const html = await render(React.createElement(EmailTemplate, sampleData));
 
   return new Response(html, {
     status: 200,
@@ -209,8 +209,8 @@ export async function handleAuthEmailHookWebhook(req: Request): Promise<Response
     newEmail: payload.data.new_email,
   };
 
-  const html = await renderAsync(React.createElement(EmailTemplate, templateProps));
-  const text = await renderAsync(React.createElement(EmailTemplate, templateProps), {
+  const html = await render(React.createElement(EmailTemplate, templateProps));
+  const text = await render(React.createElement(EmailTemplate, templateProps), {
     plainText: true,
   });
 
