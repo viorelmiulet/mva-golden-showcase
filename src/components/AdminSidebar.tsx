@@ -23,6 +23,7 @@ import {
   Eye,
   Database,
   Facebook,
+  MailWarning,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
