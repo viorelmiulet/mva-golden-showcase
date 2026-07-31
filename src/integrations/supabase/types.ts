@@ -2450,6 +2450,7 @@ export type Database = {
       }
       slugify_text: { Args: { input_text: string }; Returns: string }
       trigger_scheduled_social_post: { Args: never; Returns: undefined }
+      upsert_email_contact: { Args: { _raw: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "agent" | "visitor"
