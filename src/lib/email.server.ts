@@ -79,8 +79,8 @@ export async function sendMailgunEmail(
     customHeaders = {},
   } = options;
 
-  const apiKey = process.env.MAILGUN_API_KEY;
-  const domain = process.env.MAILGUN_DOMAIN;
+  const { getMailgunConfig } = await import("./runtimeConfig.server");
+  const { apiKey, domain } = await getMailgunConfig();
   if (!apiKey || !domain) throw new Error("Mailgun credentials not configured");
 
   const form = new FormData();
