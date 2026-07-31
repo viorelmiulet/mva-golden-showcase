@@ -18,7 +18,9 @@ Disallow: /oferta-
 Disallow: /404
 
 # --- URL-uri de căutare/filtrare (evită conținut duplicat) ---
-# Paginarea (?page=) rămâne permisă ca să fie descoperite toate anunțurile.
+# Paginarea (?p=) rămâne permisă ca să fie descoperite toate anunțurile.
+Allow: /*?p=
+Allow: /*&p=
 Disallow: /*?search=
 Disallow: /*&search=
 Disallow: /*?filter=
