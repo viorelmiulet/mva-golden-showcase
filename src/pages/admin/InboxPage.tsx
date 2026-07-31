@@ -1085,7 +1085,7 @@ ${originalBody}`;
       return (
         email.sender.toLowerCase().includes(query) ||
         email.subject?.toLowerCase().includes(query) ||
-        email.body_plain?.toLowerCase().includes(query)
+        getEmailPreview(email, 0).toLowerCase().includes(query)
       );
     }
     return true;
