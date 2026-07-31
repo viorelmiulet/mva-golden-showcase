@@ -822,6 +822,19 @@ export async function replyEmail(body: AnyRecord): Promise<AnyRecord> {
             bucket,
             size: att.size ?? buf.length,
           };
+        } else if (att.url) {
+          const res = await fetch(att.url);
+          if (!res.ok) {
+            console.error(`[reply-email] Failed to fetch attachment URL for "${att.filename}": ${res.status}`);
+            continue;
+          }
+          const buf = new Uint8Array(await res.arrayBuffer());
+          normalizedForMailgun.push({
+            filename: att.filename,
+            content: bytesToBase64(buf),
+            contentType: att.contentType || res.headers.get("content-type") || "application/octet-stream",
+          });
+          storageMeta[att.filename] = { url: att.url, bucket, size: att.size ?? buf.length };
         }
       } catch (e) {
         console.error(`[reply-email] Error normalizing attachment "${att.filename}":`, e);
