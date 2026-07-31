@@ -83,7 +83,53 @@ const SORTS = [
   { value: "suprafata", label: "Suprafață" },
 ] as const;
 
-const Properties = () => {
+/** Pure mapping of catalog rows → listing items (shared by SSR loader and client query). */
+export const mapCatalogRows = (rows: any[]) =>
+  (rows || []).map((p: any) => {
+    const isImmoflux = p.crm_source === "immoflux" || p.source === "immoflux";
+    const immofluxId =
+      isImmoflux && p.external_id ? Number(String(p.external_id).replace("immoflux-", "")) : null;
+    return {
+      ...p,
+      _immoflux_id: immofluxId,
+      _immoflux_slug:
+        isImmoflux && immofluxId
+          ? p.immoflux_slug ||
+            generateImmofluxSlug({
+              idnum: immofluxId,
+              nrcamere: p.rooms,
+              zona: p.zone,
+              localitate: p.location || p.city,
+              suprutila: p.surface_min,
+              etaj: p.floor,
+            } as any)
+          : null,
+      _immoflux_top: isImmoflux && p.promotion_type === "top",
+      _immoflux_pole: isImmoflux && p.promotion_type === "pole_position",
+    };
+  });
+
+/** Same Supabase query used by the SSR loader and the client refetch. */
+export const fetchCatalogOffers = async () => {
+  const { data, error } = await supabase
+    .from("catalog_offers")
+    .select("*")
+    .is("project_id", null)
+    .neq("is_published", false)
+    .neq("availability_status", "sold")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
+interface PropertiesProps {
+  /** Rows pre-fetched on the server so the first HTML already contains cards. */
+  initialRows?: any[];
+}
+
+const Properties = ({ initialRows }: PropertiesProps = {}) => {
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
