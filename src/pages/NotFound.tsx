@@ -82,14 +82,7 @@ const NotFound = () => {
       <Header />
 
       <main className="relative flex-1 overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, hsl(var(--gold) / 0.6), transparent 45%), radial-gradient(circle at 80% 70%, hsl(var(--gold) / 0.4), transparent 50%)",
-          }}
-        />
+
 
         <section className="container mx-auto px-4 pt-28 pb-16 sm:pt-32 sm:pb-20">
           <div className="mx-auto max-w-3xl text-center">
