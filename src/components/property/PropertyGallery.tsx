@@ -144,7 +144,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
 
           <img
             src={list[index]}
-            alt={`${imageAlt} — imaginea ${index + 1}`}
+            alt={`${imageAlt} — imagine ${index + 1} din ${list.length}`}
             className="max-h-[88vh] max-w-[92vw] object-contain rounded-sm"
             onClick={(e) => e.stopPropagation()}
           />
