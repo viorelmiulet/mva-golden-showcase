@@ -590,22 +590,22 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
                     const n = i + 1;
                     const active = n === currentPage;
                     return (
-                      <button
+                      <Link
                         key={n}
-                        type="button"
-                        onClick={() => setParam("p", n === 1 ? "" : String(n), false)}
+                        to={pageHref(n)}
                         aria-current={active ? "page" : undefined}
-                        className={`h-10 min-w-10 px-3 rounded-sm border text-small transition-colors ${
+                        className={`h-10 min-w-10 px-3 rounded-sm border text-small transition-colors inline-flex items-center justify-center ${
                           active
                             ? "border-brass text-brass"
                             : "border-stone text-muted-foreground hover:text-brass hover:border-brass"
                         }`}
                       >
                         {n}
-                      </button>
+                      </Link>
                     );
                   })}
                 </nav>
+
               )}
             </>
           )}
