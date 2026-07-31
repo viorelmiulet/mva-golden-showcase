@@ -429,27 +429,11 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
   const [showMore, setShowMore] = useState(false);
 
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Proprietăți disponibile",
-    numberOfItems: sorted.length,
-    itemListElement: pageItems.slice(0, 10).map((property: any, index: number) => ({
-      "@type": "ListItem",
-      position: (currentPage - 1) * PER_PAGE + index + 1,
-      name: property.title,
-      url: `https://www.mvaimobiliare.ro${getListingPropertyUrl(property)}`,
-    })),
-  };
+  // ItemList JSON-LD is emitted server-side from the route head() (see
+  // src/routes/proprietati/index.tsx) so crawlers get it without JS.
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-      />
-
-
       <Header />
 
       <main className="min-h-screen bg-background pt-16">

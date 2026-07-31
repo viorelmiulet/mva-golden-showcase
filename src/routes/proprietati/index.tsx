@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Properties, { fetchCatalogOffers } from "@/pages/Properties";
 import { staticHead } from "@/lib/routeMeta";
+import { buildItemListJsonLd } from "@/lib/listingJsonLd";
+
+/** Keep in sync with PER_PAGE in src/pages/Properties.tsx. */
+const PER_PAGE = 24;
 
 /** Server-side validation of the filter query string — keeps filtered views crawlable. */
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
@@ -108,7 +112,7 @@ export const Route = createFileRoute("/proprietati/")({
     }
   },
 
-  head: ({ match }) => {
+  head: ({ match, loaderData }) => {
     const s = (match.search || {}) as PropertiesSearch;
     const parts: string[] = [];
     if (s.zona) parts.push(`în ${s.zona}`);
@@ -126,15 +130,39 @@ export const Route = createFileRoute("/proprietati/")({
     const path = qs.toString() ? `/proprietati?${qs.toString()}` : "/proprietati";
 
     const { canonicalPath, noindex } = resolveIndexing(s);
+    const title = `Proprietăți${suffix}${pageSuffix} | MVA Imobiliare`;
 
-    return staticHead({
-      title: `Proprietăți${suffix}${pageSuffix} | MVA Imobiliare`,
+    const base = staticHead({
+      title,
       description:
         "Caută apartamente, garsoniere și case în București: filtre după zonă, preț, camere și suprafață. Ofertele MVA Imobiliare, actualizate zilnic.",
       path: canonicalPath ?? path,
       noindex,
       image: "https://www.mvaimobiliare.ro/og-image.jpg?v=20260719c",
     });
+
+    // Only indexable views describe their cards; filter permutations are noindex.
+    const rows = (loaderData?.rows ?? []) as any[];
+    if (noindex || rows.length === 0) return base;
+
+    const page = s.p && s.p > 1 ? s.p : 1;
+    const pageRows = rows.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            buildItemListJsonLd(pageRows, {
+              name: title,
+              url: `https://www.mvaimobiliare.ro${canonicalPath ?? path}`,
+              limit: PER_PAGE,
+            })
+          ),
+        },
+      ],
+    };
   },
 
   component: PropertiesRoute,
