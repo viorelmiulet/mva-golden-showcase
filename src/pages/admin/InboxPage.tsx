@@ -101,6 +101,9 @@ const InboxPage = () => {
   const [forwardSubject, setForwardSubject] = useState("");
   const [forwardBody, setForwardBody] = useState("");
   const [forwardAttachments, setForwardAttachments] = useState<File[]>([]);
+  const [forwardOriginalAttachments, setForwardOriginalAttachments] = useState<
+    Array<{ filename: string; contentType: string; size?: number; path?: string; bucket?: string; url?: string }>
+  >([]);
   const [showForwardCcBcc, setShowForwardCcBcc] = useState(false);
   
   // Multi-select state
