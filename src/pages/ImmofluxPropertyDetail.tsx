@@ -2,24 +2,22 @@ import { useParams, Link } from "@/lib/router-compat";
 import { Helmet } from "@/lib/helmet-compat";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton, LightboxSkeleton, SectionDialogSkeleton } from "@/components/skeletons";
+import { PropertyDetailSkeleton, MapSkeleton, FooterSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Maximize, Building, Calendar, MapPin, AlertCircle, Zap, Sofa, PaintBucket, Phone, Mail, Home, ClipboardList, ArrowUpDown, Building2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, Phone } from "lucide-react";
 import Header from "@/components/Header";
-import { useState, lazy, Suspense, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SpecRail from "@/components/SpecRail";
+import PropertyCard from "@/components/PropertyCard";
+import PropertyGallery from "@/components/property/PropertyGallery";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
-import { filterStatItems } from "@/lib/statItem";
 import { composePropertyDescription } from "@/lib/propertyDescription";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
-const ImageLightbox = lazy(() => import("@/components/ImageLightbox").then(m => ({ default: m.ImageLightbox })));
-const SectionDialog = lazy(() => import("@/components/property/PropertySectionDialog"));
 
 const LazyMapMount = ({ children }: { children: React.ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -167,62 +165,20 @@ const ImmofluxPropertyDetail = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from('catalog_offers')
-        .select('id, external_id, immoflux_slug, slug, title, images, price_min, currency, transaction_type, zone, city, rooms')
+        .select('id, external_id, immoflux_slug, slug, title, images, price_min, currency, transaction_type, zone, city, rooms, surface_min, floor, floor_label, year_built, created_at, commission_value, commission_type, project_name, location')
         .eq('crm_source', 'immoflux')
         .eq('is_published', true)
         .neq('availability_status', 'sold')
         .neq('id', row?.id || '00000000-0000-0000-0000-000000000000')
-        .limit(12);
+        .limit(24);
       return data || [];
     },
     enabled: !!row?.id,
     staleTime: 5 * 60 * 1000,
   });
 
-  const [contactForm, setContactForm] = useState({ nume: '', telefon: '', email: '', mesaj: '' });
-  const [submitting, setSubmitting] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [openSection, setOpenSection] = useState<null | { title: string; items: string[] }>(null);
-
-  const handleContact = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!property) return;
-    setSubmitting(true);
-    try {
-      const PROXY_BASE = "/api/public/immoflux-proxy";
-      const res = await fetch(`${PROXY_BASE}/contact`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ ...contactForm, id: property.idnum }),
-      });
-      if (!res.ok) throw new Error('contact failed');
-      toast.success('Cererea a fost trimisă cu succes!');
-      setContactForm({ nume: '', telefon: '', email: '', mesaj: '' });
-    } catch {
-      toast.error('Nu am putut trimite cererea. Încercați din nou.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // (Slug-derived SEO seed removed — mirroring catalog PropertyDetail.tsx,
-  // we no longer mount real-looking head meta during loading. The prerenderer
-  // must snapshot either skeleton+no-SEO or full-body+full-SEO, never the
-  // head-full / body-empty middle state that caused soft 404s.)
-
-
-  // NOTE: Do NOT mount PropertySeo / real-looking head meta during loading.
-  // The prerenderer (Hado) treats a ready-looking <head> + skeleton <body> as
-  // "page ready" and snapshots an empty body → soft 404. Mirror catalog
-  // PropertyDetail.tsx: loading branch = skeleton only, no SEO meta. Head + body
-  // land together in the success branch.
   if (isLoading) return (
-    <div className="min-h-screen bg-ink/40 to-secondary/20">
+    <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 md:pb-16 px-3 sm:px-4">
         <div className="container mx-auto max-w-6xl">
@@ -236,7 +192,7 @@ const ImmofluxPropertyDetail = () => {
   if (isError || !property || !row) return <ImmofluxNotFound />;
 
   const p = property as any;
-  const images = property.images || [];
+  const images: string[] = (property.images || []).map((img: any) => img.src).filter(Boolean);
   const title = getTitle(property);
   const description = getDescription(property);
   const isSale = property.devanzare === 1;
@@ -257,15 +213,8 @@ const ImmofluxPropertyDetail = () => {
     return null;
   })();
 
-  const statCards = filterStatItems<any>([
-    { label: 'Camere', value: p.nrcamere, icon: Home, tone: 'text-sky-400' },
-    { label: 'Grup Sanitar', value: p.nrbai, icon: Building, tone: 'text-cyan-400' },
-    { label: 'm² Util', value: fmtMp(surface), icon: Maximize, tone: 'text-emerald-400' },
-    { label: 'Etaj', value: parseFloor(p.etaj, p.nretaj, p.floor), icon: ArrowUpDown, tone: 'text-indigo-400' },
-    { label: 'Total Etaje', value: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors), icon: Building2, tone: 'text-fuchsia-400' },
-    { label: 'An Construcție', value: p.anconstructie, icon: Calendar, tone: 'text-slate-300' },
-    { label: 'Mobilare', value: furnishedLabel, icon: Sofa, tone: 'text-amber-400' },
-  ]);
+  const floorValue = parseFloor(p.etaj, p.nretaj, p.floor);
+  const totalFloors = parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors);
 
   const addedDate = p.datapublicare || p.datacreare;
   const formattedAddedDate = (() => {
@@ -294,12 +243,13 @@ const ImmofluxPropertyDetail = () => {
   const localitate = (p.localitate || 'București').trim();
   const lat = p.latitudine ?? null;
   const lng = p.longitudine ?? null;
+  const zoneLabel = [zona, localitate].filter(Boolean).join(', ') || 'București';
 
   const composedDescription = composePropertyDescription({
     rooms,
     surface: surface || null,
-    floor: parseFloor(p.etaj, p.nretaj, p.floor),
-    totalFloors: parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors),
+    floor: floorValue,
+    totalFloors,
     price: priceAmount ? Number(priceAmount) : null,
     currency,
     isSale,
@@ -313,304 +263,285 @@ const ImmofluxPropertyDetail = () => {
     storedDescription: description || null,
   });
 
+  const priceValue = Number(p.pret) || 0;
+  const pricePerSqm = priceValue && surface ? Math.round(priceValue / surface) : null;
+  const refCode = String(p.idstr || p.idnum || '').toUpperCase();
+  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
+  const waMessage = `Bună ziua! Sunt interesat de proprietatea: ${title} — ${propertyUrl}`;
+  const mailSubject = `Cerere informații: ${title} (Ref. ${refCode})`;
+
+  const specItems = [
+    rooms ? `${rooms} CAM` : null,
+    surface ? `${fmtMp(surface)} MP` : null,
+    floorValue ? `ET ${floorValue}${totalFloors ? `/${totalFloors}` : ''}` : null,
+    p.anconstructie ? String(p.anconstructie) : null,
+    p.compartimentare ? String(p.compartimentare).toUpperCase() : null,
+  ];
+
+  // Feature lists (plain text, brass check glyph)
+  const splitTopLevel = (raw: string) => {
+    const out: string[] = [];
+    let depth = 0, buf = '';
+    for (const ch of raw) {
+      if (ch === '(' || ch === '[') depth++;
+      else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+      if (ch === ',' && depth === 0) { if (buf.trim()) out.push(buf.trim()); buf = ''; }
+      else buf += ch;
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  };
+  const featureGroups = [
+    { title: 'Utilități', items: utilitati ? splitTopLevel(utilitati) : [] },
+    { title: 'Finisaje', items: finisaje ? splitTopLevel(finisaje) : [] },
+    { title: 'Dotări', items: dotari ? splitTopLevel(dotari) : [] },
+    { title: 'Detalii zonă', items: altedetaliizona ? splitTopLevel(altedetaliizona) : [] },
+  ].filter((g) => g.items.length > 0);
+
+  const details: { label: string; value: string }[] = [];
+  const pushDetail = (label: string, value: any, suffix = '') => {
+    if (value === null || value === undefined || value === '') return;
+    details.push({ label, value: `${value}${suffix}` });
+  };
+  pushDetail('Tip proprietate', p.tiplocuinta);
+  pushDetail('Tranzacție', isSale ? 'Vânzare' : 'Închiriere');
+  pushDetail('Camere', p.nrcamere);
+  pushDetail('Suprafață utilă', fmtMp(surface), ' mp');
+  pushDetail('Băi', p.nrbai);
+  pushDetail('Balcoane', p.nrbalcoane);
+  pushDetail('Etaj', floorValue ? `${floorValue}${totalFloors ? ` / ${totalFloors}` : ''}` : null);
+  pushDetail('An construcție', p.anconstructie);
+  pushDetail('Mobilat', furnishedLabel);
+  pushDetail('Ansamblu', p.proiect || p.complex);
+  pushDetail('Zonă', zoneLabel);
+  pushDetail('Adăugat', formattedAddedDate);
+  pushDetail('Referință', refCode);
+
+  const descText = description && description.length > 150 ? description : composedDescription;
+
+  // Similar: same zone within ±30% price, ranked by price proximity; then zone-only.
+  const pool = (similarPool || []).filter((s: any) => s.id !== row.id && s.transaction_type === row.transaction_type);
+  const sameZone = pool.filter((s: any) => (s.zone || '').trim().toLowerCase() === (zona || '').trim().toLowerCase() && zona);
+  const inRange = sameZone
+    .filter((s: any) => priceValue && s.price_min && Math.abs(s.price_min - priceValue) <= priceValue * 0.3)
+    .sort((a: any, b: any) => Math.abs(a.price_min - priceValue) - Math.abs(b.price_min - priceValue));
+  const zoneRest = sameZone.filter((s: any) => !inRange.includes(s));
+  const ranked = [...inRange, ...zoneRest, ...pool.filter((s: any) => !sameZone.includes(s))];
+  const similar = ranked.slice(0, 3);
+
   return (
     <>
-      <Header />
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          <Link to="/proprietati" className="inline-flex items-center text-sm text-muted-foreground hover:text-gold mb-6">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Înapoi la proprietăți
-          </Link>
-
-          {images.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
-              {images.slice(0, 1).map((img: any, i: number) => (
-                <img
-                  key={i}
-                  src={img.src}
-                  alt={`${title} — imagine 1 din ${images.length}`}
-                  className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                  loading="eager"
-                  // @ts-ignore
-                  fetchPriority="high"
-                  decoding="async"
-                  width={1200}
-                  height={800}
-                  onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
-                />
-              ))}
-              {(() => {
-                const hasMore = images.length > 5;
-                const thumbs = images.slice(1, hasMore ? 4 : 5);
-                return (
-                  <>
-                    {thumbs.map((img: any, i: number) => (
-                      <img
-                        key={i + 1}
-                        src={img.src}
-                        alt={`${title} — imagine ${i + 2} din ${images.length}`}
-                        className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                        loading="lazy"
-                        decoding="async"
-                        // @ts-ignore
-                        fetchPriority="low"
-                        width={600}
-                        height={400}
-                        onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true); }}
-                      />
-                    ))}
-                    {hasMore && (
-                      <button
-                        onClick={() => { setLightboxIndex(4); setLightboxOpen(true); }}
-                        className="relative w-full h-32 md:h-[calc(12rem-0.25rem)] overflow-hidden group"
-                      >
-                        <img
-                          src={images[4].src}
-                          alt={`${title} — imagine 5 din ${images.length}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                          // @ts-ignore
-                          fetchPriority="low"
-                          width={600}
-                          height={400}
-                        />
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold group-hover:bg-black/70 transition-colors">
-                          +{images.length - 4} imagini
-                        </div>
-                      </button>
-                    )}
-                  </>
-                );
-              })()}
+      {images[0] && (
+        <Helmet>
+          <link rel="preload" as="image" href={images[0]} fetchPriority="high" />
+        </Helmet>
+      )}
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-16 pb-24 md:pb-16" role="main">
+          <div className="container mx-auto px-4 lg:px-6 max-w-6xl">
+            <div className="py-4">
+              <Breadcrumbs items={[{ label: 'Proprietăți', href: '/proprietati' }, { label: title }]} />
             </div>
-          )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="min-w-0 lg:col-span-2 space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className={isSale ? "bg-emerald-600 text-white" : "bg-blue-600 text-white"}>
-                  {isSale ? "De vânzare" : "De închiriat"}
-                </Badge>
-                {p.top === 1 && <Badge className="bg-gold text-black font-bold">TOP</Badge>}
-                {p.exclusivitate === 1 && <Badge variant="outline" className="border-gold text-gold">Exclusivitate</Badge>}
+            {/* Title block */}
+            <header className="mb-6">
+              <p className="text-spec text-muted-foreground mb-2">
+                REF. {refCode}
+                {formattedAddedDate ? ` · LISTAT ${formattedAddedDate.toUpperCase()}` : ''}
+              </p>
+              <h1 className="text-display-md text-foreground">{title}</h1>
+            </header>
+
+            {/* Above the fold: 60/40 */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+              <div className="lg:col-span-3">
+                <PropertyGallery images={images} title={title} alt={`${title} — ${zoneLabel}`} />
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{title}</h1>
-
-              <div className="flex flex-wrap items-baseline gap-4">
-                <p className="text-2xl font-bold text-gold">{formatPrice(property)}</p>
-              </div>
-
-              {statCards.length > 0 && (
-                <section className="rounded-2xl border bg-card p-4 sm:p-6 ">
-                  <h2 className="text-lg md:text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                    <ClipboardList className="h-5 w-5 text-emerald-400" />
-                    Detalii Anunț
-                  </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {statCards.map((s, i) => {
-                      const Icon = s.icon;
-                      return (
-                        <div key={i} className="rounded-xl bg-muted/40 border border-border/50 p-4 flex flex-col items-center justify-center text-center min-h-[120px]">
-                          <Icon className={`h-6 w-6 mb-2 ${s.tone}`} />
-                          <div className="text-2xl font-bold text-foreground leading-tight">{s.value}</div>
-                          <div className={`text-xs mt-1 ${s.tone}`}>{s.label}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {formattedAddedDate && (
-                    <div className="mt-5 pt-4 border-t border-border/50 flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="text-xs text-muted-foreground">Adăugat</div>
-                        <div className="text-sm font-semibold text-foreground">{formattedAddedDate}</div>
-                      </div>
-                    </div>
+              <aside className="lg:col-span-2 lg:sticky lg:top-24">
+                <div className="border border-stone rounded-sm p-6">
+                  <p className="font-sans font-semibold text-[2rem] leading-none tabular-nums text-foreground">
+                    {priceValue
+                      ? `${priceValue.toLocaleString('ro-RO')} €${isSale ? '' : '/lună'}`
+                      : 'Preț la cerere'}
+                  </p>
+                  {pricePerSqm && (
+                    <p className="text-small text-muted-foreground mt-2">
+                      {pricePerSqm.toLocaleString('ro-RO')} € / mp
+                    </p>
                   )}
+
+                  <p className="text-body text-foreground mt-4">
+                    {zoneLabel}
+                    {(p.proiect || p.complex) && (
+                      <>
+                        {' · '}
+                        <span className="text-brass">{p.proiect || p.complex}</span>
+                      </>
+                    )}
+                  </p>
+
+                  <div className="mt-4">
+                    <SpecRail items={specItems} className="whitespace-normal" />
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-6 pt-6 border-t border-stone">
+                    <img
+                      src="/mva-logo-3d.png"
+                      alt="Agent MVA Imobiliare"
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      className="w-12 h-12 rounded-sm object-contain bg-ink p-1"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-body text-foreground truncate">{agentInfo?.nume || 'MVA Imobiliare'}</p>
+                      <p className="text-spec text-muted-foreground">AGENT MVA</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 space-y-3">
+                    <a
+                      href="tel:+40767941512"
+                      className="flex items-center justify-center gap-2 w-full h-12 bg-brass text-ink rounded-sm text-small font-medium hover:bg-brass-dark transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                      Sună 0767 941 512
+                    </a>
+                    <a
+                      href={`https://wa.me/40767941512?text=${encodeURIComponent(waMessage)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full h-12 border border-pine text-pine rounded-sm text-small font-medium hover:bg-pine/10 transition-colors"
+                    >
+                      <WhatsAppIcon className="w-4 h-4" />
+                      Scrie pe WhatsApp
+                    </a>
+                    <a
+                      href={`mailto:contact@mvaimobiliare.ro?subject=${encodeURIComponent(mailSubject)}`}
+                      className="block text-center text-small text-muted-foreground hover:text-brass underline"
+                    >
+                      Trimite pe email
+                    </a>
+                  </div>
+                </div>
+              </aside>
+            </div>
+
+            {/* Below the fold */}
+            <div className="max-w-[720px] mt-16 space-y-16">
+              {descText && (
+                <section aria-labelledby="descriere">
+                  <h2 id="descriere" className="text-title text-foreground mb-4">Descriere</h2>
+                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{descText}</p>
                 </section>
               )}
 
-              {(() => {
-                const PREVIEW_LIMIT = 12;
-                const splitTopLevel = (raw: string) => {
-                  const out: string[] = [];
-                  let depth = 0, buf = '';
-                  for (const ch of raw) {
-                    if (ch === '(' || ch === '[') depth++;
-                    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
-                    if (ch === ',' && depth === 0) { if (buf.trim()) out.push(buf.trim()); buf = ''; }
-                    else buf += ch;
-                  }
-                  if (buf.trim()) out.push(buf.trim());
-                  return out;
-                };
-                const renderCardSection = (raw: string | null | undefined, sectionTitle: string, Icon: any) => {
-                  if (!raw) return null;
-                  const items = splitTopLevel(raw);
-                  if (items.length === 0) return null;
-                  const hasMore = items.length > PREVIEW_LIMIT;
-                  const visible = hasMore ? items.slice(0, PREVIEW_LIMIT) : items;
-                  return (
-                    <section className="rounded-2xl border bg-card p-4 sm:p-6 ">
-                      <div className="flex items-center justify-between gap-2 mb-4">
-                        <h2 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
-                          <Icon className="h-5 w-5 text-gold" /> {sectionTitle}
-                        </h2>
-                        {hasMore && (
-                          <Button variant="link" size="sm" className="h-auto p-0 text-sm text-gold hover:text-gold/80 shrink-0" onClick={() => setOpenSection({ title: sectionTitle, items })}>
-                            Vezi toate ({items.length})
-                          </Button>
-                        )}
+              {featureGroups.length > 0 && (
+                <section aria-labelledby="caracteristici">
+                  <h2 id="caracteristici" className="text-title text-foreground mb-4">Caracteristici</h2>
+                  <div className="space-y-8">
+                    {featureGroups.map((group) => (
+                      <div key={group.title}>
+                        <p className="text-spec text-muted-foreground mb-2">{group.title.toUpperCase()}</p>
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                          {group.items.map((item, i) => (
+                            <li key={`${item}-${i}`} className="text-body text-muted-foreground flex gap-2">
+                              <span aria-hidden="true" className="text-brass">✓</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      <div className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr items-stretch">
-                        {visible.map((item, i) => (
-                          <div key={i} title={item} className="h-full min-w-0 max-w-full rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs sm:text-sm text-foreground break-words [overflow-wrap:anywhere] hyphens-auto leading-snug text-left flex items-center justify-start">
-                            <span className="line-clamp-2 w-full">{item}</span>
-                          </div>
-                        ))}
-                        {hasMore && (
-                          <button type="button" onClick={() => setOpenSection({ title: sectionTitle, items })} className="h-full min-w-0 max-w-full rounded-md border border-dashed border-border px-3 py-2 text-xs sm:text-sm text-muted-foreground hover:text-gold hover:border-gold transition-colors text-center flex items-center justify-center">
-                            +{items.length - PREVIEW_LIMIT} mai multe
-                          </button>
-                        )}
-                      </div>
-                    </section>
-                  );
-                };
-                return (
-                  <>
-                    {renderCardSection(utilitati, 'Utilități', Zap)}
-                    {renderCardSection(finisaje, 'Finisaje', PaintBucket)}
-                    {renderCardSection(dotari, 'Dotări', Sofa)}
-                    {renderCardSection(altedetaliizona, 'Detalii zonă', MapPin)}
-                  </>
-                );
-              })()}
-
-              {openSection && (
-                <Suspense fallback={<SectionDialogSkeleton />}>
-                  <SectionDialog open={!!openSection} onOpenChange={(o) => !o && setOpenSection(null)} title={openSection?.title} items={openSection?.items} />
-                </Suspense>
+                    ))}
+                  </div>
+                </section>
               )}
 
-              <div className="space-y-2">
-                <h2 className="text-lg font-semibold text-foreground">Descriere</h2>
-                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-                  {description && description.length > 150 ? description : composedDescription}
-                </p>
-              </div>
+              {details.length > 0 && (
+                <section aria-labelledby="detalii">
+                  <h2 id="detalii" className="text-title text-foreground mb-4">Detalii</h2>
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+                    {details.map((d) => (
+                      <div key={d.label} className="flex items-baseline justify-between gap-4 py-2 border-b border-stone">
+                        <dt className="text-spec text-muted-foreground">{d.label.toUpperCase()}</dt>
+                        <dd className="text-body text-foreground text-right">{d.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
 
               {vecinatati && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground">Vecinătăți</h2>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">{vecinatati}</p>
-                </div>
+                <section aria-labelledby="vecinatati">
+                  <h2 id="vecinatati" className="text-title text-foreground mb-4">Vecinătăți</h2>
+                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{vecinatati}</p>
+                </section>
               )}
 
               {opinieagent && (
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground">Opinia agentului</h2>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line italic">{opinieagent}</p>
-                </div>
-              )}
-
-              {lat && lng && (
-                <LazyMapMount>
-                  <Suspense fallback={<MapSkeleton />}>
-                    <ApproximateLocationMap
-                      latitude={Number(lat)}
-                      longitude={Number(lng)}
-                      locationLabel={[p.zona, p.localitate].filter(Boolean).join(', ')}
-                    />
-                  </Suspense>
-                </LazyMapMount>
-              )}
-            </div>
-
-            <div className="lg:col-span-1 space-y-4">
-              {agentInfo && (
-                <div className="rounded-xl border bg-card p-5 space-y-3 ">
-                  <h2 className="text-sm font-semibold text-foreground">Agent</h2>
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <p className="font-semibold text-sm">{agentInfo.nume}</p>
-                    </div>
-                  </div>
-                  {agentInfo.telefon && (
-                    <a href={`tel:${agentInfo.telefon}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors">
-                      <Phone className="h-4 w-4" /> {agentInfo.telefon}
-                    </a>
-                  )}
-                  {agentInfo.email && (
-                    <a href={`mailto:${agentInfo.email}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-gold transition-colors">
-                      <Mail className="h-4 w-4" /> {agentInfo.email}
-                    </a>
-                  )}
-                </div>
-              )}
-
-              <div className="sticky top-28 rounded-xl border bg-card p-6 space-y-4 ">
-                <h2 className="text-lg font-semibold text-foreground">Solicită informații</h2>
-                <form onSubmit={handleContact} className="space-y-3">
-                  <Input placeholder="Nume *" required value={contactForm.nume} onChange={e => setContactForm(f => ({ ...f, nume: e.target.value }))} />
-                  <Input placeholder="Telefon *" required type="tel" value={contactForm.telefon} onChange={e => setContactForm(f => ({ ...f, telefon: e.target.value }))} />
-                  <Input placeholder="Email" type="email" value={contactForm.email} onChange={e => setContactForm(f => ({ ...f, email: e.target.value }))} />
-                  <Textarea placeholder="Mesaj" rows={3} value={contactForm.mesaj} onChange={e => setContactForm(f => ({ ...f, mesaj: e.target.value }))} />
-                  <Button type="submit" className="w-full bg-gold hover:bg-gold/90 text-black" disabled={submitting}>
-                    {submitting ? 'Se trimite...' : 'Trimite cererea'}
-                  </Button>
-                </form>
-              </div>
-            </div>
-
-            {(() => {
-              const pool = (similarPool || []).filter((s: any) => s.id !== row.id);
-              const sameSale = pool.filter((s: any) => s.transaction_type === row.transaction_type);
-              const sameRooms = sameSale.filter((s: any) => Number(s.rooms) === Number(row.rooms));
-              const ranked = [...sameRooms, ...sameSale.filter(s => !sameRooms.includes(s)), ...pool.filter(s => !sameSale.includes(s))];
-              const similar = ranked.slice(0, 6);
-              if (similar.length === 0) return null;
-              return (
-                <section aria-label="Proprietăți similare" className="mt-12">
-                  <h2 className="text-xl md:text-2xl font-bold mb-5">Proprietăți similare</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {similar.map((s: any) => {
-                      const img = Array.isArray(s.images) ? s.images[0] : null;
-                      return (
-                        <Link key={s.id} to={getImmofluxItemUrl(s)} className="rounded-xl border bg-card overflow-hidden hover:border-gold transition-colors group">
-                          {img && (
-                            <img src={img} alt={s.title} loading="lazy" decoding="async" className="w-full h-44 object-cover group-hover:opacity-95" />
-                          )}
-                          <div className="p-4">
-                            <div className="font-semibold line-clamp-2 text-sm">{s.title}</div>
-                            <div className="text-gold font-bold mt-2">
-                              {s.price_min ? `${Number(s.price_min).toLocaleString('ro-RO')} ${s.currency || 'EUR'}${s.transaction_type === 'rent' ? '/lună' : ''}` : 'Preț la cerere'}
-                            </div>
-                            {s.zone && <div className="text-xs text-muted-foreground mt-1 truncate">{s.zone}{s.city ? `, ${s.city}` : ''}</div>}
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                <section aria-labelledby="opinie">
+                  <h2 id="opinie" className="text-title text-foreground mb-4">Opinia agentului</h2>
+                  <p className="text-body text-muted-foreground leading-[1.6] whitespace-pre-line">{opinieagent}</p>
                 </section>
-              );
-            })()}
+              )}
+
+              <section aria-labelledby="locatie">
+                <h2 id="locatie" className="text-title text-foreground mb-4">Locație</h2>
+                <p className="text-body text-muted-foreground mb-4">{zoneLabel}</p>
+                {lat && lng && (
+                  <LazyMapMount>
+                    <Suspense fallback={<MapSkeleton />}>
+                      <ApproximateLocationMap
+                        latitude={Number(lat)}
+                        longitude={Number(lng)}
+                        locationLabel={zoneLabel}
+                      />
+                    </Suspense>
+                  </LazyMapMount>
+                )}
+              </section>
+            </div>
+
+            {similar.length > 0 && (
+              <section className="mt-16" aria-labelledby="similare">
+                <h2 id="similare" className="text-title text-foreground mb-6">Proprietăți similare</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {similar.map((s: any) => (
+                    <PropertyCard key={s.id} property={s} to={getImmofluxItemUrl(s)} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
+        </main>
+
+        {/* Mobile fixed action bar */}
+        <div
+          className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex border-t border-ink bg-background"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          <a
+            href="tel:+40767941512"
+            className="w-1/2 h-14 flex items-center justify-center gap-2 bg-brass text-ink text-small font-medium"
+          >
+            <Phone className="w-4 h-4" />
+            Sună
+          </a>
+          <a
+            href={`https://wa.me/40767941512?text=${encodeURIComponent(waMessage)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-1/2 h-14 flex items-center justify-center gap-2 border-l border-ink text-pine text-small font-medium"
+          >
+            <WhatsAppIcon className="w-4 h-4" />
+            WhatsApp
+          </a>
         </div>
-      </main>
-      {lightboxOpen && (
-        <Suspense fallback={<LightboxSkeleton />}>
-          <ImageLightbox
-            images={images.map((img: any) => img.src)}
-            isOpen={lightboxOpen}
-            onClose={() => setLightboxOpen(false)}
-            initialIndex={lightboxIndex}
-          />
-        </Suspense>
-      )}
-      <Suspense fallback={null}><Footer /></Suspense>
+
+        <Suspense fallback={null}><Footer /></Suspense>
+      </div>
     </>
   );
 };
