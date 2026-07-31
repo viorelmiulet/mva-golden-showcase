@@ -32,7 +32,7 @@ export async function handleOgMeta(req: Request): Promise<Response> {
     const ogUrl = `${SITE_URL}${path}`;
     let ogType = "website";
 
-    // Immoflux property: /proprietate/{slug} (numeric ID at end)
+    // Immoflux property: /proprietati/{slug} (numeric ID at end)
     const immofluxMatch = path.match(/^\/proprietate\/(.+?)(?:\?.*)?$/);
     if (immofluxMatch) {
       const slug = immofluxMatch[1];

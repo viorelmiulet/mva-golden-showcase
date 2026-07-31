@@ -5,7 +5,7 @@ export interface PropertySeoInput {
   title: string;                 // listing title (used for og/twitter and H1 source)
   description: string;           // visible/long description
   metaDescription: string;       // trimmed for <meta>
-  canonicalPath: string;         // e.g. /proprietati/<slug> or /proprietate/<slug>
+  canonicalPath: string;         // e.g. /proprietati/<slug>
   images?: string[];             // absolute URLs preferred
   price?: number | null;
   currency?: string | null;

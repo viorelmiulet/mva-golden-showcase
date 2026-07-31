@@ -87,9 +87,9 @@ const statusLabel: Record<QueueRow["status"], string> = {
 
 const publicOfferPath = (row: QueueRow): string => {
   const slug = row.offer?.slug?.trim();
-  if (slug) return `/proprietate/${slug}`;
+  if (slug) return `/proprietati/${slug}`;
   if (row.offer) {
-    return `/proprietate/${generatePropertySlug({
+    return `/proprietati/${generatePropertySlug({
       id: row.offer.id,
       rooms: row.offer.rooms,
       project_name: row.offer.project_name,

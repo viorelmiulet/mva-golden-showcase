@@ -145,7 +145,7 @@ function getDescription(p: any) { return p?.descriere?.ro || ''; }
 function getSurface(p: any) { const v = p?.suprafatautila; return typeof v === 'number' ? v : parseFloat(String(v || '0')) || 0; }
 function getImmofluxItemUrl(row: any) {
   const stored = row?.immoflux_slug;
-  if (stored) return `/proprietate/${stored}`;
+  if (stored) return `/proprietati/${stored}`;
   if (row?.slug) return `/proprietati/${row.slug}`;
   return `/proprietati`;
 }
@@ -286,7 +286,7 @@ const ImmofluxPropertyDetail = () => {
 
   // Canonical = stored immoflux_slug when present, else URL slug.
   const canonicalSlug = p.immoflux_slug || urlSlug;
-  const canonicalPath = `/proprietate/${canonicalSlug}`;
+  const canonicalPath = `/proprietati/${canonicalSlug}`;
   const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
   const ogImage = images[0]?.src || `https://www.mvaimobiliare.ro/og-image.jpg`;
   const priceAmount = p.pret ? String(p.pret) : null;

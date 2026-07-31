@@ -7,7 +7,7 @@ Allow: /
 # Public sections (explicit allow for clarity)
 Allow: /proprietati
 Allow: /proprietati/
-Allow: /proprietate/
+Allow: /proprietati/
 Allow: /complexe
 Allow: /complexe/
 Allow: /blog

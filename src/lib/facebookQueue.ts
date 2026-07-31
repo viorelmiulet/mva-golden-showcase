@@ -133,7 +133,7 @@ export const resolveOfferUrl = (o: OfferLike): string => {
         floor: o.floor ?? null,
         city: o.city ?? null,
       });
-  return `${SITE}/proprietate/${slug}`;
+  return `${SITE}/proprietati/${slug}`;
 };
 
 export const buildFacebookMessage = (o: OfferLike): string => {
