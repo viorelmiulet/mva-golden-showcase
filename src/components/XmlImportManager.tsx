@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -270,7 +271,7 @@ const WebsiteScrapingManager = () => {
         };
 
         const { data: adminInsertData, error: adminInsertError } =
-          await supabase.functions.invoke("admin-offers", {
+          await invokeAdminFn("admin-offers", {
             body: { action: "insert_offer", offer: insertData },
           });
 
@@ -351,7 +352,7 @@ const WebsiteScrapingManager = () => {
     setIsFixingZones(true);
     setZoneFixResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke('fix-property-zones', {
+      const { data, error } = await invokeAdminFn('fix-property-zones', {
         body: { dry_run: dryRun, limit: 50 },
       });
       if (error) throw error;

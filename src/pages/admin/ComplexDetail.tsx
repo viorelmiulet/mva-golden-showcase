@@ -1,6 +1,7 @@
+import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useParams, Link } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,7 +113,7 @@ const ComplexDetail = () => {
       (old || []).map((p) => (p.id === propertyId ? { ...p, availability_status: newStatus } : p))
     );
 
-    const { data, error } = await supabase.functions.invoke('admin-offers', {
+    const { data, error } = await invokeAdminFn('admin-offers', {
       body: {
         action: 'update_status',
         id: propertyId,
@@ -200,7 +201,7 @@ const ComplexDetail = () => {
 
       // Update each property
       const updatePromises = selectedProperties.map(propertyId =>
-        supabase.functions.invoke('admin-offers', {
+        invokeAdminFn('admin-offers', {
           body: {
             action: 'update_status',
             id: propertyId,

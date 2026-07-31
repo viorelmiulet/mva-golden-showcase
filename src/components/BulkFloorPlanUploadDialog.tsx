@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -83,7 +84,7 @@ const BulkFloorPlanUploadDialog = ({
       for (const propertyId of propertyIds) {
         try {
           console.log('Updating property:', propertyId);
-          const { data, error } = await supabase.functions.invoke('update-floor-plan', {
+          const { data, error } = await invokeAdminFn('update-floor-plan', {
             body: {
               propertyId,
               floor_plan: publicUrl

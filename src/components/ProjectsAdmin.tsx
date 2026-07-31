@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -176,7 +177,7 @@ const ProjectsAdmin = () => {
         .getPublicUrl(filePath)
 
       // Actualizează imediat în baza de date folosind funcția Edge (service role)
-      const { data: fnData, error: fnError } = await supabase.functions.invoke('update-project-image', {
+      const { data: fnData, error: fnError } = await invokeAdminFn('update-project-image', {
         body: { projectId: editingProject.id, main_image: publicUrl }
       })
       if (fnError) throw fnError

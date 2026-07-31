@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 
 // Generic admin API helper that uses edge function with service role
 export const adminApi = {
@@ -6,7 +7,7 @@ export const adminApi = {
     table: string,
     options?: { orderBy?: string; ascending?: boolean }
   ): Promise<{ success: boolean; data?: T[]; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke("admin-complexes", {
+    const { data: result, error } = await invokeAdminFn("admin-complexes", {
       body: {
         action: "select",
         table,
@@ -26,7 +27,7 @@ export const adminApi = {
 
   async insert<T>(table: string, data: Partial<T>): Promise<{ success: boolean; data?: T[]; error?: string }> {
     console.log('Admin insert:', table, JSON.stringify(data).substring(0, 200));
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'insert', table, data }
     });
 
@@ -44,7 +45,7 @@ export const adminApi = {
     data: Partial<T> | Partial<T>[],
     onConflict: string = "id"
   ): Promise<{ success: boolean; data?: T[]; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'upsert', table, data, onConflict }
     });
 
@@ -58,7 +59,7 @@ export const adminApi = {
   },
 
   async update<T>(table: string, id: string, data: Partial<T>): Promise<{ success: boolean; data?: T[]; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'update', table, id, data }
     });
 
@@ -71,7 +72,7 @@ export const adminApi = {
   },
 
   async delete(table: string, id: string): Promise<{ success: boolean; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'delete', table, id }
     });
 
@@ -85,7 +86,7 @@ export const adminApi = {
 
   // Specific complex operations (keeping for backwards compatibility)
   async insertComplex(data: Record<string, unknown>): Promise<{ success: boolean; data?: unknown[]; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'insert_complex', data }
     });
 
@@ -98,7 +99,7 @@ export const adminApi = {
   },
 
   async updateComplex(id: string, data: Record<string, unknown>): Promise<{ success: boolean; data?: unknown[]; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'update_complex', id, data }
     });
 
@@ -111,7 +112,7 @@ export const adminApi = {
   },
 
   async deleteComplex(id: string): Promise<{ success: boolean; error?: string }> {
-    const { data: result, error } = await supabase.functions.invoke('admin-complexes', {
+    const { data: result, error } = await invokeAdminFn('admin-complexes', {
       body: { action: 'delete_complex', id }
     });
 

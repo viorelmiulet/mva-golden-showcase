@@ -1,7 +1,8 @@
+import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "@/lib/router-compat";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,7 +175,7 @@ const EditComplex = () => {
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       
       // Use edge function to upload (bypasses RLS)
-      const { data: response, error } = await supabase.functions.invoke('admin-complexes', {
+      const { data: response, error } = await invokeAdminFn('admin-complexes', {
         body: {
           action: 'upload_image',
           data: {
@@ -214,7 +215,7 @@ const EditComplex = () => {
       const imageUrl = await uploadImage();
 
       // Use edge function to update the complex (bypasses RLS)
-      const { data: response, error } = await supabase.functions.invoke('admin-complexes', {
+      const { data: response, error } = await invokeAdminFn('admin-complexes', {
         body: {
           action: 'update_complex',
           id: id,

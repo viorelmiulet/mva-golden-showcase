@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState, useCallback } from "react";
 import { toast as sonnerToast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -90,7 +91,7 @@ const PropertiesAdmin = () => {
   const toggleVisibility = async (propertyId: string, currentValue: boolean) => {
     setTogglingVisibility(propertyId);
     try {
-      const { data, error } = await supabase.functions.invoke("admin-offers", {
+      const { data, error } = await invokeAdminFn("admin-offers", {
         body: { 
           action: "update_offer", 
           id: propertyId, 
@@ -145,7 +146,7 @@ const PropertiesAdmin = () => {
   const deleteProperty = async (id: string) => {
     setDeletingId(id);
     try {
-      const { data, error } = await supabase.functions.invoke("admin-offers", {
+      const { data, error } = await invokeAdminFn("admin-offers", {
         body: { action: "delete_offer", id },
       });
 
@@ -176,7 +177,7 @@ const PropertiesAdmin = () => {
     try {
       // Delete all properties using admin-offers edge function
       const deletePromises = properties.map((property) =>
-        supabase.functions.invoke("admin-offers", {
+        invokeAdminFn("admin-offers", {
           body: { action: "delete_offer", id: property.id },
         })
       );
@@ -262,7 +263,7 @@ const PropertiesAdmin = () => {
         updated_at: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase.functions.invoke("admin-offers", {
+      const { data, error } = await invokeAdminFn("admin-offers", {
         body: { action: "update_offer", id: editingProperty.id, data: updateData },
       });
 
@@ -470,7 +471,7 @@ const PropertiesAdmin = () => {
 
     for (const propertyId of selectedProperties) {
       try {
-        const { data, error } = await supabase.functions.invoke("admin-offers", {
+        const { data, error } = await invokeAdminFn("admin-offers", {
           body: { 
             action: "update_offer", 
             id: propertyId, 
@@ -543,7 +544,7 @@ const PropertiesAdmin = () => {
         source: "manual",
       };
 
-      const { data, error } = await supabase.functions.invoke("admin-offers", {
+      const { data, error } = await invokeAdminFn("admin-offers", {
         body: { action: "insert_offer", offer },
       });
 

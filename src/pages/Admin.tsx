@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -146,7 +147,7 @@ const Admin = () => {
         console.log(`[ADMIN DEBUG] Inserez in baza de date:`, insertData)
         
         console.log(`[ADMIN DEBUG] Inserez prin edge function admin-offers:`, insertData)
-        const { data: adminInsertData, error: adminInsertError } = await supabase.functions.invoke('admin-offers', {
+        const { data: adminInsertData, error: adminInsertError } = await invokeAdminFn('admin-offers', {
           body: { action: 'insert_offer', offer: insertData }
         })
 
@@ -263,7 +264,7 @@ const Admin = () => {
     setDeletingId(id)
     try {
       // Prefer edge function with service role to avoid any RLS issues
-      const { data, error } = await supabase.functions.invoke('admin-offers', {
+      const { data, error } = await invokeAdminFn('admin-offers', {
         body: { action: 'delete_offer', id }
       })
 
@@ -309,7 +310,7 @@ const Admin = () => {
       
       // Delete all properties one by one using admin-offers edge function
       const deletePromises = properties.map(property => 
-        supabase.functions.invoke('admin-offers', {
+        invokeAdminFn('admin-offers', {
           body: { action: 'delete_offer', id: property.id }
         })
       )
