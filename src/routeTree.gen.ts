@@ -111,6 +111,7 @@ import { Route as AdminGestiuneChiriiTicheteRouteImport } from './routes/admin/g
 import { Route as AdminGestiuneChiriiUtilitatiRouteImport } from './routes/admin/gestiune-chirii/utilitati'
 import { Route as ApiPublicAuthEmailHookRouteImport } from './routes/api/public/auth-email-hook'
 import { Route as ApiPublicFacebookCatalogFeedRouteImport } from './routes/api/public/facebook-catalog-feed'
+import { Route as ApiPublicImmofluxSyncRouteImport } from './routes/api/public/immoflux-sync'
 import { Route as ApiPublicImmofluxWebhookRouteImport } from './routes/api/public/immoflux-webhook'
 import { Route as ApiPublicMarketingWebhookRouteImport } from './routes/api/public/marketing-webhook'
 import { Route as ApiPublicOgImageRouteImport } from './routes/api/public/og-image'
@@ -659,6 +660,11 @@ const ApiPublicFacebookCatalogFeedRoute =
     path: '/api/public/facebook-catalog-feed',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicImmofluxSyncRoute = ApiPublicImmofluxSyncRouteImport.update({
+  id: '/api/public/immoflux-sync',
+  path: '/api/public/immoflux-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicImmofluxWebhookRoute =
   ApiPublicImmofluxWebhookRouteImport.update({
     id: '/api/public/immoflux-webhook',
@@ -855,6 +861,7 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-sync': typeof ApiPublicImmofluxSyncRoute
   '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
   '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
@@ -973,6 +980,7 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-sync': typeof ApiPublicImmofluxSyncRoute
   '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
   '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
@@ -1095,6 +1103,7 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
   '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-sync': typeof ApiPublicImmofluxSyncRoute
   '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
   '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
@@ -1218,6 +1227,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-sync'
     | '/api/public/immoflux-webhook'
     | '/api/public/marketing-webhook'
     | '/api/public/og-image'
@@ -1336,6 +1346,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-sync'
     | '/api/public/immoflux-webhook'
     | '/api/public/marketing-webhook'
     | '/api/public/og-image'
@@ -1457,6 +1468,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
     | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-sync'
     | '/api/public/immoflux-webhook'
     | '/api/public/marketing-webhook'
     | '/api/public/og-image'
@@ -1542,6 +1554,7 @@ export interface RootRouteChildren {
   ProprietatiIndexRoute: typeof ProprietatiIndexRoute
   ApiPublicAuthEmailHookRoute: typeof ApiPublicAuthEmailHookRouteWithChildren
   ApiPublicFacebookCatalogFeedRoute: typeof ApiPublicFacebookCatalogFeedRoute
+  ApiPublicImmofluxSyncRoute: typeof ApiPublicImmofluxSyncRoute
   ApiPublicImmofluxWebhookRoute: typeof ApiPublicImmofluxWebhookRoute
   ApiPublicMarketingWebhookRoute: typeof ApiPublicMarketingWebhookRoute
   ApiPublicOgImageRoute: typeof ApiPublicOgImageRoute
@@ -2270,6 +2283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFacebookCatalogFeedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/immoflux-sync': {
+      id: '/api/public/immoflux-sync'
+      path: '/api/public/immoflux-sync'
+      fullPath: '/api/public/immoflux-sync'
+      preLoaderRoute: typeof ApiPublicImmofluxSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/immoflux-webhook': {
       id: '/api/public/immoflux-webhook'
       path: '/api/public/immoflux-webhook'
@@ -2588,6 +2608,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProprietatiIndexRoute: ProprietatiIndexRoute,
   ApiPublicAuthEmailHookRoute: ApiPublicAuthEmailHookRouteWithChildren,
   ApiPublicFacebookCatalogFeedRoute: ApiPublicFacebookCatalogFeedRoute,
+  ApiPublicImmofluxSyncRoute: ApiPublicImmofluxSyncRoute,
   ApiPublicImmofluxWebhookRoute: ApiPublicImmofluxWebhookRoute,
   ApiPublicMarketingWebhookRoute: ApiPublicMarketingWebhookRoute,
   ApiPublicOgImageRoute: ApiPublicOgImageRoute,
