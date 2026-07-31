@@ -192,7 +192,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       { children: CONSENT_MODE_SCRIPT },
-      { children: OG_URL_SYNC_SCRIPT },
+      
       { type: "application/ld+json", children: JSONLD_ORGANIZATION },
       { type: "application/ld+json", children: JSONLD_WEBSITE },
       { type: "application/ld+json", children: JSONLD_NAVIGATION },
