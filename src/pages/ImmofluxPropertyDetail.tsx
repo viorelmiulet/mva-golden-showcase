@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems } from "@/lib/statItem";
-import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
+import { composePropertyDescription } from "@/lib/propertyDescription";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));

@@ -52,7 +52,7 @@ import { Eye } from "lucide-react";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import SpecRail from "@/components/SpecRail";
 import PropertyCard from "@/components/PropertyCard";
-import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
+import { composePropertyDescription } from "@/lib/propertyDescription";
 
 const NotFoundInline = lazy(() => import("@/pages/NotFound"));
 
