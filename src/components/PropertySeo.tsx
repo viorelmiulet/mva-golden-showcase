@@ -131,33 +131,15 @@ const PropertySeo = ({
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Acasă", item: `${SITE}/` },
       { "@type": "ListItem", position: 2, name: "Proprietăți", item: `${SITE}/proprietati` },
-      { "@type": "ListItem", position: 3, name: title, item: url },
+      { "@type": "ListItem", position: 3, name: (title || '').trim() || pageTitle, item: url },
     ],
   };
 
+  // Title / description / canonical / og / twitter are server-rendered once by the
+  // route head() in src/routes/proprietati/$slug.tsx. This component only adds the
+  // structured data, so no head tag is emitted twice.
   return (
     <Helmet>
-      <title>{pageTitle}</title>
-      <meta name="description" content={metaDescription} />
-      <meta name="robots" content="index, follow, max-image-preview:large" />
-      <link rel="canonical" href={url} />
-
-      <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="MVA Imobiliare" />
-      <meta property="og:locale" content="ro_RO" />
-      <meta property="og:url" content={url} />
-      <meta property="og:title" content={fullCandidate || pageTitle} />
-      <meta property="og:description" content={metaDescription} />
-      <meta property="og:image" content={firstImage} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={title} />
-
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullCandidate || pageTitle} />
-      <meta name="twitter:description" content={metaDescription} />
-      <meta name="twitter:image" content={firstImage} />
-
       <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
     </Helmet>
