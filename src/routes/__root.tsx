@@ -292,7 +292,7 @@ function AppShell() {
         fallback={
           <div className="min-h-screen flex items-center justify-center bg-background">
             <div
-              className="h-10 w-10 rounded-full border-2 border-brass/30 border-t-gold animate-spin"
+              className="h-10 w-10 rounded-full border-2 border-brass/30 border-t-brass animate-spin"
               aria-label="Se încarcă"
             />
           </div>
