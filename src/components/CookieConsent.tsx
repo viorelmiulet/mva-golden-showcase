@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -257,9 +257,15 @@ const CookieConsent = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const detailsId = useId();
+
   // expose open-settings hooks
   useEffect(() => {
     const open = () => {
+      returnFocusRef.current =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
       const stored = readStored();
       if (stored) {
         setAnalytics(stored.analytics);
@@ -276,11 +282,40 @@ const CookieConsent = () => {
     };
   }, []);
 
+  // Reopened from the footer: move focus into the banner (never on auto-show,
+  // so the banner doesn't steal focus from the page).
+  useEffect(() => {
+    if (isVisible && returnFocusRef.current) panelRef.current?.focus();
+  }, [isVisible]);
+
+  // Reserve space at the bottom so the banner never covers page content.
+  useEffect(() => {
+    if (!isVisible) return;
+    const el = panelRef.current;
+    const apply = () => {
+      document.body.style.setProperty(
+        "padding-bottom",
+        `${(el?.offsetHeight ?? 0) + 24}px`
+      );
+    };
+    apply();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(apply) : null;
+    if (el && ro) ro.observe(el);
+    window.addEventListener("resize", apply);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", apply);
+      document.body.style.removeProperty("padding-bottom");
+    };
+  }, [isVisible, showDetails]);
+
   const persist = useCallback((c: Categories) => {
     writeStored(c);
     applyConsent(c);
     setIsVisible(false);
     setShowDetails(false);
+    returnFocusRef.current?.focus();
+    returnFocusRef.current = null;
   }, []);
 
   const acceptAll = () =>
@@ -294,12 +329,20 @@ const CookieConsent = () => {
 
   return (
     <div
-      role="dialog"
-      aria-modal="false"
+      role="region"
       aria-label={t.title}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          rejectAll();
+        }
+      }}
       className="fixed inset-x-0 bottom-0 z-[100] flex justify-center p-3 sm:p-4 pointer-events-none"
     >
-      <Card className="pointer-events-auto w-full max-w-2xl rounded-sm border border-stone bg-paper p-4 sm:p-5 shadow-none">
+      <Card
+        ref={panelRef}
+        tabIndex={-1}
+        className="pointer-events-auto w-full max-w-2xl outline-none rounded-sm border border-stone bg-paper p-4 sm:p-5 shadow-none">
         <div className="flex items-start gap-3">
           <Cookie className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
           <div className="flex-1 min-w-0">
@@ -310,7 +353,7 @@ const CookieConsent = () => {
                 size="sm"
                 onClick={rejectAll}
                 aria-label={t.close}
-                className="h-auto p-1 text-muted-foreground hover:text-foreground"
+                className="h-11 w-11 shrink-0 p-0 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -320,7 +363,7 @@ const CookieConsent = () => {
             </p>
 
             {showDetails && (
-              <div className="mt-4 space-y-3 rounded-md border bg-muted/30 p-3">
+              <div id={detailsId} className="mt-4 space-y-3 rounded-md border bg-muted/30 p-3">
                 <CategoryRow
                   title={t.necessary}
                   desc={t.necessaryDesc}
@@ -351,7 +394,7 @@ const CookieConsent = () => {
                 size="sm"
                 variant="outline"
                 onClick={rejectAll}
-                className="text-xs"
+                className="min-h-11 text-xs"
               >
                 {t.rejectAll}
               </Button>
@@ -360,7 +403,7 @@ const CookieConsent = () => {
                   size="sm"
                   variant="secondary"
                   onClick={saveCustom}
-                  className="text-xs"
+                  className="min-h-11 text-xs"
                 >
                   {t.save}
                 </Button>
@@ -369,7 +412,9 @@ const CookieConsent = () => {
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowDetails(true)}
-                  className="text-xs"
+                  aria-expanded={false}
+                  aria-controls={detailsId}
+                  className="min-h-11 text-xs"
                 >
                   {t.customize}
                   <ChevronDown className="ml-1 h-3 w-3" />
@@ -380,7 +425,9 @@ const CookieConsent = () => {
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowDetails(false)}
-                  className="text-xs"
+                  aria-expanded
+                  aria-controls={detailsId}
+                  className="min-h-11 min-w-11 text-xs"
                   aria-label={t.close}
                 >
                   <ChevronUp className="h-3 w-3" />
