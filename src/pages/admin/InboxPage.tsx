@@ -893,7 +893,7 @@ ${originalBody}`;
       bcc: forwardBcc || undefined,
       subject: forwardSubject,
       body: forwardBody,
-      attachments: attachmentsData
+      attachments: [...forwardOriginalAttachments, ...attachmentsData]
     });
     
     setForwardDialogOpen(false);
