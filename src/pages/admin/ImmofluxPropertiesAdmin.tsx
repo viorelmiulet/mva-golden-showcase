@@ -11,8 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router-compat";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
-import {
 import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
+import {
   Select,
   SelectContent,
   SelectItem,
