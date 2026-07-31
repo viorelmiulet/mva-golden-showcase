@@ -1264,9 +1264,9 @@ ${originalBody}`;
                 {/* Body */}
                 <div className="email-message-content mb-6 overflow-hidden rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
                   {looksLikeHtml(selectedEmail?.body_html) ? (
-                    <EmailHtmlFrame html={selectedEmail!.body_html as string} />
+                    <EmailHtmlFrame html={selectedEmail!.body_html as string} attachments={selectedEmail!.attachments} />
                   ) : looksLikeHtml(selectedEmail?.body_plain) ? (
-                    <EmailHtmlFrame html={selectedEmail!.body_plain as string} />
+                    <EmailHtmlFrame html={selectedEmail!.body_plain as string} attachments={selectedEmail!.attachments} />
                   ) : (
                     <div className="whitespace-pre-wrap text-sm text-email-preview-foreground leading-relaxed">
                       {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}

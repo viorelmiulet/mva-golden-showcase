@@ -1,7 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { resolveInlineImages } from "@/lib/emailHtml";
+import { getAttachmentUrl } from "./attachment-download";
 
 interface Props {
   html: string;
+  /** Atașamentele emailului, folosite pentru a rezolva imaginile inline `cid:`. */
+  attachments?: any[] | null;
   className?: string;
 }
 
@@ -11,10 +15,15 @@ interface Props {
  * text stays readable instead of wrapping into unreadable slivers. We also
  * bump the base font on small screens.
  */
-export function EmailHtmlFrame({ html, className }: Props) {
+export function EmailHtmlFrame({ html, attachments, className }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(500);
+
+  const safeHtml = useMemo(
+    () => resolveInlineImages(html || "", attachments, getAttachmentUrl),
+    [html, attachments],
+  );
 
   const srcDoc = `<!DOCTYPE html>
 <html lang="ro">
@@ -61,7 +70,7 @@ export function EmailHtmlFrame({ html, className }: Props) {
   h1 { font-size: 1.4rem; } h2 { font-size: 1.25rem; } h3 { font-size: 1.1rem; }
 </style>
 </head>
-<body>${html}</body>
+<body>${safeHtml}</body>
 </html>`;
 
   useEffect(() => {

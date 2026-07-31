@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { EmailHtmlFrame } from "./EmailHtmlFrame";
-import { looksLikeHtml, toPreviewText } from "@/lib/emailHtml";
+import { getEmailPreview, looksLikeHtml } from "@/lib/emailHtml";
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -241,7 +241,7 @@ export const EmailThreadView = ({
                       </div>
                       {!isExpanded && (
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                          {toPreviewText(email.body_plain || email.stripped_text || email.body_html).substring(0, 100) || '(Fără conținut)'}
+                          {getEmailPreview(email, 100) || '(Fără conținut)'}
                         </p>
                       )}
 
@@ -270,9 +270,9 @@ export const EmailThreadView = ({
                           <div className="overflow-hidden pl-[52px]">
                             <div className="email-message-content overflow-x-auto rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
                               {looksLikeHtml(email.body_html) ? (
-                                <EmailHtmlFrame html={email.body_html as string} />
+                                <EmailHtmlFrame html={email.body_html as string} attachments={email.attachments} />
                               ) : looksLikeHtml(email.body_plain) ? (
-                                <EmailHtmlFrame html={email.body_plain as string} />
+                                <EmailHtmlFrame html={email.body_plain as string} attachments={email.attachments} />
                               ) : (
                                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
                                   {email.body_plain || email.stripped_text || 'Nu există conținut'}
