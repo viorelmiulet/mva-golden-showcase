@@ -17,8 +17,12 @@ const json = (data: unknown, status = 200, cacheControl?: string) =>
     },
   });
 
-const splitPath = (splat: string | undefined) =>
-  (splat ?? "").split("/").filter(Boolean);
+const splitPath = (requestUrl: string) => {
+  const { pathname } = new URL(requestUrl);
+  const marker = "/api/public/immoflux-proxy";
+  const rest = pathname.slice(pathname.indexOf(marker) + marker.length);
+  return rest.split("/").filter(Boolean);
+};
 
 export const Route = createFileRoute("/api/public/immoflux-proxy/$")({
   server: {
@@ -27,9 +31,9 @@ export const Route = createFileRoute("/api/public/immoflux-proxy/$")({
 
       GET: withApiLogging(
         "/api/public/immoflux-proxy",
-        async ({ request, params }) => {
+        async ({ request }) => {
           const { immofluxProxy } = await import("@/lib/immoflux.server");
-          const parts = splitPath((params as { _splat?: string })._splat);
+          const parts = splitPath(request.url);
           const action = parts[0] ?? "";
           const url = new URL(request.url);
 
@@ -61,9 +65,9 @@ export const Route = createFileRoute("/api/public/immoflux-proxy/$")({
 
       POST: withApiLogging(
         "/api/public/immoflux-proxy",
-        async ({ request, params }) => {
+        async ({ request }) => {
           const { immofluxProxy } = await import("@/lib/immoflux.server");
-          const parts = splitPath((params as { _splat?: string })._splat);
+          const parts = splitPath(request.url);
           const action = parts[0] ?? "";
           const payload = await request.json().catch(() => ({}));
 
