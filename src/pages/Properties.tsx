@@ -158,46 +158,20 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const clearAll = () => setSearchParams(new URLSearchParams(), { replace: true });
 
   // ---- Data (unchanged Supabase query) ---------------------------------
+  const initialData = useMemo(
+    () => (initialRows ? mapCatalogRows(initialRows) : undefined),
+    [initialRows]
+  );
+
   const { data: catalogProperties = [], isLoading } = useQuery({
     queryKey: ["catalog_offers"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .is("project_id", null)
-        .neq("is_published", false)
-        .neq("availability_status", "sold")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return (data || []).map((p: any) => {
-        const isImmoflux = p.crm_source === "immoflux" || p.source === "immoflux";
-        const immofluxId =
-          isImmoflux && p.external_id ? Number(String(p.external_id).replace("immoflux-", "")) : null;
-        return {
-          ...p,
-          _immoflux_id: immofluxId,
-          _immoflux_slug:
-            isImmoflux && immofluxId
-              ? p.immoflux_slug ||
-                generateImmofluxSlug({
-                  idnum: immofluxId,
-                  nrcamere: p.rooms,
-                  zona: p.zone,
-                  localitate: p.location || p.city,
-                  suprutila: p.surface_min,
-                  etaj: p.floor,
-                } as any)
-              : null,
-          _immoflux_top: isImmoflux && p.promotion_type === "top",
-          _immoflux_pole: isImmoflux && p.promotion_type === "pole_position",
-        };
-      });
-    },
+    queryFn: async () => mapCatalogRows(await fetchCatalogOffers()),
+    ...(initialData ? { initialData } : {}),
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
+
 
   const properties = useMemo(
     () =>
