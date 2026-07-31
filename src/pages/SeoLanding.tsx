@@ -102,18 +102,11 @@ const SeoLanding = ({ preset }: Props) => {
   const canonical = `${SITE_URL}/${preset.slug}`;
   const count = filtered.length;
 
-  const itemListJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
+  const itemListJsonLd = buildItemListJsonLd(filtered as any[], {
     name: preset.h1,
-    numberOfItems: count,
-    itemListElement: filtered.slice(0, 20).map((p: any, idx: number) => ({
-      "@type": "ListItem",
-      position: idx + 1,
-      url: `${SITE_URL}${getPropertyUrl(p)}`,
-      name: p.title,
-    })),
-  };
+    url: canonical,
+    limit: 20,
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
