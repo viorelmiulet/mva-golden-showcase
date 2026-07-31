@@ -71,8 +71,8 @@ export async function handleProcessEmailQueue(): Promise<Response> {
     if (!messages?.length) continue;
 
     for (let i = 0; i < messages.length; i++) {
-      const msg = messages[i];
-      const payload = msg.message;
+      const msg = messages[i] as any;
+      const payload = msg.message as any;
 
       if (payload.queued_at) {
         const ageMs = Date.now() - new Date(payload.queued_at).getTime();
