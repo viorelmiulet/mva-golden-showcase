@@ -286,7 +286,6 @@ const ImmofluxPropertyDetail = () => {
   // Canonical = stored immoflux_slug when present, else URL slug.
   const canonicalSlug = p.immoflux_slug || urlSlug;
   const canonicalPath = `/proprietati/${canonicalSlug}`;
-  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
 
