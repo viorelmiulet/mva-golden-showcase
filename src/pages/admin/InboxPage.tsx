@@ -92,6 +92,7 @@ const InboxPage = () => {
   const [replyBody, setReplyBody] = useState("");
   const [replyAttachments, setReplyAttachments] = useState<File[]>([]);
   const replyFileInputRef = useRef<HTMLInputElement>(null);
+  const forwardFileInputRef = useRef<HTMLInputElement>(null);
   
   // Forward state
   const [forwardDialogOpen, setForwardDialogOpen] = useState(false);
