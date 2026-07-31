@@ -1,8 +1,11 @@
-import { lazy } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-const NavigateToComplex = lazy(() => import("@/components/NavigateToComplex"));
-
+/** Legacy singular/alias complex URL → canonical /complexe/{slug} (301). */
 export const Route = createFileRoute("/ansambluri-rezidentiale/$slug")({
-  component: () => <NavigateToComplex />,
+  beforeLoad: ({ params, location }) => {
+    throw redirect({
+      href: `/complexe/${params.slug}${location.searchStr || ""}`,
+      statusCode: 301,
+    });
+  },
 });
