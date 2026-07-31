@@ -6,20 +6,25 @@ import { staticHead } from "@/lib/routeMeta";
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 const num = (v: unknown) => {
   const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? String(Math.floor(n)) : undefined;
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
+};
+/** Keeps a value as-is (string or number) so the URL round-trips without a redirect. */
+const loose = (v: unknown): string | number | undefined => {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
 };
 
 const SORTS = ["recente", "pret_asc", "pret_desc", "suprafata"];
 
 export interface PropertiesSearch {
   zona?: string;
-  camere?: string;
-  pret_max?: string;
+  camere?: number;
+  pret_max?: number;
   tip?: string;
-  supr_min?: string;
-  etaj?: string;
+  supr_min?: number;
+  etaj?: string | number;
   compartimentare?: string;
-  an?: string;
+  an?: string | number;
   ansamblu?: string;
   sort?: string;
   p?: number;
@@ -85,9 +90,9 @@ export const Route = createFileRoute("/proprietati/")({
       pret_max: num(search.pret_max),
       tip: tip === "sale" || tip === "rent" ? tip : undefined,
       supr_min: num(search.supr_min),
-      etaj: str(search.etaj),
+      etaj: loose(search.etaj),
       compartimentare: str(search.compartimentare),
-      an: str(search.an),
+      an: loose(search.an),
       ansamblu: str(search.ansamblu),
       sort: sort && SORTS.includes(sort) ? sort : undefined,
       p: Number.isFinite(page) && page > 1 ? Math.floor(page) : undefined,
