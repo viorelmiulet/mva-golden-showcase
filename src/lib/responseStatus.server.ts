@@ -4,7 +4,8 @@ import { setResponseStatus } from "@tanstack/react-start/server";
 export function setSsrStatus(code: number) {
   try {
     setResponseStatus(code);
-  } catch {
+  } catch (e) {
+    console.error('[setSsrStatus] failed', e);
     // no active request context (e.g. prerender) — ignore
   }
 }
