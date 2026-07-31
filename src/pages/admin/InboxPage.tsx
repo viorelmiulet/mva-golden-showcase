@@ -1768,9 +1768,70 @@ ${originalBody}`;
                 className="min-h-[200px] max-h-[40vh] resize-y bg-muted/30 border-border"
               />
             </div>
+
+            {(forwardOriginalAttachments.length > 0 || forwardAttachments.length > 0) && (
+              <div className="flex flex-wrap gap-1.5">
+                {forwardOriginalAttachments.map((att, idx) => (
+                  <Badge
+                    key={`orig-${idx}`}
+                    variant="secondary"
+                    className="flex items-center gap-1 py-0.5 px-2 bg-muted/30 text-xs"
+                  >
+                    <Paperclip className="h-3 w-3" />
+                    <span className="max-w-[140px] truncate">{att.filename}</span>
+                    <button
+                      type="button"
+                      onClick={() => setForwardOriginalAttachments(prev => prev.filter((_, i) => i !== idx))}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {forwardAttachments.map((file, idx) => (
+                  <Badge
+                    key={`new-${idx}`}
+                    variant="secondary"
+                    className="flex items-center gap-1 py-0.5 px-2 bg-muted/30 text-xs"
+                  >
+                    <Paperclip className="h-3 w-3" />
+                    <span className="max-w-[140px] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setForwardAttachments(prev => prev.filter((_, i) => i !== idx))}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 w-full sm:w-auto sm:mr-auto">
+              <input
+                ref={forwardFileInputRef}
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setForwardAttachments(prev => [...prev, ...Array.from(e.target.files!)]);
+                  }
+                  e.target.value = '';
+                }}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => forwardFileInputRef.current?.click()}
+              >
+                <Paperclip className="h-4 w-4 mr-2" />
+                Atașează
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => setForwardDialogOpen(false)}>
               Anulează
             </Button>
