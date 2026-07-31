@@ -18,7 +18,6 @@ import { reportLovableError } from "@/lib/lovable-error-reporting";
 import appCss from "../styles.css?url";
 
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
-const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
@@ -305,7 +304,6 @@ function AppShell() {
           <Suspense fallback={null}>
             <DeferredShell />
             <CookieConsent />
-            <ScrollIndicator />
           </Suspense>
         </AppErrorBoundary>
       )}
