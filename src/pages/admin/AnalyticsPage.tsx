@@ -19,7 +19,13 @@ import {
   Tablet,
   RefreshCw,
   BarChart3,
-  MousePointerClick
+  MousePointerClick,
+  PhoneCall,
+  MessageCircle,
+  Mail,
+  Send,
+  Target
+
 } from "lucide-react";
 import {
   AreaChart,
