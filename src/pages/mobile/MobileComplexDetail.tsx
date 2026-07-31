@@ -165,7 +165,7 @@ const MobileComplexDetail = () => {
           <div className="absolute bottom-4 left-4 right-4">
             <div className="flex flex-wrap gap-2">
               {complex.is_recommended && (
-                <Badge className="bg-gold text-background">
+                <Badge className="bg-brass text-background">
                   {language === 'ro' ? 'Recomandat' : 'Recommended'}
                 </Badge>
               )}
@@ -191,7 +191,7 @@ const MobileComplexDetail = () => {
         {/* Quick stats */}
         <div className="flex flex-wrap gap-2">
           {complex.price_range && (
-            <Badge variant="outline" className="text-gold border-gold/30 py-1.5 px-3">
+            <Badge variant="outline" className="text-brass border-brass/30 py-1.5 px-3">
               {complex.price_range}
             </Badge>
           )}
@@ -231,7 +231,7 @@ const MobileComplexDetail = () => {
               <div className="grid grid-cols-2 gap-2">
                 {complex.features.map((feature: string, index: number) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-gold flex-shrink-0" />
+                    <Check className="w-4 h-4 text-brass flex-shrink-0" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -250,7 +250,7 @@ const MobileComplexDetail = () => {
               <div className="space-y-2">
                 {complex.location_advantages.map((advantage: string, index: number) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-gold flex-shrink-0" />
+                    <Check className="w-4 h-4 text-brass flex-shrink-0" />
                     <span>{advantage}</span>
                   </div>
                 ))}
@@ -298,7 +298,7 @@ const MobileComplexDetail = () => {
               {apartments.map((apt) => (
                 <div key={apt.id} className="space-y-1">
                   <Link to={`/app/proprietate/${apt.id}`}>
-                    <Card className="hover:border-gold/30 transition-colors">
+                    <Card className="hover:border-brass/30 transition-colors">
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -311,8 +311,8 @@ const MobileComplexDetail = () => {
                                 quality={60}
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
-                                <Home className="w-6 h-6 text-gold" />
+                              <div className="w-12 h-12 rounded-lg bg-brass/10 flex items-center justify-center">
+                                <Home className="w-6 h-6 text-brass" />
                               </div>
                             )}
                             <div>
@@ -323,7 +323,7 @@ const MobileComplexDetail = () => {
                                 {apt.rooms} {language === 'ro' ? 'cam' : 'rooms'}
                                 {apt.surface_min && ` • ${apt.surface_min}m²`}
                               </p>
-                              <p className="text-gold font-semibold text-sm">
+                              <p className="text-brass font-semibold text-sm">
                                 {formatPrice(apt.price_min || 0, apt.currency || 'EUR')}
                               </p>
                             </div>
@@ -336,7 +336,7 @@ const MobileComplexDetail = () => {
                   {apt.floor_plan && apt.availability_status === 'available' && (
                     <button
                       type="button"
-                      className="w-full rounded-lg overflow-hidden border border-border hover:border-gold/40 transition-all cursor-zoom-in group"
+                      className="w-full rounded-lg overflow-hidden border border-border hover:border-brass/40 transition-all cursor-zoom-in group"
                       onClick={() => {
                         setLightboxImages([apt.floor_plan!]);
                         setLightboxOpen(true);

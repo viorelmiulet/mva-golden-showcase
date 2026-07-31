@@ -156,7 +156,7 @@ export const EmailAutocomplete = ({
                 onClick={() => handleSelectContact(contact)}
                 className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors flex items-center gap-2.5"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold text-xs font-medium shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center text-brass text-xs font-medium shrink-0">
                   {contact.email.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">

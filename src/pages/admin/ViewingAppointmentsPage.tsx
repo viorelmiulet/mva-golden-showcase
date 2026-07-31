@@ -207,9 +207,9 @@ const ViewingAppointmentsPage = () => {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/10">
-              <CalendarCheck className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20 shadow-lg shadow-none/10">
+              <CalendarCheck className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>
@@ -279,7 +279,7 @@ const ViewingAppointmentsPage = () => {
                 placeholder="Caută după nume, telefon sau proprietate..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
+                className="pl-10 bg-white/5 border-white/10 focus:border-brass/50"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>

@@ -203,7 +203,7 @@ export const MultiEmailInput = ({
             className={cn(
               "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium transition-colors",
               isValidEmail(email) 
-                ? "bg-gold/20 text-gold border border-gold/30" 
+                ? "bg-brass/20 text-brass border border-brass/30" 
                 : "bg-destructive/20 text-destructive border border-destructive/30"
             )}
           >
@@ -262,7 +262,7 @@ export const MultiEmailInput = ({
                 onClick={() => addEmail(emailAddress)}
                 className="w-full px-3 py-2 text-left hover:bg-white/5 transition-colors flex items-center gap-2.5"
               >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center text-gold text-xs font-medium shrink-0">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center text-brass text-xs font-medium shrink-0">
                   {emailAddress.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">

@@ -160,7 +160,7 @@ const MobileSearch = () => {
                 <Button variant="outline" size="icon" className="h-11 w-11 relative">
                   <SlidersHorizontal className="w-4 h-4" />
                   {activeFiltersCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-background text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-brass text-background text-xs font-bold rounded-full flex items-center justify-center">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -302,7 +302,7 @@ const MobileSearch = () => {
           ) : (
             filteredProperties.map((property) => (
               <Link key={property.id} to={`/app/proprietate/${property.id}`}>
-                <Card className="overflow-hidden hover:border-gold/30 transition-colors">
+                <Card className="overflow-hidden hover:border-brass/30 transition-colors">
                   <CardContent className="p-0">
                     <div className="relative">
                       <img
@@ -325,7 +325,7 @@ const MobileSearch = () => {
                         {property.location || 'București'}
                       </p>
                       <div className="flex items-center justify-between">
-                        <span className="text-gold font-bold">
+                        <span className="text-brass font-bold">
                           {formatPrice(property.price_min || 0, property.currency || 'EUR')}
                         </span>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">

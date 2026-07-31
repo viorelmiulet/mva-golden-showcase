@@ -44,7 +44,7 @@ const ContractPreviewDialog = ({
                 size="sm"
                 onClick={onDownload}
                 disabled={isLoading}
-                className="bg-gold hover:bg-gold/90"
+                className="bg-brass hover:bg-brass/90"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Descarcă PDF
@@ -57,7 +57,7 @@ const ContractPreviewDialog = ({
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin text-gold mx-auto mb-4" />
+                <Loader2 className="h-8 w-8 animate-spin text-brass mx-auto mb-4" />
                 <p className="text-muted-foreground">Se generează previzualizarea...</p>
               </div>
             </div>

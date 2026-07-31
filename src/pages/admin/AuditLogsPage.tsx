@@ -88,7 +88,7 @@ const actionTypeLabels: Record<string, { label: string; color: string; icon: Rea
   logout: { label: "Deconectare", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: <LogOut className="h-3 w-3" /> },
   generate_pdf: { label: "Generare PDF", color: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30", icon: <FileText className="h-3 w-3" /> },
   send_email: { label: "Trimitere Email", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30", icon: <Mail className="h-3 w-3" /> },
-  sign_contract: { label: "Semnare Contract", color: "bg-gold/20 text-gold border-gold/30", icon: <FileText className="h-3 w-3" /> },
+  sign_contract: { label: "Semnare Contract", color: "bg-brass/20 text-brass border-brass/30", icon: <FileText className="h-3 w-3" /> },
 };
 
 const tableNameLabels: Record<string, string> = {
@@ -198,9 +198,9 @@ const AuditLogsPage = () => {
       <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-              <History className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+              <History className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>
@@ -270,7 +270,7 @@ const AuditLogsPage = () => {
           <CardContent className="p-0">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brass"></div>
               </div>
             ) : logs && logs.length > 0 ? (
               <>

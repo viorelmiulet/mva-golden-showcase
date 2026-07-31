@@ -65,7 +65,7 @@ const BlogPost = () => {
       <>
         <Header />
         <main className="min-h-screen pt-20 flex items-center justify-center">
-          <div className="animate-pulse text-gold">Se încarcă...</div>
+          <div className="animate-pulse text-brass">Se încarcă...</div>
         </main>
         <Footer />
       </>
@@ -190,13 +190,13 @@ const BlogPost = () => {
             <div className="max-w-4xl mx-auto">
               <Breadcrumbs items={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />
 
-              <Link to="/blog" className="inline-flex items-center gap-2 text-gold hover:text-gold/80 transition-colors mb-6">
+              <Link to="/blog" className="inline-flex items-center gap-2 text-brass hover:text-brass/80 transition-colors mb-6">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Înapoi la Blog</span>
               </Link>
 
               <header className="mb-8">
-                <Badge className="mb-4 bg-gold/20 text-gold border-gold/30 hover:bg-gold/30">
+                <Badge className="mb-4 bg-brass/20 text-brass border-brass/30 hover:bg-brass/30">
                   <CategoryIcon className="h-3 w-3 mr-1" />
                   {post.category}
                 </Badge>
@@ -244,19 +244,19 @@ const BlogPost = () => {
                     prose-li:text-muted-foreground prose-li:mb-2
                     prose-strong:text-foreground prose-strong:font-semibold
                     prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-sm
-                    prose-a:text-gold prose-a:no-underline hover:prose-a:underline"
+                    prose-a:text-brass prose-a:no-underline hover:prose-a:underline"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
               )}
 
-              <div className="mt-12 p-6 sm:p-8 bg-brass rounded-2xl border border-gold/20">
+              <div className="mt-12 p-6 sm:p-8 bg-brass rounded-2xl border border-brass/20">
                 <h3 className="text-xl font-bold mb-3">Ai nevoie de ajutor?</h3>
                 <p className="text-muted-foreground mb-4">
                   Echipa noastră de specialiști este aici să te ghideze în procesul de cumpărare sau vânzare a proprietății tale.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link to="/#contact">
-                    <Button className="bg-gold hover:bg-gold/90 text-primary-foreground">
+                    <Button className="bg-brass hover:bg-brass/90 text-primary-foreground">
                       Contactează-ne
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -281,14 +281,14 @@ const BlogPost = () => {
                   <div className="grid gap-4 sm:grid-cols-3">
                     {relatedPosts.map((relatedPost) => (
                       <Link key={relatedPost.slug} to={`/blog/${relatedPost.slug}`}>
-                        <Card className="h-full  transition-all hover:border-gold/50">
+                        <Card className="h-full  transition-all hover:border-brass/50">
                           <CardHeader className="p-4">
-                            <CardTitle className="text-base line-clamp-2 group-hover:text-gold transition-colors">
+                            <CardTitle className="text-base line-clamp-2 group-hover:text-brass transition-colors">
                               {relatedPost.title}
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="p-4 pt-0">
-                            <span className="text-gold text-sm flex items-center gap-1">
+                            <span className="text-brass text-sm flex items-center gap-1">
                               Citește
                               <ArrowRight className="h-3 w-3" />
                             </span>

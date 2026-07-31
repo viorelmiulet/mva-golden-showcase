@@ -18,7 +18,6 @@ import { reportLovableError } from "@/lib/lovable-error-reporting";
 import appCss from "../styles.css?url";
 
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
-const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
@@ -292,7 +291,7 @@ function AppShell() {
         fallback={
           <div className="min-h-screen flex items-center justify-center bg-background">
             <div
-              className="h-10 w-10 rounded-full border-2 border-gold/30 border-t-gold animate-spin"
+              className="h-10 w-10 rounded-full border-2 border-brass/30 border-t-brass animate-spin"
               aria-label="Se încarcă"
             />
           </div>
@@ -305,7 +304,6 @@ function AppShell() {
           <Suspense fallback={null}>
             <DeferredShell />
             <CookieConsent />
-            <ScrollIndicator />
           </Suspense>
         </AppErrorBoundary>
       )}

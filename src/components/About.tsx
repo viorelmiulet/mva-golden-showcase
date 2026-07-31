@@ -47,7 +47,7 @@ const About = () => {
             <header className="text-center mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 tracking-tight" itemProp="headline">
                 <span className="text-foreground">{language === 'ro' ? 'Partenerii ' : 'Your Trusted '}</span>
-                <span className="text-gradient-gold">{language === 'ro' ? 'Tăi de Încredere' : 'Partners'}</span>
+                <span className="text-gradient-brass">{language === 'ro' ? 'Tăi de Încredere' : 'Partners'}</span>
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
                 {language === 'ro' 
@@ -64,8 +64,8 @@ const About = () => {
               return (
                 <ScrollReveal key={i} delay={i * 0.1}>
                   <div className="text-center p-4 sm:p-6 glass rounded-2xl border border-border/50">
-                    <Icon className="w-6 h-6 text-gold mx-auto mb-3" />
-                    <div className="text-2xl sm:text-3xl font-bold text-gradient-gold mb-1">{item.number}</div>
+                    <Icon className="w-6 h-6 text-brass mx-auto mb-3" />
+                    <div className="text-2xl sm:text-3xl font-bold text-gradient-brass mb-1">{item.number}</div>
                     <div className="text-xs sm:text-sm text-muted-foreground">{item.label}</div>
                   </div>
                 </ScrollReveal>
@@ -77,7 +77,7 @@ const About = () => {
           <ScrollReveal>
             <article id="our-story" className="mb-12 lg:mb-16">
               <div className="flex items-center gap-3 mb-4">
-                <Heart className="w-5 h-5 text-gold" />
+                <Heart className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {language === 'ro' ? 'Povestea Noastră' : 'Our Story'}
                 </h2>
@@ -101,7 +101,7 @@ const About = () => {
           <ScrollReveal>
             <article id="who-we-are" className="mb-12 lg:mb-16">
               <div className="flex items-center gap-3 mb-4">
-                <Users className="w-5 h-5 text-gold" />
+                <Users className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {language === 'ro' ? 'Cine Suntem' : 'Who We Are'}
                 </h2>
@@ -118,7 +118,7 @@ const About = () => {
           <ScrollReveal>
             <article id="what-we-do" className="mb-12 lg:mb-16">
               <div className="flex items-center gap-3 mb-4">
-                <Building className="w-5 h-5 text-gold" />
+                <Building className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {language === 'ro' ? 'Ce Facem' : 'What We Do'}
                 </h2>
@@ -145,7 +145,7 @@ const About = () => {
                   'Exclusive representation of sellers'
                 ]).map((service, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-brass mt-0.5 flex-shrink-0" />
                     <span className="text-sm text-foreground">{service}</span>
                   </li>
                 ))}
@@ -155,9 +155,9 @@ const About = () => {
 
           {/* Trusted Source */}
           <ScrollReveal>
-            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-2xl border border-gold/30">
+            <article id="trusted-source" className="mb-12 lg:mb-16 p-6 glass rounded-2xl border border-brass/30">
               <div className="flex items-center gap-3 mb-3">
-                <Shield className="w-5 h-5 text-gold" />
+                <Shield className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {language === 'ro' ? 'Sursă de Încredere' : 'A Trusted Source'}
                 </h2>
@@ -176,7 +176,7 @@ const About = () => {
           <ScrollReveal>
             <article id="featured-partners" className="mb-12 lg:mb-16">
               <div className="flex items-center gap-3 mb-4">
-                <Building className="w-5 h-5 text-gold" />
+                <Building className="w-5 h-5 text-brass" />
                 <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {language === 'ro' ? 'Parteneri și Complexe Promovate' : 'Featured Partners & Complexes'}
                 </h2>
@@ -191,20 +191,20 @@ const About = () => {
                   <a
                     key={i}
                     href={partner.url}
-                    className="block p-4 glass rounded-2xl border border-border/50 hover:border-gold/50 transition-colors text-center"
+                    className="block p-4 glass rounded-2xl border border-border/50 hover:border-brass/50 transition-colors text-center"
                   >
-                    <Building className="w-5 h-5 text-gold mx-auto mb-2" />
+                    <Building className="w-5 h-5 text-brass mx-auto mb-2" />
                     <span className="text-sm font-semibold text-foreground">{partner.name}</span>
                   </a>
                 ))}
               </div>
               <div className="mt-4 flex flex-wrap gap-3 justify-center text-xs text-muted-foreground">
                 <span>{language === 'ro' ? 'Vezi și:' : 'See also:'}</span>
-                <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">ANPC</a>
+                <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" className="text-brass hover:underline">ANPC</a>
                 <span>·</span>
-                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">SOL Europa</a>
+                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-brass hover:underline">SOL Europa</a>
                 <span>·</span>
-                <a href="https://www.google.com/maps/place/MVA+Imobiliare" target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">Google Business</a>
+                <a href="https://www.google.com/maps/place/MVA+Imobiliare" target="_blank" rel="noopener noreferrer" className="text-brass hover:underline">Google Business</a>
               </div>
             </article>
           </ScrollReveal>
@@ -218,13 +218,13 @@ const About = () => {
                 </h3>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-3">
                   {language === 'ro' 
-                    ? <>Să conectăm clienții cu <span className="text-gold font-semibold">proprietățile perfecte</span> pentru stilul lor de viață, oferind servicii imobiliare de excepție și consultanță specializată.</>
-                    : <>To connect clients with the <span className="text-gold font-semibold">perfect properties</span> for their lifestyle, providing exceptional real estate services and specialized consulting.</>}
+                    ? <>Să conectăm clienții cu <span className="text-brass font-semibold">proprietățile perfecte</span> pentru stilul lor de viață, oferind servicii imobiliare de excepție și consultanță specializată.</>
+                    : <>To connect clients with the <span className="text-brass font-semibold">perfect properties</span> for their lifestyle, providing exceptional real estate services and specialized consulting.</>}
                 </p>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {language === 'ro'
-                    ? <>Echipa noastră vă ghidează prin fiecare etapă, asigurându-se că fiecare investiție este o <span className="text-gold font-semibold">experiență de neuitat</span>.</>
-                    : <>Our team guides you through every step, ensuring that every investment is an <span className="text-gold font-semibold">unforgettable experience</span>.</>}
+                    ? <>Echipa noastră vă ghidează prin fiecare etapă, asigurându-se că fiecare investiție este o <span className="text-brass font-semibold">experiență de neuitat</span>.</>
+                    : <>Our team guides you through every step, ensuring that every investment is an <span className="text-brass font-semibold">unforgettable experience</span>.</>}
                 </p>
               </article>
             </ScrollReveal>
@@ -237,7 +237,7 @@ const About = () => {
                 <div className="space-y-3">
                   {values.map((value, i) => (
                     <div key={i} className="flex items-start gap-3">
-                      <CheckCircle className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-brass mt-0.5 flex-shrink-0" />
                       <p className="text-sm sm:text-base text-foreground">{value}</p>
                     </div>
                   ))}

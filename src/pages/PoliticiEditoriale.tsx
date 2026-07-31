@@ -62,7 +62,7 @@ const PoliticiEditoriale = () => {
             <p>
               Echipa editorială este formată din agenți imobiliari licențiați și consultanți cu minimum
               5 ani de experiență pe piața din Sectorul 6 și Chiajna. Pentru detalii despre echipă,
-              consultați pagina <a href="/despre-noi" className="text-gold hover:underline">Despre Noi</a>.
+              consultați pagina <a href="/despre-noi" className="text-brass hover:underline">Despre Noi</a>.
             </p>
           </section>
 
@@ -70,10 +70,10 @@ const PoliticiEditoriale = () => {
             <h2 className="text-2xl font-semibold mb-3">Corecții și feedback</h2>
             <p>
               Pentru sesizări privind conținutul, ne poți contacta la{" "}
-              <a href="mailto:contact@mvaimobiliare.ro" className="text-gold hover:underline">
+              <a href="mailto:contact@mvaimobiliare.ro" className="text-brass hover:underline">
                 contact@mvaimobiliare.ro
               </a>{" "}
-              sau prin pagina de <a href="/contact" className="text-gold hover:underline">Contact</a>.
+              sau prin pagina de <a href="/contact" className="text-brass hover:underline">Contact</a>.
             </p>
           </section>
         </article>

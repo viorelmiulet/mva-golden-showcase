@@ -89,7 +89,7 @@ const MobileOnboarding = ({ onComplete }: MobileOnboardingProps) => {
             className="flex flex-col items-center text-center"
           >
             {/* Icon */}
-            <div className={`w-32 h-32 rounded-full bg-gradient-to-b ${slide.color} flex items-center justify-center mb-8`}>
+            <div className={`w-32 h-32 rounded-full bg-stone flex items-center justify-center mb-8`}>
               <Icon className="w-16 h-16 text-primary" />
             </div>
 

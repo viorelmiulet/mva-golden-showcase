@@ -61,7 +61,7 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-gold" />
+            <BarChart3 className="w-6 h-6 text-brass" />
             Analytics Site
           </h2>
           <p className="text-muted-foreground">Ultimele 7 zile</p>
@@ -101,7 +101,7 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                 <p className="text-sm font-medium text-muted-foreground">Vizitatori</p>
                 <p className="text-2xl font-bold">{totalVisitors}</p>
               </div>
-              <Users className="w-8 h-8 text-gold/60" />
+              <Users className="w-8 h-8 text-brass/60" />
             </div>
           </CardContent>
         </Card>
@@ -113,7 +113,7 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                 <p className="text-sm font-medium text-muted-foreground">Vizualizări</p>
                 <p className="text-2xl font-bold">{totalPageviews}</p>
               </div>
-              <Eye className="w-8 h-8 text-gold/60" />
+              <Eye className="w-8 h-8 text-brass/60" />
             </div>
           </CardContent>
         </Card>
@@ -125,7 +125,7 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                 <p className="text-sm font-medium text-muted-foreground">Durată Sesiune</p>
                 <p className="text-2xl font-bold">{Math.round(avgSessionDuration || 0)}s</p>
               </div>
-              <Clock className="w-8 h-8 text-gold/60" />
+              <Clock className="w-8 h-8 text-brass/60" />
             </div>
           </CardContent>
         </Card>
@@ -137,7 +137,7 @@ const AdminAnalytics = ({ data }: AdminAnalyticsProps) => {
                 <p className="text-sm font-medium text-muted-foreground">Bounce Rate</p>
                 <p className="text-2xl font-bold">{Math.round(avgBounceRate || 0)}%</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-gold/60" />
+              <TrendingUp className="w-8 h-8 text-brass/60" />
             </div>
           </CardContent>
         </Card>

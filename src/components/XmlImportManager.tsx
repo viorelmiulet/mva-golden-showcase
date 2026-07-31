@@ -379,10 +379,10 @@ const WebsiteScrapingManager = () => {
   return (
     <div className="space-y-6">
       {/* ID Scraping Section */}
-      <Card className="border-gold/20">
+      <Card className="border-brass/20">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Plus className="h-4 w-4 text-gold" />
+            <Plus className="h-4 w-4 text-brass" />
             Adaugă Proprietăți via ID
           </CardTitle>
           <CardDescription>
@@ -404,7 +404,7 @@ const WebsiteScrapingManager = () => {
                   disabled={loadingStates[index] || !id.trim()}
                   size="sm"
                   variant="outline"
-                  className="border-gold/30 h-9 w-9 p-0"
+                  className="border-brass/30 h-9 w-9 p-0"
                 >
                   {loadingStates[index] ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -419,7 +419,7 @@ const WebsiteScrapingManager = () => {
           <Button
             onClick={scrapeAllProperties}
             disabled={isScrapingLoading}
-            className="w-full h-9 text-sm bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold"
+            className="w-full h-9 text-sm bg-gradient-to-r from-brass to-brass-light text-black hover:from-brass-light hover:to-brass"
           >
             {isScrapingLoading ? (
               <>
@@ -683,10 +683,10 @@ const WebsiteScrapingManager = () => {
       )}
 
       {/* Fix Property Zones */}
-      <Card className="border-gold/20">
+      <Card className="border-brass/20">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <MapPin className="h-4 w-4 text-gold" />
+            <MapPin className="h-4 w-4 text-brass" />
             Corectează Zone Proprietăți
           </CardTitle>
           <CardDescription>
@@ -709,7 +709,7 @@ const WebsiteScrapingManager = () => {
               onClick={() => handleFixZones(false)}
               disabled={isFixingZones}
               size="sm"
-              className="flex-1 bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold"
+              className="flex-1 bg-gradient-to-r from-brass to-brass-light text-black hover:from-brass-light hover:to-brass"
             >
               {isFixingZones ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <MapPin className="w-4 h-4 mr-2" />}
               Corectează Zone

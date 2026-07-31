@@ -188,7 +188,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
 
   const getNavCls = (isActive: boolean) =>
     isActive
-      ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold border-l-2 border-gold pl-[10px]"
+      ? "bg-gradient-to-r from-brass/15 to-brass/5 text-brass border-l-2 border-brass pl-[10px]"
       : "text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent pl-[10px]";
 
   const handleNavClick = () => {
@@ -227,16 +227,16 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                 >
                   <div className="relative">
                     <motion.div 
-                      className={`p-1.5 rounded-md ${isActive ? 'bg-gold/20' : 'bg-white/5'}`}
+                      className={`p-1.5 rounded-md ${isActive ? 'bg-brass/20' : 'bg-white/5'}`}
                       variants={iconHoverVariants}
                       initial="rest"
                       whileHover="hover"
                     >
-                      <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : ''}`} />
+                      <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-brass' : ''}`} />
                     </motion.div>
                     {showBadge && (
                       <Badge 
-                        className="absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-gold text-black border-0 flex items-center justify-center"
+                        className="absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-brass text-black border-0 flex items-center justify-center"
                       >
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </Badge>
@@ -275,11 +275,11 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
               transition={{ duration: 0.3 }}
             >
               <motion.div 
-                className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center"
+                className="w-8 h-8 rounded-lg bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center"
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
               >
-                <Layers className="h-4 w-4 text-gold" />
+                <Layers className="h-4 w-4 text-brass" />
               </motion.div>
               <span className="font-semibold text-sm bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
                 MVA Admin
@@ -294,7 +294,7 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-gold transition-colors"
+              className="h-8 w-8 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-brass transition-colors"
               title={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
               aria-label={collapsed ? "Extinde sidebar" : "Restrânge sidebar"}
             >
@@ -354,8 +354,8 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                                 }
                                 ${isActive 
                                   ? collapsed 
-                                    ? 'bg-gold/20 text-gold' 
-                                    : 'bg-gradient-to-r from-gold/15 to-transparent text-gold border-l-2 border-gold' 
+                                    ? 'bg-brass/20 text-brass' 
+                                    : 'bg-gradient-to-r from-brass/15 to-transparent text-brass border-l-2 border-brass' 
                                   : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border-l-2 border-transparent'
                                 }
                                 ${collapsed ? '' : 'ml-0'}
@@ -366,17 +366,17 @@ export function AdminSidebar({ isMobileSheet, onNavigate }: AdminSidebarProps) {
                                 <motion.div 
                                   className={`
                                     ${collapsed ? '' : 'p-1.5'} rounded-md transition-colors
-                                    ${isActive && !collapsed ? 'bg-gold/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
+                                    ${isActive && !collapsed ? 'bg-brass/20' : !collapsed ? 'bg-white/5 group-hover:bg-white/10' : ''}
                                   `}
                                   variants={iconHoverVariants}
                                   initial="rest"
                                   whileHover="hover"
                                 >
-                                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-gold' : 'group-hover:text-foreground'}`} />
+                                  <item.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-brass' : 'group-hover:text-foreground'}`} />
                                 </motion.div>
                                 {showBadge && (
                                   <Badge 
-                                    className={`absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-gold text-black border-0 flex items-center justify-center ${collapsed ? '-top-1 -right-1 h-3.5 min-w-3.5 text-[9px]' : ''}`}
+                                    className={`absolute -top-2 -right-2 h-4 min-w-4 px-1 text-[10px] bg-brass text-black border-0 flex items-center justify-center ${collapsed ? '-top-1 -right-1 h-3.5 min-w-3.5 text-[9px]' : ''}`}
                                   >
                                     {unreadCount > 99 ? '99+' : unreadCount}
                                   </Badge>

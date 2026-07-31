@@ -408,9 +408,9 @@ const ReportsPage = () => {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-4">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-            <FileText className="h-6 w-6 text-gold" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+            <FileText className="h-6 w-6 text-brass" />
           </div>
         </div>
         <div>
@@ -425,7 +425,7 @@ const ReportsPage = () => {
           <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden">
             <div className="p-6 border-b border-white/5">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-gold/10 text-gold">
+                <div className="p-2 rounded-xl bg-brass/10 text-brass">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
@@ -485,7 +485,7 @@ const ReportsPage = () => {
               <Button 
                 onClick={generatePDF} 
                 disabled={isLoading || isGenerating}
-                className="w-full bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                className="w-full bg-gradient-to-r from-brass to-brass-light text-black hover:shadow-lg hover:shadow-none/25"
               >
                 {isGenerating ? (
                   <>
@@ -524,12 +524,12 @@ const ReportsPage = () => {
             <div className="p-6">
               {isLoading ? (
                 <div className="flex items-center justify-center h-48">
-                  <Loader2 className="h-8 w-8 animate-spin text-gold/50" />
+                  <Loader2 className="h-8 w-8 animate-spin text-brass/50" />
                 </div>
               ) : reportData ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {[
-                    { icon: Euro, label: "Comisioane EUR", value: `${reportData.totalEUR.toLocaleString()} €`, gradient: "from-gold/20 to-amber-500/20", iconColor: "text-gold" },
+                    { icon: Euro, label: "Comisioane EUR", value: `${reportData.totalEUR.toLocaleString()} €`, gradient: "from-brass/20 to-amber-500/20", iconColor: "text-brass" },
                     { icon: Euro, label: "Comisioane RON", value: `${reportData.totalRON.toLocaleString()} RON`, gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
                     { icon: Building2, label: "Tranzacții", value: reportData.salesCount + reportData.rentCount, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400" },
                     { icon: CalendarCheck, label: "Vizionări", value: reportData.viewingsTotal, gradient: "from-purple-500/20 to-violet-500/20", iconColor: "text-purple-400" },

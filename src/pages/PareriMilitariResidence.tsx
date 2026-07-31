@@ -226,7 +226,7 @@ const PareriMilitariResidence = () => {
       <Star
         key={i}
         className={`w-4 h-4 ${
-          i < full ? "fill-gold text-gold" : "text-muted-foreground/40"
+          i < full ? "fill-brass text-brass" : "text-muted-foreground/40"
         }`}
       />
     ));
@@ -275,7 +275,7 @@ const PareriMilitariResidence = () => {
       <main className="pt-24 pb-16 bg-background">
         {/* Hero */}
         <section className="container mx-auto px-4 max-w-5xl">
-          <Badge className="bg-gold/10 text-gold border-gold/30 mb-4">
+          <Badge className="bg-brass/10 text-brass border-brass/30 mb-4">
             Review complet · Actualizat ianuarie 2026
           </Badge>
           <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
@@ -316,15 +316,15 @@ const PareriMilitariResidence = () => {
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {ratings.map(({ label, score, icon: Icon }) => (
-              <Card key={label} className="border-gold/20">
+              <Card key={label} className="border-brass/20">
                 <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-gold" />
+                  <div className="w-11 h-11 rounded-full bg-brass/10 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-brass" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-semibold">{label}</span>
-                      <span className="text-sm font-bold text-gold">{score.toFixed(1)}/5</span>
+                      <span className="text-sm font-bold text-brass">{score.toFixed(1)}/5</span>
                     </div>
                     <div className="flex">{stars(score)}</div>
                   </div>
@@ -391,9 +391,9 @@ const PareriMilitariResidence = () => {
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {testimonials.map((t) => (
-              <Card key={t.name} className="border-gold/20">
+              <Card key={t.name} className="border-brass/20">
                 <CardContent className="p-6">
-                  <Quote className="w-6 h-6 text-gold mb-3" />
+                  <Quote className="w-6 h-6 text-brass mb-3" />
                   <p className="text-sm mb-4 italic">"{t.text}"</p>
                   <div className="flex items-center justify-between">
                     <div>
@@ -410,7 +410,7 @@ const PareriMilitariResidence = () => {
 
         {/* Verdict */}
         <section className="container mx-auto px-4 max-w-5xl mt-14">
-          <Card className="bg-brass border-gold/30">
+          <Card className="bg-brass border-brass/30">
             <CardContent className="p-8">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
                 Verdict MVA Imobiliare: merită Militari Residence în 2026?
@@ -433,7 +433,7 @@ const PareriMilitariResidence = () => {
           <h2 className="text-2xl md:text-3xl font-bold mb-6">Ghiduri conexe Militari Residence</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Link to="/ghid-militari-residence">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">Ghid complet Militari Residence</h3>
                   <p className="text-sm text-muted-foreground">Tot ce trebuie să știi înainte să cumperi.</p>
@@ -441,7 +441,7 @@ const PareriMilitariResidence = () => {
               </Card>
             </Link>
             <Link to="/viata-in-militari-residence">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">Viața în Militari Residence</h3>
                   <p className="text-sm text-muted-foreground">Rutina zilnică, comunitate, trafic și sfaturi lived-in.</p>
@@ -449,7 +449,7 @@ const PareriMilitariResidence = () => {
               </Card>
             </Link>
             <Link to="/facilitati-militari-residence">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">Facilități Militari Residence</h3>
                   <p className="text-sm text-muted-foreground">Magazine, școli, medici, transport și restaurante.</p>
@@ -457,7 +457,7 @@ const PareriMilitariResidence = () => {
               </Card>
             </Link>
             <Link to="/militari-vs-chiajna-comparatie">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">Militari vs Chiajna — comparație</h3>
                   <p className="text-sm text-muted-foreground">Care zonă merită mai mult pentru bugetul tău.</p>
@@ -465,7 +465,7 @@ const PareriMilitariResidence = () => {
               </Card>
             </Link>
             <Link to="/garsoniere-militari-residence">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">Garsoniere în Militari Residence</h3>
                   <p className="text-sm text-muted-foreground">Prețuri, planuri și disponibilitate actualizată.</p>
@@ -473,7 +473,7 @@ const PareriMilitariResidence = () => {
               </Card>
             </Link>
             <Link to="/renew-residence">
-              <Card className="hover:border-gold/40 transition-colors h-full">
+              <Card className="hover:border-brass/40 transition-colors h-full">
                 <CardContent className="p-5">
                   <h3 className="font-semibold mb-1">RENEW Residence</h3>
                   <p className="text-sm text-muted-foreground">Faza nouă, finisaje superioare, la 2 min de Militari.</p>

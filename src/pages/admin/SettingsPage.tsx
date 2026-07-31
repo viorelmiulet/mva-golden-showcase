@@ -349,8 +349,8 @@ const SettingsPage = () => {
       title: "Informații Companie",
       description: "Date de identificare a companiei",
       icon: Settings,
-      gradient: "from-gold/20 to-amber-500/20",
-      iconColor: "text-gold",
+      gradient: "from-brass/20 to-amber-500/20",
+      iconColor: "text-brass",
       fields: [
         { id: "companyName", label: "Nume Companie", type: "input", value: settings.companyName },
         { id: "aboutText", label: "Descriere", type: "textarea", value: settings.aboutText },
@@ -395,9 +395,9 @@ const SettingsPage = () => {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20 shadow-lg shadow-gold/10">
-              <Settings className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20 shadow-lg shadow-none/10">
+              <Settings className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>
@@ -418,7 +418,7 @@ const SettingsPage = () => {
           <Button 
             onClick={handleSave} 
             disabled={saveMutation.isPending || !hasChanges}
-            className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+            className="bg-gradient-to-r from-brass to-brass-light text-black hover:shadow-lg hover:shadow-none/25"
           >
             {saveMutation.isPending ? (
               <>
@@ -468,7 +468,7 @@ const SettingsPage = () => {
                         value={field.value}
                         onChange={(e) => handleChange(field.id as keyof SiteSettings, e.target.value)}
                         rows={3}
-                        className="bg-white/5 border-white/10 focus:border-gold/50"
+                        className="bg-white/5 border-white/10 focus:border-brass/50"
                       />
                     ) : (
                       <Input
@@ -476,7 +476,7 @@ const SettingsPage = () => {
                         value={field.value}
                         onChange={(e) => handleChange(field.id as keyof SiteSettings, e.target.value)}
                         placeholder={"placeholder" in field ? field.placeholder : undefined}
-                        className="bg-white/5 border-white/10 focus:border-gold/50"
+                        className="bg-white/5 border-white/10 focus:border-brass/50"
                       />
                     )}
                   </div>
@@ -515,7 +515,7 @@ const SettingsPage = () => {
                   size="sm"
                   onClick={handleSaveEmailSettings} 
                   disabled={saveEmailSettingsMutation.isPending || !hasEmailChanges}
-                  className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                  className="bg-gradient-to-r from-brass to-brass-light text-black hover:shadow-lg hover:shadow-none/25"
                 >
                   {saveEmailSettingsMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -544,8 +544,8 @@ const SettingsPage = () => {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                            <Mail className="h-5 w-5 text-gold" />
+                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center">
+                            <Mail className="h-5 w-5 text-brass" />
                           </div>
                           <div>
                             <h4 className="font-medium">{setting.function_label}</h4>
@@ -570,7 +570,7 @@ const SettingsPage = () => {
                             value={setting.from_email}
                             onChange={(e) => handleEmailSettingChange(setting.id, 'from_email', e.target.value)}
                             placeholder="noreply@domeniu.ro"
-                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm"
+                            className="bg-white/5 border-white/10 focus:border-brass/50 text-sm"
                           />
                         </div>
                         <div className="space-y-1.5">
@@ -579,7 +579,7 @@ const SettingsPage = () => {
                             value={setting.from_name || ''}
                             onChange={(e) => handleEmailSettingChange(setting.id, 'from_name', e.target.value)}
                             placeholder="Nume Companie"
-                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm"
+                            className="bg-white/5 border-white/10 focus:border-brass/50 text-sm"
                           />
                         </div>
                       </div>
@@ -620,7 +620,7 @@ const SettingsPage = () => {
                   size="sm"
                   onClick={handleSaveSecrets} 
                   disabled={saveSecretsMutation.isPending || !hasSecretChanges}
-                  className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                  className="bg-gradient-to-r from-brass to-brass-light text-black hover:shadow-lg hover:shadow-none/25"
                 >
                   {saveSecretsMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -678,7 +678,7 @@ const SettingsPage = () => {
                             value={integrationSecrets[field.key] || ''}
                             onChange={(e) => handleSecretChange(field.key, e.target.value)}
                             placeholder={field.placeholder}
-                            className="bg-white/5 border-white/10 focus:border-gold/50 text-sm font-mono"
+                            className="bg-white/5 border-white/10 focus:border-brass/50 text-sm font-mono"
                           />
                           <Button
                             variant="ghost"
@@ -699,11 +699,11 @@ const SettingsPage = () => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="relative group lg:col-span-2">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/20 to-gold-light/10 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-brass/20 to-brass-light/10 opacity-0 group-hover:opacity-50 transition-opacity blur-xl" />
           <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent overflow-hidden backdrop-blur-sm">
             <div className="p-6 border-b border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-white/5 text-gold">
+                <div className="p-2 rounded-xl bg-white/5 text-brass">
                   <Globe className="h-5 w-5" />
                 </div>
                 <div>
@@ -714,7 +714,7 @@ const SettingsPage = () => {
               <Button
                 onClick={() => sendIndexNowMutation.mutate()}
                 disabled={sendIndexNowMutation.isPending}
-                className="bg-gradient-to-r from-gold to-gold-light text-black hover:shadow-lg hover:shadow-gold/25"
+                className="bg-gradient-to-r from-brass to-brass-light text-black hover:shadow-lg hover:shadow-none/25"
               >
                 {sendIndexNowMutation.isPending ? (
                   <>
@@ -754,7 +754,7 @@ const SettingsPage = () => {
             </div>
             <div className="p-6">
               <div className="p-5 rounded-xl bg-white/5 border border-white/10 space-y-4">
-                <h3 className="font-bold text-lg text-gold">{settings.companyName}</h3>
+                <h3 className="font-bold text-lg text-brass">{settings.companyName}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{settings.aboutText}</p>
                 <div className="space-y-2 text-sm">
                   <p className="flex items-center gap-3 p-2 rounded-lg bg-white/5">

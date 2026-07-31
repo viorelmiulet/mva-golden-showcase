@@ -26,7 +26,7 @@ const RentalLayout = () => {
     cn(
       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
       isActive
-        ? "bg-gradient-to-r from-gold/15 to-gold/5 text-gold"
+        ? "bg-gradient-to-r from-brass/15 to-brass/5 text-brass"
         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
     );
 
@@ -36,15 +36,15 @@ const RentalLayout = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <NavLink to="/admin">
-            <Button variant="ghost" size="sm" className="hover:bg-gold/10 hover:text-gold">
+            <Button variant="ghost" size="sm" className="hover:bg-brass/10 hover:text-brass">
               <ArrowLeft className="h-4 w-4 mr-1" />
               Admin
             </Button>
           </NavLink>
           <div className="h-6 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5">
-              <Home className="h-5 w-5 text-gold" />
+            <div className="p-2 rounded-xl bg-gradient-to-br from-brass/20 to-brass/5">
+              <Home className="h-5 w-5 text-brass" />
             </div>
             <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
               Gestiune Chirii
@@ -52,7 +52,7 @@ const RentalLayout = () => {
           </div>
         </div>
         <NavLink to="/admin/gestiune-chirii/proprietati/adauga">
-          <Button size="sm" className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold">
+          <Button size="sm" className="bg-gradient-to-r from-brass to-brass-light text-black hover:from-brass-light hover:to-brass">
             <Plus className="h-4 w-4 mr-1" />
             {!isMobile && "Adaugă Proprietate"}
           </Button>
@@ -74,7 +74,7 @@ const RentalLayout = () => {
                     size="sm"
                     className={cn(
                       "shrink-0 text-xs",
-                      isActive && "bg-gold text-gold-foreground hover:bg-gold/90"
+                      isActive && "bg-brass text-brass-foreground hover:bg-brass/90"
                     )}
                   >
                     <item.icon className="h-3 w-3 mr-1" />
@@ -94,7 +94,7 @@ const RentalLayout = () => {
                 return (
                   <NavLink key={item.url} to={item.url} end={item.exact}>
                     <div className={getNavCls(isActive)}>
-                      <item.icon className={cn("h-4 w-4", isActive && "text-gold")} />
+                      <item.icon className={cn("h-4 w-4", isActive && "text-brass")} />
                       <span>{item.title}</span>
                     </div>
                   </NavLink>

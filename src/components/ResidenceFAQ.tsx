@@ -35,10 +35,10 @@ const ResidenceFAQ = ({ title, faqs }: ResidenceFAQProps) => {
       </Helmet>
       <div className="container mx-auto px-4 lg:px-6 max-w-4xl">
         <div className="flex items-center gap-3 mb-6">
-          <HelpCircle className="h-6 w-6 text-gold" />
+          <HelpCircle className="h-6 w-6 text-brass" />
           <h2
             id="residence-faq-heading"
-            className="text-2xl sm:text-3xl font-bold text-gradient-gold"
+            className="text-2xl sm:text-3xl font-bold text-gradient-brass"
           >
             {title}
           </h2>
@@ -51,7 +51,7 @@ const ResidenceFAQ = ({ title, faqs }: ResidenceFAQProps) => {
               value={`r-faq-${i}`}
               className="card-modern border border-border/50 rounded-xl px-4 sm:px-6 overflow-hidden"
             >
-              <AccordionTrigger className="text-sm sm:text-base font-medium text-left py-4 hover:text-gold transition-colors">
+              <AccordionTrigger className="text-sm sm:text-base font-medium text-left py-4 hover:text-brass transition-colors">
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">

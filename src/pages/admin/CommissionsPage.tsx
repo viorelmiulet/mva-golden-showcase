@@ -415,9 +415,9 @@ const CommissionsPage = () => {
         <motion.div variants={itemVariants} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-              <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-                <Euro className="h-6 w-6 text-gold" />
+              <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+              <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+                <Euro className="h-6 w-6 text-brass" />
               </div>
             </div>
             <div>
@@ -987,7 +987,7 @@ const CommissionsPage = () => {
                             </div>
                             <span className="font-bold text-primary">€{monthTotal.toLocaleString()}</span>
                           </div>
-                          <div className="h-[2px] bg-gradient-to-r from-gold/50 via-gold to-gold/50 rounded-full" />
+                          <div className="h-[2px] bg-gradient-to-r from-brass/50 via-brass to-brass/50 rounded-full" />
                         </CardHeader>
                       </CollapsibleTrigger>
                       <CollapsibleContent>

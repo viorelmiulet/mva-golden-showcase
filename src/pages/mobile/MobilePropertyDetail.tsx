@@ -283,7 +283,7 @@ const MobilePropertyDetail = () => {
             {getDisplayLocation(property)}
           </p>
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-gold">
+            <p className="text-2xl font-bold text-brass">
               {formatPrice(property.price_min || 0, property.currency || 'EUR')}
             </p>
             {viewCount !== undefined && viewCount > 0 && (
@@ -299,8 +299,8 @@ const MobilePropertyDetail = () => {
         <div className="flex gap-4">
           {property.rooms && (
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                <Home className="w-5 h-5 text-gold" />
+              <div className="w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center">
+                <Home className="w-5 h-5 text-brass" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -312,8 +312,8 @@ const MobilePropertyDetail = () => {
           )}
           {property.surface_min && (
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                <Ruler className="w-5 h-5 text-gold" />
+              <div className="w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center">
+                <Ruler className="w-5 h-5 text-brass" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -356,7 +356,7 @@ const MobilePropertyDetail = () => {
               <div className="grid grid-cols-2 gap-2">
                 {property.features.map((feature: string, index: number) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-gold flex-shrink-0" />
+                    <Check className="w-4 h-4 text-brass flex-shrink-0" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -493,7 +493,7 @@ const MobilePropertyDetail = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 transition-all touch-manipulation ${
                       index === currentImageIndex 
-                        ? 'border-gold ring-1 ring-gold' 
+                        ? 'border-brass ring-1 ring-brass' 
                         : 'border-white/20 opacity-50 hover:opacity-100'
                     }`}
                   >

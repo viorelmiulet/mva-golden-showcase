@@ -330,7 +330,7 @@ const FacebookQueuePage = () => {
         <CardContent>
           {isLoading ? (
             <div className="text-center py-10">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto text-gold" />
+              <Loader2 className="w-6 h-6 animate-spin mx-auto text-brass" />
             </div>
           ) : !filteredRows || filteredRows.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
@@ -350,7 +350,7 @@ const FacebookQueuePage = () => {
                       <Link
                         to={publicOfferPath(row)}
                         target="_blank"
-                        className="inline-flex items-center gap-1.5 font-medium text-foreground hover:text-gold transition-colors"
+                        className="inline-flex items-center gap-1.5 font-medium text-foreground hover:text-brass transition-colors"
                       >
                         <span className="truncate">
                           {row.offer?.title || "Ofertă ștearsă"}

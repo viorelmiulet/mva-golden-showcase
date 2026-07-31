@@ -39,10 +39,10 @@ const RenewApartmentsImporter = () => {
   };
 
   return (
-    <Card className="glass border-gold/20">
+    <Card className="glass border-brass/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-gold" />
+          <Building2 className="w-5 h-5 text-brass" />
           Import Apartamente Renew Residence
         </CardTitle>
         <CardDescription>

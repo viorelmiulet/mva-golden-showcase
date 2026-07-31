@@ -55,11 +55,11 @@ export const RecentlyViewed = ({
     <section className={cn("py-6", className)} aria-label="Proprietăți vizualizate recent">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-gold" />
+          <Clock className="w-5 h-5 text-brass" />
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
             Vizualizate Recent
           </h2>
-          <Badge variant="secondary" className="bg-gold/10 text-gold text-xs">
+          <Badge variant="secondary" className="bg-brass/10 text-brass text-xs">
             {displayItems.length}
           </Badge>
         </div>
@@ -81,7 +81,7 @@ export const RecentlyViewed = ({
             {displayItems.map((property) => (
               <div key={property.id} className="relative group flex-shrink-0 w-[200px] sm:w-[240px]">
                 <Link to={getPropertyUrl(property)}>
-                  <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300 ">
+                  <Card className="overflow-hidden border-brass/20 hover:border-brass/40 transition-all duration-300 ">
                     <div className="relative overflow-hidden">
                       <OptimizedPropertyImage
                         src={property.image}
@@ -95,15 +95,15 @@ export const RecentlyViewed = ({
                       </div>
                     </div>
                     <CardContent className="p-3">
-                      <h3 className="font-semibold text-sm line-clamp-1 mb-1 group-hover:text-gold transition-colors">
+                      <h3 className="font-semibold text-sm line-clamp-1 mb-1 group-hover:text-brass transition-colors">
                         {property.title}
                       </h3>
                       <div className="flex items-center text-muted-foreground text-xs mb-2">
-                        <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                        <MapPin className="w-3 h-3 mr-1 text-brass flex-shrink-0" />
                         <span className="truncate">{property.location}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-gold flex items-center">
+                        <span className="font-bold text-brass flex items-center">
                           <Euro className="w-3 h-3 mr-0.5" />
                           {property.price?.toLocaleString('de-DE')}
                         </span>
@@ -138,7 +138,7 @@ export const RecentlyViewed = ({
           {displayItems.map((property) => (
             <div key={property.id} className="relative group">
               <Link to={getPropertyUrl(property)}>
-                <Card className="overflow-hidden border-gold/20 hover:border-gold/40 transition-all duration-300  h-full">
+                <Card className="overflow-hidden border-brass/20 hover:border-brass/40 transition-all duration-300  h-full">
                   <div className="relative overflow-hidden">
                     <OptimizedPropertyImage
                       src={property.image}
@@ -149,10 +149,10 @@ export const RecentlyViewed = ({
                     />
                   </div>
                   <CardContent className="p-2">
-                    <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-gold transition-colors">
+                    <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-brass transition-colors">
                       {property.title}
                     </h3>
-                    <span className="font-bold text-gold text-xs">
+                    <span className="font-bold text-brass text-xs">
                       €{property.price?.toLocaleString('de-DE')}
                     </span>
                   </CardContent>

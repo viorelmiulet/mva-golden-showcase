@@ -414,8 +414,8 @@ const Admin = () => {
       <div className="min-h-screen bg-ink/40 to-secondary/20 flex items-center justify-center">
         <Card className="w-full max-w-md mx-4">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-gold" />
+            <div className="mx-auto w-12 h-12 bg-brass/10 rounded-full flex items-center justify-center mb-4">
+              <Lock className="w-6 h-6 text-brass" />
             </div>
             <CardTitle className="text-2xl">Acces Administrare</CardTitle>
             <p className="text-muted-foreground">
@@ -479,12 +479,12 @@ const Admin = () => {
         <div className="container mx-auto max-w-7xl">
           
           {/* Header Card with Glass Effect */}
-          <Card className="glass mb-8 border-gold/20">
+          <Card className="glass mb-8 border-brass/20">
             <CardContent className="p-6 sm:p-8">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                 <Link 
                   to="/" 
-                  className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors group"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-brass transition-colors group"
                 >
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:transform group-hover:-translate-x-1 transition-transform" />
                   <span className="text-sm sm:text-base font-medium">Înapoi Acasă</span>
@@ -493,7 +493,7 @@ const Admin = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="border-gold/30 hover:bg-gold/10 hover:border-gold/50 transition-all"
+                  className="border-brass/30 hover:bg-brass/10 hover:border-brass/50 transition-all"
                 >
                   <Lock className="w-4 h-4 mr-2" />
                   <span className="text-sm">Deconectare</span>
@@ -502,7 +502,7 @@ const Admin = () => {
               
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brass mb-4">
-                  <BarChart3 className="w-8 h-8 text-gold" />
+                  <BarChart3 className="w-8 h-8 text-brass" />
                 </div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
                   <span className="text-foreground">Panou </span>
@@ -520,10 +520,10 @@ const Admin = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             
             {/* Add Property Section */}
-            <Card className="glass-hover border-gold/10">
-              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+            <Card className="glass-hover border-brass/10">
+              <CardHeader className="p-4 sm:p-6 border-b border-brass/10">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-brass" />
                     <span className="text-sm sm:text-base">Adaugă Proprietate prin ID</span>
                   </CardTitle>
                 </CardHeader>
@@ -540,7 +540,7 @@ const Admin = () => {
                             className="flex-1 font-mono text-sm sm:text-base"
                           />
                           {loadingStates[index] && (
-                            <Loader2 className="w-4 h-4 animate-spin text-gold flex-shrink-0" />
+                            <Loader2 className="w-4 h-4 animate-spin text-brass flex-shrink-0" />
                           )}
                         </div>
                       </div>
@@ -615,10 +615,10 @@ const Admin = () => {
                   </Card>
 
                   {/* Manage Properties Section */}
-                  <Card className="glass-hover border-gold/10">
-                    <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+                  <Card className="glass-hover border-brass/10">
+                    <CardHeader className="p-4 sm:p-6 border-b border-brass/10">
                         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                          <Home className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+                          <Home className="w-4 h-4 sm:w-5 sm:h-5 text-brass" />
                           <span className="text-sm sm:text-base">Proprietăți Existente ({properties?.length || 0})</span>
                         </CardTitle>
                       </CardHeader>
@@ -722,11 +722,11 @@ const Admin = () => {
           </div>
 
           {/* Business Card Generator */}
-          <Card className="glass-hover border-gold/10 mt-6">
-            <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+          <Card className="glass-hover border-brass/10 mt-6">
+            <CardHeader className="p-4 sm:p-6 border-b border-brass/10">
               <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
-                <div className="p-2 rounded-lg bg-gold/10">
-                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                <div className="p-2 rounded-lg bg-brass/10">
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-brass" />
                 </div>
                 Generator Cărți de Vizită (cu Upload Logo)
               </CardTitle>
@@ -740,11 +740,11 @@ const Admin = () => {
           </Card>
 
           {/* XML Import Manager */}
-            <Card className="glass-hover border-gold/10 mt-6">
-              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+            <Card className="glass-hover border-brass/10 mt-6">
+              <CardHeader className="p-4 sm:p-6 border-b border-brass/10">
               <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
-                <div className="p-2 rounded-lg bg-gold/10">
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                <div className="p-2 rounded-lg bg-brass/10">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-brass" />
                 </div>
                 Sincronizare XML Feed
               </CardTitle>
@@ -756,12 +756,12 @@ const Admin = () => {
 
           {/* Detailed Properties Grid */}
           {!propertiesLoading && properties && properties.length > 0 && (
-            <Card className="glass-hover border-gold/10 mt-8">
-              <CardHeader className="p-4 sm:p-6 border-b border-gold/10">
+            <Card className="glass-hover border-brass/10 mt-8">
+              <CardHeader className="p-4 sm:p-6 border-b border-brass/10">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
-                    <div className="p-2 rounded-lg bg-gold/10">
-                      <Home className="w-6 h-6 text-gold" />
+                    <div className="p-2 rounded-lg bg-brass/10">
+                      <Home className="w-6 h-6 text-brass" />
                     </div>
                     Toate Proprietățile
                   </CardTitle>
@@ -811,26 +811,26 @@ const Admin = () => {
                 
                 {/* Stats Overview */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6">
-                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-brass/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-brass mb-0.5 sm:mb-1">
                       {properties.filter(p => p.availability_status === 'available').length}
                     </div>
                     <div className="text-xs sm:text-sm text-muted-foreground">Disponibile</div>
                   </div>
-                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-brass/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-brass mb-0.5 sm:mb-1">
                       {properties.filter(p => p.rooms === 1).length}
                     </div>
                     <div className="text-xs sm:text-sm text-muted-foreground">Garsoniere</div>
                   </div>
-                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-brass/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-brass mb-0.5 sm:mb-1">
                       {properties.filter(p => p.rooms === 2).length}
                     </div>
                     <div className="text-xs sm:text-sm text-muted-foreground">2 camere</div>
                   </div>
-                  <div className="p-3 sm:p-4 text-center rounded-lg border border-gold/20 bg-card">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-gold mb-0.5 sm:mb-1">
+                  <div className="p-3 sm:p-4 text-center rounded-lg border border-brass/20 bg-card">
+                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-brass mb-0.5 sm:mb-1">
                       {properties.filter(p => (p.rooms ?? 0) >= 3).length}
                     </div>
                     <div className="text-xs sm:text-sm text-muted-foreground">3+ camere</div>
@@ -1049,12 +1049,12 @@ const Admin = () => {
                         
                         {/* Title & Location */}
                         <div className="space-y-2 mb-4">
-                          <h3 className="text-xl font-bold text-foreground group-hover:text-gold transition-colors">
+                          <h3 className="text-xl font-bold text-foreground group-hover:text-brass transition-colors">
                             {property.title}
                           </h3>
                           {property.location && (
                             <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-4 h-4 mr-2 text-gold" />
+                              <MapPin className="w-4 h-4 mr-2 text-brass" />
                               <span>{property.location}</span>
                             </div>
                           )}
@@ -1063,8 +1063,8 @@ const Admin = () => {
                         {/* Stats */}
                         <div className="grid grid-cols-3 gap-4 mb-4">
                           <div className="text-center">
-                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                              <Euro className="w-5 h-5 text-gold" />
+                            <div className="w-10 h-10 bg-brass/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                              <Euro className="w-5 h-5 text-brass" />
                             </div>
                             <div className="text-xs text-muted-foreground">Preț</div>
                              <div className="text-sm font-semibold">
@@ -1077,8 +1077,8 @@ const Admin = () => {
 
                           {(property.surface_min || property.surface_max) && (
                             <div className="text-center">
-                              <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                                <Ruler className="w-5 h-5 text-gold" />
+                              <div className="w-10 h-10 bg-brass/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                                <Ruler className="w-5 h-5 text-brass" />
                               </div>
                               <div className="text-xs text-muted-foreground">Suprafață</div>
                               <div className="text-sm font-semibold">
@@ -1091,8 +1091,8 @@ const Admin = () => {
                           )}
 
                           <div className="text-center">
-                            <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                              <Home className="w-5 h-5 text-gold" />
+                            <div className="w-10 h-10 bg-brass/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                              <Home className="w-5 h-5 text-brass" />
                             </div>
                             <div className="text-xs text-muted-foreground">Camere</div>
                             <div className="text-sm font-semibold">{property.rooms}</div>
@@ -1110,7 +1110,7 @@ const Admin = () => {
                         {property.features && Array.isArray(property.features) && property.features.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {(property.features as string[]).slice(0, 3).map((feature, index) => (
-                              <Badge key={index} variant="secondary" className="bg-gold/10 text-gold border-gold/20 text-xs">
+                              <Badge key={index} variant="secondary" className="bg-brass/10 text-brass border-brass/20 text-xs">
                                 {feature}
                               </Badge>
                             ))}

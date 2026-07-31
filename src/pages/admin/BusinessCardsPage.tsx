@@ -25,8 +25,8 @@ const BusinessCardsPage = () => {
         className="flex items-center gap-4"
       >
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-gold/10 rounded-2xl blur-xl" />
-          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-gold/5 border border-primary/20">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-brass/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-brass/5 border border-primary/20">
             <CreditCard className="h-6 w-6 text-primary" />
           </div>
         </div>

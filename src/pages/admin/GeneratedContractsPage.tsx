@@ -629,7 +629,7 @@ const GeneratedContractsPage = () => {
     ];
 
     return (
-      <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
+      <Card className="border-border/50 bg-card/50 hover:border-brass/30 transition-all">
         <CardContent className="p-3 md:p-4">
           <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
@@ -751,7 +751,7 @@ const GeneratedContractsPage = () => {
     ];
 
     return (
-      <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
+      <Card className="border-border/50 bg-card/50 hover:border-brass/30 transition-all">
         <CardContent className="p-3 md:p-4">
           <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
@@ -863,7 +863,7 @@ const GeneratedContractsPage = () => {
     ];
 
     return (
-      <Card className="border-border/50 bg-card/50 hover:border-gold/30 transition-all">
+      <Card className="border-border/50 bg-card/50 hover:border-brass/30 transition-all">
         <CardContent className="p-3 md:p-4">
           <div className="flex items-start justify-between gap-2 md:gap-4">
             <div className="flex-1 min-w-0">
@@ -953,7 +953,7 @@ const GeneratedContractsPage = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-gold" />
+        <Loader2 className="h-8 w-8 animate-spin text-brass" />
       </div>
     );
   }
@@ -989,9 +989,9 @@ const GeneratedContractsPage = () => {
       >
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-amber-600/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-amber-600/5 border border-gold/20">
-              <FileText className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-amber-600/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-amber-600/5 border border-brass/20">
+              <FileText className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>
@@ -1035,7 +1035,7 @@ const GeneratedContractsPage = () => {
                               }}
                               className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${
                                 activeTab === tab.value 
-                                  ? "border-gold bg-gold/10 text-gold" 
+                                  ? "border-brass bg-brass/10 text-brass" 
                                   : "border-border bg-muted/30 text-muted-foreground"
                               }`}
                             >
@@ -1061,7 +1061,7 @@ const GeneratedContractsPage = () => {
                               }}
                               className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${
                                 statusFilter === status.value 
-                                  ? "border-gold bg-gold/10 text-gold" 
+                                  ? "border-brass bg-brass/10 text-brass" 
                                   : "border-border bg-muted/30 text-muted-foreground"
                               }`}
                             >
@@ -1112,7 +1112,7 @@ const GeneratedContractsPage = () => {
               onClick={() => setActiveTab(tab.value as ContractTab)}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.value 
-                  ? "text-gold" 
+                  ? "text-brass" 
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -1131,7 +1131,7 @@ const GeneratedContractsPage = () => {
             onClick={() => setStatusFilter("toate")}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
               statusFilter === "toate" 
-                ? "bg-gold/20 text-gold border border-gold/30" 
+                ? "bg-brass/20 text-brass border border-brass/30" 
                 : "bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent"
             }`}
           >

@@ -129,7 +129,7 @@ const ComplexFAQ = (props: ComplexFAQProps) => {
         <HelpCircle className="h-6 w-6 text-primary" />
         <h2
           id="faq-heading"
-          className="text-xl sm:text-2xl md:text-3xl font-bold text-gradient-gold"
+          className="text-xl sm:text-2xl md:text-3xl font-bold text-gradient-brass"
         >
           Întrebări Frecvente — {props.complexName}
         </h2>

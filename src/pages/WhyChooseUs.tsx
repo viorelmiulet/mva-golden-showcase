@@ -123,7 +123,7 @@ const WhyChooseUs = () => {
         <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-ink/40 to-muted">
           <div className="container mx-auto px-3 sm:px-4 lg:px-6">
             <div className="text-center max-w-4xl mx-auto">
-              <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm">
+              <Badge variant="secondary" className="bg-brass/10 text-brass border-brass/20 mb-3 sm:mb-4 md:mb-6 text-xs sm:text-sm">
                 {t.whyChooseUs.badge}
               </Badge>
               
@@ -163,7 +163,7 @@ const WhyChooseUs = () => {
             <div className="mb-12 md:mb-20">
               <div className="text-center mb-8 md:mb-16">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-4 md:mb-6 px-2">
-                  {t.whyChooseUs.sellingTitle} <span className="text-gold">{t.whyChooseUs.sellingTitleHighlight}</span> {t.whyChooseUs.sellingTitleEnd}
+                  {t.whyChooseUs.sellingTitle} <span className="text-brass">{t.whyChooseUs.sellingTitleHighlight}</span> {t.whyChooseUs.sellingTitleEnd}
                 </h2>
                 <p className="text-base sm:text-lg md:text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed px-2">
                   {t.whyChooseUs.sellingSubtitle}
@@ -176,14 +176,14 @@ const WhyChooseUs = () => {
                   const isFullWidth = index === 4; // "Expunerea maximă" takes full width
                   
                   return (
-                    <Card key={index} className={`border-gold/10 hover:border-gold/30 transition-all duration-300 ${isFullWidth ? 'md:col-span-2' : ''}`}>
+                    <Card key={index} className={`border-brass/10 hover:border-brass/30 transition-all duration-300 ${isFullWidth ? 'md:col-span-2' : ''}`}>
                       <CardContent className="p-4 md:p-6 lg:p-8">
                         <div className="flex items-start mb-4 md:mb-6">
-                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
-                            <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-gold" />
+                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brass/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                            <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-brass" />
                           </div>
                           <div>
-                            <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">
+                            <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-brass">
                               {index + 1}. {point.title}
                             </h3>
                             <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
@@ -207,7 +207,7 @@ const WhyChooseUs = () => {
             <div>
               <div className="text-center mb-8 md:mb-16">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-playfair font-bold mb-4 md:mb-6 px-2">
-                  {t.whyChooseUs.buyingTitle} <span className="text-gold">{t.whyChooseUs.sellingTitleHighlight}</span> {t.whyChooseUs.buyingTitleEnd}
+                  {t.whyChooseUs.buyingTitle} <span className="text-brass">{t.whyChooseUs.sellingTitleHighlight}</span> {t.whyChooseUs.buyingTitleEnd}
                 </h2>
                 <p className="text-base sm:text-lg md:text-xl font-inter text-muted-foreground max-w-4xl mx-auto leading-relaxed px-2">
                   {t.whyChooseUs.buyingSubtitle}
@@ -220,14 +220,14 @@ const WhyChooseUs = () => {
                   const isFullWidth = index === 4; // Last item takes full width
                   
                   return (
-                    <Card key={index} className={`border-gold/10 hover:border-gold/30 transition-all duration-300 ${isFullWidth ? 'md:col-span-2' : ''}`}>
+                    <Card key={index} className={`border-brass/10 hover:border-brass/30 transition-all duration-300 ${isFullWidth ? 'md:col-span-2' : ''}`}>
                       <CardContent className="p-4 md:p-6 lg:p-8">
                         <div className="flex items-start mb-4 md:mb-6">
-                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
-                            <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-gold" />
+                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brass/10 flex items-center justify-center mr-3 md:mr-4 mt-1 flex-shrink-0">
+                            <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-brass" />
                           </div>
                           <div>
-                            <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-gold">
+                            <h3 className="text-lg md:text-xl font-playfair font-semibold mb-2 md:mb-3 text-brass">
                               {index + 1}. {point.title}
                             </h3>
                             <p className="font-inter text-sm md:text-base text-muted-foreground leading-relaxed mb-3 md:mb-4">
@@ -255,7 +255,7 @@ const WhyChooseUs = () => {
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-8 md:mb-16">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 px-2">
-                  {t.whyChooseUs.servicesTitle} <span className="text-gold">{t.whyChooseUs.servicesTitleHighlight}</span>
+                  {t.whyChooseUs.servicesTitle} <span className="text-brass">{t.whyChooseUs.servicesTitleHighlight}</span>
                 </h2>
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-2">
                   {t.whyChooseUs.servicesSubtitle}
@@ -264,9 +264,9 @@ const WhyChooseUs = () => {
 
               <div className="grid sm:grid-cols-2 gap-3 md:gap-6">
                 {t.whyChooseUs.servicesList.map((service, index) => (
-                  <div key={index} className="flex items-center p-3 md:p-4 bg-background rounded-xl border border-gold/10 hover:border-gold/30 transition-colors">
-                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gold/10 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0">
-                      <Heart className="w-3 h-3 md:w-4 md:h-4 text-gold" />
+                  <div key={index} className="flex items-center p-3 md:p-4 bg-background rounded-xl border border-brass/10 hover:border-brass/30 transition-colors">
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-brass/10 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0">
+                      <Heart className="w-3 h-3 md:w-4 md:h-4 text-brass" />
                     </div>
                     <span className="font-medium text-sm md:text-base">{service}</span>
                   </div>
@@ -281,7 +281,7 @@ const WhyChooseUs = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-8 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 px-2">
-                {t.whyChooseUs.testimonialsTitle} <span className="text-gold">{t.whyChooseUs.testimonialsTitleHighlight}</span>
+                {t.whyChooseUs.testimonialsTitle} <span className="text-brass">{t.whyChooseUs.testimonialsTitleHighlight}</span>
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-2">
                 {t.whyChooseUs.testimonialsSubtitle}
@@ -290,11 +290,11 @@ const WhyChooseUs = () => {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 max-w-6xl mx-auto">
               {t.whyChooseUs.testimonials.map((testimonial, index) => (
-                <Card key={index} className="relative overflow-hidden border-gold/10 hover:border-gold/30 transition-all duration-300">
+                <Card key={index} className="relative overflow-hidden border-brass/10 hover:border-brass/30 transition-all duration-300">
                   <CardContent className="p-4 md:p-6 lg:p-8">
                     <div className="flex mb-3 md:mb-4">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 md:w-5 md:h-5 text-gold fill-gold" />
+                        <Star key={i} className="w-4 h-4 md:w-5 md:h-5 text-brass fill-brass" />
                       ))}
                     </div>
                     
@@ -302,7 +302,7 @@ const WhyChooseUs = () => {
                       "{testimonial.text}"
                     </p>
                     
-                    <div className="font-semibold text-sm md:text-base text-gold">
+                    <div className="font-semibold text-sm md:text-base text-brass">
                       {testimonial.name}
                     </div>
                   </CardContent>
@@ -317,7 +317,7 @@ const WhyChooseUs = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6 px-2">
-                {t.whyChooseUs.ctaTitle} <span className="text-gold">{t.whyChooseUs.ctaTitleHighlight}</span>
+                {t.whyChooseUs.ctaTitle} <span className="text-brass">{t.whyChooseUs.ctaTitleHighlight}</span>
               </h2>
               
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-2">

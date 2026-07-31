@@ -24,14 +24,14 @@ export const PullToRefreshIndicator = ({
     >
       <div 
         className={cn(
-          "p-2 rounded-full bg-gold/10 border border-gold/20",
+          "p-2 rounded-full bg-brass/10 border border-brass/20",
           isRefreshing && "animate-spin"
         )}
         style={{
           transform: `rotate(${progress * 3.6}deg)`,
         }}
       >
-        <RefreshCw className="h-5 w-5 text-gold" />
+        <RefreshCw className="h-5 w-5 text-brass" />
       </div>
       {!isRefreshing && progress >= 100 && (
         <span className="ml-2 text-xs text-muted-foreground">Eliberează pentru a reîncărca</span>

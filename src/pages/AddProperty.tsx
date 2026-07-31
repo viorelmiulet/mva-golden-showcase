@@ -146,7 +146,7 @@ const AddProperty = () => {
             <Card className="max-w-2xl mx-auto">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-gold" />
+                  <Plus className="w-5 h-5 text-brass" />
                   Scraping Proprietate
                 </CardTitle>
               </CardHeader>
@@ -201,7 +201,7 @@ const AddProperty = () => {
                 După adăugare, proprietatea va apărea automat în 
                 <Link 
                   to="/proprietati" 
-                  className="text-gold hover:text-gold-light mx-1 underline"
+                  className="text-brass hover:text-brass-light mx-1 underline"
                 >
                   lista de proprietăți
                 </Link>

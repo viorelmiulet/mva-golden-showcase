@@ -127,7 +127,7 @@ const Blog = () => {
             {featuredPosts.length > 0 && (
               <div className="max-w-6xl mx-auto mb-12">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-gold" />
+                  <TrendingUp className="h-5 w-5 text-brass" />
                   Articole Recomandate
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2">
@@ -135,7 +135,7 @@ const Blog = () => {
                     const CategoryIcon = getCategoryIcon(post.category_id);
                     return (
                       <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                        <Card className="transition-colors cursor-pointer h-full border-2 border-gold/30 bg-brass">
+                        <Card className="transition-colors cursor-pointer h-full border-2 border-brass/30 bg-brass">
                           {post.cover_image && (
                             <OptimizedImage
                               src={post.cover_image}
@@ -148,7 +148,7 @@ const Blog = () => {
                           )}
                           <CardHeader className="space-y-2 sm:space-y-3 p-4 sm:p-6">
                             <div className="flex items-center justify-between gap-2">
-                              <Badge className="text-xs sm:text-sm font-medium bg-gold/20 text-gold border-gold/30 hover:bg-gold/30">
+                              <Badge className="text-xs sm:text-sm font-medium bg-brass/20 text-brass border-brass/30 hover:bg-brass/30">
                                 <CategoryIcon className="h-3 w-3 mr-1" />
                                 {post.category}
                               </Badge>
@@ -157,7 +157,7 @@ const Blog = () => {
                                 <span>{post.read_time}</span>
                               </div>
                             </div>
-                            <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2 group-hover:text-gold transition-colors leading-tight">
+                            <CardTitle className="text-lg sm:text-xl lg:text-2xl mb-2 group-hover:text-brass transition-colors leading-tight">
                               {post.title}
                             </CardTitle>
                             <CardDescription className="text-sm sm:text-base leading-relaxed">
@@ -176,7 +176,7 @@ const Blog = () => {
                                   <span>{post.author}</span>
                                 </div>
                               </div>
-                              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-gold group-hover:translate-x-1 transition-transform self-end sm:self-auto" />
+                              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-brass group-hover:translate-x-1 transition-transform self-end sm:self-auto" />
                             </div>
                           </CardContent>
                         </Card>
@@ -203,7 +203,7 @@ const Blog = () => {
                       onClick={() => setSelectedCategory(category.id)}
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         selectedCategory === category.id
-                          ? "bg-gold text-primary-foreground "
+                          ? "bg-brass text-primary-foreground "
                           : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground"
                       }`}
                     >
@@ -220,7 +220,7 @@ const Blog = () => {
                   const CategoryIcon = getCategoryIcon(post.category_id);
                   return (
                     <Link key={post.id} to={`/blog/${post.slug}`} className="group touch-manipulation">
-                      <Card className="transition-colors cursor-pointer h-full border hover:border-gold/50">
+                      <Card className="transition-colors cursor-pointer h-full border hover:border-brass/50">
                         {post.cover_image && (
                           <OptimizedImage
                             src={post.cover_image}
@@ -242,7 +242,7 @@ const Blog = () => {
                               <span>{post.read_time}</span>
                             </div>
                           </div>
-                          <CardTitle className="text-base sm:text-lg group-hover:text-gold transition-colors leading-tight line-clamp-2">
+                          <CardTitle className="text-base sm:text-lg group-hover:text-brass transition-colors leading-tight line-clamp-2">
                             {post.title}
                           </CardTitle>
                           <CardDescription className="text-sm leading-relaxed line-clamp-3">
@@ -255,7 +255,7 @@ const Blog = () => {
                               <Calendar className="h-3 w-3" />
                               <span>{formatDate(post.created_at)}</span>
                             </div>
-                            <ArrowRight className="h-4 w-4 text-gold group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight className="h-4 w-4 text-brass group-hover:translate-x-1 transition-transform" />
                           </div>
                         </CardContent>
                       </Card>

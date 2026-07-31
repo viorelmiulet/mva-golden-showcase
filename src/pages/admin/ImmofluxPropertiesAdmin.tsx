@@ -235,7 +235,7 @@ const ImmofluxPropertiesAdmin = () => {
               const isSale = property.devanzare === 1;
               const surface = getSurface(property);
               return (
-                <Card key={property.idnum} className="overflow-hidden group hover:border-gold/30 transition-colors">
+                <Card key={property.idnum} className="overflow-hidden group hover:border-brass/30 transition-colors">
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src={getMainImage(property)}
@@ -248,7 +248,7 @@ const ImmofluxPropertiesAdmin = () => {
                         {isSale ? "Vânzare" : "Închiriere"}
                       </Badge>
                       {property.top === 1 && (
-                        <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                        <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                       )}
                       {isPoleProperty(property) && (
                         <Badge className="bg-purple-600 text-white font-bold text-[10px]">POLE POSITION</Badge>
@@ -272,9 +272,9 @@ const ImmofluxPropertiesAdmin = () => {
                       )}
                     </div>
                     <div className="flex items-center justify-between pt-1 border-t border-border/50">
-                      <span className="text-sm font-bold text-gold">{formatPrice(property)}</span>
+                      <span className="text-sm font-bold text-brass">{formatPrice(property)}</span>
                       <Link to={resolveImmofluxUrl(property, slugMap)} target="_blank">
-                        <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-gold">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-brass">
                           <ExternalLink className="h-3 w-3 mr-1" />
                           Vezi
                         </Button>

@@ -172,7 +172,7 @@ export const EmailDetail = ({
                   <Button
                     onClick={onReply}
                     size="sm"
-                    className="h-9 px-4 rounded-xl bg-gradient-to-r from-gold to-gold-light text-black font-medium shadow-lg shadow-gold/20 hover:shadow-gold/30 hover:scale-[1.02] transition-all duration-200"
+                    className="h-9 px-4 rounded-xl bg-gradient-to-r from-brass to-brass-light text-black font-medium shadow-lg shadow-none/20 hover:shadow-none/30 hover:scale-[1.02] transition-all duration-200"
                   >
                     <Reply className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Răspunde</span>
@@ -269,8 +269,8 @@ export const EmailDetail = ({
                 >
                   {/* Avatar */}
                   <div className="relative shrink-0">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-gold/30 via-gold/20 to-gold/10 flex items-center justify-center shadow-lg shadow-gold/10">
-                      <span className="text-gold font-bold text-lg sm:text-xl">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-brass/30 via-brass/20 to-brass/10 flex items-center justify-center shadow-lg shadow-none/10">
+                      <span className="text-brass font-bold text-lg sm:text-xl">
                         {extractSenderInitials(email.sender)}
                       </span>
                     </div>
@@ -333,10 +333,10 @@ export const EmailDetail = ({
                               <button
                                 type="button"
                                 onClick={() => void downloadEmailAttachment(att)}
-                                className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/5 hover:border-gold/30 hover:bg-gold/5 transition-all duration-200"
+                                className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-white/[0.05] to-white/[0.02] border border-white/5 hover:border-brass/30 hover:bg-brass/5 transition-all duration-200"
                               >
-                                <div className="shrink-0 w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
-                                  <FileIcon className="h-5 w-5 text-gold" />
+                                <div className="shrink-0 w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center group-hover:bg-brass/20 transition-colors">
+                                  <FileIcon className="h-5 w-5 text-brass" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium truncate text-foreground">
@@ -348,7 +348,7 @@ export const EmailDetail = ({
                                     </p>
                                   )}
                                 </div>
-                                <Download className="h-4 w-4 text-muted-foreground group-hover:text-gold transition-colors" />
+                                <Download className="h-4 w-4 text-muted-foreground group-hover:text-brass transition-colors" />
                               </button>
                             ) : (
                               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 opacity-50">
@@ -399,7 +399,7 @@ export const EmailDetail = ({
                 >
                   <Button
                     onClick={onReply}
-                    className="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-gradient-to-r from-gold to-gold-light text-black font-medium shadow-lg shadow-gold/20 hover:shadow-gold/30 hover:scale-[1.02] transition-all duration-200"
+                    className="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-gradient-to-r from-brass to-brass-light text-black font-medium shadow-lg shadow-none/20 hover:shadow-none/30 hover:scale-[1.02] transition-all duration-200"
                   >
                     <Reply className="h-4 w-4 mr-2" />
                     Răspunde
@@ -432,7 +432,7 @@ export const EmailDetail = ({
                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                 className="relative inline-block mb-6"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-transparent rounded-3xl blur-2xl scale-150" />
+                <div className="absolute inset-0 bg-gradient-to-br from-brass/20 to-transparent rounded-3xl blur-2xl scale-150" />
                 <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center shadow-2xl">
                   <Mail className="h-10 w-10 text-muted-foreground/40" />
                 </div>
