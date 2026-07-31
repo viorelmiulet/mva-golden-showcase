@@ -46,29 +46,8 @@ gtag('set', 'url_passthrough', true);
 gtag('set', 'ads_data_redaction', true);
 `;
 
-// Dynamic og:url / twitter:url based on the current path so deep links show the correct URL.
-// Pages set their own canonical via React Helmet — do NOT auto-set canonical here.
-const OG_URL_SYNC_SCRIPT = `
-(() => {
-  const siteUrl = 'https://www.mvaimobiliare.ro';
-  const rawPath = window.location.pathname || '/';
-  const normalizedPath = rawPath === '/' ? '/' : rawPath.replace(/\\/+$/, '');
-  const currentUrl = siteUrl + normalizedPath;
-  const setOrCreateMeta = (attr, attrValue, content) => {
-    let element = document.querySelector('meta[' + attr + '="' + attrValue + '"]');
-    if (!element) {
-      element = document.createElement('meta');
-      element.setAttribute(attr, attrValue);
-      document.head.appendChild(element);
-    }
-    element.setAttribute('content', content);
-  };
-  if (!normalizedPath.startsWith('/admin') && !normalizedPath.startsWith('/api')) {
-    setOrCreateMeta('property', 'og:url', currentUrl);
-    setOrCreateMeta('name', 'twitter:url', currentUrl);
-  }
-})();
-`;
+
+
 
 const JSONLD_ORGANIZATION = JSON.stringify({
   "@context": "https://schema.org",
