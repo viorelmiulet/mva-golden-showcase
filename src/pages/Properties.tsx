@@ -415,23 +415,11 @@ const Properties = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Apartamente de vânzare în București | MVA Imobiliare</title>
-        <meta
-          name="description"
-          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, număr de camere, preț și suprafață."
-        />
-        <link rel="canonical" href="https://www.mvaimobiliare.ro/proprietati" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.mvaimobiliare.ro/proprietati" />
-        <meta property="og:title" content="Apartamente de vânzare în București | MVA Imobiliare" />
-        <meta
-          property="og:description"
-          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, camere, preț."
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
-      </Helmet>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+
 
       <Header />
 
