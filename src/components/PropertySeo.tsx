@@ -90,13 +90,19 @@ const PropertySeo = ({
       : {}),
     address: {
       "@type": "PostalAddress",
-      addressLocality: city || "București",
-      ...(zone ? { addressRegion: zone } : {}),
-      ...(street ? { streetAddress: street } : {}),
+      addressLocality: (city || "București").trim(),
+      ...(zone ? { addressRegion: String(zone).trim() } : {}),
       addressCountry: "RO",
     },
+    // Approximate location only — coordinates rounded to 2 decimals (~1 km), matching the UI promise.
     ...(latitude && longitude
-      ? { geo: { "@type": "GeoCoordinates", latitude: Number(latitude), longitude: Number(longitude) } }
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: Math.round(Number(latitude) * 100) / 100,
+            longitude: Math.round(Number(longitude) * 100) / 100,
+          },
+        }
       : {}),
     ...(price
       ? {
