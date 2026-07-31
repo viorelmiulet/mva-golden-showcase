@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -43,8 +43,8 @@ const ComplexExcelImporter = () => {
         // Call edge function to process file (Excel or PDF)
         const isPdf = file.name.match(/\.pdf$/);
         const functionName = isPdf ? 'import-complexes-pdf' : 'import-complexes-excel';
-        
-        const { data, error } = await supabase.functions.invoke(functionName, {
+
+        const { data, error } = await invokeImmofluxFn<any>(functionName, {
           body: { fileData: base64, fileName: file.name }
         });
 
