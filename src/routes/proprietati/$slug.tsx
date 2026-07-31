@@ -146,7 +146,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
         ],
       };
     }
-    const { title, description, image, url, jsonLd } = loaderData;
+    const { title, description, image, url, jsonLd, breadcrumbLd } = loaderData;
     return {
       meta: [
         { title },
