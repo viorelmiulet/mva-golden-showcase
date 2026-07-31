@@ -4,6 +4,7 @@ import { Helmet } from "@/lib/helmet-compat";
 import { Home, Search, Building2, Phone, ArrowLeft, AlertTriangle, Send, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NotFoundProperties from "@/components/NotFoundProperties";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -37,7 +38,7 @@ const NotFound = () => {
     }
   };
 
-  const reportMessage = `Bună! Am dat peste un link care nu mai funcționează pe site-ul MVA Imobiliare:\n\n${brokenUrl}\n\nAm ajuns aici din: ${document.referrer || "(direct)"}`;
+  const reportMessage = `Bună! Am dat peste un link care nu mai funcționează pe site-ul MVA Imobiliare:\n\n${brokenUrl}\n\nAm ajuns aici din: ${(typeof document !== "undefined" && document.referrer) || "(direct)"}`;
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(reportMessage)}`;
   const mailtoUrl = `mailto:${REPORT_EMAIL}?subject=${encodeURIComponent("Link stricat pe mvaimobiliare.ro")}&body=${encodeURIComponent(reportMessage)}`;
 
@@ -54,7 +55,7 @@ const NotFound = () => {
       description: "Vezi toate ofertele disponibile",
     },
     {
-      to: "/complexuri-rezidentiale",
+      to: "/complexe",
       icon: Search,
       title: "Complexuri rezidențiale",
       description: "Descoperă ansamblurile noastre",
@@ -150,6 +151,8 @@ const NotFound = () => {
               </button>
             </div>
           </div>
+
+          <NotFoundProperties />
 
           {/* Quick links */}
           <div className="mx-auto mb-12 max-w-4xl">
