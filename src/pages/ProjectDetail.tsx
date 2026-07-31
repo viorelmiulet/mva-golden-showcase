@@ -430,9 +430,9 @@ const ProjectDetail = () => {
                                   </a>
                                   <Link to={getPropertyUrl(apartment)}>
                                     <Button 
-                                      variant="default" 
+                                      variant="outline" 
                                       size="sm" 
-                                      className="w-full text-xs h-8 bg-brass hover:bg-brass/90"
+                                      className="w-full text-xs h-8 border border-brass bg-transparent text-brass hover:bg-brass hover:text-paper"
                                     >
                                       Detalii
                                     </Button>
