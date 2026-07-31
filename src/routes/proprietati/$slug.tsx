@@ -17,6 +17,14 @@ async function fetchCatalogFallback(slug: string): Promise<any | null> {
     const { data } = await supabase.from("catalog_offers").select("*").eq("id", slug).maybeSingle();
     return data || null;
   }
+  // Stored slug column is authoritative — check it before any prefix heuristics.
+  const { data: bySlug } = await supabase
+    .from("catalog_offers")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (bySlug) return bySlug;
+
   const shortId = extractShortIdFromSlug(slug);
   if (!shortId) return null;
   const { data: candidates } = await supabase.rpc("find_properties_by_id_prefix", { prefix: shortId });
@@ -24,6 +32,7 @@ async function fetchCatalogFallback(slug: string): Promise<any | null> {
   const exact = candidates.find((p: any) => generatePropertySlug(p) === slug);
   return exact || (candidates.length === 1 ? candidates[0] : null);
 }
+
 
 export const Route = createFileRoute("/proprietati/$slug")({
   // SSR loader: metadata (inclusiv og:image real) există în HTML-ul livrat, fără JS.
