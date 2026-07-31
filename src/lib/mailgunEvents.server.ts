@@ -38,7 +38,7 @@ function normalize(raw: any): MailgunEventItem {
     reason: raw?.reason ?? null,
     code: ds?.code ?? raw?.["delivery-status"]?.code ?? null,
     description: ds?.description || raw?.description || null,
-    message: ds?.message || ds?.["session-seconds"] === undefined ? ds?.message ?? null : null,
+    message: ds?.message ?? null,
     logLevel: raw?.["log-level"] ?? null,
   };
 }
