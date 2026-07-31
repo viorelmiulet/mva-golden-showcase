@@ -109,12 +109,17 @@ import { Route as AdminGestiuneChiriiRaportRouteImport } from './routes/admin/ge
 import { Route as AdminGestiuneChiriiServiciiRouteImport } from './routes/admin/gestiune-chirii/servicii'
 import { Route as AdminGestiuneChiriiTicheteRouteImport } from './routes/admin/gestiune-chirii/tichete'
 import { Route as AdminGestiuneChiriiUtilitatiRouteImport } from './routes/admin/gestiune-chirii/utilitati'
+import { Route as ApiPublicAuthEmailHookRouteImport } from './routes/api/public/auth-email-hook'
+import { Route as ApiPublicOgImageRouteImport } from './routes/api/public/og-image'
+import { Route as ApiPublicOgMetaRouteImport } from './routes/api/public/og-meta'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as AppComplexIdRouteImport } from './routes/app/complex/$id'
 import { Route as AppProprietateSlugRouteImport } from './routes/app/proprietate/$slug'
 import { Route as AdminComplexeIdIndexRouteImport } from './routes/admin/complexe/$id/index'
 import { Route as AdminComplexeIdEditRouteImport } from './routes/admin/complexe/$id/edit'
 import { Route as AdminGestiuneChiriiProprietatiIndexRouteImport } from './routes/admin/gestiune-chirii/proprietati/index'
 import { Route as AdminGestiuneChiriiProprietatiAdaugaRouteImport } from './routes/admin/gestiune-chirii/proprietati/adauga'
+import { Route as ApiPublicFbQueueSplatRouteImport } from './routes/api/public/fb-queue/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -635,6 +640,26 @@ const AdminGestiuneChiriiUtilitatiRoute =
     path: '/utilitati',
     getParentRoute: () => AdminGestiuneChiriiRoute,
   } as any)
+const ApiPublicAuthEmailHookRoute = ApiPublicAuthEmailHookRouteImport.update({
+  id: '/api/public/auth-email-hook',
+  path: '/api/public/auth-email-hook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOgImageRoute = ApiPublicOgImageRouteImport.update({
+  id: '/api/public/og-image',
+  path: '/api/public/og-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOgMetaRoute = ApiPublicOgMetaRouteImport.update({
+  id: '/api/public/og-meta',
+  path: '/api/public/og-meta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppComplexIdRoute = AppComplexIdRouteImport.update({
   id: '/complex/$id',
   path: '/complex/$id',
@@ -667,6 +692,11 @@ const AdminGestiuneChiriiProprietatiAdaugaRoute =
     path: '/proprietati/adauga',
     getParentRoute: () => AdminGestiuneChiriiRoute,
   } as any)
+const ApiPublicFbQueueSplatRoute = ApiPublicFbQueueSplatRouteImport.update({
+  id: '/api/public/fb-queue/$',
+  path: '/api/public/fb-queue/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -767,12 +797,17 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRoute
+  '/api/public/og-image': typeof ApiPublicOgImageRoute
+  '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
   '/admin/complexe/': typeof AdminComplexeIndexRoute
   '/admin/gestiune-chirii/': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -872,12 +907,17 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRoute
+  '/api/public/og-image': typeof ApiPublicOgImageRoute
+  '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
   '/admin/complexe': typeof AdminComplexeIndexRoute
   '/admin/gestiune-chirii': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/admin/complexe/$id': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -981,12 +1021,17 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/servicii': typeof AdminGestiuneChiriiServiciiRoute
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
+  '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRoute
+  '/api/public/og-image': typeof ApiPublicOgImageRoute
+  '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
   '/admin/complexe/': typeof AdminComplexeIndexRoute
   '/admin/gestiune-chirii/': typeof AdminGestiuneChiriiIndexRoute
   '/admin/complexe/$id/edit': typeof AdminComplexeIdEditRoute
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
+  '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -1091,12 +1136,17 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/public/auth-email-hook'
+    | '/api/public/og-image'
+    | '/api/public/og-meta'
+    | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
     | '/admin/complexe/'
     | '/admin/gestiune-chirii/'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/public/fb-queue/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
   fileRoutesByTo: FileRoutesByTo
@@ -1196,12 +1246,17 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/public/auth-email-hook'
+    | '/api/public/og-image'
+    | '/api/public/og-meta'
+    | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
     | '/admin/complexe'
     | '/admin/gestiune-chirii'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/public/fb-queue/$'
     | '/admin/complexe/$id'
     | '/admin/gestiune-chirii/proprietati'
   id:
@@ -1304,12 +1359,17 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/servicii'
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
+    | '/api/public/auth-email-hook'
+    | '/api/public/og-image'
+    | '/api/public/og-meta'
+    | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
     | '/admin/complexe/'
     | '/admin/gestiune-chirii/'
     | '/admin/complexe/$id/edit'
     | '/admin/gestiune-chirii/proprietati/adauga'
+    | '/api/public/fb-queue/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
   fileRoutesById: FileRoutesById
@@ -1376,6 +1436,11 @@ export interface RootRouteChildren {
   NewsIndexRoute: typeof NewsIndexRoute
   ProiecteIndexRoute: typeof ProiecteIndexRoute
   ProprietatiIndexRoute: typeof ProprietatiIndexRoute
+  ApiPublicAuthEmailHookRoute: typeof ApiPublicAuthEmailHookRoute
+  ApiPublicOgImageRoute: typeof ApiPublicOgImageRoute
+  ApiPublicOgMetaRoute: typeof ApiPublicOgMetaRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2080,6 +2145,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGestiuneChiriiUtilitatiRouteImport
       parentRoute: typeof AdminGestiuneChiriiRoute
     }
+    '/api/public/auth-email-hook': {
+      id: '/api/public/auth-email-hook'
+      path: '/api/public/auth-email-hook'
+      fullPath: '/api/public/auth-email-hook'
+      preLoaderRoute: typeof ApiPublicAuthEmailHookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/og-image': {
+      id: '/api/public/og-image'
+      path: '/api/public/og-image'
+      fullPath: '/api/public/og-image'
+      preLoaderRoute: typeof ApiPublicOgImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/og-meta': {
+      id: '/api/public/og-meta'
+      path: '/api/public/og-meta'
+      fullPath: '/api/public/og-meta'
+      preLoaderRoute: typeof ApiPublicOgMetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/complex/$id': {
       id: '/app/complex/$id'
       path: '/complex/$id'
@@ -2121,6 +2214,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/gestiune-chirii/proprietati/adauga'
       preLoaderRoute: typeof AdminGestiuneChiriiProprietatiAdaugaRouteImport
       parentRoute: typeof AdminGestiuneChiriiRoute
+    }
+    '/api/public/fb-queue/$': {
+      id: '/api/public/fb-queue/$'
+      path: '/api/public/fb-queue/$'
+      fullPath: '/api/public/fb-queue/$'
+      preLoaderRoute: typeof ApiPublicFbQueueSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -2305,6 +2405,11 @@ const rootRouteChildren: RootRouteChildren = {
   NewsIndexRoute: NewsIndexRoute,
   ProiecteIndexRoute: ProiecteIndexRoute,
   ProprietatiIndexRoute: ProprietatiIndexRoute,
+  ApiPublicAuthEmailHookRoute: ApiPublicAuthEmailHookRoute,
+  ApiPublicOgImageRoute: ApiPublicOgImageRoute,
+  ApiPublicOgMetaRoute: ApiPublicOgMetaRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
+  ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
