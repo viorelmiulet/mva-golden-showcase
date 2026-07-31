@@ -85,7 +85,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
             >
               <img
                 src={src}
-                alt={`${imageAlt} — miniatura ${i + 1}`}
+                alt={`${imageAlt} — imagine ${i + 1} din ${list.length}`}
                 className="w-full aspect-[3/2] object-cover"
                 loading="lazy"
                 decoding="async"
