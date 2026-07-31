@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { RefreshCw, CheckCircle2, AlertCircle, Loader2, Database, Clock, TrendingUp, XCircle } from "lucide-react";
-import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
+import { triggerImmofluxSync, fetchImmofluxSyncStatus } from "@/lib/immofluxSync";
+
 
 interface SyncStatus {
   status?: "running" | "done" | "error" | string;
@@ -85,14 +86,18 @@ const ImmofluxDashboard = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      const { data, error } = await invokeImmofluxFn("sync-immoflux", { body: {} });
-      if (error) throw error;
-      if (data?.alreadyRunning) {
+      const current = await fetchImmofluxSyncStatus();
+      const alreadyRunning =
+        current?.status === "running" &&
+        current.started_at &&
+        Date.now() - Date.parse(current.started_at) < 5 * 60 * 1000;
+
+      if (alreadyRunning) {
         toast({ title: "Sincronizare deja activă", description: "O sincronizare este în curs." });
       } else {
-        toast({ title: "Sincronizare pornită", description: "Rulează în fundal." });
+        triggerImmofluxSync();
+        toast({ title: "Sincronizare pornită", description: "Rulează în fundal pe server." });
       }
-      // Refresh polling
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ["immoflux-sync-status"] }), 1000);
     } catch (e: any) {
       toast({ title: "Eroare", description: e?.message || "Eșec pornire sincronizare", variant: "destructive" });
@@ -100,6 +105,7 @@ const ImmofluxDashboard = () => {
       setSyncing(false);
     }
   };
+
 
   const statusBadge = () => {
     if (statusLoading) return <Badge variant="outline">Se încarcă...</Badge>;

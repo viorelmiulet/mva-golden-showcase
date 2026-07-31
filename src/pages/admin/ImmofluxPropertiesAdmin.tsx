@@ -11,7 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router-compat";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
-import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
+import { triggerImmofluxSync, fetchImmofluxSyncStatus } from "@/lib/immofluxSync";
+
 import {
   Select,
   SelectContent,
@@ -30,42 +31,34 @@ const ImmofluxPropertiesAdmin = () => {
   const handleSync = async () => {
     setSyncing(true);
     try {
-      // 1. Start sync in background (returns immediately)
-      const { data: startRes, error: startErr } = await invokeImmofluxFn('sync-immoflux', { body: {} });
-      if (startErr) throw startErr;
-      if (startRes?.success === false) throw new Error(startRes?.error || 'Sync eșuat');
+      const current = await fetchImmofluxSyncStatus();
+      const alreadyRunning =
+        current?.status === 'running' &&
+        current.started_at &&
+        Date.now() - Date.parse(current.started_at) < 5 * 60 * 1000;
 
-      if (startRes?.alreadyRunning) {
+      if (alreadyRunning) {
         toast({
           title: 'Sincronizare în curs',
           description: 'O sincronizare este deja activă. Aștept finalizarea...',
         });
       } else {
+        // Fire-and-forget: rulează în fundal pe server, UI-ul nu așteaptă.
+        triggerImmofluxSync();
         toast({
           title: 'Sincronizare pornită',
           description: 'Se rulează în fundal. Te anunț când e gata.',
         });
       }
 
-      // 2. Poll status every 3s, max ~3 min
+      // Poll status every 3s, max ~3 min
       const maxAttempts = 60;
       let attempts = 0;
-      let finalStatus: any = null;
+      let finalStatus: Awaited<ReturnType<typeof fetchImmofluxSyncStatus>> = null;
       while (attempts < maxAttempts) {
         await new Promise(r => setTimeout(r, 3000));
         attempts++;
-        const { data: poll } = { data: null } as any;
-        let status: any = null;
-        try {
-          const projectRef = (import.meta as any).env?.VITE_SUPABASE_PROJECT_ID;
-          const anon = (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY;
-          const res = await fetch(
-            `https://${projectRef}.supabase.co/functions/v1/sync-immoflux?status=1`,
-            { headers: { apikey: anon, Authorization: `Bearer ${anon}` } }
-          );
-          const json = await res.json();
-          status = json?.status;
-        } catch {}
+        const status = await fetchImmofluxSyncStatus();
         if (status?.status === 'done' || status?.status === 'error') {
           finalStatus = status;
           break;
@@ -75,7 +68,7 @@ const ImmofluxPropertiesAdmin = () => {
       if (!finalStatus) {
         toast({
           title: 'Sincronizare în curs',
-          description: 'Durează mai mult decât de obicei. Verifică din nou în câteva minute.',
+          description: 'Durează mai mult decât de obicei. Continuă în fundal — verifică din nou în câteva minute.',
         });
       } else if (finalStatus.status === 'error') {
         toast({ title: 'Eroare sincronizare', description: finalStatus.error || 'Necunoscut', variant: 'destructive' });
@@ -93,6 +86,7 @@ const ImmofluxPropertiesAdmin = () => {
       setSyncing(false);
     }
   };
+
 
   // Filters
   const [search, setSearch] = useState("");
