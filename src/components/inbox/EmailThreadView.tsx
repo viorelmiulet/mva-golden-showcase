@@ -238,9 +238,10 @@ export const EmailThreadView = ({
                       </div>
                       {!isExpanded && (
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                          {email.body_plain?.substring(0, 100) || '(Fără conținut)'}
+                          {toPreviewText(email.body_plain || email.stripped_text || email.body_html).substring(0, 100) || '(Fără conținut)'}
                         </p>
                       )}
+
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
