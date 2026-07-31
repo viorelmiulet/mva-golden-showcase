@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Home as HomeIcon, Ruler, Euro, ArrowRight } from "lucide-react";
 import { getPropertyUrl } from "@/lib/propertySlug";
+import { buildItemListJsonLd } from "@/lib/listingJsonLd";
 
 const SITE_URL = "https://www.mvaimobiliare.ro";
 
