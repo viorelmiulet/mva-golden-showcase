@@ -25,6 +25,55 @@ export interface PropertiesSearch {
   p?: number;
 }
 
+/** Slug-ifies a zone label so "Drumul Taberei" matches "drumul-taberei". */
+const zoneSlug = (v?: string) =>
+  v
+    ? v
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")
+    : "";
+
+/**
+ * Filtered views that duplicate an existing static landing page must point their
+ * canonical at that page. Key format: `zona|camere|tip` (empty segment = not set).
+ */
+const STATIC_EQUIVALENTS: Record<string, string> = {
+  "militari|2|": "/apartamente-2-camere-militari",
+  "militari|3|": "/apartamente-3-camere-militari",
+  "militari||rent": "/apartamente-de-inchiriat-militari",
+  "|2|": "/apartamente-2-camere",
+  "|3|": "/apartamente-3-camere",
+  "|4|": "/apartamente-4-camere",
+  "drumul-taberei||": "/apartamente-drumul-taberei",
+  "crangasi||": "/apartamente-crangasi-giulesti",
+  "giulesti||": "/apartamente-crangasi-giulesti",
+  "titan||": "/apartamente-titan-pantelimon",
+  "pantelimon||": "/apartamente-titan-pantelimon",
+  "berceni||": "/apartamente-berceni-giurgiului",
+  "giurgiului||": "/apartamente-berceni-giurgiului",
+  "tineretului||": "/apartamente-tineretului-vacaresti",
+  "vacaresti||": "/apartamente-tineretului-vacaresti",
+  "sector-6||": "/apartamente-sector-6",
+};
+
+/** Filters other than zona/camere/tip make the view a non-canonical permutation. */
+const EXTRA_FILTER_KEYS = ["pret_max", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const;
+
+function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex: boolean } {
+  const hasExtra = EXTRA_FILTER_KEYS.some((k) => s[k]);
+  const hasCore = Boolean(s.zona || s.camere || s.tip);
+  if (!hasExtra && !hasCore) return { noindex: false }; // unfiltered (incl. ?p=N)
+  if (!hasExtra) {
+    const key = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
+    const target = STATIC_EQUIVALENTS[key];
+    if (target) return { canonicalPath: target, noindex: false };
+  }
+  return { noindex: true };
+}
+
 export const Route = createFileRoute("/proprietati/")({
   validateSearch: (search: Record<string, unknown>): PropertiesSearch => {
     const tip = str(search.tip);
@@ -71,11 +120,14 @@ export const Route = createFileRoute("/proprietati/")({
     if (s.p && s.p > 1) qs.set("p", String(s.p));
     const path = qs.toString() ? `/proprietati?${qs.toString()}` : "/proprietati";
 
+    const { canonicalPath, noindex } = resolveIndexing(s);
+
     return staticHead({
       title: `Proprietăți${suffix}${pageSuffix} | MVA Imobiliare`,
       description:
         "Caută apartamente, garsoniere și case în București: filtre după zonă, preț, camere și suprafață. Ofertele MVA Imobiliare, actualizate zilnic.",
-      path,
+      path: canonicalPath ?? path,
+      noindex,
       image: "https://www.mvaimobiliare.ro/og-image.jpg?v=20260719c",
     });
   },
