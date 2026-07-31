@@ -24,7 +24,6 @@ export async function handleOgMeta(req: Request): Promise<Response> {
     const path = url.searchParams.get("path") || "/";
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const supabaseUrl = process.env.SUPABASE_URL!;
 
     let title = "MVA Imobiliare | Apartamente și Ansambluri Rezidențiale";
     let description =

@@ -146,7 +146,6 @@ export async function handleOgImage(req: Request): Promise<Response> {
     const locale = (url.searchParams.get("locale") || "ro").toLowerCase().trim();
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const supabaseUrl = process.env.SUPABASE_URL!;
 
     let title = "MVA Imobiliare";
     let price: string | null = null;
