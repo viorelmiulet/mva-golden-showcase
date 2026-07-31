@@ -146,7 +146,6 @@ export async function handleOgImage(req: Request): Promise<Response> {
     const locale = (url.searchParams.get("locale") || "ro").toLowerCase().trim();
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const supabaseUrl = process.env.SUPABASE_URL!;
 
     let title = "MVA Imobiliare";
     let price: string | null = null;
@@ -202,12 +201,9 @@ export async function handleOgImage(req: Request): Promise<Response> {
       }
     } else if (type === "immoflux" && id) {
       try {
-        const proxyUrl = `${supabaseUrl}/functions/v1/immoflux-proxy/properties/${id}`;
-        const resp = await fetch(proxyUrl, {
-          headers: { apikey: process.env.SUPABASE_ANON_KEY || "" },
-        });
-        if (resp.ok) {
-          const p = await resp.json();
+        const { immofluxProxy } = await import("./immoflux.server");
+        const p = (await immofluxProxy({ action: "properties", propertyId: id })) as Record<string, any>;
+        if (p && !p.error) {
           const t = typeof p.titlu === "object" ? p.titlu?.ro : p.titlu;
           title = t || `Apartament ${p.nrcamere || ""} camere`;
           if (p.pretvanzare) {

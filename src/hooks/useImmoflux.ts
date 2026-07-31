@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const PROXY_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy`;
+const PROXY_BASE = "/api/public/immoflux-proxy";
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const getHeaders = {

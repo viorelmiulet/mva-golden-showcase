@@ -191,7 +191,7 @@ const ImmofluxPropertyDetail = () => {
     if (!property) return;
     setSubmitting(true);
     try {
-      const PROXY_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/immoflux-proxy`;
+      const PROXY_BASE = "/api/public/immoflux-proxy";
       const res = await fetch(`${PROXY_BASE}/contact`, {
         method: 'POST',
         headers: {

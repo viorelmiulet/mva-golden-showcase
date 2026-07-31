@@ -53,15 +53,12 @@ export async function handleProcessSitemapQueue(): Promise<Response> {
         const targetUrls = extractTargetUrls(notifications as any);
         console.log(`[process-sitemap-queue] Sending ${targetUrls.length} URLs to notification function`);
 
-        const { data: notifyResult, error: notifyError } = await supabase.functions.invoke(
-          "notify-google-sitemap",
-          { body: { targetUrls } },
-        );
-
-        if (notifyError) {
-          console.error("[process-sitemap-queue] Notify error:", notifyError);
-        } else {
+        try {
+          const { notifyGoogleSitemap } = await import("./miscOps.server");
+          const notifyResult = await notifyGoogleSitemap({ targetUrls });
           console.log("[process-sitemap-queue] Successfully notified search engines:", notifyResult);
+        } catch (notifyError) {
+          console.error("[process-sitemap-queue] Notify error:", notifyError);
         }
 
         const notificationIds = notifications.map((n: any) => n.id);
