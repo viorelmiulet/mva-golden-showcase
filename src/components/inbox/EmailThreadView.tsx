@@ -266,10 +266,17 @@ export const EmailThreadView = ({
 
                           <div className="overflow-hidden pl-[52px]">
                             <div className="email-message-content overflow-x-auto rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
-                              <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
-                                {email.body_plain || email.stripped_text || 'Nu există conținut'}
-                              </div>
+                              {looksLikeHtml(email.body_html) ? (
+                                <EmailHtmlFrame html={email.body_html as string} />
+                              ) : looksLikeHtml(email.body_plain) ? (
+                                <EmailHtmlFrame html={email.body_plain as string} />
+                              ) : (
+                                <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
+                                  {email.body_plain || email.stripped_text || 'Nu există conținut'}
+                                </div>
+                              )}
                             </div>
+
 
                             {email.attachments && email.attachments.length > 0 && (
                               <div className="mt-4 border-t border-border/20 pt-4">
