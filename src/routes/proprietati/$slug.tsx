@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import ImmofluxPropertyDetail, { fetchImmofluxFromCatalog } from "@/pages/ImmofluxPropertyDetail";
 import PropertyDetail from "@/pages/PropertyDetail";
 import NotFound from "@/pages/NotFound";
@@ -40,11 +40,7 @@ export const Route = createFileRoute("/proprietati/$slug")({
     if (!row) {
       // Transient DB error → let the client page retry; genuinely missing → real 404.
       if (lookupFailed) return null;
-      if (typeof window === "undefined") {
-        const { setSsrStatus } = await import("@/lib/responseStatus.server");
-        setSsrStatus(404);
-      }
-      return { notFound: true as const };
+      throw notFound();
     }
 
     const images: string[] = Array.isArray(row.images)
@@ -123,18 +119,10 @@ export const Route = createFileRoute("/proprietati/$slug")({
     };
   },
   head: ({ loaderData }) => {
-    if (!loaderData || "notFound" in loaderData) {
-      return {
-        meta: [
-          { title: "Proprietatea nu a fost găsită — MVA Imobiliare" },
-          { name: "robots", content: "noindex, follow" },
-        ],
-      };
-    }
     if (!loaderData) {
       return {
         meta: [
-          { title: "Proprietate — MVA Imobiliare" },
+          { title: "Proprietatea nu a fost găsită — MVA Imobiliare" },
           { name: "robots", content: "noindex, follow" },
         ],
       };
@@ -164,11 +152,11 @@ export const Route = createFileRoute("/proprietati/$slug")({
       scripts: [{ type: "application/ld+json", children: jsonLd }],
     };
   },
+  notFoundComponent: NotFound,
   component: PropertyRoute,
 });
 
 function PropertyRoute() {
   const data = Route.useLoaderData();
-  if (data && "notFound" in data) return <NotFound />;
   return data?.variant === "immoflux" ? <ImmofluxPropertyDetail /> : <PropertyDetail />;
 }
