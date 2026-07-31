@@ -1,4 +1,4 @@
-import { toPreviewText } from "@/lib/emailHtml";
+import { getEmailPreview } from "@/lib/emailHtml";
 import {
   Star,
 
@@ -288,11 +288,11 @@ const GmailEmailRow = ({
           )}>
             {email.subject || '(Fără subiect)'}
           </span>
-          {email.body_plain && (
+          {getEmailPreview(email) && (
             <>
               <span className="shrink-0 text-[13px] text-muted-foreground/40">—</span>
               <span className="truncate text-[12px] text-muted-foreground">
-                {toPreviewText(email.body_plain).substring(0, 90)}
+                {getEmailPreview(email)}
               </span>
             </>
           )}

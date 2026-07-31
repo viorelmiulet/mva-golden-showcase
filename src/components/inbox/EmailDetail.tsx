@@ -382,9 +382,9 @@ export const EmailDetail = ({
                 >
                   <div className="p-4 sm:p-6 text-email-preview-foreground">
                     {looksLikeHtml(email.body_html) ? (
-                      <EmailHtmlFrame html={email.body_html as string} />
+                      <EmailHtmlFrame html={email.body_html as string} attachments={email.attachments} />
                     ) : looksLikeHtml(email.body_plain) ? (
-                      <EmailHtmlFrame html={email.body_plain as string} />
+                      <EmailHtmlFrame html={email.body_plain as string} attachments={email.attachments} />
                     ) : (
                       <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base text-email-preview-foreground leading-relaxed">
                         {email.body_plain || email.stripped_text || 'Nu există conținut'}
