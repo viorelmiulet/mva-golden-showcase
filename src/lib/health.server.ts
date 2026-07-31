@@ -66,13 +66,19 @@ export async function checkDatabase(): Promise<CheckResult> {
 
 export async function checkEnv(): Promise<CheckResult> {
   return timed("configuration", async () => {
+    const { getRuntimeConfig } = await import("./runtimeConfig.server");
     const required = Array.from(new Set(PUBLIC_ENDPOINTS.flatMap((e) => e.requiredEnv)));
-    const missing = required.filter((key) => !process.env[key]);
+    // Values can come from the environment or from the private backend config
+    // table, so resolve them the same way the runtime does.
+    const resolved = await Promise.all(
+      required.map(async (key) => [key, Boolean(await getRuntimeConfig(key))] as const),
+    );
+    const missing = resolved.filter(([, present]) => !present).map(([key]) => key);
     return {
       status: missing.length ? ("degraded" as const) : ("ok" as const),
       detail: {
         // booleans only, never values
-        present: Object.fromEntries(required.map((k) => [k, Boolean(process.env[k])])),
+        present: Object.fromEntries(resolved),
         missing,
       },
     };

@@ -185,8 +185,8 @@ async function sendRedirectAlertEmail(
   recipient: string,
   brokenChecks: RedirectCheckResult[],
 ): Promise<boolean> {
-  const mgKey = process.env.MAILGUN_API_KEY;
-  const mgDomain = process.env.MAILGUN_DOMAIN;
+  const { getMailgunConfig } = await import("./runtimeConfig.server");
+  const { apiKey: mgKey, domain: mgDomain } = await getMailgunConfig();
   if (!mgKey || !mgDomain) {
     console.error("[monitor-redirects] MAILGUN credentials missing, cannot send alert");
     return false;
