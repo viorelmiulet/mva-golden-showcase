@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Properties, { fetchCatalogOffers } from "@/pages/Properties";
 import { staticHead } from "@/lib/routeMeta";
+import { buildItemListJsonLd } from "@/lib/listingJsonLd";
+
+/** Keep in sync with PER_PAGE in src/pages/Properties.tsx. */
+const PER_PAGE = 24;
 
 /** Server-side validation of the filter query string — keeps filtered views crawlable. */
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
