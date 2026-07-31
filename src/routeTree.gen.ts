@@ -72,6 +72,7 @@ import { Route as AdminInstaleazaRouteImport } from './routes/admin/instaleaza'
 import { Route as AdminInventarPresetatRouteImport } from './routes/admin/inventar-presetat'
 import { Route as AdminIstoricRouteImport } from './routes/admin/istoric'
 import { Route as AdminMarketingAiRouteImport } from './routes/admin/marketing-ai'
+import { Route as AdminMonitorizareEmailRouteImport } from './routes/admin/monitorizare-email'
 import { Route as AdminNewsRouteImport } from './routes/admin/news'
 import { Route as AdminProprietatiRouteImport } from './routes/admin/proprietati'
 import { Route as AdminRapoarteRouteImport } from './routes/admin/rapoarte'
@@ -455,6 +456,11 @@ const AdminMarketingAiRoute = AdminMarketingAiRouteImport.update({
   path: '/marketing-ai',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMonitorizareEmailRoute = AdminMonitorizareEmailRouteImport.update({
+  id: '/monitorizare-email',
+  path: '/monitorizare-email',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNewsRoute = AdminNewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -831,6 +837,7 @@ export interface FileRoutesByFullPath {
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
+  '/admin/monitorizare-email': typeof AdminMonitorizareEmailRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/proprietati': typeof AdminProprietatiRoute
   '/admin/rapoarte': typeof AdminRapoarteRoute
@@ -951,6 +958,7 @@ export interface FileRoutesByTo {
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
+  '/admin/monitorizare-email': typeof AdminMonitorizareEmailRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/proprietati': typeof AdminProprietatiRoute
   '/admin/rapoarte': typeof AdminRapoarteRoute
@@ -1075,6 +1083,7 @@ export interface FileRoutesById {
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
   '/admin/istoric': typeof AdminIstoricRoute
   '/admin/marketing-ai': typeof AdminMarketingAiRoute
+  '/admin/monitorizare-email': typeof AdminMonitorizareEmailRoute
   '/admin/news': typeof AdminNewsRoute
   '/admin/proprietati': typeof AdminProprietatiRoute
   '/admin/rapoarte': typeof AdminRapoarteRoute
@@ -1200,6 +1209,7 @@ export interface FileRouteTypes {
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
+    | '/admin/monitorizare-email'
     | '/admin/news'
     | '/admin/proprietati'
     | '/admin/rapoarte'
@@ -1320,6 +1330,7 @@ export interface FileRouteTypes {
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
+    | '/admin/monitorizare-email'
     | '/admin/news'
     | '/admin/proprietati'
     | '/admin/rapoarte'
@@ -1443,6 +1454,7 @@ export interface FileRouteTypes {
     | '/admin/inventar-presetat'
     | '/admin/istoric'
     | '/admin/marketing-ai'
+    | '/admin/monitorizare-email'
     | '/admin/news'
     | '/admin/proprietati'
     | '/admin/rapoarte'
@@ -2025,6 +2037,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMarketingAiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/monitorizare-email': {
+      id: '/admin/monitorizare-email'
+      path: '/monitorizare-email'
+      fullPath: '/admin/monitorizare-email'
+      preLoaderRoute: typeof AdminMonitorizareEmailRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/news': {
       id: '/admin/news'
       path: '/news'
@@ -2483,6 +2502,7 @@ interface AdminRouteChildren {
   AdminInventarPresetatRoute: typeof AdminInventarPresetatRoute
   AdminIstoricRoute: typeof AdminIstoricRoute
   AdminMarketingAiRoute: typeof AdminMarketingAiRoute
+  AdminMonitorizareEmailRoute: typeof AdminMonitorizareEmailRoute
   AdminNewsRoute: typeof AdminNewsRoute
   AdminProprietatiRoute: typeof AdminProprietatiRoute
   AdminRapoarteRoute: typeof AdminRapoarteRoute
@@ -2514,6 +2534,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminInventarPresetatRoute: AdminInventarPresetatRoute,
   AdminIstoricRoute: AdminIstoricRoute,
   AdminMarketingAiRoute: AdminMarketingAiRoute,
+  AdminMonitorizareEmailRoute: AdminMonitorizareEmailRoute,
   AdminNewsRoute: AdminNewsRoute,
   AdminProprietatiRoute: AdminProprietatiRoute,
   AdminRapoarteRoute: AdminRapoarteRoute,
