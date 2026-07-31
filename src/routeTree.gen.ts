@@ -38,7 +38,6 @@ import { Route as GhidNouaCasa2024RouteImport } from './routes/ghid-noua-casa-20
 import { Route as IntrebariFrecventeRouteImport } from './routes/intrebari-frecvente'
 import { Route as MilitariResidenceRouteImport } from './routes/militari-residence'
 import { Route as MilitariVsChiajnaComparatieRouteImport } from './routes/militari-vs-chiajna-comparatie'
-import { Route as NewsSitemapDotxmlRouteImport } from './routes/news-sitemap[.]xml'
 import { Route as OfertaChar123idChar125RouteImport } from './routes/oferta-{$id}'
 import { Route as OferteRouteImport } from './routes/oferte'
 import { Route as PareriMilitariResidenceRouteImport } from './routes/pareri-militari-residence'
@@ -50,10 +49,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ServiciiRouteImport } from './routes/servicii'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapComplexeDotxmlRouteImport } from './routes/sitemap-complexe[.]xml'
-import { Route as SitemapImagesDotxmlRouteImport } from './routes/sitemap-images[.]xml'
-import { Route as SitemapImmofluxDotxmlRouteImport } from './routes/sitemap-immoflux[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
-import { Route as SitemapPropertiesDotxmlRouteImport } from './routes/sitemap-properties[.]xml'
 import { Route as SitemapProprietatiDotxmlRouteImport } from './routes/sitemap-proprietati[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -285,11 +281,6 @@ const MilitariVsChiajnaComparatieRoute =
     path: '/militari-vs-chiajna-comparatie',
     getParentRoute: () => rootRouteImport,
   } as any)
-const NewsSitemapDotxmlRoute = NewsSitemapDotxmlRouteImport.update({
-  id: '/news-sitemap.xml',
-  path: '/news-sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const OfertaChar123idChar125Route = OfertaChar123idChar125RouteImport.update({
   id: '/oferta-{$id}',
   path: '/oferta-{$id}',
@@ -346,24 +337,9 @@ const SitemapComplexeDotxmlRoute = SitemapComplexeDotxmlRouteImport.update({
   path: '/sitemap-complexe.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapImagesDotxmlRoute = SitemapImagesDotxmlRouteImport.update({
-  id: '/sitemap-images.xml',
-  path: '/sitemap-images.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapImmofluxDotxmlRoute = SitemapImmofluxDotxmlRouteImport.update({
-  id: '/sitemap-immoflux.xml',
-  path: '/sitemap-immoflux.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SitemapIndexDotxmlRoute = SitemapIndexDotxmlRouteImport.update({
   id: '/sitemap-index.xml',
   path: '/sitemap-index.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapPropertiesDotxmlRoute = SitemapPropertiesDotxmlRouteImport.update({
-  id: '/sitemap-properties.xml',
-  path: '/sitemap-properties.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapProprietatiDotxmlRoute =
@@ -822,7 +798,6 @@ export interface FileRoutesByFullPath {
   '/intrebari-frecvente': typeof IntrebariFrecventeRoute
   '/militari-residence': typeof MilitariResidenceRoute
   '/militari-vs-chiajna-comparatie': typeof MilitariVsChiajnaComparatieRoute
-  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/oferta-{$id}': typeof OfertaChar123idChar125Route
   '/oferte': typeof OferteRoute
   '/pareri-militari-residence': typeof PareriMilitariResidenceRoute
@@ -834,10 +809,7 @@ export interface FileRoutesByFullPath {
   '/servicii': typeof ServiciiRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap-complexe.xml': typeof SitemapComplexeDotxmlRoute
-  '/sitemap-images.xml': typeof SitemapImagesDotxmlRoute
-  '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
-  '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
   '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -947,7 +919,6 @@ export interface FileRoutesByTo {
   '/intrebari-frecvente': typeof IntrebariFrecventeRoute
   '/militari-residence': typeof MilitariResidenceRoute
   '/militari-vs-chiajna-comparatie': typeof MilitariVsChiajnaComparatieRoute
-  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/oferta-{$id}': typeof OfertaChar123idChar125Route
   '/oferte': typeof OferteRoute
   '/pareri-militari-residence': typeof PareriMilitariResidenceRoute
@@ -959,10 +930,7 @@ export interface FileRoutesByTo {
   '/servicii': typeof ServiciiRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap-complexe.xml': typeof SitemapComplexeDotxmlRoute
-  '/sitemap-images.xml': typeof SitemapImagesDotxmlRoute
-  '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
-  '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
   '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1074,7 +1042,6 @@ export interface FileRoutesById {
   '/intrebari-frecvente': typeof IntrebariFrecventeRoute
   '/militari-residence': typeof MilitariResidenceRoute
   '/militari-vs-chiajna-comparatie': typeof MilitariVsChiajnaComparatieRoute
-  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/oferta-{$id}': typeof OfertaChar123idChar125Route
   '/oferte': typeof OferteRoute
   '/pareri-militari-residence': typeof PareriMilitariResidenceRoute
@@ -1086,10 +1053,7 @@ export interface FileRoutesById {
   '/servicii': typeof ServiciiRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap-complexe.xml': typeof SitemapComplexeDotxmlRoute
-  '/sitemap-images.xml': typeof SitemapImagesDotxmlRoute
-  '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
-  '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
   '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1203,7 +1167,6 @@ export interface FileRouteTypes {
     | '/intrebari-frecvente'
     | '/militari-residence'
     | '/militari-vs-chiajna-comparatie'
-    | '/news-sitemap.xml'
     | '/oferta-{$id}'
     | '/oferte'
     | '/pareri-militari-residence'
@@ -1215,10 +1178,7 @@ export interface FileRouteTypes {
     | '/servicii'
     | '/sitemap'
     | '/sitemap-complexe.xml'
-    | '/sitemap-images.xml'
-    | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
-    | '/sitemap-properties.xml'
     | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -1328,7 +1288,6 @@ export interface FileRouteTypes {
     | '/intrebari-frecvente'
     | '/militari-residence'
     | '/militari-vs-chiajna-comparatie'
-    | '/news-sitemap.xml'
     | '/oferta-{$id}'
     | '/oferte'
     | '/pareri-militari-residence'
@@ -1340,10 +1299,7 @@ export interface FileRouteTypes {
     | '/servicii'
     | '/sitemap'
     | '/sitemap-complexe.xml'
-    | '/sitemap-images.xml'
-    | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
-    | '/sitemap-properties.xml'
     | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -1454,7 +1410,6 @@ export interface FileRouteTypes {
     | '/intrebari-frecvente'
     | '/militari-residence'
     | '/militari-vs-chiajna-comparatie'
-    | '/news-sitemap.xml'
     | '/oferta-{$id}'
     | '/oferte'
     | '/pareri-militari-residence'
@@ -1466,10 +1421,7 @@ export interface FileRouteTypes {
     | '/servicii'
     | '/sitemap'
     | '/sitemap-complexe.xml'
-    | '/sitemap-images.xml'
-    | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
-    | '/sitemap-properties.xml'
     | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
@@ -1582,7 +1534,6 @@ export interface RootRouteChildren {
   IntrebariFrecventeRoute: typeof IntrebariFrecventeRoute
   MilitariResidenceRoute: typeof MilitariResidenceRoute
   MilitariVsChiajnaComparatieRoute: typeof MilitariVsChiajnaComparatieRoute
-  NewsSitemapDotxmlRoute: typeof NewsSitemapDotxmlRoute
   OfertaChar123idChar125Route: typeof OfertaChar123idChar125Route
   OferteRoute: typeof OferteRoute
   PareriMilitariResidenceRoute: typeof PareriMilitariResidenceRoute
@@ -1594,10 +1545,7 @@ export interface RootRouteChildren {
   ServiciiRoute: typeof ServiciiRoute
   SitemapRoute: typeof SitemapRoute
   SitemapComplexeDotxmlRoute: typeof SitemapComplexeDotxmlRoute
-  SitemapImagesDotxmlRoute: typeof SitemapImagesDotxmlRoute
-  SitemapImmofluxDotxmlRoute: typeof SitemapImmofluxDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
-  SitemapPropertiesDotxmlRoute: typeof SitemapPropertiesDotxmlRoute
   SitemapProprietatiDotxmlRoute: typeof SitemapProprietatiDotxmlRoute
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -1839,13 +1787,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MilitariVsChiajnaComparatieRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/news-sitemap.xml': {
-      id: '/news-sitemap.xml'
-      path: '/news-sitemap.xml'
-      fullPath: '/news-sitemap.xml'
-      preLoaderRoute: typeof NewsSitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/oferta-{$id}': {
       id: '/oferta-{$id}'
       path: '/oferta-{$id}'
@@ -1923,32 +1864,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapComplexeDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap-images.xml': {
-      id: '/sitemap-images.xml'
-      path: '/sitemap-images.xml'
-      fullPath: '/sitemap-images.xml'
-      preLoaderRoute: typeof SitemapImagesDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-immoflux.xml': {
-      id: '/sitemap-immoflux.xml'
-      path: '/sitemap-immoflux.xml'
-      fullPath: '/sitemap-immoflux.xml'
-      preLoaderRoute: typeof SitemapImmofluxDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sitemap-index.xml': {
       id: '/sitemap-index.xml'
       path: '/sitemap-index.xml'
       fullPath: '/sitemap-index.xml'
       preLoaderRoute: typeof SitemapIndexDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-properties.xml': {
-      id: '/sitemap-properties.xml'
-      path: '/sitemap-properties.xml'
-      fullPath: '/sitemap-properties.xml'
-      preLoaderRoute: typeof SitemapPropertiesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-proprietati.xml': {
@@ -2676,7 +2596,6 @@ const rootRouteChildren: RootRouteChildren = {
   IntrebariFrecventeRoute: IntrebariFrecventeRoute,
   MilitariResidenceRoute: MilitariResidenceRoute,
   MilitariVsChiajnaComparatieRoute: MilitariVsChiajnaComparatieRoute,
-  NewsSitemapDotxmlRoute: NewsSitemapDotxmlRoute,
   OfertaChar123idChar125Route: OfertaChar123idChar125Route,
   OferteRoute: OferteRoute,
   PareriMilitariResidenceRoute: PareriMilitariResidenceRoute,
@@ -2688,10 +2607,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServiciiRoute: ServiciiRoute,
   SitemapRoute: SitemapRoute,
   SitemapComplexeDotxmlRoute: SitemapComplexeDotxmlRoute,
-  SitemapImagesDotxmlRoute: SitemapImagesDotxmlRoute,
-  SitemapImmofluxDotxmlRoute: SitemapImmofluxDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
-  SitemapPropertiesDotxmlRoute: SitemapPropertiesDotxmlRoute,
   SitemapProprietatiDotxmlRoute: SitemapProprietatiDotxmlRoute,
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
