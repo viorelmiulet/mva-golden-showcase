@@ -201,4 +201,4 @@ export const getImmofluxPropertyUrl = (property: {
   supratotal?: number;
   suprafata?: number;
   etaj?: number | string;
-}): string => `/proprietate/${generateImmofluxSlug(property)}`;
+}): string => `/proprietati/${generateImmofluxSlug(property)}`;

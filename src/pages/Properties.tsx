@@ -27,7 +27,7 @@ const shouldUseImmofluxRoute = (property: any): boolean =>
   !String(property._immoflux_slug).includes("undefined");
 
 const getListingPropertyUrl = (property: any): string =>
-  shouldUseImmofluxRoute(property) ? `/proprietate/${property._immoflux_slug}` : getPropertyUrl(property);
+  shouldUseImmofluxRoute(property) ? `/proprietati/${property._immoflux_slug}` : getPropertyUrl(property);
 
 const normalize = (s: string) =>
   s

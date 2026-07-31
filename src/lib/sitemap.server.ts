@@ -195,7 +195,7 @@ export async function buildImmofluxSitemap(): Promise<string> {
 
   const inner = (data ?? [])
     .filter((p) => typeof p.immoflux_slug === "string" && p.immoflux_slug.trim().length > 0)
-    .map((p) => urlEntry(`${SITE}/proprietate/${p.immoflux_slug}`, day(p.updated_at), "weekly", "0.8"))
+    .map((p) => urlEntry(`${SITE}/proprietati/${p.immoflux_slug}`, day(p.updated_at), "weekly", "0.8"))
     .join("");
   return urlset(inner);
 }
@@ -251,7 +251,7 @@ export async function buildImagesSitemap(): Promise<string> {
     const path = property.slug
       ? `/proprietati/${property.slug}`
       : property.immoflux_slug
-        ? `/proprietate/${property.immoflux_slug}`
+        ? `/proprietati/${property.immoflux_slug}`
         : null;
     if (!path) continue;
 

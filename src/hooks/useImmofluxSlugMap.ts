@@ -4,7 +4,7 @@ import { getImmofluxPropertyUrl } from "@/lib/propertySlug";
 
 /**
  * Fetches the canonical map of Immoflux external_id (idnum) -> stored immoflux_slug
- * from catalog_offers. All internal /proprietate/ links MUST use this stored slug,
+ * from catalog_offers. All internal /proprietati/ links MUST use this stored slug,
  * never recompute one from list-payload fields, so URL === canonical === og:url.
  */
 export function useImmofluxSlugMap() {
@@ -52,6 +52,6 @@ export function resolveImmofluxUrl(
   slugMap?: Map<number, string> | null,
 ): string {
   const stored = slugMap?.get(Number(property.idnum));
-  if (stored) return `/proprietate/${stored}`;
+  if (stored) return `/proprietati/${stored}`;
   return getImmofluxPropertyUrl(property);
 }
