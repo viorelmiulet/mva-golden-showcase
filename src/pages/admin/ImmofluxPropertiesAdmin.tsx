@@ -12,6 +12,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router-compat";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
 import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
+import { triggerImmofluxSync, fetchImmofluxSyncStatus } from "@/lib/immofluxSync";
+
 import {
   Select,
   SelectContent,
