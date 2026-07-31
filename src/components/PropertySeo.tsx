@@ -59,7 +59,7 @@ const PropertySeo = ({
   yearBuilt,
   zone,
   city,
-  street,
+  street: _street,
   latitude,
   longitude,
   datePosted,
