@@ -54,6 +54,7 @@ import { Route as SitemapImagesDotxmlRouteImport } from './routes/sitemap-images
 import { Route as SitemapImmofluxDotxmlRouteImport } from './routes/sitemap-immoflux[.]xml'
 import { Route as SitemapIndexDotxmlRouteImport } from './routes/sitemap-index[.]xml'
 import { Route as SitemapPropertiesDotxmlRouteImport } from './routes/sitemap-properties[.]xml'
+import { Route as SitemapProprietatiDotxmlRouteImport } from './routes/sitemap-proprietati[.]xml'
 import { Route as SitemapStaticDotxmlRouteImport } from './routes/sitemap-static[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermeniConditiiRouteImport } from './routes/termeni-conditii'
@@ -365,6 +366,12 @@ const SitemapPropertiesDotxmlRoute = SitemapPropertiesDotxmlRouteImport.update({
   path: '/sitemap-properties.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapProprietatiDotxmlRoute =
+  SitemapProprietatiDotxmlRouteImport.update({
+    id: '/sitemap-proprietati.xml',
+    path: '/sitemap-proprietati.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SitemapStaticDotxmlRoute = SitemapStaticDotxmlRouteImport.update({
   id: '/sitemap-static.xml',
   path: '/sitemap-static.xml',
@@ -831,6 +838,7 @@ export interface FileRoutesByFullPath {
   '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
+  '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termeni-conditii': typeof TermeniConditiiRoute
@@ -955,6 +963,7 @@ export interface FileRoutesByTo {
   '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
+  '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termeni-conditii': typeof TermeniConditiiRoute
@@ -1081,6 +1090,7 @@ export interface FileRoutesById {
   '/sitemap-immoflux.xml': typeof SitemapImmofluxDotxmlRoute
   '/sitemap-index.xml': typeof SitemapIndexDotxmlRoute
   '/sitemap-properties.xml': typeof SitemapPropertiesDotxmlRoute
+  '/sitemap-proprietati.xml': typeof SitemapProprietatiDotxmlRoute
   '/sitemap-static.xml': typeof SitemapStaticDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termeni-conditii': typeof TermeniConditiiRoute
@@ -1209,6 +1219,7 @@ export interface FileRouteTypes {
     | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
     | '/sitemap-properties.xml'
+    | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/termeni-conditii'
@@ -1333,6 +1344,7 @@ export interface FileRouteTypes {
     | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
     | '/sitemap-properties.xml'
+    | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/termeni-conditii'
@@ -1458,6 +1470,7 @@ export interface FileRouteTypes {
     | '/sitemap-immoflux.xml'
     | '/sitemap-index.xml'
     | '/sitemap-properties.xml'
+    | '/sitemap-proprietati.xml'
     | '/sitemap-static.xml'
     | '/sitemap.xml'
     | '/termeni-conditii'
@@ -1585,6 +1598,7 @@ export interface RootRouteChildren {
   SitemapImmofluxDotxmlRoute: typeof SitemapImmofluxDotxmlRoute
   SitemapIndexDotxmlRoute: typeof SitemapIndexDotxmlRoute
   SitemapPropertiesDotxmlRoute: typeof SitemapPropertiesDotxmlRoute
+  SitemapProprietatiDotxmlRoute: typeof SitemapProprietatiDotxmlRoute
   SitemapStaticDotxmlRoute: typeof SitemapStaticDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermeniConditiiRoute: typeof TermeniConditiiRoute
@@ -1935,6 +1949,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-properties.xml'
       fullPath: '/sitemap-properties.xml'
       preLoaderRoute: typeof SitemapPropertiesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-proprietati.xml': {
+      id: '/sitemap-proprietati.xml'
+      path: '/sitemap-proprietati.xml'
+      fullPath: '/sitemap-proprietati.xml'
+      preLoaderRoute: typeof SitemapProprietatiDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-static.xml': {
@@ -2671,6 +2692,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapImmofluxDotxmlRoute: SitemapImmofluxDotxmlRoute,
   SitemapIndexDotxmlRoute: SitemapIndexDotxmlRoute,
   SitemapPropertiesDotxmlRoute: SitemapPropertiesDotxmlRoute,
+  SitemapProprietatiDotxmlRoute: SitemapProprietatiDotxmlRoute,
   SitemapStaticDotxmlRoute: SitemapStaticDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermeniConditiiRoute: TermeniConditiiRoute,
