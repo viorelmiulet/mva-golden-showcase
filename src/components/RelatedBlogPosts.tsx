@@ -53,13 +53,13 @@ const RelatedBlogPosts = ({ complexName, maxPosts = 3 }: RelatedBlogPostsProps) 
   return (
     <section className="mt-8 sm:mt-12">
       <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
-        <BookOpen className="w-5 h-5 text-gold" />
+        <BookOpen className="w-5 h-5 text-brass" />
         Articole Despre {complexName}
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
           <Link key={post.slug} to={`/blog/${post.slug}`} className="group">
-            <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
+            <Card className="h-full  transition-all hover:border-brass/50 overflow-hidden">
               {post.cover_image && (
                 <div className="h-36 overflow-hidden">
                   <OptimizedImage
@@ -72,7 +72,7 @@ const RelatedBlogPosts = ({ complexName, maxPosts = 3 }: RelatedBlogPostsProps) 
                 </div>
               )}
               <CardContent className="p-4">
-                <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-gold transition-colors mb-2">
+                <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-brass transition-colors mb-2">
                   {post.title}
                 </h3>
                 {post.excerpt && (
@@ -82,7 +82,7 @@ const RelatedBlogPosts = ({ complexName, maxPosts = 3 }: RelatedBlogPostsProps) 
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{post.read_time}</span>
-                  <span className="text-xs text-gold flex items-center gap-1">
+                  <span className="text-xs text-brass flex items-center gap-1">
                     Citește <ArrowRight className="w-3 h-3" />
                   </span>
                 </div>
@@ -94,7 +94,7 @@ const RelatedBlogPosts = ({ complexName, maxPosts = 3 }: RelatedBlogPostsProps) 
       <div className="mt-4 text-center">
         <Link
           to="/blog"
-          className="text-gold hover:text-gold/80 text-sm font-medium inline-flex items-center gap-1"
+          className="text-brass hover:text-brass/80 text-sm font-medium inline-flex items-center gap-1"
         >
           Vezi toate articolele <ArrowRight className="w-4 h-4" />
         </Link>

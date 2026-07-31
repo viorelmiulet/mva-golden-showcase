@@ -193,7 +193,7 @@ const PropertyViewsPage = () => {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Eye className="w-6 h-6 text-gold" />
+            <Eye className="w-6 h-6 text-brass" />
             Vizualizări Proprietăți
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -214,11 +214,11 @@ const PropertyViewsPage = () => {
 
       {/* Summary Cards */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                <Eye className="w-5 h-5 text-gold" />
+              <div className="w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center">
+                <Eye className="w-5 h-5 text-brass" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Vizualizări</p>
@@ -227,11 +227,11 @@ const PropertyViewsPage = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-gold" />
+              <div className="w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-brass" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Sesiuni Unice</p>
@@ -240,11 +240,11 @@ const PropertyViewsPage = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-gold" />
+              <div className="w-10 h-10 rounded-lg bg-brass/10 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-brass" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Proprietăți Vizualizate</p>
@@ -257,7 +257,7 @@ const PropertyViewsPage = () => {
 
       {/* Daily Trend Chart */}
       <motion.div variants={itemVariants}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Trend Zilnic Vizualizări Proprietăți</CardTitle>
           </CardHeader>
@@ -301,7 +301,7 @@ const PropertyViewsPage = () => {
       {/* Top 10 Chart */}
       {top10.length > 0 && (
         <motion.div variants={itemVariants}>
-          <Card className="border-gold/20">
+          <Card className="border-brass/20">
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Top 10 Proprietăți</CardTitle>
             </CardHeader>
@@ -335,7 +335,7 @@ const PropertyViewsPage = () => {
 
       {/* Table */}
       <motion.div variants={itemVariants}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <CardTitle className="text-base">Toate Proprietățile</CardTitle>

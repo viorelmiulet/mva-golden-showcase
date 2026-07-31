@@ -146,7 +146,7 @@ export const InboxSidebar = ({
         size="sm"
         onClick={() => setCollapsed(!collapsed)}
         className={cn(
-          "border border-white/10 hover:bg-white/5 hover:border-gold/30",
+          "border border-white/10 hover:bg-white/5 hover:border-brass/30",
           collapsed ? "w-10 h-10 p-0 mx-auto" : "w-full justify-start gap-2"
         )}
       >
@@ -168,7 +168,7 @@ export const InboxSidebar = ({
             placeholder="Caută email-uri..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/5 border-white/10 focus:border-gold/50"
+            className="pl-10 bg-white/5 border-white/10 focus:border-brass/50"
           />
         </div>
       )}
@@ -182,8 +182,8 @@ export const InboxSidebar = ({
               size="sm"
               className={cn(
                 "w-full justify-between border border-white/10 hover:bg-white/5",
-                showAdvancedSearch && "bg-gold/10 border-gold/30 text-gold",
-                activeAdvancedFiltersCount > 0 && "border-gold/50"
+                showAdvancedSearch && "bg-brass/10 border-brass/30 text-brass",
+                activeAdvancedFiltersCount > 0 && "border-brass/50"
               )}
             >
               <span className="flex items-center gap-2">
@@ -191,7 +191,7 @@ export const InboxSidebar = ({
                 Căutare avansată
               </span>
               {activeAdvancedFiltersCount > 0 && (
-                <Badge variant="secondary" className="bg-gold/20 text-gold text-xs">
+                <Badge variant="secondary" className="bg-brass/20 text-brass text-xs">
                   {activeAdvancedFiltersCount}
                 </Badge>
               )}
@@ -213,7 +213,7 @@ export const InboxSidebar = ({
                   placeholder="Caută după expeditor..."
                   value={advancedFilters?.senderSearch || ''}
                   onChange={(e) => handleAdvancedFilterChange('senderSearch', e.target.value)}
-                  className="h-8 text-sm bg-white/5 border-white/10 focus:border-gold/50"
+                  className="h-8 text-sm bg-white/5 border-white/10 focus:border-brass/50"
                 />
               </div>
 
@@ -230,7 +230,7 @@ export const InboxSidebar = ({
                       type="date"
                       value={advancedFilters?.dateFrom || ''}
                       onChange={(e) => handleAdvancedFilterChange('dateFrom', e.target.value)}
-                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-gold/50"
+                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-brass/50"
                     />
                   </div>
                   <div className="space-y-1">
@@ -239,7 +239,7 @@ export const InboxSidebar = ({
                       type="date"
                       value={advancedFilters?.dateTo || ''}
                       onChange={(e) => handleAdvancedFilterChange('dateTo', e.target.value)}
-                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-gold/50"
+                      className="h-8 text-xs bg-white/5 border-white/10 focus:border-brass/50"
                     />
                   </div>
                 </div>
@@ -263,7 +263,7 @@ export const InboxSidebar = ({
                     }
                   }}
                 >
-                  <SelectTrigger className="h-8 text-sm bg-white/5 border-white/10 focus:border-gold/50">
+                  <SelectTrigger className="h-8 text-sm bg-white/5 border-white/10 focus:border-brass/50">
                     <SelectValue placeholder="Toate" />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,7 +304,7 @@ export const InboxSidebar = ({
               "flex items-center rounded-lg text-sm font-medium transition-all",
               collapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
               filter === item.key 
-                ? "bg-gradient-to-r from-gold/20 to-gold/5 text-gold border-l-2 border-gold" 
+                ? "bg-gradient-to-r from-brass/20 to-brass/5 text-brass border-l-2 border-brass" 
                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
             title={collapsed ? item.label : undefined}
@@ -313,7 +313,7 @@ export const InboxSidebar = ({
               <div className="relative">
                 <item.icon className="h-4 w-4" />
                 {item.count > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-gold text-black text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-brass text-black text-[9px] font-bold rounded-full flex items-center justify-center">
                     {item.count > 9 ? '9+' : item.count}
                   </span>
                 )}
@@ -327,7 +327,7 @@ export const InboxSidebar = ({
                 {item.count > 0 && (
                   <Badge variant="secondary" className={cn(
                     "text-xs",
-                    filter === item.key ? "bg-gold/20 text-gold" : "bg-white/10"
+                    filter === item.key ? "bg-brass/20 text-brass" : "bg-white/10"
                   )}>
                     {item.count}
                   </Badge>
@@ -346,7 +346,7 @@ export const InboxSidebar = ({
             <span>Filtru destinatar</span>
           </div>
           <Select value={recipientFilter} onValueChange={setRecipientFilter}>
-            <SelectTrigger className="w-full bg-white/5 border-white/10 focus:border-gold/50">
+            <SelectTrigger className="w-full bg-white/5 border-white/10 focus:border-brass/50">
               <SelectValue placeholder="Toate adresele" />
             </SelectTrigger>
             <SelectContent>
@@ -368,7 +368,7 @@ export const InboxSidebar = ({
           "flex items-center rounded-xl text-sm font-medium transition-all border",
           collapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
           showDrafts && !collapsed
-            ? "bg-gold/10 border-gold/30 text-gold" 
+            ? "bg-brass/10 border-brass/30 text-brass" 
             : "bg-white/5 border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/10"
         )}
         title={collapsed ? "Ciorne" : undefined}
@@ -421,7 +421,7 @@ export const InboxSidebar = ({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate group-hover:text-gold transition-colors">
+                          <p className="font-medium text-sm truncate group-hover:text-brass transition-colors">
                             {draft.subject || '(Fără subiect)'}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">

@@ -211,7 +211,7 @@ const PropertyImageEditor = ({
           variant="outline"
           onClick={() => document.getElementById(inputId)?.click()}
           disabled={isUploading}
-          className="border-gold/30"
+          className="border-brass/30"
         >
           {isUploading ? (
             <>
@@ -250,10 +250,10 @@ const PropertyImageEditor = ({
                   !imageValid && !imageLoading
                     ? "border-destructive bg-destructive/10"
                     : draggedIndex === index
-                    ? "opacity-50 border-gold"
+                    ? "opacity-50 border-brass"
                     : dragOverIndex === index
-                    ? "border-gold border-dashed"
-                    : "border-border hover:border-gold/50"
+                    ? "border-brass border-dashed"
+                    : "border-border hover:border-brass/50"
                 }`}
               >
                 {imageLoading ? (
@@ -276,7 +276,7 @@ const PropertyImageEditor = ({
 
                 {/* Position indicator */}
                 {index === 0 && imageValid && !imageLoading && (
-                  <div className="absolute top-1 left-1 bg-gold text-black text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  <div className="absolute top-1 left-1 bg-brass text-black text-[10px] font-bold px-1.5 py-0.5 rounded">
                     Principal
                   </div>
                 )}

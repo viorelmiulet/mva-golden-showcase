@@ -276,9 +276,9 @@ const AnalyticsPage = () => {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-              <BarChart3 className="h-6 w-6 text-gold" />
+            <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+            <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+              <BarChart3 className="h-6 w-6 text-brass" />
             </div>
           </div>
           <div>
@@ -331,10 +331,10 @@ const AnalyticsPage = () => {
       <motion.div variants={itemVariants}>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-white/5 border border-white/10">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Prezentare</TabsTrigger>
-            <TabsTrigger value="pages" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Pagini</TabsTrigger>
-            <TabsTrigger value="conversions" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Conversii</TabsTrigger>
-            <TabsTrigger value="contacts" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">Contacte</TabsTrigger>
+            <TabsTrigger value="overview" className="data-[state=active]:bg-brass/20 data-[state=active]:text-brass">Prezentare</TabsTrigger>
+            <TabsTrigger value="pages" className="data-[state=active]:bg-brass/20 data-[state=active]:text-brass">Pagini</TabsTrigger>
+            <TabsTrigger value="conversions" className="data-[state=active]:bg-brass/20 data-[state=active]:text-brass">Conversii</TabsTrigger>
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-brass/20 data-[state=active]:text-brass">Contacte</TabsTrigger>
 
           </TabsList>
 
@@ -366,7 +366,7 @@ const AnalyticsPage = () => {
                         return (
                           <div className="bg-background/95 backdrop-blur border border-white/10 p-3 rounded-lg shadow-lg">
                             <p className="font-medium">{format(parseISO(label), 'dd MMMM yyyy', { locale: ro })}</p>
-                            <p className="text-gold">Vizitatori: {payload[0]?.value}</p>
+                            <p className="text-brass">Vizitatori: {payload[0]?.value}</p>
                             <p className="text-emerald-500">Vizualizări: {payload[1]?.value}</p>
                           </div>
                         );
@@ -395,12 +395,12 @@ const AnalyticsPage = () => {
                       return (
                         <div key={device.device} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-gold/10 text-gold">{getDeviceIcon(device.device)}</div>
+                            <div className="p-2 rounded-lg bg-brass/10 text-brass">{getDeviceIcon(device.device)}</div>
                             <span className="capitalize font-medium">{device.device}</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-muted-foreground">{device.visitors}</span>
-                            <Badge variant="secondary" className="bg-gold/10 text-gold border-0">{percentage}%</Badge>
+                            <Badge variant="secondary" className="bg-brass/10 text-brass border-0">{percentage}%</Badge>
                           </div>
                         </div>
                       );
@@ -448,13 +448,13 @@ const AnalyticsPage = () => {
                   {data?.topPages?.map((page, index) => (
                     <div key={page.page} className="flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
                       <div className="flex items-center gap-4">
-                        <span className="text-xl font-bold text-gold w-8">{index + 1}</span>
+                        <span className="text-xl font-bold text-brass w-8">{index + 1}</span>
                         <div>
                           <p className="font-medium truncate max-w-[300px]">{page.page}</p>
                           <p className="text-sm text-muted-foreground">{page.pageviews} vizualizări</p>
                         </div>
                       </div>
-                      <Badge className="bg-gold/10 text-gold border-0">{page.visitors} vizitatori</Badge>
+                      <Badge className="bg-brass/10 text-brass border-0">{page.visitors} vizitatori</Badge>
                     </div>
                   ))}
                 </div>
@@ -489,7 +489,7 @@ const AnalyticsPage = () => {
             <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Target className="h-5 w-5 text-gold" />
+                  <Target className="h-5 w-5 text-brass" />
                   Evoluție lead-uri
                 </h3>
                 <p className="text-sm text-muted-foreground">Conversii pe zi în ultimele {days} zile</p>
@@ -524,7 +524,7 @@ const AnalyticsPage = () => {
                     {data?.leadSources?.map((s) => (
                       <div key={s.source} className="flex items-center justify-between p-3 rounded-xl bg-white/5">
                         <span className="font-medium truncate max-w-[220px]">{s.source}</span>
-                        <Badge className="bg-gold/10 text-gold border-0">{s.total}</Badge>
+                        <Badge className="bg-brass/10 text-brass border-0">{s.total}</Badge>
                       </div>
                     ))}
                   </div>
@@ -556,7 +556,7 @@ const AnalyticsPage = () => {
             <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <MousePointerClick className="h-5 w-5 text-gold" />
+                  <MousePointerClick className="h-5 w-5 text-brass" />
                   Contacte & Evenimente
                 </h3>
                 <p className="text-sm text-muted-foreground">Acțiuni ale vizitatorilor în ultimele {days} zile</p>

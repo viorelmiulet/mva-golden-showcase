@@ -664,16 +664,16 @@ const ProjectsAdmin = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="glass border-gold/20">
+      <Card className="glass border-brass/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-gold" />
+              <Building2 className="w-5 h-5 text-brass" />
               Administrare Complexe Rezidențiale
             </CardTitle>
             <Button
               onClick={openAddProjectModal}
-              className="bg-gold hover:bg-gold/90"
+              className="bg-brass hover:bg-brass/90"
             >
               <Plus className="w-4 h-4 mr-2" />
               Adaugă Ansamblu
@@ -686,14 +686,14 @@ const ProjectsAdmin = () => {
             const isExpanded = expandedProjects[project.id]
 
             return (
-              <Card key={project.id} className="border-gold/10">
+              <Card key={project.id} className="border-brass/10">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-foreground mb-1">{project.name}</h3>
                       <p className="text-sm text-muted-foreground">{project.location}</p>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <Badge variant="secondary" className="bg-gold/10 text-gold border-gold/20">
+                        <Badge variant="secondary" className="bg-brass/10 text-brass border-brass/20">
                           {project.price_range}
                         </Badge>
                         <Badge variant="secondary">
@@ -722,7 +722,7 @@ const ProjectsAdmin = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => openEditModal(project)}
-                        className="border-gold/30 hover:bg-gold/10"
+                        className="border-brass/30 hover:bg-brass/10"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Editează
@@ -766,7 +766,7 @@ const ProjectsAdmin = () => {
                                       <div className="flex items-center justify-between cursor-pointer hover:bg-secondary/30 rounded-lg p-2 transition-colors">
                                         <div className="flex items-center gap-4 flex-1">
                                           <div className="flex items-center gap-2">
-                                            <Home className="w-4 h-4 text-gold" />
+                                            <Home className="w-4 h-4 text-brass" />
                                             <span className="font-semibold">{group.rooms} {group.rooms === 1 ? 'cameră' : 'camere'}</span>
                                             <span className="text-xs text-muted-foreground">
                                               ({group.available_units} {group.available_units === 1 ? 'disponibilă' : 'disponibile'})
@@ -781,8 +781,8 @@ const ProjectsAdmin = () => {
                                           </div>
                                           
                                           <div className="flex items-center gap-2 text-sm">
-                                            <Euro className="w-3 h-3 text-gold" />
-                                            <span className="font-medium text-gold">
+                                            <Euro className="w-3 h-3 text-brass" />
+                                            <span className="font-medium text-brass">
                                               {formatPrice(group.price_min)} € - {formatPrice(group.price_max)} €
                                             </span>
                                           </div>
@@ -1055,7 +1055,7 @@ const ProjectsAdmin = () => {
                   variant="outline"
                   size="sm"
                   onClick={openAddPropertyModal}
-                  className="border-gold/30 hover:bg-gold/10"
+                  className="border-brass/30 hover:bg-brass/10"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Adaugă Tip

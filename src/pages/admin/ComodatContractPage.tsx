@@ -494,7 +494,7 @@ const ComodatContractPage = () => {
     <Card className="border-border/50 bg-card/50">
       <CardHeader className="pb-4">
         <CardTitle className="text-base flex items-center gap-2">
-          <Icon className="h-4 w-4 text-gold" />
+          <Icon className="h-4 w-4 text-brass" />
           {title}
         </CardTitle>
       </CardHeader>
@@ -683,7 +683,7 @@ const ComodatContractPage = () => {
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
-            <Home className="h-4 w-4 text-gold" />
+            <Home className="h-4 w-4 text-brass" />
             Detalii Proprietate
           </CardTitle>
         </CardHeader>
@@ -771,7 +771,7 @@ const ComodatContractPage = () => {
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-4">
           <CardTitle className="text-base flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gold" />
+            <Calendar className="h-4 w-4 text-brass" />
             Detalii Contract
           </CardTitle>
         </CardHeader>

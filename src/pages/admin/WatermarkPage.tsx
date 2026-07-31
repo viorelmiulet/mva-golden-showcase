@@ -536,9 +536,9 @@ export default function WatermarkPage() {
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center gap-4">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-gold/40 to-gold/10 rounded-2xl blur-xl" />
-          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/20">
-            <Stamp className="h-6 w-6 text-gold" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brass/40 to-brass/10 rounded-2xl blur-xl" />
+          <div className="relative p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
+            <Stamp className="h-6 w-6 text-brass" />
           </div>
         </div>
         <div>
@@ -680,14 +680,14 @@ export default function WatermarkPage() {
                       onClick={() => setWatermarkPosition(pos)}
                       className={`aspect-square rounded border-2 transition-all flex items-center justify-center ${
                         watermarkPosition === pos 
-                          ? "border-gold bg-gold/20" 
+                          ? "border-brass bg-brass/20" 
                           : "border-muted-foreground/20 hover:border-muted-foreground/40"
                       }`}
                       title={POSITION_LABELS[pos]}
                     >
                       <div 
                         className={`w-2 h-2 rounded-full transition-colors ${
-                          watermarkPosition === pos ? "bg-gold" : "bg-muted-foreground/40"
+                          watermarkPosition === pos ? "bg-brass" : "bg-muted-foreground/40"
                         }`}
                       />
                     </button>
@@ -721,7 +721,7 @@ export default function WatermarkPage() {
               <Button
                 onClick={processImages}
                 disabled={images.length === 0 || isProcessing}
-                className="w-full bg-gold hover:bg-gold/90 text-black"
+                className="w-full bg-brass hover:bg-brass/90 text-black"
               >
                 {isProcessing ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -801,7 +801,7 @@ export default function WatermarkPage() {
 
         {/* Images Grid with Drag & Drop */}
         <Card 
-          className={`${images.length > 0 ? "lg:col-span-3" : "lg:col-span-2"} ${isDragging ? "ring-2 ring-gold ring-offset-2" : ""}`}
+          className={`${images.length > 0 ? "lg:col-span-3" : "lg:col-span-2"} ${isDragging ? "ring-2 ring-brass ring-offset-2" : ""}`}
           ref={dropZoneRef}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -852,14 +852,14 @@ export default function WatermarkPage() {
               <div 
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
                   isDragging 
-                    ? "border-gold bg-gold/10 scale-[1.02]" 
-                    : "border-muted-foreground/25 hover:border-gold/50"
+                    ? "border-brass bg-brass/10 scale-[1.02]" 
+                    : "border-muted-foreground/25 hover:border-brass/50"
                 }`}
                 onClick={() => fileInputRef.current?.click()}
               >
                 <div className={`transition-transform ${isDragging ? "scale-110" : ""}`}>
-                  <Upload className={`h-12 w-12 mx-auto mb-3 transition-colors ${isDragging ? "text-gold" : "text-muted-foreground/50"}`} />
-                  <p className={`text-sm font-medium ${isDragging ? "text-gold" : "text-muted-foreground"}`}>
+                  <Upload className={`h-12 w-12 mx-auto mb-3 transition-colors ${isDragging ? "text-brass" : "text-muted-foreground/50"}`} />
+                  <p className={`text-sm font-medium ${isDragging ? "text-brass" : "text-muted-foreground"}`}>
                     {isDragging ? "Eliberați pentru a încărca" : "Trageți imagini aici"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -873,14 +873,14 @@ export default function WatermarkPage() {
                 <div 
                   className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all ${
                     isDragging 
-                      ? "border-gold bg-gold/10" 
-                      : "border-muted-foreground/20 hover:border-gold/40"
+                      ? "border-brass bg-brass/10" 
+                      : "border-muted-foreground/20 hover:border-brass/40"
                   }`}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <Upload className={`h-4 w-4 ${isDragging ? "text-gold" : "text-muted-foreground"}`} />
-                    <span className={`text-sm ${isDragging ? "text-gold font-medium" : "text-muted-foreground"}`}>
+                    <Upload className={`h-4 w-4 ${isDragging ? "text-brass" : "text-muted-foreground"}`} />
+                    <span className={`text-sm ${isDragging ? "text-brass font-medium" : "text-muted-foreground"}`}>
                       {isDragging ? "Eliberați pentru a adăuga" : "Adaugă mai multe imagini"}
                     </span>
                   </div>
@@ -893,7 +893,7 @@ export default function WatermarkPage() {
                     <div 
                       key={image.id} 
                       className={`relative group aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer transition-all ${
-                        isSelected ? "ring-2 ring-gold ring-offset-1" : ""
+                        isSelected ? "ring-2 ring-brass ring-offset-1" : ""
                       }`}
                       onClick={() => toggleImageSelection(image.id)}
                     >
@@ -913,7 +913,7 @@ export default function WatermarkPage() {
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleImageSelection(image.id)}
-                          className="h-4 w-4 bg-black/50 border-white data-[state=checked]:bg-gold data-[state=checked]:border-gold"
+                          className="h-4 w-4 bg-black/50 border-white data-[state=checked]:bg-brass data-[state=checked]:border-brass"
                         />
                       </div>
                       

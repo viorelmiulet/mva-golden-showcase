@@ -274,7 +274,7 @@ const Complexe = () => {
                           {project.price_range && (
                             <div className="glass-hover p-1.5 sm:p-2 rounded-lg">
                               <p className="text-[10px] sm:text-xs text-muted-foreground">{t.properties?.price || 'Preț'}</p>
-                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate text-gradient-gold">{project.price_range}</p>
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate text-gradient-brass">{project.price_range}</p>
                             </div>
                           )}
                           {project.surface_range && (
@@ -369,7 +369,7 @@ const Complexe = () => {
                             <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
                             {language === 'ro' ? 'Sună 0767 941 512' : 'Call 0767 941 512'}
                           </Button>
-                          <div className="flex items-center justify-between text-primary group-hover:text-gold-500 transition-colors">
+                          <div className="flex items-center justify-between text-primary group-hover:text-brass-500 transition-colors">
                             <span className="font-semibold text-xs sm:text-sm md:text-base">
                               {language === 'ro' ? 'Vezi apartamente disponibile' : 'View available apartments'}
                             </span>
@@ -410,8 +410,8 @@ const Complexe = () => {
             <div className="grid gap-6 sm:gap-8">
               {/* Militari Residence */}
               <Link to="/militari-residence" className="group">
-                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-brass/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-brass transition-colors">
                     Militari Residence
                   </h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-3">
@@ -419,7 +419,7 @@ const Complexe = () => {
                     Oferă apartamente cu 1, 2 și 3 camere cu finisaje moderne, acces rapid la metrou Păcii și Preciziei, 
                     și facilități complete: locuri de joacă, parcări, spații comerciale. Prețuri accesibile și posibilitate de finanțare prin credit ipotecar.
                   </p>
-                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                  <span className="text-sm font-semibold text-brass group-hover:underline">
                     Vezi apartamente disponibile →
                   </span>
                 </Card>
@@ -427,8 +427,8 @@ const Complexe = () => {
 
               {/* Renew Residence */}
               <Link to="/renew-residence" className="group">
-                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-brass/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-brass transition-colors">
                     Renew Residence
                   </h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-3">
@@ -436,7 +436,7 @@ const Complexe = () => {
                     Garsoniere și apartamente cu 2 camere, finisate la cheie, cu materiale premium. 
                     Amplasare strategică cu acces facil la șoseaua de centură și transportul în comun. Ideal pentru tineri profesioniști și familii.
                   </p>
-                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                  <span className="text-sm font-semibold text-brass group-hover:underline">
                     Descoperă Renew Residence →
                   </span>
                 </Card>
@@ -444,8 +444,8 @@ const Complexe = () => {
 
               {/* Eurocasa Residence */}
               <Link to="/eurocasa-residence" className="group">
-                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-gold/40 transition-all">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-gold transition-colors">
+                <Card className="card-modern p-4 sm:p-6 border-glow hover:border-brass/40 transition-all">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2 group-hover:text-brass transition-colors">
                     Eurocasa Residence
                   </h3>
                   <p className="text-sm sm:text-base text-muted-foreground mb-3">
@@ -453,7 +453,7 @@ const Complexe = () => {
                     compartimentări eficiente, balcoane generoase și finisaje de înaltă calitate. Beneficiază de zone verzi amenajate, 
                     securitate 24/7 și proximitate față de școli, grădinițe și centre comerciale.
                   </p>
-                  <span className="text-sm font-semibold text-gold group-hover:underline">
+                  <span className="text-sm font-semibold text-brass group-hover:underline">
                     Explorează Eurocasa Residence →
                   </span>
                 </Card>
@@ -463,7 +463,7 @@ const Complexe = () => {
             <p className="text-sm text-muted-foreground mt-8 text-center">
               Toate proprietățile din aceste ansambluri sunt verificate și actualizate zilnic de echipa MVA Imobiliare. 
               Oferim vizionări gratuite, asistență la obținerea creditului ipotecar și suport complet până la semnarea actelor la notar. 
-              Contactați-ne la <a href="tel:+40767941512" className="text-gold font-semibold hover:underline">0767 941 512</a> pentru 
+              Contactați-ne la <a href="tel:+40767941512" className="text-brass font-semibold hover:underline">0767 941 512</a> pentru 
               programarea unei vizionări sau pentru informații suplimentare despre apartamentele disponibile.
             </p>
           </section>

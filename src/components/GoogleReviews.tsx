@@ -144,7 +144,7 @@ const GoogleReviews = () => {
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-semibold text-gold">
+                <div className="w-8 h-8 rounded-full bg-brass/20 flex items-center justify-center text-xs font-semibold text-brass">
                   {review.author_name.charAt(0)}
                 </div>
               )}

@@ -105,7 +105,7 @@ const FAQ = () => {
                 ))}
               </Accordion>
 
-              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-gold/5 border border-gold/20 text-center">
+              <div className="mt-8 sm:mt-12 p-4 sm:p-6 lg:p-8 rounded-lg bg-brass/5 border border-brass/20 text-center">
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-foreground px-2">
                   {t.faq.stillQuestions}
                 </h2>
@@ -114,7 +114,7 @@ const FAQ = () => {
                 </p>
                 <a
                   href="tel:+40726555888"
-                  className="inline-block px-6 sm:px-8 py-3 bg-gold text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-gold/90 transition-colors touch-manipulation min-h-[44px]"
+                  className="inline-block px-6 sm:px-8 py-3 bg-brass text-white rounded-lg text-sm sm:text-base font-semibold hover:bg-brass/90 transition-colors touch-manipulation min-h-[44px]"
                 >
                   {t.faq.contactUs}
                 </a>

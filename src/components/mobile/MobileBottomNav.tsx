@@ -34,7 +34,7 @@ const MobileBottomNav = () => {
               to={item.path}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full relative transition-colors py-2",
-                active ? "text-gold" : "text-muted-foreground hover:text-foreground"
+                active ? "text-brass" : "text-muted-foreground hover:text-foreground"
               )}
             >
               <div className="relative">
@@ -50,7 +50,7 @@ const MobileBottomNav = () => {
                 {item.label}
               </span>
               {active && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-gold rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-brass rounded-full" />
               )}
             </Link>
           );

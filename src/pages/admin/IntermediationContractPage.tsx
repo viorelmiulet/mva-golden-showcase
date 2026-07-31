@@ -699,7 +699,7 @@ const IntermediationContractPage = () => {
           </div>
         </div>
         {activeTab === "history" && (
-          <Button onClick={handleNewContract} className="bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold">
+          <Button onClick={handleNewContract} className="bg-gradient-to-r from-brass to-brass-light text-black hover:from-brass-light hover:to-brass">
             <Plus className="h-4 w-4 mr-2" />
             Contract Nou
           </Button>
@@ -709,11 +709,11 @@ const IntermediationContractPage = () => {
       <motion.div variants={itemVariants}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-background/50 backdrop-blur-sm border border-border/50">
-            <TabsTrigger value="new" className="flex items-center gap-2 data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
+            <TabsTrigger value="new" className="flex items-center gap-2 data-[state=active]:bg-brass/20 data-[state=active]:text-brass">
               <FileText className="h-4 w-4" />
               {editingContractId ? "Editare" : "Contract Nou"}
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
+            <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-brass/20 data-[state=active]:text-brass">
               <History className="h-4 w-4" />
               Istoric ({savedContracts?.length || 0})
             </TabsTrigger>
@@ -724,7 +724,7 @@ const IntermediationContractPage = () => {
             <Card className="admin-glass-card border-border/50">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Calendar className="h-4 w-4 text-gold" />
+                  <Calendar className="h-4 w-4 text-brass" />
                   Date Contract
               </CardTitle>
             </CardHeader>

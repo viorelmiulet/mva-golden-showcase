@@ -117,10 +117,10 @@ const MobileHome = () => {
         </div>
 
         {/* Hero Card */}
-        <div className="bg-brass rounded-2xl p-5 border border-gold/20 mb-6">
+        <div className="bg-brass rounded-2xl p-5 border border-brass/20 mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-gold" />
-            <span className="text-sm font-medium text-gold">
+            <Sparkles className="w-5 h-5 text-brass" />
+            <span className="text-sm font-medium text-brass">
               {language === 'ro' ? 'Apartamente Premium' : 'Premium Apartments'}
             </span>
           </div>
@@ -142,24 +142,24 @@ const MobileHome = () => {
       <div className="px-4 pb-6">
         <div className="grid grid-cols-3 gap-3">
           <Link to="/app/cauta?type=sale" className="flex flex-col items-center p-3 bg-card rounded-xl border border-border">
-            <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mb-2">
-              <Home className="w-5 h-5 text-gold" />
+            <div className="w-10 h-10 rounded-full bg-brass/10 flex items-center justify-center mb-2">
+              <Home className="w-5 h-5 text-brass" />
             </div>
             <span className="text-xs font-medium text-center">
               {language === 'ro' ? 'Vânzare' : 'For Sale'}
             </span>
           </Link>
           <Link to="/app/cauta?type=rent" className="flex flex-col items-center p-3 bg-card rounded-xl border border-border">
-            <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mb-2">
-              <Building2 className="w-5 h-5 text-gold" />
+            <div className="w-10 h-10 rounded-full bg-brass/10 flex items-center justify-center mb-2">
+              <Building2 className="w-5 h-5 text-brass" />
             </div>
             <span className="text-xs font-medium text-center">
               {language === 'ro' ? 'Chirie' : 'For Rent'}
             </span>
           </Link>
           <Link to="/app/complexe" className="flex flex-col items-center p-3 bg-card rounded-xl border border-border">
-            <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mb-2">
-              <Sparkles className="w-5 h-5 text-gold" />
+            <div className="w-10 h-10 rounded-full bg-brass/10 flex items-center justify-center mb-2">
+              <Sparkles className="w-5 h-5 text-brass" />
             </div>
             <span className="text-xs font-medium text-center">
               {language === 'ro' ? 'Ansambluri' : 'Complexes'}
@@ -173,7 +173,7 @@ const MobileHome = () => {
           <h2 className="text-lg font-semibold">
             {language === 'ro' ? 'Proprietăți recomandate' : 'Recommended Properties'}
           </h2>
-          <Link to="/app/cauta" className="text-sm text-gold font-medium flex items-center gap-1">
+          <Link to="/app/cauta" className="text-sm text-brass font-medium flex items-center gap-1">
             {language === 'ro' ? 'Vezi toate' : 'View all'}
             <ArrowRight className="w-4 h-4" />
           </Link>
@@ -203,7 +203,7 @@ const MobileHome = () => {
           ) : (
             properties.slice(0, 4).map((property) => (
               <Link key={property.id} to={`/app/proprietate/${property.id}`}>
-                <Card className="overflow-hidden hover:border-gold/30 transition-colors">
+                <Card className="overflow-hidden hover:border-brass/30 transition-colors">
                   <CardContent className="p-0">
                       <div className="flex gap-3">
                       <div className="relative w-28 h-28 flex-shrink-0">
@@ -227,7 +227,7 @@ const MobileHome = () => {
                           </p>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-gold font-bold text-sm">
+                          <span className="text-brass font-bold text-sm">
                             {formatPrice(property.price_min || 0, property.currency || 'EUR')}
                           </span>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -262,7 +262,7 @@ const MobileHome = () => {
             <h2 className="text-lg font-semibold">
               {language === 'ro' ? 'Ansambluri rezidențiale' : 'Residential Complexes'}
             </h2>
-            <Link to="/app/complexe" className="text-sm text-gold font-medium flex items-center gap-1">
+            <Link to="/app/complexe" className="text-sm text-brass font-medium flex items-center gap-1">
               {language === 'ro' ? 'Vezi toate' : 'View all'}
               <ArrowRight className="w-4 h-4" />
             </Link>

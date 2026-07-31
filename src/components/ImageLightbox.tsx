@@ -140,7 +140,7 @@ export const ImageLightbox = ({ images, isOpen, onClose, initialIndex = 0 }: Ima
                     onClick={() => setCurrentIndex(idx)}
                     className={`flex-shrink-0 w-11 h-11 sm:w-16 sm:h-16 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
                       currentIndex === idx
-                        ? "border-gold scale-110"
+                        ? "border-brass scale-110"
                         : "border-white/30 opacity-70 hover:opacity-100"
                     }`}
                   >

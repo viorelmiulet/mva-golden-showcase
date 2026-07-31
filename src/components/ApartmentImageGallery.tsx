@@ -633,8 +633,8 @@ export const ApartmentImageGallery = ({
                       }}
                       className={cn(
                         "aspect-square rounded-lg overflow-hidden transition-all duration-200",
-                        "hover:ring-2 hover:ring-gold hover:scale-[1.02]",
-                        currentIndex === idx && "ring-2 ring-gold"
+                        "hover:ring-2 hover:ring-brass hover:scale-[1.02]",
+                        currentIndex === idx && "ring-2 ring-brass"
                       )}
                     >
                       <OptimizedGalleryImage
@@ -719,7 +719,7 @@ export const ApartmentImageGallery = ({
                           className={cn(
                             "flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-200 touch-manipulation",
                             currentIndex === idx
-                              ? "border-gold scale-105"
+                              ? "border-brass scale-105"
                               : "border-white/30 opacity-70 hover:opacity-100"
                           )}
                         >

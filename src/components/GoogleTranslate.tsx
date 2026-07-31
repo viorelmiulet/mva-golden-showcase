@@ -205,7 +205,7 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
           onClick={loadTranslateScript}
           onTouchStart={loadTranslateScript}
           className={cn(
-            "h-9 px-2.5 gap-1.5 text-xs font-medium hover:bg-gold/10 hover:text-gold transition-all duration-300",
+            "h-9 px-2.5 gap-1.5 text-xs font-medium hover:bg-brass/10 hover:text-brass transition-all duration-300",
             className
           )}
         >
@@ -230,13 +230,13 @@ export const GoogleTranslate = ({ className }: { className?: string }) => {
             onClick={() => changeLanguage(lang.code)}
             className={cn(
               "flex items-center gap-3 cursor-pointer transition-colors",
-              currentLanguage === lang.code && "bg-gold/10 text-gold"
+              currentLanguage === lang.code && "bg-brass/10 text-brass"
             )}
           >
             <span className="text-lg">{lang.flag}</span>
             <span className="flex-1">{lang.name}</span>
             {currentLanguage === lang.code && (
-              <Check className="w-4 h-4 text-gold" />
+              <Check className="w-4 h-4 text-brass" />
             )}
           </DropdownMenuItem>
         ))}

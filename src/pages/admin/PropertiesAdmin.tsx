@@ -581,18 +581,18 @@ const PropertiesAdmin = () => {
       )}
       <div className="space-y-4 md:space-y-8">
       {/* Properties List */}
-      <Card className="glass border-gold/20">
+      <Card className="glass border-brass/20">
         <CardHeader className="p-4 md:p-6">
           <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-base md:text-lg">
-              <Home className="w-4 h-4 md:w-5 md:h-5 text-gold" />
+              <Home className="w-4 h-4 md:w-5 md:h-5 text-brass" />
               Proprietăți ({properties?.length || 0})
             </div>
             <div className="flex gap-2">
               <Button
                 size="sm"
                 onClick={() => setShowAddDialog(true)}
-                className="bg-gold hover:bg-gold/90 text-black h-8 text-xs md:text-sm"
+                className="bg-brass hover:bg-brass/90 text-black h-8 text-xs md:text-sm"
               >
                 <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
                 Adaugă Manual
@@ -729,7 +729,7 @@ const PropertiesAdmin = () => {
           )}
           {propertiesLoading ? (
             <div className="text-center py-6 md:py-8">
-              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-gold" />
+              <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin mx-auto text-brass" />
               <p className="text-muted-foreground mt-2 text-sm">Se încarcă...</p>
             </div>
           ) : properties && properties.length > 0 ? (
@@ -737,7 +737,7 @@ const PropertiesAdmin = () => {
               {properties.map((property: any) => (
                 <Card
                   key={property.id}
-                  className={`border-border/30 hover:border-gold/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
+                  className={`border-border/30 hover:border-brass/30 transition-colors ${selectedProperties.has(property.id) ? 'border-blue-500/50 bg-blue-500/5' : ''}`}
                 >
                   <CardContent className="p-3 md:p-4">
                     {/* Mobile Layout - Card Style */}
@@ -766,7 +766,7 @@ const PropertiesAdmin = () => {
                         </div>
                         {/* Price badge overlay */}
                         <div className="absolute bottom-2 right-2">
-                          <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                          <Badge className="bg-brass text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
                             €{property.price_min?.toLocaleString()}
                           </Badge>
                         </div>
@@ -833,9 +833,9 @@ const PropertiesAdmin = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30 hover:bg-gold/10 h-10 w-full"
+                          className="border-brass/30 hover:bg-brass/10 h-10 w-full"
                         >
-                          <Edit className="w-4 h-4 text-gold" />
+                          <Edit className="w-4 h-4 text-brass" />
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -892,15 +892,15 @@ const PropertiesAdmin = () => {
                           {property.title}
                         </h3>
                         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                             <Euro className="w-3 h-3 mr-0.5" />
                             €{property.price_min?.toLocaleString()}
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                             <Ruler className="w-3 h-3 mr-0.5" />
                             {property.surface_min}mp
                           </Badge>
-                          <Badge variant="secondary" className="bg-gold/10 text-xs px-1.5 py-0.5">
+                          <Badge variant="secondary" className="bg-brass/10 text-xs px-1.5 py-0.5">
                             <Home className="w-3 h-3 mr-0.5" />
                             {property.rooms}cam
                           </Badge>
@@ -940,7 +940,7 @@ const PropertiesAdmin = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => openEditModal(property)}
-                          className="border-gold/30 h-10 w-10 md:h-8 md:w-8 p-0"
+                          className="border-brass/30 h-10 w-10 md:h-8 md:w-8 p-0"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -1036,14 +1036,14 @@ const PropertiesAdmin = () => {
                                 {isSale ? "Vânzare" : "Închiriere"}
                               </Badge>
                               {property.top === 1 && (
-                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                                <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                               )}
                               {isPoleProperty(property) && (
                                 <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
                               )}
                             </div>
                             <div className="absolute bottom-2 right-2">
-                              <Badge className="bg-gold text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
+                              <Badge className="bg-brass text-black font-semibold text-sm px-2.5 py-1 shadow-lg">
                                 {formatPrice(property)}
                               </Badge>
                             </div>
@@ -1073,7 +1073,7 @@ const PropertiesAdmin = () => {
                           </div>
                           <div className="flex items-center justify-end mt-4 pt-3 border-t border-border/20">
                             <Link to={resolveImmofluxUrl(property, immofluxSlugMap)} target="_blank">
-                              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-gold">
+                              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-brass">
                                 <ExternalLink className="h-3.5 w-3.5 mr-1" />
                                 Vezi pe site
                               </Button>
@@ -1096,7 +1096,7 @@ const PropertiesAdmin = () => {
                                 {isSale ? "Vânzare" : "Închiriere"}
                               </Badge>
                               {property.top === 1 && (
-                                <Badge className="bg-gold text-black font-bold text-[10px]">TOP</Badge>
+                                <Badge className="bg-brass text-black font-bold text-[10px]">TOP</Badge>
                               )}
                               {isPoleProperty(property) && (
                                 <Badge className="bg-purple-700 text-white font-bold text-[10px]">POLE</Badge>
@@ -1316,7 +1316,7 @@ const PropertiesAdmin = () => {
                     setSendingToGBP(false);
                   }
                 }}
-                className="border-gold text-gold hover:bg-gold hover:text-black transition-all"
+                className="border-brass text-brass hover:bg-brass hover:text-black transition-all"
               >
                 {sendingToGBP ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1445,7 +1445,7 @@ const PropertiesAdmin = () => {
               <Button
                 onClick={addProperty}
                 disabled={isAdding}
-                className="bg-gold hover:bg-gold/90 text-black"
+                className="bg-brass hover:bg-brass/90 text-black"
               >
                 {isAdding ? (
                   <>
@@ -1501,7 +1501,7 @@ const PropertiesAdmin = () => {
               </Button>
               <Button
                 variant="outline"
-                className="justify-start gap-3 h-12 border-gold/30"
+                className="justify-start gap-3 h-12 border-brass/30"
                 onClick={async () => {
                   if (!propertyToShare) return;
                   setShareDialogOpen(false);

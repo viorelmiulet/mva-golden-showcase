@@ -67,8 +67,8 @@ const AdminHeader = ({
             className="w-[85vw] max-w-[320px] p-0 flex flex-col h-[100dvh] overflow-hidden bg-gradient-to-b from-background to-background/95 border-r border-white/10"
           >
             <div className="flex items-center gap-3 p-4 border-b border-white/5 shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-gold" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brass/20 to-brass/5 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-brass" />
               </div>
               <div>
                 <span className="font-semibold text-sm">MVA Admin</span>
@@ -83,13 +83,13 @@ const AdminHeader = ({
       )}
 
       <div className="flex items-center gap-3 min-w-0">
-        <div className="hidden md:flex w-9 h-9 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 items-center justify-center">
-          <BarChart3 className="w-4 h-4 text-gold" />
+        <div className="hidden md:flex w-9 h-9 rounded-xl bg-gradient-to-br from-brass/15 to-brass/5 items-center justify-center">
+          <BarChart3 className="w-4 h-4 text-brass" />
         </div>
         <div>
           <h1 className="text-sm md:text-base font-semibold truncate">
             <span className="text-foreground">Panou </span>
-            <span className="bg-gradient-to-r from-gold to-gold-light bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brass to-brass-light bg-clip-text text-transparent">
               Admin
             </span>
           </h1>
@@ -177,7 +177,7 @@ const AdminHeader = ({
                 >
                   Anulează
                 </Button>
-                <Button type="submit" className="flex-1 bg-gold hover:bg-gold/90 text-black">
+                <Button type="submit" className="flex-1 bg-brass hover:bg-brass/90 text-black">
                   Salvează
                 </Button>
               </div>

@@ -95,21 +95,21 @@ const RenewResidence = () => {
       <main className="min-h-screen">
         <section className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-section">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/3 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-brass/5 rounded-full blur-3xl animate-float" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-brass/3 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
           </div>
 
           <div className="container mx-auto px-4 lg:px-6 relative z-10 max-w-5xl">
             <ScrollReveal>
               <header className="text-center mb-12 lg:mb-16">
-                <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-sm font-semibold mb-6">
+                <Badge variant="secondary" className="glass border-brass/30 text-brass px-4 py-1.5 text-sm font-semibold mb-6">
                   <MapPin className="w-4 h-4 mr-2" />
                   Zona Militari, București
                 </Badge>
 
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
                   <span className="text-foreground">Apartamente de Vânzare în </span>
-                  <span className="text-gradient-gold">Renew Residence</span>
+                  <span className="text-gradient-brass">Renew Residence</span>
                 </h1>
 
                 <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -122,7 +122,7 @@ const RenewResidence = () => {
               <article className="prose prose-lg max-w-none space-y-10 mb-16">
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Despre <span className="text-gradient-gold">Renew Residence</span>
+                    Despre <span className="text-gradient-brass">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     Renew Residence este un ansamblu rezidențial modern situat în zona Militari, Chiajna, ce se remarcă prin arhitectura contemporană și calitatea finisajelor. Proiectul oferă apartamente bine compartimentate cu acces la facilități moderne și spații verzi generoase.
@@ -134,7 +134,7 @@ const RenewResidence = () => {
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Apartamente disponibile în <span className="text-gradient-gold">Renew Residence</span>
+                    Apartamente disponibile în <span className="text-gradient-brass">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     MVA Imobiliare oferă garsoniere, apartamente cu 2 camere și apartamente cu 3 camere în Renew Residence, în intervalul de prețuri 70.000–90.000€. Toate proprietățile sunt în blocuri noi cu finisaje de calitate, locuri de parcare și spații comune îngrijite.
@@ -143,7 +143,7 @@ const RenewResidence = () => {
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    De ce MVA Imobiliare pentru <span className="text-gradient-gold">Renew Residence</span>
+                    De ce MVA Imobiliare pentru <span className="text-gradient-brass">Renew Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     Suntem specializați în ansamblurile rezidențiale din zona Chiajna–Militari din 2016. Cunoaștem Renew Residence în detaliu și vă oferim acces la oferte exclusive, evaluare gratuită și asistență completă în procesul de cumpărare.
@@ -157,12 +157,12 @@ const RenewResidence = () => {
               <section className="mb-16">
                 <h2 className="text-2xl lg:text-3xl font-bold text-center mb-8">
                   <span className="text-foreground">Proprietăți în </span>
-                  <span className="text-gradient-gold">Renew Residence</span>
+                  <span className="text-gradient-brass">Renew Residence</span>
                 </h2>
 
                 {isLoading ? (
                   <div className="flex justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-gold" />
+                    <Loader2 className="w-8 h-8 animate-spin text-brass" />
                   </div>
                 ) : properties.length === 0 ? (
                   <div className="text-center py-12 card-modern rounded-2xl p-8">
@@ -180,10 +180,10 @@ const RenewResidence = () => {
                   <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                     {properties.map((property) => (
                       <Link to={getPropertyUrl(property)} key={property.id}>
-                        <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
+                        <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-brass/20 h-full">
                           {property.is_featured && (
                             <div className="absolute top-3 left-3 z-10">
-                              <Badge className="bg-gold text-primary-foreground  text-xs">
+                              <Badge className="bg-brass text-primary-foreground  text-xs">
                                 <Sparkles className="w-3 h-3 mr-1" />
                                 Recomandat
                               </Badge>
@@ -199,8 +199,8 @@ const RenewResidence = () => {
                               height={360}
                               quality={75}
                             />
-                            <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
-                              <div className="flex items-center text-gold font-bold">
+                            <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-brass/30">
+                              <div className="flex items-center text-brass font-bold">
                                 <Euro className="w-3 h-3 mr-1" />
                                 <span className="text-xs sm:text-sm">
                                   {property.price_min?.toLocaleString()} {property.currency || "EUR"}
@@ -209,11 +209,11 @@ const RenewResidence = () => {
                             </div>
                           </div>
                           <CardContent className="p-4 space-y-3">
-                            <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                            <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-brass transition-colors line-clamp-2">
                               {property.title}
                             </h3>
                             <div className="flex items-center text-muted-foreground">
-                              <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                              <MapPin className="w-3 h-3 mr-1 text-brass flex-shrink-0" />
                               <span className="text-xs line-clamp-1">{property.location}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-2 text-center">
@@ -248,7 +248,7 @@ const RenewResidence = () => {
               <div className="text-center card-modern border-glow rounded-2xl p-8 max-w-3xl mx-auto">
                 <h2 className="text-xl lg:text-2xl font-bold mb-4">
                   <span className="text-foreground">Cauți un apartament în </span>
-                  <span className="text-gradient-gold">Renew Residence?</span>
+                  <span className="text-gradient-brass">Renew Residence?</span>
                 </h2>
                 <p className="text-muted-foreground mb-6">
                   Contactează-ne pentru vizionare gratuită și consultanță personalizată.

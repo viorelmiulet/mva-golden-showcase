@@ -76,7 +76,7 @@ export const ApproximateLocationMap = ({
     <section aria-label="Locație aproximativă" className="space-y-2">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
-          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-brass" />
           Locație aproximativă
         </h2>
         {locationLabel && (
@@ -88,7 +88,7 @@ export const ApproximateLocationMap = ({
 
       <div
         ref={containerRef}
-        className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-gold/20 bg-muted"
+        className="relative w-full h-[300px] sm:h-[400px] md:h-[460px] rounded-lg overflow-hidden border border-brass/20 bg-muted"
       >
         {mapConsent ? (
           <iframe
@@ -101,7 +101,7 @@ export const ApproximateLocationMap = ({
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center bg-muted">
-            <MapPin className="w-8 h-8 text-gold" aria-hidden="true" />
+            <MapPin className="w-8 h-8 text-brass" aria-hidden="true" />
             <p className="text-sm text-muted-foreground max-w-sm">
               Harta Google este blocată până acceptați cookie-urile de marketing.
             </p>

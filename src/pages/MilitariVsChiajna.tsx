@@ -180,7 +180,7 @@ const MilitariVsChiajna = () => {
             </Badge>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">
               Militari Residence vs. Chiajna —{" "}
-              <span className="text-gradient-gold">care zonă alegi?</span>
+              <span className="text-gradient-brass">care zonă alegi?</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">
               Comparație detaliată între cel mai mare ansamblu rezidențial din vestul
@@ -209,9 +209,9 @@ const MilitariVsChiajna = () => {
         {/* Snapshot cards */}
         <section className="container mx-auto px-4 py-10 lg:py-14 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-5">
-            <Card className="border-gold/30">
+            <Card className="border-brass/30">
               <CardContent className="p-6">
-                <Badge className="bg-gold/15 text-gold border-gold/30 mb-3">
+                <Badge className="bg-brass/15 text-brass border-brass/30 mb-3">
                   Militari Residence
                 </Badge>
                 <h2 className="text-xl font-bold mb-3">
@@ -219,15 +219,15 @@ const MilitariVsChiajna = () => {
                 </h2>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Aproximativ 2 km până la metrou Pacii (M3)
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Infrastructură proprie: școală, supermarketuri, clinici, parcuri
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Cerere mare → revânzare rapidă
                   </li>
                   <li className="flex gap-2">
@@ -252,15 +252,15 @@ const MilitariVsChiajna = () => {
                 </h2>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Preț pe metru cu până la 25% mai mic
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Apartamente și case mai mari pentru același buget
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brass shrink-0 mt-0.5" />
                     Zone liniștite, ideale pentru familii cu mașină
                   </li>
                   <li className="flex gap-2">
@@ -311,7 +311,7 @@ const MilitariVsChiajna = () => {
         {/* Price per square meter */}
         <section className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="flex items-center gap-3 mb-4">
-            <Euro className="w-6 h-6 text-gold" />
+            <Euro className="w-6 h-6 text-brass" />
             <h2 className="text-2xl sm:text-3xl font-bold">Preț pe metru pătrat (2026)</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed mb-4">
@@ -333,7 +333,7 @@ const MilitariVsChiajna = () => {
         {/* Transport */}
         <section className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="flex items-center gap-3 mb-4">
-            <Train className="w-6 h-6 text-gold" />
+            <Train className="w-6 h-6 text-brass" />
             <h2 className="text-2xl sm:text-3xl font-bold">Transport și metrou Pacii</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed mb-3">
@@ -352,7 +352,7 @@ const MilitariVsChiajna = () => {
         {/* Schools */}
         <section className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="flex items-center gap-3 mb-4">
-            <GraduationCap className="w-6 h-6 text-gold" />
+            <GraduationCap className="w-6 h-6 text-brass" />
             <h2 className="text-2xl sm:text-3xl font-bold">Școli, grădinițe și familii</h2>
           </div>
           <p className="text-muted-foreground leading-relaxed mb-3">
@@ -370,10 +370,10 @@ const MilitariVsChiajna = () => {
 
         {/* Recommendation */}
         <section className="container mx-auto px-4 py-8 max-w-5xl">
-          <Card className="border-gold/40 bg-gold/5">
+          <Card className="border-brass/40 bg-brass/5">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-3">
-                <MapPin className="w-6 h-6 text-gold" />
+                <MapPin className="w-6 h-6 text-brass" />
                 <h2 className="text-2xl font-bold">Ce zonă ți se potrivește?</h2>
               </div>
               <ul className="space-y-3 text-sm sm:text-base text-muted-foreground">
@@ -411,22 +411,22 @@ const MilitariVsChiajna = () => {
           <h2 className="text-xl font-bold mb-3">Citește mai departe</h2>
           <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
             <li>
-              <Link className="text-gold hover:underline" to="/ghid-militari-residence">
+              <Link className="text-brass hover:underline" to="/ghid-militari-residence">
                 Ghid complet Militari Residence — cartier, transport, școli, prețuri
               </Link>
             </li>
             <li>
-              <Link className="text-gold hover:underline" to="/militari-residence">
+              <Link className="text-brass hover:underline" to="/militari-residence">
                 Apartamente disponibile în Militari Residence
               </Link>
             </li>
             <li>
-              <Link className="text-gold hover:underline" to="/apartamente-2-camere-militari">
+              <Link className="text-brass hover:underline" to="/apartamente-2-camere-militari">
                 Apartamente 2 camere în zona Militari
               </Link>
             </li>
             <li>
-              <Link className="text-gold hover:underline" to="/apartamente-3-camere-militari">
+              <Link className="text-brass hover:underline" to="/apartamente-3-camere-militari">
                 Apartamente 3 camere în zona Militari
               </Link>
             </li>

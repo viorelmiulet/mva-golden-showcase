@@ -1102,7 +1102,7 @@ ${originalBody}`;
           <>
             {/* Compact mobile header */}
             <div className="flex items-center gap-2 px-3 py-2 border-b border-border/10 bg-background/95 backdrop-blur-md sticky top-0 z-40">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-sm shrink-0">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-brass to-brass-dark flex items-center justify-center shadow-sm shrink-0">
                 <span className="text-primary-foreground font-bold text-[10px]">M</span>
               </div>
               <div className={cn(
@@ -1225,7 +1225,7 @@ ${originalBody}`;
                 <Button variant="ghost" size="icon" onClick={() => {
                   if (selectedEmail) updateEmailMutation.mutate({ id: selectedEmail.id, updates: { is_starred: !selectedEmail.is_starred } });
                 }} className="h-9 w-9">
-                  <Star className={cn("h-4 w-4", selectedEmail?.is_starred ? "fill-gold text-gold" : "text-muted-foreground")} />
+                  <Star className={cn("h-4 w-4", selectedEmail?.is_starred ? "fill-brass text-brass" : "text-muted-foreground")} />
                 </Button>
               </div>
             </div>

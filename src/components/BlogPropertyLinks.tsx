@@ -96,7 +96,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                 to={getComplexUrl(complex)}
                 className="group"
               >
-                <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
+                <Card className="h-full  transition-all hover:border-brass/50 overflow-hidden">
                   {complex.main_image && (
                     <div className="h-32 overflow-hidden">
                       <img
@@ -108,7 +108,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                     </div>
                   )}
                   <CardContent className="p-4">
-                    <h4 className="font-semibold group-hover:text-gold transition-colors">
+                    <h4 className="font-semibold group-hover:text-brass transition-colors">
                       {complex.name}
                     </h4>
                     {complex.location && (
@@ -118,11 +118,11 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                       </p>
                     )}
                     {complex.price_range && (
-                      <p className="text-sm text-gold font-medium mt-1">
+                      <p className="text-sm text-brass font-medium mt-1">
                         {complex.price_range}
                       </p>
                     )}
-                    <span className="text-xs text-gold flex items-center gap-1 mt-2">
+                    <span className="text-xs text-brass flex items-center gap-1 mt-2">
                       Vezi detalii <ArrowRight className="w-3 h-3" />
                     </span>
                   </CardContent>
@@ -148,7 +148,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                   to={getPropertyUrl(prop)}
                   className="group"
                 >
-                  <Card className="h-full  transition-all hover:border-gold/50 overflow-hidden">
+                  <Card className="h-full  transition-all hover:border-brass/50 overflow-hidden">
                     <div className="aspect-[4/3] overflow-hidden relative">
                       {firstImage ? (
                         <OptimizedPropertyImage
@@ -167,15 +167,15 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
                       </Badge>
                     </div>
                     <CardContent className="p-3">
-                      <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-gold transition-colors mb-1">
+                      <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-brass transition-colors mb-1">
                         {prop.title}
                       </h4>
                       <div className="flex items-center text-muted-foreground text-xs mb-1">
-                        <MapPin className="w-3 h-3 mr-1 text-gold" />
+                        <MapPin className="w-3 h-3 mr-1 text-brass" />
                         <span className="truncate">{prop.location}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-gold">
+                        <span className="font-bold text-brass">
                           €{prop.price_min?.toLocaleString("de-DE")}
                         </span>
                         <span className="text-muted-foreground">
@@ -191,7 +191,7 @@ const BlogPropertyLinks = ({ postContent, postCategory }: BlogPropertyLinksProps
           <div className="mt-4 text-center">
             <Link
               to="/proprietati"
-              className="text-gold hover:text-gold/80 text-sm font-medium inline-flex items-center gap-1"
+              className="text-brass hover:text-brass/80 text-sm font-medium inline-flex items-center gap-1"
             >
               Vezi toate proprietățile <ArrowRight className="w-4 h-4" />
             </Link>

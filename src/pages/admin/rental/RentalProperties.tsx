@@ -121,7 +121,7 @@ const RentalProperties = () => {
         </div>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditingId(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button size="sm" className="bg-gradient-to-r from-gold to-gold-light text-black">
+            <Button size="sm" className="bg-gradient-to-r from-brass to-brass-light text-black">
               <Plus className="h-4 w-4 mr-1" /> Adaugă
             </Button>
           </DialogTrigger>
@@ -206,7 +206,7 @@ const RentalProperties = () => {
                 <div><Label>Email Proprietar</Label><Input value={form.landlord_email} onChange={e => setForm({...form, landlord_email: e.target.value})} /></div>
                 <div className="col-span-2"><Label>Note</Label><Textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} rows={2} /></div>
               </div>
-              <Button type="submit" disabled={saveMutation.isPending} className="w-full bg-gold text-black hover:bg-gold/90">
+              <Button type="submit" disabled={saveMutation.isPending} className="w-full bg-brass text-black hover:bg-brass/90">
                 {saveMutation.isPending ? "Se salvează..." : editingId ? "Actualizează" : "Adaugă"}
               </Button>
             </form>

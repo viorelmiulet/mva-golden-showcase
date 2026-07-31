@@ -123,21 +123,21 @@ const MilitariResidence = () => {
       <main className="min-h-screen">
         <section className="relative py-16 sm:py-20 lg:py-28 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-section">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-gold/3 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-brass/5 rounded-full blur-3xl animate-float" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-brass/3 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
           </div>
 
           <div className="container mx-auto px-4 lg:px-6 relative z-10 max-w-5xl">
             <ScrollReveal>
               <header className="text-center mb-12 lg:mb-16">
-                <Badge variant="secondary" className="glass border-gold/30 text-gold px-4 py-1.5 text-sm font-semibold mb-6">
+                <Badge variant="secondary" className="glass border-brass/30 text-brass px-4 py-1.5 text-sm font-semibold mb-6">
                   <MapPin className="w-4 h-4 mr-2" />
                   Chiajna, Ilfov
                 </Badge>
 
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6">
                   <span className="text-foreground">Apartamente de Vânzare în </span>
-                  <span className="text-gradient-gold">Militari Residence</span>
+                  <span className="text-gradient-brass">Militari Residence</span>
                 </h1>
 
                 <p className="text-base lg:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -150,7 +150,7 @@ const MilitariResidence = () => {
               <article className="prose prose-lg max-w-none space-y-10 mb-16">
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Despre <span className="text-gradient-gold">Militari Residence</span>
+                    Despre <span className="text-gradient-brass">Militari Residence</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     Militari Residence este cel mai mare ansamblu rezidențial din vestul Bucureștiului, dezvoltat în Chiajna, județul Ilfov, la câteva minute de Sectorul 6. Cu peste 10.000 de apartamente livrate, ansamblul a devenit o comunitate urbană completă, cu școli, grădinițe, spații comerciale și zone verzi amenajate.
@@ -162,25 +162,25 @@ const MilitariResidence = () => {
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    Tipuri de <span className="text-gradient-gold">Apartamente Disponibile</span>
+                    Tipuri de <span className="text-gradient-brass">Apartamente Disponibile</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     MVA Imobiliare are în portofoliu constant apartamente în Militari Residence în trei configurații:
                   </p>
                   <div className="mt-4 space-y-4">
-                    <div className="card-modern rounded-xl p-4 border-gold/10">
+                    <div className="card-modern rounded-xl p-4 border-brass/10">
                       <h3 className="text-lg font-semibold text-foreground mb-2">Garsoniere în Militari Residence</h3>
                       <p className="text-muted-foreground text-sm leading-relaxed">
                         Suprafețe între 28 și 38 mp, ideale pentru prima locuință sau investiție. Prețuri între 50.000 și 65.000€.
                       </p>
                     </div>
-                    <div className="card-modern rounded-xl p-4 border-gold/10">
+                    <div className="card-modern rounded-xl p-4 border-brass/10">
                       <h3 className="text-lg font-semibold text-foreground mb-2">Apartamente 2 camere în Militari Residence</h3>
                       <p className="text-muted-foreground text-sm leading-relaxed">
                         Cele mai căutate, suprafețe între 45 și 58 mp, prețuri între 70.000 și 85.000€. Potrivite pentru cupluri și familii tinere.
                       </p>
                     </div>
-                    <div className="card-modern rounded-xl p-4 border-gold/10">
+                    <div className="card-modern rounded-xl p-4 border-brass/10">
                       <h3 className="text-lg font-semibold text-foreground mb-2">Apartamente 3 camere în Militari Residence</h3>
                       <p className="text-muted-foreground text-sm leading-relaxed">
                         Suprafețe între 62 și 78 mp, prețuri între 82.000 și 95.000€. Ideal pentru familii cu copii care caută spațiu generos și confort.
@@ -191,7 +191,7 @@ const MilitariResidence = () => {
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                    De ce să alegi <span className="text-gradient-gold">MVA Imobiliare</span>
+                    De ce să alegi <span className="text-gradient-brass">MVA Imobiliare</span>
                   </h2>
                   <p className="text-muted-foreground leading-relaxed">
                     Cu sediul în Chiajna din 2016, suntem agenția imobiliară cu cea mai mare experiență în tranzacțiile din Militari Residence. Cunoaștem fiecare bloc, fiecare dezvoltator și fiecare preț real tranzacționat în zonă — nu prețuri de listă, ci prețuri reale.
@@ -200,23 +200,23 @@ const MilitariResidence = () => {
                     <p className="text-muted-foreground font-medium">Ce oferim:</p>
                     <ul className="space-y-2 text-muted-foreground text-sm">
                       <li className="flex items-start gap-2">
-                        <span className="text-gold mt-1">—</span>
+                        <span className="text-brass mt-1">—</span>
                         Evaluare gratuită a oricărei proprietăți din Militari Residence
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-gold mt-1">—</span>
+                        <span className="text-brass mt-1">—</span>
                         Acces la oferte exclusive nepublicate online
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-gold mt-1">—</span>
+                        <span className="text-brass mt-1">—</span>
                         Asistență completă: de la prima vizionare până la semnarea actelor la notar
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-gold mt-1">—</span>
+                        <span className="text-brass mt-1">—</span>
                         Consultanță pentru finanțare și credit ipotecar
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-gold mt-1">—</span>
+                        <span className="text-brass mt-1">—</span>
                         Comision transparent, fără costuri ascunse
                       </li>
                     </ul>
@@ -225,10 +225,10 @@ const MilitariResidence = () => {
 
                 <section>
                   <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-6">
-                    Întrebări frecvente despre <span className="text-gradient-gold">Militari Residence</span>
+                    Întrebări frecvente despre <span className="text-gradient-brass">Militari Residence</span>
                   </h2>
                   <div className="space-y-6">
-                    <div className="card-modern rounded-xl p-5 border-gold/10">
+                    <div className="card-modern rounded-xl p-5 border-brass/10">
                       <h3 className="text-base font-semibold text-foreground mb-2">
                         Cât costă un apartament cu 2 camere în Militari Residence în 2025?
                       </h3>
@@ -236,7 +236,7 @@ const MilitariResidence = () => {
                         Prețurile pentru apartamentele cu 2 camere în Militari Residence variază între 70.000 și 85.000€ în funcție de etaj, orientare și starea finisajelor. Contactați-ne pentru o evaluare gratuită.
                       </p>
                     </div>
-                    <div className="card-modern rounded-xl p-5 border-gold/10">
+                    <div className="card-modern rounded-xl p-5 border-brass/10">
                       <h3 className="text-base font-semibold text-foreground mb-2">
                         Militari Residence este în București sau Ilfov?
                       </h3>
@@ -244,7 +244,7 @@ const MilitariResidence = () => {
                         Militari Residence este situat administrativ în comuna Chiajna, județul Ilfov, la granița cu Sectorul 6 București. Adresa poștală este Chiajna, dar zona este practic continuarea cartierului Militari.
                       </p>
                     </div>
-                    <div className="card-modern rounded-xl p-5 border-gold/10">
+                    <div className="card-modern rounded-xl p-5 border-brass/10">
                       <h3 className="text-base font-semibold text-foreground mb-2">
                         Se poate lua credit ipotecar pentru apartamentele din Militari Residence?
                       </h3>
@@ -262,12 +262,12 @@ const MilitariResidence = () => {
               <section className="mb-16">
                 <h2 className="text-2xl lg:text-3xl font-bold text-center mb-8">
                   <span className="text-foreground">Proprietăți în </span>
-                  <span className="text-gradient-gold">Militari Residence</span>
+                  <span className="text-gradient-brass">Militari Residence</span>
                 </h2>
 
                 {isLoading ? (
                   <div className="flex justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-gold" />
+                    <Loader2 className="w-8 h-8 animate-spin text-brass" />
                   </div>
                 ) : properties.length === 0 ? (
                   <div className="text-center py-12 card-modern rounded-2xl p-8">
@@ -286,10 +286,10 @@ const MilitariResidence = () => {
                     <div className="grid gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
                       {visibleProperties.map((property) => (
                         <Link to={getPropertyUrl(property)} key={property.id}>
-                          <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-gold/20 h-full">
+                          <Card className="group relative overflow-hidden glass glass-hover touch-manipulation border-brass/20 h-full">
                             {property.is_featured && (
                               <div className="absolute top-3 left-3 z-10">
-                                <Badge className="bg-gold text-primary-foreground  text-xs">
+                                <Badge className="bg-brass text-primary-foreground  text-xs">
                                   <Sparkles className="w-3 h-3 mr-1" />
                                   Recomandat
                                 </Badge>
@@ -305,8 +305,8 @@ const MilitariResidence = () => {
                                 height={360}
                                 quality={75}
                               />
-                              <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-gold/30">
-                                <div className="flex items-center text-gold font-bold">
+                              <div className="absolute bottom-3 right-3 glass rounded-xl px-3 py-2 border border-brass/30">
+                                <div className="flex items-center text-brass font-bold">
                                   <Euro className="w-3 h-3 mr-1" />
                                   <span className="text-xs sm:text-sm">
                                     {property.price_min?.toLocaleString()} {property.currency || "EUR"}
@@ -315,11 +315,11 @@ const MilitariResidence = () => {
                               </div>
                             </div>
                             <CardContent className="p-4 space-y-3">
-                              <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                              <h3 className="text-base font-bold leading-tight text-foreground group-hover:text-brass transition-colors line-clamp-2">
                                 {property.title}
                               </h3>
                               <div className="flex items-center text-muted-foreground">
-                                <MapPin className="w-3 h-3 mr-1 text-gold flex-shrink-0" />
+                                <MapPin className="w-3 h-3 mr-1 text-brass flex-shrink-0" />
                                 <span className="text-xs line-clamp-1">{property.location}</span>
                               </div>
                               <div className="grid grid-cols-3 gap-2 text-center">
@@ -363,7 +363,7 @@ const MilitariResidence = () => {
               <div className="text-center card-modern border-glow rounded-2xl p-8 max-w-3xl mx-auto">
                 <h2 className="text-xl lg:text-2xl font-bold mb-4">
                   <span className="text-foreground">Cauți un apartament în </span>
-                  <span className="text-gradient-gold">Militari Residence?</span>
+                  <span className="text-gradient-brass">Militari Residence?</span>
                 </h2>
                 <p className="text-muted-foreground mb-6">
                   Contactează-ne pentru vizionare gratuită și consultanță personalizată.

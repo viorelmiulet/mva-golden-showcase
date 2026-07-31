@@ -61,15 +61,15 @@ export const EmailListItem = ({
       className={cn(
         "p-2.5 md:p-3 cursor-pointer transition-all relative group active:bg-white/5",
         isSelected && !isMultiSelectMode
-          ? "bg-gradient-to-r from-gold/10 to-transparent" 
+          ? "bg-gradient-to-r from-brass/10 to-transparent" 
           : "hover:bg-white/[0.03]",
-        !email.is_read && "bg-gold/[0.04] border-l-2 border-gold",
-        isChecked && "bg-gold/10"
+        !email.is_read && "bg-brass/[0.04] border-l-2 border-brass",
+        isChecked && "bg-brass/10"
       )}
     >
       {/* Selection indicator */}
       {isSelected && !isMultiSelectMode && (
-        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gold" />
+        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-brass" />
       )}
       
       <div className="flex items-start gap-2.5 md:gap-3">
@@ -80,7 +80,7 @@ export const EmailListItem = ({
             className={cn(
               "w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors cursor-pointer",
               isChecked 
-                ? "bg-gold text-black" 
+                ? "bg-brass text-black" 
                 : "bg-white/10 text-muted-foreground hover:bg-white/20"
             )}
           >
@@ -94,7 +94,7 @@ export const EmailListItem = ({
           <div className={cn(
             "w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold shrink-0",
             !email.is_read 
-              ? "bg-gradient-to-br from-gold/30 to-gold/10 text-gold" 
+              ? "bg-gradient-to-br from-brass/30 to-brass/10 text-brass" 
               : "bg-white/10 text-muted-foreground"
           )}>
             {extractSenderInitials(email.sender)}
@@ -123,7 +123,7 @@ export const EmailListItem = ({
           
           <div className="flex items-center gap-1.5 md:gap-2 mt-1 md:mt-1.5">
             {!email.is_read && (
-              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gold" />
+              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-brass" />
             )}
             {email.is_starred && (
               <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />

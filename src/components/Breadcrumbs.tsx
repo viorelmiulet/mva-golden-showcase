@@ -20,7 +20,7 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
         <li className="flex items-center">
           <Link
             to="/"
-            className="flex items-center text-muted-foreground hover:text-gold transition-colors"
+            className="flex items-center text-muted-foreground hover:text-brass transition-colors"
           >
             <Home className="w-4 h-4" />
             <span className="sr-only">{t.nav.home}</span>
@@ -33,12 +33,12 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
             {item.href ? (
               <Link
                 to={item.href}
-                className="text-muted-foreground hover:text-gold transition-colors"
+                className="text-muted-foreground hover:text-brass transition-colors"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="text-gold font-medium">{item.label}</span>
+              <span className="text-brass font-medium">{item.label}</span>
             )}
           </li>
         ))}

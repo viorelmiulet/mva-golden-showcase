@@ -192,7 +192,7 @@ const ContractsPage = () => {
         <Button
           variant="ghost"
           onClick={() => setSelectedType("selection")}
-          className="mb-2 hover:bg-gold/10 hover:text-gold"
+          className="mb-2 hover:bg-brass/10 hover:text-brass"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Înapoi la selecție
@@ -255,8 +255,8 @@ const ContractsPage = () => {
     <div className="space-y-6 md:space-y-8">
       {/* Modern Header */}
       <div className="flex items-center gap-4">
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 admin-glow">
-          <FileText className="h-6 w-6 text-gold" />
+        <div className="p-3 rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 admin-glow">
+          <FileText className="h-6 w-6 text-brass" />
         </div>
         <div>
           <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
@@ -289,7 +289,7 @@ const ContractsPage = () => {
                 className="cursor-grab active:cursor-grabbing"
               >
                 <div
-                  className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-gold/30 transition-all duration-300"
+                  className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-brass/30 transition-all duration-300"
                   onClick={() => setSelectedType(currentContract.id)}
                 >
                   <div className="p-5 space-y-4">
@@ -303,7 +303,7 @@ const ContractsPage = () => {
 
                     {/* Title & Description */}
                     <div className="space-y-2">
-                      <h2 className="text-lg font-semibold text-foreground group-hover:text-gold transition-colors">
+                      <h2 className="text-lg font-semibold text-foreground group-hover:text-brass transition-colors">
                         {currentContract.title}
                       </h2>
                       <p className="text-sm text-muted-foreground leading-relaxed">
@@ -318,8 +318,8 @@ const ContractsPage = () => {
                           key={index} 
                           className="flex items-center gap-2 text-sm text-muted-foreground"
                         >
-                          <div className="w-5 h-5 rounded-full bg-gold/10 flex items-center justify-center">
-                            <Check className="h-3 w-3 text-gold" />
+                          <div className="w-5 h-5 rounded-full bg-brass/10 flex items-center justify-center">
+                            <Check className="h-3 w-3 text-brass" />
                           </div>
                           {feature}
                         </li>
@@ -330,7 +330,7 @@ const ContractsPage = () => {
                     <Button
                       variant="default"
                       size="sm"
-                      className="w-full bg-gradient-to-r from-gold to-gold-light text-black hover:from-gold-light hover:to-gold rounded-xl"
+                      className="w-full bg-gradient-to-r from-brass to-brass-light text-black hover:from-brass-light hover:to-brass rounded-xl"
                     >
                       Deschide Contract →
                     </Button>
@@ -373,7 +373,7 @@ const ContractsPage = () => {
                   className={cn(
                     "h-2 rounded-full transition-all duration-200",
                     index === mobileCardIndex
-                      ? "bg-gold w-6"
+                      ? "bg-brass w-6"
                       : "bg-muted-foreground/30 w-2"
                   )}
                   aria-label={`Go to ${contract.shortTitle}`}
@@ -403,7 +403,7 @@ const ContractsPage = () => {
                 onClick={() => goToIndex(index)}
                 className={cn(
                   "shrink-0 text-xs transition-all duration-200 active:scale-95",
-                  index === mobileCardIndex && "bg-gold text-gold-foreground hover:bg-gold/90"
+                  index === mobileCardIndex && "bg-brass text-brass-foreground hover:bg-brass/90"
                 )}
               >
                 <contract.icon className="h-3 w-3 mr-1" />
@@ -418,7 +418,7 @@ const ContractsPage = () => {
           {contractTypes.map((contract) => (
             <div
               key={contract.id}
-              className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-gold/30 transition-all duration-300 active:scale-[0.98]"
+              className="admin-glass-card rounded-2xl overflow-hidden group cursor-pointer hover:border-brass/30 transition-all duration-300 active:scale-[0.98]"
               onClick={() => setSelectedType(contract.id)}
             >
               <div className="p-5 md:p-6 space-y-4">
@@ -432,7 +432,7 @@ const ContractsPage = () => {
 
                 {/* Title & Description */}
                 <div className="space-y-2">
-                  <h2 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-gold transition-colors">
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-brass transition-colors">
                     {contract.title}
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
@@ -444,8 +444,8 @@ const ContractsPage = () => {
                 <ul className="space-y-2">
                   {contract.features.map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="w-5 h-5 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                        <Check className="h-3 w-3 text-gold" />
+                      <div className="w-5 h-5 rounded-full bg-brass/10 flex items-center justify-center shrink-0">
+                        <Check className="h-3 w-3 text-brass" />
                       </div>
                       {feature}
                     </li>
@@ -455,7 +455,7 @@ const ContractsPage = () => {
                 {/* CTA */}
                 <Button
                   variant="link"
-                  className="p-0 h-auto text-gold hover:text-gold/80 group-hover:translate-x-1 transition-transform text-sm"
+                  className="p-0 h-auto text-brass hover:text-brass/80 group-hover:translate-x-1 transition-transform text-sm"
                 >
                   Deschide →
                 </Button>

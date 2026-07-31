@@ -77,11 +77,11 @@ const Sitemap = () => {
           <div className="grid sm:grid-cols-2 gap-10">
             {sections.map((section) => (
               <section key={section.title}>
-                <h2 className="text-xl font-semibold text-gold mb-4">{section.title}</h2>
+                <h2 className="text-xl font-semibold text-brass mb-4">{section.title}</h2>
                 <ul className="space-y-2">
                   {section.links.map((link) => (
                     <li key={link.url}>
-                      <Link to={link.url} className="text-foreground hover:text-gold transition-colors">
+                      <Link to={link.url} className="text-foreground hover:text-brass transition-colors">
                         {link.label}
                       </Link>
                     </li>

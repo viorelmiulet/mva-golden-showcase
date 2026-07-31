@@ -30,7 +30,7 @@ const Services = () => {
             <header className="text-center mb-12 lg:mb-16">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 tracking-tight" itemProp="name">
                 <span className="text-foreground">{language === 'ro' ? 'Servicii ' : 'Complete '}</span>
-                <span className="text-gradient-gold">{language === 'ro' ? 'Complete' : 'Services'}</span>
+                <span className="text-gradient-brass">{language === 'ro' ? 'Complete' : 'Services'}</span>
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed" itemProp="description">
                 {language === 'ro'
@@ -46,8 +46,8 @@ const Services = () => {
               const Icon = service.icon;
               return (
                 <ScrollReveal key={i} delay={i * 0.08}>
-                  <div className="glass rounded-2xl p-5 sm:p-6 border border-border/50 hover:border-gold/30 transition-colors h-full">
-                    <Icon className="w-6 h-6 text-gold mb-3" />
+                  <div className="glass rounded-2xl p-5 sm:p-6 border border-border/50 hover:border-brass/30 transition-colors h-full">
+                    <Icon className="w-6 h-6 text-brass mb-3" />
                     <h3 className="text-sm sm:text-base font-bold text-foreground mb-2">{service.title}</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{service.description}</p>
                   </div>

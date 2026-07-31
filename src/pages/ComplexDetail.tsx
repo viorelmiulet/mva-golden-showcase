@@ -439,7 +439,7 @@ const ComplexDetail = () => {
               {/* Quick Stats */}
               <div className="flex gap-2 sm:gap-4">
                 <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial ">
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gradient-gold">{properties?.length || 0}</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gradient-brass">{properties?.length || 0}</div>
                   <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Apartamente</div>
                 </Card>
                 <Card className="stats-card p-2.5 sm:p-3 md:p-4 text-center flex-1 sm:flex-initial border-green-500/30">
@@ -665,7 +665,7 @@ const ComplexDetail = () => {
                   <div key={`${building}-${floor}`} className="mb-6 sm:mb-8 md:mb-10">
                     <div className="flex items-center mb-3 sm:mb-4 md:mb-6 p-2.5 sm:p-3 md:p-4 glass rounded-xl border-l-4 border-primary/60">
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
-                        <span className="text-gradient-gold">{floor.toUpperCase()}</span>
+                        <span className="text-gradient-brass">{floor.toUpperCase()}</span>
                         <Badge className="text-[10px] sm:text-xs md:text-sm glass border-primary/20">
                           {floorsInBuilding[floor]?.length} {floorsInBuilding[floor]?.length === 1 ? 'apartament' : 'apartamente'}
                         </Badge>
@@ -698,7 +698,7 @@ const ComplexDetail = () => {
                               <div className="flex items-start justify-between gap-1">
                                 <div className="flex items-center gap-1 sm:gap-2">
                                   <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                                  <span className="text-sm sm:text-base md:text-xl font-bold text-gradient-gold">Ap. {aptNumber}</span>
+                                  <span className="text-sm sm:text-base md:text-xl font-bold text-gradient-brass">Ap. {aptNumber}</span>
                                 </div>
                                 <Badge 
                                   variant={
@@ -867,7 +867,7 @@ const ComplexDetail = () => {
               {properties?.length === 0 && (
                 <div className="text-center py-16 card-modern rounded-xl">
                   <Home className="h-16 w-16 mx-auto text-primary/40 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2 text-gradient-gold">Nu există apartamente disponibile</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-gradient-brass">Nu există apartamente disponibile</h3>
                   <p className="text-muted-foreground">Revino în curând pentru noi oferte!</p>
                 </div>
               )}
@@ -897,7 +897,7 @@ const ComplexDetail = () => {
       <Dialog open={floorPlanOpen} onOpenChange={setFloorPlanOpen}>
         <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] p-3 sm:p-6 glass">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between text-sm sm:text-base text-gradient-gold">
+            <DialogTitle className="flex items-center justify-between text-sm sm:text-base text-gradient-brass">
               Schiță Apartament
             </DialogTitle>
           </DialogHeader>

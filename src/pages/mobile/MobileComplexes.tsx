@@ -88,7 +88,7 @@ const MobileComplexes = () => {
           ) : (
             complexes.map((complex) => (
               <Link key={complex.id} to={`/app/complex/${generateComplexSlug(complex)}`}>
-                <Card className="overflow-hidden hover:border-gold/30 transition-colors">
+                <Card className="overflow-hidden hover:border-brass/30 transition-colors">
                   <div className="relative">
                     <OptimizedPropertyImage
                       src={complex.main_image}
@@ -99,7 +99,7 @@ const MobileComplexes = () => {
                       quality={75}
                     />
                     {complex.is_recommended && (
-                      <Badge className="absolute top-3 left-3 bg-gold text-background">
+                      <Badge className="absolute top-3 left-3 bg-brass text-background">
                         {language === 'ro' ? 'Recomandat' : 'Recommended'}
                       </Badge>
                     )}
@@ -127,7 +127,7 @@ const MobileComplexes = () => {
                         </Badge>
                       )}
                       {complex.price_range && (
-                        <Badge variant="outline" className="text-gold border-gold/30">
+                        <Badge variant="outline" className="text-brass border-brass/30">
                           {complex.price_range}
                         </Badge>
                       )}

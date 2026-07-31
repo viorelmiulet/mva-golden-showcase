@@ -51,7 +51,7 @@ const TrustBadges = () => {
             const content = (
               <div className="mx-auto flex max-w-[11rem] flex-col items-center text-center">
                 <Icon
-                  className={`mb-3 h-5 w-5 text-gold ${badge.filled ? "fill-current" : ""}`}
+                  className={`mb-3 h-5 w-5 text-brass ${badge.filled ? "fill-current" : ""}`}
                   aria-hidden="true"
                 />
                 <p className="text-sm font-semibold leading-snug text-foreground sm:text-base">

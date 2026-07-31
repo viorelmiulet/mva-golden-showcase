@@ -194,9 +194,9 @@ const Cariera = () => {
           <Breadcrumbs items={[{ label: t.career.heroTitle }]} />
           {/* Hero Section */}
           <header className="max-w-4xl mx-auto text-center mb-8 sm:mb-12 md:mb-16">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-gold/20 mb-4 sm:mb-6">
-              <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold" />
-              <span className="text-xs sm:text-sm text-gold">{t.career.badge}</span>
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-brass/20 mb-4 sm:mb-6">
+              <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brass" />
+              <span className="text-xs sm:text-sm text-brass">{t.career.badge}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-cinzel font-bold mb-4 sm:mb-6 text-brass px-2">
@@ -232,7 +232,7 @@ const Cariera = () => {
                 </p>
                 <p>
                   Dacă ești o persoană comunicativă, orientată spre rezultate și pasionată de domeniul imobiliar, te așteptăm în echipa MVA Imobiliare. 
-                  Completează formularul de mai jos sau contactează-ne la <a href="tel:+40767941512" className="text-gold font-semibold hover:underline">0767 941 512</a>.
+                  Completează formularul de mai jos sau contactează-ne la <a href="tel:+40767941512" className="text-brass font-semibold hover:underline">0767 941 512</a>.
                 </p>
               </div>
             </Card>
@@ -243,8 +243,8 @@ const Cariera = () => {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {t.career.benefitsList.map((benefit, index) => (
                 <div key={index} className="card-responsive text-center p-4 sm:p-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-full bg-gold/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 rounded-full bg-brass/10 flex items-center justify-center">
+                    <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-brass" />
                   </div>
                   <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2">{benefit.title}</h3>
                   <p className="text-sm text-muted-foreground">{benefit.description}</p>
@@ -353,10 +353,10 @@ const Cariera = () => {
                   <div className="mt-2">
                     <label
                       htmlFor="cv"
-                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gold/30 rounded-lg cursor-pointer hover:border-gold/50 transition-colors glass"
+                      className="flex items-center justify-center w-full h-32 border-2 border-dashed border-brass/30 rounded-lg cursor-pointer hover:border-brass/50 transition-colors glass"
                     >
                       <div className="text-center">
-                        <Upload className="w-8 h-8 text-gold mx-auto mb-2" />
+                        <Upload className="w-8 h-8 text-brass mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">
                           {cvFile ? cvFile.name : t.career.uploadCvText}
                         </p>

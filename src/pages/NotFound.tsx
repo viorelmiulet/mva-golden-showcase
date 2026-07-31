@@ -93,8 +93,8 @@ const NotFound = () => {
 
         <section className="container mx-auto px-4 pt-28 pb-16 sm:pt-32 sm:pb-20">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-gold">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brass/30 bg-brass/5 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-brass">
+              <span className="h-1.5 w-1.5 rounded-full bg-brass" />
               Eroare 404
             </div>
 
@@ -144,7 +144,7 @@ const NotFound = () => {
               <button
                 type="button"
                 onClick={() => window.history.back()}
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-gold"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-brass"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Înapoi la pagina anterioară
@@ -169,12 +169,12 @@ const NotFound = () => {
                 <Link
                   key={to}
                   to={to}
-                  className="group rounded-xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-gold/50  /5"
+                  className="group rounded-xl border border-border bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-brass/50  /5"
                 >
-                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold transition-colors group-hover:bg-gold group-hover:text-primary-foreground">
+                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brass/10 text-brass transition-colors group-hover:bg-brass group-hover:text-primary-foreground">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mb-1 font-semibold text-foreground group-hover:text-gold">
+                  <h3 className="mb-1 font-semibold text-foreground group-hover:text-brass">
                     {title}
                   </h3>
                   <p className="text-sm text-muted-foreground">{description}</p>
@@ -187,7 +187,7 @@ const NotFound = () => {
           <div className="mx-auto max-w-2xl">
             <div className="rounded-2xl border border-border bg-card/60 p-6 sm:p-8">
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold/10 text-gold">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brass/10 text-brass">
                   <AlertTriangle className="h-5 w-5" />
                 </div>
                 <div className="flex-1 text-left">

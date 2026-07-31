@@ -309,12 +309,12 @@ export const SocialAutoPostSettings = () => {
   ];
 
   return (
-    <Card className="border-gold/20">
+    <Card className="border-brass/20">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gold/10">
-              <Zap className="h-5 w-5 text-gold" />
+            <div className="p-2 rounded-lg bg-brass/10">
+              <Zap className="h-5 w-5 text-brass" />
             </div>
             <div>
               <CardTitle>Auto-Posting Social Media</CardTitle>
@@ -342,7 +342,7 @@ export const SocialAutoPostSettings = () => {
               href="https://zapier.com/apps/webhook/integrations" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gold hover:underline inline-flex items-center gap-1"
+              className="text-brass hover:underline inline-flex items-center gap-1"
             >
               Creează un Zap <ExternalLink className="h-3 w-3" />
             </a>

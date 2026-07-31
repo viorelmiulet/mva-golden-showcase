@@ -192,7 +192,7 @@ const ProjectDetail = () => {
                   />
                   {project.is_recommended && (
                     <div className="absolute top-4 left-4">
-                      <Badge className="bg-gold text-primary-foreground ">
+                      <Badge className="bg-brass text-primary-foreground ">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Recomandat
                       </Badge>
@@ -209,7 +209,7 @@ const ProjectDetail = () => {
                       </span>
                     </h1>
                     <div className="flex items-center text-muted-foreground mb-4">
-                      <MapPin className="w-5 h-5 mr-2 text-gold" />
+                      <MapPin className="w-5 h-5 mr-2 text-brass" />
                       <span className="text-lg">{project.location}</span>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
@@ -219,9 +219,9 @@ const ProjectDetail = () => {
 
                   {/* Quick Stats */}
                   <div className="grid grid-cols-3 gap-4">
-                    <Card className="glass border-gold/20">
+                    <Card className="glass border-brass/20">
                       <CardContent className="p-4 text-center">
-                        <Euro className="w-6 h-6 text-gold mx-auto mb-2" />
+                        <Euro className="w-6 h-6 text-brass mx-auto mb-2" />
                         <div className="text-xs text-muted-foreground mb-1">
                           Preț
                         </div>
@@ -230,9 +230,9 @@ const ProjectDetail = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass border-gold/20">
+                    <Card className="glass border-brass/20">
                       <CardContent className="p-4 text-center">
-                        <Ruler className="w-6 h-6 text-gold mx-auto mb-2" />
+                        <Ruler className="w-6 h-6 text-brass mx-auto mb-2" />
                         <div className="text-xs text-muted-foreground mb-1">
                           Suprafață
                         </div>
@@ -241,9 +241,9 @@ const ProjectDetail = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card className="glass border-gold/20">
+                    <Card className="glass border-brass/20">
                       <CardContent className="p-4 text-center">
-                        <Home className="w-6 h-6 text-gold mx-auto mb-2" />
+                        <Home className="w-6 h-6 text-brass mx-auto mb-2" />
                         <div className="text-xs text-muted-foreground mb-1">
                           Camere
                         </div>
@@ -282,15 +282,15 @@ const ProjectDetail = () => {
               {(!!project.features?.length || !!project.amenities?.length) && (
                 <div className="mt-12 grid md:grid-cols-2 gap-6">
                   {!!project.features?.length && (
-                    <Card className="glass border-gold/20">
+                    <Card className="glass border-brass/20">
                       <CardContent className="p-6">
-                        <h2 className="text-xl font-bold mb-4 text-gold">
+                        <h2 className="text-xl font-bold mb-4 text-brass">
                           Facilități
                         </h2>
                         <div className="space-y-3">
                           {(project.features ?? []).map((feature: string, index: number) => (
                             <div key={index} className="flex items-start">
-                              <CheckCircle className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" />
+                              <CheckCircle className="w-5 h-5 text-brass mr-3 mt-0.5 flex-shrink-0" />
                               <span className="text-foreground">{feature}</span>
                             </div>
                           ))}
@@ -299,15 +299,15 @@ const ProjectDetail = () => {
                     </Card>
                   )}
                   {!!project.amenities?.length && (
-                    <Card className="glass border-gold/20">
+                    <Card className="glass border-brass/20">
                       <CardContent className="p-6">
-                        <h2 className="text-xl font-bold mb-4 text-gold">
+                        <h2 className="text-xl font-bold mb-4 text-brass">
                           Amenajări
                         </h2>
                         <div className="space-y-3">
                           {(project.amenities ?? []).map((amenity: string, index: number) => (
                             <div key={index} className="flex items-start">
-                              <CheckCircle className="w-5 h-5 text-gold mr-3 mt-0.5 flex-shrink-0" />
+                              <CheckCircle className="w-5 h-5 text-brass mr-3 mt-0.5 flex-shrink-0" />
                               <span className="text-foreground">{amenity}</span>
                             </div>
                           ))}
@@ -336,7 +336,7 @@ const ProjectDetail = () => {
                         : "apartamente disponibile"}
                     </p>
                   </div>
-                  <Building2 className="w-8 h-8 text-gold" />
+                  <Building2 className="w-8 h-8 text-brass" />
                 </div>
               </div>
 
@@ -353,7 +353,7 @@ const ProjectDetail = () => {
                       <div key={floor}>
                         <div className="flex items-center gap-3 mb-4">
                           <div className="bg-brass h-px flex-1" />
-                          <h3 className="text-xl font-bold uppercase tracking-wider text-gold">
+                          <h3 className="text-xl font-bold uppercase tracking-wider text-brass">
                             {floor}
                           </h3>
                           <div className="bg-brass h-px flex-1" />
@@ -363,13 +363,13 @@ const ProjectDetail = () => {
                           {floorApartments.map((apartment: any) => (
                             <Card
                               key={apartment.id}
-                              className="relative overflow-hidden border-2 border-gold/30 bg-ink/40 to-gold/5"
+                              className="relative overflow-hidden border-2 border-brass/30 bg-ink/40 to-brass/5"
                             >
                               <CardContent className="p-4 space-y-3">
                                 {/* Header */}
                                 <div className="flex items-start justify-between">
                                   <div className="flex items-center gap-2">
-                                    <Home className="w-5 h-5 text-gold" />
+                                    <Home className="w-5 h-5 text-brass" />
                                     <span className="font-bold text-lg">
                                       {apartment.title.split(' - ')[0]}
                                     </span>
@@ -384,12 +384,12 @@ const ProjectDetail = () => {
 
                                 {/* Type */}
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <div className="w-2 h-2 rounded-full bg-gold" />
+                                  <div className="w-2 h-2 rounded-full bg-brass" />
                                   {apartment.rooms === 1 ? 'Garsonieră' : `${apartment.rooms} camere`}
                                 </div>
 
                                 {/* Divider */}
-                                <div className="h-px bg-gold/20" />
+                                <div className="h-px bg-brass/20" />
 
                                 {/* Details */}
                                 <div className="space-y-2 text-sm">
@@ -399,7 +399,7 @@ const ProjectDetail = () => {
                                   </div>
                                   <div className="flex justify-between">
                                     <span className="text-muted-foreground">Credit:</span>
-                                    <span className="font-bold text-gold">
+                                    <span className="font-bold text-brass">
                                       {apartment.price_max?.toLocaleString()} EUR
                                     </span>
                                   </div>
@@ -412,7 +412,7 @@ const ProjectDetail = () => {
                                 </div>
 
                                 {/* Divider */}
-                                <div className="h-px bg-gold/20" />
+                                <div className="h-px bg-brass/20" />
 
                                 {/* Actions */}
                                 <div className="grid grid-cols-2 gap-2">
@@ -423,7 +423,7 @@ const ProjectDetail = () => {
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="w-full text-xs h-8 border-gold/30"
+                                      className="w-full text-xs h-8 border-brass/30"
                                     >
                                       Contact
                                     </Button>
@@ -432,7 +432,7 @@ const ProjectDetail = () => {
                                     <Button 
                                       variant="default" 
                                       size="sm" 
-                                      className="w-full text-xs h-8 bg-gold hover:bg-gold/90"
+                                      className="w-full text-xs h-8 bg-brass hover:bg-brass/90"
                                     >
                                       Detalii
                                     </Button>
@@ -447,9 +447,9 @@ const ProjectDetail = () => {
                   })}
                 </div>
               ) : (
-                <Card className="glass border-gold/20">
+                <Card className="glass border-brass/20">
                   <CardContent className="p-12 text-center">
-                    <Building2 className="w-16 h-16 text-gold mx-auto mb-4 opacity-50" />
+                    <Building2 className="w-16 h-16 text-brass mx-auto mb-4 opacity-50" />
                     <h3 className="text-xl font-bold mb-2">
                       Momentan nu sunt apartamente adăugate
                     </h3>

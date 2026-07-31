@@ -20,8 +20,8 @@ const CarteVizita = () => {
     <div className="min-h-screen bg-ink/40 to-secondary/20 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mb-4">
-            <Upload className="w-8 h-8 text-gold" />
+          <div className="mx-auto w-16 h-16 bg-brass/10 rounded-full flex items-center justify-center mb-4">
+            <Upload className="w-8 h-8 text-brass" />
           </div>
           <CardTitle className="text-2xl">Generator Cărți de Vizită</CardTitle>
           <p className="text-muted-foreground mt-2">

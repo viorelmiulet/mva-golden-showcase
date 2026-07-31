@@ -352,7 +352,7 @@ export const SocialMediaContentGenerator = () => {
     <Card className="border-border/50 bg-gradient-to-br from-card to-card/80">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-gold/10">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-brass/10">
             <Wand2 className="h-5 w-5 text-primary" />
           </div>
           Generator Conținut Social Media
@@ -397,7 +397,7 @@ export const SocialMediaContentGenerator = () => {
         <Button
           onClick={generateAllPlatforms}
           disabled={isGeneratingText}
-          className="w-full bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
+          className="w-full bg-gradient-to-r from-primary to-brass hover:from-primary/90 hover:to-brass/90"
         >
           {isGeneratingText ? (
             <>
@@ -503,7 +503,7 @@ export const SocialMediaContentGenerator = () => {
                             <Button
                               size="sm"
                               disabled={!configuredPlatforms.includes(platform.id)}
-                              className="bg-gradient-to-r from-primary to-gold hover:from-primary/90 hover:to-gold/90"
+                              className="bg-gradient-to-r from-primary to-brass hover:from-primary/90 hover:to-brass/90"
                               onClick={() => setSelectedPlatform(platform.id)}
                             >
                               <Send className="h-4 w-4 mr-2" />
@@ -643,7 +643,7 @@ export const SocialMediaContentGenerator = () => {
                               <Button 
                                 onClick={postToWebhook}
                                 disabled={isPosting}
-                                className="bg-gradient-to-r from-primary to-gold"
+                                className="bg-gradient-to-r from-primary to-brass"
                               >
                                 {isPosting ? (
                                   <>

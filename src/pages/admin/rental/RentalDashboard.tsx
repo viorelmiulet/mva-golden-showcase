@@ -63,7 +63,7 @@ const RentalDashboard = () => {
   const stats = [
     { title: "Proprietăți", value: totalProperties, subtitle: `${rentedProperties} închiriate · ${availableProperties} disponibile`, icon: Home, color: "text-cyan-400", bg: "bg-cyan-500/20" },
     { title: "Chiriași Activi", value: activeTenants, subtitle: "contracte active", icon: Users, color: "text-emerald-400", bg: "bg-emerald-500/20" },
-    { title: "Venit Lunar", value: `${totalMonthlyIncome.toLocaleString()} €`, subtitle: "din chirii active", icon: Euro, color: "text-gold", bg: "bg-gold/20" },
+    { title: "Venit Lunar", value: `${totalMonthlyIncome.toLocaleString()} €`, subtitle: "din chirii active", icon: Euro, color: "text-brass", bg: "bg-brass/20" },
     { title: "Plăți Restante", value: pendingPayments, subtitle: "de încasat", icon: AlertTriangle, color: "text-orange-400", bg: "bg-orange-500/20" },
     { title: "Tichete Deschise", value: openTickets, subtitle: "de rezolvat", icon: TicketCheck, color: "text-purple-400", bg: "bg-purple-500/20" },
     { title: "Rată Ocupare", value: totalProperties > 0 ? `${Math.round((rentedProperties / totalProperties) * 100)}%` : "0%", subtitle: "din total proprietăți", icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-500/20" },

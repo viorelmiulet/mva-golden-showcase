@@ -240,7 +240,7 @@ const BlogAdminPage = () => {
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold truncate">{post.title}</h3>
                     {post.featured && (
-                      <Badge variant="secondary" className="text-xs bg-gold/20 text-gold">
+                      <Badge variant="secondary" className="text-xs bg-brass/20 text-brass">
                         <Star className="h-3 w-3 mr-1" />
                         Featured
                       </Badge>

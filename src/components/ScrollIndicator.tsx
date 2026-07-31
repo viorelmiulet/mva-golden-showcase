@@ -64,7 +64,7 @@ const ScrollIndicator = () => {
       aria-label="Scroll pentru mai mult conținut"
     >
       <div className="animate-bounce">
-        <ChevronDown className="w-6 h-6 text-gold/70" />
+        <ChevronDown className="w-6 h-6 text-brass/70" />
       </div>
     </button>
   );

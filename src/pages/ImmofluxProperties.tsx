@@ -71,7 +71,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
               {isSale ? "De vânzare" : "De închiriat"}
             </Badge>
             {property.top === 1 && (
-              <Badge className="bg-gold text-black font-bold">TOP</Badge>
+              <Badge className="bg-brass text-black font-bold">TOP</Badge>
             )}
             {furnished && (
               <Badge className={`${furnishedClass} flex items-center gap-1`}>
@@ -82,7 +82,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
           </div>
         </div>
         <CardContent className="p-4 space-y-2">
-          <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-gold transition-colors">
+          <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-brass transition-colors">
             {getTitle(property)}
           </h3>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -98,7 +98,7 @@ const ImmofluxPropertyCard = ({ property, slugMap }: { property: ImmofluxPropert
             )}
           </div>
           <div className="pt-2 border-t">
-            <span className="text-lg font-bold text-gold">{formatPrice(property)}</span>
+            <span className="text-lg font-bold text-brass">{formatPrice(property)}</span>
           </div>
         </CardContent>
       </Card>
@@ -173,7 +173,7 @@ const ImmofluxProperties = () => {
           {/* Quick filters */}
           <div className="bg-card border rounded-lg p-4 mb-6 ">
             <div className="flex items-center gap-2 mb-3 text-sm font-medium text-foreground">
-              <Filter className="h-4 w-4 text-gold" />
+              <Filter className="h-4 w-4 text-brass" />
               Filtre rapide
               {activeCount > 0 && (
                 <Badge variant="secondary" className="ml-1">{activeCount}</Badge>

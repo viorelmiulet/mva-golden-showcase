@@ -57,7 +57,7 @@ export const PropertyDetailSkeleton = () => {
 
       {/* Stats Grid - matches Detalii Anunț section */}
       <motion.div variants={staggerItem}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6">
             <AnimatedSkeleton className="h-6 w-40 mb-4 rounded-md" />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -85,7 +85,7 @@ export const PropertyDetailSkeleton = () => {
 
       {/* Description Section */}
       <motion.div variants={staggerItem}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6 space-y-3">
             <AnimatedSkeleton className="h-6 w-32 rounded-md" />
             <div className="space-y-2">
@@ -101,7 +101,7 @@ export const PropertyDetailSkeleton = () => {
 
       {/* Features & Amenities */}
       <motion.div variants={staggerItem} className="grid md:grid-cols-2 gap-4">
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6 space-y-3">
             <AnimatedSkeleton className="h-6 w-32 rounded-md" />
             <div className="flex flex-wrap gap-2">
@@ -111,7 +111,7 @@ export const PropertyDetailSkeleton = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6 space-y-3">
             <AnimatedSkeleton className="h-6 w-28 rounded-md" />
             <div className="flex flex-wrap gap-2">
@@ -125,7 +125,7 @@ export const PropertyDetailSkeleton = () => {
 
       {/* Agent Card */}
       <motion.div variants={staggerItem}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center gap-4">
               <AnimatedSkeleton className="h-16 w-16 rounded-full" />
@@ -150,7 +150,7 @@ export const PropertyDetailSkeleton = () => {
 
       {/* Contact Form Skeleton */}
       <motion.div variants={staggerItem}>
-        <Card className="border-gold/20">
+        <Card className="border-brass/20">
           <CardContent className="p-4 sm:p-6 space-y-4">
             <AnimatedSkeleton className="h-6 w-48 rounded-md" />
             <div className="grid sm:grid-cols-2 gap-4">

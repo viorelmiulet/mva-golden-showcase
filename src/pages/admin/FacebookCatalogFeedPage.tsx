@@ -85,7 +85,7 @@ const FacebookCatalogFeedPage = () => {
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex items-center gap-3">
-        <FileSpreadsheet className="h-7 w-7 text-gold" />
+        <FileSpreadsheet className="h-7 w-7 text-brass" />
         <div>
           <h1 className="text-2xl font-bold text-foreground">Feed Catalog (Facebook + WhatsApp)</h1>
           <p className="text-sm text-muted-foreground">CSV format Products (Commerce standard) — acceptat atât de Meta Commerce Manager cât și de WhatsApp Business Catalog.</p>
@@ -121,7 +121,7 @@ const FacebookCatalogFeedPage = () => {
             <p className="font-mono text-[11px] leading-relaxed">id · title · description · availability · condition · price · link · image_link · brand · google_product_category · fb_product_category · product_type · identifier_exists · item_group_id · retailer_id · quantity_to_sell_on_facebook · inventory · status · currency · origin_country · additional_image_link · custom_label_0..4</p>
             <p className="font-semibold text-foreground pt-2">Cum îl folosești în Facebook Commerce Manager:</p>
             <ol className="list-decimal pl-5 space-y-0.5">
-              <li>Deschide <a className="text-gold hover:underline" href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">Meta Commerce Manager <ExternalLink className="inline h-3 w-3" /></a> → creează catalog tip <strong>Ecommerce / Products</strong>.</li>
+              <li>Deschide <a className="text-brass hover:underline" href="https://business.facebook.com/commerce" target="_blank" rel="noreferrer">Meta Commerce Manager <ExternalLink className="inline h-3 w-3" /></a> → creează catalog tip <strong>Ecommerce / Products</strong>.</li>
               <li>Data Sources → Add Items → Use Bulk Upload → <strong>Scheduled Feed</strong>, lipește URL-ul de mai sus, frecvență <strong>Daily</strong>.</li>
             </ol>
             <p className="font-semibold text-foreground pt-2">Cum îl conectezi la WhatsApp Business:</p>

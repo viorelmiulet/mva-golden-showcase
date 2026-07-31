@@ -61,7 +61,7 @@ const AdminPWAInstallBanner = () => {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 animate-fade-in sm:left-auto sm:right-4 sm:max-w-sm">
-      <div className="bg-card/95 backdrop-blur-md border border-gold/30 rounded-2xl p-4 shadow-2xl shadow-gold/10">
+      <div className="bg-card/95 backdrop-blur-md border border-brass/30 rounded-2xl p-4 shadow-2xl shadow-none/10">
         <button
           onClick={handleDismiss}
           className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-secondary/80 transition-colors"
@@ -71,8 +71,8 @@ const AdminPWAInstallBanner = () => {
         </button>
 
         <div className="flex items-start gap-3 pr-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dark/20 flex items-center justify-center flex-shrink-0">
-            <BarChart3 className="w-6 h-6 text-gold" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brass/20 to-brass-dark/20 flex items-center justify-center flex-shrink-0">
+            <BarChart3 className="w-6 h-6 text-brass" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -97,7 +97,7 @@ const AdminPWAInstallBanner = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleDismiss}
-                className="h-9 text-xs border-gold/20 hover:bg-gold/10"
+                className="h-9 text-xs border-brass/20 hover:bg-brass/10"
               >
                 Mai târziu
               </Button>
