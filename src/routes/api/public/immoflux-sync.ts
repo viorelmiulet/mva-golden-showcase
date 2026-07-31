@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { withApiLogging } from "@/lib/apiLogging";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-request-id",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
@@ -25,28 +26,31 @@ export const Route = createFileRoute("/api/public/immoflux-sync")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: corsHeaders }),
 
-      GET: async () => {
+      GET: withApiLogging("/api/public/immoflux-sync", async ({ logger }) => {
         try {
           const { syncImmoflux } = await import("@/lib/immoflux.server");
           const result = await syncImmoflux({ status: "1" });
           return json(result);
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown error";
-          return json({ ok: false, error: message }, 500);
+          logger.error("immoflux.status_failed", { error: message });
+          return json({ ok: false, error: message, requestId: logger.requestId }, 500);
         }
-      },
+      }, { errorHeaders: corsHeaders }),
 
-      POST: async () => {
+      POST: withApiLogging("/api/public/immoflux-sync", async ({ logger }) => {
+        const started = Date.now();
         try {
           const { syncImmoflux } = await import("@/lib/immoflux.server");
           const result = await syncImmoflux({});
+          logger.info("immoflux.sync_completed", { ms: Date.now() - started });
           return json(result);
         } catch (error) {
           const message = error instanceof Error ? error.message : "Unknown error";
-          console.error("[immoflux-sync] failed", error);
-          return json({ success: false, error: message }, 500);
+          logger.error("immoflux.sync_failed", { error: message, ms: Date.now() - started });
+          return json({ success: false, error: message, requestId: logger.requestId }, 500);
         }
-      },
+      }, { errorHeaders: corsHeaders }),
     },
   },
 });
