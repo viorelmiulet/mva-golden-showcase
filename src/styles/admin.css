@@ -11,60 +11,60 @@
 }
 
 /* ============================================================
-   Admin theme — same design system as the public site
-   (ink · graphite · slate · paper · stone · brass · pine),
-   applied as the dark surface variant. Flat: no shadows,
-   no gradients, no blur. Scoped to .admin-theme.
+   Admin theme — exact same palette as the public site
+   (ink · graphite · slate · paper · stone · brass · pine).
+   Flat: no shadows, no gradients, no blur. Scoped to .admin-theme.
    ============================================================ */
 .admin-theme {
-  --background: var(--ink);
-  --foreground: var(--paper);
+  --background: var(--paper);
+  --foreground: var(--ink);
 
-  --card: var(--graphite);
-  --card-foreground: var(--paper);
+  --card: 0 0% 100%;
+  --card-foreground: var(--ink);
 
-  --popover: var(--graphite);
-  --popover-foreground: var(--paper);
+  --popover: 0 0% 100%;
+  --popover-foreground: var(--ink);
 
-  --primary: var(--brass-light);
-  --primary-foreground: var(--ink);
+  --primary: var(--brass);
+  --primary-foreground: var(--paper);
 
-  --secondary: var(--graphite);
-  --secondary-foreground: var(--paper);
+  --secondary: var(--stone);
+  --secondary-foreground: var(--ink);
 
-  --muted: var(--graphite);
-  --muted-foreground: 40 8% 70%;
+  --muted: var(--stone);
+  --muted-foreground: var(--slate);
 
-  --accent: var(--graphite);
-  --accent-foreground: var(--paper);
+  --accent: var(--stone);
+  --accent-foreground: var(--ink);
 
-  --destructive: 0 55% 40%;
+  --destructive: 0 65% 42%;
   --destructive-foreground: var(--paper);
 
   --success: var(--pine);
   --success-foreground: var(--paper);
 
-  --border: var(--graphite);
-  --input: var(--graphite);
-  --ring: var(--brass-light);
+  --border: var(--stone);
+  --input: var(--stone);
+  --ring: var(--brass);
 
   --radius: 0.25rem;
 
   --sidebar-background: var(--ink);
   --sidebar-foreground: 40 20% 88%;
-  --sidebar-primary: var(--brass-light);
-  --sidebar-primary-foreground: var(--ink);
+  --sidebar-primary: var(--brass);
+  --sidebar-primary-foreground: var(--paper);
   --sidebar-accent: var(--graphite);
   --sidebar-accent-foreground: var(--paper);
   --sidebar-border: var(--graphite);
-  --sidebar-ring: var(--brass-light);
+  --sidebar-ring: var(--brass);
 
   --admin-gradient: none;
   --admin-header-gradient: none;
-  --admin-card: var(--graphite);
-  --admin-card-hover: 218 12% 23%;
-  --admin-border: var(--graphite);
+  --admin-card: 0 0% 100%;
+  --admin-card-hover: 38 20% 96%;
+  --admin-border: var(--stone);
 }
+
 
 .admin-card-mobile {
   border-radius: var(--radius);
