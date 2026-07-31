@@ -99,8 +99,8 @@ export const Route = createFileRoute("/proprietati/$slug")({
       jsonLd: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "RealEstateListing",
-        name: baseTitle,
-        description: metaDescription,
+        name: baseTitle.trim(),
+        description: metaDescription.trim(),
         url,
         ...(images.length ? { image: images.slice(0, 6) } : {}),
         ...(row.price_min
@@ -108,22 +108,32 @@ export const Route = createFileRoute("/proprietati/$slug")({
               offers: {
                 "@type": "Offer",
                 price: row.price_min,
-                priceCurrency: row.currency || "EUR",
+                priceCurrency: (row.currency || "EUR").trim(),
                 availability: "https://schema.org/InStock",
                 url,
               },
             }
           : {}),
+        // Approximate location only — no streetAddress is published.
         address: {
           "@type": "PostalAddress",
-          addressLocality: city,
-          ...(zone ? { addressRegion: zone } : {}),
+          addressLocality: city.trim(),
+          ...(zone ? { addressRegion: String(zone).trim() } : {}),
           addressCountry: "RO",
         },
         ...(row.surface_min
           ? { floorSize: { "@type": "QuantitativeValue", value: row.surface_min, unitCode: "MTK" } }
           : {}),
         ...(rooms ? { numberOfRooms: rooms } : {}),
+      }),
+      breadcrumbLd: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Acasă", item: `${SITE}/` },
+          { "@type": "ListItem", position: 2, name: "Proprietăți", item: `${SITE}/proprietati` },
+          { "@type": "ListItem", position: 3, name: baseTitle.trim(), item: url },
+        ],
       }),
     };
   },
