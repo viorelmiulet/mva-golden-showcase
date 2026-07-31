@@ -40,12 +40,12 @@ export async function handleOgMeta(req: Request): Promise<Response> {
       const idMatch = slug.match(/(\d+)$/);
       if (idMatch) {
         try {
-          const proxyUrl = `${supabaseUrl}/functions/v1/immoflux-proxy/properties/${idMatch[1]}`;
-          const resp = await fetch(proxyUrl, {
-            headers: { apikey: process.env.SUPABASE_ANON_KEY || "" },
-          });
-          if (resp.ok) {
-            const prop = await resp.json();
+          const { immofluxProxy } = await import("./immoflux.server");
+          const prop = (await immofluxProxy({
+            action: "properties",
+            propertyId: idMatch[1],
+          })) as Record<string, any>;
+          if (prop && !prop.error) {
             const propTitle = typeof prop.titlu === "object" ? prop.titlu.ro : prop.titlu;
             const price = prop.pretvanzare
               ? `${Number(prop.pretvanzare).toLocaleString("ro-RO")} ${prop.monedavanzare || "EUR"}`
