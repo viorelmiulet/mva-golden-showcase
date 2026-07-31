@@ -806,7 +806,11 @@ const InboxPage = () => {
   // Thread-aware forward handler
   const handleOpenForwardForEmail = (email: any) => {
     const originalDate = format(new Date(email.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
-    const originalBody = email.body_plain || email.stripped_text || '';
+    const originalBody =
+      email.body_plain ||
+      email.stripped_text ||
+      toPreviewText(email.body_html) ||
+      '';
     
     const forwardedContent = `
 
