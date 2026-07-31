@@ -1,5 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
 import { invokeAdminFn } from "@/lib/adminInvoke";
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
