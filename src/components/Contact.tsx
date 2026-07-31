@@ -35,6 +35,8 @@ const Contact = () => {
       await submitContactForm({ data: { ...formData, prenume: "" } });
       trackContact("form", "contact_page");
       trackGA4Contact("form");
+      trackConversion(CONVERSION_EVENTS.contactFormSubmit, { source: "contact_page" });
+
       toast({ title: "Mesaj trimis", description: "Te contactăm în cel mai scurt timp." });
       setFormData({ nume: "", telefon: "", email: "", mesaj: "" });
     } catch (error: unknown) {
