@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { looksLikeHtml } from "@/lib/emailHtml";
+import { looksLikeHtml, getEmailPreview, toPreviewText } from "@/lib/emailHtml";
 import { EmailHtmlFrame } from "@/components/inbox/EmailHtmlFrame";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -806,7 +806,11 @@ const InboxPage = () => {
   // Thread-aware forward handler
   const handleOpenForwardForEmail = (email: any) => {
     const originalDate = format(new Date(email.received_at), 'EEEE, dd MMMM yyyy, HH:mm', { locale: ro });
-    const originalBody = email.body_plain || email.stripped_text || '';
+    const originalBody =
+      email.body_plain ||
+      email.stripped_text ||
+      toPreviewText(email.body_html) ||
+      '';
     
     const forwardedContent = `
 
@@ -1081,7 +1085,7 @@ ${originalBody}`;
       return (
         email.sender.toLowerCase().includes(query) ||
         email.subject?.toLowerCase().includes(query) ||
-        email.body_plain?.toLowerCase().includes(query)
+        getEmailPreview(email, 0).toLowerCase().includes(query)
       );
     }
     return true;
