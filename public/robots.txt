@@ -60,9 +60,3 @@ Disallow: /admin/
 
 # --- Sitemaps ---
 Sitemap: https://www.mvaimobiliare.ro/sitemap-index.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap-properties.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap-immoflux.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap-complexe.xml
-Sitemap: https://www.mvaimobiliare.ro/sitemap-images.xml
-Sitemap: https://www.mvaimobiliare.ro/news-sitemap.xml
