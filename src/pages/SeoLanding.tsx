@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Home as HomeIcon, Ruler, Euro, ArrowRight } from "lucide-react";
 import { getPropertyUrl } from "@/lib/propertySlug";
 import { buildItemListJsonLd } from "@/lib/listingJsonLd";
+import { filterForPreset } from "@/lib/seoLandingFilter";
 
 const SITE_URL = "https://www.mvaimobiliare.ro";
 
