@@ -305,7 +305,7 @@ export async function handleImmofluxWebhook(req: Request): Promise<Response> {
     const mapped = mapToCatalogOffer(payload.data);
     const { error, data } = await supabase
       .from("catalog_offers")
-      .upsert(mapped, { onConflict: "external_id", ignoreDuplicates: false })
+      .upsert(mapped as any, { onConflict: "external_id", ignoreDuplicates: false })
       .select("id, external_id");
 
     if (error) {

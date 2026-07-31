@@ -110,8 +110,14 @@ import { Route as AdminGestiuneChiriiServiciiRouteImport } from './routes/admin/
 import { Route as AdminGestiuneChiriiTicheteRouteImport } from './routes/admin/gestiune-chirii/tichete'
 import { Route as AdminGestiuneChiriiUtilitatiRouteImport } from './routes/admin/gestiune-chirii/utilitati'
 import { Route as ApiPublicAuthEmailHookRouteImport } from './routes/api/public/auth-email-hook'
+import { Route as ApiPublicFacebookCatalogFeedRouteImport } from './routes/api/public/facebook-catalog-feed'
+import { Route as ApiPublicImmofluxWebhookRouteImport } from './routes/api/public/immoflux-webhook'
+import { Route as ApiPublicMarketingWebhookRouteImport } from './routes/api/public/marketing-webhook'
 import { Route as ApiPublicOgImageRouteImport } from './routes/api/public/og-image'
 import { Route as ApiPublicOgMetaRouteImport } from './routes/api/public/og-meta'
+import { Route as ApiPublicProcessEmailQueueRouteImport } from './routes/api/public/process-email-queue'
+import { Route as ApiPublicProcessSitemapQueueRouteImport } from './routes/api/public/process-sitemap-queue'
+import { Route as ApiPublicReceiveMailgunEmailRouteImport } from './routes/api/public/receive-mailgun-email'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as AppComplexIdRouteImport } from './routes/app/complex/$id'
 import { Route as AppProprietateSlugRouteImport } from './routes/app/proprietate/$slug'
@@ -646,6 +652,24 @@ const ApiPublicAuthEmailHookRoute = ApiPublicAuthEmailHookRouteImport.update({
   path: '/api/public/auth-email-hook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFacebookCatalogFeedRoute =
+  ApiPublicFacebookCatalogFeedRouteImport.update({
+    id: '/api/public/facebook-catalog-feed',
+    path: '/api/public/facebook-catalog-feed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicImmofluxWebhookRoute =
+  ApiPublicImmofluxWebhookRouteImport.update({
+    id: '/api/public/immoflux-webhook',
+    path: '/api/public/immoflux-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMarketingWebhookRoute =
+  ApiPublicMarketingWebhookRouteImport.update({
+    id: '/api/public/marketing-webhook',
+    path: '/api/public/marketing-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicOgImageRoute = ApiPublicOgImageRouteImport.update({
   id: '/api/public/og-image',
   path: '/api/public/og-image',
@@ -656,6 +680,24 @@ const ApiPublicOgMetaRoute = ApiPublicOgMetaRouteImport.update({
   path: '/api/public/og-meta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProcessEmailQueueRoute =
+  ApiPublicProcessEmailQueueRouteImport.update({
+    id: '/api/public/process-email-queue',
+    path: '/api/public/process-email-queue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicProcessSitemapQueueRoute =
+  ApiPublicProcessSitemapQueueRouteImport.update({
+    id: '/api/public/process-sitemap-queue',
+    path: '/api/public/process-sitemap-queue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicReceiveMailgunEmailRoute =
+  ApiPublicReceiveMailgunEmailRouteImport.update({
+    id: '/api/public/receive-mailgun-email',
+    path: '/api/public/receive-mailgun-email',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -805,8 +847,14 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
+  '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
+  '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
   '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
+  '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
+  '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -916,8 +964,14 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
+  '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
+  '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
   '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
+  '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
+  '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -1031,8 +1085,14 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/tichete': typeof AdminGestiuneChiriiTicheteRoute
   '/admin/gestiune-chirii/utilitati': typeof AdminGestiuneChiriiUtilitatiRoute
   '/api/public/auth-email-hook': typeof ApiPublicAuthEmailHookRouteWithChildren
+  '/api/public/facebook-catalog-feed': typeof ApiPublicFacebookCatalogFeedRoute
+  '/api/public/immoflux-webhook': typeof ApiPublicImmofluxWebhookRoute
+  '/api/public/marketing-webhook': typeof ApiPublicMarketingWebhookRoute
   '/api/public/og-image': typeof ApiPublicOgImageRoute
   '/api/public/og-meta': typeof ApiPublicOgMetaRoute
+  '/api/public/process-email-queue': typeof ApiPublicProcessEmailQueueRoute
+  '/api/public/process-sitemap-queue': typeof ApiPublicProcessSitemapQueueRoute
+  '/api/public/receive-mailgun-email': typeof ApiPublicReceiveMailgunEmailRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/app/complex/$id': typeof AppComplexIdRoute
   '/app/proprietate/$slug': typeof AppProprietateSlugRoute
@@ -1147,8 +1207,14 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
+    | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-webhook'
+    | '/api/public/marketing-webhook'
     | '/api/public/og-image'
     | '/api/public/og-meta'
+    | '/api/public/process-email-queue'
+    | '/api/public/process-sitemap-queue'
+    | '/api/public/receive-mailgun-email'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1258,8 +1324,14 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
+    | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-webhook'
+    | '/api/public/marketing-webhook'
     | '/api/public/og-image'
     | '/api/public/og-meta'
+    | '/api/public/process-email-queue'
+    | '/api/public/process-sitemap-queue'
+    | '/api/public/receive-mailgun-email'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1372,8 +1444,14 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/tichete'
     | '/admin/gestiune-chirii/utilitati'
     | '/api/public/auth-email-hook'
+    | '/api/public/facebook-catalog-feed'
+    | '/api/public/immoflux-webhook'
+    | '/api/public/marketing-webhook'
     | '/api/public/og-image'
     | '/api/public/og-meta'
+    | '/api/public/process-email-queue'
+    | '/api/public/process-sitemap-queue'
+    | '/api/public/receive-mailgun-email'
     | '/api/public/track'
     | '/app/complex/$id'
     | '/app/proprietate/$slug'
@@ -1450,8 +1528,14 @@ export interface RootRouteChildren {
   ProiecteIndexRoute: typeof ProiecteIndexRoute
   ProprietatiIndexRoute: typeof ProprietatiIndexRoute
   ApiPublicAuthEmailHookRoute: typeof ApiPublicAuthEmailHookRouteWithChildren
+  ApiPublicFacebookCatalogFeedRoute: typeof ApiPublicFacebookCatalogFeedRoute
+  ApiPublicImmofluxWebhookRoute: typeof ApiPublicImmofluxWebhookRoute
+  ApiPublicMarketingWebhookRoute: typeof ApiPublicMarketingWebhookRoute
   ApiPublicOgImageRoute: typeof ApiPublicOgImageRoute
   ApiPublicOgMetaRoute: typeof ApiPublicOgMetaRoute
+  ApiPublicProcessEmailQueueRoute: typeof ApiPublicProcessEmailQueueRoute
+  ApiPublicProcessSitemapQueueRoute: typeof ApiPublicProcessSitemapQueueRoute
+  ApiPublicReceiveMailgunEmailRoute: typeof ApiPublicReceiveMailgunEmailRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
 }
@@ -2165,6 +2249,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAuthEmailHookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/facebook-catalog-feed': {
+      id: '/api/public/facebook-catalog-feed'
+      path: '/api/public/facebook-catalog-feed'
+      fullPath: '/api/public/facebook-catalog-feed'
+      preLoaderRoute: typeof ApiPublicFacebookCatalogFeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/immoflux-webhook': {
+      id: '/api/public/immoflux-webhook'
+      path: '/api/public/immoflux-webhook'
+      fullPath: '/api/public/immoflux-webhook'
+      preLoaderRoute: typeof ApiPublicImmofluxWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/marketing-webhook': {
+      id: '/api/public/marketing-webhook'
+      path: '/api/public/marketing-webhook'
+      fullPath: '/api/public/marketing-webhook'
+      preLoaderRoute: typeof ApiPublicMarketingWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/og-image': {
       id: '/api/public/og-image'
       path: '/api/public/og-image'
@@ -2177,6 +2282,27 @@ declare module '@tanstack/react-router' {
       path: '/api/public/og-meta'
       fullPath: '/api/public/og-meta'
       preLoaderRoute: typeof ApiPublicOgMetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/process-email-queue': {
+      id: '/api/public/process-email-queue'
+      path: '/api/public/process-email-queue'
+      fullPath: '/api/public/process-email-queue'
+      preLoaderRoute: typeof ApiPublicProcessEmailQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/process-sitemap-queue': {
+      id: '/api/public/process-sitemap-queue'
+      path: '/api/public/process-sitemap-queue'
+      fullPath: '/api/public/process-sitemap-queue'
+      preLoaderRoute: typeof ApiPublicProcessSitemapQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/receive-mailgun-email': {
+      id: '/api/public/receive-mailgun-email'
+      path: '/api/public/receive-mailgun-email'
+      fullPath: '/api/public/receive-mailgun-email'
+      preLoaderRoute: typeof ApiPublicReceiveMailgunEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/track': {
@@ -2440,8 +2566,14 @@ const rootRouteChildren: RootRouteChildren = {
   ProiecteIndexRoute: ProiecteIndexRoute,
   ProprietatiIndexRoute: ProprietatiIndexRoute,
   ApiPublicAuthEmailHookRoute: ApiPublicAuthEmailHookRouteWithChildren,
+  ApiPublicFacebookCatalogFeedRoute: ApiPublicFacebookCatalogFeedRoute,
+  ApiPublicImmofluxWebhookRoute: ApiPublicImmofluxWebhookRoute,
+  ApiPublicMarketingWebhookRoute: ApiPublicMarketingWebhookRoute,
   ApiPublicOgImageRoute: ApiPublicOgImageRoute,
   ApiPublicOgMetaRoute: ApiPublicOgMetaRoute,
+  ApiPublicProcessEmailQueueRoute: ApiPublicProcessEmailQueueRoute,
+  ApiPublicProcessSitemapQueueRoute: ApiPublicProcessSitemapQueueRoute,
+  ApiPublicReceiveMailgunEmailRoute: ApiPublicReceiveMailgunEmailRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
 }
