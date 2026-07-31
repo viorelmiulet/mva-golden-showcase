@@ -62,28 +62,13 @@ const SeoLanding = ({ preset }: Props) => {
 
   const filtered = useMemo(() => filterForPreset(all as any[], preset), [all, preset]);
 
-  const canonical = `${SITE_URL}/${preset.slug}`;
   const count = filtered.length;
 
-  const itemListJsonLd = buildItemListJsonLd(filtered as any[], {
-    name: preset.h1,
-    url: canonical,
-    limit: 20,
-  });
+  // Title/description/canonical and the ItemList JSON-LD are emitted server-side
+  // from the route head() (src/routes/$seoSlug.tsx).
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Helmet>
-        <title>{preset.title}</title>
-        <meta name="description" content={preset.description} />
-        <link rel="canonical" href={canonical} />
-        <meta property="og:title" content={preset.title} />
-        <meta property="og:description" content={preset.description} />
-        <meta property="og:url" content={canonical} />
-        <meta property="og:type" content="website" />
-        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
-      </Helmet>
-
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-6 md:py-10">
