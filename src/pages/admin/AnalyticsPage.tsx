@@ -249,6 +249,7 @@ const AnalyticsPage = () => {
       'contact_phone': 'Telefon',
       'contact_form': 'Formular',
       'property_view': 'Vizualizare Proprietate',
+      ...CONVERSION_LABELS,
     };
     return labels[type] || type;
   };
@@ -258,9 +259,10 @@ const AnalyticsPage = () => {
   const statsCards = [
     { title: "Vizitatori Unici", value: data?.visitors?.toLocaleString() || 0, icon: Users, gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
     { title: "Vizualizări Pagini", value: data?.pageviews?.toLocaleString() || 0, subtitle: `${pageviewsPerVisit} pagini/vizită`, icon: Eye, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400" },
+    { title: "Lead-uri (conversii)", value: data?.totalConversions?.toLocaleString() || 0, subtitle: `${data?.conversionRate || 0}% rată de conversie`, icon: PhoneCall, gradient: "from-amber-500/20 to-orange-500/20", iconColor: "text-amber-400" },
     { title: "Durată Medie Sesiune", value: formatDuration(data?.avgDuration || 0), icon: Clock, gradient: "from-purple-500/20 to-violet-500/20", iconColor: "text-purple-400" },
-    { title: "Bounce Rate", value: `${data?.bounceRate || 0}%`, icon: TrendingUp, gradient: "from-gold/20 to-amber-500/20", iconColor: "text-gold" },
   ];
+
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
