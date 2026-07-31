@@ -1,86 +1,66 @@
 # MVA Imobiliare — robots.txt
 # Canonical host: https://www.mvaimobiliare.ro
+# Regulă: tot ce este public este crawlabil; zonele private și URL-urile
+# de căutare/filtrare (duplicate content) sunt blocate.
 
 User-agent: *
 Allow: /
 
-# Public sections (explicit allow for clarity)
-Allow: /proprietati
-Allow: /proprietati/
-Allow: /proprietati/
-Allow: /complexe
-Allow: /complexe/
-Allow: /blog
-Allow: /blog/
-Allow: /news
-Allow: /news/
-Allow: /militari-residence
-Allow: /renew-residence
-Allow: /eurocasa-residence
-Allow: /pareri-militari-residence
-Allow: /pareri
-Allow: /garsoniere-militari-residence
-Allow: /ghid-militari-residence
-Allow: /facilitati-militari-residence
-Allow: /viata-in-militari-residence
-Allow: /militari-vs-chiajna-comparatie
-Allow: /comparatie-complexuri-militari-chiajna
-Allow: /top-ansambluri-rezidentiale-sector-6
-Allow: /costuri-tranzactie-imobiliara
-Allow: /ghid-noua-casa-2024
-Allow: /faq
-Allow: /sitemap
-Allow: /sitemap.xml
-Allow: /sitemap-index.xml
-
-# Private / non-indexable areas (mirror X-Robots-Tag: noindex)
+# --- Zone private / non-indexabile ---
 Disallow: /admin
 Disallow: /admin/
-Disallow: /api
 Disallow: /api/
 Disallow: /api-keys
-Disallow: /functions/
-Disallow: /contract/
-Disallow: /semnare/
-Disallow: /contract-signature/
+Disallow: /app/
 Disallow: /sign/
 Disallow: /adauga
-Disallow: /app/
 Disallow: /oferta-
 Disallow: /404
-Disallow: /not-found
 
-# Filtered / search result URLs (avoid duplicate content)
+# --- URL-uri de căutare/filtrare (evită conținut duplicat) ---
+# Paginarea (?page=) rămâne permisă ca să fie descoperite toate anunțurile.
 Disallow: /*?search=
 Disallow: /*&search=
 Disallow: /*?filter=
 Disallow: /*&filter=
 Disallow: /*?sort=
 Disallow: /*&sort=
-Disallow: /*?page=
-Disallow: /*&page=
+Disallow: /*?q=
+Disallow: /*&q=
 
-# Image crawlers — full access to public media
+# --- Parametri de tracking (nu generează pagini noi) ---
+Disallow: /*?utm_
+Disallow: /*&utm_
+Disallow: /*?fbclid=
+Disallow: /*&fbclid=
+Disallow: /*?gclid=
+Disallow: /*&gclid=
+
+# --- Crawlere de imagini: acces complet la media publică ---
 User-agent: Googlebot-Image
 Allow: /
-Allow: /news/
-Allow: /blog/
-Allow: /proprietati/
-Allow: /complexe/
 Disallow: /admin
 Disallow: /admin/
+Disallow: /app/
 
 User-agent: Bingbot-Image
 Allow: /
 Disallow: /admin
 Disallow: /admin/
+Disallow: /app/
 
-# Google News crawler
+# --- Google News ---
 User-agent: Googlebot-News
 Allow: /news
 Allow: /news/
 Disallow: /admin
 Disallow: /admin/
 
-# Sitemaps (canonical absolute URL)
+# --- Sitemaps ---
 Sitemap: https://www.mvaimobiliare.ro/sitemap-index.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap-properties.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap-immoflux.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap-complexe.xml
+Sitemap: https://www.mvaimobiliare.ro/sitemap-images.xml
+Sitemap: https://www.mvaimobiliare.ro/news-sitemap.xml
