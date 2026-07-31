@@ -148,6 +148,61 @@ const AnalyticsPage = () => {
         .map(([event_type, total]) => ({ event_type, total }))
         .sort((a, b) => b.total - a.total);
 
+      // Conversii (lead-uri)
+      const conversionEvents = events.filter(ev => (LEAD_EVENTS as string[]).includes(ev.event_type));
+      const conversionMap: Record<string, number> = {};
+      const conversionSessions = new Set<string>();
+      const conversionDailyMap: Record<string, number> = {};
+      conversionEvents.forEach(ev => {
+        conversionMap[ev.event_type] = (conversionMap[ev.event_type] || 0) + 1;
+        conversionSessions.add(ev.session_id);
+        const day = String(ev.created_at).slice(0, 10);
+        conversionDailyMap[day] = (conversionDailyMap[day] || 0) + 1;
+      });
+      const conversionStats = Object.entries(conversionMap)
+        .map(([event_type, total]) => ({ event_type, total }))
+        .sort((a, b) => b.total - a.total);
+      const conversionDaily = Object.entries(conversionDailyMap)
+        .map(([date, total]) => ({ date, total }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+      const totalConversions = conversionEvents.length;
+      const conversionRate = visitors > 0 ? Number(((conversionSessions.size / visitors) * 100).toFixed(1)) : 0;
+
+      // Sursele care aduc lead-uri
+      const sessionSource: Record<string, string> = {};
+      pageViews.forEach(pv => {
+        if (sessionSource[pv.session_id]) return;
+        let source = 'Direct';
+        if (pv.utm_source) source = pv.utm_source;
+        else if (pv.referrer) {
+          if (pv.referrer.includes('google')) source = 'Google Organic';
+          else if (pv.referrer.includes('facebook')) source = 'Facebook';
+          else if (pv.referrer.includes('instagram')) source = 'Instagram';
+          else source = pv.referrer.replace(/https?:\/\//, '').split('/')[0];
+        }
+        sessionSource[pv.session_id] = source;
+      });
+      const leadSourceMap: Record<string, number> = {};
+      conversionEvents.forEach(ev => {
+        const src = sessionSource[ev.session_id] || 'Direct';
+        leadSourceMap[src] = (leadSourceMap[src] || 0) + 1;
+      });
+      const leadSources = Object.entries(leadSourceMap)
+        .map(([source, total]) => ({ source, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 8);
+
+      // Paginile care generează lead-uri
+      const leadPageMap: Record<string, number> = {};
+      conversionEvents.forEach(ev => {
+        const p = ev.page_path || '/';
+        leadPageMap[p] = (leadPageMap[p] || 0) + 1;
+      });
+      const leadPages = Object.entries(leadPageMap)
+        .map(([page, total]) => ({ page, total }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 8);
+
       return {
         visitors,
         pageviews: pageviewsCount,
@@ -158,7 +213,14 @@ const AnalyticsPage = () => {
         topSources,
         devices,
         eventStats,
+        conversionStats,
+        conversionDaily,
+        totalConversions,
+        conversionRate,
+        leadSources,
+        leadPages,
       };
+
     },
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000,
