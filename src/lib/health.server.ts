@@ -82,17 +82,23 @@ export async function checkEnv(): Promise<CheckResult> {
 export async function checkQueues(): Promise<CheckResult> {
   return timed("queues", async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [fbPending, fbFailed, emailPending] = await Promise.all([
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const [fbPending, fbFailed, emailFailed] = await Promise.all([
       supabaseAdmin.from("fb_post_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
       supabaseAdmin.from("fb_post_queue").select("id", { count: "exact", head: true }).eq("status", "failed"),
-      supabaseAdmin.from("email_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin
+        .from("email_send_log")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["failed", "dlq"])
+        .gte("created_at", since),
     ]);
     const detail = {
       fb_post_queue_pending: fbPending.count ?? null,
       fb_post_queue_failed: fbFailed.count ?? null,
-      email_queue_pending: emailPending.count ?? null,
+      email_failures_24h: emailFailed.count ?? null,
     };
-    const failures = [fbPending.error, fbFailed.error, emailPending.error].filter(Boolean);
+    const failures = [fbPending.error, fbFailed.error, emailFailed.error].filter(Boolean);
+
     return {
       status: failures.length ? ("degraded" as const) : ("ok" as const),
       detail,
