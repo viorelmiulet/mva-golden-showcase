@@ -130,6 +130,7 @@ import { Route as AdminGestiuneChiriiProprietatiIndexRouteImport } from './route
 import { Route as AdminGestiuneChiriiProprietatiAdaugaRouteImport } from './routes/admin/gestiune-chirii/proprietati/adauga'
 import { Route as ApiPublicAuthEmailHookPreviewRouteImport } from './routes/api/public/auth-email-hook/preview'
 import { Route as ApiPublicFbQueueSplatRouteImport } from './routes/api/public/fb-queue/$'
+import { Route as ApiPublicImmofluxProxySplatRouteImport } from './routes/api/public/immoflux-proxy/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -765,6 +766,12 @@ const ApiPublicFbQueueSplatRoute = ApiPublicFbQueueSplatRouteImport.update({
   path: '/api/public/fb-queue/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicImmofluxProxySplatRoute =
+  ApiPublicImmofluxProxySplatRouteImport.update({
+    id: '/api/public/immoflux-proxy/$',
+    path: '/api/public/immoflux-proxy/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -886,6 +893,7 @@ export interface FileRoutesByFullPath {
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
+  '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -1006,6 +1014,7 @@ export interface FileRoutesByTo {
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
+  '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -1130,6 +1139,7 @@ export interface FileRoutesById {
   '/admin/gestiune-chirii/proprietati/adauga': typeof AdminGestiuneChiriiProprietatiAdaugaRoute
   '/api/public/auth-email-hook/preview': typeof ApiPublicAuthEmailHookPreviewRoute
   '/api/public/fb-queue/$': typeof ApiPublicFbQueueSplatRoute
+  '/api/public/immoflux-proxy/$': typeof ApiPublicImmofluxProxySplatRoute
   '/admin/complexe/$id/': typeof AdminComplexeIdIndexRoute
   '/admin/gestiune-chirii/proprietati/': typeof AdminGestiuneChiriiProprietatiIndexRoute
 }
@@ -1255,6 +1265,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/proprietati/adauga'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
+    | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
   fileRoutesByTo: FileRoutesByTo
@@ -1375,6 +1386,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/proprietati/adauga'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
+    | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id'
     | '/admin/gestiune-chirii/proprietati'
   id:
@@ -1498,6 +1510,7 @@ export interface FileRouteTypes {
     | '/admin/gestiune-chirii/proprietati/adauga'
     | '/api/public/auth-email-hook/preview'
     | '/api/public/fb-queue/$'
+    | '/api/public/immoflux-proxy/$'
     | '/admin/complexe/$id/'
     | '/admin/gestiune-chirii/proprietati/'
   fileRoutesById: FileRoutesById
@@ -1578,6 +1591,7 @@ export interface RootRouteChildren {
   ApiPublicScheduledSocialPostRoute: typeof ApiPublicScheduledSocialPostRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicFbQueueSplatRoute: typeof ApiPublicFbQueueSplatRoute
+  ApiPublicImmofluxProxySplatRoute: typeof ApiPublicImmofluxProxySplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2429,6 +2443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFbQueueSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/immoflux-proxy/$': {
+      id: '/api/public/immoflux-proxy/$'
+      path: '/api/public/immoflux-proxy/$'
+      fullPath: '/api/public/immoflux-proxy/$'
+      preLoaderRoute: typeof ApiPublicImmofluxProxySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -2640,6 +2661,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicScheduledSocialPostRoute: ApiPublicScheduledSocialPostRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicFbQueueSplatRoute: ApiPublicFbQueueSplatRoute,
+  ApiPublicImmofluxProxySplatRoute: ApiPublicImmofluxProxySplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
