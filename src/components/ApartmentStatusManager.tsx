@@ -1,6 +1,7 @@
+import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,7 @@ export const ApartmentStatusManager = ({ projectId }: ApartmentStatusManagerProp
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: 'available' | 'reserved' | 'sold' }) => {
-      const { data, error } = await supabase.functions.invoke('admin-offers', {
+      const { data, error } = await invokeAdminFn('admin-offers', {
         body: { action: 'update_status', id, availability_status: status },
       });
 

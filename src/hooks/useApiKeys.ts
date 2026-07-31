@@ -1,3 +1,5 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,7 +32,7 @@ export const useApiKeys = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('api-keys-manager', {
+      const { data, error } = await invokeAdminFn('api-keys-manager', {
         body: { action: 'list' }
       });
 
@@ -54,7 +56,7 @@ export const useApiKeys = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('api-keys-manager', {
+      const { data, error } = await invokeAdminFn('api-keys-manager', {
         body: {
           action: 'create',
           ...keyData
@@ -84,7 +86,7 @@ export const useApiKeys = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('api-keys-manager', {
+      const { data, error } = await invokeAdminFn('api-keys-manager', {
         body: {
           action: 'toggle',
           id,
@@ -118,7 +120,7 @@ export const useApiKeys = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('api-keys-manager', {
+      const { data, error } = await invokeAdminFn('api-keys-manager', {
         body: {
           action: 'delete',
           id

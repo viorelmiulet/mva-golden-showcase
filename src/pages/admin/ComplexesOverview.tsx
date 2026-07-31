@@ -1,6 +1,7 @@
+import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { adminApi } from "@/lib/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Home, CheckCircle, XCircle, TrendingUp, Plus, FileSpreadsheet, MapPin, Edit, Trash2, Share2, Loader2, Facebook, Instagram, Eye, EyeOff, Globe } from "lucide-react";
@@ -255,7 +256,7 @@ const ComplexesOverview = () => {
       const propertiesResult = await adminApi.delete('catalog_offers', projectToDelete);
       // Note: This deletes by project_id match - we need a different approach
       // For now, use edge function for properties too
-      const { error: propertiesError } = await supabase.functions.invoke('admin-offers', {
+      const { error: propertiesError } = await invokeAdminFn('admin-offers', {
         body: { action: 'delete_by_project', projectId: projectToDelete }
       });
 

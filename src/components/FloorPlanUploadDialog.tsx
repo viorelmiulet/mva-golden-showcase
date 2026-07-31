@@ -1,3 +1,4 @@
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -80,7 +81,7 @@ const FloorPlanUploadDialog = ({
         .getPublicUrl(filePath);
 
       // Update property with floor plan using edge function
-      const { data, error: updateError } = await supabase.functions.invoke('update-floor-plan', {
+      const { data, error: updateError } = await invokeAdminFn('update-floor-plan', {
         body: {
           propertyId,
           floor_plan: publicUrl
@@ -113,7 +114,7 @@ const FloorPlanUploadDialog = ({
     setUploading(true);
     try {
       // Use edge function to bypass RLS
-      const { data, error } = await supabase.functions.invoke('update-floor-plan', {
+      const { data, error } = await invokeAdminFn('update-floor-plan', {
         body: {
           propertyId,
           floor_plan: null

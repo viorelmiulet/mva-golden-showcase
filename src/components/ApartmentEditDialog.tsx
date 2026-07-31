@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+import { invokeAdminFn } from "@/lib/adminInvoke";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -5,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 interface ApartmentEditDialogProps {
@@ -34,7 +35,7 @@ export const ApartmentEditDialog = ({ apartment, open, onOpenChange, onSuccess }
 
     try {
       // Use edge function to bypass RLS
-      const { data, error } = await supabase.functions.invoke('admin-offers', {
+      const { data, error } = await invokeAdminFn('admin-offers', {
         body: {
           action: 'update_offer',
           id: apartment.id,
