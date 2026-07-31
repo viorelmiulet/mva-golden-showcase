@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { buildStaticSitemap, xmlResponse } from "@/lib/sitemap.server";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
-      GET: async () => {
-        try {
-          return xmlResponse(await buildStaticSitemap(), 86400, true);
-        } catch (error) {
-          console.error("/sitemap.xml generation failed:", error);
-          return new Response("Sitemap temporarily unavailable", { status: 503 });
-        }
-      },
+      GET: async () =>
+        new Response(null, {
+          status: 301,
+          headers: {
+            Location: "/sitemap-index.xml",
+            "Content-Type": "application/xml; charset=UTF-8",
+            "Cache-Control": "public, max-age=86400, s-maxage=86400",
+          },
+        }),
     },
   },
 });
