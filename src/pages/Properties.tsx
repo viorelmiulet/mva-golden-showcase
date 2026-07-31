@@ -156,6 +156,16 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
   const clearAll = () => setSearchParams(new URLSearchParams(), { replace: true });
 
+  /** Crawlable href for a page number — keeps every active filter in the URL. */
+  const pageHref = (n: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (n <= 1) next.delete("p");
+    else next.set("p", String(n));
+    const qs = next.toString();
+    return qs ? `/proprietati?${qs}` : "/proprietati";
+  };
+
+
   // ---- Data (unchanged Supabase query) ---------------------------------
   const initialData = useMemo(
     () => (initialRows ? mapCatalogRows(initialRows) : undefined),
