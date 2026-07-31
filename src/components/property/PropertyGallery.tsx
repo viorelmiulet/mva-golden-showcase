@@ -59,7 +59,7 @@ const PropertyGallery = ({ images, title, alt }: PropertyGalleryProps) => {
       >
         <img
           src={list[index]}
-          alt={`${imageAlt} — imaginea ${index + 1}`}
+          alt={`${imageAlt} — imagine ${index + 1} din ${list.length}`}
           width={1200}
           height={800}
           className="w-full aspect-[3/2] object-cover"
