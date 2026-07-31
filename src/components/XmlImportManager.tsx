@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { triggerSocialAutoPost } from '@/lib/socialAutoPost';
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 interface XmlSource {
   id: string;
@@ -248,7 +249,7 @@ const WebsiteScrapingManager = () => {
     setLoadingStates((prev) => prev.map((state, i) => (i === index ? true : state)));
 
     try {
-      const { data, error } = await supabase.functions.invoke("scrape-property", {
+      const { data, error } = await invokeAiOpsFn("scrape-property", {
         body: { url },
       });
 

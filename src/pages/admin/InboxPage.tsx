@@ -60,6 +60,7 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/admin/PullToRefreshIndicator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEmailThreads } from "@/hooks/useEmailThreads";
+import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
 
 interface ReceivedEmail {
   id: string;
@@ -642,7 +643,7 @@ const InboxPage = () => {
       replyFromAddress?: string;
       attachments?: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
-      const { data, error } = await supabase.functions.invoke('reply-email', {
+      const { data, error } = await invokeEmailOpsFn('reply-email', {
         body: { to, subject, body, inReplyTo, isReply: true, replyFromAddress, attachments: attachments || [] }
       });
       if (error) throw error;
@@ -697,7 +698,7 @@ const InboxPage = () => {
       body: string;
       attachments: Array<{ filename: string; contentType: string; size?: number; content?: string; path?: string; bucket?: string; url?: string }>;
     }) => {
-      const { data, error } = await supabase.functions.invoke('reply-email', {
+      const { data, error } = await invokeEmailOpsFn('reply-email', {
         body: { to, cc, bcc, subject, body, attachments, isReply: false }
       });
       if (error) throw error;

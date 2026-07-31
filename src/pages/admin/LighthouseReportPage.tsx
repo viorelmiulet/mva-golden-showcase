@@ -8,6 +8,7 @@ import { Loader2, Download, Play, Gauge, Smartphone, Monitor } from 'lucide-reac
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { toast } from 'sonner';
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 interface AuditItem {
   id: string;
@@ -181,7 +182,7 @@ export default function LighthouseReportPage() {
     setLoading(true);
     setReport(null);
     try {
-      const { data, error } = await supabase.functions.invoke('lighthouse-report', {
+      const { data, error } = await invokeMiscOpsFn('lighthouse-report', {
         body: { url },
       });
       if (error) throw error;

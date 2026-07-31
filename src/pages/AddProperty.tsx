@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "@/lib/router-compat"
 import { triggerSocialAutoPost } from "@/lib/socialAutoPost"
 import { toast as sonnerToast } from "sonner"
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 interface ScrapedProperty {
   title: string
@@ -50,7 +51,7 @@ const AddProperty = () => {
     setIsLoading(true)
     try {
       // Call edge function to scrape the URL
-      const { data, error } = await supabase.functions.invoke('scrape-property', {
+      const { data, error } = await invokeAiOpsFn('scrape-property', {
         body: { url }
       })
 

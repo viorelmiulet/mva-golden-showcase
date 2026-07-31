@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Wand2, Image as ImageIcon, Type, Download, Copy } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 export const FacebookContentGenerator = () => {
   const [selectedProperty, setSelectedProperty] = useState<string>("");
@@ -43,7 +44,7 @@ export const FacebookContentGenerator = () => {
         ? null
         : properties.find(p => p.id === selectedProperty);
 
-      const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
+      const { data, error } = await invokeAiOpsFn('generate-facebook-content', {
         body: { 
           type: 'text',
           propertyData: propertyData ? {
@@ -75,7 +76,7 @@ export const FacebookContentGenerator = () => {
         ? null
         : properties.find(p => p.id === selectedProperty);
 
-      const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
+      const { data, error } = await invokeAiOpsFn('generate-facebook-content', {
         body: { 
           type: 'image',
           propertyData: propertyData ? {

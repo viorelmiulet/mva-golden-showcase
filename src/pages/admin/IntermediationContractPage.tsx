@@ -24,6 +24,7 @@ import jsPDF from "jspdf";
 import { format } from "date-fns";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 import { motion } from "framer-motion";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -333,7 +334,7 @@ const IntermediationContractPage = () => {
     setIsExtractingClient(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('extract-id-data', {
+      const { data, error } = await invokeAiOpsFn('extract-id-data', {
         body: { imageBase64 }
       });
 

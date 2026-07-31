@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2, Eye, EyeOff, Star, StarOff, Share2, Loader2 } fro
 import { toast } from "sonner";
 import RichTextEditor from "@/components/RichTextEditor";
 import { adminApi } from "@/lib/adminApi";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 const categories = [
   { id: "ghiduri", name: "Ghiduri" },
@@ -123,7 +124,7 @@ const BlogAdminPage = () => {
   const shareToSocial = async (postId: string) => {
     setSharingPostId(postId);
     try {
-      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+      const { data, error } = await invokeMiscOpsFn('social-auto-post', {
         body: { blogPostId: postId, type: 'blog' },
       });
       if (error) throw error;

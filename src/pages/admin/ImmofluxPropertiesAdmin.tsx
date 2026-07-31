@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@/lib/router-compat";
 import { useImmofluxSlugMap, resolveImmofluxUrl } from "@/hooks/useImmofluxSlugMap";
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 import {
   Select,
   SelectContent,
@@ -30,7 +31,7 @@ const ImmofluxPropertiesAdmin = () => {
     setSyncing(true);
     try {
       // 1. Start sync in background (returns immediately)
-      const { data: startRes, error: startErr } = await supabase.functions.invoke('sync-immoflux', { body: {} });
+      const { data: startRes, error: startErr } = await invokeImmofluxFn('sync-immoflux', { body: {} });
       if (startErr) throw startErr;
       if (startRes?.success === false) throw new Error(startRes?.error || 'Sync eșuat');
 

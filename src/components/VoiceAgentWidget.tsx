@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 interface VoiceAgentWidgetProps {
   agentId: string;
@@ -68,8 +69,7 @@ export const VoiceAgentWidget = ({
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
       // Get token from edge function
-      const { data, error } = await supabase.functions.invoke(
-        "elevenlabs-conversation-token",
+      const { data, error } = await invokeMiscOpsFn("elevenlabs-conversation-token",
         { body: { agentId } }
       );
 

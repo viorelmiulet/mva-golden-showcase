@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 export const triggerSocialAutoPost = async (propertyId: string, platform?: 'facebook' | 'instagram' | 'google' | 'all'): Promise<boolean> => {
   try {
@@ -22,7 +23,7 @@ export const triggerSocialAutoPost = async (propertyId: string, platform?: 'face
     }
 
     // Trigger the edge function with platform parameter
-    const { data, error } = await supabase.functions.invoke('social-auto-post', {
+    const { data, error } = await invokeMiscOpsFn('social-auto-post', {
       body: { propertyId, platform: platform || 'all', type: 'property' }
     });
 
@@ -61,7 +62,7 @@ export const triggerProjectSocialAutoPost = async (projectId: string, platform?:
     }
 
     // Trigger the edge function with projectId and type
-    const { data, error } = await supabase.functions.invoke('social-auto-post', {
+    const { data, error } = await invokeMiscOpsFn('social-auto-post', {
       body: { projectId, platform: platform || 'all', type: 'project' }
     });
 

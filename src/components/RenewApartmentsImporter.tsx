@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Building2 } from "lucide-react";
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 
 const RenewApartmentsImporter = () => {
   const [isImporting, setIsImporting] = useState(false);
@@ -13,7 +14,7 @@ const RenewApartmentsImporter = () => {
     setIsImporting(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('import-renew-apartments');
+      const { data, error } = await invokeImmofluxFn('import-renew-apartments');
 
       if (error) throw error;
 

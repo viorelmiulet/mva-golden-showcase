@@ -47,6 +47,8 @@ import type {
 import { emptyPerson, conditionLabels as conditionLabelsConst, imageSizeConfig as imageSizeConfigConst, normalizeInventoryRows, normalizeSavedContractRow } from "@/types/contract";
 import { generateRentalContractPdf, generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { generateRentalContractDocx, generateDocxFilename, downloadDocxBlob } from "@/lib/pdf/rentalContractDocx";
+import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 
 const ContractGeneratorPage = () => {
@@ -371,7 +373,7 @@ const ContractGeneratorPage = () => {
     );
 
     try {
-      const { data, error } = await supabase.functions.invoke('extract-id-data', {
+      const { data, error } = await invokeAiOpsFn('extract-id-data', {
         body: images.length === 1
           ? { imageBase64: images[0] }
           : { imageBase64List: images }
@@ -500,7 +502,7 @@ const ContractGeneratorPage = () => {
       if (type === 'proprietar') setIsExtractingCompanyProprietar(true);
       else setIsExtractingCompanyChirias(true);
       try {
-        const { data, error } = await supabase.functions.invoke('extract-company-data', {
+        const { data, error } = await invokeAiOpsFn('extract-company-data', {
           body: { imageBase64: base64 }
         });
         if (error) throw error;
@@ -1156,7 +1158,7 @@ const ContractGeneratorPage = () => {
 
     setIsSendingEmail(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-signature-link', {
+      const { data, error } = await invokeEmailOpsFn('send-signature-link', {
         body: {
           contractId: emailDialogData.contractId,
           contractType: "inchiriere",

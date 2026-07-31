@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 
 const ComplexImportManager = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -58,7 +59,7 @@ const ComplexImportManager = () => {
         reader.readAsDataURL(file);
       });
 
-      const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
+      const { data, error } = await invokeImmofluxFn('import-complexes-excel', {
         body: { 
           fileData: fileBase64,
           fileName: file.name

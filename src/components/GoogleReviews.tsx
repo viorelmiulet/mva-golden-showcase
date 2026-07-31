@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 import { Helmet } from "@/lib/helmet-compat";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 interface GoogleReview {
   author_name: string;
@@ -52,7 +53,7 @@ const GoogleReviews = () => {
   const { data, isLoading } = useQuery<GoogleReviewsData>({
     queryKey: ["google-reviews"],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("google-reviews");
+      const { data, error } = await invokeMiscOpsFn("google-reviews");
       if (error) throw error;
       return data;
     },

@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 import { Settings, Save, Loader2, Phone, Mail, MapPin, Facebook, Instagram, Globe, RefreshCw, Send, Key, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 interface SiteSettings {
   companyName: string;
@@ -207,7 +208,7 @@ const SettingsPage = () => {
 
   const sendIndexNowMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('notify-google-sitemap', {
+      const { data, error } = await invokeMiscOpsFn('notify-google-sitemap', {
         body: {
           targetUrls: MAIN_SITE_URLS,
         },

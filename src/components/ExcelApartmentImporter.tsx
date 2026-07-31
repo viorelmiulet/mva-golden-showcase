@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 
 interface ExcelApartmentImporterProps {
   projectId: string;
@@ -79,7 +80,7 @@ export const ExcelApartmentImporter = ({ projectId, onImportComplete }: ExcelApa
         reader.readAsDataURL(file);
       });
 
-      const { data, error } = await supabase.functions.invoke('import-complexes-excel', {
+      const { data, error } = await invokeImmofluxFn('import-complexes-excel', {
         body: { fileData: base64, fileName: file.name, projectId }
       });
 

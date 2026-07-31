@@ -44,6 +44,7 @@ import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 interface ClientPreferences {
   min_price?: number;
@@ -201,7 +202,7 @@ export default function ClientsAdminPage() {
       // Save preferences first
       await handleSavePreferences();
 
-      const { data, error } = await supabase.functions.invoke("ai-property-recommendations", {
+      const { data, error } = await invokeAiOpsFn("ai-property-recommendations", {
         body: { clientId: selectedClient.id, preferences },
       });
 

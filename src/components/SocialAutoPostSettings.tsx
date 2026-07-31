@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { adminApi } from "@/lib/adminApi";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 interface WebhookSettings {
   facebook?: string;
@@ -189,7 +190,7 @@ export const SocialAutoPostSettings = () => {
     setIsTesting(true);
     try {
       console.log('Testing webhooks...');
-      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+      const { data, error } = await invokeMiscOpsFn('social-auto-post', {
         body: { action: 'test' }
       });
 
@@ -235,7 +236,7 @@ export const SocialAutoPostSettings = () => {
     setIsSending(true);
     try {
       console.log('Sending property to webhook:', selectedPropertyId);
-      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+      const { data, error } = await invokeMiscOpsFn('social-auto-post', {
         body: { propertyId: selectedPropertyId }
       });
 
@@ -273,7 +274,7 @@ export const SocialAutoPostSettings = () => {
     }
     setIsSendingProject(true);
     try {
-      const { data, error } = await supabase.functions.invoke('social-auto-post', {
+      const { data, error } = await invokeMiscOpsFn('social-auto-post', {
         body: { projectId: selectedProjectId, type: 'project' }
       });
       if (error) throw error;
