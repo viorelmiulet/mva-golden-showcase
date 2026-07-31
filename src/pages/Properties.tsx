@@ -1,6 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Helmet } from "@/lib/helmet-compat";
-import { useSearchParams } from "@/lib/router-compat";
+import { useSearchParams, Link } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 
@@ -83,7 +82,53 @@ const SORTS = [
   { value: "suprafata", label: "Suprafață" },
 ] as const;
 
-const Properties = () => {
+/** Pure mapping of catalog rows → listing items (shared by SSR loader and client query). */
+export const mapCatalogRows = (rows: any[]) =>
+  (rows || []).map((p: any) => {
+    const isImmoflux = p.crm_source === "immoflux" || p.source === "immoflux";
+    const immofluxId =
+      isImmoflux && p.external_id ? Number(String(p.external_id).replace("immoflux-", "")) : null;
+    return {
+      ...p,
+      _immoflux_id: immofluxId,
+      _immoflux_slug:
+        isImmoflux && immofluxId
+          ? p.immoflux_slug ||
+            generateImmofluxSlug({
+              idnum: immofluxId,
+              nrcamere: p.rooms,
+              zona: p.zone,
+              localitate: p.location || p.city,
+              suprutila: p.surface_min,
+              etaj: p.floor,
+            } as any)
+          : null,
+      _immoflux_top: isImmoflux && p.promotion_type === "top",
+      _immoflux_pole: isImmoflux && p.promotion_type === "pole_position",
+    };
+  });
+
+/** Same Supabase query used by the SSR loader and the client refetch. */
+export const fetchCatalogOffers = async () => {
+  const { data, error } = await supabase
+    .from("catalog_offers")
+    .select("*")
+    .is("project_id", null)
+    .neq("is_published", false)
+    .neq("availability_status", "sold")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
+interface PropertiesProps {
+  /** Rows pre-fetched on the server so the first HTML already contains cards. */
+  initialRows?: any[];
+}
+
+const Properties = ({ initialRows }: PropertiesProps = {}) => {
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -111,47 +156,31 @@ const Properties = () => {
 
   const clearAll = () => setSearchParams(new URLSearchParams(), { replace: true });
 
+  /** Crawlable href for a page number — keeps every active filter in the URL. */
+  const pageHref = (n: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (n <= 1) next.delete("p");
+    else next.set("p", String(n));
+    const qs = next.toString();
+    return qs ? `/proprietati?${qs}` : "/proprietati";
+  };
+
+
   // ---- Data (unchanged Supabase query) ---------------------------------
+  const initialData = useMemo(
+    () => (initialRows ? mapCatalogRows(initialRows) : undefined),
+    [initialRows]
+  );
+
   const { data: catalogProperties = [], isLoading } = useQuery({
     queryKey: ["catalog_offers"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("catalog_offers")
-        .select("*")
-        .is("project_id", null)
-        .neq("is_published", false)
-        .neq("availability_status", "sold")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return (data || []).map((p: any) => {
-        const isImmoflux = p.crm_source === "immoflux" || p.source === "immoflux";
-        const immofluxId =
-          isImmoflux && p.external_id ? Number(String(p.external_id).replace("immoflux-", "")) : null;
-        return {
-          ...p,
-          _immoflux_id: immofluxId,
-          _immoflux_slug:
-            isImmoflux && immofluxId
-              ? p.immoflux_slug ||
-                generateImmofluxSlug({
-                  idnum: immofluxId,
-                  nrcamere: p.rooms,
-                  zona: p.zone,
-                  localitate: p.location || p.city,
-                  suprutila: p.surface_min,
-                  etaj: p.floor,
-                } as any)
-              : null,
-          _immoflux_top: isImmoflux && p.promotion_type === "top",
-          _immoflux_pole: isImmoflux && p.promotion_type === "pole_position",
-        };
-      });
-    },
+    queryFn: async () => mapCatalogRows(await fetchCatalogOffers()),
+    ...(initialData ? { initialData } : {}),
     staleTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
   });
+
 
   const properties = useMemo(
     () =>
@@ -415,23 +444,11 @@ const Properties = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Apartamente de vânzare în București | MVA Imobiliare</title>
-        <meta
-          name="description"
-          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, număr de camere, preț și suprafață."
-        />
-        <link rel="canonical" href="https://www.mvaimobiliare.ro/proprietati" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.mvaimobiliare.ro/proprietati" />
-        <meta property="og:title" content="Apartamente de vânzare în București | MVA Imobiliare" />
-        <meta
-          property="og:description"
-          content="Apartamente și garsoniere de vânzare și închiriat în București. Filtrează după zonă, camere, preț."
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
-      </Helmet>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+
 
       <Header />
 
@@ -582,22 +599,22 @@ const Properties = () => {
                     const n = i + 1;
                     const active = n === currentPage;
                     return (
-                      <button
+                      <Link
                         key={n}
-                        type="button"
-                        onClick={() => setParam("p", n === 1 ? "" : String(n), false)}
+                        to={pageHref(n)}
                         aria-current={active ? "page" : undefined}
-                        className={`h-10 min-w-10 px-3 rounded-sm border text-small transition-colors ${
+                        className={`h-10 min-w-10 px-3 rounded-sm border text-small transition-colors inline-flex items-center justify-center ${
                           active
                             ? "border-brass text-brass"
                             : "border-stone text-muted-foreground hover:text-brass hover:border-brass"
                         }`}
                       >
                         {n}
-                      </button>
+                      </Link>
                     );
                   })}
                 </nav>
+
               )}
             </>
           )}
