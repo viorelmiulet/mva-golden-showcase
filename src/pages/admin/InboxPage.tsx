@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { looksLikeHtml } from "@/lib/emailHtml";
+import { looksLikeHtml, getEmailPreview, toPreviewText } from "@/lib/emailHtml";
 import { EmailHtmlFrame } from "@/components/inbox/EmailHtmlFrame";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
