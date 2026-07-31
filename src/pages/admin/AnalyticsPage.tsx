@@ -39,6 +39,8 @@ import {
 import { format, parseISO, subDays } from "date-fns";
 import { ro } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { LEAD_EVENTS, CONVERSION_LABELS } from "@/lib/analytics/conversions";
+
 
 const COLORS = ['#A8762C', '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
