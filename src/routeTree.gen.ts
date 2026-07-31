@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as SeoSlugRouteImport } from './routes/$seoSlug'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as AboutRouteImport } from './routes/about'
@@ -135,6 +136,11 @@ import { Route as ApiPublicImmofluxProxySplatRouteImport } from './routes/api/pu
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SeoSlugRoute = SeoSlugRouteImport.update({
@@ -775,6 +781,7 @@ const ApiPublicImmofluxProxySplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/$seoSlug': typeof SeoSlugRoute
   '/404': typeof R404Route
   '/about': typeof AboutRoute
@@ -899,6 +906,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/$seoSlug': typeof SeoSlugRoute
   '/404': typeof R404Route
   '/about': typeof AboutRoute
@@ -1021,6 +1029,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/$seoSlug': typeof SeoSlugRoute
   '/404': typeof R404Route
   '/about': typeof AboutRoute
@@ -1147,6 +1156,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/$seoSlug'
     | '/404'
     | '/about'
@@ -1271,6 +1281,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/$seoSlug'
     | '/404'
     | '/about'
@@ -1392,6 +1403,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$'
     | '/$seoSlug'
     | '/404'
     | '/about'
@@ -1517,6 +1529,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
   SeoSlugRoute: typeof SeoSlugRoute
   R404Route: typeof R404Route
   AboutRoute: typeof AboutRoute
@@ -1601,6 +1614,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$seoSlug': {
@@ -2586,6 +2606,7 @@ const ApiPublicAuthEmailHookRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
   SeoSlugRoute: SeoSlugRoute,
   R404Route: R404Route,
   AboutRoute: AboutRoute,
