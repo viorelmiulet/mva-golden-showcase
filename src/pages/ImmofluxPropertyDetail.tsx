@@ -14,8 +14,7 @@ import { toast } from "sonner";
 import { extractImmofluxIdFromSlug } from "@/lib/propertySlug";
 import { parseFloor, parseTotalFloors } from "@/lib/floorParsing";
 import { filterStatItems } from "@/lib/statItem";
-import PropertySeo from "@/components/PropertySeo";
-import { composePropertyDescription, composeMetaDescription } from "@/lib/propertyDescription";
+import { composePropertyDescription } from "@/lib/propertyDescription";
 
 const Footer = lazy(() => import("@/components/Footer"));
 const ApproximateLocationMap = lazy(() => import("@/components/ApproximateLocationMap").then(m => ({ default: m.ApproximateLocationMap })));
@@ -287,8 +286,6 @@ const ImmofluxPropertyDetail = () => {
   // Canonical = stored immoflux_slug when present, else URL slug.
   const canonicalSlug = p.immoflux_slug || urlSlug;
   const canonicalPath = `/proprietati/${canonicalSlug}`;
-  const propertyUrl = `https://www.mvaimobiliare.ro${canonicalPath}`;
-  const ogImage = images[0]?.src || `https://www.mvaimobiliare.ro/og-image.jpg`;
   const priceAmount = p.pret ? String(p.pret) : null;
   const currency = (isSale ? p.monedavanzare : p.monedainchiriere) || 'EUR';
 
@@ -315,37 +312,9 @@ const ImmofluxPropertyDetail = () => {
     propertyType: (p.tiplocuinta || 'apartament').trim(),
     storedDescription: description || null,
   });
-  const metaDesc = composeMetaDescription(composedDescription);
 
   return (
     <>
-      <PropertySeo
-        title={title}
-        description={composedDescription}
-        metaDescription={metaDesc}
-        canonicalPath={canonicalPath}
-        images={images.map((i: any) => i.src)}
-        price={priceAmount ? Number(priceAmount) : null}
-        currency={currency}
-        isAvailable={true}
-        rooms={rooms}
-        bathrooms={p.nrbai ? Number(p.nrbai) : null}
-        surface={surface || null}
-        floor={parseFloor(p.etaj, p.nretaj, p.floor)}
-        yearBuilt={p.anconstructie ? Number(p.anconstructie) : null}
-        zone={zona}
-        city={localitate}
-        street={p.adresa || null}
-        latitude={lat ? Number(lat) : null}
-        longitude={lng ? Number(lng) : null}
-        datePosted={addedDate || null}
-        isSale={isSale}
-        projectName={p.proiect || p.complex || null}
-      />
-      <Helmet>
-        <meta name="twitter:url" content={propertyUrl} />
-        <meta property="og:image" content={ogImage} />
-      </Helmet>
       <Header />
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
@@ -359,7 +328,7 @@ const ImmofluxPropertyDetail = () => {
                 <img
                   key={i}
                   src={img.src}
-                  alt={title}
+                  alt={`${title} — imagine 1 din ${images.length}`}
                   className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   loading="eager"
                   // @ts-ignore
@@ -379,7 +348,7 @@ const ImmofluxPropertyDetail = () => {
                       <img
                         key={i + 1}
                         src={img.src}
-                        alt={`${title} ${i + 2}`}
+                        alt={`${title} — imagine ${i + 2} din ${images.length}`}
                         className="w-full h-32 md:h-[calc(12rem-0.25rem)] object-cover cursor-pointer hover:opacity-90 transition-opacity"
                         loading="lazy"
                         decoding="async"
@@ -397,7 +366,7 @@ const ImmofluxPropertyDetail = () => {
                       >
                         <img
                           src={images[4].src}
-                          alt={`${title} 5`}
+                          alt={`${title} — imagine 5 din ${images.length}`}
                           className="w-full h-full object-cover"
                           loading="lazy"
                           decoding="async"

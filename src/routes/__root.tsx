@@ -22,13 +22,9 @@ const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
-const SITE_TITLE =
-  "Agenție Imobiliară București | Apartamente și Ansambluri Rezidențiale — MVA Imobiliare";
-const SITE_DESCRIPTION =
-  "Agenție imobiliară în București: apartamente de vânzare, închirieri și ansambluri rezidențiale în toată Capitala, cu expertiză aprofundată în vestul Bucureștiului — Militari, Chiajna și împrejurimi.";
-const OG_DESCRIPTION =
-  "Apartamente de vânzare și ansambluri rezidențiale în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și împrejurimi.";
-const OG_IMAGE = "https://www.mvaimobiliare.ro/og-image.jpg?v=20260719c";
+// Page-level title/description/og/twitter/canonical tags are owned by each route
+// (route head() or the page's Helmet block) — the shell must not emit a second set.
+
 
 // Google Consent Mode v2 — defaults to DENIED. Updated by CookieConsent.tsx after user consent.
 // GA4 / Plausible / Maps / Pixel scripts are NOT loaded here; CookieConsent.tsx injects them
@@ -50,29 +46,8 @@ gtag('set', 'url_passthrough', true);
 gtag('set', 'ads_data_redaction', true);
 `;
 
-// Dynamic og:url / twitter:url based on the current path so deep links show the correct URL.
-// Pages set their own canonical via React Helmet — do NOT auto-set canonical here.
-const OG_URL_SYNC_SCRIPT = `
-(() => {
-  const siteUrl = 'https://www.mvaimobiliare.ro';
-  const rawPath = window.location.pathname || '/';
-  const normalizedPath = rawPath === '/' ? '/' : rawPath.replace(/\\/+$/, '');
-  const currentUrl = siteUrl + normalizedPath;
-  const setOrCreateMeta = (attr, attrValue, content) => {
-    let element = document.querySelector('meta[' + attr + '="' + attrValue + '"]');
-    if (!element) {
-      element = document.createElement('meta');
-      element.setAttribute(attr, attrValue);
-      document.head.appendChild(element);
-    }
-    element.setAttribute('content', content);
-  };
-  if (!normalizedPath.startsWith('/admin') && !normalizedPath.startsWith('/api')) {
-    setOrCreateMeta('property', 'og:url', currentUrl);
-    setOrCreateMeta('name', 'twitter:url', currentUrl);
-  }
-})();
-`;
+
+
 
 const JSONLD_ORGANIZATION = JSON.stringify({
   "@context": "https://schema.org",
@@ -142,19 +117,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
-      { title: SITE_TITLE },
-      { name: "title", content: SITE_TITLE },
-      { name: "description", content: SITE_DESCRIPTION },
       {
         name: "keywords",
         content:
           "agenție imobiliară București, apartamente de vânzare București, ansambluri rezidențiale, apartamente Militari, apartamente Chiajna, proprietăți premium, MVA Imobiliare",
       },
       { name: "author", content: "MVA IMOBILIARE" },
-      {
-        name: "robots",
-        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-      },
       { name: "googlebot", content: "index, follow, max-image-preview:large" },
       { name: "bingbot", content: "index, follow" },
       { name: "google-site-verification", content: "wJfWVfZiGs4Tl0iih3cb1TotB3Fd1nt86hCkmqohNus" },
@@ -170,19 +138,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "MVA Imobiliare" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "application-name", content: "MVA Imobiliare" },
-      /* Open Graph — sitewide defaults; per-page overrides via React Helmet */
-      { property: "og:type", content: "website" },
+      /* Open Graph — only sitewide constants; page-level tags come from each route */
       { property: "og:site_name", content: "MVA Imobiliare" },
       { property: "og:locale", content: "ro_RO" },
-      { property: "og:title", content: SITE_TITLE },
-      { property: "og:description", content: OG_DESCRIPTION },
-      { property: "og:image", content: OG_IMAGE },
-      { property: "og:image:alt", content: "MVA Imobiliare" },
-      /* Twitter / X */
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: SITE_TITLE },
-      { name: "twitter:description", content: OG_DESCRIPTION },
-      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -190,8 +148,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fdpandnzblzvamhsoukt.supabase.co", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://fonts.googleapis.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "dns-prefetch", href: "https://web.immoflux.ro" },
-      { rel: "dns-prefetch", href: "https://img.immoflux.ro" },
+      { rel: "preconnect", href: "https://apcdn.immoflux.ro", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://apcdn.immoflux.ro" },
       { rel: "dns-prefetch", href: "https://www.googletagmanager.com" },
       { rel: "dns-prefetch", href: "https://plausible.io" },
       /* Favicons — Google requires PNG 48x48+ */
@@ -209,7 +167,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       { children: CONSENT_MODE_SCRIPT },
-      { children: OG_URL_SYNC_SCRIPT },
+      
       { type: "application/ld+json", children: JSONLD_ORGANIZATION },
       { type: "application/ld+json", children: JSONLD_WEBSITE },
       { type: "application/ld+json", children: JSONLD_NAVIGATION },
