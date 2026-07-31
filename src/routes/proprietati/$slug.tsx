@@ -168,7 +168,10 @@ export const Route = createFileRoute("/proprietati/$slug")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
-      scripts: [{ type: "application/ld+json", children: jsonLd }],
+      scripts: [
+        { type: "application/ld+json", children: jsonLd },
+        { type: "application/ld+json", children: breadcrumbLd },
+      ],
     };
   },
   notFoundComponent: NotFound,
