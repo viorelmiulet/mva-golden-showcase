@@ -22,13 +22,9 @@ const ScrollIndicator = lazy(() => import("@/components/ScrollIndicator"));
 const DeferredAnalytics = lazy(() => import("@/components/DeferredAnalytics"));
 const DeferredShell = lazy(() => import("@/components/DeferredShell"));
 
-const SITE_TITLE =
-  "Agenție Imobiliară București | Apartamente și Ansambluri Rezidențiale — MVA Imobiliare";
-const SITE_DESCRIPTION =
-  "Agenție imobiliară în București: apartamente de vânzare, închirieri și ansambluri rezidențiale în toată Capitala, cu expertiză aprofundată în vestul Bucureștiului — Militari, Chiajna și împrejurimi.";
-const OG_DESCRIPTION =
-  "Apartamente de vânzare și ansambluri rezidențiale în tot Bucureștiul, cu expertiză aprofundată în vestul Capitalei — Militari, Chiajna și împrejurimi.";
-const OG_IMAGE = "https://www.mvaimobiliare.ro/og-image.jpg?v=20260719c";
+// Page-level title/description/og/twitter/canonical tags are owned by each route
+// (route head() or the page's Helmet block) — the shell must not emit a second set.
+
 
 // Google Consent Mode v2 — defaults to DENIED. Updated by CookieConsent.tsx after user consent.
 // GA4 / Plausible / Maps / Pixel scripts are NOT loaded here; CookieConsent.tsx injects them
