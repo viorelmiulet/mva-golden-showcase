@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { EmailHtmlFrame } from "./EmailHtmlFrame";
+import { looksLikeHtml, toPreviewText } from "@/lib/emailHtml";
+
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -238,9 +241,10 @@ export const EmailThreadView = ({
                       </div>
                       {!isExpanded && (
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                          {email.body_plain?.substring(0, 100) || '(Fără conținut)'}
+                          {toPreviewText(email.body_plain || email.stripped_text || email.body_html).substring(0, 100) || '(Fără conținut)'}
                         </p>
                       )}
+
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
@@ -265,10 +269,17 @@ export const EmailThreadView = ({
 
                           <div className="overflow-hidden pl-[52px]">
                             <div className="email-message-content overflow-x-auto rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
-                              <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
-                                {email.body_plain || email.stripped_text || 'Nu există conținut'}
-                              </div>
+                              {looksLikeHtml(email.body_html) ? (
+                                <EmailHtmlFrame html={email.body_html as string} />
+                              ) : looksLikeHtml(email.body_plain) ? (
+                                <EmailHtmlFrame html={email.body_plain as string} />
+                              ) : (
+                                <div className="whitespace-pre-wrap text-sm leading-relaxed text-email-preview-foreground">
+                                  {email.body_plain || email.stripped_text || 'Nu există conținut'}
+                                </div>
+                              )}
                             </div>
+
 
                             {email.attachments && email.attachments.length > 0 && (
                               <div className="mt-4 border-t border-border/20 pt-4">

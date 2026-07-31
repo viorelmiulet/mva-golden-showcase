@@ -1,4 +1,5 @@
 import { EmailHtmlFrame } from "./EmailHtmlFrame";
+import { looksLikeHtml } from "@/lib/emailHtml";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
@@ -380,8 +381,10 @@ export const EmailDetail = ({
                   className="email-message-content overflow-hidden rounded-2xl border border-white/5 bg-email-preview-background"
                 >
                   <div className="p-4 sm:p-6 text-email-preview-foreground">
-                    {email.body_html ? (
-                      <EmailHtmlFrame html={email.body_html} />
+                    {looksLikeHtml(email.body_html) ? (
+                      <EmailHtmlFrame html={email.body_html as string} />
+                    ) : looksLikeHtml(email.body_plain) ? (
+                      <EmailHtmlFrame html={email.body_plain as string} />
                     ) : (
                       <pre className="whitespace-pre-wrap font-sans text-sm sm:text-base text-email-preview-foreground leading-relaxed">
                         {email.body_plain || email.stripped_text || 'Nu există conținut'}

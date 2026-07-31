@@ -1,5 +1,7 @@
+import { toPreviewText } from "@/lib/emailHtml";
 import {
   Star,
+
   Paperclip,
   Square,
   CheckSquare,
@@ -290,7 +292,7 @@ const GmailEmailRow = ({
             <>
               <span className="shrink-0 text-[13px] text-muted-foreground/40">—</span>
               <span className="truncate text-[12px] text-muted-foreground">
-                {email.body_plain.substring(0, 90)}
+                {toPreviewText(email.body_plain).substring(0, 90)}
               </span>
             </>
           )}

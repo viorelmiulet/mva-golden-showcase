@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { looksLikeHtml } from "@/lib/emailHtml";
 import { EmailHtmlFrame } from "@/components/inbox/EmailHtmlFrame";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -1262,8 +1263,10 @@ ${originalBody}`;
 
                 {/* Body */}
                 <div className="email-message-content mb-6 overflow-hidden rounded-xl bg-email-preview-background p-4 text-email-preview-foreground">
-                  {selectedEmail?.body_html ? (
-                    <EmailHtmlFrame html={selectedEmail.body_html} />
+                  {looksLikeHtml(selectedEmail?.body_html) ? (
+                    <EmailHtmlFrame html={selectedEmail!.body_html as string} />
+                  ) : looksLikeHtml(selectedEmail?.body_plain) ? (
+                    <EmailHtmlFrame html={selectedEmail!.body_plain as string} />
                   ) : (
                     <div className="whitespace-pre-wrap text-sm text-email-preview-foreground leading-relaxed">
                       {selectedEmail?.body_plain || selectedEmail?.stripped_text || 'Nu există conținut'}
