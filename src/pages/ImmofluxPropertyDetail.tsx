@@ -359,7 +359,7 @@ const ImmofluxPropertyDetail = () => {
                 <img
                   key={i}
                   src={img.src}
-                  alt={title}
+                  alt={`${title} — imagine 1 din ${images.length}`}
                   className="col-span-2 row-span-2 w-full h-64 md:h-96 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   loading="eager"
                   // @ts-ignore
