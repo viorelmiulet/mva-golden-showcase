@@ -48,6 +48,7 @@ import RenewApartmentsImporter from "@/components/RenewApartmentsImporter";
 import { ExcelApartmentImporter } from "@/components/ExcelApartmentImporter";
 import { ApartmentStatusManager } from "@/components/ApartmentStatusManager";
 import { getPropertyUrl } from "@/lib/propertySlug";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 
 const Admin = () => {
@@ -114,7 +115,7 @@ const Admin = () => {
     try {
       // Call edge function to scrape the URL
       console.log(`[ADMIN DEBUG] Apelam edge function scrape-property cu URL: ${url}`)
-      const { data, error } = await supabase.functions.invoke('scrape-property', {
+      const { data, error } = await invokeAiOpsFn('scrape-property', {
         body: { url }
       })
 
@@ -576,7 +577,7 @@ const Admin = () => {
                         
                         try {
                           console.log('[TEST] Apelam direct edge function-ul')
-                          const { data, error } = await supabase.functions.invoke('scrape-property', {
+                          const { data, error } = await invokeAiOpsFn('scrape-property', {
                             body: { url: 'https://web.immoflux.ro/publicproperty/p190741' }
                           })
                           console.log('[TEST] Raspuns direct:', { data, error })

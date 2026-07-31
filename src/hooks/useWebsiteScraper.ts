@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { triggerSocialAutoPost } from '@/lib/socialAutoPost';
+import { invokeImmofluxFn } from "@/lib/immofluxInvoke";
 
 export interface ScrapeResult {
   success: boolean;
@@ -23,7 +24,7 @@ export const useWebsiteScraper = () => {
     try {
       console.log('Starting website scraping for:', url);
       
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'scrape_website',
           url: url
@@ -66,7 +67,7 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'test_connection'
         }
@@ -105,7 +106,7 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'sync_properties'
         }
@@ -144,7 +145,7 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'analyze_xml',
           xml_url: xmlUrl
@@ -173,7 +174,7 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'import_xml_feed',
           xml_url: xmlUrl
@@ -223,7 +224,7 @@ export const useWebsiteScraper = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase.functions.invoke('immoflux-integration', {
+      const { data, error } = await invokeImmofluxFn('immoflux-integration', {
         body: {
           action: 'import_xml_with_mapping',
           xml_url: xmlUrl,

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Mail, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
 
 interface PartyOption {
   value: string;
@@ -62,7 +63,7 @@ const SendSignatureLinkDialog = ({
     setIsSending(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("send-signature-link", {
+      const { data, error } = await invokeEmailOpsFn("send-signature-link", {
         body: {
           contractId,
           contractType,

@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { generateSignedRentalContractPdf } from "@/lib/pdf/rentalContractPdf";
 import { getSignedContractUrl } from "@/lib/storageUrl";
 import ContractPdfViewer from "@/components/admin/ContractPdfViewer";
+import { invokeEmailOpsFn } from "@/lib/emailOpsInvoke";
 
 interface InventoryItem {
   id: string;
@@ -536,7 +537,7 @@ const SignContract = () => {
 
   const sendSignatureNotification = async (type: ContractType, id: string, party: string) => {
     try {
-      await supabase.functions.invoke('notify-contract-signed', {
+      await invokeEmailOpsFn('notify-contract-signed', {
         body: { 
           contractId: id, 
           contractType: type,
@@ -587,7 +588,7 @@ const SignContract = () => {
 
         // Trigger auto-generation
         try {
-          await supabase.functions.invoke('auto-generate-signed-contract', {
+          await invokeEmailOpsFn('auto-generate-signed-contract', {
             body: { contractId }
           });
         } catch (e) {

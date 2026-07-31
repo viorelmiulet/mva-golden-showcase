@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 import SendSignatureLinkDialog from "@/components/admin/SendSignatureLinkDialog";
 import { motion } from "framer-motion";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -131,7 +132,7 @@ const ComodatContractPage = () => {
     }
     
     try {
-      const { data, error } = await supabase.functions.invoke('extract-id-data', {
+      const { data, error } = await invokeAiOpsFn('extract-id-data', {
         body: { imageBase64 }
       });
 

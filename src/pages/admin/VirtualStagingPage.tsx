@@ -44,6 +44,7 @@ import {
   ZoomIn
 } from "lucide-react";
 import { toast } from "sonner";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -322,7 +323,7 @@ export default function VirtualStagingPage() {
       await new Promise(resolve => setTimeout(resolve, index * 2000));
       
       try {
-        const { data, error } = await supabase.functions.invoke("virtual-staging", {
+        const { data, error } = await invokeAiOpsFn("virtual-staging", {
           body: {
             imageBase64: img.base64,
             roomType: img.roomType,

@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ro } from "date-fns/locale";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 const ROOM_TYPES = [
   { value: "living", label: "Living modern" },
@@ -330,7 +331,7 @@ export const FurnishedImageGenerator = () => {
           setCurrentBatchRoom(roomLabel);
           setBatchProgress(Math.round((roomIdx / totalRooms) * 100));
 
-          const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
+          const { data, error } = await invokeAiOpsFn('generate-furnished-images', {
             body: {
               description,
               roomType: currentRoom,
@@ -372,7 +373,7 @@ export const FurnishedImageGenerator = () => {
         // Single room type generation
         toast.info("Generez imaginile... (poate dura câteva minute)");
 
-        const { data, error } = await supabase.functions.invoke('generate-furnished-images', {
+        const { data, error } = await invokeAiOpsFn('generate-furnished-images', {
           body: {
             description,
             roomType,

@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { postToSocialMedia, getConfiguredPlatforms } from "@/lib/socialDirectPost";
+import { invokeAiOpsFn } from "@/lib/aiOpsInvoke";
 
 interface GalleryImage {
   name: string;
@@ -258,7 +259,7 @@ export const SocialMediaContentGenerator = () => {
 
       const prompt = getPlatformPrompt(platform, propertyData);
 
-      const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
+      const { data, error } = await invokeAiOpsFn('generate-facebook-content', {
         body: { 
           type: 'text',
           customPrompt: prompt,
@@ -306,7 +307,7 @@ export const SocialMediaContentGenerator = () => {
       for (const platform of platforms) {
         const prompt = getPlatformPrompt(platform.id, propertyData);
         
-        const { data, error } = await supabase.functions.invoke('generate-facebook-content', {
+        const { data, error } = await invokeAiOpsFn('generate-facebook-content', {
           body: { 
             type: 'text',
             customPrompt: prompt,

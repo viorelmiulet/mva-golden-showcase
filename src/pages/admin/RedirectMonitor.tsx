@@ -25,6 +25,7 @@ import {
 import { CheckCircle2, XCircle, RefreshCw, Plus, Trash2, ShieldAlert, Activity } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileTableCard, MobileCardRow, MobileCardActions, MobileCardHeader } from "@/components/admin/MobileTableCard";
+import { invokeMiscOpsFn } from "@/lib/miscOpsInvoke";
 
 type Target = {
   id: string;
@@ -69,7 +70,7 @@ export default function RedirectMonitor() {
   const testOne = async (target: Target) => {
     setTestingId(target.id);
     try {
-      const { data, error } = await supabase.functions.invoke("monitor-redirects", {
+      const { data, error } = await invokeMiscOpsFn("monitor-redirects", {
         body: { target_id: target.id },
       });
       if (error) throw error;
@@ -150,7 +151,7 @@ export default function RedirectMonitor() {
   const runNow = async () => {
     setRunning(true);
     try {
-      const { data, error } = await supabase.functions.invoke("monitor-redirects", { body: {} });
+      const { data, error } = await invokeMiscOpsFn("monitor-redirects", { body: {} });
       if (error) throw error;
       toast.success(
         `Verificare completă: ${data?.summary?.healthy ?? 0}/${data?.summary?.total ?? 0} OK`
