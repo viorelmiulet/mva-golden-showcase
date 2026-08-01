@@ -21,14 +21,17 @@ export const Route = createFileRoute("/api/public/fb-queue/$")({
       POST: withApiLogging(
         "/api/public/fb-queue",
         async ({ request, params, logger }: any) => {
-          // Auth
+          // Auth — the published worker has no env secrets, so fall back to the
+          // runtime config table. Both values are accepted while they differ.
           const apiKey = request.headers.get("x-api-key");
-          const expected = process.env.FB_QUEUE_API_KEY;
-          if (!expected) {
+          const { getRuntimeConfig } = await import("@/lib/runtimeConfig.server");
+          const fromDb = await getRuntimeConfig("FB_QUEUE_API_KEY_DB");
+          const accepted = [process.env.FB_QUEUE_API_KEY, fromDb].filter(Boolean) as string[];
+          if (accepted.length === 0) {
             logger.error("fb-queue.misconfigured", { missingEnv: "FB_QUEUE_API_KEY" });
             return json({ error: "server not configured" }, 500);
           }
-          if (!apiKey || apiKey !== expected) {
+          if (!apiKey || !accepted.includes(apiKey)) {
             logger.warn("fb-queue.unauthorized", {});
             return json({ error: "unauthorized" }, 401);
           }
