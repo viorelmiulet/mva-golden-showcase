@@ -1,5 +1,5 @@
 // Admin Layout with authentication and sidebar navigation
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Outlet, Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
