@@ -129,6 +129,7 @@ const STATIC_PAGES: Array<{ loc: string; priority: string; changefreq: string }>
   { loc: "/militari-residence", priority: "0.9", changefreq: "weekly" },
   { loc: "/renew-residence", priority: "0.9", changefreq: "weekly" },
   { loc: "/eurocasa-residence", priority: "0.9", changefreq: "weekly" },
+  { loc: "/chirii-militari-residence", priority: "0.8", changefreq: "weekly" },
   { loc: "/militari-vs-chiajna-comparatie", priority: "0.8", changefreq: "monthly" },
   { loc: "/politica-confidentialitate", priority: "0.3", changefreq: "yearly" },
   { loc: "/termeni-conditii", priority: "0.3", changefreq: "yearly" },
