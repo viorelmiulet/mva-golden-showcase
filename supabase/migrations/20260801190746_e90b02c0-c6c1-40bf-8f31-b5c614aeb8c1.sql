@@ -1,0 +1,1 @@
+UPDATE public.app_runtime_config SET key = 'FB_QUEUE_API_KEY_DB' WHERE key = 'FB_QUEUE_API_KEY';
