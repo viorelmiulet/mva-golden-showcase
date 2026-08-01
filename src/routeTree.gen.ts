@@ -23,6 +23,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as CalculatorCreditRouteImport } from './routes/calculator-credit'
 import { Route as CarieraRouteImport } from './routes/cariera'
 import { Route as CarteVizitaRouteImport } from './routes/carte-vizita'
+import { Route as ChiriiMilitariResidenceRouteImport } from './routes/chirii-militari-residence'
 import { Route as ComparatieComplexuriMilitariChiajnaRouteImport } from './routes/comparatie-complexuri-militari-chiajna'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CosturiTranzactieImobiliaraRouteImport } from './routes/costuri-tranzactie-imobiliara'
@@ -200,6 +201,11 @@ const CarieraRoute = CarieraRouteImport.update({
 const CarteVizitaRoute = CarteVizitaRouteImport.update({
   id: '/carte-vizita',
   path: '/carte-vizita',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChiriiMilitariResidenceRoute = ChiriiMilitariResidenceRouteImport.update({
+  id: '/chirii-militari-residence',
+  path: '/chirii-militari-residence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComparatieComplexuriMilitariChiajnaRoute =
@@ -789,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/calculator-credit': typeof CalculatorCreditRoute
   '/cariera': typeof CarieraRoute
   '/carte-vizita': typeof CarteVizitaRoute
+  '/chirii-militari-residence': typeof ChiriiMilitariResidenceRoute
   '/comparatie-complexuri-militari-chiajna': typeof ComparatieComplexuriMilitariChiajnaRoute
   '/contact': typeof ContactRoute
   '/costuri-tranzactie-imobiliara': typeof CosturiTranzactieImobiliaraRoute
@@ -911,6 +918,7 @@ export interface FileRoutesByTo {
   '/calculator-credit': typeof CalculatorCreditRoute
   '/cariera': typeof CarieraRoute
   '/carte-vizita': typeof CarteVizitaRoute
+  '/chirii-militari-residence': typeof ChiriiMilitariResidenceRoute
   '/comparatie-complexuri-militari-chiajna': typeof ComparatieComplexuriMilitariChiajnaRoute
   '/contact': typeof ContactRoute
   '/costuri-tranzactie-imobiliara': typeof CosturiTranzactieImobiliaraRoute
@@ -1035,6 +1043,7 @@ export interface FileRoutesById {
   '/calculator-credit': typeof CalculatorCreditRoute
   '/cariera': typeof CarieraRoute
   '/carte-vizita': typeof CarteVizitaRoute
+  '/chirii-militari-residence': typeof ChiriiMilitariResidenceRoute
   '/comparatie-complexuri-militari-chiajna': typeof ComparatieComplexuriMilitariChiajnaRoute
   '/contact': typeof ContactRoute
   '/costuri-tranzactie-imobiliara': typeof CosturiTranzactieImobiliaraRoute
@@ -1161,6 +1170,7 @@ export interface FileRouteTypes {
     | '/calculator-credit'
     | '/cariera'
     | '/carte-vizita'
+    | '/chirii-militari-residence'
     | '/comparatie-complexuri-militari-chiajna'
     | '/contact'
     | '/costuri-tranzactie-imobiliara'
@@ -1283,6 +1293,7 @@ export interface FileRouteTypes {
     | '/calculator-credit'
     | '/cariera'
     | '/carte-vizita'
+    | '/chirii-militari-residence'
     | '/comparatie-complexuri-militari-chiajna'
     | '/contact'
     | '/costuri-tranzactie-imobiliara'
@@ -1406,6 +1417,7 @@ export interface FileRouteTypes {
     | '/calculator-credit'
     | '/cariera'
     | '/carte-vizita'
+    | '/chirii-militari-residence'
     | '/comparatie-complexuri-militari-chiajna'
     | '/contact'
     | '/costuri-tranzactie-imobiliara'
@@ -1531,6 +1543,7 @@ export interface RootRouteChildren {
   CalculatorCreditRoute: typeof CalculatorCreditRoute
   CarieraRoute: typeof CarieraRoute
   CarteVizitaRoute: typeof CarteVizitaRoute
+  ChiriiMilitariResidenceRoute: typeof ChiriiMilitariResidenceRoute
   ComparatieComplexuriMilitariChiajnaRoute: typeof ComparatieComplexuriMilitariChiajnaRoute
   ContactRoute: typeof ContactRoute
   CosturiTranzactieImobiliaraRoute: typeof CosturiTranzactieImobiliaraRoute
@@ -1692,6 +1705,13 @@ declare module '@tanstack/react-router' {
       path: '/carte-vizita'
       fullPath: '/carte-vizita'
       preLoaderRoute: typeof CarteVizitaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chirii-militari-residence': {
+      id: '/chirii-militari-residence'
+      path: '/chirii-militari-residence'
+      fullPath: '/chirii-militari-residence'
+      preLoaderRoute: typeof ChiriiMilitariResidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comparatie-complexuri-militari-chiajna': {
@@ -2601,6 +2621,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorCreditRoute: CalculatorCreditRoute,
   CarieraRoute: CarieraRoute,
   CarteVizitaRoute: CarteVizitaRoute,
+  ChiriiMilitariResidenceRoute: ChiriiMilitariResidenceRoute,
   ComparatieComplexuriMilitariChiajnaRoute:
     ComparatieComplexuriMilitariChiajnaRoute,
   ContactRoute: ContactRoute,
