@@ -23,7 +23,8 @@ export const Route = createFileRoute("/api/public/fb-queue/$")({
         async ({ request, params, logger }: any) => {
           // Auth
           const apiKey = request.headers.get("x-api-key");
-          const expected = process.env.FB_QUEUE_API_KEY;
+          const { getRuntimeConfig } = await import("@/lib/runtimeConfig.server");
+          const expected = await getRuntimeConfig("FB_QUEUE_API_KEY");
           if (!expected) {
             logger.error("fb-queue.misconfigured", { missingEnv: "FB_QUEUE_API_KEY" });
             return json({ error: "server not configured" }, 500);
