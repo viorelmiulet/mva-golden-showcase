@@ -1,5 +1,5 @@
 // Admin Layout with authentication and sidebar navigation
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Outlet, Link, useLocation } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -358,7 +358,15 @@ const AdminLayout = () => {
                 }}
                 className="max-w-7xl mx-auto pb-safe"
               >
-                <Outlet />
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-24">
+                      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brass border-t-transparent" />
+                    </div>
+                  }
+                >
+                  <Outlet />
+                </Suspense>
               </motion.div>
             </AnimatePresence>
           </main>
