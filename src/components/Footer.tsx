@@ -81,17 +81,18 @@ const Footer = () => {
           <div>
             <button onClick={scrollToTop} className="text-title text-brass mb-3">{companyName}</button>
             <p className="text-small text-paper/70 leading-relaxed max-w-sm">{companyDescription}</p>
-            <p className="text-small text-paper/50 mt-4">
-              🏢 MVA PERFECT BUSINESS S.R.L. · 🧾 CUI: 50477503 · 📄 Nr. Reg. Com.: J23/18361/2024
-            </p>
-            <p className="text-small text-paper/50 mt-1">
-              📍 jud. Ilfov, com. Chiajna, str. Tineretului nr. 17, bl. 2, parter, ap. 24
-            </p>
-            <p className="text-small text-paper/50 mt-1">
-              📞 <a href={`tel:${phoneNumber}`} className="hover:text-brass transition-colors">{phoneNumber}</a>
-              {" · "}
-              ✉️ <a href="mailto:contact@mvaimobiliare.ro" className="hover:text-brass transition-colors">contact@mvaimobiliare.ro</a>
-            </p>
+            <ul className="text-small text-paper/50 mt-4 space-y-1">
+              <li>🏢 MVA PERFECT BUSINESS S.R.L.</li>
+              <li>🧾 CUI: 50477503</li>
+              <li>📄 Nr. Reg. Com.: J23/18361/2024</li>
+              <li>📍 jud. Ilfov, com. Chiajna, str. Tineretului nr. 17, bl. 2, parter, ap. 24</li>
+              <li>
+                📞 <a href={`tel:${phoneNumber}`} className="hover:text-brass transition-colors">{phoneNumber}</a>
+              </li>
+              <li>
+                ✉️ <a href="mailto:contact@mvaimobiliare.ro" className="hover:text-brass transition-colors">contact@mvaimobiliare.ro</a>
+              </li>
+            </ul>
 
             <div className="flex gap-2 mt-4">
               {facebookUrl && (
