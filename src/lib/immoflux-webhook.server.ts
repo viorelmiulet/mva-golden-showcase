@@ -4,6 +4,8 @@
  * Immoflux and upserts/deletes rows in catalog_offers.
  */
 
+import { normalizeImmofluxType, normalizeImmofluxSubtype } from "@/lib/immofluxTypes";
+
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-webhook-secret",
@@ -93,6 +95,9 @@ interface ImmofluxWebhookPayload {
     tip?: string;
     tipimobil?: string;
     tipteren?: string;
+    clasificareteren?: string;
+    nrfronturistradale?: number;
+    nrgaraje?: number;
     nrbai?: number;
     anconstructie?: number;
     status?: string;
@@ -203,9 +208,12 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload["data"]): Record<string, un
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: true,
-    // Type-agnostic: non-apartment categories only expose `tip`/`tipimobil`.
-    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
-    property_subtype: p.tipteren || null,
+    // Type-agnostic: derived from all four source fields (see immofluxTypes.ts).
+    property_type: normalizeImmofluxType(p),
+    property_subtype: normalizeImmofluxSubtype(p),
+    land_classification: (p as any).clasificareteren || null,
+    street_fronts: (p as any).nrfronturistradale ?? null,
+    garages: (p as any).nrgaraje ?? null,
     appartment_type: p.tip || null,
     compartment: p.tipcompartimentare || null,
     build_materials: p.structurarezistenta || null,
