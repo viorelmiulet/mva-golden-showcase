@@ -1292,65 +1292,6 @@ function sanitizeZone(rawZone: any, city: any, address: any): string | null {
   return z;
 }
 
-const UTILITATI_LABELS: Record<string, string> = {
-  "10001": "Curent", "10002": "Apă", "10003": "Canalizare", "10004": "Gaz",
-  "10005": "Puț", "10006": "Fosă septică", "10007": "Curent trifazic",
-  "10009": "CATV", "10010": "Telefon", "10011": "Telefon internațional",
-  "10012": "Acces internet", "10013": "Fibră optică", "10014": "Telefon internațional",
-  "10015": "Utilități în zonă", "10016": "Sistem irigație",
-};
-const INCALZIRE_LABELS: Record<string, string> = {
-  "10101": "Termoficare", "10102": "Centrală proprie", "10103": "Centrală imobil",
-  "10104": "Convectoare", "10105": "Sobă teracotă", "10106": "Centrală pe lemne",
-  "10107": "Încălzire pardoseală", "10108": "Calorifere", "10109": "Șemineu",
-};
-const CLIMATIZARE_LABELS: Record<string, string> = {
-  "10201": "Aer condiționat", "10202": "Ventiloconvectoare", "10203": "Aeroterme",
-};
-const TEREN_LABELS: Record<string, string> = {
-  "10301": "Oportunitate de investiție", "10302": "Construcție demolabilă",
-  "10303": "Parcelabil", "10304": "La șosea", "10305": "Acces auto", "10306": "Teren împrejmuit",
-};
-const FINISAJE_LABELS: Record<string, string> = {
-  "20001": "Izolație exterior", "20002": "Izolație interior", "20003": "Bloc izolat termic",
-  "20101": "Pereți vopsea lavabilă", "20102": "Pereți var", "20103": "Pereți faianță",
-  "20104": "Pereți lambriu", "20105": "Pereți tapet", "20106": "Pereți marmură",
-  "20107": "Pereți humă", "20108": "Pereți vinarom",
-  "20201": "Parchet", "20202": "Gresie", "20203": "Marmură", "20204": "Mochetă",
-  "20205": "Dușumea", "20206": "Linoleum",
-  "20301": "Finisat", "20302": "Gri", "20303": "Roșu", "20304": "Stare bună",
-  "20305": "Necesită renovare", "20306": "Renovat",
-  "20401": "Ferestre PVC", "20402": "Ferestre lemn", "20403": "Ferestre aluminiu",
-  "20501": "Jaluzele verticale", "20502": "Jaluzele orizontale",
-  "20601": "Rulouri aluminiu", "20602": "Rulouri lemn", "20603": "Rulouri PVC",
-  "20701": "Ușă intrare metal", "20702": "Ușă intrare lemn", "20703": "Ușă intrare PVC", "20704": "Ușă intrare PAL",
-  "20801": "Lămpi", "20802": "Spoturi", "20803": "Aplice", "20804": "Iluminat exterior", "20805": "Lumină naturală",
-  "20901": "Uși interior celulare", "20902": "Uși interior lemn", "20903": "Uși interior panel",
-  "20904": "Uși interior PVC", "20905": "Uși interior sticlă", "20906": "Uși interior metal",
-  "21001": "Acoperiș Lindab", "21002": "Acoperiș țiglă", "21003": "Terasă",
-  "21004": "Acoperiș tablă", "21005": "Acoperiș carton", "21006": "Șindrilă bituminoasă",
-};
-const DOTARI_LABELS: Record<string, string> = {
-  "30001": "Terasă", "30002": "WC serviciu", "30003": "Boxă la subsol", "30004": "Debara",
-  "30011": "Pivniță", "30012": "Cramă", "30013": "Spațiu depozitare", "30014": "Dressing",
-  "30015": "WC serviciu", "30016": "Anexe", "30017": "Dependințe",
-  "30021": "Pivniță", "30022": "Cramă", "30023": "Spațiu depozitare", "30024": "Anexe",
-  "30025": "Dependințe", "30026": "Parcare proprie", "30027": "Parcare acoperită",
-  "30028": "Spațiu verde amenajat",
-  "30101": "Bucătărie mobilată", "30102": "Bucătărie parțial mobilată", "30103": "Bucătărie utilată",
-  "30104": "Bucătărie parțial utilată", "30105": "Bucătărie nemobilată", "30106": "Bucătărie neutilată",
-  "30201": "Apometre", "30202": "Contor căldură", "30203": "Contor gaz",
-  "30301": "Nemobilat", "30302": "Parțial mobilat", "30303": "Complet mobilat", "30304": "Mobilat lux",
-  "30401": "Interfon", "30402": "Videointerfon", "30403": "Lift", "30404": "Spații agrement",
-  "30405": "Saună", "30406": "SPA", "30407": "Acoperiș", "30408": "Curte", "30409": "Curte comună",
-  "30410": "Grădină", "30411": "Piscină interioară", "30412": "Piscină exterioară", "30413": "Uscătorie",
-  "30501": "Fier de călcat", "30502": "Cafetieră", "30503": "Uscător păr", "30504": "Toaster",
-  "30505": "DVD", "30506": "Mașină de spălat rufe", "30507": "Sandwich-maker", "30508": "Frigider",
-  "30509": "Cuptor microunde", "30510": "Aragaz", "30511": "Hotă", "30512": "Mașină de spălat vase",
-  "30513": "Robot bucătărie", "30514": "Aspirator", "30515": "TV", "30516": "HI-FI",
-  "30601": "Jacuzzi", "30602": "Scară interioară", "30603": "Șemineu", "30604": "Senzor de fum",
-  "30605": "Sistem de alarmă", "30606": "Telecomandă poartă garaj", "30607": "Telecomandă poartă acces auto",
-};
 
 interface ImmofluxProperty {
   idnum: number;
@@ -1470,7 +1411,6 @@ const localized = (v: unknown): string => {
   if (typeof v === "object") return (v as any).ro || (v as any).en || "";
   return String(v);
 };
-const labelize = (codes: string[], dict: Record<string, string>): string[] => codes.map((c) => dict[c]).filter(Boolean);
 
 function buildImmofluxSlug(p: ImmofluxProperty, surface: number | null, floorLabel: string | null): string {
   const parts: string[] = [];
