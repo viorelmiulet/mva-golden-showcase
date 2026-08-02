@@ -242,6 +242,7 @@ export type Database = {
           promotion_type: string | null
           property_subtype: string | null
           property_type: string | null
+          resolved_features: Json | null
           rooms: number | null
           slug: string | null
           source: string | null
@@ -331,6 +332,7 @@ export type Database = {
           promotion_type?: string | null
           property_subtype?: string | null
           property_type?: string | null
+          resolved_features?: Json | null
           rooms?: number | null
           slug?: string | null
           source?: string | null
@@ -420,6 +422,7 @@ export type Database = {
           promotion_type?: string | null
           property_subtype?: string | null
           property_type?: string | null
+          resolved_features?: Json | null
           rooms?: number | null
           slug?: string | null
           source?: string | null
@@ -1429,6 +1432,36 @@ export type Database = {
         }
         Relationships: []
       }
+      immoflux_codes: {
+        Row: {
+          code: number
+          first_seen: string
+          group_key: string
+          group_label: string
+          label: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          code: number
+          first_seen?: string
+          group_key: string
+          group_label: string
+          label?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: number
+          first_seen?: string
+          group_key?: string
+          group_label?: string
+          label?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       news_articles: {
         Row: {
           content: string | null
@@ -2434,6 +2467,7 @@ export type Database = {
           promotion_type: string | null
           property_subtype: string | null
           property_type: string | null
+          resolved_features: Json | null
           rooms: number | null
           slug: string | null
           source: string | null

@@ -206,12 +206,16 @@ const ImmofluxPropertyDetail = () => {
   };
 
   const furnishedLabel = (() => {
-    const raw = (p.mobilat_value || p.dotari || '').toString().toLowerCase();
+    // `furnished` is already resolved at sync time via the immoflux_codes table.
+    const resolved = typeof p.furnished === 'string' ? p.furnished.trim() : '';
+    if (resolved && !/^\d+$/.test(resolved)) return resolved;
+    const raw = (p.dotari || '').toString().toLowerCase();
     if (/nemobilat/.test(raw)) return 'Nemobilat';
     if (/parțial|partial/.test(raw)) return 'Parțial mobilat';
     if (/mobilat/.test(raw)) return 'Mobilat';
     return null;
   })();
+
 
   const floorValue = parseFloor(p.etaj, p.nretaj, p.floor);
   const totalFloors = parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors);
@@ -291,12 +295,24 @@ const ImmofluxPropertyDetail = () => {
     if (buf.trim()) out.push(buf.trim());
     return out;
   };
+  // Codes resolved at sync time, grouped by their vendor category. Codes
+  // without a label are already omitted upstream — never rendered as numbers.
+  const resolvedGroups: Array<{ group_label?: string; labels?: string[] }> = Array.isArray(p.resolved_features)
+    ? p.resolved_features
+    : [];
   const featureGroups = [
+    ...resolvedGroups
+      .filter((g) => g?.group_label && Array.isArray(g.labels) && g.labels.length > 0)
+      .map((g) => ({
+        title: String(g.group_label),
+        items: (g.labels as string[]).filter((l) => l && !/^\d+$/.test(l)),
+      })),
     { title: 'Utilități', items: utilitati ? splitTopLevel(utilitati) : [] },
     { title: 'Finisaje', items: finisaje ? splitTopLevel(finisaje) : [] },
     { title: 'Dotări', items: dotari ? splitTopLevel(dotari) : [] },
     { title: 'Detalii zonă', items: altedetaliizona ? splitTopLevel(altedetaliizona) : [] },
   ].filter((g) => g.items.length > 0);
+
 
   const details: { label: string; value: string }[] = [];
   const pushDetail = (label: string, value: any, suffix = '') => {

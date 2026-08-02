@@ -16,6 +16,16 @@ import {
   normalizeImmofluxSubtype,
   buildSourceCodes,
 } from "@/lib/immofluxTypes";
+import {
+  loadCodeMap,
+  recordUnmappedCodes,
+  resolveCodes,
+  labelForCode,
+  firstLabelInGroup,
+  isVendorCode,
+  type CodeMap,
+} from "@/lib/immofluxCodes.server";
+
 
 
 type AnyRecord = Record<string, unknown>;
@@ -1282,65 +1292,6 @@ function sanitizeZone(rawZone: any, city: any, address: any): string | null {
   return z;
 }
 
-const UTILITATI_LABELS: Record<string, string> = {
-  "10001": "Curent", "10002": "Apă", "10003": "Canalizare", "10004": "Gaz",
-  "10005": "Puț", "10006": "Fosă septică", "10007": "Curent trifazic",
-  "10009": "CATV", "10010": "Telefon", "10011": "Telefon internațional",
-  "10012": "Acces internet", "10013": "Fibră optică", "10014": "Telefon internațional",
-  "10015": "Utilități în zonă", "10016": "Sistem irigație",
-};
-const INCALZIRE_LABELS: Record<string, string> = {
-  "10101": "Termoficare", "10102": "Centrală proprie", "10103": "Centrală imobil",
-  "10104": "Convectoare", "10105": "Sobă teracotă", "10106": "Centrală pe lemne",
-  "10107": "Încălzire pardoseală", "10108": "Calorifere", "10109": "Șemineu",
-};
-const CLIMATIZARE_LABELS: Record<string, string> = {
-  "10201": "Aer condiționat", "10202": "Ventiloconvectoare", "10203": "Aeroterme",
-};
-const TEREN_LABELS: Record<string, string> = {
-  "10301": "Oportunitate de investiție", "10302": "Construcție demolabilă",
-  "10303": "Parcelabil", "10304": "La șosea", "10305": "Acces auto", "10306": "Teren împrejmuit",
-};
-const FINISAJE_LABELS: Record<string, string> = {
-  "20001": "Izolație exterior", "20002": "Izolație interior", "20003": "Bloc izolat termic",
-  "20101": "Pereți vopsea lavabilă", "20102": "Pereți var", "20103": "Pereți faianță",
-  "20104": "Pereți lambriu", "20105": "Pereți tapet", "20106": "Pereți marmură",
-  "20107": "Pereți humă", "20108": "Pereți vinarom",
-  "20201": "Parchet", "20202": "Gresie", "20203": "Marmură", "20204": "Mochetă",
-  "20205": "Dușumea", "20206": "Linoleum",
-  "20301": "Finisat", "20302": "Gri", "20303": "Roșu", "20304": "Stare bună",
-  "20305": "Necesită renovare", "20306": "Renovat",
-  "20401": "Ferestre PVC", "20402": "Ferestre lemn", "20403": "Ferestre aluminiu",
-  "20501": "Jaluzele verticale", "20502": "Jaluzele orizontale",
-  "20601": "Rulouri aluminiu", "20602": "Rulouri lemn", "20603": "Rulouri PVC",
-  "20701": "Ușă intrare metal", "20702": "Ușă intrare lemn", "20703": "Ușă intrare PVC", "20704": "Ușă intrare PAL",
-  "20801": "Lămpi", "20802": "Spoturi", "20803": "Aplice", "20804": "Iluminat exterior", "20805": "Lumină naturală",
-  "20901": "Uși interior celulare", "20902": "Uși interior lemn", "20903": "Uși interior panel",
-  "20904": "Uși interior PVC", "20905": "Uși interior sticlă", "20906": "Uși interior metal",
-  "21001": "Acoperiș Lindab", "21002": "Acoperiș țiglă", "21003": "Terasă",
-  "21004": "Acoperiș tablă", "21005": "Acoperiș carton", "21006": "Șindrilă bituminoasă",
-};
-const DOTARI_LABELS: Record<string, string> = {
-  "30001": "Terasă", "30002": "WC serviciu", "30003": "Boxă la subsol", "30004": "Debara",
-  "30011": "Pivniță", "30012": "Cramă", "30013": "Spațiu depozitare", "30014": "Dressing",
-  "30015": "WC serviciu", "30016": "Anexe", "30017": "Dependințe",
-  "30021": "Pivniță", "30022": "Cramă", "30023": "Spațiu depozitare", "30024": "Anexe",
-  "30025": "Dependințe", "30026": "Parcare proprie", "30027": "Parcare acoperită",
-  "30028": "Spațiu verde amenajat",
-  "30101": "Bucătărie mobilată", "30102": "Bucătărie parțial mobilată", "30103": "Bucătărie utilată",
-  "30104": "Bucătărie parțial utilată", "30105": "Bucătărie nemobilată", "30106": "Bucătărie neutilată",
-  "30201": "Apometre", "30202": "Contor căldură", "30203": "Contor gaz",
-  "30301": "Nemobilat", "30302": "Parțial mobilat", "30303": "Complet mobilat", "30304": "Mobilat lux",
-  "30401": "Interfon", "30402": "Videointerfon", "30403": "Lift", "30404": "Spații agrement",
-  "30405": "Saună", "30406": "SPA", "30407": "Acoperiș", "30408": "Curte", "30409": "Curte comună",
-  "30410": "Grădină", "30411": "Piscină interioară", "30412": "Piscină exterioară", "30413": "Uscătorie",
-  "30501": "Fier de călcat", "30502": "Cafetieră", "30503": "Uscător păr", "30504": "Toaster",
-  "30505": "DVD", "30506": "Mașină de spălat rufe", "30507": "Sandwich-maker", "30508": "Frigider",
-  "30509": "Cuptor microunde", "30510": "Aragaz", "30511": "Hotă", "30512": "Mașină de spălat vase",
-  "30513": "Robot bucătărie", "30514": "Aspirator", "30515": "TV", "30516": "HI-FI",
-  "30601": "Jacuzzi", "30602": "Scară interioară", "30603": "Șemineu", "30604": "Senzor de fum",
-  "30605": "Sistem de alarmă", "30606": "Telecomandă poartă garaj", "30607": "Telecomandă poartă acces auto",
-};
 
 interface ImmofluxProperty {
   idnum: number;
@@ -1379,10 +1330,12 @@ interface ImmofluxProperty {
   nrnivele?: number;
   nrbalcoane?: number;
   nrgaraje?: number;
-  tipconstructie_value?: string;
-  mobilat_value?: string;
+  tipconstructie_value?: string | number;
+  mobilat_value?: string | number;
+  stadiuconstructie_value?: string | number;
+  starefinisaje_value?: string | number;
   bucatarie_values?: string[] | string;
-  utilitati_values?: string[] | string;
+  utilitati_values?: string[] | string | Record<string, string[]>;
   finisaje_values?: string[] | string;
   dotari_values?: string[] | string;
   structurarezistenta?: string;
@@ -1429,12 +1382,20 @@ async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
   return allProps;
 }
 
+/**
+ * Immoflux is inconsistent: `finisaje_values` is a flat array while
+ * `utilitati_values` is an OBJECT of grouped arrays
+ * ({ general: [...], sistem_incalzire: [...], climatizare: [...] }), and the
+ * singular `*_value` fields hold a single scalar code. Flatten all shapes.
+ */
 const toArr = (v: unknown): string[] => {
-  if (!v) return [];
-  if (Array.isArray(v)) return v.map(String);
-  if (typeof v === "string") return v.split(/[,;|\s]+/).filter(Boolean);
-  return [];
+  if (v === null || v === undefined || v === "") return [];
+  if (Array.isArray(v)) return v.flatMap(toArr);
+  if (typeof v === "object") return Object.values(v as Record<string, unknown>).flatMap(toArr);
+  if (typeof v === "number") return [String(v)];
+  return String(v).split(/[,;|\s]+/).filter(Boolean);
 };
+
 const num = (v: unknown): number | null => {
   if (v === null || v === undefined || v === "") return null;
   const n = typeof v === "number" ? v : parseFloat(String(v));
@@ -1450,7 +1411,6 @@ const localized = (v: unknown): string => {
   if (typeof v === "object") return (v as any).ro || (v as any).en || "";
   return String(v);
 };
-const labelize = (codes: string[], dict: Record<string, string>): string[] => codes.map((c) => dict[c]).filter(Boolean);
 
 function buildImmofluxSlug(p: ImmofluxProperty, surface: number | null, floorLabel: string | null): string {
   const parts: string[] = [];
@@ -1481,7 +1441,7 @@ function buildImmofluxSlug(p: ImmofluxProperty, surface: number | null, floorLab
   return parts.join("-");
 }
 
-function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
+function mapToCatalogOffer(p: ImmofluxProperty, codeMap: CodeMap): Record<string, unknown> {
   const title = localized(p.titlu) || `Proprietate #${p.idnum}`;
   const description = localized(p.descriere);
 
@@ -1507,22 +1467,25 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const isTop = p.top === 1;
   const promotionType = isPole ? "pole_position" : isTop ? "top" : null;
 
+  // Singular `*_value` fields are scalar codes, plural `*_values` are arrays
+  // (utilitati_values is an object of grouped arrays). toArr normalises all.
   const utilCodes = toArr(p.utilitati_values);
-  const finisCodes = toArr(p.finisaje_values);
-  const dotariCodes = toArr(p.dotari_values);
-  const bucCodes = toArr(p.bucatarie_values);
+  const finisCodes = [...toArr(p.finisaje_values), ...toArr(p.starefinisaje_value)].filter(isVendorCode);
+  const dotariCodes = [...toArr(p.dotari_values), ...toArr(p.mobilat_value)].filter(isVendorCode);
+  const bucCodes = toArr(p.bucatarie_values).filter(isVendorCode);
+
+  const allCodes = [...new Set([...utilCodes, ...finisCodes, ...dotariCodes, ...bucCodes])].filter(isVendorCode);
+  const resolved = resolveCodes(codeMap, allCodes);
+
+  const inGroups = (keys: string[]) =>
+    resolved.groups.filter((g) => keys.includes(g.group_key)).flatMap((g) => g.labels);
 
   const features = [
-    ...labelize(finisCodes, FINISAJE_LABELS),
-    ...labelize(utilCodes, UTILITATI_LABELS),
-    ...labelize(utilCodes, INCALZIRE_LABELS),
-    ...labelize(utilCodes, TEREN_LABELS),
+    ...inGroups(["izolatie", "pereti", "podele", "stare", "ferestre", "jaluzele", "rulouri", "usa_intrare", "iluminat", "usi_interior", "acoperis", "utilitati", "incalzire", "teren"]),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   const amenities = [
-    ...labelize(dotariCodes, DOTARI_LABELS),
-    ...labelize(bucCodes, DOTARI_LABELS),
-    ...labelize(utilCodes, CLIMATIZARE_LABELS),
+    ...inGroups(["spatii", "bucatarie", "contorizare", "mobilat", "imobil", "electrocasnice", "diverse", "climatizare", "altele"]),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   const has = (code: string) => utilCodes.includes(code);
@@ -1538,11 +1501,13 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const has_security = hasDot("30605") || hasDot("30604") || null;
   const has_wood_floors = finisCodes.includes("20201") || finisCodes.includes("20205") || null;
 
-  const heatingCode = utilCodes.find((c) => INCALZIRE_LABELS[c]);
-  const heating = heatingCode ? INCALZIRE_LABELS[heatingCode] : null;
+  const heating = firstLabelInGroup(codeMap, utilCodes, "incalzire");
 
-  const mobilatCode = dotariCodes.find((c) => ["30301", "30302", "30303", "30304"].includes(c));
-  const furnished = p.mobilat_value || (mobilatCode ? DOTARI_LABELS[mobilatCode] : null);
+  // mobilat_value is a code (e.g. 30301 = "Nemobilat"), never a display string.
+  const furnished =
+    labelForCode(codeMap, p.mobilat_value) ??
+    firstLabelInGroup(codeMap, dotariCodes, "mobilat");
+
 
   const parking = (hasDot("30026") ? 1 : 0) + (hasDot("30027") ? 1 : 0) + (p.nrgaraje || 0);
 
@@ -1600,6 +1565,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     street_front_length: num(p.frontstradal),
     access_road_width: num(p.latimedrumacces),
     garages: p.nrgaraje ?? null,
+    resolved_features: resolved.groups.length ? resolved.groups : null,
     source_codes: buildSourceCodes({
       utilitati: utilCodes,
       finisaje: finisCodes,
@@ -1607,7 +1573,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
       bucatarie: bucCodes,
     }),
     appartment_type: p.tip || null,
-    building_type: p.tipconstructie_value || null,
+    building_type: labelForCode(codeMap, p.tipconstructie_value),
     compartment: p.tipcompartimentare || null,
     build_materials: p.structurarezistenta || null,
     comfort: p.confort || null,
@@ -1699,7 +1665,21 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       typeBreakdown[t] = (typeBreakdown[t] || 0) + 1;
     }
 
-    const mapped = activeProperties.map(mapToCatalogOffer);
+    const codeMap = await loadCodeMap(supabase);
+    const feedCodes = new Set<string>();
+    for (const p of activeProperties) {
+      for (const c of [
+        ...toArr(p.utilitati_values),
+        ...toArr(p.finisaje_values),
+        ...toArr(p.dotari_values),
+        ...toArr(p.bucatarie_values),
+        ...toArr(p.mobilat_value),
+        ...toArr(p.starefinisaje_value),
+      ]) feedCodes.add(c);
+    }
+    const newCodes = await recordUnmappedCodes(supabase, feedCodes, codeMap);
+
+    const mapped = activeProperties.map((p) => mapToCatalogOffer(p, codeMap));
 
     await writeStatus(supabase, { status: "running", started_at: startedAt, stage: "upserting", total: mapped.length, synced: 0 });
 
@@ -1771,6 +1751,8 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       skip_reasons: skipReasons,
       skipped_records: skipped.slice(0, 100),
       type_breakdown: typeBreakdown,
+      new_codes: newCodes,
+
     };
     await writeStatus(supabase, result);
     return result;

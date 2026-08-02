@@ -63,6 +63,8 @@ const menuItems = [
   { title: "News", url: "/admin/news", icon: FileText },
   { title: "Marketing AI", url: "/admin/marketing-ai", icon: Sparkles },
   { title: "Immoflux Sync", url: "/admin/immoflux", icon: Database },
+  { title: "Coduri Immoflux", url: "/admin/immoflux-codes", icon: Database },
+
   { title: "Coadă Facebook", url: "/admin/facebook-queue", icon: Facebook },
   { title: "Grupuri Facebook", url: "/admin/facebook-groups", icon: Facebook },
   { title: "Monitorizare email", url: "/admin/monitorizare-email", icon: MailWarning },
