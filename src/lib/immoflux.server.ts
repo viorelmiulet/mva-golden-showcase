@@ -1681,6 +1681,19 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
 
     const mapped = activeProperties.map((p) => mapToCatalogOffer(p, codeMap));
 
+    // Listings whose type could not be derived from ANY source field
+    // (tipteren / tipimobil / tiplocuinta / tip). These fall back to title
+    // inference in the UI, which breaks silently if the listing is renamed —
+    // so they are logged and surfaced in the admin dashboard.
+    const missingType: Array<{ external_id: string; title: string }> = [];
+    activeProperties.forEach((p, i) => {
+      if (!mapped[i]?.property_type) {
+        const t = localized(p.titlu);
+        missingType.push({ external_id: `immoflux-${p.idnum}`, title: t });
+        console.warn(`[immoflux-sync] no type field in feed for immoflux-${p.idnum} ("${t}") — falling back to title inference`);
+      }
+    });
+
     await writeStatus(supabase, { status: "running", started_at: startedAt, stage: "upserting", total: mapped.length, synced: 0 });
 
     let upserted = 0;
@@ -1751,6 +1764,7 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       skip_reasons: skipReasons,
       skipped_records: skipped.slice(0, 100),
       type_breakdown: typeBreakdown,
+      missing_type: missingType,
       new_codes: newCodes,
 
     };

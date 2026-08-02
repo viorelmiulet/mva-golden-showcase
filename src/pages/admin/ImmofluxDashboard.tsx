@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { RefreshCw, CheckCircle2, AlertCircle, Loader2, Database, Clock, TrendingUp, XCircle } from "lucide-react";
 import { triggerImmofluxSync, fetchImmofluxSyncStatus } from "@/lib/immofluxSync";
+import { effectiveTypeKey, typeLabel } from "@/lib/propertyType";
 
 
 interface SyncStatus {
@@ -23,6 +24,7 @@ interface SyncStatus {
   skipped?: number;
   skip_reasons?: Record<string, number>;
   type_breakdown?: Record<string, number>;
+  missing_type?: Array<{ external_id: string; title: string }>;
   error?: string;
 }
 
@@ -82,6 +84,24 @@ const ImmofluxDashboard = () => {
       };
     },
     refetchInterval: 30000,
+  });
+
+  // Listings with no property_type — the UI infers their type from the title,
+  // which breaks silently if the listing is renamed. Surface them so the type
+  // can be corrected in the CRM / admin.
+  const { data: inferred } = useQuery({
+    queryKey: ["listings-missing-type"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_offers")
+        .select("id, title, crm_source, source, external_id, rooms, property_type")
+        .is("property_type", null)
+        .eq("is_published", true)
+        .order("title");
+      if (error) throw error;
+      return data ?? [];
+    },
+    refetchInterval: 60000,
   });
 
   const isRunning = status?.status === "running";
@@ -332,6 +352,47 @@ const ImmofluxDashboard = () => {
                 </pre>
               </details>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-amber-500" />
+            Tip lipsă — dedus din titlu ({inferred?.length ?? 0})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!inferred || inferred.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Toate anunțurile publicate au un tip de proprietate setat.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground mb-3">
+                Aceste anunțuri nu au niciun câmp de tip completat în sursă. Tipul este dedus
+                din titlu, deci se pierde dacă titlul e redenumit — corectează tipul în CRM.
+              </p>
+              <ul className="divide-y divide-border/60 text-sm">
+                {inferred.map((row: any) => {
+                  const key = effectiveTypeKey(row);
+                  return (
+                    <li key={row.id} className="py-2 flex items-center justify-between gap-3">
+                      <span className="truncate">{row.title}</span>
+                      <span className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline" className="text-[10px]">
+                          {row.external_id || row.source || row.crm_source || "manual"}
+                        </Badge>
+                        <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 text-[10px]">
+                          {key ? typeLabel(key) : "nedeterminat"}
+                        </Badge>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
           )}
         </CardContent>
       </Card>
