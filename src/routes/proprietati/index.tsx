@@ -48,7 +48,7 @@ const zoneSlug = (v?: string) =>
 
 /**
  * Filtered views that duplicate an existing static landing page must point their
- * canonical at that page. Key format: `zona|camere|tip` (empty segment = not set).
+ * canonical at that page. Key format: `zona|camere|tip|tip_proprietate` (empty segment = not set).
  */
 const STATIC_EQUIVALENTS: Record<string, string> = {
   "militari|2||": "/apartamente-2-camere-militari",
@@ -101,6 +101,7 @@ export const Route = createFileRoute("/proprietati/")({
       camere: num(search.camere),
       pret_max: num(search.pret_max),
       tip: tip === "sale" || tip === "rent" ? tip : undefined,
+      tip_proprietate: str(search.tip_proprietate),
       supr_min: num(search.supr_min),
       etaj: loose(search.etaj),
       compartimentare: str(search.compartimentare),
@@ -123,6 +124,7 @@ export const Route = createFileRoute("/proprietati/")({
   head: ({ match, loaderData }) => {
     const s = (match.search || {}) as PropertiesSearch;
     const parts: string[] = [];
+    if (s.tip_proprietate) parts.push(String(s.tip_proprietate));
     if (s.zona) parts.push(`în ${s.zona}`);
     if (s.camere) parts.push(`${s.camere} camere`);
     if (s.tip) parts.push(s.tip === "rent" ? "de închiriat" : "de vânzare");
@@ -130,7 +132,7 @@ export const Route = createFileRoute("/proprietati/")({
     const pageSuffix = s.p && s.p > 1 ? ` — pagina ${s.p}` : "";
 
     const qs = new URLSearchParams();
-    for (const key of ["zona", "camere", "pret_max", "tip", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
+    for (const key of ["zona", "camere", "pret_max", "tip", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
       const v = s[key];
       if (v) qs.set(key, String(v));
     }
