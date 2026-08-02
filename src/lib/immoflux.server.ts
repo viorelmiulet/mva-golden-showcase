@@ -1563,7 +1563,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     price_min: price || 0,
     price_max: price || 0,
     currency,
-    rooms: p.nrcamere || 1,
+    rooms: p.nrcamere ?? null,
     kitchens: p.nrbucatarii || null,
     surface_min: surface,
     surface_max: surface,
