@@ -360,15 +360,31 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       </Select>
 
       <Select value={tip || "all"} onValueChange={(v) => setParam("tip", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
-          <SelectValue placeholder="Tip" />
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
+          <SelectValue placeholder="Tranzacție" />
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Toate tipurile</SelectItem>
+          <SelectItem value="all">Orice tranzacție</SelectItem>
           <SelectItem value="sale">Vânzare</SelectItem>
           <SelectItem value="rent">Închiriere</SelectItem>
         </SelectContent>
       </Select>
+
+      {propertyTypeOptions.length > 0 && (
+        <Select value={tipProprietate || "all"} onValueChange={(v) => setParam("tip_proprietate", v)}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
+            <SelectValue placeholder="Tip proprietate" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tip proprietate</SelectItem>
+            {propertyTypeOptions.map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 
