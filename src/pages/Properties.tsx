@@ -325,6 +325,17 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   // ---- Controls ---------------------------------------------------------
   const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
 
+  /** Switching transaction invalidates a price threshold from the other scale. */
+  const setTransaction = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("tip");
+    next.delete("pret_max");
+    if (!v || v === "all") next.delete("tranzactie");
+    else next.set("tranzactie", v);
+    next.delete("p");
+    setSearchParams(next, { replace: true });
+  };
+
   /** Garsonieră implies rooms=1, so selecting it clears the Camere filter. */
   const setPropertyType = (v: string) => {
     const next = new URLSearchParams(searchParams);
@@ -337,7 +348,21 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
   const MainFilters = ({ stacked = false }: { stacked?: boolean }) => (
     <div className={stacked ? "grid grid-cols-1 gap-3" : "flex flex-wrap items-center gap-2"}>
+      {showTransactionFilter && (
+        <Select value={TRANSACTION_DB_TO_URL[tip] || "all"} onValueChange={setTransaction}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
+            <SelectValue placeholder="Tranzacție" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tranzacție</SelectItem>
+            <SelectItem value="vanzare">Vânzare</SelectItem>
+            <SelectItem value="inchiriere">Închiriere</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+
       {propertyTypeOptions.length > 0 && (
+
         <Select value={tipProprietate || "all"} onValueChange={setPropertyType}>
           <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
             <SelectValue placeholder="Tip proprietate" />
