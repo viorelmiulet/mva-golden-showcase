@@ -1525,22 +1525,25 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const isTop = p.top === 1;
   const promotionType = isPole ? "pole_position" : isTop ? "top" : null;
 
+  // Singular `*_value` fields are scalar codes, plural `*_values` are arrays
+  // (utilitati_values is an object of grouped arrays). toArr normalises all.
   const utilCodes = toArr(p.utilitati_values);
-  const finisCodes = toArr(p.finisaje_values);
-  const dotariCodes = toArr(p.dotari_values);
-  const bucCodes = toArr(p.bucatarie_values);
+  const finisCodes = [...toArr(p.finisaje_values), ...toArr(p.starefinisaje_value)].filter(isVendorCode);
+  const dotariCodes = [...toArr(p.dotari_values), ...toArr(p.mobilat_value)].filter(isVendorCode);
+  const bucCodes = toArr(p.bucatarie_values).filter(isVendorCode);
+
+  const allCodes = [...new Set([...utilCodes, ...finisCodes, ...dotariCodes, ...bucCodes])].filter(isVendorCode);
+  const resolved = resolveCodes(codeMap, allCodes);
+
+  const inGroups = (keys: string[]) =>
+    resolved.groups.filter((g) => keys.includes(g.group_key)).flatMap((g) => g.labels);
 
   const features = [
-    ...labelize(finisCodes, FINISAJE_LABELS),
-    ...labelize(utilCodes, UTILITATI_LABELS),
-    ...labelize(utilCodes, INCALZIRE_LABELS),
-    ...labelize(utilCodes, TEREN_LABELS),
+    ...inGroups(["izolatie", "pereti", "podele", "stare", "ferestre", "jaluzele", "rulouri", "usa_intrare", "iluminat", "usi_interior", "acoperis", "utilitati", "incalzire", "teren"]),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   const amenities = [
-    ...labelize(dotariCodes, DOTARI_LABELS),
-    ...labelize(bucCodes, DOTARI_LABELS),
-    ...labelize(utilCodes, CLIMATIZARE_LABELS),
+    ...inGroups(["spatii", "bucatarie", "contorizare", "mobilat", "imobil", "electrocasnice", "diverse", "climatizare", "altele"]),
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   const has = (code: string) => utilCodes.includes(code);
@@ -1556,11 +1559,13 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
   const has_security = hasDot("30605") || hasDot("30604") || null;
   const has_wood_floors = finisCodes.includes("20201") || finisCodes.includes("20205") || null;
 
-  const heatingCode = utilCodes.find((c) => INCALZIRE_LABELS[c]);
-  const heating = heatingCode ? INCALZIRE_LABELS[heatingCode] : null;
+  const heating = firstLabelInGroup(codeMap, utilCodes, "incalzire");
 
-  const mobilatCode = dotariCodes.find((c) => ["30301", "30302", "30303", "30304"].includes(c));
-  const furnished = p.mobilat_value || (mobilatCode ? DOTARI_LABELS[mobilatCode] : null);
+  // mobilat_value is a code (e.g. 30301 = "Nemobilat"), never a display string.
+  const furnished =
+    labelForCode(codeMap, p.mobilat_value) ??
+    firstLabelInGroup(codeMap, dotariCodes, "mobilat");
+
 
   const parking = (hasDot("30026") ? 1 : 0) + (hasDot("30027") ? 1 : 0) + (p.nrgaraje || 0);
 
