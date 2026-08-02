@@ -37,6 +37,20 @@ const floorLabel = (p: any) => {
   return null;
 };
 
+/** Only surface the type when it isn't an apartment/garsonieră — those are implied by the room count. */
+const typeLabel = (p: any) => {
+  const raw = String(p.property_type || "").trim();
+  if (!raw) return null;
+  const norm = raw
+    .toLowerCase()
+    .replace(/[ăâ]/g, "a")
+    .replace(/î/g, "i")
+    .replace(/[șş]/g, "s")
+    .replace(/[țţ]/g, "t");
+  if (norm.includes("apartament") || norm.includes("garsoniera")) return null;
+  return raw.toUpperCase();
+};
+
 interface PropertyCardProps {
   property: any;
   priority?: boolean;
