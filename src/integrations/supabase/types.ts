@@ -1328,6 +1328,7 @@ export type Database = {
           created_at: string
           errors: string[]
           failed_at: string | null
+          group_attempts: Json
           groups_done: string[]
           id: string
           last_error: string | null
@@ -1342,6 +1343,7 @@ export type Database = {
           created_at?: string
           errors?: string[]
           failed_at?: string | null
+          group_attempts?: Json
           groups_done?: string[]
           id?: string
           last_error?: string | null
@@ -1356,6 +1358,7 @@ export type Database = {
           created_at?: string
           errors?: string[]
           failed_at?: string | null
+          group_attempts?: Json
           groups_done?: string[]
           id?: string
           last_error?: string | null
