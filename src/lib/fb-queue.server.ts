@@ -50,7 +50,14 @@ async function getQueueState(): Promise<QueueState> {
   };
 }
 
-async function setQueueState(patch: Record<string, unknown>) {
+type QueueStatePatch = {
+  stopped?: boolean;
+  stop_reason?: string | null;
+  stopped_at?: string | null;
+  consecutive_failures?: number;
+};
+
+async function setQueueState(patch: QueueStatePatch) {
   await supabase
     .from("fb_queue_state")
     .update({ ...patch, updated_at: new Date().toISOString() })
@@ -208,15 +215,20 @@ async function registerGroupFailure(groupUrl: string, reason: string) {
   if (!group) return;
 
   const failures = (group.consecutive_failures ?? 0) + 1;
-  const patch: Record<string, unknown> = { consecutive_failures: failures };
+  const paused = failures >= GROUP_FAIL_LIMIT;
 
-  if (failures >= GROUP_FAIL_LIMIT) {
-    patch['paused_until'] = new Date(Date.now() + GROUP_PAUSE_HOURS * 3600 * 1000).toISOString();
-    patch['pause_reason'] =
-      `Pauză automată ${GROUP_PAUSE_HOURS}h după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`;
-  }
-
-  await supabase.from("fb_groups").update(patch).eq("id", group.id);
+  await supabase
+    .from("fb_groups")
+    .update({
+      consecutive_failures: failures,
+      paused_until: paused
+        ? new Date(Date.now() + GROUP_PAUSE_HOURS * 3600 * 1000).toISOString()
+        : null,
+      pause_reason: paused
+        ? `Pauză automată ${GROUP_PAUSE_HOURS}h după ${failures} eșecuri consecutive. Ultima eroare: ${reason}`
+        : null,
+    })
+    .eq("id", group.id);
 }
 
 async function registerGroupSuccess(groupUrl: string) {
