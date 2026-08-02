@@ -174,12 +174,8 @@ const BlogPost = () => {
         <meta name="twitter:image" content={post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg"} />
         <meta name="twitter:image:alt" content={post.title} />
 
-        <script type="application/ld+json">
-          {JSON.stringify(articleStructuredData)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbStructuredData)}
-        </script>
+        {/* JSON-LD (Article + BreadcrumbList) is emitted server-side in src/routes/blog/$slug.tsx */}
+
       </Helmet>
 
       <Header />
