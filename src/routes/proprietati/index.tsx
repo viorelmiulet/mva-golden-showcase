@@ -25,6 +25,7 @@ export interface PropertiesSearch {
   camere?: number;
   pret_max?: number;
   tip?: string;
+  tip_proprietate?: string;
   supr_min?: number;
   etaj?: string | number;
   compartimentare?: string;
