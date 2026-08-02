@@ -1582,11 +1582,20 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: p.publicare === 0 ? false : true,
-    // Type-agnostic: apartments expose `tiplocuinta`, other categories (casă,
-    // teren, spațiu comercial, hală) only expose `tip`/`tipimobil`. Never drop
-    // an unknown value — map it through as-is.
-    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
-    property_subtype: p.tipteren || null,
+    // Type-agnostic: derived from all four source fields (see immofluxTypes.ts).
+    property_type: normalizeImmofluxType(p),
+    property_subtype: normalizeImmofluxSubtype(p),
+    land_classification: p.clasificareteren || null,
+    street_fronts: p.nrfronturistradale ?? null,
+    street_front_length: num(p.frontstradal),
+    access_road_width: num(p.latimedrumacces),
+    garages: p.nrgaraje ?? null,
+    source_codes: buildSourceCodes({
+      utilitati: utilCodes,
+      finisaje: finisCodes,
+      dotari: dotariCodes,
+      bucatarie: bucCodes,
+    }),
     appartment_type: p.tip || null,
     building_type: p.tipconstructie_value || null,
     compartment: p.tipcompartimentare || null,
