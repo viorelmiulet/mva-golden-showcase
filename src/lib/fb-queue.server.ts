@@ -335,9 +335,10 @@ export async function handleResult(body: {
 
   return json({
     ok: true,
-    attempts,
-    failed: capped,
-    retry_in_minutes: capped ? null : delayMin,
+    attempts: groupTries,
+    group_skipped: capped,
+    retry_in_minutes: delayMin,
     queue_stopped: shouldStop,
   });
+
 }
