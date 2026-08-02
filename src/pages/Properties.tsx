@@ -240,13 +240,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (!p.price_min || p.price_min > max) return false;
       }
       if (tip && detectTransactionType(p) !== tip) return false;
-      if (tipProprietate) {
-        if (normalize(tipProprietate) === "garsoniera") {
-          if (!isApartmentType(p.property_type) || p.rooms !== 1) return false;
-        } else if (normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate)) {
-          return false;
-        }
-      }
+      if (tipProprietate && !matchesTypeFilter(p, tipProprietate)) return false;
 
       if (suprMin) {
         const min = parseInt(suprMin, 10);
