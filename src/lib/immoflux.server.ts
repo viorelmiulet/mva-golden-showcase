@@ -16,6 +16,16 @@ import {
   normalizeImmofluxSubtype,
   buildSourceCodes,
 } from "@/lib/immofluxTypes";
+import {
+  loadCodeMap,
+  recordUnmappedCodes,
+  resolveCodes,
+  labelForCode,
+  firstLabelInGroup,
+  isVendorCode,
+  type CodeMap,
+} from "@/lib/immofluxCodes.server";
+
 
 
 type AnyRecord = Record<string, unknown>;
