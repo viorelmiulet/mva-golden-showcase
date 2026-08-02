@@ -18,6 +18,7 @@ export const HOME_ZONES = [
 
 const ROOMS = ["1", "2", "3", "4"];
 const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
+const MAX_RENTS = [300, 400, 500, 700, 1000, 1500, 2000];
 
 const selectClass =
   "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
@@ -26,6 +27,7 @@ const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
+  const [transaction, setTransaction] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [zone, setZone] = useState("");
   const [rooms, setRooms] = useState("");
