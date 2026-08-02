@@ -21,8 +21,12 @@ const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
 const selectClass =
   "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
 
+const normalize = (s: string) =>
+  s.toLowerCase().replace(/[ăâ]/g, "a").replace(/î/g, "i").replace(/[șş]/g, "s").replace(/[țţ]/g, "t");
+
 const HeroBand = () => {
   const navigate = useNavigate();
+  const [propertyType, setPropertyType] = useState("");
   const [zone, setZone] = useState("");
   const [rooms, setRooms] = useState("");
   const [priceMax, setPriceMax] = useState("");
@@ -42,11 +46,43 @@ const HeroBand = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  /** Types actually present in the live portfolio — never a hardcoded list. */
+  const { data: typeOptions = [] } = useQuery({
+    queryKey: ["home-property-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_offers")
+        .select("property_type, rooms")
+        .is("project_id", null)
+        .neq("availability_status", "sold")
+        .neq("is_published", false);
+      if (error) throw error;
+      const map = new Map<string, string>();
+      let hasStudios = false;
+      for (const row of data || []) {
+        const raw = String((row as any).property_type || "").trim();
+        if (!raw) continue;
+        const key = normalize(raw);
+        if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
+        if (key.startsWith("apartament") || key.startsWith("apartment")) {
+          if ((row as any).rooms === 1) hasStudios = true;
+        }
+      }
+      const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+      if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
+      return list;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const isStudio = normalize(propertyType) === "garsoniera";
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
+    if (propertyType) params.set("tip_proprietate", propertyType);
     if (zone) params.set("zone", zone);
-    if (rooms) params.set("rooms", rooms);
+    if (rooms && !isStudio) params.set("rooms", rooms);
     if (priceMax) params.set("priceMax", priceMax);
     navigate(`/proprietati${params.toString() ? `?${params.toString()}` : ""}`);
   };
@@ -70,6 +106,26 @@ const HeroBand = () => {
             className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:items-center"
             aria-label="Caută proprietăți"
           >
+            {typeOptions.length > 0 && (
+              <>
+                <label className="sr-only" htmlFor="hero-type">Tip proprietate</label>
+                <select
+                  id="hero-type"
+                  className={`${selectClass} md:w-52`}
+                  value={propertyType}
+                  onChange={(e) => {
+                    setPropertyType(e.target.value);
+                    if (normalize(e.target.value) === "garsoniera") setRooms("");
+                  }}
+                >
+                  <option value="">Tip proprietate</option>
+                  {typeOptions.map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </>
+            )}
+
             <label className="sr-only" htmlFor="hero-zone">Zonă</label>
             <select id="hero-zone" className={`${selectClass} md:w-48`} value={zone} onChange={(e) => setZone(e.target.value)}>
               <option value="">Zonă</option>
@@ -78,13 +134,17 @@ const HeroBand = () => {
               ))}
             </select>
 
-            <label className="sr-only" htmlFor="hero-rooms">Camere</label>
-            <select id="hero-rooms" className={`${selectClass} md:w-40`} value={rooms} onChange={(e) => setRooms(e.target.value)}>
-              <option value="">Camere</option>
-              {ROOMS.map((r) => (
-                <option key={r} value={r}>{r === "4" ? "4+ camere" : `${r} ${r === "1" ? "cameră" : "camere"}`}</option>
-              ))}
-            </select>
+            {!isStudio && (
+              <>
+                <label className="sr-only" htmlFor="hero-rooms">Camere</label>
+                <select id="hero-rooms" className={`${selectClass} md:w-40`} value={rooms} onChange={(e) => setRooms(e.target.value)}>
+                  <option value="">Camere</option>
+                  {ROOMS.map((r) => (
+                    <option key={r} value={r}>{r === "4" ? "4+ camere" : `${r} ${r === "1" ? "cameră" : "camere"}`}</option>
+                  ))}
+                </select>
+              </>
+            )}
 
             <label className="sr-only" htmlFor="hero-price">Preț maxim</label>
             <select id="hero-price" className={`${selectClass} md:w-48`} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
@@ -106,5 +166,6 @@ const HeroBand = () => {
     </section>
   );
 };
+
 
 export default HeroBand;
