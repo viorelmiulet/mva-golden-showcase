@@ -138,6 +138,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const camere = param("camere");
   const pretMax = param("pret_max");
   const tip = param("tip");
+  const tipProprietate = param("tip_proprietate");
   const suprMin = param("supr_min");
   const etaj = param("etaj");
   const compartimentare = param("compartimentare");
