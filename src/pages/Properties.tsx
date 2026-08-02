@@ -223,8 +223,15 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       const key = normalize(raw);
       if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
     }
-    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+    const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+    // "Garsonieră" is not a stored type — it is an apartment with a single room.
+    const hasStudios = properties.some(
+      (p: any) => isApartmentType(p.property_type) && p.rooms === 1
+    );
+    if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
+    return list;
   }, [properties]);
+
 
   // ---- Filtering --------------------------------------------------------
 
