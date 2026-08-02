@@ -90,7 +90,7 @@ const PropertyCard = ({ property: p, priority = false, to }: PropertyCardProps) 
       </div>
 
       <p className="mt-3 font-sans font-semibold text-[1.375rem] leading-tight tabular text-foreground">
-        {formatCardPrice(p.price_min, p.currency)}
+        {formatCardPrice(p.price_min, p.currency, isRental(p))}
       </p>
       <p className="text-small text-muted-foreground mt-1">{getCardZone(p)}</p>
       <SpecRail
