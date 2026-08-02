@@ -226,6 +226,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
   }, [properties]);
 
+  // ---- Filtering --------------------------------------------------------
 
   const filtered = useMemo(() => {
     return properties.filter((p: any) => {
