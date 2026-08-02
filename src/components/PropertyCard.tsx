@@ -87,6 +87,7 @@ const PropertyCard = ({ property: p, priority = false, to }: PropertyCardProps) 
       <SpecRail
         className="mt-2"
         items={[
+          typeLabel(p),
           p.rooms ? `${p.rooms} CAM` : null,
           p.surface_min ? `${p.surface_min} MP` : null,
           floorLabel(p),
