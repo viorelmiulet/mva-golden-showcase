@@ -90,6 +90,9 @@ interface ImmofluxWebhookPayload {
     pole?: number;
     poleposition?: number;
     tiplocuinta?: string;
+    tip?: string;
+    tipimobil?: string;
+    tipteren?: string;
     nrbai?: number;
     anconstructie?: number;
     status?: string;
@@ -183,7 +186,7 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload["data"]): Record<string, un
     price_min: price || 0,
     price_max: price || 0,
     currency,
-    rooms: p.nrcamere || 1,
+    rooms: p.nrcamere ?? null,
     surface_min: surface,
     surface_max: surface,
     surface_land: surfaceLand ? Math.round(surfaceLand as number) : null,
@@ -200,7 +203,10 @@ function mapToCatalogOffer(p: ImmofluxWebhookPayload["data"]): Record<string, un
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: true,
-    property_type: p.tiplocuinta || null,
+    // Type-agnostic: non-apartment categories only expose `tip`/`tipimobil`.
+    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
+    property_subtype: p.tipteren || null,
+    appartment_type: p.tip || null,
     compartment: p.tipcompartimentare || null,
     build_materials: p.structurarezistenta || null,
     latitude: p.latitudine || null,
