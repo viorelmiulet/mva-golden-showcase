@@ -51,22 +51,22 @@ const zoneSlug = (v?: string) =>
  * canonical at that page. Key format: `zona|camere|tip` (empty segment = not set).
  */
 const STATIC_EQUIVALENTS: Record<string, string> = {
-  "militari|2|": "/apartamente-2-camere-militari",
-  "militari|3|": "/apartamente-3-camere-militari",
-  "militari||rent": "/apartamente-de-inchiriat-militari",
-  "|2|": "/apartamente-2-camere",
-  "|3|": "/apartamente-3-camere",
-  "|4|": "/apartamente-4-camere",
-  "drumul-taberei||": "/apartamente-drumul-taberei",
-  "crangasi||": "/apartamente-crangasi-giulesti",
-  "giulesti||": "/apartamente-crangasi-giulesti",
-  "titan||": "/apartamente-titan-pantelimon",
-  "pantelimon||": "/apartamente-titan-pantelimon",
-  "berceni||": "/apartamente-berceni-giurgiului",
-  "giurgiului||": "/apartamente-berceni-giurgiului",
-  "tineretului||": "/apartamente-tineretului-vacaresti",
-  "vacaresti||": "/apartamente-tineretului-vacaresti",
-  "sector-6||": "/apartamente-sector-6",
+  "militari|2||": "/apartamente-2-camere-militari",
+  "militari|3||": "/apartamente-3-camere-militari",
+  "militari||rent|": "/apartamente-de-inchiriat-militari",
+  "|2||": "/apartamente-2-camere",
+  "|3||": "/apartamente-3-camere",
+  "|4||": "/apartamente-4-camere",
+  "drumul-taberei|||": "/apartamente-drumul-taberei",
+  "crangasi|||": "/apartamente-crangasi-giulesti",
+  "giulesti|||": "/apartamente-crangasi-giulesti",
+  "titan|||": "/apartamente-titan-pantelimon",
+  "pantelimon|||": "/apartamente-titan-pantelimon",
+  "berceni|||": "/apartamente-berceni-giurgiului",
+  "giurgiului|||": "/apartamente-berceni-giurgiului",
+  "tineretului|||": "/apartamente-tineretului-vacaresti",
+  "vacaresti|||": "/apartamente-tineretului-vacaresti",
+  "sector-6|||": "/apartamente-sector-6",
 };
 
 /** Filters other than zona/camere/tip make the view a non-canonical permutation. */
