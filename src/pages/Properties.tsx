@@ -300,7 +300,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (tipProprietate)
     chips.push({
       key: "tip_proprietate",
-      label: isStudio ? "Garsonieră" : tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
+      label: typeLabel(normalizeType(tipProprietate)),
     });
 
   if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
@@ -317,7 +317,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     const next = new URLSearchParams(searchParams);
     if (!v || v === "all") next.delete("tip_proprietate");
     else next.set("tip_proprietate", v);
-    if (normalize(v) === "garsoniera") next.delete("camere");
+    if (normalizeType(v) === "garsoniera") next.delete("camere");
     next.delete("p");
     setSearchParams(next, { replace: true });
   };
