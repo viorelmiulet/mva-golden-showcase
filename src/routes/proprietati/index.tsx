@@ -25,6 +25,7 @@ export interface PropertiesSearch {
   camere?: number;
   pret_max?: number;
   tip?: string;
+  tranzactie?: string;
   tip_proprietate?: string;
   supr_min?: number;
   etaj?: string | number;
@@ -76,11 +77,12 @@ const typeSlug = (v?: string) => zoneSlug(v);
 
 function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex: boolean } {
   const hasExtra = EXTRA_FILTER_KEYS.some((k) => s[k]);
-  const hasCore = Boolean(s.zona || s.camere || s.tip || s.tip_proprietate);
+  const tx = s.tranzactie === "inchiriere" ? "rent" : s.tranzactie === "vanzare" ? "sale" : s.tip;
+  const hasCore = Boolean(s.zona || s.camere || tx || s.tip_proprietate);
   if (!hasExtra && !hasCore) return { noindex: false }; // unfiltered (incl. ?p=N)
   if (!hasExtra) {
     const tp = typeSlug(s.tip_proprietate);
-    const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
+    const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${tx ?? ""}`;
     // The static landings are apartment pages, so an "apartament" type filter
     // resolves to the same canonical target.
     const target =
@@ -94,6 +96,7 @@ function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex
 export const Route = createFileRoute("/proprietati/")({
   validateSearch: (search: Record<string, unknown>): PropertiesSearch => {
     const tip = str(search.tip);
+    const tr = str(search.tranzactie);
     const sort = str(search.sort);
     const page = Number(search.p);
     return {
@@ -101,6 +104,7 @@ export const Route = createFileRoute("/proprietati/")({
       camere: num(search.camere),
       pret_max: num(search.pret_max),
       tip: tip === "sale" || tip === "rent" ? tip : undefined,
+      tranzactie: tr === "vanzare" || tr === "inchiriere" ? tr : undefined,
       tip_proprietate: str(search.tip_proprietate),
       supr_min: num(search.supr_min),
       etaj: loose(search.etaj),
@@ -127,12 +131,13 @@ export const Route = createFileRoute("/proprietati/")({
     if (s.tip_proprietate) parts.push(String(s.tip_proprietate));
     if (s.zona) parts.push(`în ${s.zona}`);
     if (s.camere) parts.push(`${s.camere} camere`);
-    if (s.tip) parts.push(s.tip === "rent" ? "de închiriat" : "de vânzare");
+    const tx = s.tranzactie === "inchiriere" ? "rent" : s.tranzactie === "vanzare" ? "sale" : s.tip;
+    if (tx) parts.push(tx === "rent" ? "de închiriat" : "de vânzare");
     const suffix = parts.length ? ` ${parts.join(", ")}` : " de vânzare și închiriere în București";
     const pageSuffix = s.p && s.p > 1 ? ` — pagina ${s.p}` : "";
 
     const qs = new URLSearchParams();
-    for (const key of ["zona", "camere", "pret_max", "tip", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
+    for (const key of ["zona", "camere", "pret_max", "tip", "tranzactie", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
       const v = s[key];
       if (v) qs.set(key, String(v));
     }
