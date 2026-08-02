@@ -1811,6 +1811,8 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       skip_reasons: skipReasons,
       skipped_records: skipped.slice(0, 100),
       type_breakdown: typeBreakdown,
+      new_codes: newCodes,
+
     };
     await writeStatus(supabase, result);
     return result;
