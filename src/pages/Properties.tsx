@@ -315,7 +315,11 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (zona) chips.push({ key: "zona", label: zona });
   if (camere && !isStudio)
     chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
-  if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
+  if (pretMax)
+    chips.push({
+      key: "pret_max",
+      label: `max ${Number(pretMax).toLocaleString("ro-RO")} €${isRent ? "/lună" : ""}`,
+    });
   if (tip)
     chips.push({
       key: tranzactie ? "tranzactie" : "tip",
