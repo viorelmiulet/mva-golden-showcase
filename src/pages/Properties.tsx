@@ -398,16 +398,6 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
-      <Select value={tip || "all"} onValueChange={(v) => setParam("tip", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
-          <SelectValue placeholder="Tranzacție" />
-        </SelectTrigger>
-        <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice tranzacție</SelectItem>
-          <SelectItem value="sale">Vânzare</SelectItem>
-          <SelectItem value="rent">Închiriere</SelectItem>
-        </SelectContent>
-      </Select>
 
     </div>
   );
