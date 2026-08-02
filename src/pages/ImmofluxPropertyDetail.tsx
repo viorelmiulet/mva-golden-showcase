@@ -206,12 +206,16 @@ const ImmofluxPropertyDetail = () => {
   };
 
   const furnishedLabel = (() => {
-    const raw = (p.mobilat_value || p.dotari || '').toString().toLowerCase();
+    // `furnished` is already resolved at sync time via the immoflux_codes table.
+    const resolved = typeof p.furnished === 'string' ? p.furnished.trim() : '';
+    if (resolved && !/^\d+$/.test(resolved)) return resolved;
+    const raw = (p.dotari || '').toString().toLowerCase();
     if (/nemobilat/.test(raw)) return 'Nemobilat';
     if (/parțial|partial/.test(raw)) return 'Parțial mobilat';
     if (/mobilat/.test(raw)) return 'Mobilat';
     return null;
   })();
+
 
   const floorValue = parseFloor(p.etaj, p.nretaj, p.floor);
   const totalFloors = parseTotalFloors(p.nrnivele, p.nivele, p.regimsuprateran, p.total_floors);
