@@ -86,7 +86,7 @@ async function waitForResult(tabId, jobId, timeoutMs = 120000) {
     const listener = (msg, sender) => {
       if (!sender.tab || sender.tab.id !== tabId) return;
       if (msg && msg.type === 'MVA_POST_RESULT') {
-        finish({ ok: !!msg.ok, error: msg.error || null });
+        finish({ ok: !!msg.ok, error: msg.error || null, diag: msg.diag || null });
       }
     };
     chrome.runtime.onMessage.addListener(listener);
@@ -96,7 +96,7 @@ async function waitForResult(tabId, jobId, timeoutMs = 120000) {
         const { lastPostResult } = await chrome.storage.local.get('lastPostResult');
         if (lastPostResult && lastPostResult.jobId === jobId) {
           await chrome.storage.local.remove('lastPostResult');
-          finish({ ok: !!lastPostResult.ok, error: lastPostResult.error || null });
+          finish({ ok: !!lastPostResult.ok, error: lastPostResult.error || null, diag: lastPostResult.diag || null });
         }
       } catch (_) {}
     }, 3000);
@@ -179,6 +179,10 @@ async function tick(force = false) {
     if (!raw || raw === 'null') return;
     let job;
     try { job = JSON.parse(raw); } catch { await log('Răspuns invalid la /next.'); return; }
+    if (job && job.stopped) {
+      await log(`⛔ Coada este oprită din panoul admin: ${job.reason || 'motiv necunoscut'}`);
+      return;
+    }
     if (!job || !job.id) return;
 
     await log(`Job primit: ${job.id} → ${job.group_url}`);
@@ -188,6 +192,7 @@ async function tick(force = false) {
 
     let ok = false;
     let errorMsg = null;
+    let diag = null;
 
     try {
       await waitForReady(openedTabId, 60000);
@@ -195,6 +200,7 @@ async function tick(force = false) {
       const result = await waitForResult(openedTabId, job.id, 240000);
       ok = result.ok;
       errorMsg = result.error;
+      diag = result.diag || null;
     } catch (e) {
       ok = false;
       errorMsg = e && e.message ? e.message : String(e);
@@ -207,7 +213,7 @@ async function tick(force = false) {
           'Content-Type': 'application/json',
           'X-Api-Key': cfg.apiKey,
         },
-        body: JSON.stringify({ id: job.id, group_url: job.group_url, ok, error: errorMsg }),
+        body: JSON.stringify({ id: job.id, group_url: job.group_url, ok, error: errorMsg, diag }),
       });
     } catch (e) {
       await log(`Eroare la /result: ${e.message || e}`);
