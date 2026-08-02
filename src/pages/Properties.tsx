@@ -315,16 +315,19 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   }, [currentPage]);
 
   // ---- Active chips -----------------------------------------------------
+  const isStudio = normalize(tipProprietate) === "garsoniera";
   const chips: { key: string; label: string }[] = [];
   if (zona) chips.push({ key: "zona", label: zona });
-  if (camere) chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
+  if (camere && !isStudio)
+    chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
   if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
   if (tip) chips.push({ key: "tip", label: tip === "rent" ? "Închiriere" : "Vânzare" });
   if (tipProprietate)
     chips.push({
       key: "tip_proprietate",
-      label: tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
+      label: isStudio ? "Garsonieră" : tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
     });
+
   if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
   if (etaj) chips.push({ key: "etaj", label: etaj === "parter" ? "Parter" : etaj === "ultimul" ? "Ultimul etaj" : `Etaj ${etaj}` });
   if (compartimentare) chips.push({ key: "compartimentare", label: compartimentare });
