@@ -69,16 +69,23 @@ const STATIC_EQUIVALENTS: Record<string, string> = {
   "sector-6|||": "/apartamente-sector-6",
 };
 
-/** Filters other than zona/camere/tip make the view a non-canonical permutation. */
+/** Filters other than zona/camere/tip/tip_proprietate make the view a non-canonical permutation. */
 const EXTRA_FILTER_KEYS = ["pret_max", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const;
+
+const typeSlug = (v?: string) => zoneSlug(v);
 
 function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex: boolean } {
   const hasExtra = EXTRA_FILTER_KEYS.some((k) => s[k]);
-  const hasCore = Boolean(s.zona || s.camere || s.tip);
+  const hasCore = Boolean(s.zona || s.camere || s.tip || s.tip_proprietate);
   if (!hasExtra && !hasCore) return { noindex: false }; // unfiltered (incl. ?p=N)
   if (!hasExtra) {
-    const key = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
-    const target = STATIC_EQUIVALENTS[key];
+    const tp = typeSlug(s.tip_proprietate);
+    const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
+    // The static landings are apartment pages, so an "apartament" type filter
+    // resolves to the same canonical target.
+    const target =
+      STATIC_EQUIVALENTS[`${base}|${tp}`] ??
+      (tp === "apartament" ? STATIC_EQUIVALENTS[`${base}|`] : undefined);
     if (target) return { canonicalPath: target, noindex: false };
   }
   return { noindex: true };
