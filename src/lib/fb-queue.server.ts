@@ -13,16 +13,19 @@ export const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-/** Hard cap on retries per queue row. */
+/** Hard cap on retries per (queue row, group) pair. */
 export const MAX_ATTEMPTS = 3;
 /** Exponential backoff between retries, in minutes (attempt 1 → 5m, 2 → 15m, 3 → 45m). */
 export const BACKOFF_MINUTES = [5, 15, 45];
+/** Short pause before moving on to the next group after a failure. */
+export const SKIP_DELAY_MINUTES = 1;
 /** Consecutive failures on one group before that group is paused. */
 export const GROUP_FAIL_LIMIT = 3;
 /** Hours a group stays paused. */
-export const GROUP_PAUSE_HOURS = 24;
+export const GROUP_PAUSE_HOURS = 2;
 /** Consecutive failures across all groups before the whole queue stops. */
-export const GLOBAL_FAIL_LIMIT = 5;
+export const GLOBAL_FAIL_LIMIT = 15;
+
 
 export const backoffMinutes = (attempts: number): number =>
   BACKOFF_MINUTES[Math.min(Math.max(attempts, 1), BACKOFF_MINUTES.length) - 1]!;
@@ -121,7 +124,7 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
     .from("fb_post_queue")
     .select("id, offer_id, message, groups_done, status, attempts, next_attempt_at")
     .in("status", ["pending", "posting"])
-    .lt("attempts", MAX_ATTEMPTS)
+    
     .lte("next_attempt_at", nowIso)
     .order("created_at", { ascending: true })
     .limit(10);
@@ -252,7 +255,7 @@ export async function handleResult(body: {
 
   const { data: row, error: selErr } = await supabase
     .from("fb_post_queue")
-    .select("id, groups_done, errors, attempts")
+    .select("id, groups_done, errors, attempts, group_attempts")
     .eq("id", id)
     .maybeSingle();
 
@@ -283,28 +286,37 @@ export async function handleResult(body: {
     return json({ ok: true });
   }
 
-  // Failure path — record the failing step, apply backoff, cap retries.
-  const attempts = (row.attempts ?? 0) + 1;
+  // Failure path — retries are counted PER GROUP, not for the whole row, so one
+  // problematic group can never block the remaining groups of the same offer.
+  const groupAttempts: Record<string, number> = {
+    ...((row.group_attempts as Record<string, number> | null) ?? {}),
+  };
+  const groupTries = (groupAttempts[group_url] ?? 0) + 1;
+  groupAttempts[group_url] = groupTries;
+
   const reason = `${errMsg ?? "unknown error"} [${describeDiagnostics(diag)}]`;
   errors.push(`${group_url}: ${reason}`);
 
-  const capped = attempts >= MAX_ATTEMPTS;
-  const delayMin = backoffMinutes(attempts);
+  const capped = groupTries >= MAX_ATTEMPTS;
+  // When a group is exhausted we skip it (mark as done) and continue quickly.
+  if (capped && !groups_done.includes(group_url)) groups_done.push(group_url);
+  const delayMin = capped ? SKIP_DELAY_MINUTES : backoffMinutes(groupTries);
 
   const { error: upErr } = await supabase
     .from("fb_post_queue")
     .update({
-      attempts,
-      status: capped ? "failed" : "pending",
+      attempts: (row.attempts ?? 0) + 1,
+      group_attempts: groupAttempts,
+      status: "pending",
       groups_done,
       errors,
       last_error: reason,
-      failed_at: capped ? new Date().toISOString() : null,
       next_attempt_at: new Date(Date.now() + delayMin * 60 * 1000).toISOString(),
     })
     .eq("id", id);
 
   if (upErr) throw upErr;
+
 
   await registerGroupFailure(group_url, reason);
 
@@ -323,9 +335,10 @@ export async function handleResult(body: {
 
   return json({
     ok: true,
-    attempts,
-    failed: capped,
-    retry_in_minutes: capped ? null : delayMin,
+    attempts: groupTries,
+    group_skipped: capped,
+    retry_in_minutes: delayMin,
     queue_stopped: shouldStop,
   });
+
 }
