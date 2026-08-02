@@ -863,7 +863,7 @@ export default function WatermarkPage() {
                     {isDragging ? "Eliberați pentru a încărca" : "Trageți imagini aici"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    sau click pentru a selecta
+                    sau click pentru a selecta (poți alege mai multe deodată: Ctrl/Cmd sau Shift + click)
                   </p>
                 </div>
               </div>
