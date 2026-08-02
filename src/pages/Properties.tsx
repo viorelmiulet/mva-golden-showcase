@@ -230,6 +230,13 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     for (const p of properties) if (p.project_name) set.add(String(p.project_name).trim());
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
+
+  /** Only offer the transaction filter when both kinds of listings are live. */
+  const showTransactionFilter = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of properties) set.add(detectTransactionType(p));
+    return set.has("sale") && set.has("rent");
+  }, [properties]);
   /** Distinct property_type values actually present in the portfolio. */
   const propertyTypeOptions = useMemo(() => buildTypeOptions(properties), [properties]);
 
