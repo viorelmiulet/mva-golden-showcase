@@ -99,7 +99,8 @@ const BlogPost = () => {
     });
   };
 
-  const articleStructuredData = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _articleStructuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": post.title,
@@ -125,7 +126,8 @@ const BlogPost = () => {
     }
   };
 
-  const breadcrumbStructuredData = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _breadcrumbStructuredData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
@@ -174,12 +176,8 @@ const BlogPost = () => {
         <meta name="twitter:image" content={post.cover_image || "https://www.mvaimobiliare.ro/og-default.jpg"} />
         <meta name="twitter:image:alt" content={post.title} />
 
-        <script type="application/ld+json">
-          {JSON.stringify(articleStructuredData)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbStructuredData)}
-        </script>
+        {/* JSON-LD (Article + BreadcrumbList) is emitted server-side in src/routes/blog/$slug.tsx */}
+
       </Helmet>
 
       <Header />
