@@ -1655,9 +1655,9 @@ function isWithdrawnStatus(raw: string | null | undefined): boolean {
   );
 }
 
-/** Reads the feed's property category for logging/breakdown purposes. */
+/** Reads the feed's normalized property category for logging/breakdown purposes. */
 function feedType(p: ImmofluxProperty): string {
-  return String(p.tiplocuinta || p.tip || p.tipimobil || "necunoscut").toLowerCase().trim();
+  return normalizeImmofluxType(p) || "necunoscut";
 }
 
 async function runSync(supabase: any, startedAt: string): Promise<Result> {
