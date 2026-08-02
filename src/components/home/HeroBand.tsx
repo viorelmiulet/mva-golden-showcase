@@ -81,9 +81,9 @@ const HeroBand = () => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (propertyType) params.set("tip_proprietate", propertyType);
-    if (zone) params.set("zone", zone);
-    if (rooms && !isStudio) params.set("rooms", rooms);
-    if (priceMax) params.set("priceMax", priceMax);
+    if (zone) params.set("zona", zone);
+    if (rooms && !isStudio) params.set("camere", rooms);
+    if (priceMax) params.set("pret_max", priceMax);
     navigate(`/proprietati${params.toString() ? `?${params.toString()}` : ""}`);
   };
 
