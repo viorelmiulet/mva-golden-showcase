@@ -52,7 +52,9 @@ type QueueRow = {
   offer_id: string;
   message: string;
   offer_url: string;
-  status: "pending" | "posting" | "done" | "error";
+  status: "pending" | "posting" | "done" | "error" | "failed";
+  next_attempt_at?: string | null;
+  last_error?: string | null;
   groups_done: string[];
   errors: string[];
   attempts: number;
@@ -76,6 +78,7 @@ const statusStyles: Record<QueueRow["status"], string> = {
   posting: "bg-blue-500/20 text-blue-400 border-blue-500/30",
   done: "bg-green-500/20 text-green-500 border-green-500/30",
   error: "bg-red-500/20 text-red-500 border-red-500/30",
+  failed: "bg-red-600/25 text-red-400 border-red-600/40",
 };
 
 const statusLabel: Record<QueueRow["status"], string> = {
@@ -83,6 +86,7 @@ const statusLabel: Record<QueueRow["status"], string> = {
   posting: "Se postează",
   done: "Finalizat",
   error: "Eroare",
+  failed: "Eșuat definitiv",
 };
 
 const publicOfferPath = (row: QueueRow): string => {
@@ -119,7 +123,7 @@ const FacebookQueuePage = () => {
       const { data, error } = await supabase
         .from("fb_post_queue")
         .select(
-          "id, offer_id, message, offer_url, status, groups_done, errors, attempts, created_at, offer:catalog_offers(id, title, slug, rooms, project_name, zone, location, surface_min, floor, city)"
+          "id, offer_id, message, offer_url, status, groups_done, errors, attempts, next_attempt_at, last_error, created_at, offer:catalog_offers(id, title, slug, rooms, project_name, zone, location, surface_min, floor, city)"
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -127,6 +131,60 @@ const FacebookQueuePage = () => {
     },
     refetchInterval: 30_000,
   });
+
+  const { data: queueState } = useQuery({
+    queryKey: ["fb_queue_state"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fb_queue_state")
+        .select("stopped, stop_reason, stopped_at, consecutive_failures")
+        .eq("id", 1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 30_000,
+  });
+
+  const { data: pausedGroups } = useQuery({
+    queryKey: ["fb_groups_paused"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("fb_groups")
+        .select("id, name, url, paused_until, pause_reason")
+        .not("paused_until", "is", null)
+        .gt("paused_until", new Date().toISOString());
+      if (error) throw error;
+      return data || [];
+    },
+    refetchInterval: 30_000,
+  });
+
+  const resumeQueue = async () => {
+    const { error } = await supabase
+      .from("fb_queue_state")
+      .update({ stopped: false, stop_reason: null, stopped_at: null, consecutive_failures: 0 })
+      .eq("id", 1);
+    if (error) {
+      toast.error("Nu am putut reporni coada", { description: error.message });
+      return;
+    }
+    toast.success("Coada a fost repornită");
+    queryClient.invalidateQueries({ queryKey: ["fb_queue_state"] });
+  };
+
+  const resumeGroup = async (id: string) => {
+    const { error } = await supabase
+      .from("fb_groups")
+      .update({ paused_until: null, pause_reason: null, consecutive_failures: 0 })
+      .eq("id", id);
+    if (error) {
+      toast.error("Nu am putut reactiva grupul", { description: error.message });
+      return;
+    }
+    toast.success("Grup reactivat");
+    queryClient.invalidateQueries({ queryKey: ["fb_groups_paused"] });
+  };
 
   useEffect(() => {
     const channel = supabase
@@ -165,7 +223,14 @@ const FacebookQueuePage = () => {
     setBusyId(id);
     const { error } = await supabase
       .from("fb_post_queue")
-      .update({ status: "pending", attempts: 0, errors: [] })
+      .update({
+        status: "pending",
+        attempts: 0,
+        errors: [],
+        last_error: null,
+        failed_at: null,
+        next_attempt_at: new Date().toISOString(),
+      })
       .eq("id", id);
     setBusyId(null);
     if (error) {
@@ -255,6 +320,46 @@ const FacebookQueuePage = () => {
         </div>
       </div>
 
+      {queueState?.stopped && (
+        <Card className="border-red-500/40 bg-red-500/10">
+          <CardContent className="pt-6 flex flex-wrap items-start gap-4">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-red-500">Coada este oprită automat</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {queueState.stop_reason || "Prea multe eșecuri consecutive."}
+              </p>
+            </div>
+            <Button size="sm" onClick={resumeQueue}>
+              Repornește coada
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {pausedGroups && pausedGroups.length > 0 && (
+        <Card className="border-yellow-500/40 bg-yellow-500/10">
+          <CardContent className="pt-6 space-y-3">
+            <p className="font-semibold text-yellow-600">
+              {pausedGroups.length} grupuri în pauză automată
+            </p>
+            {pausedGroups.map((g: any) => (
+              <div key={g.id} className="flex flex-wrap items-start gap-3 text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">{g.name || g.url}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {g.pause_reason} · până la {format(new Date(g.paused_until), "dd.MM.yyyy HH:mm")}
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => resumeGroup(g.id)}>
+                  Reactivează
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="admin-glass-card">
         <CardContent className="pt-6">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -283,6 +388,7 @@ const FacebookQueuePage = () => {
                   <SelectItem value="posting">Se postează</SelectItem>
                   <SelectItem value="done">Finalizat</SelectItem>
                   <SelectItem value="error">Eroare</SelectItem>
+                  <SelectItem value="failed">Eșuat definitiv</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -363,13 +469,23 @@ const FacebookQueuePage = () => {
                         </Badge>
                         <span>{row.groups_done?.length ?? 0} grupuri postate</span>
                         <span>·</span>
-                        <span>{row.attempts} încercări</span>
+                        <span>{row.attempts}/3 încercări</span>
+                        {row.status === "pending" &&
+                          row.next_attempt_at &&
+                          new Date(row.next_attempt_at) > new Date() && (
+                            <>
+                              <span>·</span>
+                              <span>
+                                reîncercare la {format(new Date(row.next_attempt_at), "HH:mm")}
+                              </span>
+                            </>
+                          )}
                         <span>·</span>
                         <span>{format(new Date(row.created_at), "dd.MM.yyyy HH:mm")}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {row.status === "error" && (
+                      {(row.status === "error" || row.status === "failed") && (
                         <Button
                           size="sm"
                           variant="outline"
