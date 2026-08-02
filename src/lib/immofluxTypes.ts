@@ -41,30 +41,66 @@ function isResidentialBuilding(tipimobil: string): boolean {
 }
 
 /**
+ * Maps a raw feed value onto the canonical slugs the UI filters on
+ * (see src/lib/propertyType.ts). Immoflux uses composite labels such as
+ * "casa / vila" or "spatiu industrial", which would otherwise never match
+ * the "casa" / "depozit" filter options.
+ *
+ * Unknown values still pass through verbatim — nothing is dropped.
+ */
+export function canonicalizeType(raw: string): string {
+  const s = raw
+    .toLowerCase()
+    .trim()
+    .replace(/[ăâ]/g, "a")
+    .replace(/î/g, "i")
+    .replace(/[șş]/g, "s")
+    .replace(/[țţ]/g, "t");
+  if (/teren|lot\b|parcela/.test(s)) return "teren";
+  if (/garsoniera|studio/.test(s)) return "garsoniera";
+  if (/casa|vila|duplex|locuinta individuala/.test(s)) return "casa";
+  if (/hala|depozit|industrial|logistic/.test(s)) return "depozit";
+  if (/comercial|birou|birouri|spatiu de birouri/.test(s)) return "spatiu comercial";
+  if (/apartament|apartment/.test(s)) return "apartament";
+  return s;
+}
+
+/** Which source field produced the type — used for diagnostics/logging. */
+export function typeSourceField(p: ImmofluxTypeSource): string | null {
+  if (clean(p.tipteren)) return "tipteren";
+  const tipimobil = clean(p.tipimobil);
+  if (tipimobil && !isResidentialBuilding(tipimobil)) return "tipimobil";
+  if (clean(p.tiplocuinta)) return "tiplocuinta";
+  if (clean(p.tip)) return "tip";
+  if (tipimobil) return "tipimobil";
+  return null;
+}
+
+/**
  * Derives one normalized property_type from all four source fields.
  *
  * Precedence:
  *   1. `tipteren` present            -> "teren"
- *   2. `tipimobil` present and NOT a residential container -> `tipimobil` verbatim
+ *   2. `tipimobil` present and NOT a residential container -> `tipimobil`
  *   3. `tiplocuinta`
- *   4. `tip` (legacy top-level category)
+ *   4. `tip` (top-level category, e.g. "casa / vila", "spatiu industrial")
  *
- * Unknown values are never dropped — they pass through verbatim.
+ * Every value is canonicalized; unknown values pass through verbatim.
  */
 export function normalizeImmofluxType(p: ImmofluxTypeSource): string | null {
   const tipteren = clean(p.tipteren);
   if (tipteren) return "teren";
 
   const tipimobil = clean(p.tipimobil);
-  if (tipimobil && !isResidentialBuilding(tipimobil)) return tipimobil.toLowerCase();
+  if (tipimobil && !isResidentialBuilding(tipimobil)) return canonicalizeType(tipimobil);
 
   const tiplocuinta = clean(p.tiplocuinta);
-  if (tiplocuinta) return tiplocuinta.toLowerCase();
+  if (tiplocuinta) return canonicalizeType(tiplocuinta);
 
   const tip = clean(p.tip);
-  if (tip) return tip.toLowerCase();
+  if (tip) return canonicalizeType(tip);
 
-  return tipimobil ? tipimobil.toLowerCase() : null;
+  return tipimobil ? canonicalizeType(tipimobil) : null;
 }
 
 /** Secondary classification: land subtype, or the building type for non-residential. */
