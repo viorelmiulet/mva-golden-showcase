@@ -39,6 +39,13 @@ const normalize = (s: string) =>
     .replace(/ț/g, "t")
     .replace(/ţ/g, "t");
 
+/** True for stored types that represent an apartment (garsonieră = apartament + 1 cameră). */
+const isApartmentType = (raw: unknown) => {
+  const t = normalize(String(raw || "").trim());
+  return t.startsWith("apartament") || t.startsWith("apartment");
+};
+
+
 const detectTransactionType = (property: any): "sale" | "rent" => {
   const text = normalize(`${property.title || ""} ${property.description || ""}`);
   const rentKeywords = [
@@ -223,8 +230,15 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       const key = normalize(raw);
       if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
     }
-    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+    const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+    // "Garsonieră" is not a stored type — it is an apartment with a single room.
+    const hasStudios = properties.some(
+      (p: any) => isApartmentType(p.property_type) && p.rooms === 1
+    );
+    if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
+    return list;
   }, [properties]);
+
 
   // ---- Filtering --------------------------------------------------------
 
@@ -245,8 +259,14 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (!p.price_min || p.price_min > max) return false;
       }
       if (tip && detectTransactionType(p) !== tip) return false;
-      if (tipProprietate && normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate))
-        return false;
+      if (tipProprietate) {
+        if (normalize(tipProprietate) === "garsoniera") {
+          if (!isApartmentType(p.property_type) || p.rooms !== 1) return false;
+        } else if (normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate)) {
+          return false;
+        }
+      }
+
       if (suprMin) {
         const min = parseInt(suprMin, 10);
         const surface = p.surface_min || p.surface_max;
@@ -295,16 +315,19 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   }, [currentPage]);
 
   // ---- Active chips -----------------------------------------------------
+  const isStudio = normalize(tipProprietate) === "garsoniera";
   const chips: { key: string; label: string }[] = [];
   if (zona) chips.push({ key: "zona", label: zona });
-  if (camere) chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
+  if (camere && !isStudio)
+    chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
   if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
   if (tip) chips.push({ key: "tip", label: tip === "rent" ? "Închiriere" : "Vânzare" });
   if (tipProprietate)
     chips.push({
       key: "tip_proprietate",
-      label: tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
+      label: isStudio ? "Garsonieră" : tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
     });
+
   if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
   if (etaj) chips.push({ key: "etaj", label: etaj === "parter" ? "Parter" : etaj === "ultimul" ? "Ultimul etaj" : `Etaj ${etaj}` });
   if (compartimentare) chips.push({ key: "compartimentare", label: compartimentare });
@@ -314,8 +337,34 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   // ---- Controls ---------------------------------------------------------
   const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
 
+  /** Garsonieră implies rooms=1, so selecting it clears the Camere filter. */
+  const setPropertyType = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (!v || v === "all") next.delete("tip_proprietate");
+    else next.set("tip_proprietate", v);
+    if (normalize(v) === "garsoniera") next.delete("camere");
+    next.delete("p");
+    setSearchParams(next, { replace: true });
+  };
+
   const MainFilters = ({ stacked = false }: { stacked?: boolean }) => (
     <div className={stacked ? "grid grid-cols-1 gap-3" : "flex flex-wrap items-center gap-2"}>
+      {propertyTypeOptions.length > 0 && (
+        <Select value={tipProprietate || "all"} onValueChange={setPropertyType}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
+            <SelectValue placeholder="Tip proprietate" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tip proprietate</SelectItem>
+            {propertyTypeOptions.map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       <Select value={zona || "all"} onValueChange={(v) => setParam("zona", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
           <SelectValue placeholder="Zonă" />
@@ -330,20 +379,22 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
-      <Select value={camere || "all"} onValueChange={(v) => setParam("camere", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
-          <SelectValue placeholder="Camere" />
-        </SelectTrigger>
-        <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice camere</SelectItem>
-          {["1", "2", "3", "4"].map((n) => (
-            <SelectItem key={n} value={n}>
-              {n} camere
-            </SelectItem>
-          ))}
-          <SelectItem value="5">5+ camere</SelectItem>
-        </SelectContent>
-      </Select>
+      {!isStudio && (
+        <Select value={camere || "all"} onValueChange={(v) => setParam("camere", v)}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
+            <SelectValue placeholder="Camere" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice camere</SelectItem>
+            {["1", "2", "3", "4"].map((n) => (
+              <SelectItem key={n} value={n}>
+                {n} camere
+              </SelectItem>
+            ))}
+            <SelectItem value="5">5+ camere</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
       <Select value={pretMax || "all"} onValueChange={(v) => setParam("pret_max", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
@@ -370,21 +421,6 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
-      {propertyTypeOptions.length > 0 && (
-        <Select value={tipProprietate || "all"} onValueChange={(v) => setParam("tip_proprietate", v)}>
-          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
-            <SelectValue placeholder="Tip proprietate" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover z-50">
-            <SelectItem value="all">Orice tip proprietate</SelectItem>
-            {propertyTypeOptions.map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
     </div>
   );
 
