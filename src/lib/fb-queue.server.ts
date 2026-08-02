@@ -124,7 +124,7 @@ export async function handleNext(body: { groups?: string[] }): Promise<Response>
     .from("fb_post_queue")
     .select("id, offer_id, message, groups_done, status, attempts, next_attempt_at")
     .in("status", ["pending", "posting"])
-    .lt("attempts", MAX_ATTEMPTS)
+    
     .lte("next_attempt_at", nowIso)
     .order("created_at", { ascending: true })
     .limit(10);
