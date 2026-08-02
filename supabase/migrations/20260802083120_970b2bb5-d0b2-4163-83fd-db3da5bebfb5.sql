@@ -1,0 +1,1 @@
+UPDATE public.catalog_offers SET property_type = 'casa', updated_at = now() WHERE external_id = 'immoflux-292765' AND property_type IS NULL;
