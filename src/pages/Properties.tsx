@@ -271,7 +271,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       if (ansamblu && String(p.project_name || "").trim() !== ansamblu) return false;
       return true;
     });
-  }, [properties, zona, camere, pretMax, tip, suprMin, etaj, compartimentare, an, ansamblu]);
+  }, [properties, zona, camere, pretMax, tip, tipProprietate, suprMin, etaj, compartimentare, an, ansamblu]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
