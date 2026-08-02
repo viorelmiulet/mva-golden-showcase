@@ -63,8 +63,12 @@ export const updateImmofluxCode = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const label = data.label && data.label.length > 0 ? data.label : null;
-    const patch: Record<string, unknown> = { label, source: label ? "manual" : "unmapped" };
+    const patch: { label: string | null; source: string; group_label?: string } = {
+      label,
+      source: label ? "manual" : "unmapped",
+    };
     if (data.group_label) patch.group_label = data.group_label;
+
     const { error } = await supabaseAdmin.from("immoflux_codes").update(patch).eq("code", data.code);
     if (error) throw new Error(error.message);
     return { ok: true };
