@@ -1582,7 +1582,10 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: p.publicare === 0 ? false : true,
-    property_type: p.tiplocuinta || p.tipimobil || null,
+    // Type-agnostic: apartments expose `tiplocuinta`, other categories (casă,
+    // teren, spațiu comercial, hală) only expose `tip`/`tipimobil`. Never drop
+    // an unknown value — map it through as-is.
+    property_type: p.tiplocuinta || p.tipimobil || p.tip || null,
     property_subtype: p.tipteren || null,
     appartment_type: p.tip || null,
     building_type: p.tipconstructie_value || null,
