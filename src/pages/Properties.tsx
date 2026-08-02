@@ -149,7 +149,11 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const zona = param("zona");
   const camere = param("camere");
   const pretMax = param("pret_max");
-  const tip = param("tip");
+  const tipLegacy = param("tip");
+  const tranzactie = param("tranzactie");
+  /** Stored transaction_type implied by the URL (?tranzactie= wins over legacy ?tip=). */
+  const tip = TRANSACTION_URL_TO_DB[tranzactie] || tipLegacy;
+  const isRent = tip === "rent";
   const tipProprietate = param("tip_proprietate");
   const suprMin = param("supr_min");
   const etaj = param("etaj");
