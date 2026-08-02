@@ -64,17 +64,37 @@ const HeroBand = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  /** Show the transaction control only when both sale and rent listings are live. */
+  const { data: showTransaction = false } = useQuery({
+    queryKey: ["home-transaction-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_offers")
+        .select("transaction_type")
+        .is("project_id", null)
+        .neq("availability_status", "sold")
+        .neq("is_published", false);
+      if (error) throw error;
+      const set = new Set((data || []).map((r: any) => (r.transaction_type === "rent" ? "rent" : "sale")));
+      return set.has("sale") && set.has("rent");
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const isStudio = normalizeType(propertyType) === "garsoniera";
+  const isRent = transaction === "inchiriere";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
+    if (transaction) params.set("tranzactie", transaction);
     if (propertyType) params.set("tip_proprietate", propertyType);
     if (zone) params.set("zona", zone);
     if (rooms && !isStudio) params.set("camere", rooms);
     if (priceMax) params.set("pret_max", priceMax);
     navigate(`/proprietati${params.toString() ? `?${params.toString()}` : ""}`);
   };
+
 
   return (
     <section className="bg-background border-b border-stone">
