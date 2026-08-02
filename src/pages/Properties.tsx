@@ -290,7 +290,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   }, [currentPage]);
 
   // ---- Active chips -----------------------------------------------------
-  const isStudio = normalize(tipProprietate) === "garsoniera";
+  const isStudio = normalizeType(tipProprietate) === "garsoniera";
   const chips: { key: string; label: string }[] = [];
   if (zona) chips.push({ key: "zona", label: zona });
   if (camere && !isStudio)
