@@ -255,7 +255,7 @@ export async function handleResult(body: {
 
   const { data: row, error: selErr } = await supabase
     .from("fb_post_queue")
-    .select("id, groups_done, errors, attempts")
+    .select("id, groups_done, errors, attempts, group_attempts")
     .eq("id", id)
     .maybeSingle();
 
