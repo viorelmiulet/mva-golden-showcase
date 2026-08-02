@@ -13,16 +13,19 @@ export const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-/** Hard cap on retries per queue row. */
+/** Hard cap on retries per (queue row, group) pair. */
 export const MAX_ATTEMPTS = 3;
 /** Exponential backoff between retries, in minutes (attempt 1 → 5m, 2 → 15m, 3 → 45m). */
 export const BACKOFF_MINUTES = [5, 15, 45];
+/** Short pause before moving on to the next group after a failure. */
+export const SKIP_DELAY_MINUTES = 1;
 /** Consecutive failures on one group before that group is paused. */
 export const GROUP_FAIL_LIMIT = 3;
 /** Hours a group stays paused. */
-export const GROUP_PAUSE_HOURS = 24;
+export const GROUP_PAUSE_HOURS = 2;
 /** Consecutive failures across all groups before the whole queue stops. */
-export const GLOBAL_FAIL_LIMIT = 5;
+export const GLOBAL_FAIL_LIMIT = 15;
+
 
 export const backoffMinutes = (attempts: number): number =>
   BACKOFF_MINUTES[Math.min(Math.max(attempts, 1), BACKOFF_MINUTES.length) - 1]!;
