@@ -1735,7 +1735,24 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
     }
 
     const finishedAt = new Date().toISOString();
-    const result: Result = { status: "done", success: true, started_at: startedAt, finished_at: finishedAt, synced: upserted, failed, total: mapped.length };
+    console.info(
+      `[immoflux-sync] received=${received} imported=${upserted} skipped=${skipped.length + failed} reasons=${JSON.stringify(skipReasons)} types=${JSON.stringify(typeBreakdown)}`,
+    );
+    const result: Result = {
+      status: "done",
+      success: true,
+      started_at: startedAt,
+      finished_at: finishedAt,
+      synced: upserted,
+      failed,
+      total: mapped.length,
+      received,
+      imported: upserted,
+      skipped: skipped.length + failed,
+      skip_reasons: skipReasons,
+      skipped_records: skipped.slice(0, 100),
+      type_breakdown: typeBreakdown,
+    };
     await writeStatus(supabase, result);
     return result;
   } catch (error: any) {
