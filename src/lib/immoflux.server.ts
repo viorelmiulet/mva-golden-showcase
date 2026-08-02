@@ -11,6 +11,13 @@
  * function) — it now runs the sync inline and returns the final result.
  */
 
+import {
+  normalizeImmofluxType,
+  normalizeImmofluxSubtype,
+  buildSourceCodes,
+} from "@/lib/immofluxTypes";
+
+
 type AnyRecord = Record<string, unknown>;
 type Result = AnyRecord;
 
