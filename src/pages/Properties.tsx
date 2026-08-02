@@ -39,6 +39,13 @@ const normalize = (s: string) =>
     .replace(/ț/g, "t")
     .replace(/ţ/g, "t");
 
+/** True for stored types that represent an apartment (garsonieră = apartament + 1 cameră). */
+const isApartmentType = (raw: unknown) => {
+  const t = normalize(String(raw || "").trim());
+  return t.startsWith("apartament") || t.startsWith("apartment");
+};
+
+
 const detectTransactionType = (property: any): "sale" | "rent" => {
   const text = normalize(`${property.title || ""} ${property.description || ""}`);
   const rentKeywords = [
