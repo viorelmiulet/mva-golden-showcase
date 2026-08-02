@@ -245,6 +245,8 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (!p.price_min || p.price_min > max) return false;
       }
       if (tip && detectTransactionType(p) !== tip) return false;
+      if (tipProprietate && normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate))
+        return false;
       if (suprMin) {
         const min = parseInt(suprMin, 10);
         const surface = p.surface_min || p.surface_max;
