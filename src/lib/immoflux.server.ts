@@ -11,6 +11,13 @@
  * function) — it now runs the sync inline and returns the final result.
  */
 
+import {
+  normalizeImmofluxType,
+  normalizeImmofluxSubtype,
+  buildSourceCodes,
+} from "@/lib/immofluxTypes";
+
+
 type AnyRecord = Record<string, unknown>;
 type Result = AnyRecord;
 
@@ -1355,6 +1362,9 @@ interface ImmofluxProperty {
   tiplocuinta?: string;
   tipimobil?: string;
   tipteren?: string;
+  clasificareteren?: string;
+  frontstradal?: number | string;
+  latimedrumacces?: number | string;
   nrfronturistradale?: number;
   suprafatateren?: string | number;
   nrcamere?: number;
@@ -1582,11 +1592,20 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: p.publicare === 0 ? false : true,
-    // Type-agnostic: apartments expose `tiplocuinta`, other categories (casă,
-    // teren, spațiu comercial, hală) only expose `tip`/`tipimobil`. Never drop
-    // an unknown value — map it through as-is.
-    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
-    property_subtype: p.tipteren || null,
+    // Type-agnostic: derived from all four source fields (see immofluxTypes.ts).
+    property_type: normalizeImmofluxType(p),
+    property_subtype: normalizeImmofluxSubtype(p),
+    land_classification: p.clasificareteren || null,
+    street_fronts: p.nrfronturistradale ?? null,
+    street_front_length: num(p.frontstradal),
+    access_road_width: num(p.latimedrumacces),
+    garages: p.nrgaraje ?? null,
+    source_codes: buildSourceCodes({
+      utilitati: utilCodes,
+      finisaje: finisCodes,
+      dotari: dotariCodes,
+      bucatarie: bucCodes,
+    }),
     appartment_type: p.tip || null,
     building_type: p.tipconstructie_value || null,
     compartment: p.tipcompartimentare || null,
@@ -1636,9 +1655,9 @@ function isWithdrawnStatus(raw: string | null | undefined): boolean {
   );
 }
 
-/** Reads the feed's property category for logging/breakdown purposes. */
+/** Reads the feed's normalized property category for logging/breakdown purposes. */
 function feedType(p: ImmofluxProperty): string {
-  return String(p.tiplocuinta || p.tip || p.tipimobil || "necunoscut").toLowerCase().trim();
+  return normalizeImmofluxType(p) || "necunoscut";
 }
 
 async function runSync(supabase: any, startedAt: string): Promise<Result> {

@@ -18,6 +18,11 @@ interface SyncStatus {
   synced?: number;
   failed?: number;
   total?: number;
+  received?: number;
+  imported?: number;
+  skipped?: number;
+  skip_reasons?: Record<string, number>;
+  type_breakdown?: Record<string, number>;
   error?: string;
 }
 
@@ -216,7 +221,60 @@ const ImmofluxDashboard = () => {
         </Card>
       </div>
 
+      {/* Received / imported / skipped */}
+      {status && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Bilanț import</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Primite</p>
+                <p className="text-xl font-bold">{status.received ?? status.total ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Importate</p>
+                <p className="text-xl font-bold text-green-500">{status.imported ?? status.synced ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Omise</p>
+                <p className="text-xl font-bold text-amber-500">{status.skipped ?? 0}</p>
+              </div>
+            </div>
+
+            {status.type_breakdown && Object.keys(status.type_breakdown).length > 0 && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Tipuri importate</p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(status.type_breakdown).map(([t, n]) => (
+                    <Badge key={t} variant="secondary">
+                      {t}: {n}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {status.skip_reasons && Object.keys(status.skip_reasons).length > 0 && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Motive omitere</p>
+                <ul className="space-y-1">
+                  {Object.entries(status.skip_reasons).map(([reason, n]) => (
+                    <li key={reason} className="flex justify-between gap-4 border-b border-border/50 py-1">
+                      <span className="font-mono text-xs break-all">{reason}</span>
+                      <span className="font-semibold">{n}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Error / details panel */}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
