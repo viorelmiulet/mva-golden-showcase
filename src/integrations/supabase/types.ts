@@ -1265,28 +1265,37 @@ export type Database = {
       fb_groups: {
         Row: {
           active: boolean
+          consecutive_failures: number
           created_at: string
           id: string
           name: string
           notes: string | null
+          pause_reason: string | null
+          paused_until: string | null
           updated_at: string
           url: string
         }
         Insert: {
           active?: boolean
+          consecutive_failures?: number
           created_at?: string
           id?: string
           name: string
           notes?: string | null
+          pause_reason?: string | null
+          paused_until?: string | null
           updated_at?: string
           url: string
         }
         Update: {
           active?: boolean
+          consecutive_failures?: number
           created_at?: string
           id?: string
           name?: string
           notes?: string | null
+          pause_reason?: string | null
+          paused_until?: string | null
           updated_at?: string
           url?: string
         }
@@ -1297,9 +1306,12 @@ export type Database = {
           attempts: number
           created_at: string
           errors: string[]
+          failed_at: string | null
           groups_done: string[]
           id: string
+          last_error: string | null
           message: string
+          next_attempt_at: string
           offer_id: string
           offer_url: string
           status: string
@@ -1308,9 +1320,12 @@ export type Database = {
           attempts?: number
           created_at?: string
           errors?: string[]
+          failed_at?: string | null
           groups_done?: string[]
           id?: string
+          last_error?: string | null
           message: string
+          next_attempt_at?: string
           offer_id: string
           offer_url: string
           status?: string
@@ -1319,9 +1334,12 @@ export type Database = {
           attempts?: number
           created_at?: string
           errors?: string[]
+          failed_at?: string | null
           groups_done?: string[]
           id?: string
+          last_error?: string | null
           message?: string
+          next_attempt_at?: string
           offer_id?: string
           offer_url?: string
           status?: string
@@ -1335,6 +1353,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fb_queue_state: {
+        Row: {
+          consecutive_failures: number
+          id: number
+          stop_reason: string | null
+          stopped: boolean
+          stopped_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          id?: number
+          stop_reason?: string | null
+          stopped?: boolean
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          id?: number
+          stop_reason?: string | null
+          stopped?: boolean
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       image_validation_cache: {
         Row: {
