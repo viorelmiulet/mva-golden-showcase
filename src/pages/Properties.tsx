@@ -214,8 +214,19 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     for (const p of properties) if (p.project_name) set.add(String(p.project_name).trim());
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
+  /** Distinct property_type values actually present in the portfolio. */
+  const propertyTypeOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of properties) {
+      const raw = String(p.property_type || "").trim();
+      if (!raw) continue;
+      const key = normalize(raw);
+      if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
+    }
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+  }, [properties]);
 
-  // ---- Filtering --------------------------------------------------------
+
   const filtered = useMemo(() => {
     return properties.filter((p: any) => {
       if (zona) {
