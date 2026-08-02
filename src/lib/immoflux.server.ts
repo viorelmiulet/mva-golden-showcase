@@ -1439,12 +1439,20 @@ async function fetchAllProperties(supabase: any): Promise<ImmofluxProperty[]> {
   return allProps;
 }
 
+/**
+ * Immoflux is inconsistent: `finisaje_values` is a flat array while
+ * `utilitati_values` is an OBJECT of grouped arrays
+ * ({ general: [...], sistem_incalzire: [...], climatizare: [...] }), and the
+ * singular `*_value` fields hold a single scalar code. Flatten all shapes.
+ */
 const toArr = (v: unknown): string[] => {
-  if (!v) return [];
-  if (Array.isArray(v)) return v.map(String);
-  if (typeof v === "string") return v.split(/[,;|\s]+/).filter(Boolean);
-  return [];
+  if (v === null || v === undefined || v === "") return [];
+  if (Array.isArray(v)) return v.flatMap(toArr);
+  if (typeof v === "object") return Object.values(v as Record<string, unknown>).flatMap(toArr);
+  if (typeof v === "number") return [String(v)];
+  return String(v).split(/[,;|\s]+/).filter(Boolean);
 };
+
 const num = (v: unknown): number | null => {
   if (v === null || v === undefined || v === "") return null;
   const n = typeof v === "number" ? v : parseFloat(String(v));
