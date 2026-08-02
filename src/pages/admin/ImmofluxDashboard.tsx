@@ -18,6 +18,11 @@ interface SyncStatus {
   synced?: number;
   failed?: number;
   total?: number;
+  received?: number;
+  imported?: number;
+  skipped?: number;
+  skip_reasons?: Record<string, number>;
+  type_breakdown?: Record<string, number>;
   error?: string;
 }
 
