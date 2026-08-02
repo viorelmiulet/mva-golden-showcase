@@ -68,6 +68,7 @@ import { Route as AdminFacebookGroupsRouteImport } from './routes/admin/facebook
 import { Route as AdminFacebookQueueRouteImport } from './routes/admin/facebook-queue'
 import { Route as AdminGestiuneChiriiRouteImport } from './routes/admin/gestiune-chirii'
 import { Route as AdminImmofluxRouteImport } from './routes/admin/immoflux'
+import { Route as AdminImmofluxCodesRouteImport } from './routes/admin/immoflux-codes'
 import { Route as AdminInboxRouteImport } from './routes/admin/inbox'
 import { Route as AdminInstaleazaRouteImport } from './routes/admin/instaleaza'
 import { Route as AdminInventarPresetatRouteImport } from './routes/admin/inventar-presetat'
@@ -435,6 +436,11 @@ const AdminGestiuneChiriiRoute = AdminGestiuneChiriiRouteImport.update({
 const AdminImmofluxRoute = AdminImmofluxRouteImport.update({
   id: '/immoflux',
   path: '/immoflux',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImmofluxCodesRoute = AdminImmofluxCodesRouteImport.update({
+  id: '/immoflux-codes',
+  path: '/immoflux-codes',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminInboxRoute = AdminInboxRouteImport.update({
@@ -839,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/admin/facebook-queue': typeof AdminFacebookQueueRoute
   '/admin/gestiune-chirii': typeof AdminGestiuneChiriiRouteWithChildren
   '/admin/immoflux': typeof AdminImmofluxRoute
+  '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
@@ -961,6 +968,7 @@ export interface FileRoutesByTo {
   '/admin/facebook-groups': typeof AdminFacebookGroupsRoute
   '/admin/facebook-queue': typeof AdminFacebookQueueRoute
   '/admin/immoflux': typeof AdminImmofluxRoute
+  '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
@@ -1087,6 +1095,7 @@ export interface FileRoutesById {
   '/admin/facebook-queue': typeof AdminFacebookQueueRoute
   '/admin/gestiune-chirii': typeof AdminGestiuneChiriiRouteWithChildren
   '/admin/immoflux': typeof AdminImmofluxRoute
+  '/admin/immoflux-codes': typeof AdminImmofluxCodesRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/instaleaza': typeof AdminInstaleazaRoute
   '/admin/inventar-presetat': typeof AdminInventarPresetatRoute
@@ -1214,6 +1223,7 @@ export interface FileRouteTypes {
     | '/admin/facebook-queue'
     | '/admin/gestiune-chirii'
     | '/admin/immoflux'
+    | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
     | '/admin/inventar-presetat'
@@ -1336,6 +1346,7 @@ export interface FileRouteTypes {
     | '/admin/facebook-groups'
     | '/admin/facebook-queue'
     | '/admin/immoflux'
+    | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
     | '/admin/inventar-presetat'
@@ -1461,6 +1472,7 @@ export interface FileRouteTypes {
     | '/admin/facebook-queue'
     | '/admin/gestiune-chirii'
     | '/admin/immoflux'
+    | '/admin/immoflux-codes'
     | '/admin/inbox'
     | '/admin/instaleaza'
     | '/admin/inventar-presetat'
@@ -2022,6 +2034,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminImmofluxRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/immoflux-codes': {
+      id: '/admin/immoflux-codes'
+      path: '/immoflux-codes'
+      fullPath: '/admin/immoflux-codes'
+      preLoaderRoute: typeof AdminImmofluxCodesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/inbox': {
       id: '/admin/inbox'
       path: '/inbox'
@@ -2517,6 +2536,7 @@ interface AdminRouteChildren {
   AdminFacebookQueueRoute: typeof AdminFacebookQueueRoute
   AdminGestiuneChiriiRoute: typeof AdminGestiuneChiriiRouteWithChildren
   AdminImmofluxRoute: typeof AdminImmofluxRoute
+  AdminImmofluxCodesRoute: typeof AdminImmofluxCodesRoute
   AdminInboxRoute: typeof AdminInboxRoute
   AdminInstaleazaRoute: typeof AdminInstaleazaRoute
   AdminInventarPresetatRoute: typeof AdminInventarPresetatRoute
@@ -2549,6 +2569,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFacebookQueueRoute: AdminFacebookQueueRoute,
   AdminGestiuneChiriiRoute: AdminGestiuneChiriiRouteWithChildren,
   AdminImmofluxRoute: AdminImmofluxRoute,
+  AdminImmofluxCodesRoute: AdminImmofluxCodesRoute,
   AdminInboxRoute: AdminInboxRoute,
   AdminInstaleazaRoute: AdminInstaleazaRoute,
   AdminInventarPresetatRoute: AdminInventarPresetatRoute,
