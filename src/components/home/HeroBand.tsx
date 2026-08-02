@@ -18,6 +18,7 @@ export const HOME_ZONES = [
 
 const ROOMS = ["1", "2", "3", "4"];
 const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
+const MAX_RENTS = [300, 400, 500, 700, 1000, 1500, 2000];
 
 const selectClass =
   "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
@@ -26,6 +27,7 @@ const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
+  const [transaction, setTransaction] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [zone, setZone] = useState("");
   const [rooms, setRooms] = useState("");
@@ -62,17 +64,37 @@ const HeroBand = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  /** Show the transaction control only when both sale and rent listings are live. */
+  const { data: showTransaction = false } = useQuery({
+    queryKey: ["home-transaction-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catalog_offers")
+        .select("transaction_type")
+        .is("project_id", null)
+        .neq("availability_status", "sold")
+        .neq("is_published", false);
+      if (error) throw error;
+      const set = new Set((data || []).map((r: any) => (r.transaction_type === "rent" ? "rent" : "sale")));
+      return set.has("sale") && set.has("rent");
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const isStudio = normalizeType(propertyType) === "garsoniera";
+  const isRent = transaction === "inchiriere";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
+    if (transaction) params.set("tranzactie", transaction);
     if (propertyType) params.set("tip_proprietate", propertyType);
     if (zone) params.set("zona", zone);
     if (rooms && !isStudio) params.set("camere", rooms);
     if (priceMax) params.set("pret_max", priceMax);
     navigate(`/proprietati${params.toString() ? `?${params.toString()}` : ""}`);
   };
+
 
   return (
     <section className="bg-background border-b border-stone">
@@ -93,6 +115,25 @@ const HeroBand = () => {
             className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:items-center"
             aria-label="Caută proprietăți"
           >
+            {showTransaction && (
+              <>
+                <label className="sr-only" htmlFor="hero-transaction">Tranzacție</label>
+                <select
+                  id="hero-transaction"
+                  className={`${selectClass} md:w-44`}
+                  value={transaction}
+                  onChange={(e) => {
+                    setTransaction(e.target.value);
+                    setPriceMax("");
+                  }}
+                >
+                  <option value="">Tranzacție</option>
+                  <option value="vanzare">Vânzare</option>
+                  <option value="inchiriere">Închiriere</option>
+                </select>
+              </>
+            )}
+
             {typeOptions.length > 0 && (
               <>
                 <label className="sr-only" htmlFor="hero-type">Tip proprietate</label>
@@ -133,13 +174,14 @@ const HeroBand = () => {
               </>
             )}
 
-            <label className="sr-only" htmlFor="hero-price">Preț maxim</label>
+            <label className="sr-only" htmlFor="hero-price">{isRent ? "Chirie maximă" : "Preț maxim"}</label>
             <select id="hero-price" className={`${selectClass} md:w-48`} value={priceMax} onChange={(e) => setPriceMax(e.target.value)}>
-              <option value="">Preț maxim</option>
-              {MAX_PRICES.map((p) => (
-                <option key={p} value={String(p)}>{p.toLocaleString("ro-RO")} €</option>
+              <option value="">{isRent ? "Chirie maximă" : "Preț maxim"}</option>
+              {(isRent ? MAX_RENTS : MAX_PRICES).map((p) => (
+                <option key={p} value={String(p)}>{p.toLocaleString("ro-RO")} €{isRent ? "/lună" : ""}</option>
               ))}
             </select>
+
 
             <button
               type="submit"

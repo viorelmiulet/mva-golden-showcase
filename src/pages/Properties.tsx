@@ -76,6 +76,15 @@ const detectTransactionType = (property: any): "sale" | "rent" => {
 };
 
 const PRICE_STEPS = [50000, 75000, 100000, 125000, 150000, 200000, 300000];
+/** Monthly rent ceilings — sale thresholds are meaningless for închirieri. */
+const RENT_PRICE_STEPS = [300, 400, 500, 700, 1000, 1500, 2000];
+
+/** URL value (?tranzactie=) → stored transaction_type. */
+export const TRANSACTION_URL_TO_DB: Record<string, "sale" | "rent"> = {
+  vanzare: "sale",
+  inchiriere: "rent",
+};
+export const TRANSACTION_DB_TO_URL: Record<string, string> = { sale: "vanzare", rent: "inchiriere" };
 const SURFACE_STEPS = [40, 50, 60, 80, 100, 120];
 
 const SORTS = [
@@ -140,7 +149,11 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const zona = param("zona");
   const camere = param("camere");
   const pretMax = param("pret_max");
-  const tip = param("tip");
+  const tipLegacy = param("tip");
+  const tranzactie = param("tranzactie");
+  /** Stored transaction_type implied by the URL (?tranzactie= wins over legacy ?tip=). */
+  const tip = TRANSACTION_URL_TO_DB[tranzactie] || tipLegacy;
+  const isRent = tip === "rent";
   const tipProprietate = param("tip_proprietate");
   const suprMin = param("supr_min");
   const etaj = param("etaj");
@@ -216,6 +229,13 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     const set = new Set<string>();
     for (const p of properties) if (p.project_name) set.add(String(p.project_name).trim());
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
+  }, [properties]);
+
+  /** Only offer the transaction filter when both kinds of listings are live. */
+  const showTransactionFilter = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of properties) set.add(detectTransactionType(p));
+    return set.has("sale") && set.has("rent");
   }, [properties]);
   /** Distinct property_type values actually present in the portfolio. */
   const propertyTypeOptions = useMemo(() => buildTypeOptions(properties), [properties]);
@@ -295,8 +315,16 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (zona) chips.push({ key: "zona", label: zona });
   if (camere && !isStudio)
     chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
-  if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
-  if (tip) chips.push({ key: "tip", label: tip === "rent" ? "Închiriere" : "Vânzare" });
+  if (pretMax)
+    chips.push({
+      key: "pret_max",
+      label: `max ${Number(pretMax).toLocaleString("ro-RO")} €${isRent ? "/lună" : ""}`,
+    });
+  if (tip)
+    chips.push({
+      key: tranzactie ? "tranzactie" : "tip",
+      label: isRent ? "Închiriere" : "Vânzare",
+    });
   if (tipProprietate)
     chips.push({
       key: "tip_proprietate",
@@ -312,6 +340,17 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   // ---- Controls ---------------------------------------------------------
   const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
 
+  /** Switching transaction invalidates a price threshold from the other scale. */
+  const setTransaction = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("tip");
+    next.delete("pret_max");
+    if (!v || v === "all") next.delete("tranzactie");
+    else next.set("tranzactie", v);
+    next.delete("p");
+    setSearchParams(next, { replace: true });
+  };
+
   /** Garsonieră implies rooms=1, so selecting it clears the Camere filter. */
   const setPropertyType = (v: string) => {
     const next = new URLSearchParams(searchParams);
@@ -324,7 +363,21 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
   const MainFilters = ({ stacked = false }: { stacked?: boolean }) => (
     <div className={stacked ? "grid grid-cols-1 gap-3" : "flex flex-wrap items-center gap-2"}>
+      {showTransactionFilter && (
+        <Select value={TRANSACTION_DB_TO_URL[tip] || "all"} onValueChange={setTransaction}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
+            <SelectValue placeholder="Tranzacție" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tranzacție</SelectItem>
+            <SelectItem value="vanzare">Vânzare</SelectItem>
+            <SelectItem value="inchiriere">Închiriere</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+
       {propertyTypeOptions.length > 0 && (
+
         <Select value={tipProprietate || "all"} onValueChange={setPropertyType}>
           <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
             <SelectValue placeholder="Tip proprietate" />
@@ -373,28 +426,19 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
       <Select value={pretMax || "all"} onValueChange={(v) => setParam("pret_max", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
-          <SelectValue placeholder="Preț" />
+          <SelectValue placeholder={isRent ? "Chirie maximă" : "Preț"} />
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice preț</SelectItem>
-          {PRICE_STEPS.map((v) => (
+          <SelectItem value="all">{isRent ? "Orice chirie" : "Orice preț"}</SelectItem>
+          {(isRent ? RENT_PRICE_STEPS : PRICE_STEPS).map((v) => (
             <SelectItem key={v} value={String(v)}>
-              până în {v.toLocaleString("ro-RO")} €
+              până în {v.toLocaleString("ro-RO")} €{isRent ? "/lună" : ""}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <Select value={tip || "all"} onValueChange={(v) => setParam("tip", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
-          <SelectValue placeholder="Tranzacție" />
-        </SelectTrigger>
-        <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice tranzacție</SelectItem>
-          <SelectItem value="sale">Vânzare</SelectItem>
-          <SelectItem value="rent">Închiriere</SelectItem>
-        </SelectContent>
-      </Select>
+
 
     </div>
   );
