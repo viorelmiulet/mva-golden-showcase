@@ -22,8 +22,7 @@ const MAX_PRICES = [60000, 80000, 100000, 130000, 160000, 200000];
 const selectClass =
   "h-11 w-full rounded-sm border border-stone bg-card px-3 text-small text-foreground focus-visible:outline-hidden";
 
-const normalize = (s: string) =>
-  s.toLowerCase().replace(/[ăâ]/g, "a").replace(/î/g, "i").replace(/[șş]/g, "s").replace(/[țţ]/g, "t");
+const normalize = normalizeType;
 
 const HeroBand = () => {
   const navigate = useNavigate();
