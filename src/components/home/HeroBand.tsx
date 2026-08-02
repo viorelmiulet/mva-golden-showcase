@@ -115,6 +115,25 @@ const HeroBand = () => {
             className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:flex md:items-center"
             aria-label="Caută proprietăți"
           >
+            {showTransaction && (
+              <>
+                <label className="sr-only" htmlFor="hero-transaction">Tranzacție</label>
+                <select
+                  id="hero-transaction"
+                  className={`${selectClass} md:w-44`}
+                  value={transaction}
+                  onChange={(e) => {
+                    setTransaction(e.target.value);
+                    setPriceMax("");
+                  }}
+                >
+                  <option value="">Tranzacție</option>
+                  <option value="vanzare">Vânzare</option>
+                  <option value="inchiriere">Închiriere</option>
+                </select>
+              </>
+            )}
+
             {typeOptions.length > 0 && (
               <>
                 <label className="sr-only" htmlFor="hero-type">Tip proprietate</label>
