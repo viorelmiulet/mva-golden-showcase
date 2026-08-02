@@ -138,6 +138,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   const camere = param("camere");
   const pretMax = param("pret_max");
   const tip = param("tip");
+  const tipProprietate = param("tip_proprietate");
   const suprMin = param("supr_min");
   const etaj = param("etaj");
   const compartimentare = param("compartimentare");
@@ -213,8 +214,20 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     for (const p of properties) if (p.project_name) set.add(String(p.project_name).trim());
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
+  /** Distinct property_type values actually present in the portfolio. */
+  const propertyTypeOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of properties) {
+      const raw = String(p.property_type || "").trim();
+      if (!raw) continue;
+      const key = normalize(raw);
+      if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
+    }
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
+  }, [properties]);
 
   // ---- Filtering --------------------------------------------------------
+
   const filtered = useMemo(() => {
     return properties.filter((p: any) => {
       if (zona) {
@@ -232,6 +245,8 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         if (!p.price_min || p.price_min > max) return false;
       }
       if (tip && detectTransactionType(p) !== tip) return false;
+      if (tipProprietate && normalize(String(p.property_type || "").trim()) !== normalize(tipProprietate))
+        return false;
       if (suprMin) {
         const min = parseInt(suprMin, 10);
         const surface = p.surface_min || p.surface_max;
@@ -256,7 +271,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       if (ansamblu && String(p.project_name || "").trim() !== ansamblu) return false;
       return true;
     });
-  }, [properties, zona, camere, pretMax, tip, suprMin, etaj, compartimentare, an, ansamblu]);
+  }, [properties, zona, camere, pretMax, tip, tipProprietate, suprMin, etaj, compartimentare, an, ansamblu]);
 
   const sorted = useMemo(() => {
     const list = [...filtered];
@@ -285,6 +300,11 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   if (camere) chips.push({ key: "camere", label: camere === "5" ? "5+ camere" : `${camere} camere` });
   if (pretMax) chips.push({ key: "pret_max", label: `max ${Number(pretMax).toLocaleString("ro-RO")} €` });
   if (tip) chips.push({ key: "tip", label: tip === "rent" ? "Închiriere" : "Vânzare" });
+  if (tipProprietate)
+    chips.push({
+      key: "tip_proprietate",
+      label: tipProprietate.charAt(0).toUpperCase() + tipProprietate.slice(1),
+    });
   if (suprMin) chips.push({ key: "supr_min", label: `min ${suprMin} mp` });
   if (etaj) chips.push({ key: "etaj", label: etaj === "parter" ? "Parter" : etaj === "ultimul" ? "Ultimul etaj" : `Etaj ${etaj}` });
   if (compartimentare) chips.push({ key: "compartimentare", label: compartimentare });
@@ -340,15 +360,31 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
       </Select>
 
       <Select value={tip || "all"} onValueChange={(v) => setParam("tip", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
-          <SelectValue placeholder="Tip" />
+        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[140px]"}`}>
+          <SelectValue placeholder="Tranzacție" />
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Toate tipurile</SelectItem>
+          <SelectItem value="all">Orice tranzacție</SelectItem>
           <SelectItem value="sale">Vânzare</SelectItem>
           <SelectItem value="rent">Închiriere</SelectItem>
         </SelectContent>
       </Select>
+
+      {propertyTypeOptions.length > 0 && (
+        <Select value={tipProprietate || "all"} onValueChange={(v) => setParam("tip_proprietate", v)}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
+            <SelectValue placeholder="Tip proprietate" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tip proprietate</SelectItem>
+            {propertyTypeOptions.map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 

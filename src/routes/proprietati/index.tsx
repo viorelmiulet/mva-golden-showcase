@@ -25,6 +25,7 @@ export interface PropertiesSearch {
   camere?: number;
   pret_max?: number;
   tip?: string;
+  tip_proprietate?: string;
   supr_min?: number;
   etaj?: string | number;
   compartimentare?: string;
@@ -47,37 +48,44 @@ const zoneSlug = (v?: string) =>
 
 /**
  * Filtered views that duplicate an existing static landing page must point their
- * canonical at that page. Key format: `zona|camere|tip` (empty segment = not set).
+ * canonical at that page. Key format: `zona|camere|tip|tip_proprietate` (empty segment = not set).
  */
 const STATIC_EQUIVALENTS: Record<string, string> = {
-  "militari|2|": "/apartamente-2-camere-militari",
-  "militari|3|": "/apartamente-3-camere-militari",
-  "militari||rent": "/apartamente-de-inchiriat-militari",
-  "|2|": "/apartamente-2-camere",
-  "|3|": "/apartamente-3-camere",
-  "|4|": "/apartamente-4-camere",
-  "drumul-taberei||": "/apartamente-drumul-taberei",
-  "crangasi||": "/apartamente-crangasi-giulesti",
-  "giulesti||": "/apartamente-crangasi-giulesti",
-  "titan||": "/apartamente-titan-pantelimon",
-  "pantelimon||": "/apartamente-titan-pantelimon",
-  "berceni||": "/apartamente-berceni-giurgiului",
-  "giurgiului||": "/apartamente-berceni-giurgiului",
-  "tineretului||": "/apartamente-tineretului-vacaresti",
-  "vacaresti||": "/apartamente-tineretului-vacaresti",
-  "sector-6||": "/apartamente-sector-6",
+  "militari|2||": "/apartamente-2-camere-militari",
+  "militari|3||": "/apartamente-3-camere-militari",
+  "militari||rent|": "/apartamente-de-inchiriat-militari",
+  "|2||": "/apartamente-2-camere",
+  "|3||": "/apartamente-3-camere",
+  "|4||": "/apartamente-4-camere",
+  "drumul-taberei|||": "/apartamente-drumul-taberei",
+  "crangasi|||": "/apartamente-crangasi-giulesti",
+  "giulesti|||": "/apartamente-crangasi-giulesti",
+  "titan|||": "/apartamente-titan-pantelimon",
+  "pantelimon|||": "/apartamente-titan-pantelimon",
+  "berceni|||": "/apartamente-berceni-giurgiului",
+  "giurgiului|||": "/apartamente-berceni-giurgiului",
+  "tineretului|||": "/apartamente-tineretului-vacaresti",
+  "vacaresti|||": "/apartamente-tineretului-vacaresti",
+  "sector-6|||": "/apartamente-sector-6",
 };
 
-/** Filters other than zona/camere/tip make the view a non-canonical permutation. */
+/** Filters other than zona/camere/tip/tip_proprietate make the view a non-canonical permutation. */
 const EXTRA_FILTER_KEYS = ["pret_max", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const;
+
+const typeSlug = (v?: string) => zoneSlug(v);
 
 function resolveIndexing(s: PropertiesSearch): { canonicalPath?: string; noindex: boolean } {
   const hasExtra = EXTRA_FILTER_KEYS.some((k) => s[k]);
-  const hasCore = Boolean(s.zona || s.camere || s.tip);
+  const hasCore = Boolean(s.zona || s.camere || s.tip || s.tip_proprietate);
   if (!hasExtra && !hasCore) return { noindex: false }; // unfiltered (incl. ?p=N)
   if (!hasExtra) {
-    const key = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
-    const target = STATIC_EQUIVALENTS[key];
+    const tp = typeSlug(s.tip_proprietate);
+    const base = `${zoneSlug(s.zona)}|${s.camere ?? ""}|${s.tip ?? ""}`;
+    // The static landings are apartment pages, so an "apartament" type filter
+    // resolves to the same canonical target.
+    const target =
+      STATIC_EQUIVALENTS[`${base}|${tp}`] ??
+      (tp === "apartament" ? STATIC_EQUIVALENTS[`${base}|`] : undefined);
     if (target) return { canonicalPath: target, noindex: false };
   }
   return { noindex: true };
@@ -93,6 +101,7 @@ export const Route = createFileRoute("/proprietati/")({
       camere: num(search.camere),
       pret_max: num(search.pret_max),
       tip: tip === "sale" || tip === "rent" ? tip : undefined,
+      tip_proprietate: str(search.tip_proprietate),
       supr_min: num(search.supr_min),
       etaj: loose(search.etaj),
       compartimentare: str(search.compartimentare),
@@ -115,6 +124,7 @@ export const Route = createFileRoute("/proprietati/")({
   head: ({ match, loaderData }) => {
     const s = (match.search || {}) as PropertiesSearch;
     const parts: string[] = [];
+    if (s.tip_proprietate) parts.push(String(s.tip_proprietate));
     if (s.zona) parts.push(`în ${s.zona}`);
     if (s.camere) parts.push(`${s.camere} camere`);
     if (s.tip) parts.push(s.tip === "rent" ? "de închiriat" : "de vânzare");
@@ -122,7 +132,7 @@ export const Route = createFileRoute("/proprietati/")({
     const pageSuffix = s.p && s.p > 1 ? ` — pagina ${s.p}` : "";
 
     const qs = new URLSearchParams();
-    for (const key of ["zona", "camere", "pret_max", "tip", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
+    for (const key of ["zona", "camere", "pret_max", "tip", "tip_proprietate", "supr_min", "etaj", "compartimentare", "an", "ansamblu", "sort"] as const) {
       const v = s[key];
       if (v) qs.set(key, String(v));
     }
