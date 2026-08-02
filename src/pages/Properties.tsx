@@ -76,6 +76,15 @@ const detectTransactionType = (property: any): "sale" | "rent" => {
 };
 
 const PRICE_STEPS = [50000, 75000, 100000, 125000, 150000, 200000, 300000];
+/** Monthly rent ceilings — sale thresholds are meaningless for închirieri. */
+const RENT_PRICE_STEPS = [300, 400, 500, 700, 1000, 1500, 2000];
+
+/** URL value (?tranzactie=) → stored transaction_type. */
+export const TRANSACTION_URL_TO_DB: Record<string, "sale" | "rent"> = {
+  vanzare: "sale",
+  inchiriere: "rent",
+};
+export const TRANSACTION_DB_TO_URL: Record<string, string> = { sale: "vanzare", rent: "inchiriere" };
 const SURFACE_STEPS = [40, 50, 60, 80, 100, 120];
 
 const SORTS = [
