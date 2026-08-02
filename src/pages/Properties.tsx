@@ -337,8 +337,34 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
   // ---- Controls ---------------------------------------------------------
   const selectClass = "h-10 rounded-sm border-stone bg-paper text-small";
 
+  /** Garsonieră implies rooms=1, so selecting it clears the Camere filter. */
+  const setPropertyType = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (!v || v === "all") next.delete("tip_proprietate");
+    else next.set("tip_proprietate", v);
+    if (normalize(v) === "garsoniera") next.delete("camere");
+    next.delete("p");
+    setSearchParams(next, { replace: true });
+  };
+
   const MainFilters = ({ stacked = false }: { stacked?: boolean }) => (
     <div className={stacked ? "grid grid-cols-1 gap-3" : "flex flex-wrap items-center gap-2"}>
+      {propertyTypeOptions.length > 0 && (
+        <Select value={tipProprietate || "all"} onValueChange={setPropertyType}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
+            <SelectValue placeholder="Tip proprietate" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice tip proprietate</SelectItem>
+            {propertyTypeOptions.map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
       <Select value={zona || "all"} onValueChange={(v) => setParam("zona", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
           <SelectValue placeholder="Zonă" />
@@ -353,20 +379,22 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
-      <Select value={camere || "all"} onValueChange={(v) => setParam("camere", v)}>
-        <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
-          <SelectValue placeholder="Camere" />
-        </SelectTrigger>
-        <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice camere</SelectItem>
-          {["1", "2", "3", "4"].map((n) => (
-            <SelectItem key={n} value={n}>
-              {n} camere
-            </SelectItem>
-          ))}
-          <SelectItem value="5">5+ camere</SelectItem>
-        </SelectContent>
-      </Select>
+      {!isStudio && (
+        <Select value={camere || "all"} onValueChange={(v) => setParam("camere", v)}>
+          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[130px]"}`}>
+            <SelectValue placeholder="Camere" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            <SelectItem value="all">Orice camere</SelectItem>
+            {["1", "2", "3", "4"].map((n) => (
+              <SelectItem key={n} value={n}>
+                {n} camere
+              </SelectItem>
+            ))}
+            <SelectItem value="5">5+ camere</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
       <Select value={pretMax || "all"} onValueChange={(v) => setParam("pret_max", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
@@ -393,21 +421,6 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
         </SelectContent>
       </Select>
 
-      {propertyTypeOptions.length > 0 && (
-        <Select value={tipProprietate || "all"} onValueChange={(v) => setParam("tip_proprietate", v)}>
-          <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[170px]"}`}>
-            <SelectValue placeholder="Tip proprietate" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover z-50">
-            <SelectItem value="all">Orice tip proprietate</SelectItem>
-            {propertyTypeOptions.map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
     </div>
   );
 
