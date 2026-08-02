@@ -17,7 +17,8 @@ const FAQ = () => {
   const faqItems = t.faq.items;
 
   // Build FAQ schema from actual displayed items
-  const faqStructuredData = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _faqStructuredData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     "mainEntity": faqItems.map((item) => ({
@@ -54,9 +55,7 @@ const FAQ = () => {
         <meta name="twitter:title" content="Întrebări Frecvente Apartamente Militari – MVA Imobiliare" />
         <meta name="twitter:description" content="Răspunsuri la întrebările frecvente despre apartamentele din cartierul Militari." />
         
-        <script type="application/ld+json">
-          {JSON.stringify(faqStructuredData)}
-        </script>
+        {/* FAQPage JSON-LD is emitted server-side in src/routes/faq.tsx */}
       </Helmet>
 
       <Header />

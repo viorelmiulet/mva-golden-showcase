@@ -99,7 +99,8 @@ const BlogPost = () => {
     });
   };
 
-  const articleStructuredData = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _articleStructuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": post.title,
@@ -125,7 +126,8 @@ const BlogPost = () => {
     }
   };
 
-  const breadcrumbStructuredData = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _breadcrumbStructuredData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
