@@ -1355,6 +1355,9 @@ interface ImmofluxProperty {
   tiplocuinta?: string;
   tipimobil?: string;
   tipteren?: string;
+  clasificareteren?: string;
+  frontstradal?: number | string;
+  latimedrumacces?: number | string;
   nrfronturistradale?: number;
   suprafatateren?: string | number;
   nrcamere?: number;
