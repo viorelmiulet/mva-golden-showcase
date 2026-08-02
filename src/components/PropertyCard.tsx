@@ -14,11 +14,20 @@ export const getCardZone = (p: any): string => {
   return "București";
 };
 
-export const formatCardPrice = (value: number | null | undefined, currency?: string | null) => {
+export const formatCardPrice = (
+  value: number | null | undefined,
+  currency?: string | null,
+  perMonth = false
+) => {
   if (!value) return "Preț la cerere";
   const symbol = (currency || "EUR").toUpperCase() === "EUR" ? "€" : currency;
-  return `${Number(value).toLocaleString("ro-RO")} ${symbol}`;
+  return `${Number(value).toLocaleString("ro-RO")} ${symbol}${perMonth ? "/lună" : ""}`;
 };
+
+/** Rentals show a monthly price, so the card must say so. */
+const isRental = (p: any) =>
+  String(p?.transaction_type || "").toLowerCase() === "rent" ||
+  (!p?.transaction_type && Number(p?.price_min) > 0 && Number(p?.price_min) < 3000);
 
 /** Exactly one badge, or none. COMISION 0% wins over NOU. */
 const getBadge = (p: any): "COMISION 0%" | "NOU" | null => {
