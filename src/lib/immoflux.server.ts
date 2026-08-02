@@ -1563,7 +1563,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     price_min: price || 0,
     price_max: price || 0,
     currency,
-    rooms: p.nrcamere || 1,
+    rooms: p.nrcamere ?? null,
     kitchens: p.nrbucatarii || null,
     surface_min: surface,
     surface_max: surface,
@@ -1582,7 +1582,10 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     is_featured: isTop || isPole,
     promotion_type: promotionType,
     is_published: p.publicare === 0 ? false : true,
-    property_type: p.tiplocuinta || p.tipimobil || null,
+    // Type-agnostic: apartments expose `tiplocuinta`, other categories (casă,
+    // teren, spațiu comercial, hală) only expose `tip`/`tipimobil`. Never drop
+    // an unknown value — map it through as-is.
+    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
     property_subtype: p.tipteren || null,
     appartment_type: p.tip || null,
     building_type: p.tipconstructie_value || null,
@@ -1633,17 +1636,48 @@ function isWithdrawnStatus(raw: string | null | undefined): boolean {
   );
 }
 
+/** Reads the feed's property category for logging/breakdown purposes. */
+function feedType(p: ImmofluxProperty): string {
+  return String(p.tiplocuinta || p.tip || p.tipimobil || "necunoscut").toLowerCase().trim();
+}
+
 async function runSync(supabase: any, startedAt: string): Promise<Result> {
   try {
     await writeStatus(supabase, { status: "running", started_at: startedAt, stage: "fetching" });
 
     const properties = await fetchAllProperties(supabase);
+    const received = properties.length;
+
+    // Every skipped record is logged with an explicit reason — no silent drops.
+    const skipped: Array<{ external_id: string; type: string; reason: string }> = [];
+    const skipReasons: Record<string, number> = {};
+    const noteSkip = (p: ImmofluxProperty, reason: string) => {
+      skipped.push({ external_id: `immoflux-${p?.idnum}`, type: feedType(p), reason });
+      skipReasons[reason] = (skipReasons[reason] || 0) + 1;
+      console.warn(`[immoflux-sync] skipped immoflux-${p?.idnum} (${feedType(p)}): ${reason}`);
+    };
 
     const withdrawnExternalIds: string[] = [];
     const activeProperties: ImmofluxProperty[] = [];
     for (const p of properties) {
-      if (isWithdrawnStatus(p.status)) withdrawnExternalIds.push(`immoflux-${p.idnum}`);
-      else activeProperties.push(p);
+      if (p?.idnum === undefined || p?.idnum === null) {
+        noteSkip(p, "missing_idnum");
+        continue;
+      }
+      if (isWithdrawnStatus(p.status)) {
+        withdrawnExternalIds.push(`immoflux-${p.idnum}`);
+        noteSkip(p, `withdrawn_status:${String(p.status || "").toLowerCase().trim()}`);
+        continue;
+      }
+      activeProperties.push(p);
+    }
+
+    // Type breakdown of everything that reaches the upsert — all categories
+    // (apartament, casă, teren, spațiu comercial, hală …) pass through.
+    const typeBreakdown: Record<string, number> = {};
+    for (const p of activeProperties) {
+      const t = feedType(p);
+      typeBreakdown[t] = (typeBreakdown[t] || 0) + 1;
     }
 
     const mapped = activeProperties.map(mapToCatalogOffer);
@@ -1658,12 +1692,21 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       const batch = mapped.slice(i, i + batchSize);
       const { error } = await supabase.from("catalog_offers").upsert(batch, { onConflict: "external_id", ignoreDuplicates: false });
       if (error) {
-        if (error.message.includes("extensions.net.http_post") || error.message.includes("cross-database references")) upserted += batch.length;
-        else failed += batch.length;
+        if (error.message.includes("extensions.net.http_post") || error.message.includes("cross-database references")) {
+          upserted += batch.length;
+        } else {
+          failed += batch.length;
+          skipReasons[`upsert_error:${error.message}`] = (skipReasons[`upsert_error:${error.message}`] || 0) + batch.length;
+          batch.forEach((row: any) =>
+            skipped.push({ external_id: String(row.external_id), type: String(row.property_type || "necunoscut"), reason: `upsert_error: ${error.message}` }),
+          );
+          console.error(`[immoflux-sync] upsert failed for ${batch.length} records: ${error.message}`);
+        }
       } else {
         upserted += batch.length;
       }
     }
+
 
     if (withdrawnExternalIds.length > 0) {
       const delBatch = 100;
@@ -1692,7 +1735,24 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
     }
 
     const finishedAt = new Date().toISOString();
-    const result: Result = { status: "done", success: true, started_at: startedAt, finished_at: finishedAt, synced: upserted, failed, total: mapped.length };
+    console.info(
+      `[immoflux-sync] received=${received} imported=${upserted} skipped=${skipped.length + failed} reasons=${JSON.stringify(skipReasons)} types=${JSON.stringify(typeBreakdown)}`,
+    );
+    const result: Result = {
+      status: "done",
+      success: true,
+      started_at: startedAt,
+      finished_at: finishedAt,
+      synced: upserted,
+      failed,
+      total: mapped.length,
+      received,
+      imported: upserted,
+      skipped: skipped.length + failed,
+      skip_reasons: skipReasons,
+      skipped_records: skipped.slice(0, 100),
+      type_breakdown: typeBreakdown,
+    };
     await writeStatus(supabase, result);
     return result;
   } catch (error: any) {
