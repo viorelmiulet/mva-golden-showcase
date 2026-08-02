@@ -1389,10 +1389,12 @@ interface ImmofluxProperty {
   nrnivele?: number;
   nrbalcoane?: number;
   nrgaraje?: number;
-  tipconstructie_value?: string;
-  mobilat_value?: string;
+  tipconstructie_value?: string | number;
+  mobilat_value?: string | number;
+  stadiuconstructie_value?: string | number;
+  starefinisaje_value?: string | number;
   bucatarie_values?: string[] | string;
-  utilitati_values?: string[] | string;
+  utilitati_values?: string[] | string | Record<string, string[]>;
   finisaje_values?: string[] | string;
   dotari_values?: string[] | string;
   structurarezistenta?: string;
@@ -1499,7 +1501,7 @@ function buildImmofluxSlug(p: ImmofluxProperty, surface: number | null, floorLab
   return parts.join("-");
 }
 
-function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
+function mapToCatalogOffer(p: ImmofluxProperty, codeMap: CodeMap): Record<string, unknown> {
   const title = localized(p.titlu) || `Proprietate #${p.idnum}`;
   const description = localized(p.descriere);
 
@@ -1623,6 +1625,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     street_front_length: num(p.frontstradal),
     access_road_width: num(p.latimedrumacces),
     garages: p.nrgaraje ?? null,
+    resolved_features: resolved.groups.length ? resolved.groups : null,
     source_codes: buildSourceCodes({
       utilitati: utilCodes,
       finisaje: finisCodes,
@@ -1630,7 +1633,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
       bucatarie: bucCodes,
     }),
     appartment_type: p.tip || null,
-    building_type: p.tipconstructie_value || null,
+    building_type: labelForCode(codeMap, p.tipconstructie_value),
     compartment: p.tipcompartimentare || null,
     build_materials: p.structurarezistenta || null,
     comfort: p.confort || null,
@@ -1722,7 +1725,21 @@ async function runSync(supabase: any, startedAt: string): Promise<Result> {
       typeBreakdown[t] = (typeBreakdown[t] || 0) + 1;
     }
 
-    const mapped = activeProperties.map(mapToCatalogOffer);
+    const codeMap = await loadCodeMap(supabase);
+    const feedCodes = new Set<string>();
+    for (const p of activeProperties) {
+      for (const c of [
+        ...toArr(p.utilitati_values),
+        ...toArr(p.finisaje_values),
+        ...toArr(p.dotari_values),
+        ...toArr(p.bucatarie_values),
+        ...toArr(p.mobilat_value),
+        ...toArr(p.starefinisaje_value),
+      ]) feedCodes.add(c);
+    }
+    const newCodes = await recordUnmappedCodes(supabase, feedCodes, codeMap);
+
+    const mapped = activeProperties.map((p) => mapToCatalogOffer(p, codeMap));
 
     await writeStatus(supabase, { status: "running", started_at: startedAt, stage: "upserting", total: mapped.length, synced: 0 });
 
