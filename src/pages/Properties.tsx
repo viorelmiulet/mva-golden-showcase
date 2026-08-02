@@ -386,17 +386,18 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
 
       <Select value={pretMax || "all"} onValueChange={(v) => setParam("pret_max", v)}>
         <SelectTrigger className={`${selectClass} ${stacked ? "w-full" : "w-[150px]"}`}>
-          <SelectValue placeholder="Preț" />
+          <SelectValue placeholder={isRent ? "Chirie maximă" : "Preț"} />
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
-          <SelectItem value="all">Orice preț</SelectItem>
-          {PRICE_STEPS.map((v) => (
+          <SelectItem value="all">{isRent ? "Orice chirie" : "Orice preț"}</SelectItem>
+          {(isRent ? RENT_PRICE_STEPS : PRICE_STEPS).map((v) => (
             <SelectItem key={v} value={String(v)}>
-              până în {v.toLocaleString("ro-RO")} €
+              până în {v.toLocaleString("ro-RO")} €{isRent ? "/lună" : ""}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
+
 
 
     </div>
