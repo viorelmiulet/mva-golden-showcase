@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { getPropertyUrl, generateImmofluxSlug } from "@/lib/propertySlug";
+import { buildTypeOptions, matchesTypeFilter, typeLabel, normalizeType } from "@/lib/propertyType";
 
 const PER_PAGE = 24;
 
@@ -39,11 +40,6 @@ const normalize = (s: string) =>
     .replace(/ț/g, "t")
     .replace(/ţ/g, "t");
 
-/** True for stored types that represent an apartment (garsonieră = apartament + 1 cameră). */
-const isApartmentType = (raw: unknown) => {
-  const t = normalize(String(raw || "").trim());
-  return t.startsWith("apartament") || t.startsWith("apartment");
-};
 
 
 const detectTransactionType = (property: any): "sale" | "rent" => {
@@ -222,22 +218,7 @@ const Properties = ({ initialRows }: PropertiesProps = {}) => {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ro"));
   }, [properties]);
   /** Distinct property_type values actually present in the portfolio. */
-  const propertyTypeOptions = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const p of properties) {
-      const raw = String(p.property_type || "").trim();
-      if (!raw) continue;
-      const key = normalize(raw);
-      if (!map.has(key)) map.set(key, raw.charAt(0).toUpperCase() + raw.slice(1));
-    }
-    const list = Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "ro"));
-    // "Garsonieră" is not a stored type — it is an apartment with a single room.
-    const hasStudios = properties.some(
-      (p: any) => isApartmentType(p.property_type) && p.rooms === 1
-    );
-    if (hasStudios) list.push(["garsoniera", "Garsonieră"]);
-    return list;
-  }, [properties]);
+  const propertyTypeOptions = useMemo(() => buildTypeOptions(properties), [properties]);
 
 
   // ---- Filtering --------------------------------------------------------
