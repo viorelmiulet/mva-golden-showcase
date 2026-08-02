@@ -1585,7 +1585,7 @@ function mapToCatalogOffer(p: ImmofluxProperty): Record<string, unknown> {
     // Type-agnostic: apartments expose `tiplocuinta`, other categories (casă,
     // teren, spațiu comercial, hală) only expose `tip`/`tipimobil`. Never drop
     // an unknown value — map it through as-is.
-    property_type: p.tiplocuinta || p.tipimobil || p.tip || null,
+    property_type: p.tiplocuinta || p.tip || p.tipimobil || null,
     property_subtype: p.tipteren || null,
     appartment_type: p.tip || null,
     building_type: p.tipconstructie_value || null,
