@@ -175,6 +175,7 @@ export type Database = {
       }
       catalog_offers: {
         Row: {
+          access_road_width: number | null
           agency: string | null
           agency_id: string | null
           agent: string | null
@@ -207,6 +208,7 @@ export type Database = {
           floor_label: string | null
           floor_plan: string | null
           furnished: string | null
+          garages: number | null
           has_ac: boolean | null
           has_electricity: boolean | null
           has_gas: boolean | null
@@ -227,6 +229,7 @@ export type Database = {
           is_featured: boolean | null
           is_published: boolean | null
           kitchens: number | null
+          land_classification: string | null
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -242,8 +245,11 @@ export type Database = {
           rooms: number | null
           slug: string | null
           source: string | null
+          source_codes: Json | null
           source_url: string | null
           storia_link: string | null
+          street_front_length: number | null
+          street_fronts: number | null
           surface_land: number | null
           surface_max: number | null
           surface_min: number | null
@@ -258,6 +264,7 @@ export type Database = {
           zone: string | null
         }
         Insert: {
+          access_road_width?: number | null
           agency?: string | null
           agency_id?: string | null
           agent?: string | null
@@ -290,6 +297,7 @@ export type Database = {
           floor_label?: string | null
           floor_plan?: string | null
           furnished?: string | null
+          garages?: number | null
           has_ac?: boolean | null
           has_electricity?: boolean | null
           has_gas?: boolean | null
@@ -310,6 +318,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           kitchens?: number | null
+          land_classification?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -325,8 +334,11 @@ export type Database = {
           rooms?: number | null
           slug?: string | null
           source?: string | null
+          source_codes?: Json | null
           source_url?: string | null
           storia_link?: string | null
+          street_front_length?: number | null
+          street_fronts?: number | null
           surface_land?: number | null
           surface_max?: number | null
           surface_min?: number | null
@@ -341,6 +353,7 @@ export type Database = {
           zone?: string | null
         }
         Update: {
+          access_road_width?: number | null
           agency?: string | null
           agency_id?: string | null
           agent?: string | null
@@ -373,6 +386,7 @@ export type Database = {
           floor_label?: string | null
           floor_plan?: string | null
           furnished?: string | null
+          garages?: number | null
           has_ac?: boolean | null
           has_electricity?: boolean | null
           has_gas?: boolean | null
@@ -393,6 +407,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           kitchens?: number | null
+          land_classification?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
@@ -408,8 +423,11 @@ export type Database = {
           rooms?: number | null
           slug?: string | null
           source?: string | null
+          source_codes?: Json | null
           source_url?: string | null
           storia_link?: string | null
+          street_front_length?: number | null
+          street_fronts?: number | null
           surface_land?: number | null
           surface_max?: number | null
           surface_min?: number | null
@@ -2349,6 +2367,7 @@ export type Database = {
       find_properties_by_id_prefix: {
         Args: { prefix: string }
         Returns: {
+          access_road_width: number | null
           agency: string | null
           agency_id: string | null
           agent: string | null
@@ -2381,6 +2400,7 @@ export type Database = {
           floor_label: string | null
           floor_plan: string | null
           furnished: string | null
+          garages: number | null
           has_ac: boolean | null
           has_electricity: boolean | null
           has_gas: boolean | null
@@ -2401,6 +2421,7 @@ export type Database = {
           is_featured: boolean | null
           is_published: boolean | null
           kitchens: number | null
+          land_classification: string | null
           latitude: number | null
           location: string | null
           longitude: number | null
@@ -2416,8 +2437,11 @@ export type Database = {
           rooms: number | null
           slug: string | null
           source: string | null
+          source_codes: Json | null
           source_url: string | null
           storia_link: string | null
+          street_front_length: number | null
+          street_fronts: number | null
           surface_land: number | null
           surface_max: number | null
           surface_min: number | null
